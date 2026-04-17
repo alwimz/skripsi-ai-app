@@ -78,8 +78,8 @@ class GeminiService
 
                 // === MODEL VALID ===
                 // Saya gunakan model yang Anda konfirmasi jalan
-                // Jika error 404, ganti ke 'gemini-2.0-flash-exp' atau 'gemini-1.5-flash'
-                $modelName = 'gemini-2.5-flash'; 
+                // Jika error 404, ganti ke 'gemini-1.5-flash'
+                $modelName = 'gemini-1.5-flash'; 
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
 
                 // Jeda sedikit agar tidak spamming server
@@ -191,8 +191,8 @@ class GeminiService
 
                 $client = new Client(['timeout' => 120, 'verify' => false]);
 
-                // === MODEL 2.5 FLASH (Vision Capable) ===
-                $modelName = 'gemini-2.5-flash'; 
+                // === MODEL 1.5 FLASH (Vision Capable) ===
+                $modelName = 'gemini-1.5-flash'; 
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
 
                 // Bersihkan header base64 jika ada
