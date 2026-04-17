@@ -143,8 +143,9 @@ class GeminiService
                         continue;
                     }
 
-                    Log::error("Semua model fallback gagal/404 pada Key ID {$apiKeyModel?->id}");
-                    $lastError = "HTTP 404: Model $currentModel tidak ditemukan/tidak valid pada API ini.";
+                    $rawBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '';
+                    Log::error("Semua model fallback gagal/404 pada Key ID {$apiKeyModel?->id}. Raw: $rawBody");
+                    $lastError = "HTTP 404: $rawBody";
                     continue; 
                 }
 
