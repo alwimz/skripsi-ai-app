@@ -78,10 +78,9 @@ class GeminiService
                 ]);
 
                 // === MODEL VALID ===
-                // Saya gunakan model yang Anda konfirmasi jalan
-                // Jika error 404, ganti ke 'gemini-1.5-flash'
-                $modelName = 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
+                // Otomatis fallback jika 404
+                $currentModel = $currentModel ?? 'gemini-1.5-flash'; 
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
                 // Jeda sedikit agar tidak spamming server
                 if ($attempt > 1) sleep(1);
@@ -130,9 +129,22 @@ class GeminiService
 
                 // ===== MODEL / REQUEST ERROR (FATAL) =====
                 if ($status === 404) {
-                    // Jika model tidak ketemu
-                    Log::error("Model $modelName tidak ditemukan pada Key ID {$apiKeyModel?->id}");
-                    $lastError = "HTTP 404: Model $modelName tidak ditemukan/tidak valid.";
+                    Log::error("Model $currentModel tidak ditemukan. Mencoba fallback model...");
+                    
+                    if ($currentModel === 'gemini-1.5-flash') {
+                        $currentModel = 'gemini-pro';
+                        $attempt--; // Jangan hitung sebagai kegagalan limit key
+                        continue;
+                    }
+                    
+                    if ($currentModel === 'gemini-pro') {
+                        $currentModel = 'gemini-1.5-pro';
+                        $attempt--;
+                        continue;
+                    }
+
+                    Log::error("Semua model fallback gagal/404 pada Key ID {$apiKeyModel?->id}");
+                    $lastError = "HTTP 404: Model $currentModel tidak ditemukan/tidak valid pada API ini.";
                     continue; 
                 }
 
@@ -195,9 +207,9 @@ class GeminiService
 
                 $client = new Client(['timeout' => 120, 'verify' => false]);
 
-                // === MODEL 1.5 FLASH (Vision Capable) ===
-                $modelName = 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
+                // === MODEL VISION (Dengan Fallback) ===
+                $currentModelVision = $currentModelVision ?? 'gemini-1.5-flash'; 
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModelVision}:generateContent";
 
                 // Bersihkan header base64 jika ada
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
@@ -238,6 +250,19 @@ class GeminiService
                     // sleep(4); // Opsional: Jeda jika limit
                     continue; 
                 }
+                if ($status === 404) {
+                    if ($currentModelVision === 'gemini-1.5-flash') {
+                        $currentModelVision = 'gemini-pro-vision';
+                        $attempt--;
+                        continue;
+                    }
+                    if ($currentModelVision === 'gemini-pro-vision') {
+                        $currentModelVision = 'gemini-1.5-flash-latest';
+                        $attempt--;
+                        continue;
+                    }
+                }
+
                 if ($status === 400 || $status === 403) {
                     if ($apiKeyModel) $apiKeyModel->update(['is_active' => false]);
                     continue;
