@@ -293,6 +293,28 @@
                                 <input type="text" name="kampus" class="form-control form-control-sm-custom" placeholder="Cth: Universitas Indonesia" required>
                             </div>
 
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">Pengaturan Margin (cm)</label>
+                                <div class="row g-2">
+                                    <div class="col-3">
+                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Top</label>
+                                        <input type="number" step="0.1" name="margin_top" class="form-control form-control-sm-custom text-center" value="4">
+                                    </div>
+                                    <div class="col-3">
+                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Left</label>
+                                        <input type="number" step="0.1" name="margin_left" class="form-control form-control-sm-custom text-center" value="4">
+                                    </div>
+                                    <div class="col-3">
+                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Bottom</label>
+                                        <input type="number" step="0.1" name="margin_bottom" class="form-control form-control-sm-custom text-center" value="3">
+                                    </div>
+                                    <div class="col-3">
+                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Right</label>
+                                        <input type="number" step="0.1" name="margin_right" class="form-control form-control-sm-custom text-center" value="3">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-dark py-2 rounded-3 fw-bold">
                                     <i class="fas fa-file-word me-2"></i> Word (.docx)

@@ -209,23 +209,21 @@ class GeneratorController extends Controller
 
     private function promptMaster(Project $project): string
     {
-        return "PERAN: Anda adalah Penulis Akademik Profesional.
+        return "PERAN: Anda adalah Profesor dan Tim Editor Ahli Jurnal Ilmiah bereputasi (SINTA/Scopus), pakar dalam menyusun kerangka penulisan tugas akhir / skripsi mahasiswa S1.
     
 KONTEKS PENELITIAN:
-- Judul: {$project->judul}
-- Prodi: {$project->prodi}
-- Metode: {$project->metode_penelitian}
+- Judul Skripsi: {$project->judul}
+- Program Studi: {$project->prodi}
+- Metode Penelitian: {$project->metode_penelitian}
+- Variabel Penelitian: {$project->variabel_penelitian}
 
-ATURAN WAJIB (AGAR FORMAT RAPI & ISI BERBOBOT):
-1. GAYA BAHASA: Formal, Akademik, Objektif.
-2. JANGAN TULIS ULANG JUDUL BAB. Langsung mulai tulis sub-bab pertama (misal 1.1).
-3. SUMBER REFERENSI (PENTING): 
-   - Gunakan data jurnal RIIL/NYATA yang ada dalam database pengetahuan Anda (Google Scholar/Scopus).
-   - JANGAN mengarang nama peneliti fiktif. Kutip penulis terkenal di bidang ini.
-   - Sertakan sitasi (Nama, Tahun) di setiap pernyataan ilmiah.
-4. FORMAT JUDUL SUB-BAB: Gunakan format angka jelas (1.1, 1.2).
-5. PENOMORAN POIN: Gunakan format manual '1. Isi poin', '2. Isi poin'. JANGAN gunakan list HTML (<ul>/<ol>).
-6. HTML: Hanya gunakan tag <p> untuk paragraf.
+ATURAN STRUKTURAL & LINGUISTIK (SANGAT KETAT):
+1. Kualitas Akademik Tinggi: Gunakan gaya bahasa formal, ilmiah, kohesif, dan koheren. Gunakan struktur paragraf deduktif/induktif yang mendalam. Hindari bahasa yang klise atau bertele-tele. Setiap kalimat harus memiliki nilai substansi penelitian.
+2. Panjang Teks & Kualitas: Hasilkan tulisan yang PANJANG dan MENDALAM. Satu subjudul harus berisi minimal 3-5 paragraf yang ekstensif (minimal 500-800 kata per sub-bab). Jabarkan fenomena, argumen, dan logika keilmuan.
+3. Sitasi & Referensi Wajib: WAJIB memasukkan in-text citation (Contoh: Menurut Wijaya (2023)... atau (Anderson & Smith, 2022)) secara organik dalam paragraf yang membahas klaim sains atau teori. Gunakan nama penulis jurnal yang lazim di prodi tersebut.
+4. Format Heading: Judul sub-bab HARUS ada pada baris mandiri dengan format desimal (contoh: '1.1 Latar Belakang Masalah').
+5. Tanpa Markdown: JANGAN gunakan simbol markdown (**, ###). JANGAN memakai list bullet (<ul>) berlebihan. Jika perlu daftar, ketik angka (1., 2.).
+6. Larangan AI: JANGAN MENULISKAN KATA PENGANTAR (e.g., 'Berikut adalah bab...', 'Tentu saya bantu...'). Langsung tulis isinya. Jangan pernah menulis 'BAB I PENDAHULUAN' di kalimat pertama, sistem akan membuatnya otomatis. Langsung masuk ke sub-bab.
 ";
     }
 
@@ -247,67 +245,80 @@ ATURAN WAJIB (AGAR FORMAT RAPI & ISI BERBOBOT):
 
         return match ($bab) {
             'bab1' => $master . "
-TUGAS: Tulis Isi BAB I (PENDAHULUAN).
-JANGAN TULIS JUDUL 'BAB I' LAGI. Langsung mulai dengan '1.1'.
+TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara komprehensif. LANGSUNG DIMULAI DARI SUB-BAB PERTAMA (Tanpa judul Bab besar).
 
 Sub-bab wajib:
-1.1 Latar Belakang
-   - Sertakan fakta/data dengan sitasi jurnal nyata (Contoh: Menurut Santoso (2023)...), minimal 3 sumber.
-1.2 Rumusan Masalah (Poin 1. , 2. , 3. diakhiri tanda tanya).
-1.3 Tujuan Penelitian (Menjawab rumusan masalah).
-1.4 Manfaat Penelitian (Teoritis & Praktis).
-1.5 Sistematika Penulisan.
+1.1 Latar Belakang Masalah
+   - Gunakan pendekatan piramida terbalik: mulai dari konteks makro/global, turun ke fenomena/masalah empiris spesifik pada objek studi, lalu soroti research gap. Beri dukungan kutipan ahli dan uraikan mengapa skripsi ini HARUS diteliti. MINIMAL 5 PARAGRAF PANJANG.
+1.2 Rumusan Masalah
+   - Susun dalam bentuk pertanyaan penelitian yang tajam berdasarkan identifikasi masalah (poin 1., 2., 3.).
+1.3 Tujuan Penelitian
+   - Kalimat afirmatif untuk menjawab rumusan masalah.
+1.4 Manfaat Penelitian
+   - Uraikan kegunaan Teoritis (akademis) dan Praktis (untuk subjek riset/instansi).
+1.5 Sistematika Penulisan
+   - Jelaskan garis besar penulisan Bab 1 hingga 5 dalam satu paragraf per-bab.
 ",
             'bab2' => $master . "
 $context
-TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA).
-JANGAN TULIS JUDUL 'BAB II'. Langsung mulai dengan '2.1'.
+TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA). INI ADALAH BAGIAN TEORETIS PALING MENDALAM.
 
 Sub-bab wajib:
 2.1 Landasan Teori
-   - Jelaskan teori dengan mengutip BUKU atau JURNAL ASLI.
+   - Bedah grand theory, middle range theory, dan applied theory dari setiap variabel dalam judul. Jabarkan dimensi, indikator, fungsionalitas teori menurut tokoh/ahli utama di bidang ini (sertakan nama dan tahun terkaan validitas akademis tinggi). MINIMAL 6-8 PARAGRAF MENDALAM.
 2.2 Penelitian Terdahulu
-   - Bahas 3-5 penelitian terdahulu yang NYATA (Real). Sebutkan nama peneliti asli dan tahunnya.
-2.3 Kerangka Pemikiran.
+   - Bahas 5 penelitian terdahulu yang relevan. Jangan berbentuk tabel. Bentuk teks naratif: Nama Peneliti (Tahun) meneliti mengenai... dengan metode... hasil dan implikasinya... Letak perbedaan penelitian saat ini adalah (posisi state of the art).
+2.3 Kerangka Berpikir / Konseptual
+   - Jelaskan narasi rasionalitas antar-variabel atau antar-fenomena dari hulu ke hilir.
+2.4 Hipotesis Penelitian / Fokus Peneltian
+   - Tergantung jenis riset, ajukan dugaan sementara secara jelas (Ha dan H0 jika studi kuantitatif).
 ",
             'bab3' => $master . "
 $context
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN).
-JANGAN TULIS JUDUL 'BAB III'. Langsung mulai dengan '3.1'.
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN). Sesuaikan dengan ketat metode: {$project->metode_penelitian}.
 
 Sub-bab wajib:
-3.1 Jenis Penelitian
-3.2 Objek dan Subjek Penelitian
-3.3 Metode Pengumpulan Data
-3.4 Teknik Analisis Data
+3.1 Pendekatan dan Jenis Penelitian
+   - Argumentasikan MENGAPA metode rasionalis ini digunakan untuk mensintesis judul. 
+3.2 Objek, Tempat, dan Waktu Penelitian
+   - Paparkan alasan penentuan area studi.
+3.3 Populasi dan Sampel (Kuantitatif) / Informan (Kualitatif)
+   - Jabarkan penentuan subjek, sebut teknis purposif/random, lalu argumentasikan rumusnya jika kuantitatif (Misal Slovin).
+3.4 Teknik Pengumpulan Data
+   - Uraikan instrumen: Observasi, Wawancara, Kuesioner/Survei, Dokumentasi. Beri ulasan setiap instrumenya.
+3.5 Uji Keabsahan / Instrumen Validitas dan Reliabilitas
+3.6 Teknik Analisis Data
+   - Uraikan tahap pengolahan data persis dengan metode statistik (Misal regresi linear berganda) atau Miles & Huberman (reduksi, display, penarikan kesimpulan kualitatif).
 ",
             'bab4' => $master . "
 $context
-TUGAS: Tulis Isi BAB IV (HASIL DAN PEMBAHASAN).
-JANGAN TULIS JUDUL 'BAB IV'. Langsung mulai dengan '4.1'.
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN). Bagian ini adalah ruh inti intelektual penelitian.
 
 Sub-bab wajib:
-4.1 Gambaran Umum
+4.1 Gambaran Umum Objek Penelitian
+   - Buat narasi simulasi deskripsi fisik, historis, dan sosiologis lokasi/objek riset yang sesuai topik persoalan judul proyek.
 4.2 Hasil Penelitian
+   - Sajikan deskripsi statistik atau pemaparan bukti lapangan secara naratif dan panjang. Gunakan data numerik proksi wajar untuk meyakinkan pembaca (Jika Kuantitatif) atau kutipan transkrip wawancara konseptual.
 4.3 Pembahasan
-   - Bandingkan hasil dengan teori di Bab 2. Lakukan sitasi ulang.
+   - BAGIAN PALING PENTING. Analisis, sintesis, dan interpretasikan temuan nomor 4.2. Konfirmasi apakah temuan ini KONGRUEN dengan Landasan Teori Bab 2 dan menolak / mendukung Hipotesis. Tulis argumen saintifik setajam mungkin mengapa hasil tersebut terjadi di lapangan. MINIMAL 5 PARAGRAF EKSTENSIF.
 ",
             'bab5' => $master . "
 $context
 TUGAS: Tulis Isi BAB V (PENUTUP).
-JANGAN TULIS JUDUL 'BAB V'. Langsung mulai dengan '5.1'.
 
 Sub-bab wajib:
 5.1 Kesimpulan
+   - Jangan menyalin ulang hasil/pembahasan. Konversikan temuan menjadi jawaban sintesis tegas atas seluruh rumusan masalah.
 5.2 Saran
+   - Berikan rekomendasi operasional untuk praktisi dan terobosan akademis untuk peneliti selanjutnya.
 
 INSTRUKSI KHUSUS DAFTAR PUSTAKA:
-1. Selesaikan penulisan Bab 5 terlebih dahulu.
-2. Buat baris baru dan tulis persis: ===DAFTAR PUSTAKA===
-3. Di bawah garis tersebut, buatlah DAFTAR PUSTAKA LENGKAP (APA Style).
-4. AMBIL REFERENSI DARI TEKS DIATAS.
-5. PENTING: JIKA referensi di teks sedikit, GUNAKAN PENGETAHUAN ANDA untuk menambahkan JURNAL ASLI/TERKENAL yang relevan dengan topik '{$project->judul}'. Pastikan jurnal tersebut benar-benar ada di internet (Google Scholar).
-6. Urutkan A-Z. Jangan biarkan kosong.
+1. Selesaikan paragraf Saran.
+2. BUAT BARIS BARU DENGAN TULISAN EXACT BERIKUT:
+===DAFTAR PUSTAKA===
+3. Di bawah garis tersebut, tulis minimal 15 REFERENSI dengan format APA Style.
+4. SUMBER REFERENSI: Kumpulkan dari SETIAP NAMA (SITASI) YANG TELAH MUNCUL DARI BAB 1 HINGGA BAB 4, ditambahkan referensi fundamen tambahan khusus pakar metodologi penelitian dan pakar teori inti variabel proyek ini.
+5. Urutkan berdasarkan Abjad A-Z.
 ",
             default => $master
         };
@@ -446,11 +457,20 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
         }
     }
 
-    private function createPhpWordDocument($project, $nama, $npm, $kampus) {
+    private function createPhpWordDocument($project, $request) {
         $phpWord = new PhpWord(); 
         Settings::setOutputEscapingEnabled(true);
         $phpWord->setDefaultFontName('Times New Roman'); 
         $phpWord->setDefaultFontSize(12);
+
+        $marginTop = $request->input('margin_top', 4);
+        $marginLeft = $request->input('margin_left', 4);
+        $marginBottom = $request->input('margin_bottom', 3);
+        $marginRight = $request->input('margin_right', 3);
+
+        $nama = $request->input('nama', '');
+        $npm = $request->input('npm', '');
+        $kampus = $request->input('kampus', '');
         
         // --- SETTING PARAGRAF (MENJOROK KE DALAM) ---
         $phpWord->setDefaultParagraphStyle([
@@ -464,10 +484,10 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
         $phpWord->addTitleStyle(2, ['name'=>'Times New Roman', 'size'=>12, 'bold'=>true], ['alignment'=>Jc::LEFT, 'spaceBefore'=>120, 'spaceAfter'=>120, 'indentation' => ['firstLine' => 0]]);   
         
         $sectionStyle = [
-            'marginTop'=>Converter::cmToTwip(4), 
-            'marginLeft'=>Converter::cmToTwip(4), 
-            'marginBottom'=>Converter::cmToTwip(3), 
-            'marginRight'=>Converter::cmToTwip(3)
+            'marginTop'=>Converter::cmToTwip($marginTop), 
+            'marginLeft'=>Converter::cmToTwip($marginLeft), 
+            'marginBottom'=>Converter::cmToTwip($marginBottom), 
+            'marginRight'=>Converter::cmToTwip($marginRight)
         ];
 
         $section = $phpWord->addSection($sectionStyle);
@@ -576,7 +596,7 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
     public function downloadDocx($id, Request $request) {
         if(ob_get_length()) ob_end_clean();
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
-        $phpWord = $this->createPhpWordDocument($project, $request->nama, $request->npm, $request->kampus);
+        $phpWord = $this->createPhpWordDocument($project, $request);
         $filename = 'Skripsi_' . str_replace(' ', '_', substr($project->judul, 0, 20)) . '.docx';
        
         // --- FIX KHUSUS VERCEL ---
@@ -598,7 +618,13 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
 
     public function downloadPdf($id, Request $request) {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
-        $html = "<html><head><style>body{font-family:'Times New Roman';margin:4cm 3cm 3cm 4cm;text-align:justify;line-height:1.5}h1,h2{text-align:center;font-weight:bold}h3,h4{font-weight:bold}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #000;padding:5px} p { text-indent: 1.27cm; }</style></head><body>";
+
+        $marginTop = $request->input('margin_top', 4);
+        $marginLeft = $request->input('margin_left', 4);
+        $marginBottom = $request->input('margin_bottom', 3);
+        $marginRight = $request->input('margin_right', 3);
+
+        $html = "<html><head><style>body{font-family:'Times New Roman';margin:{$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm;text-align:justify;line-height:1.5}h1,h2{text-align:center;font-weight:bold}h3,h4{font-weight:bold}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #000;padding:5px} p { text-indent: 1.27cm; }</style></head><body>";
         $html .= "<h1 style='font-size:14pt'>SKRIPSI<br>".strtoupper($project->judul)."</h1><br><p style='text-align:center;text-indent:0'>OLEH: {$request->nama} ({$request->npm})</p><hr>";
         $chapters = ['bab1'=>'PENDAHULUAN','bab2'=>'TINJAUAN PUSTAKA','bab3'=>'METODOLOGI PENELITIAN','bab4'=>'HASIL DAN PEMBAHASAN','bab5'=>'PENUTUP'];
         $nums = ['bab1'=>'I','bab2'=>'II','bab3'=>'III','bab4'=>'IV','bab5'=>'V'];
