@@ -59,6 +59,7 @@ class GeminiService
         $maxRetries = $totalKeys > 0 ? $totalKeys + 2 : 5;
 
         $excludedIds = []; // Daftar Key yang error di request ini
+        $lastError = ''; // Menyimpan pesan error asli dari API
 
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             $apiKeyModel = null;
@@ -121,7 +122,7 @@ class GeminiService
                 // ===== QUOTA / RATE LIMIT (429) =====
                 if ($status === 429) {
                     Log::warning("Gemini 429 (Limit) pada Key ID {$apiKeyModel?->id}. Ganti ke key lain...");
-                    
+                    $lastError = "HTTP 429: Rate limit dicapai. " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '');
                     // PERBAIKAN UTAMA: Hapus sleep(60).
                     // Langsung continue agar fungsi getWorkingApiKey mengambil key BERIKUTNYA.
                     continue; 
@@ -129,8 +130,9 @@ class GeminiService
 
                 // ===== MODEL / REQUEST ERROR (FATAL) =====
                 if ($status === 404) {
-                    // Jika model 2.5 tidak ketemu, coba lempar error spesifik
+                    // Jika model tidak ketemu
                     Log::error("Model $modelName tidak ditemukan pada Key ID {$apiKeyModel?->id}");
+                    $lastError = "HTTP 404: Model $modelName tidak ditemukan/tidak valid.";
                     continue; 
                 }
 
@@ -139,9 +141,11 @@ class GeminiService
                     if ($apiKeyModel) {
                         $apiKeyModel->update(['is_active' => false]);
                     }
+                    $lastError = "HTTP $status: " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage());
                     continue;
                 }
 
+                $lastError = "RequestException HTTP $status: " . $e->getMessage();
                 Log::error('Gemini RequestException', [
                     'status' => $status,
                     'attempt' => $attempt,
@@ -165,7 +169,7 @@ class GeminiService
         }
 
         throw new Exception(
-            'GAGAL: Terlalu banyak percobaan atau semua API Key bermasalah. Coba lagi beberapa menit.'
+            'GAGAL: Server AI menolak permintaan. Error Terakhir: ' . $lastError
         );
     }
 
