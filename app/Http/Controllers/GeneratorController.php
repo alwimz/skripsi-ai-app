@@ -446,12 +446,18 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
                 );
             }
             else {
-                // Paragraf Biasa - Akan kena Indentasi Otomatis (1.27cm)
+                // Paragraf Biasa - Setel indentasi baris pertama (firstLine) 1.27cm (720 twip) secara spesifik di sini
+                $pStyle = ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720]];
+                
                 if($line != $cleanLine) {
-                     try { Html::addHtml($section, $line); } 
-                     catch(\Exception $e) { $section->addText($cleanLine, [], ['alignment' => Jc::BOTH, 'lineHeight' => 1.5]); }
+                     try { 
+                         // Menggunakan trik CSS text-indent jika terpaksa menggunakan HTML translator PhpWord
+                         $htmlFormatted = "<p style='text-align:justify; text-indent:1.27cm; line-height:1.5; font-family:\"Times New Roman\", serif; font-size:12pt;'>" . $line . "</p>";
+                         Html::addHtml($section, $htmlFormatted, false, false); 
+                     } 
+                     catch(\Exception $e) { $section->addText($cleanLine, [], $pStyle); }
                 } else {
-                    $section->addText($cleanLine, [], ['alignment' => Jc::BOTH, 'lineHeight' => 1.5]);
+                    $section->addText($cleanLine, [], $pStyle);
                 }
             }
         }
@@ -472,11 +478,11 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
         $npm = $request->input('npm', '');
         $kampus = $request->input('kampus', '');
         
-        // --- SETTING PARAGRAF (MENJOROK KE DALAM) ---
+        // --- SETTING PARAGRAF GLOBAL ---
+        // (Jangan letakkan FirstLine Indent di sini karena akan merusak susunan simetris TOC/Daftar Isi)
         $phpWord->setDefaultParagraphStyle([
             'lineHeight' => 1.5, 
-            'spaceAfter' => Converter::pointToTwip(0),
-            'indentation' => ['firstLine' => Converter::cmToTwip(1.27)] // INDENTASI 1.27cm
+            'spaceAfter' => Converter::pointToTwip(0)
         ]); 
         
         // --- STYLE HEADING (RESET INDENTASI JADI 0) ---
