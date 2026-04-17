@@ -30,9 +30,15 @@ class AIManagerService
             return $this->groq->generateText($prompt);
         }
 
-        // 2. Opsi Paksa Gemini
+        // 2. Opsi Paksa Gemini (Dengan Fallback Paksa Anti-Crash)
         if ($model === 'gemini') {
-            return $this->gemini->generateText($prompt);
+            try {
+                return $this->gemini->generateText($prompt);
+            } catch (Exception $e) {
+                // Walaupun di-'gemini', kita bypass diam-diam ke Groq Llama 3 jika Google error 
+                Log::error('API Gemini MATI/DIBLOKIR. Fallback Anti-Crash ke Groq. Pesan: ' . $e->getMessage());
+                return $this->groq->generateText($prompt);
+            }
         }
 
         // 3. Mode 'auto' (Logika Lama: Prioritas Gemini -> Fallback Groq)
