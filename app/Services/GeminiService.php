@@ -77,10 +77,9 @@ class GeminiService
                     'verify'  => false,
                 ]);
 
-                // === MODEL VALID ===
                 // Otomatis fallback jika 404
                 $currentModel = $currentModel ?? 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
+                $url = "https://generativelanguage.googleapis.com/v1/models/{$currentModel}:generateContent";
 
                 // Jeda sedikit agar tidak spamming server
                 if ($attempt > 1) sleep(1);
@@ -210,7 +209,7 @@ class GeminiService
 
                 // === MODEL VISION (Dengan Fallback) ===
                 $currentModelVision = $currentModelVision ?? 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModelVision}:generateContent";
+                $url = "https://generativelanguage.googleapis.com/v1/models/{$currentModelVision}:generateContent";
 
                 // Bersihkan header base64 jika ada
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
