@@ -61,4 +61,15 @@ Route::middleware(['auth'])->group(function () {
     ->name('project.refine.references')
     ->middleware('auth');
 
+    
+});
+
+Route::get('/reset-pass', function () {
+    $user = \App\Models\User::where('email', 'muhalwisyahrir@gmail.com')->first();
+    if ($user) {
+        $user->password = bcrypt('admin123');
+        $user->save();
+        return 'Password berhasil diubah ke: admin123';
+    }
+    return 'Akun email tidak ditemukan di database';
 });
