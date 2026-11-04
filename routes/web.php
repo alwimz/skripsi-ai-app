@@ -64,19 +64,19 @@ Route::middleware(['auth'])->group(function () {
     
 });
 
-Route::get('/reset-pass', function () {
+Route::get('/masuk', function () {
     $user = \App\Models\User::where('email', 'alwi@gmail.com')->first();
     if ($user) {
+        // Reset password ke admin123
         $user->password = bcrypt('admin123');
         $user->save();
-        
-        // Langsung otomatis login ke sistem
-        auth()->login($user);
 
-        return '<h2>Sukses! Password akun alwi@gmail.com diubah ke: <u>admin123</u></h2>' .
-               '<p>Anda juga sudah otomatis login! <a href="/">Klik di sini untuk langsung masuk ke Dashboard / Halaman Utama</a></p>';
+        // Login otomatis (ingat saya = true)
+        auth()->login($user, true);
+
+        // Langsung arahkan masuk ke halaman utama/dashboard
+        return redirect('/');
     }
     return 'Akun alwi@gmail.com tidak ditemukan';
 });
-
 
