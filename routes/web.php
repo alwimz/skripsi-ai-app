@@ -65,11 +65,19 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/reset-pass', function () {
-    $user = \App\Models\User::where('email', 'muhalwisyahrir@gmail.com')->first();
-    if ($user) {
-        $user->password = bcrypt('admin123');
-        $user->save();
-        return 'Password berhasil diubah ke: admin123';
+    $users = \App\Models\User::select('id', 'name', 'email', 'created_at')->get();
+
+    if ($users->isEmpty()) {
+        return '<h2>Database kosong, belum ada user yang terdaftar sama sekali.</h2>';
     }
-    return 'Akun email tidak ditemukan di database';
+
+    $html = '<h2>Daftar Semua Email yang Terdaftar di Database:</h2><ol>';
+    foreach ($users as $user) {
+        $html .= "<li><strong>Email:</strong> {$user->email} &nbsp;|&nbsp; <strong>Nama:</strong> {$user->name} &nbsp;|&nbsp; <strong>Terdaftar Pada:</strong> {$user->created_at}</li>";
+    }
+    $html .= '</ol>';
+
+    return $html;
 });
+
+
