@@ -450,7 +450,7 @@ class GeneratorController extends Controller
 
         try {
             if ($provider === 'gemini') {
-                $isBearer = str_starts_with($rawKey, 'AQ.') || str_starts_with($rawKey, 'ya29.');
+                $isOAuthBearer = str_starts_with($rawKey, 'ya29.');
                 $client = new \GuzzleHttp\Client(['timeout' => 12, 'verify' => false]);
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
                 $headers = ['Content-Type' => 'application/json'];
@@ -459,14 +459,26 @@ class GeneratorController extends Controller
                         'contents' => [['parts' => [['text' => 'Ping']]]]
                     ]
                 ];
-                if ($isBearer) {
+                if ($isOAuthBearer) {
                     $headers['Authorization'] = 'Bearer ' . $rawKey;
                 } else {
                     $headers['x-goog-api-key'] = $rawKey;
                     $options['query'] = ['key' => $rawKey];
                 }
                 $options['headers'] = $headers;
-                $res = $client->post($url, $options);
+                try {
+                    $res = $client->post($url, $options);
+                } catch (\GuzzleHttp\Exception\RequestException $tryBearer) {
+                    if ($tryBearer->hasResponse() && $tryBearer->getResponse()->getStatusCode() === 401 && !$isOAuthBearer) {
+                        $fallbackOptions = $options;
+                        unset($fallbackOptions['query']);
+                        $fallbackOptions['headers']['Authorization'] = 'Bearer ' . $rawKey;
+                        unset($fallbackOptions['headers']['x-goog-api-key']);
+                        $res = $client->post($url, $fallbackOptions);
+                    } else {
+                        throw $tryBearer;
+                    }
+                }
                 if ($res->getStatusCode() === 200) {
                     return response()->json(['status' => 'success', 'message' => 'API Key Google Gemini Valid & Aktif!']);
                 }
@@ -1336,6 +1348,76 @@ ATURAN REVISI:
     // 5. DOWNLOAD DOCX & PDF (TERMASUK CONTOH PUBLIK LANDING PAGE)
     // =========================================================================
 
+    private function formatAcademicContentForPdf(string $content): string
+    {
+        $content = str_replace(["\r\n", "\r"], "\n", $content);
+        $lines = explode("\n", $content);
+        $html = '';
+        $inOl = false;
+        $inUl = false;
+
+        $closeLists = function() use (&$html, &$inOl, &$inUl) {
+            if ($inOl) { $html .= "</ol>"; $inOl = false; }
+            if ($inUl) { $html .= "</ul>"; $inUl = false; }
+        };
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '') {
+                $closeLists();
+                continue;
+            }
+
+            // Normalisasi sub-bab tanpa titik: "A Latar Belakang" -> "A. Latar Belakang"
+            if (preg_match('/^([A-Z])\s+([A-Z][a-zA-Z\s]+)/', $trimmed, $m)) {
+                $trimmed = $m[1] . '. ' . $m[2];
+            }
+            if (preg_match('/^(\d+)\s+([A-Z][a-zA-Z\s]+)/', $trimmed, $m)) {
+                $trimmed = $m[1] . '. ' . $m[2];
+            }
+
+            // Sub-bab utama (A. ..., 1.1 ..., ## ...)
+            if (preg_match('/^(?:##\s+|[A-Z]\.\s+|\d+\.\d+\.?\s+)(.+)$/', $trimmed, $m)) {
+                $closeLists();
+                $clean = ltrim($trimmed, '# ');
+                $html .= "<h3 style='font-size:12pt; font-weight:bold; margin-top:16pt; margin-bottom:6pt; text-align:left; text-indent:0; page-break-after:avoid; break-after:avoid;'>" . e($clean) . "</h3>";
+                continue;
+            }
+
+            // Sub-sub-bab (### ..., 1.6.1 ..., atau 1. Manfaat Teoretis)
+            if (preg_match('/^(?:###\s+|\d+\.\d+\.\d+\.?\s+)(.+)$/', $trimmed, $m) || preg_match('/^\d+\.\s+(Manfaat\s+[A-Za-z]+|Tujuan\s+[A-Za-z]+)/i', $trimmed)) {
+                $closeLists();
+                $clean = ltrim($trimmed, '# ');
+                $html .= "<h4 style='font-size:12pt; font-weight:bold; margin-top:10pt; margin-bottom:4pt; text-align:left; text-indent:0; page-break-after:avoid; break-after:avoid;'>" . e($clean) . "</h4>";
+                continue;
+            }
+
+            // List bernomor (1. ..., 2. ...)
+            if (preg_match('/^\d+\.\s+(.+)$/', $trimmed, $m)) {
+                if ($inUl) { $html .= "</ul>"; $inUl = false; }
+                if (!$inOl) { $html .= "<ol style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>"; $inOl = true; }
+                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($m[1]) . "</li>";
+                continue;
+            }
+
+            // Bullet list (- ..., * ...)
+            if (preg_match('/^[-*]\s+(.+)$/', $trimmed, $m)) {
+                if ($inOl) { $html .= "</ol>"; $inOl = false; }
+                if (!$inUl) { $html .= "<ul style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>"; $inUl = true; }
+                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($m[1]) . "</li>";
+                continue;
+            }
+
+            // Paragraf ilmiah baku
+            $closeLists();
+            $cleanP = ltrim($trimmed, '#* ');
+            $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 8pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
+        }
+
+        $closeLists();
+        return $html;
+    }
+
     private function parseAndAddContent($section, $htmlContent)
     {
         $text = str_replace(['<p>', '</p>', '<br>', '<br/>'], ["\n", "\n", "\n", "\n"], $htmlContent);
@@ -1688,12 +1770,21 @@ ATURAN REVISI:
         $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
         foreach ($chapters as $k => $v) {
             if ($c = $project->{$k . '_content'}) {
-                $html .= "<h2>BAB " . $nums[$k] . "<br>$v</h2>" . nl2br(e($c));
+                $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
+                $html .= $this->formatAcademicContentForPdf($c);
                 $html .= "<div style='page-break-after:always;'></div>";
             }
         }
 
-        $html .= "<h2>DAFTAR PUSTAKA</h2><p style='text-indent:0; padding-left:1.27cm; text-indent:-1.27cm;'>" . nl2br(e($project->daftar_pustaka)) . "</p></body></html>";
+        $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
+        $dpLines = explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $project->daftar_pustaka));
+        foreach ($dpLines as $dpl) {
+            $trimDpl = trim($dpl);
+            if ($trimDpl !== '') {
+                $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.5; font-size:12pt;'>" . e($trimDpl) . "</p>";
+            }
+        }
+        $html .= "</body></html>";
 
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
@@ -1701,6 +1792,13 @@ ATURAN REVISI:
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         $dompdf->render();
+
+        try {
+            $canvas = $dompdf->getCanvas();
+            $font = $dompdf->getFontMetrics()->getFont('Times-Roman', 'normal');
+            $canvas->page_text(297, 804, "{PAGE_NUM}", $font, 10, [0.15, 0.15, 0.15]);
+        } catch (\Throwable $e) {}
+
         $inline = $request->boolean('inline');
         return $dompdf->stream('Naskah_' . Str::slug(substr($project->judul, 0, 24), '_') . '.pdf', ['Attachment' => !$inline]);
     }
@@ -1982,20 +2080,39 @@ ATURAN REVISI:
             $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
             foreach ($chapters as $k => $v) {
                 if ($c = $project->{$k . '_content'}) {
-                    $html .= "<h2>BAB " . $nums[$k] . "<br>$v</h2>" . nl2br(e($c));
+                    $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
+                    $html .= $this->formatAcademicContentForPdf($c);
                     $html .= "<div style='page-break-after:always;'></div>";
                 }
             }
             if (!empty($project->daftar_pustaka)) {
-                $html .= "<h2>DAFTAR PUSTAKA</h2><p style='text-indent:0; padding-left:1.27cm; text-indent:-1.27cm;'>" . nl2br(e($project->daftar_pustaka)) . "</p>";
+                $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
+                $dpLines = explode("
+", str_replace(["
+", ""], "
+", (string) $project->daftar_pustaka));
+                foreach ($dpLines as $dpl) {
+                    $trimDpl = trim($dpl);
+                    if ($trimDpl !== '') {
+                        $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.5; font-size:12pt;'>" . e($trimDpl) . "</p>";
+                    }
+                }
             }
             $html .= "</body></html>";
 
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', true);
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4');
             $dompdf->render();
+
+            try {
+                $canvas = $dompdf->getCanvas();
+                $font = $dompdf->getFontMetrics()->getFont('Times-Roman', 'normal');
+                $canvas->page_text(297, 804, "{PAGE_NUM}", $font, 10, [0.15, 0.15, 0.15]);
+            } catch (\Throwable $e) {}
+
             $inline = $request->boolean('inline');
             return $dompdf->stream('Dokumen_' . Str::slug(substr($project->judul, 0, 28), '_') . '.pdf', ['Attachment' => !$inline]);
         }

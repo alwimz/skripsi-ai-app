@@ -905,6 +905,126 @@
             list-style-position: inside;
         }
 
+        /* 9. Soft Lavender Academic */
+        .ppt-theme-pastel_lavender {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+            color: #2e1065;
+            border: 1px solid #ddd6fe;
+            padding-top: 50px;
+        }
+        .ppt-theme-pastel_lavender::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 10px;
+            background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+        }
+        .ppt-theme-pastel_lavender .ppt-badge {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+        .ppt-theme-pastel_lavender #slide-bullets-edit li {
+            background: #ffffff;
+            border-left: 3px solid #8b5cf6;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 10. Nordic Teal Slate */
+        .ppt-theme-nordic_teal {
+            background: #f0fdfa;
+            color: #134e4a;
+            border: 1px solid #99f6e4;
+            padding-top: 50px;
+        }
+        .ppt-theme-nordic_teal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 10px;
+            background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
+        }
+        .ppt-theme-nordic_teal .ppt-badge {
+            background: #ccfbf1;
+            color: #0f766e;
+        }
+        .ppt-theme-nordic_teal #slide-bullets-edit li {
+            background: #ffffff;
+            border-left: 3px solid #14b8a6;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 11. Warm Terracotta Sand */
+        .ppt-theme-warm_terracotta {
+            background: #fffbeb;
+            color: #451a03;
+            border: 1px solid #fed7aa;
+            padding-top: 50px;
+        }
+        .ppt-theme-warm_terracotta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 10px;
+            background: linear-gradient(90deg, #b45309 0%, #f97316 100%);
+        }
+        .ppt-theme-warm_terracotta .ppt-badge {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+        .ppt-theme-warm_terracotta #slide-bullets-edit li {
+            background: #ffffff;
+            border-left: 3px solid #f97316;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 12. Classic Oxford Navy & Gold */
+        .ppt-theme-classic_gold {
+            background: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            padding-top: 50px;
+        }
+        .ppt-theme-classic_gold::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 10px;
+            background: linear-gradient(90deg, #d97706 0%, #fbbf24 50%, #f59e0b 100%);
+        }
+        .ppt-theme-classic_gold .ppt-badge {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+        .ppt-theme-classic_gold #slide-title-edit {
+            color: #ffffff;
+        }
+        .ppt-theme-classic_gold #slide-bullets-edit li {
+            background: #1e293b;
+            border-left: 3px solid #fbbf24;
+            color: #f8fafc;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* PPT Slide Smooth Animation */
+        @keyframes pptSlideFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px) scale(0.985);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .ppt-slide-anim {
+            animation: pptSlideFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         @keyframes slideInFade {
             from {
                 opacity: 0;
@@ -2086,6 +2206,22 @@
                                 <div class="theme-swatch" style="background: #0b0f19; border-top: 5px solid #06b6d4;"></div>
                                 <span class="theme-chip-name">Dark Tech Cyber</span>
                             </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('pastel_lavender', this)">
+                                <div class="theme-swatch" style="background: #f5f3ff; border-top: 5px solid #8b5cf6;"></div>
+                                <span class="theme-chip-name">Lavender Academic</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('nordic_teal', this)">
+                                <div class="theme-swatch" style="background: #f0fdfa; border-top: 5px solid #0d9488;"></div>
+                                <span class="theme-chip-name">Nordic Slate Teal</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('warm_terracotta', this)">
+                                <div class="theme-swatch" style="background: #fffbeb; border-top: 5px solid #ea580c;"></div>
+                                <span class="theme-chip-name">Terracotta Modern</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('classic_gold', this)">
+                                <div class="theme-swatch" style="background: #0f172a; border-top: 5px solid #fbbf24;"></div>
+                                <span class="theme-chip-name">Oxford Navy Gold</span>
+                            </button>
                         </div>
                     </div>
 
@@ -2623,19 +2759,6 @@
                         </div>
                     </div>
                 </div>
-                            <div id="referral-code-text" style="font-size: 18px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">{{ $refCode }}</div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 18px;">
-                        <label class="form-label">Link Undangan Pribadi</label>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <input type="text" id="referral-link-input" class="form-input" value="{{ $refUrl }}" readonly style="flex: 1; min-width: 220px; background: #fff;">
-                            <button type="button" class="btn-primary" onclick="copyReferralLink()">Salin Link</button>
-                            <button type="button" class="btn-outline" onclick="shareReferralWhatsapp()">Bagikan ke WhatsApp</button>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="card">
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara Kerja Referral SkripsiAI</div>
@@ -3079,7 +3202,6 @@
                     ul.appendChild(li);
                 });
             }
-        }
 
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
@@ -3088,6 +3210,13 @@
             const nextBtn = document.getElementById('btn-ppt-next');
             if (prevBtn) prevBtn.disabled = currentSlideIdx === 0;
             if (nextBtn) nextBtn.disabled = currentSlideIdx >= pptSlides.length - 1;
+
+            const box = document.getElementById('ppt-canvas-box');
+            if (box) {
+                box.classList.remove('ppt-slide-anim');
+                void box.offsetWidth;
+                box.classList.add('ppt-slide-anim');
+            }
         }
 
         function syncCurrentSlideEdit() {
@@ -3225,6 +3354,9 @@
             const s = pptSlides[currentSlideIdx];
             const canvas = document.getElementById('fs-slide-canvas');
             canvas.className = 'ppt-canvas ppt-theme-' + currentPptTheme;
+            canvas.classList.remove('ppt-slide-anim');
+            void canvas.offsetWidth;
+            canvas.classList.add('ppt-slide-anim');
             document.getElementById('fs-slide-counter').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
             document.getElementById('fs-slide-num-tag').innerText = `${currentSlideIdx + 1} / ${pptSlides.length}`;
             document.getElementById('fs-slide-proj-title').innerText = selectedPptProject.title || 'Sidang Skripsi';
@@ -3298,7 +3430,11 @@
                 tech_dark: { bg: '0B0F19', fg: 'FFFFFF', sub: '38BDF8', bar: '06B6D4' },
                 swiss_minimal: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: '111827' },
                 basic_navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE', bar: '6366F1' },
-                basic_white: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: 'CBD5E1' }
+                basic_white: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: 'CBD5E1' },
+                pastel_lavender: { bg: 'F5F3FF', fg: '2E1065', sub: '7C3AED', bar: '8B5CF6' },
+                nordic_teal: { bg: 'F0FDFA', fg: '134E4A', sub: '0F766E', bar: '14B8A6' },
+                warm_terracotta: { bg: 'FFFBEB', fg: '451A03', sub: 'B45309', bar: 'F97316' },
+                classic_gold: { bg: '0F172A', fg: 'FFFFFF', sub: 'FBBF24', bar: 'D97706' }
             };
             const pal = palettes[currentPptTheme] || palettes.royal_academic;
 

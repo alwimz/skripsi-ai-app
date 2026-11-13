@@ -116,7 +116,7 @@ class GeminiService
                 }
 
                 $cleanApiKey = trim($apiKeyModel->key);
-                $isBearer = str_starts_with($cleanApiKey, 'AQ.') || str_starts_with($cleanApiKey, 'ya29.');
+                $isOAuthBearer = str_starts_with($cleanApiKey, 'ya29.');
 
                 $headers = [
                     'Content-Type' => 'application/json',
@@ -137,7 +137,7 @@ class GeminiService
                     ]
                 ];
 
-                if ($isBearer) {
+                if ($isOAuthBearer) {
                     $headers['Authorization'] = 'Bearer ' . $cleanApiKey;
                 } else {
                     $headers['x-goog-api-key'] = $cleanApiKey;
@@ -145,7 +145,20 @@ class GeminiService
                 }
                 $postOptions['headers'] = $headers;
 
-                $response = $client->post($url, $postOptions);
+                try {
+                    $response = $client->post($url, $postOptions);
+                } catch (RequestException $postEx) {
+                    // Fallback otomatis jika format AQ/token membutuhkan Bearer
+                    if ($postEx->hasResponse() && $postEx->getResponse()->getStatusCode() === 401 && !$isOAuthBearer) {
+                        $fallbackOptions = $postOptions;
+                        unset($fallbackOptions['query']);
+                        $fallbackOptions['headers']['Authorization'] = 'Bearer ' . $cleanApiKey;
+                        unset($fallbackOptions['headers']['x-goog-api-key']);
+                        $response = $client->post($url, $fallbackOptions);
+                    } else {
+                        throw $postEx;
+                    }
+                }
 
                 $data = json_decode($response->getBody()->getContents(), true);
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';

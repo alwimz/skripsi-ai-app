@@ -1261,26 +1261,35 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
             return;
         }
 
-        if (/^#\s+/.test(line)) {
+        let normLine = line;
+        // Normalisasi sub-bab huruf tanpa titik ("A Latar Belakang" -> "A. Latar Belakang")
+        const letterHeadingMatch = normLine.match(/^([A-Z])\s+([A-Z][a-zA-Z\s]+)$/);
+        if (letterHeadingMatch) {
+            normLine = letterHeadingMatch[1] + '. ' + letterHeadingMatch[2];
+        }
+
+        if (/^#\s+/.test(normLine)) {
             flushLists();
-            html += `<h2>${formatInlineMarkdown(line.replace(/^#\s+/, ''))}</h2>`;
-        } else if (/^##\s+/.test(line)) {
+            html += `<h2>${formatInlineMarkdown(normLine.replace(/^#\s+/, ''))}</h2>`;
+        } else if (/^##\s+/.test(normLine) || /^[A-Z]\.\s+[A-Z]/.test(normLine) || /^\d+\.\d+\.?\s+[A-Z]/.test(normLine)) {
             flushLists();
-            html += `<h3>${formatInlineMarkdown(line.replace(/^##\s+/, ''))}</h3>`;
-        } else if (/^###\s+/.test(line)) {
+            const cleanHeading = normLine.replace(/^##\s+/, '');
+            html += `<h3>${formatInlineMarkdown(cleanHeading)}</h3>`;
+        } else if (/^###\s+/.test(normLine) || /^\d+\.\d+\.\d+\.?\s+[A-Z]/.test(normLine) || /^\d+\.\s+(Manfaat\s+[A-Za-z]+|Tujuan\s+[A-Za-z]+)/i.test(normLine)) {
             flushLists();
-            html += `<h4>${formatInlineMarkdown(line.replace(/^###\s+/, ''))}</h4>`;
-        } else if (/^[-*]\s+/.test(line)) {
+            const cleanSub = normLine.replace(/^###\s+/, '');
+            html += `<h4>${formatInlineMarkdown(cleanSub)}</h4>`;
+        } else if (/^[-*]\s+/.test(normLine)) {
             if (inOl) { html += '</ol>'; inOl = false; }
             if (!inUl) { html += '<ul>'; inUl = true; }
-            html += `<li>${formatInlineMarkdown(line.replace(/^[-*]\s+/, ''))}</li>`;
-        } else if (/^\d+\.\s+/.test(line)) {
+            html += `<li>${formatInlineMarkdown(normLine.replace(/^[-*]\s+/, ''))}</li>`;
+        } else if (/^\d+\.\s+/.test(normLine)) {
             if (inUl) { html += '</ul>'; inUl = false; }
             if (!inOl) { html += '<ol>'; inOl = true; }
-            html += `<li>${formatInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}</li>`;
+            html += `<li>${formatInlineMarkdown(normLine.replace(/^\d+\.\s+/, ''))}</li>`;
         } else {
             flushLists();
-            html += `<p>${formatInlineMarkdown(line)}</p>`;
+            html += `<p>${formatInlineMarkdown(normLine)}</p>`;
         }
     });
 
