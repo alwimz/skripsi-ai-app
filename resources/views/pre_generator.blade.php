@@ -325,9 +325,9 @@
         /* Content Container */
         .page-content {
             width: 100%;
-            max-width: 780px;
+            max-width: 1180px;
             margin: 0 auto;
-            padding: 44px 28px 80px;
+            padding: 32px 32px 80px;
         }
 
         .tab-pane {
@@ -841,6 +841,84 @@
             color: #ffffff;
         }
 
+        /* 7. Maroon Prestige (Burgundy Elegan Sidang) */
+        .ppt-theme-maroon_prestige {
+            background: #fff5f5;
+            color: #450a0a;
+            border: 1px solid #fecaca;
+            padding-top: 50px;
+        }
+        .ppt-theme-maroon_prestige::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, #831843 0%, #991b1b 50%, #dc2626 100%);
+        }
+        .ppt-theme-maroon_prestige .ppt-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .ppt-theme-maroon_prestige #slide-bullets-edit li {
+            background: #ffffff;
+            border-left: 3px solid #991b1b;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 8. Tech Dark (Modern Cyber Blue) */
+        .ppt-theme-tech_dark {
+            background: #0b0f19;
+            color: #f8fafc;
+            border: 1px solid #1e293b;
+            padding-top: 50px;
+        }
+        .ppt-theme-tech_dark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #0284c7 0%, #06b6d4 100%);
+        }
+        .ppt-theme-tech_dark .ppt-badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        .ppt-theme-tech_dark #slide-title-edit {
+            color: #ffffff;
+        }
+        .ppt-theme-tech_dark #slide-subtitle-edit {
+            color: #94a3b8;
+        }
+        .ppt-theme-tech_dark #slide-bullets-edit li {
+            background: #131b2e;
+            border-left: 3px solid #06b6d4;
+            color: #f1f5f9;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        @keyframes slideInFade {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .ppt-canvas > div {
+            animation: slideInFade 0.25s ease-out;
+        }
+
         .ppt-badge {
             display: inline-flex;
             align-items: center;
@@ -1099,6 +1177,15 @@
             border: 1px solid #bfdbfe;
         }
 
+        @media (min-width: 901px) {
+            .sidebar-close-btn {
+                display: none !important;
+            }
+            .sidebar-toggle-btn {
+                display: none !important;
+            }
+        }
+
         @media (max-width: 900px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1144,21 +1231,37 @@
                 overflow-x: hidden;
             }
             .topbar {
-                height: auto;
-                min-height: 56px;
-                padding: 10px 12px;
-                flex-wrap: wrap;
+                height: 52px;
+                min-height: 52px;
+                padding: 0 12px;
+                flex-wrap: nowrap;
                 gap: 8px;
             }
             .topbar-right {
-                width: 100%;
+                width: auto;
                 justify-content: flex-end;
                 gap: 6px;
             }
+            .topbar-right .token-pill {
+                display: none !important;
+            }
             .model-select {
-                max-width: 100%;
-                flex: 1;
+                max-width: 155px;
+                font-size: 11.5px;
+                padding: 5px 8px;
+            }
+            .breadcrumb {
                 font-size: 12px;
+                gap: 6px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .breadcrumb-current {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
             .page-title {
                 font-size: 21px;
@@ -1481,22 +1584,27 @@
                                 $projMeta = is_string($proj->citation_validation) ? json_decode($proj->citation_validation, true) : [];
                                 $projTahap = $projMeta['tahap_pengerjaan'] ?? 'Skripsi Lengkap (Bab I–V)';
                             @endphp
-                            <div class="project-row" style="cursor: default;">
-                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1;">
+                            <div class="project-row" style="cursor: default; align-items: center; justify-content: space-between; gap: 12px;">
+                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1; min-width: 0;">
                                     <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div>
-                                        <div class="project-row-title">{{ $proj->judul }}</div>
+                                    <div style="min-width: 0;">
+                                        <div class="project-row-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">
-                                            <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab selesai
+                                            <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab
                                         </div>
                                     </div>
                                 </a>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Buka Workspace →</a>
-                                    <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <span>Buka</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </a>
+                                    <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');" style="margin: 0;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-outline" style="padding: 7px 10px; font-size: 12.5px; color: #dc2626; border-color: #fecaca;">Hapus</button>
+                                        <button type="submit" class="btn-outline" style="padding: 6px 8px; font-size: 12px; color: #dc2626; border-color: #fecaca;" title="Hapus Proyek">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -1533,22 +1641,21 @@
 
                         <!-- Card 1: Fokus Tahap Penulisan (Proposal Bab 1-3 vs Full Skripsi Bab 1-5) -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Pilih Target Penulisan <span class="req">*</span></div>
-                            <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">Pilih apakah ingin menyusun Proposal (Bab 1–3) terlebih dahulu atau langsung Full Skripsi (Bab 1–5).</div>
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Pilih Target Penulisan <span class="req">*</span></div>
                             <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <label style="display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff;">
-                                    <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" style="margin-top: 3px; accent-color: var(--primary);">
-                                    <div>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Proposal Skripsi (Bab 1 – 3)</div>
-                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Sampul + Bab I Pendahuluan, Bab II Tinjauan Pustaka, Bab III Metodologi & Daftar Pustaka</div>
+                                <label style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" style="accent-color: var(--primary);">
+                                        <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">Proposal Skripsi (Bab 1–3)</span>
                                     </div>
+                                    <span style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Seminar Proposal</span>
                                 </label>
-                                <label style="display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff;">
-                                    <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" checked style="margin-top: 3px; accent-color: var(--primary);">
-                                    <div>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--primary);">Full Skripsi Lengkap (Bab 1 – 5)</div>
-                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Sampul + Halaman Awal + Bab I sampai Bab V (Hasil, Pembahasan & Penutup) + Daftar Pustaka</div>
+                                <label style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" checked style="accent-color: var(--primary);">
+                                        <span style="font-size: 14px; font-weight: 700; color: var(--primary);">Full Skripsi Lengkap (Bab 1–5)</span>
                                     </div>
+                                    <span style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Sidang Akhir</span>
                                 </label>
                             </div>
                         </div>
@@ -1865,6 +1972,55 @@
                             </div>
                         </div>
 
+                        <!-- Form Identitas Mahasiswa, Pembimbing, dan Penguji untuk Slide Cover Sidang -->
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Informasi Mahasiswa &amp; Sidang (Untuk Slide 1 / Cover)</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Data ini akan dicantumkan otomatis pada slide judul dan penutup sidang secara resmi.</div>
+
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label">Nama Mahasiswa</label>
+                                    <input type="text" id="ppt-input-nama" class="form-input" value="{{ $user->name }}" placeholder="Nama Lengkap Mahasiswa">
+                                </div>
+                                <div>
+                                    <label class="form-label">NIM / NPM</label>
+                                    <input type="text" id="ppt-input-nim" class="form-input" value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
+                                </div>
+                            </div>
+
+                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px;">
+                                <div>
+                                    <label class="form-label">Nama Kampus</label>
+                                    <input type="text" id="ppt-input-kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: UNIVERSITAS INDONESIA">
+                                </div>
+                                <div>
+                                    <label class="form-label">Program Studi</label>
+                                    <input type="text" id="ppt-input-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: SISTEM INFORMASI">
+                                </div>
+                                <div>
+                                    <label class="form-label">Fakultas</label>
+                                    <input type="text" id="ppt-input-fakultas" class="form-input" value="{{ $defaultIdentity['fakultas'] ?? '' }}" placeholder="Contoh: FASILKOM">
+                                </div>
+                            </div>
+
+                            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0;">
+                                <div style="background: #ffffff; padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">Dosen Pembimbing</div>
+                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                        <input type="text" id="ppt-input-pembimbing-1" class="form-input" placeholder="Pembimbing 1 (dengan gelar)">
+                                        <input type="text" id="ppt-input-pembimbing-2" class="form-input" placeholder="Pembimbing 2 (opsional)">
+                                    </div>
+                                </div>
+                                <div style="background: #ffffff; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Dosen Penguji</div>
+                                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                                        <input type="text" id="ppt-input-penguji-1" class="form-input" placeholder="Penguji 1 (dengan gelar)">
+                                        <input type="text" id="ppt-input-penguji-2" class="form-input" placeholder="Penguji 2 (opsional)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button type="button" id="btn-generate-ppt" class="btn-primary btn-full" onclick="handleGeneratePpt()">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                             <span>Buat slide sidang sekarang</span>
@@ -1921,6 +2077,14 @@
                             <button type="button" class="theme-chip" onclick="setPptTheme('basic_white', this)">
                                 <div class="theme-swatch" style="background: #ffffff; border: 1px solid #cbd5e1;"></div>
                                 <span class="theme-chip-name">Basic Putih (Polos)</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('maroon_prestige', this)">
+                                <div class="theme-swatch" style="background: #fff5f5; border-top: 5px solid #991b1b;"></div>
+                                <span class="theme-chip-name">Maroon Prestige</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('tech_dark', this)">
+                                <div class="theme-swatch" style="background: #0b0f19; border-top: 5px solid #06b6d4;"></div>
+                                <span class="theme-chip-name">Dark Tech Cyber</span>
                             </button>
                         </div>
                     </div>
@@ -2283,7 +2447,29 @@
             <section class="tab-pane" id="pane-apikeys">
                 <div class="page-eyebrow">Konfigurasi AI Multi-Key</div>
                 <h1 class="page-title">Pengaturan API Key</h1>
-                <p class="page-subtitle">Tempelkan satu atau banyak API Key sekaligus (pisahkan per baris atau koma) dari Google AI Studio (<code>AIza...</code> / <code>AQ....</code>) maupun DeepSeek / OpenRouter (<code>sk-...</code>).</p>
+                <p class="page-subtitle">Kelola kuota AI pribadi atau gunakan AI gratis bawaan yang aktif otomatis tanpa perlu konfigurasi.</p>
+
+                <!-- Banner Informasi AI Gratis & Cara Mendapatkan Kunci Resmi -->
+                <div class="card" style="margin-bottom: 20px; border-color: #bfdbfe; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);">
+                    <div style="display: flex; gap: 14px; align-items: flex-start;">
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif Otomatis (Tanpa Wajib API Key)</div>
+                            <div style="font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px;">
+                                SkripsiAI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi, membuat slide PPT, atau simulasi sidang.
+                            </div>
+                            <div style="margin-top: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px; color: #475569; line-height: 1.6;">
+                                <strong>💡 Ingin Kecepatan Maksimal dengan API Key Pribadi Gratis?</strong>
+                                <ul style="margin: 4px 0 0; padding-left: 18px;">
+                                    <li><strong>Google Gemini (Gratis):</strong> Dapatkan di <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Google AI Studio</a>. Kunci resmi wajib diawali <code>AIzaSy...</code>.</li>
+                                    <li><strong>DeepSeek / OpenRouter (Gratis):</strong> Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">OpenRouter</a> (diawali <code>sk-or-v1-...</code>) atau <a href="https://platform.deepseek.com/" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">DeepSeek Platform</a> (diawali <code>sk-...</code>).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card" style="margin-bottom: 20px;">
                     <form action="{{ route('api.key.add') }}" method="POST">
@@ -2292,12 +2478,12 @@
                             <label class="form-label">Provider Default (opsional, sistem deteksi otomatis)</label>
                             <select name="provider" class="form-select">
                                 <option value="gemini">Google Gemini (AI Studio · AIza / AQ.)</option>
-                                <option value="deepseek">DeepSeek AI (Official / OpenRouter)</option>
+                                <option value="deepseek">DeepSeek AI (Official / OpenRouter / Groq)</option>
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Daftar API Key (Bisa Tempel Banyak Sekaligus) <span class="req">*</span></label>
-                            <textarea name="key" class="form-textarea" style="min-height: 100px; font-family: monospace; font-size: 12.5px;" placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;AQ.Ab8RN6...&#10;sk-..." required></textarea>
+                            <textarea name="key" class="form-textarea" style="min-height: 100px; font-family: monospace; font-size: 12.5px;" placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;sk-or-v1-...&#10;sk-..." required></textarea>
                         </div>
                         <div class="card-footer-bar">
                             <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY + FALLBACK DEEPSEEK REALTIME</span>
@@ -2309,21 +2495,34 @@
                 <div class="card-flush">
                     <div class="card-header-bar">
                         <span>Daftar API Key Tersimpan <span class="count-badge">{{ count($apiKeys) }}</span></span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Uji Kunci" untuk memastikan status aktif</span>
                     </div>
                     @forelse($apiKeys as $k)
-                        <div class="project-row" style="cursor: default;">
-                            <div class="project-row-left">
-                                <div class="project-initial" style="font-size: 11px;">{{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}</div>
+                        <div class="project-row" style="cursor: default; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px;">
+                            <div class="project-row-left" style="min-width: 0; flex: 1;">
+                                <div class="project-initial" style="font-size: 11px; width: 36px; height: 36px;">{{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}</div>
                                 <div style="min-width: 0;">
-                                    <div class="project-row-title">{{ substr($k->key, 0, 12) }}••••••••••••</div>
-                                    <div class="project-row-meta">{{ strtoupper($k->provider ?? 'GEMINI') }} · Digunakan {{ $k->usage_count ?? 0 }}x</div>
+                                    <div class="project-row-title" style="font-family: monospace; font-size: 13px;">{{ substr($k->key, 0, 10) }}••••••••••••</div>
+                                    <div class="project-row-meta" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px;">
+                                        <span>{{ strtoupper($k->provider ?? 'GEMINI') }}</span>
+                                        <span>·</span>
+                                        <span>Digunakan {{ $k->usage_count ?? 0 }}x</span>
+                                        <span id="api-key-status-{{ $k->id }}"></span>
+                                    </div>
                                 </div>
                             </div>
-                            <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST" style="flex-shrink: 0;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-outline" style="color: #dc2626; padding: 5px 10px; font-size: 12px;">Hapus</button>
-                            </form>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                                <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 12px; font-weight: 600;" onclick="testApiKey({{ $k->id }}, this)">
+                                    Uji Kunci
+                                </button>
+                                <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST" onsubmit="return confirm('Hapus API Key ini?');" style="margin: 0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-outline" style="color: #dc2626; border-color: #fecaca; padding: 5px 10px; font-size: 12px;" title="Hapus">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     @empty
                         <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
@@ -2339,7 +2538,7 @@
             <section class="tab-pane" id="pane-account">
                 <div class="page-eyebrow">Profil Mahasiswa &amp; Langganan</div>
                 <h1 class="page-title">Akun Saya</h1>
-                <p class="page-subtitle">Informasi akun mahasiswa, status akses Workspace AI tanpa token, dan paket berlanggananmu.</p>
+                <p class="page-subtitle">Informasi profil mahasiswa, status akses Workspace AI, dan paket aktif.</p>
 
                 <div class="card" style="margin-bottom: 18px;">
                     <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
@@ -2351,28 +2550,38 @@
                             <div style="font-size: 13.5px; color: var(--text-muted); margin-top: 2px;">{{ $user->email }}</div>
                         </div>
                         <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12.5px; font-weight: 600;">
+                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
                             Langganan Aktif
                         </span>
                     </div>
 
-                    <div class="form-row">
+                    <!-- Form Edit Nama Profil Mahasiswa -->
+                    <form action="{{ route('profile.updateName') }}" method="POST" style="margin-bottom: 22px; padding: 18px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                        @csrf
+                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Ubah Nama Profil Mahasiswa</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 5px;">Nama Lengkap (untuk Halaman Sampul &amp; PPT)</label>
+                                <input type="text" name="name" class="form-input" value="{{ $user->name }}" required placeholder="Contoh: Muhammad Alwi Syahrir">
+                            </div>
+                            <button type="submit" class="btn-primary" style="height: 40px; padding: 0 18px;">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="form-row" style="margin-bottom: 0;">
                         <div style="padding: 16px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff;">
                             <div style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">Paket Mahasiswa</div>
-                            <div style="font-size: 22px; font-weight: 700; color: var(--text-main); margin-top: 6px;">Akses Penuh (Tanpa Token)</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 6px;">Akses Penuh (Tanpa Token)</div>
                             <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">Seluruh model AI (Otomatis, DeepSeek AI, Google Gemini) aktif untuk penulisan Bab I–V, PPT Sidang, &amp; Simulasi Sidang.</div>
                         </div>
 
                         <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc;">
                             <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Total Proyek Workspace</div>
-                            <div style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-top: 4px;">{{ $history->count() }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Proyek</span></div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--text-main); margin-top: 4px;">{{ $history->count() }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Proyek</span></div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Proposal (Bab 1–3) &amp; Full Skripsi (Bab 1–5) tersimpan aman.</div>
                         </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;">
-                        <button type="button" class="btn-primary" onclick="openCreateProjectForm()">+ Buat Proyek Baru</button>
-                        <button type="button" class="btn-outline" onclick="openTab('referral', 'Ajak Teman')">Undang Teman Sekampus →</button>
-                        <button type="button" class="btn-outline" onclick="openTab('apikeys', 'Pengaturan API')">Atur API Key Pribadi</button>
                     </div>
                 </div>
             </section>
@@ -2387,17 +2596,33 @@
                 @endphp
                 <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral)</h1>
-                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu untuk mendapatkan keuntungan paket langganan mahasiswa.</p>
+                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu.</p>
 
                 <div class="card" style="margin-bottom: 18px; border-color: #bfdbfe; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-                        <div style="max-width: 520px;">
+                        <div style="max-width: 540px;">
                             <div style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">DISKON LANGGANAN MAHASISWA</div>
                             <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Bagikan Akses Workspace ke Teman Kuliah</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Salin link referral di bawah atau bagikan langsung via WhatsApp agar temanmu dapat mencoba menyusun proposal &amp; skripsi lebih cepat.</p>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 18px; text-align: center; min-width: 170px;">
+                        <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
                             <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Kode Referral Kamu</div>
+                            <div id="referral-code-text" style="font-size: 19px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">{{ $refCode }}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 18px;">
+                        <label class="form-label">Link Undangan Pribadi</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="referral-link-input" class="form-input" value="{{ $refUrl }}" readonly style="flex: 1; min-width: 220px; background: #fff;">
+                            <button type="button" class="btn-primary" onclick="copyReferralLink()">Salin Link</button>
+                            <button type="button" class="btn-outline" onclick="shareReferralWhatsapp()" style="display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                <span>Bagikan ke WhatsApp</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                             <div id="referral-code-text" style="font-size: 18px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">{{ $refCode }}</div>
                         </div>
                     </div>
@@ -2468,6 +2693,41 @@
                 box.style.display = 'none';
                 box.innerHTML = '';
             }
+        }
+
+        function testApiKey(id, btn) {
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="ai-spinner"></span> Menguji...';
+
+            fetch(`/api-key/test/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                const statusBox = document.getElementById(`api-key-status-${id}`);
+                if (statusBox) {
+                    if (ok && data.status === 'success') {
+                        statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">✓ ${data.message}</span>`;
+                    } else {
+                        statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#dc2626; background:#fef2f2; border:1px solid #fecaca; padding:2px 8px; border-radius:999px;" title="${data.message || ''}">⚠ ${data.message || 'Kunci gagal diuji'}</span>`;
+                    }
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                const statusBox = document.getElementById(`api-key-status-${id}`);
+                if (statusBox) {
+                    statusBox.innerHTML = `<span style="font-size:11.5px; color:#dc2626;">⚠ Gagal menghubungi server</span>`;
+                }
+            });
         }
 
         function toggleSidebar() {
@@ -2635,6 +2895,7 @@
         // =====================================================================
         let selectedPptProject = { id: null, title: '' };
         let pptSlides = [];
+        let pptCoverMeta = {};
         let currentSlideIdx = 0;
         let currentPptTheme = 'royal_academic';
 
@@ -2686,6 +2947,26 @@
                 formData.append('judul', selectedPptProject.title);
             }
 
+            const namaEl = document.getElementById('ppt-input-nama');
+            const nimEl = document.getElementById('ppt-input-nim');
+            const kampusEl = document.getElementById('ppt-input-kampus');
+            const prodiEl = document.getElementById('ppt-input-prodi');
+            const fakEl = document.getElementById('ppt-input-fakultas');
+            const p1El = document.getElementById('ppt-input-pembimbing-1');
+            const p2El = document.getElementById('ppt-input-pembimbing-2');
+            const u1El = document.getElementById('ppt-input-penguji-1');
+            const u2El = document.getElementById('ppt-input-penguji-2');
+
+            if (namaEl) formData.append('nama', namaEl.value.trim());
+            if (nimEl) formData.append('nim', nimEl.value.trim());
+            if (kampusEl) formData.append('kampus', kampusEl.value.trim());
+            if (prodiEl) formData.append('prodi', prodiEl.value.trim());
+            if (fakEl) formData.append('fakultas', fakEl.value.trim());
+            if (p1El) formData.append('pembimbing_1', p1El.value.trim());
+            if (p2El) formData.append('pembimbing_2', p2El.value.trim());
+            if (u1El) formData.append('penguji_1', u1El.value.trim());
+            if (u2El) formData.append('penguji_2', u2El.value.trim());
+
             try {
                 const res = await fetch("{{ route('tools.ppt') }}", {
                     method: 'POST',
@@ -2695,6 +2976,17 @@
                 const data = await res.json();
                 if (data.status === 'success' && Array.isArray(data.slides_data)) {
                     pptSlides = data.slides_data;
+                    pptCoverMeta = data.cover_meta || {
+                        nama: namaEl ? namaEl.value.trim() : '',
+                        nim: nimEl ? nimEl.value.trim() : '',
+                        kampus: kampusEl ? kampusEl.value.trim() : '',
+                        prodi: prodiEl ? prodiEl.value.trim() : '',
+                        fakultas: fakEl ? fakEl.value.trim() : '',
+                        pembimbing_1: p1El ? p1El.value.trim() : '',
+                        pembimbing_2: p2El ? p2El.value.trim() : '',
+                        penguji_1: u1El ? u1El.value.trim() : '',
+                        penguji_2: u2El ? u2El.value.trim() : '',
+                    };
                     currentSlideIdx = 0;
                     renderCurrentSlide();
                     setPptStep(3);
@@ -2731,20 +3023,63 @@
         function renderCurrentSlide() {
             if (!pptSlides.length) return;
             const s = pptSlides[currentSlideIdx];
-            document.getElementById('slide-section-label').innerText = s.section || ('Slide ' + (currentSlideIdx + 1));
-            document.getElementById('slide-counter-label').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
-            document.getElementById('slide-title-edit').innerText = s.title || '';
-            document.getElementById('slide-subtitle-edit').innerText = s.subtitle || '';
-            const foot = document.getElementById('slide-footer-proj-title');
-            if (foot) foot.innerText = selectedPptProject.title || 'Presentasi Sidang Skripsi';
 
+            const secLabel = document.getElementById('slide-section-label');
+            const countLabel = document.getElementById('slide-counter-label');
+            const titleEl = document.getElementById('slide-title-edit');
+            const subEl = document.getElementById('slide-subtitle-edit');
             const ul = document.getElementById('slide-bullets-edit');
-            ul.innerHTML = '';
-            (s.bullets || []).forEach(b => {
-                const li = document.createElement('li');
-                li.innerText = b;
-                ul.appendChild(li);
-            });
+            const foot = document.getElementById('slide-footer-proj-title');
+
+            countLabel.innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
+            if (foot) foot.innerText = selectedPptProject.title || 'Presentasi Sidang Skripsi';
+            document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
+            renderSlideNumberStrip();
+
+            const prevBtn = document.getElementById('btn-ppt-prev');
+            const nextBtn = document.getElementById('btn-ppt-next');
+            if (prevBtn) prevBtn.disabled = currentSlideIdx === 0;
+            if (nextBtn) nextBtn.disabled = currentSlideIdx >= pptSlides.length - 1;
+
+            if (currentSlideIdx === 0) {
+                secLabel.innerText = 'SLIDE 1 · JUDUL & COVER SIDANG';
+                titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                subEl.innerHTML = `
+                    <div style="margin-top: 8px; font-size: 13.5px; line-height: 1.6;">
+                        <div style="font-weight: 700; color: inherit; letter-spacing: 0.04em;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
+                        <div style="opacity: 0.85;">${pptCoverMeta.fakultas || ''} · ${pptCoverMeta.prodi || ''}</div>
+                        <div style="margin-top: 10px; font-weight: 600;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                    </div>
+                `;
+                ul.innerHTML = `
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 14px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: left; padding: 12px 14px; background: rgba(255,255,255,0.7); border-radius: 8px; border: 1px solid rgba(148,163,184,0.3); font-size: 11.5px; line-height: 1.5; color: inherit;">
+                            <div>
+                                <strong style="color: var(--primary);">Dosen Pembimbing:</strong><br>
+                                1. ${pptCoverMeta.pembimbing_1 || '-'}<br>
+                                2. ${pptCoverMeta.pembimbing_2 || '-'}
+                            </div>
+                            <div>
+                                <strong style="color: var(--primary);">Dosen Penguji:</strong><br>
+                                1. ${pptCoverMeta.penguji_1 || '-'}<br>
+                                2. ${pptCoverMeta.penguji_2 || '-'}
+                            </div>
+                        </div>
+                    </li>
+                `;
+            } else {
+                secLabel.innerText = (s.section || ('Slide ' + (currentSlideIdx + 1))).replace(/\*\*/g, '');
+                titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
+                subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
+
+                ul.innerHTML = '';
+                (s.bullets || []).forEach(b => {
+                    const li = document.createElement('li');
+                    li.innerText = b.replace(/\*\*/g, '');
+                    ul.appendChild(li);
+                });
+            }
+        }
 
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
@@ -2822,32 +3157,52 @@
             if (!container) return;
             container.innerHTML = '';
             pptSlides.forEach((s, idx) => {
-                const bulletsHtml = (s.bullets || []).map(b => `<li style="margin-bottom:4px;">${b}</li>`).join('');
                 const card = document.createElement('div');
                 card.className = `ppt-canvas ppt-theme-${currentPptTheme}`;
                 card.style.minHeight = '230px';
-                card.style.padding = '22px';
+                card.style.padding = '20px';
                 card.style.cursor = 'pointer';
                 card.onclick = () => {
                     currentSlideIdx = idx;
                     renderCurrentSlide();
                     setPptStep(3);
                 };
-                card.innerHTML = `
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                            <span class="ppt-badge" style="font-size:10px; padding:3px 9px;">${s.section || 'Slide ' + (idx + 1)}</span>
-                            <span style="font-size:11px; font-weight:700; opacity:0.7;">#${idx + 1}</span>
+
+                if (idx === 0) {
+                    card.innerHTML = `
+                        <div style="text-align: center;">
+                            <span class="ppt-badge" style="font-size:10px; padding:3px 9px; margin-bottom: 8px;">COVER SIDANG</span>
+                            <div style="font-size: 11px; font-weight: 700; opacity: 0.8; margin-bottom: 6px;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
+                            <div style="font-size:15px; font-weight:800; line-height:1.3; margin-bottom:8px;">${(s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '')}</div>
+                            <div style="font-size:11.5px; margin-bottom: 10px;">Oleh: ${pptCoverMeta.nama || 'Nama Mahasiswa'}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; text-align: left; padding: 6px 10px; background: rgba(255,255,255,0.7); border-radius: 6px; border: 1px solid rgba(148,163,184,0.3);">
+                                <div><strong>Pembimbing:</strong><br>1. ${pptCoverMeta.pembimbing_1 || '-'}<br>2. ${pptCoverMeta.pembimbing_2 || '-'}</div>
+                                <div><strong>Penguji:</strong><br>1. ${pptCoverMeta.penguji_1 || '-'}<br>2. ${pptCoverMeta.penguji_2 || '-'}</div>
+                            </div>
                         </div>
-                        <div style="font-size:16px; font-weight:700; line-height:1.3; margin-bottom:5px;">${s.title || ''}</div>
-                        <div style="font-size:12px; opacity:0.8; margin-bottom:10px;">${s.subtitle || ''}</div>
-                        <ul style="padding-left:16px; font-size:12px; line-height:1.5;">${bulletsHtml}</ul>
-                    </div>
-                    <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
-                        <span>Klik untuk edit slide ini</span>
-                        <span>${idx + 1} / ${pptSlides.length}</span>
-                    </div>
-                `;
+                        <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
+                            <span>Slide 1 / ${pptSlides.length}</span>
+                            <span>Edit Slide →</span>
+                        </div>
+                    `;
+                } else {
+                    const bulletsHtml = (s.bullets || []).map(b => `<li style="margin-bottom:4px;">${b.replace(/\*\*/g, '')}</li>`).join('');
+                    card.innerHTML = `
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span class="ppt-badge" style="font-size:10px; padding:3px 9px;">${(s.section || 'Slide ' + (idx + 1)).replace(/\*\*/g, '')}</span>
+                                <span style="font-size:11px; font-weight:700; opacity:0.7;">#${idx + 1}</span>
+                            </div>
+                            <div style="font-size:16px; font-weight:700; line-height:1.3; margin-bottom:5px;">${(s.title || '').replace(/\*\*/g, '')}</div>
+                            <div style="font-size:12px; opacity:0.8; margin-bottom:10px;">${(s.subtitle || '').replace(/\*\*/g, '')}</div>
+                            <ul style="padding-left:16px; font-size:12px; line-height:1.5;">${bulletsHtml}</ul>
+                        </div>
+                        <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
+                            <span>Klik untuk edit slide ini</span>
+                            <span>${idx + 1} / ${pptSlides.length}</span>
+                        </div>
+                    `;
+                }
                 container.appendChild(card);
             });
         }
@@ -2872,19 +3227,51 @@
             canvas.className = 'ppt-canvas ppt-theme-' + currentPptTheme;
             document.getElementById('fs-slide-counter').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
             document.getElementById('fs-slide-num-tag').innerText = `${currentSlideIdx + 1} / ${pptSlides.length}`;
-            document.getElementById('fs-slide-section').innerText = s.section || `Slide ${currentSlideIdx + 1}`;
-            document.getElementById('fs-slide-title').innerText = s.title || '';
-            document.getElementById('fs-slide-subtitle').innerText = s.subtitle || '';
             document.getElementById('fs-slide-proj-title').innerText = selectedPptProject.title || 'Sidang Skripsi';
-            document.getElementById('fs-speaker-notes').innerText = s.speaker_notes ? ('Catatan Pembicara: ' + s.speaker_notes) : '';
 
+            const secEl = document.getElementById('fs-slide-section');
+            const titleEl = document.getElementById('fs-slide-title');
+            const subEl = document.getElementById('fs-slide-subtitle');
             const ul = document.getElementById('fs-slide-bullets');
-            ul.innerHTML = '';
-            (s.bullets || []).forEach(b => {
-                const li = document.createElement('li');
-                li.innerText = b;
-                ul.appendChild(li);
-            });
+
+            if (currentSlideIdx === 0) {
+                secEl.innerText = 'SLIDE 1 · JUDUL & COVER SIDANG';
+                titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                subEl.innerHTML = `
+                    <div style="font-size: 15px; line-height: 1.6; margin-top: 10px;">
+                        <div style="font-weight: 700; letter-spacing: 0.04em;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
+                        <div style="opacity: 0.85;">${pptCoverMeta.fakultas || ''} · ${pptCoverMeta.prodi || ''}</div>
+                        <div style="margin-top: 14px; font-weight: 600;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                    </div>
+                `;
+                ul.innerHTML = `
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; padding: 16px 20px; background: rgba(255,255,255,0.75); border-radius: 10px; border: 1px solid rgba(148,163,184,0.3); font-size: 13.5px; line-height: 1.6; color: inherit;">
+                            <div>
+                                <strong style="color: var(--primary);">Dosen Pembimbing:</strong><br>
+                                1. ${pptCoverMeta.pembimbing_1 || '-'}<br>
+                                2. ${pptCoverMeta.pembimbing_2 || '-'}
+                            </div>
+                            <div>
+                                <strong style="color: var(--primary);">Dosen Penguji:</strong><br>
+                                1. ${pptCoverMeta.penguji_1 || '-'}<br>
+                                2. ${pptCoverMeta.penguji_2 || '-'}
+                            </div>
+                        </div>
+                    </li>
+                `;
+            } else {
+                secEl.innerText = (s.section || `Slide ${currentSlideIdx + 1}`).replace(/\*\*/g, '');
+                titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
+                subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
+
+                ul.innerHTML = '';
+                (s.bullets || []).forEach(b => {
+                    const li = document.createElement('li');
+                    li.innerText = b.replace(/\*\*/g, '');
+                    ul.appendChild(li);
+                });
+            }
         }
 
         document.addEventListener('keydown', function (e) {
@@ -2907,6 +3294,8 @@
                 royal_academic: { bg: 'FFFFFF', fg: '0F172A', sub: '2563EB', bar: '2563EB' },
                 canva_editorial: { bg: 'FBF8F3', fg: '292524', sub: 'C2410C', bar: 'EA580C' },
                 emerald_executive: { bg: 'F4FBF7', fg: '064E3B', sub: '047857', bar: '059669' },
+                maroon_prestige: { bg: 'FFF5F5', fg: '450A0A', sub: '991B1B', bar: '991B1B' },
+                tech_dark: { bg: '0B0F19', fg: 'FFFFFF', sub: '38BDF8', bar: '06B6D4' },
                 swiss_minimal: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: '111827' },
                 basic_navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE', bar: '6366F1' },
                 basic_white: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: 'CBD5E1' }
@@ -2918,29 +3307,64 @@
                 slide.background = { color: pal.bg };
                 slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.14, fill: { color: pal.bar } });
 
-                slide.addText(s.section || `Slide ${idx + 1}`, {
-                    x: 0.6, y: 0.4, w: 8.5, h: 0.35,
-                    fontSize: 11, bold: true, color: pal.sub
-                });
-
-                slide.addText(s.title || '', {
-                    x: 0.6, y: 0.85, w: 8.8, h: 0.9,
-                    fontSize: 22, bold: true, color: pal.fg
-                });
-
-                if (s.subtitle) {
-                    slide.addText(s.subtitle, {
-                        x: 0.6, y: 1.75, w: 8.8, h: 0.4,
-                        fontSize: 13, color: pal.sub
+                if (idx === 0) {
+                    const meta = (typeof pptCoverMeta !== 'undefined' && pptCoverMeta) ? pptCoverMeta : {};
+                    const headerTxt = (meta.kampus || 'UNIVERSITAS').toUpperCase() + (meta.prodi ? ` · ${meta.prodi.toUpperCase()}` : '');
+                    slide.addText(headerTxt, {
+                        x: 0.6, y: 0.45, w: 8.8, h: 0.35,
+                        fontSize: 11, bold: true, color: pal.sub, align: 'center'
                     });
-                }
 
-                const bulletItems = (s.bullets || []).map(b => ({ text: b, options: { bullet: true, breakLine: true } }));
-                if (bulletItems.length) {
-                    slide.addText(bulletItems, {
-                        x: 0.6, y: 2.3, w: 8.8, h: 2.6,
-                        fontSize: 14, color: pal.fg, lineSpacing: 24, valign: 'top'
+                    const cleanTitle = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                    slide.addText(cleanTitle, {
+                        x: 0.8, y: 1.1, w: 8.4, h: 1.5,
+                        fontSize: 21, bold: true, color: pal.fg, align: 'center', valign: 'middle'
                     });
+
+                    slide.addText(`Oleh:\n${meta.nama || 'Nama Mahasiswa'} (NIM: ${meta.nim || '-'})`, {
+                        x: 1.0, y: 2.8, w: 8.0, h: 0.65,
+                        fontSize: 12.5, bold: true, color: pal.fg, align: 'center'
+                    });
+
+                    const leftText = `Dosen Pembimbing:\n1. ${meta.pembimbing_1 || '-'}\n2. ${meta.pembimbing_2 || '-'}`;
+                    slide.addText(leftText, {
+                        x: 1.0, y: 3.65, w: 3.8, h: 1.3,
+                        fontSize: 11, color: pal.sub, lineSpacing: 18
+                    });
+
+                    const rightText = `Dosen Penguji:\n1. ${meta.penguji_1 || '-'}\n2. ${meta.penguji_2 || '-'}`;
+                    slide.addText(rightText, {
+                        x: 5.2, y: 3.65, w: 3.8, h: 1.3,
+                        fontSize: 11, color: pal.sub, lineSpacing: 18
+                    });
+                } else {
+                    const cleanSection = (s.section || `Slide ${idx + 1}`).replace(/\*\*/g, '');
+                    slide.addText(cleanSection, {
+                        x: 0.6, y: 0.4, w: 8.5, h: 0.35,
+                        fontSize: 11, bold: true, color: pal.sub
+                    });
+
+                    const cleanTitle = (s.title || '').replace(/\*\*/g, '');
+                    slide.addText(cleanTitle, {
+                        x: 0.6, y: 0.85, w: 8.8, h: 0.9,
+                        fontSize: 22, bold: true, color: pal.fg
+                    });
+
+                    if (s.subtitle) {
+                        const cleanSub = s.subtitle.replace(/\*\*/g, '');
+                        slide.addText(cleanSub, {
+                            x: 0.6, y: 1.75, w: 8.8, h: 0.4,
+                            fontSize: 13, color: pal.sub
+                        });
+                    }
+
+                    const bulletItems = (s.bullets || []).map(b => ({ text: b.replace(/\*\*/g, ''), options: { bullet: true, breakLine: true } }));
+                    if (bulletItems.length) {
+                        slide.addText(bulletItems, {
+                            x: 0.6, y: 2.3, w: 8.8, h: 2.6,
+                            fontSize: 14, color: pal.fg, lineSpacing: 24, valign: 'top'
+                        });
+                    }
                 }
 
                 if (s.speaker_notes) {
@@ -3011,7 +3435,7 @@
         }
 
         async function requestDefenseQuestions(formData, labelTitle) {
-            renderLoadingCard('defense-loading-box', 'Dewan Penguji AI sedang menyiapkan 5 pertanyaan sidang...', `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
+            renderLoadingCard('defense-loading-box', 'Dosen Penguji AI sedang menyiapkan 5 pertanyaan sidang...', `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             try {
@@ -3074,7 +3498,7 @@
             const btn = document.getElementById('btn-next-def-q');
             btn.disabled = true;
             btn.innerHTML = '<span class="ai-spinner"></span><span>Menilai Jawaban Sidang...</span>';
-            renderLoadingCard('defense-eval-loading-box', 'Dewan Penguji AI sedang mengevaluasi seluruh jawabanmu...', 'Menghitung skor per pertanyaan, memberikan catatan penguji, dan menyusun saran jawaban terbaik...');
+            renderLoadingCard('defense-eval-loading-box', 'Dosen Penguji AI sedang mengevaluasi seluruh jawabanmu...', 'Menghitung skor per pertanyaan, memberikan catatan penguji, dan menyusun saran jawaban terbaik...');
 
             try {
                 const res = await fetch("{{ route('tools.defense') }}", {

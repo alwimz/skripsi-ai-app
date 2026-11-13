@@ -30,6 +30,8 @@ Route::middleware(['auth'])->group(function () {
 
     // --- DASHBOARD & PROJECT MANAGEMENT ---
     Route::get('/app/create', [GeneratorController::class, 'preGeneratorForm'])->name('app.create');
+    Route::get('/app/pre-generator', [GeneratorController::class, 'preGeneratorForm'])->name('app.preGenerator');
+    Route::post('/profile/update-name', [GeneratorController::class, 'updateUserName'])->name('profile.updateName');
     Route::post('/project/start', [GeneratorController::class, 'startProject'])->name('project.start');
     Route::delete('/project/{id}/delete', [GeneratorController::class, 'deleteProject'])->name('project.delete');
 
@@ -48,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     // --- API KEY & REWARD ---
     Route::post('/api-key/add', [GeneratorController::class, 'addApiKey'])->name('api.key.add');
     Route::delete('/api-key/delete/{id}', [GeneratorController::class, 'deleteApiKey'])->name('api.key.delete');
+    Route::post('/api-key/test/{id}', [GeneratorController::class, 'testApiKey'])->name('api.key.test');
     Route::post('/reward/claim', [GeneratorController::class, 'claimReward'])->name('reward.claim');
 
     // --- AI TOOLS ---

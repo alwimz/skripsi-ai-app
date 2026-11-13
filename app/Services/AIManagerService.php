@@ -52,29 +52,31 @@ class AIManagerService
         }
 
         foreach ($imageBase64 ? ['openai'] : ['deepseek', 'openai'] as $freeModel) {
-            try {
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->timeout(120)
-                ->post('https://text.pollinations.ai/openai', [
-                    'model' => $freeModel,
-                    'messages' => $messages,
-                    'temperature' => 0.65,
-                ]);
+            foreach (['https://text.pollinations.ai/openai', 'https://text.pollinations.ai/'] as $pollUrl) {
+                try {
+                    $response = Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->timeout(100)
+                    ->post($pollUrl, [
+                        'model' => $freeModel,
+                        'messages' => $messages,
+                        'temperature' => 0.65,
+                    ]);
 
-                if ($response->successful()) {
-                    $json = $response->json();
-                    $content = $json['choices'][0]['message']['content'] ?? '';
-                    if (trim($content) !== '') {
-                        return $content;
+                    if ($response->successful()) {
+                        $json = $response->json();
+                        $content = $json['choices'][0]['message']['content'] ?? '';
+                        if (trim($content) !== '') {
+                            return $content;
+                        }
+                        if (is_string($response->body()) && strlen(trim($response->body())) > 20 && !str_starts_with(trim($response->body()), '{')) {
+                            return trim($response->body());
+                        }
                     }
-                    if (is_string($response->body()) && strlen(trim($response->body())) > 20 && !str_starts_with(trim($response->body()), '{')) {
-                        return trim($response->body());
-                    }
+                } catch (Exception $e) {
+                    Log::warning("Free AI ($freeModel @ $pollUrl) fallback error: " . $e->getMessage());
                 }
-            } catch (Exception $e) {
-                Log::warning("Free AI ($freeModel) fallback error: " . $e->getMessage());
             }
         }
 

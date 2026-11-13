@@ -115,31 +115,35 @@ class GroqService
 
         // Engine DeepSeek Versi Gratis Realtime (otomatis jika belum ada key atau key terkena limit)
         foreach (['deepseek', 'openai'] as $freeModel) {
-            try {
-                $freeResp = Http::withHeaders(['Content-Type' => 'application/json'])
-                    ->timeout(120)
-                    ->post('https://text.pollinations.ai/openai', [
-                        'model' => $freeModel,
+            foreach (['https://text.pollinations.ai/openai', 'https://text.pollinations.ai/'] as $pollUrl) {
+                try {
+                    $payload = [
                         'messages' => [
                             ['role' => 'system', 'content' => $systemMsg],
                             ['role' => 'user', 'content' => $prompt],
                         ],
+                        'model' => $freeModel,
                         'temperature' => 0.65,
-                    ]);
+                    ];
 
-                if ($freeResp->successful()) {
-                    $json = $freeResp->json();
-                    $content = $json['choices'][0]['message']['content'] ?? '';
-                    if (trim($content) !== '') {
-                        return $content;
+                    $freeResp = Http::withHeaders(['Content-Type' => 'application/json'])
+                        ->timeout(100)
+                        ->post($pollUrl, $payload);
+
+                    if ($freeResp->successful()) {
+                        $json = $freeResp->json();
+                        $content = $json['choices'][0]['message']['content'] ?? '';
+                        if (trim($content) !== '') {
+                            return $content;
+                        }
+                        $rawBody = trim($freeResp->body());
+                        if (strlen($rawBody) > 25 && !str_starts_with($rawBody, '{')) {
+                            return $rawBody;
+                        }
                     }
-                    $rawBody = trim($freeResp->body());
-                    if (strlen($rawBody) > 25 && !str_starts_with($rawBody, '{')) {
-                        return $rawBody;
-                    }
+                } catch (Exception $e) {
+                    $lastError = $e->getMessage();
                 }
-            } catch (Exception $e) {
-                $lastError = $e->getMessage();
             }
         }
 

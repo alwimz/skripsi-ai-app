@@ -904,7 +904,10 @@
 
     <aside class="studio-sidebar">
         <div class="sidebar-header">
-            <a href="{{ route('app.preGenerator', ['view' => 'projects']) }}" class="back-link">← Kembali ke Proyek</a>
+            <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="back-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>Kembali ke Proyek</span>
+            </a>
             <div class="project-title-side" title="{{ $project->judul }}">{{ $project->judul }}</div>
             <span class="project-mode-badge">
                 {{ $isProposal ? 'Proposal (Bab I–III)' : 'Skripsi Penuh (Bab I–V)' }}
@@ -950,14 +953,17 @@
                     id="nav-item-revisi"
                     onclick="selectChapterView('revisi')">
                 <span class="nav-item-left">
-                    <span>🧪</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/><line x1="14" y1="9" x2="10" y2="9"/></svg>
                     <span class="nav-item-text">Lab Revisi</span>
                 </span>
                 <span style="font-size: 11px; font-weight: 700;">Sub-bab</span>
             </button>
 
             <div class="auto-box">
-                <div class="auto-box-title">⚡ Susun Otomatis</div>
+                <div class="auto-box-title" style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Susun Otomatis</span>
+                </div>
                 <div class="auto-box-desc">
                     @if ($isProposal)
                         Susun Bab I–III & Daftar Pustaka berurutan sesuai pengaturan awal proyekmu.
@@ -996,10 +1002,12 @@
                     <option value="gemini">Google Gemini</option>
                 </select>
                 <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;" onclick="saveActiveEdit()">
-                    💾 Simpan Editan
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                    <span>Simpan Editan</span>
                 </button>
                 <button type="button" class="btn-top primary" id="btn-generate-current" onclick="generateCurrentView()">
-                    ✨ Tulis / Susun Ulang Bab Ini
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span>Tulis / Susun Ulang Bab Ini</span>
                 </button>
                 <button type="button" class="btn-top" onclick="submitQuickDownload('docx')">Unduh Word</button>
                 <button type="button" class="btn-top" onclick="submitQuickDownload('pdf')">Unduh PDF</button>
@@ -1013,7 +1021,10 @@
                     <div class="chapter-bar-sub" id="active-chapter-sub">Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm)</div>
                 </div>
                 <div class="chapter-bar-actions">
-                    <button type="button" class="btn-top" onclick="selectChapterView('revisi')">🧪 Buka Lab Revisi</button>
+                    <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
+                        <span>Buka Lab Revisi</span>
+                    </button>
                 </div>
             </div>
 
@@ -1059,7 +1070,7 @@ const chapterLabels = {
     bab4: 'BAB IV · HASIL PENELITIAN DAN PEMBAHASAN',
     bab5: 'BAB V · PENUTUP',
     daftar_pustaka: 'DAFTAR PUSTAKA',
-    revisi: '🧪 LAB REVISI SUB-BAB'
+    revisi: 'LAB REVISI SUB-BAB'
 };
 
 const chapterContents = {
@@ -1165,8 +1176,8 @@ function selectChapterView(viewKey) {
         subEl.textContent = 'Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm) — Klik teks untuk mengedit langsung';
         genBtn.style.display = 'inline-flex';
         genBtn.textContent = viewKey === 'daftar_pustaka'
-            ? '✨ Rapikan / Susun Daftar Pustaka'
-            : ((chapterContents[viewKey] || '').trim() ? '✨ Susun Ulang Bab Ini' : '✨ Tulis Bab Ini');
+            ? 'Rapikan / Susun Daftar Pustaka'
+            : ((chapterContents[viewKey] || '').trim() ? 'Susun Ulang Bab Ini' : 'Tulis Bab Ini');
     }
 
     if (window.innerWidth <= 900) {
@@ -1425,7 +1436,10 @@ function renderLabRevisi() {
     container.innerHTML = `
         <div class="revisi-card" id="view-revisi">
             <div class="revisi-header">
-                <div class="revisi-title">🧪 Lab Revisi</div>
+                <div class="revisi-title" style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/><line x1="14" y1="9" x2="10" y2="9"/></svg>
+                    <span>Lab Revisi Sub-Bab</span>
+                </div>
                 <span class="project-mode-badge">Revisi Terfokus per Sub-Bab</span>
             </div>
 
@@ -1458,7 +1472,7 @@ function renderLabRevisi() {
             <div class="revisi-actions">
                 <span style="font-size: 12px; color: var(--text-muted);">Perubahan hanya memperbarui sub-bab atau bab target tanpa merusak struktur bab lain.</span>
                 <button type="button" class="btn-top primary" id="btn-submit-revisi" onclick="submitLabRevisi()">
-                    ✨ Proses Revisi Sub-Bab
+                    Proses Revisi Sub-Bab
                 </button>
             </div>
         </div>
@@ -1478,13 +1492,13 @@ function renderActiveSheet() {
             <div class="a4-sheet empty-sheet">
                 <h3>${escapeHtml(chapterLabels[activeView] || 'Bagian Belum Disusun')}</h3>
                 <p>Bagian ini belum ditulis. Klik tombol di bawah untuk menyusun naskah lengkap berstandar skripsi S1 secara otomatis.</p>
-                <button type="button" class="btn-top primary" onclick="generateCurrentView()">✨ Mulai Susun Bagian Ini</button>
+                <button type="button" class="btn-top primary" onclick="generateCurrentView()">Mulai Susun Bagian Ini</button>
             </div>
         `;
         return;
     }
 
-    const frontHtml = activeView === 'bab1' ? buildCoverAndFrontMatterHtml() : '';
+    const frontHtml = '';
     const bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
 
     container.innerHTML = `

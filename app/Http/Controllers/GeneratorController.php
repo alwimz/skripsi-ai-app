@@ -414,6 +414,17 @@ class GeneratorController extends Controller
         }
     }
 
+    public function updateUserName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+        ]);
+        $user = User::findOrFail(Auth::id());
+        $user->name = trim($request->name);
+        $user->save();
+        return redirect()->back()->with('success', 'Nama profil mahasiswa berhasil diperbarui.');
+    }
+
     public function deleteApiKey($id)
     {
         try {
@@ -422,6 +433,95 @@ class GeneratorController extends Controller
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Gagal menghapus API Key.');
         }
+    }
+
+    public function testApiKey($id)
+    {
+        $keyRow = DB::table('api_keys')->where('id', $id)->where('user_id', Auth::id())->first();
+        if (!$keyRow) {
+            return response()->json(['status' => 'error', 'message' => 'API Key tidak ditemukan.'], 404);
+        }
+
+        $rawKey = trim($keyRow->key);
+        $provider = $keyRow->provider ?? '';
+        if (empty($provider)) {
+            $provider = (str_starts_with($rawKey, 'AIza') || str_starts_with($rawKey, 'AQ.')) ? 'gemini' : 'deepseek';
+        }
+
+        try {
+            if ($provider === 'gemini') {
+                $isBearer = str_starts_with($rawKey, 'AQ.') || str_starts_with($rawKey, 'ya29.');
+                $client = new \GuzzleHttp\Client(['timeout' => 12, 'verify' => false]);
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+                $headers = ['Content-Type' => 'application/json'];
+                $options = [
+                    'json' => [
+                        'contents' => [['parts' => [['text' => 'Ping']]]]
+                    ]
+                ];
+                if ($isBearer) {
+                    $headers['Authorization'] = 'Bearer ' . $rawKey;
+                } else {
+                    $headers['x-goog-api-key'] = $rawKey;
+                    $options['query'] = ['key' => $rawKey];
+                }
+                $options['headers'] = $headers;
+                $res = $client->post($url, $options);
+                if ($res->getStatusCode() === 200) {
+                    return response()->json(['status' => 'success', 'message' => 'API Key Google Gemini Valid & Aktif!']);
+                }
+            } else {
+                if (str_starts_with($rawKey, 'sk-or-')) {
+                    $endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+                    $model = 'deepseek/deepseek-chat:free';
+                } elseif (str_starts_with($rawKey, 'gsk_')) {
+                    $endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+                    $model = 'llama-3.1-8b-instant';
+                } else {
+                    $endpoint = 'https://api.deepseek.com/chat/completions';
+                    $model = 'deepseek-chat';
+                }
+
+                $res = \Illuminate\Support\Facades\Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $rawKey,
+                    'Content-Type' => 'application/json',
+                ])->timeout(12)->post($endpoint, [
+                    'model' => $model,
+                    'messages' => [['role' => 'user', 'content' => 'Ping']],
+                    'max_tokens' => 5
+                ]);
+
+                if ($res->successful()) {
+                    return response()->json(['status' => 'success', 'message' => 'API Key ' . strtoupper($provider) . ' Valid & Aktif!']);
+                } else {
+                    $status = $res->status();
+                    $body = $res->json()['error']['message'] ?? $res->body();
+                    $msg = "HTTP {$status}: ";
+                    if ($status === 401) {
+                        $msg .= "Kunci ditolak (Kunci DeepSeek harus diawali 'sk-...').";
+                    } else {
+                        $msg .= \Illuminate\Support\Str::limit($body, 120);
+                    }
+                    return response()->json(['status' => 'error', 'message' => $msg], 400);
+                }
+            }
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+            $body = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            $msg = "HTTP {$status}: ";
+            if ($status === 400 && str_contains($body, 'API_KEY_INVALID')) {
+                $msg .= "Kunci tidak valid. Gemini resmi harus diawali 'AIzaSy...'.";
+            } elseif ($status === 401 || $status === 403) {
+                $msg .= "Akses ditolak / Token kadaluarsa.";
+            } else {
+                $msg .= \Illuminate\Support\Str::limit($body, 120);
+            }
+            return response()->json(['status' => 'error', 'message' => $msg], 400);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Respon tidak dikenal.'], 400);
     }
 
     public function claimReward(Request $request)
@@ -1811,8 +1911,9 @@ ATURAN REVISI:
         try {
             $publicProjects = Project::whereNotNull('bab1_content')
                 ->where('bab1_content', '!=', '')
+                ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 20')
                 ->orderBy('updated_at', 'desc')
-                ->take(12)
+                ->take(6)
                 ->get();
         } catch (Throwable $e) {
             $publicProjects = collect();
@@ -2028,10 +2129,15 @@ TEKS ASLI:
             }
         }
 
+        $defaultId = $this->getDefaultUserIdentity(Auth::id(), Auth::user()->name ?? 'Mahasiswa');
+        $projMeta = [];
+        $projProdi = 'Program Studi';
         if ($request->filled('project_id')) {
             $proj = Project::where('user_id', Auth::id())->find($request->project_id);
             if ($proj) {
                 $docTitle = $proj->judul;
+                $projProdi = $proj->prodi;
+                $projMeta = $this->getProjectMeta($proj);
                 $docText = strip_tags(
                     "Judul: {$proj->judul}\nProdi: {$proj->prodi}\nMetode: {$proj->metode_penelitian}\n" .
                     "BAB 1:\n{$proj->bab1_content}\nBAB 2:\n{$proj->bab2_content}\nBAB 3:\n{$proj->bab3_content}\nBAB 4:\n{$proj->bab4_content}\nBAB 5:\n{$proj->bab5_content}"
@@ -2043,7 +2149,20 @@ TEKS ASLI:
             return response()->json(['status' => 'error', 'message' => 'Silakan unggah file skripsi (.pdf / .docx) atau pilih proyek skripsi Anda.'], 422);
         }
 
-        $prompt = "PERAN: Anda adalah Konsultan Presentasi Sidang Skripsi.
+        $coverMeta = [
+            'nama' => $request->input('nama') ?: ($projMeta['nama'] ?? $defaultId['nama'] ?? (Auth::user()->name ?? 'Mahasiswa')),
+            'nim' => $request->input('nim') ?: ($projMeta['nim'] ?? $defaultId['nim'] ?? ''),
+            'kampus' => $request->input('kampus') ?: ($projMeta['kampus'] ?? $defaultId['kampus'] ?? 'Universitas'),
+            'fakultas' => $projMeta['fakultas'] ?? $defaultId['fakultas'] ?? '',
+            'prodi' => $projProdi,
+            'logo_base64' => $projMeta['logo_base64'] ?? $defaultId['logo_base64'] ?? '',
+            'pembimbing_1' => $request->input('pembimbing_1') ?: 'Dosen Pembimbing 1',
+            'pembimbing_2' => $request->input('pembimbing_2') ?: 'Dosen Pembimbing 2',
+            'penguji_1' => $request->input('penguji_1') ?: 'Dosen Penguji 1',
+            'penguji_2' => $request->input('penguji_2') ?: 'Dosen Penguji 2',
+        ];
+
+        $prompt = "PERAN: Anda adalah Konsultan Presentasi Sidang Skripsi Akademik Indonesia.
 TUGAS: Rangkum dokumen skripsi/proposal berikut menjadi 9 SLIDE PRESENTASI SIDANG dalam format JSON Array murni.
 
 JUDUL / TOPIK: {$docTitle}
@@ -2052,19 +2171,30 @@ ISI DOKUMEN SKRIPSI MAHASISWA:
 " . Str::limit($docText ?: $docTitle, 12000) . "
 \"\"\"
 
-INSTRUKSI OUTPUT WAJIB:
-Kembalikan HANYA JSON Array valid (tanpa teks pengantar, tanpa markdown ```json) dengan struktur 9 objek slide berikut:
+ATURAN WAJIB FORMAT & KONTEN:
+1. DILARANG KERAS menggunakan simbol markdown bintang ganda (** atau *) di dalam title, subtitle, maupun bullets. Semua teks harus teks biasa yang bersih, rapi, dan mudah dibaca.
+2. Slide 1: Sampul Sidang (Cover). Title adalah judul lengkap skripsi, subtitle adalah Program Studi & Metode Penelitian, bullets berisi poin ringkas fokus penelitian.
+3. Slide 2 s/d 9: Isi presentasi akademik berurutan:
+   - Slide 2: Latar Belakang Masalah
+   - Slide 3: Identifikasi & Batasan Masalah
+   - Slide 4: Rumusan Masalah & Tujuan Penelitian
+   - Slide 5: Tinjauan Pustaka & Kerangka Teori
+   - Slide 6: Metodologi Penelitian
+   - Slide 7: Hasil Penelitian & Temuan Data
+   - Slide 8: Pembahasan & Analisis Kritis
+   - Slide 9: Kesimpulan & Saran
+
+Kembalikan HANYA JSON Array valid (tanpa teks pengantar, tanpa markdown ```json) dengan struktur 9 objek slide:
 [
   {
     \"slide_number\": 1,
     \"section\": \"Sampul Sidang\",
     \"title\": \"Judul Lengkap Skripsi\",
     \"subtitle\": \"Program Studi & Metode Penelitian\",
-    \"bullets\": [\"Disusun untuk Sidang Tugas Akhir / Seminar Proposal\", \"Fokus Riset & Objek Penelitian\"],
-    \"speaker_notes\": \"Selamat pagi/siang Bapak dan Ibu Dosen Penguji, terima kasih atas kesempatan yang diberikan...\"
+    \"bullets\": [\"Fokus Riset Utama\", \"Objek Penelitian\"],
+    \"speaker_notes\": \"Selamat pagi Bapak dan Ibu Dosen Penguji...\"
   }
-]
-Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori, Penelitian Terdahulu, Metodologi, Hasil Penelitian, Pembahasan, Kesimpulan & Saran).";
+]";
 
         try {
             $raw = $this->ai->generateText($prompt, $model);
@@ -2080,15 +2210,15 @@ Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori,
                 $slidesArray = [
                     [
                         'slide_number' => 1,
-                        'section' => 'Sampul Presentasi',
+                        'section' => 'Sampul Sidang',
                         'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
                         'subtitle' => 'Sidang Skripsi / Seminar Proposal',
-                        'bullets' => ['Presentasi Hasil Penelitian Tugas Akhir', 'Klik teks pada slide ini untuk mengedit langsung'],
-                        'speaker_notes' => 'Selamat pagi/siang Bapak/Ibu Dosen Penguji. Pada kesempatan ini saya akan memaparkan penelitian berjudul ' . $docTitle
+                        'bullets' => ['Presentasi Hasil Penelitian Tugas Akhir', 'Fokus Kajian Utama'],
+                        'speaker_notes' => 'Selamat pagi Bapak/Ibu Dosen Penguji. Pada kesempatan ini saya akan memaparkan penelitian berjudul ' . $docTitle
                     ],
                     [
                         'slide_number' => 2,
-                        'section' => 'Bab I · Pendahuluan',
+                        'section' => 'Latar Belakang Masalah',
                         'title' => 'Latar Belakang & Urgensi Penelitian',
                         'subtitle' => 'Fenomena dan Kesenjangan Penelitian',
                         'bullets' => array_values(array_filter(array_slice(explode("\n", strip_tags($raw)), 0, 4))),
@@ -2097,10 +2227,21 @@ Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori,
                 ];
             }
 
+            foreach ($slidesArray as &$s) {
+                if (isset($s['title'])) $s['title'] = trim(str_replace(['**', '*'], '', $s['title']));
+                if (isset($s['subtitle'])) $s['subtitle'] = trim(str_replace(['**', '*'], '', $s['subtitle']));
+                if (isset($s['bullets']) && is_array($s['bullets'])) {
+                    $s['bullets'] = array_values(array_filter(array_map(function($b) {
+                        return trim(str_replace(['**', '*'], '', $b));
+                    }, $s['bullets'])));
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
                 'title' => $docTitle,
                 'slides_data' => $slidesArray,
+                'cover_meta' => $coverMeta,
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
@@ -2142,7 +2283,7 @@ Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori,
                     return response()->json(['status' => 'error', 'message' => 'Silakan unggah file skripsi (.pdf / .docx) atau pilih proyek skripsi Anda.'], 422);
                 }
 
-                $prompt = "PERAN: Anda adalah Ketua Dewan Dosen Penguji Sidang Skripsi.
+                $prompt = "PERAN: Anda adalah Ketua Dosen Penguji Sidang Skripsi.
 Berdasarkan dokumen skripsi mahasiswa berikut:
 JUDUL: {$docTitle}
 METODE: {$metode}

@@ -116,9 +116,12 @@ class GeminiService
                 }
 
                 $cleanApiKey = trim($apiKeyModel->key);
-                $response = $client->post($url, [
-                    'headers' => ['x-goog-api-key' => $cleanApiKey],
-                    'query' => ['key' => $cleanApiKey],
+                $isBearer = str_starts_with($cleanApiKey, 'AQ.') || str_starts_with($cleanApiKey, 'ya29.');
+
+                $headers = [
+                    'Content-Type' => 'application/json',
+                ];
+                $postOptions = [
                     'json' => [
                         'contents' => [
                             [
@@ -132,7 +135,17 @@ class GeminiService
                             'maxOutputTokens' => 8192,
                         ]
                     ]
-                ]);
+                ];
+
+                if ($isBearer) {
+                    $headers['Authorization'] = 'Bearer ' . $cleanApiKey;
+                } else {
+                    $headers['x-goog-api-key'] = $cleanApiKey;
+                    $postOptions['query'] = ['key' => $cleanApiKey];
+                }
+                $postOptions['headers'] = $headers;
+
+                $response = $client->post($url, $postOptions);
 
                 $data = json_decode($response->getBody()->getContents(), true);
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
@@ -209,9 +222,12 @@ class GeminiService
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
 
                 $cleanApiKey = trim($apiKeyModel->key);
-                $response = $client->post($url, [
-                    'headers' => ['x-goog-api-key' => $cleanApiKey],
-                    'query' => ['key' => $cleanApiKey],
+                $isBearer = str_starts_with($cleanApiKey, 'AQ.') || str_starts_with($cleanApiKey, 'ya29.');
+
+                $headers = [
+                    'Content-Type' => 'application/json',
+                ];
+                $postOptions = [
                     'json' => [
                         'contents' => [
                             [
@@ -227,7 +243,17 @@ class GeminiService
                             ]
                         ]
                     ]
-                ]);
+                ];
+
+                if ($isBearer) {
+                    $headers['Authorization'] = 'Bearer ' . $cleanApiKey;
+                } else {
+                    $headers['x-goog-api-key'] = $cleanApiKey;
+                    $postOptions['query'] = ['key' => $cleanApiKey];
+                }
+                $postOptions['headers'] = $headers;
+
+                $response = $client->post($url, $postOptions);
 
                 $data = json_decode($response->getBody()->getContents(), true);
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';

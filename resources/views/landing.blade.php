@@ -800,7 +800,7 @@
                 </li>
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
-                <li><a href="#fitur-lengkap" class="nav-link">Fitur</a></li>
+                <li><a href="#fitur-lengkap" class="nav-link">Semua Modul</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -878,7 +878,10 @@
                     </div>
 
                     <div style="margin-top: auto; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; font-size: 11.5px; color: #1e40af; line-height: 1.45;">
-                        <strong>🧪 Lab Revisi Sub-bab</strong><br>
+                        <strong style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
+                            <span>Lab Revisi Sub-bab</span>
+                        </strong>
                         Perbaiki sub-bab spesifik (misal 1.1 atau 2.1) sesuai catatan dosen pembimbing.
                     </div>
                 </div>
@@ -889,11 +892,13 @@
                             Workspace Skripsi · Margin 4-4-3-3 · Times New Roman 12pt
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <a id="sample-dl-docx" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'docx']) }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;">
-                                📄 Unduh Word (.docx)
+                            <a id="sample-dl-docx" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'docx']) }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <span>Unduh Word (.docx)</span>
                             </a>
-                            <a id="sample-dl-pdf" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'pdf']) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
-                                📕 Unduh PDF (.pdf)
+                            <a id="sample-dl-pdf" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'pdf']) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                <span>Unduh PDF (.pdf)</span>
                             </a>
                         </div>
                     </div>
@@ -991,10 +996,17 @@
                         </div>
                         <div class="sample-actions">
                             <button type="button" class="sample-btn primary" onclick="openPdfModal(@json($item['title']), @json($pdfUrl . '?inline=1'))">
-                                👁️ Lihat PDF
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <span>Lihat PDF</span>
                             </button>
-                            <a href="{{ $docxUrl }}" class="sample-btn">📄 .docx</a>
-                            <a href="{{ $pdfUrl }}" class="sample-btn">📕 .pdf</a>
+                            <a href="{{ $docxUrl }}" class="sample-btn">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <span>.docx</span>
+                            </a>
+                            <a href="{{ $pdfUrl }}" class="sample-btn">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <span>.pdf</span>
+                            </a>
                         </div>
                     </article>
                 @endforeach
@@ -1018,10 +1030,17 @@
                             </div>
                             <div class="sample-actions">
                                 <button type="button" class="sample-btn primary" onclick="openPdfModal(@json($proj->judul), @json($projPdfUrl . '?inline=1'))">
-                                    👁️ Lihat PDF
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span>Lihat PDF</span>
                                 </button>
-                                <a href="{{ $projDocxUrl }}" class="sample-btn">📄 .docx</a>
-                                <a href="{{ $projPdfUrl }}" class="sample-btn">📕 .pdf</a>
+                                <a href="{{ $projDocxUrl }}" class="sample-btn">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    <span>.docx</span>
+                                </a>
+                                <a href="{{ $projPdfUrl }}" class="sample-btn">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    <span>.pdf</span>
+                                </a>
                             </div>
                         </article>
                     @endforeach
