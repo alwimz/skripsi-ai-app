@@ -51,40 +51,46 @@ class AIManagerService
             ];
         }
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])
-        ->timeout(120)
-        ->post('https://text.pollinations.ai/openai', [
-            'model' => 'openai',
-            'messages' => $messages,
-            'temperature' => 0.65,
-        ]);
+        foreach ($imageBase64 ? ['openai'] : ['deepseek', 'openai'] as $freeModel) {
+            try {
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->timeout(120)
+                ->post('https://text.pollinations.ai/openai', [
+                    'model' => $freeModel,
+                    'messages' => $messages,
+                    'temperature' => 0.65,
+                ]);
 
-        if ($response->successful()) {
-            $json = $response->json();
-            $content = $json['choices'][0]['message']['content'] ?? '';
-            if (trim($content) !== '') {
-                return $content;
-            }
-            if (is_string($response->body()) && strlen(trim($response->body())) > 20 && !str_starts_with(trim($response->body()), '{')) {
-                return trim($response->body());
+                if ($response->successful()) {
+                    $json = $response->json();
+                    $content = $json['choices'][0]['message']['content'] ?? '';
+                    if (trim($content) !== '') {
+                        return $content;
+                    }
+                    if (is_string($response->body()) && strlen(trim($response->body())) > 20 && !str_starts_with(trim($response->body()), '{')) {
+                        return trim($response->body());
+                    }
+                }
+            } catch (Exception $e) {
+                Log::warning("Free AI ($freeModel) fallback error: " . $e->getMessage());
             }
         }
 
-        throw new Exception('Seluruh layanan AI (Gemini, Groq, dan Backup Server) sedang sibuk. Silakan tambahkan API Key Gemini/Groq baru di menu API Key.');
+        throw new Exception('Seluruh layanan AI (Gemini, DeepSeek, dan Free Server) sedang sibuk. Silakan tambahkan API Key Gemini/DeepSeek di menu Pengaturan API.');
     }
 
     /**
-     * Generate text dengan pilihan model ('auto', 'gemini', atau 'groq') + multi-layer fallback
+     * Generate text dengan pilihan model ('auto', 'deepseek', 'groq', atau 'gemini') + multi-layer fallback
      */
     public function generateText(string $prompt, string $model = 'auto'): string
     {
-        if ($model === 'groq') {
+        if ($model === 'deepseek' || $model === 'groq') {
             try {
                 return $this->groq->generateText($prompt);
-            } catch (Exception $groqEx) {
-                Log::warning('Groq gagal, mencoba Gemini & Backup AI: ' . $groqEx->getMessage());
+            } catch (Exception $dsEx) {
+                Log::warning('DeepSeek gagal, mencoba Gemini & Backup AI: ' . $dsEx->getMessage());
                 try {
                     return $this->gemini->generateText($prompt);
                 } catch (Exception $geminiEx) {
@@ -93,15 +99,15 @@ class AIManagerService
             }
         }
 
-        // Default ('auto' atau 'gemini'): Prioritas Gemini -> Fallback Groq -> Fallback Free AI
+        // Default ('auto' atau 'gemini'): Prioritas Gemini -> Fallback DeepSeek -> Fallback Free AI
         try {
             return $this->gemini->generateText($prompt);
         } catch (Exception $geminiEx) {
-            Log::warning('Gemini gagal, mencoba fallback ke Groq: ' . $geminiEx->getMessage());
+            Log::warning('Gemini gagal, mencoba fallback ke DeepSeek: ' . $geminiEx->getMessage());
             try {
                 return $this->groq->generateText($prompt);
-            } catch (Exception $groqEx) {
-                Log::warning('Groq juga gagal, menggunakan Free AI Fallback: ' . $groqEx->getMessage());
+            } catch (Exception $dsEx) {
+                Log::warning('DeepSeek juga gagal, menggunakan Free AI Fallback: ' . $dsEx->getMessage());
                 return $this->generateFreeFallback($prompt);
             }
         }

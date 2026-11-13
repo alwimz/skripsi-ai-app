@@ -11,6 +11,7 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\Style\Tab;
 use PhpOffice\PhpWord\Style\TOC;
 use PhpOffice\PhpWord\Settings;
 use Dompdf\Dompdf;
@@ -132,6 +133,189 @@ class GeneratorController extends Controller
         return ['pedoman_text' => $raw];
     }
 
+    /**
+     * Kompres & konversi logo universitas menjadi PNG base64 kecil agar aman disimpan di TEXT column & terbaca PhpWord/Dompdf
+     */
+    private function normalizeLogoBase64($fileOrBase64): string
+    {
+        try {
+            $rawBytes = null;
+            if (is_object($fileOrBase64) && method_exists($fileOrBase64, 'isValid') && $fileOrBase64->isValid()) {
+                $rawBytes = @file_get_contents($fileOrBase64->getRealPath());
+            } elseif (is_string($fileOrBase64) && !empty(trim($fileOrBase64))) {
+                $clean = preg_replace('#^data:image/\w+;base64,#i', '', trim($fileOrBase64));
+                $rawBytes = @base64_decode($clean);
+            }
+
+            if (empty($rawBytes) || strlen($rawBytes) < 60) {
+                return '';
+            }
+
+            if (function_exists('imagecreatefromstring')) {
+                $src = @imagecreatefromstring($rawBytes);
+                if ($src !== false) {
+                    $origW = imagesx($src);
+                    $origH = imagesy($src);
+                    $maxDim = 220;
+                    $scale = min(1.0, $maxDim / max(1, $origW, $origH));
+                    $newW = max(1, (int) round($origW * $scale));
+                    $newH = max(1, (int) round($origH * $scale));
+
+                    $dst = imagecreatetruecolor($newW, $newH);
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                    $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+                    imagefilledrectangle($dst, 0, 0, $newW, $newH, $transparent);
+                    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+                    ob_start();
+                    imagepng($dst, null, 7);
+                    $pngBytes = ob_get_clean();
+                    imagedestroy($src);
+                    imagedestroy($dst);
+
+                    if (!empty($pngBytes)) {
+                        return 'data:image/png;base64,' . base64_encode($pngBytes);
+                    }
+                }
+            }
+
+            if (strlen($rawBytes) <= 42000) {
+                return 'data:image/png;base64,' . base64_encode($rawBytes);
+            }
+        } catch (Throwable $e) {
+            Log::warning('Logo normalization error: ' . $e->getMessage());
+        }
+        return '';
+    }
+
+    /**
+     * Ambil identitas & logo default dari proyek terbaru user agar form terisi otomatis
+     */
+    private function getDefaultUserIdentity(int $userId): array
+    {
+        $user = Auth::user();
+        $identity = [
+            'nama' => $user ? trim($user->name) : '',
+            'nim' => '',
+            'kampus' => '',
+            'prodi' => '',
+            'fakultas' => '',
+            'logo_base64' => '',
+        ];
+
+        try {
+            $recentProjects = Project::where('user_id', $userId)->orderBy('updated_at', 'desc')->take(10)->get();
+            foreach ($recentProjects as $proj) {
+                $m = $this->getProjectMeta($proj);
+                if (empty($identity['nama']) && !empty($m['nama'])) $identity['nama'] = trim($m['nama']);
+                if (empty($identity['nim']) && !empty($m['nim'])) $identity['nim'] = trim($m['nim']);
+                if (empty($identity['kampus']) && !empty($m['kampus'])) $identity['kampus'] = trim($m['kampus']);
+                if (empty($identity['fakultas']) && !empty($m['fakultas'])) $identity['fakultas'] = trim($m['fakultas']);
+                if (empty($identity['prodi']) && !empty($proj->prodi)) $identity['prodi'] = trim($proj->prodi);
+                if (empty($identity['logo_base64']) && !empty($m['logo_base64'])) $identity['logo_base64'] = $m['logo_base64'];
+            }
+        } catch (Throwable $e) {}
+
+        return $identity;
+    }
+
+    /**
+     * Ambil referensi ilmiah terverifikasi dari OpenAlex untuk memperkuat sitasi naskah
+     */
+    private function fetchVerifiedReferencesForProject(Project $project): array
+    {
+        $refs = [];
+        try {
+            $cleanWords = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $project->judul);
+            $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4));
+            $query = implode(' ', array_slice($words, 0, 6));
+            if (empty($query)) return [];
+
+            $res = Http::timeout(8)->get('https://api.openalex.org/works', [
+                'search' => $query,
+                'filter' => 'from_publication_date:2020-01-01',
+                'per-page' => 10,
+            ]);
+
+            if ($res->successful()) {
+                foreach ($res->json()['results'] ?? [] as $w) {
+                    $title = trim($w['title'] ?? '');
+                    if (empty($title)) continue;
+                    $authors = [];
+                    foreach (array_slice($w['authorships'] ?? [], 0, 2) as $a) {
+                        if (!empty($a['author']['display_name'])) {
+                            $parts = explode(' ', trim($a['author']['display_name']));
+                            $authors[] = end($parts);
+                        }
+                    }
+                    $authorLabel = !empty($authors) ? implode(' & ', $authors) : 'Peneliti';
+                    if (count($w['authorships'] ?? []) > 2) $authorLabel = $authors[0] . ' et al.';
+                    $year = $w['publication_year'] ?? date('Y');
+                    $venue = $w['primary_location']['source']['display_name'] ?? 'Jurnal Ilmiah';
+                    $refs[] = "{$authorLabel} ({$year}) - \"{$title}\" [{$venue}]";
+                }
+            }
+        } catch (Throwable $e) {
+            Log::warning('OpenAlex project grounding skipped: ' . $e->getMessage());
+        }
+        return $refs;
+    }
+
+    /**
+     * Ekstrak daftar isi terstruktur dari isi bab proyek
+     */
+    private function extractTocItemsForProject(Project $project, bool $isProposal = false): array
+    {
+        $items = [
+            ['label' => 'HALAMAN SAMPUL', 'page' => 'i', 'level' => 1],
+            ['label' => 'KATA PENGANTAR', 'page' => 'ii', 'level' => 1],
+            ['label' => 'DAFTAR ISI', 'page' => 'iii', 'level' => 1],
+        ];
+
+        $chapters = [
+            'bab1' => ['num' => 'I', 'title' => 'PENDAHULUAN'],
+            'bab2' => ['num' => 'II', 'title' => 'TINJAUAN PUSTAKA'],
+            'bab3' => ['num' => 'III', 'title' => 'METODOLOGI PENELITIAN'],
+        ];
+        if (!$isProposal) {
+            $chapters['bab4'] = ['num' => 'IV', 'title' => 'HASIL DAN PEMBAHASAN'];
+            $chapters['bab5'] = ['num' => 'V', 'title' => 'PENUTUP'];
+        }
+
+        $pageNum = 1;
+        foreach ($chapters as $key => $info) {
+            $content = trim((string) ($project->{$key . '_content'} ?? ''));
+            if (empty($content)) continue;
+
+            $items[] = [
+                'label' => "BAB {$info['num']} {$info['title']}",
+                'page' => (string) $pageNum,
+                'level' => 1,
+            ];
+
+            $lines = explode("\n", str_replace(['<p>', '</p>', '<br>', '<br/>'], "\n", $content));
+            foreach ($lines as $line) {
+                $clean = trim(strip_tags($line));
+                if (preg_match('/^(\d+\.\d+)\s+(.+)$/', $clean, $m)) {
+                    $items[] = [
+                        'label' => $m[1] . ' ' . trim($m[2]),
+                        'page' => (string) $pageNum,
+                        'level' => 2,
+                    ];
+                    $pageNum++;
+                }
+            }
+            $pageNum = max($pageNum + 1, $pageNum);
+        }
+
+        if (!empty(trim((string) $project->daftar_pustaka))) {
+            $items[] = ['label' => 'DAFTAR PUSTAKA', 'page' => (string) $pageNum, 'level' => 1];
+        }
+
+        return $items;
+    }
+
     // =========================================================================
     // 1. DASHBOARD & MANAJEMEN PROYEK
     // =========================================================================
@@ -155,44 +339,76 @@ class GeneratorController extends Controller
         } catch (Throwable $e) {}
 
         $history = Project::where('user_id', $user->id)->orderBy('updated_at', 'desc')->get();
+        $defaultIdentity = $this->getDefaultUserIdentity($user->id);
+
         try {
             $apiKeys = DB::table('api_keys')->where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
         } catch (Exception $e) {
             $apiKeys = collect([]);
         }
 
-        return view('pre_generator', compact('history', 'apiKeys', 'user'));
+        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity'));
     }
 
     public function addApiKey(Request $request)
     {
         $request->validate([
             'key' => 'required|string|min:10',
-            'provider' => 'nullable|in:gemini,groq'
+            'provider' => 'nullable|in:gemini,deepseek,groq'
         ]);
 
         try {
-            $cleanKey = trim($request->key);
-            if (DB::table('api_keys')->where('key', $cleanKey)->exists()) {
-                return redirect()->back()->with('error', 'API Key tersebut sudah terdaftar.');
+            $rawInput = trim($request->key);
+            $candidates = array_values(array_unique(array_filter(
+                preg_split('/[\r\n,;]+|\s+/', $rawInput),
+                fn($k) => strlen(trim($k)) >= 12
+            )));
+
+            if (empty($candidates)) {
+                return redirect()->back()->with('error', 'Format API Key tidak valid.');
             }
 
-            $data = [
-                'user_id' => Auth::id(),
-                'key' => $cleanKey,
-                'is_active' => true,
-                'usage_count' => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            $inserted = 0;
+            $skipped = 0;
+            $hasProviderCol = Schema::hasColumn('api_keys', 'provider');
 
-            if (Schema::hasColumn('api_keys', 'provider')) {
-                $provider = $request->provider ?: (str_starts_with($cleanKey, 'gsk_') ? 'groq' : 'gemini');
-                $data['provider'] = $provider;
+            foreach ($candidates as $cleanKey) {
+                $cleanKey = trim($cleanKey);
+                if (DB::table('api_keys')->where('user_id', Auth::id())->where('key', $cleanKey)->exists()) {
+                    $skipped++;
+                    continue;
+                }
+
+                $data = [
+                    'user_id' => Auth::id(),
+                    'key' => $cleanKey,
+                    'is_active' => true,
+                    'usage_count' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                if ($hasProviderCol) {
+                    $detectedProvider = (str_starts_with($cleanKey, 'AIza') || str_starts_with($cleanKey, 'AQ.'))
+                        ? 'gemini'
+                        : 'deepseek';
+                    $provider = $request->provider ?: $detectedProvider;
+                    if ($provider === 'groq') $provider = 'deepseek';
+                    $data['provider'] = $provider;
+                }
+
+                DB::table('api_keys')->insert($data);
+                $inserted++;
             }
 
-            DB::table('api_keys')->insert($data);
-            return redirect()->back()->with('success', 'API Key berhasil disimpan.');
+            if ($inserted === 0) {
+                return redirect()->back()->with('error', 'Semua API Key yang dimasukkan sudah terdaftar.');
+            }
+
+            $msg = $inserted === 1
+                ? '1 API Key berhasil disimpan.'
+                : "{$inserted} API Key berhasil disimpan" . ($skipped > 0 ? " ({$skipped} duplikat dilewati)." : '.');
+            return redirect()->back()->with('success', $msg);
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Gagal menyimpan API Key: ' . $e->getMessage());
         }
@@ -210,15 +426,12 @@ class GeneratorController extends Controller
 
     public function claimReward(Request $request)
     {
-        $type = $request->type;
         $user = User::find(Auth::id());
-        $reward = ($type === 'login') ? 2 : 5;
-        if ($reward > 0) {
-            $user->credits += $reward;
-            $user->save();
-            return response()->json(['status' => 'success', 'message' => "+$reward Token berhasil ditambahkan", 'new_credits' => $user->credits]);
-        }
-        return response()->json(['status' => 'error', 'message' => 'Gagal klaim token.']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Akses AI aktif untuk akun Anda.',
+            'new_credits' => $user ? $user->credits : 99
+        ]);
     }
 
     public function startProject(Request $request)
@@ -230,16 +443,7 @@ class GeneratorController extends Controller
         ]);
 
         $cleanJudul = trim($request->judul);
-
-        // Cegah duplikat proyek dengan judul yang sama
-        $existing = Project::where('user_id', Auth::id())
-            ->whereRaw('LOWER(judul) = ?', [strtolower($cleanJudul)])
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($existing) {
-            return redirect()->route('app.index', ['id' => $existing->id]);
-        }
+        $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
 
         // Ekstrak file pedoman kampus jika diunggah
         $guidelineText = '';
@@ -263,19 +467,27 @@ class GeneratorController extends Controller
             $refFilesText = implode("\n", $extractedRefs);
         }
 
-        // Encode logo kampus ke base64 jika diunggah saat pembuatan proyek
-        $logoBase64 = $request->input('logo_base64', '');
+        // Encode & kompres logo kampus agar aman disimpan & terbaca di Word/PDF
+        $logoBase64 = '';
         if ($request->hasFile('logo_kampus') && $request->file('logo_kampus')->isValid()) {
-            $lf = $request->file('logo_kampus');
-            $mime = $lf->getMimeType() ?: 'image/png';
-            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($lf->getRealPath()));
+            $logoBase64 = $this->normalizeLogoBase64($request->file('logo_kampus'));
+        } elseif ($request->filled('logo_base64')) {
+            $logoBase64 = $this->normalizeLogoBase64($request->input('logo_base64'));
+        }
+        if (empty($logoBase64) && !empty($defaultIdentity['logo_base64'])) {
+            $logoBase64 = $defaultIdentity['logo_base64'];
         }
 
+        $namaInput = trim($request->input('nama', ''));
+        $nimInput = trim($request->input('nim', ''));
+        $kampusInput = trim($request->input('kampus', ''));
+        $fakultasInput = trim($request->input('fakultas', ''));
+
         $meta = [
-            'nama' => trim($request->input('nama', Auth::user()->name ?? '')),
-            'nim' => trim($request->input('nim', '')),
-            'kampus' => trim($request->input('kampus', '')),
-            'fakultas' => trim($request->input('fakultas', '')),
+            'nama' => $namaInput ?: ($defaultIdentity['nama'] ?? (Auth::user()->name ?? '')),
+            'nim' => $nimInput ?: ($defaultIdentity['nim'] ?? ''),
+            'kampus' => $kampusInput ?: ($defaultIdentity['kampus'] ?? ''),
+            'fakultas' => $fakultasInput ?: ($defaultIdentity['fakultas'] ?? ''),
             'logo_base64' => $logoBase64,
             'jenis_penelitian' => $request->input('jenis_penelitian', 'Skripsi (S1)'),
             'tahap_pengerjaan' => $request->input('tahap_pengerjaan', 'Skripsi Penuh (Bab I–V)'),
@@ -292,6 +504,26 @@ class GeneratorController extends Controller
             ],
             'format_nomor' => $request->input('format_nomor', '1.1'),
         ];
+
+        // Jika proyek dengan judul sama sudah ada, perbarui metadata/tahap agar sinkron
+        $existing = Project::where('user_id', Auth::id())
+            ->whereRaw('LOWER(judul) = ?', [strtolower($cleanJudul)])
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($existing) {
+            $oldMeta = $this->getProjectMeta($existing);
+            $mergedMeta = array_merge($oldMeta, array_filter($meta, fn($v) => $v !== '' && $v !== null));
+            $mergedMeta['tahap_pengerjaan'] = $meta['tahap_pengerjaan'];
+            if (!empty($logoBase64)) {
+                $mergedMeta['logo_base64'] = $logoBase64;
+            }
+            $existing->prodi = trim($request->prodi);
+            $existing->metode_penelitian = $request->metode_penelitian;
+            $existing->citation_validation = json_encode($mergedMeta, JSON_UNESCAPED_UNICODE);
+            $existing->save();
+            return redirect()->route('app.index', ['id' => $existing->id]);
+        }
 
         $project = Project::create([
             'judul' => $cleanJudul,
@@ -319,6 +551,14 @@ class GeneratorController extends Controller
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $history = Project::where('user_id', Auth::id())->orderBy('updated_at', 'desc')->get();
         $meta = $this->getProjectMeta($project);
+        $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
+
+        foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
+            if (empty($meta[$field]) && !empty($defaultIdentity[$field])) {
+                $meta[$field] = $defaultIdentity[$field];
+            }
+        }
+
         return view('generator', compact('project', 'history', 'meta'));
     }
 
@@ -371,39 +611,35 @@ class GeneratorController extends Controller
 
     public function generateTitles(Request $request)
     {
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis di bagian atas.']);
-        }
-
         $request->validate(['topik' => 'required|string']);
         $prodi = $request->input('prodi') ?: 'Umum';
         $metode = $request->input('metode') ?: 'Kuantitatif / Kualitatif / R&D';
         $model = $request->input('model', 'auto');
 
-        $prompt = "Sebagai Dosen Pembimbing Skripsi Senior, berikan 6 rekomendasi judul skripsi S1 terbaik untuk:
+        $prompt = "Sebagai Dosen Pembimbing Skripsi Senior di Indonesia, berikan tepat 12 rekomendasi judul skripsi S1 terbaik untuk:
 - Topik / Bidang Penelitian: {$request->topik}
 - Metodologi: {$metode}
 - Program Studi: {$prodi}
 
 Syarat:
-1. Spesifik, relevan dengan riset terbaru, dan memiliki variabel atau objek kajian yang jelas.
-2. Gunakan Bahasa Indonesia akademik baku.
-3. Output HANYA daftar judul (1 baris 1 judul), tanpa kata pengantar dan tanpa nomor urut.";
+1. Spesifik, orisinal, relevan dengan riset terbaru, dan memiliki variabel atau objek kajian yang jelas serta terukur.
+2. Gunakan Bahasa Indonesia akademik baku dan bervariasi polanya (tidak monoton).
+3. Output WAJIB HANYA daftar judul (1 baris 1 judul), tepat 12 baris, tanpa kata pengantar, tanpa keterangan tambahan, dan tanpa nomor urut.";
 
         try {
             $content = $this->ai->generateText($prompt, $model);
             $titles = array_filter(explode("\n", $content), fn($t) => strlen(trim($t)) > 15);
-            $cleanTitles = array_map(function ($t) {
-                return trim(preg_replace('/^[\d\-\.\*\s\"]+|[\"]+$/', '', trim($t)));
-            }, $titles);
+            $cleanTitles = array_values(array_unique(array_map(function ($t) {
+                return trim(preg_replace('/^[\d\-\.\*\s\"\)]+|[\"]+$/', '', trim($t)));
+            }, $titles)));
 
-            $user->decrement('credits');
+            $cleanTitles = array_values(array_filter($cleanTitles, function ($t) {
+                return strlen($t) > 15 && !preg_match('/^(berikut|rekomendasi|judul\s+skripsi|daftar)/i', $t);
+            }));
 
             return response()->json([
                 'status' => 'success',
-                'data' => array_values(array_slice($cleanTitles, 0, 8)),
-                'new_credits' => $user->credits
+                'data' => array_slice($cleanTitles, 0, 10),
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
@@ -412,87 +648,124 @@ Syarat:
 
     public function findJournals(Request $request)
     {
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis terlebih dahulu.']);
-        }
-
         $request->validate(['keyword' => 'required|string']);
         $keyword = trim($request->keyword);
+        $scope = $request->input('scope', 'all'); // all | id | int
         $model = $request->input('model', 'auto');
 
-        $journals = [];
+        $journalsId = [];
+        $journalsInt = [];
+
+        $mapOpenAlexWork = function ($work, string $scopeLabel) {
+            $title = trim($work['title'] ?? '');
+            if (empty($title)) return null;
+
+            $authors = [];
+            foreach (array_slice($work['authorships'] ?? [], 0, 3) as $auth) {
+                if (!empty($auth['author']['display_name'])) {
+                    $authors[] = $auth['author']['display_name'];
+                }
+            }
+            $authorStr = !empty($authors) ? implode(', ', $authors) : 'Tim Peneliti';
+            if (count($work['authorships'] ?? []) > 3) {
+                $authorStr .= ', et al.';
+            }
+
+            $year = $work['publication_year'] ?? date('Y');
+            $venue = $work['primary_location']['source']['display_name']
+                ?? $work['host_venue']['display_name']
+                ?? ($scopeLabel === 'Indonesia' ? 'Jurnal Ilmiah Nasional (Sinta)' : 'International Open-Access Journal');
+
+            $pdfUrl = $work['open_access']['oa_url']
+                ?? $work['primary_location']['pdf_url']
+                ?? $work['primary_location']['landing_page_url']
+                ?? $work['doi']
+                ?? ('https://scholar.google.com/scholar?q=' . urlencode($title . ' filetype:pdf'));
+
+            $doiUrl = $work['doi'] ?? ('https://scholar.google.com/scholar?q=' . urlencode($title));
+
+            return [
+                'title' => $title,
+                'author' => $authorStr,
+                'journal' => $venue,
+                'year' => (string) $year,
+                'pdf_url' => $pdfUrl,
+                'doi_url' => $doiUrl,
+                'citation' => "{$authorStr} ({$year}). {$title}. {$venue}. " . ($work['doi'] ?? ''),
+                'scope' => $scopeLabel,
+                'is_real_oa' => true,
+            ];
+        };
 
         try {
-            $oaResponse = Http::timeout(12)->get('https://api.openalex.org/works', [
-                'search' => $keyword,
-                'filter' => 'is_oa:true,from_publication_date:2019-01-01',
-                'per-page' => 8,
-            ]);
-
-            if ($oaResponse->successful()) {
-                $results = $oaResponse->json()['results'] ?? [];
-                foreach ($results as $work) {
-                    $title = trim($work['title'] ?? '');
-                    if (empty($title)) continue;
-
-                    $authors = [];
-                    foreach (array_slice($work['authorships'] ?? [], 0, 3) as $auth) {
-                        if (!empty($auth['author']['display_name'])) {
-                            $authors[] = $auth['author']['display_name'];
+            if ($scope === 'all' || $scope === 'id') {
+                $oaId = Http::timeout(10)->get('https://api.openalex.org/works', [
+                    'search' => $keyword,
+                    'filter' => 'is_oa:true,from_publication_date:2019-01-01,institutions.country_code:ID',
+                    'per-page' => $scope === 'id' ? 10 : 5,
+                ]);
+                if ($oaId->successful()) {
+                    foreach ($oaId->json()['results'] ?? [] as $w) {
+                        $item = $mapOpenAlexWork($w, 'Indonesia');
+                        if ($item) $journalsId[] = $item;
+                    }
+                }
+                if (count($journalsId) < 3) {
+                    $oaIdLang = Http::timeout(10)->get('https://api.openalex.org/works', [
+                        'search' => $keyword . ' Indonesia',
+                        'filter' => 'is_oa:true,from_publication_date:2019-01-01,language:id',
+                        'per-page' => 5,
+                    ]);
+                    if ($oaIdLang->successful()) {
+                        foreach ($oaIdLang->json()['results'] ?? [] as $w) {
+                            $item = $mapOpenAlexWork($w, 'Indonesia');
+                            if ($item) $journalsId[] = $item;
                         }
                     }
-                    $authorStr = !empty($authors) ? implode(', ', $authors) : 'Tim Peneliti';
-                    if (count($work['authorships'] ?? []) > 3) {
-                        $authorStr .= ', et al.';
+                }
+            }
+
+            if ($scope === 'all' || $scope === 'int') {
+                $oaInt = Http::timeout(10)->get('https://api.openalex.org/works', [
+                    'search' => $keyword,
+                    'filter' => 'is_oa:true,from_publication_date:2019-01-01,language:en',
+                    'per-page' => $scope === 'int' ? 10 : 5,
+                ]);
+                if ($oaInt->successful()) {
+                    foreach ($oaInt->json()['results'] ?? [] as $w) {
+                        $item = $mapOpenAlexWork($w, 'Internasional');
+                        if ($item) $journalsInt[] = $item;
                     }
-
-                    $year = $work['publication_year'] ?? date('Y');
-                    $venue = $work['primary_location']['source']['display_name']
-                        ?? $work['host_venue']['display_name']
-                        ?? 'Jurnal Ilmiah Open Access';
-
-                    $pdfUrl = $work['open_access']['oa_url']
-                        ?? $work['primary_location']['pdf_url']
-                        ?? $work['primary_location']['landing_page_url']
-                        ?? $work['doi']
-                        ?? ('https://scholar.google.com/scholar?q=' . urlencode($title . ' filetype:pdf'));
-
-                    $doiUrl = $work['doi'] ?? ('https://scholar.google.com/scholar?q=' . urlencode($title));
-
-                    $journals[] = [
-                        'title' => $title,
-                        'author' => $authorStr,
-                        'journal' => $venue,
-                        'year' => (string) $year,
-                        'pdf_url' => $pdfUrl,
-                        'doi_url' => $doiUrl,
-                        'citation' => "{$authorStr} ({$year}). {$title}. {$venue}. " . ($work['doi'] ?? ''),
-                        'is_real_oa' => true,
-                    ];
                 }
             }
         } catch (Throwable $e) {
             Log::warning('OpenAlex search fallback: ' . $e->getMessage());
         }
 
-        if (count($journals) < 5) {
+        // Lengkapi via AI jika hasil OpenAlex masih kurang
+        if (($scope === 'all' && (count($journalsId) < 3 || count($journalsInt) < 3))
+            || ($scope === 'id' && count($journalsId) < 5)
+            || ($scope === 'int' && count($journalsInt) < 5)) {
             try {
-                $needed = 6 - count($journals);
-                $prompt = "Berikan {$needed} referensi jurnal ilmiah (2020-2025) yang relevan dengan topik '{$keyword}'.
-Format wajib per baris: Judul Artikel|Nama Penulis|Nama Jurnal|Tahun
-Tanpa nomor urut dan tanpa kalimat pengantar.";
+                $prompt = "Berikan referensi jurnal ilmiah (2020-2026) yang relevan dengan topik '{$keyword}'.
+Bagi menjadi Jurnal Indonesia (terindeks Sinta/Garuda) dan Jurnal Internasional (Scopus/IEEE/Springer/Elsevier).
+Format WAJIB per baris: Kategori(Indonesia/Internasional)|Judul Artikel|Nama Penulis|Nama Jurnal|Tahun
+Berikan masing-masing 4 artikel Indonesia dan 4 artikel Internasional tanpa nomor urut dan tanpa kalimat pengantar.";
 
                 $content = $this->ai->generateText($prompt, $model);
                 $lines = array_filter(explode("\n", $content), fn($t) => !empty(trim($t)));
                 foreach ($lines as $line) {
                     $parts = explode('|', $line);
-                    if (count($parts) >= 3) {
-                        $jTitle = trim(preg_replace('/^[\d\.\-\s]+/', '', $parts[0]));
-                        $jAuthor = trim($parts[1]);
-                        $jVenue = trim($parts[2]);
-                        $jYear = isset($parts[3]) ? trim($parts[3]) : '2023';
-                        $journals[] = [
+                    if (count($parts) >= 4) {
+                        $rawScope = strtolower(trim($parts[0]));
+                        $isIndo = str_contains($rawScope, 'indo');
+                        $scopeLabel = $isIndo ? 'Indonesia' : 'Internasional';
+                        $jTitle = trim(preg_replace('/^[\d\.\-\s]+/', '', $parts[1]));
+                        $jAuthor = trim($parts[2]);
+                        $jVenue = trim($parts[3]);
+                        $jYear = isset($parts[4]) ? trim($parts[4]) : '2024';
+
+                        $entry = [
                             'title' => $jTitle,
                             'author' => $jAuthor,
                             'journal' => $jVenue,
@@ -500,23 +773,42 @@ Tanpa nomor urut dan tanpa kalimat pengantar.";
                             'pdf_url' => 'https://scholar.google.com/scholar?q=' . urlencode($jTitle . ' ' . $jAuthor . ' filetype:pdf'),
                             'doi_url' => 'https://scholar.google.com/scholar?q=' . urlencode($jTitle),
                             'citation' => "{$jAuthor} ({$jYear}). {$jTitle}. {$jVenue}.",
+                            'scope' => $scopeLabel,
                             'is_real_oa' => false,
                         ];
+
+                        if ($isIndo && ($scope === 'all' || $scope === 'id')) {
+                            $journalsId[] = $entry;
+                        } elseif (!$isIndo && ($scope === 'all' || $scope === 'int')) {
+                            $journalsInt[] = $entry;
+                        }
                     }
                 }
             } catch (Exception $e) {
-                if (empty($journals)) {
+                if (empty($journalsId) && empty($journalsInt)) {
                     return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
         }
 
-        $user->decrement('credits');
+        $merged = [];
+        if ($scope === 'id') {
+            $merged = array_slice($journalsId, 0, 10);
+        } elseif ($scope === 'int') {
+            $merged = array_slice($journalsInt, 0, 10);
+        } else {
+            // Gabungkan seimbang: Indonesia & Internasional
+            $max = max(count($journalsId), count($journalsInt));
+            for ($i = 0; $i < $max; $i++) {
+                if (isset($journalsId[$i])) $merged[] = $journalsId[$i];
+                if (isset($journalsInt[$i])) $merged[] = $journalsInt[$i];
+            }
+            $merged = array_slice($merged, 0, 10);
+        }
 
         return response()->json([
             'status' => 'success',
-            'data' => array_slice($journals, 0, 8),
-            'new_credits' => $user->credits
+            'data' => $merged,
         ]);
     }
 
@@ -553,11 +845,21 @@ Jawab pertanyaan mahasiswa berikut secara ringkas, ilmiah, dan mudah dipahami:
     {
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
-        $tahunMin = $sitasi['tahun_min'] ?? '2020';
+        $tahunMin = $sitasi['tahun_min'] ?? '2021';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
         $sumberArr = is_array($sitasi['sumber'] ?? null) ? implode(', ', $sitasi['sumber']) : 'Umum, Terindeks Sinta';
+
+        $skillPath = resource_path('skills/skripsi_indonesia_skill.md');
+        $skillRules = file_exists($skillPath)
+            ? Str::limit(trim(file_get_contents($skillPath)), 3200, '')
+            : '';
+
+        $verifiedRefs = $this->fetchVerifiedReferencesForProject($project);
+        $verifiedRefText = !empty($verifiedRefs)
+            ? "\nREFERENSI JURNAL ILMIAH TERVERIFIKASI (PRIORITASKAN UNTUK DISITASI SECARA KONTEKSTUAL):\n- " . implode("\n- ", $verifiedRefs) . "\n"
+            : '';
 
         $extraContext = '';
         if (!empty($meta['data_awal'])) {
@@ -581,10 +883,13 @@ KONTEKS PENELITIAN:
 - Program Studi: {$project->prodi}
 - Metode Penelitian: {$project->metode_penelitian}
 - Pengaturan Sitasi: Gaya {$gayaSitasi} | Tahun Terbit Minimum: {$tahunMin} | Asal Referensi: {$asalRef} ({$sumberArr}) | Bahasa Penulisan: {$bahasa}
-{$extraContext}
+{$extraContext}{$verifiedRefText}
+PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
+{$skillRules}
+
 ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
-1. Gaya Bahasa: Gunakan Bahasa {$bahasa} ilmiah baku sesuai kaidah akademik, kohesif, objektif, dan mendalam.
-2. Kedalaman Materi: Setiap sub-bab wajib ditulis minimal 3-5 paragraf panjang (450-750 kata per sub-bab).
+1. Gaya Bahasa: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan bebas klise AI (DILARANG membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era globalisasi saat ini...\", atau \"Pada era modern...\").
+2. Kedalaman Materi: Setiap sub-bab wajib ditulis mendalam minimal 3-5 paragraf utuh (450-750 kata per sub-bab) dengan argumentasi berbasis fenomena, teori, dan bukti empiris.
 3. Sitasi Ilmiah: WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, misalnya: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)) dengan tahun terbit minimal {$tahunMin}.
 4. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
 5. Tanpa Simbol Markdown: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
@@ -598,11 +903,11 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
         $isKualitatif = str_contains($metodeLower, 'kualitatif') || str_contains($metodeLower, 'normatif') || str_contains($metodeLower, 'pustaka');
 
         $context = "";
-        if ($bab == 'bab2') $context = "KONTEKS BAB 1: " . Str::limit(strip_tags($project->bab1_content), 1200);
-        elseif ($bab == 'bab3') $context = "KONTEKS BAB 1 & 2: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab2_content), 1200);
-        elseif ($bab == 'bab4') $context = "KONTEKS BAB 1 & 3: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab3_content), 1500);
+        if ($bab == 'bab2') $context = "KONTEKS BAB 1: " . Str::limit(strip_tags($project->bab1_content), 1500);
+        elseif ($bab == 'bab3') $context = "KONTEKS BAB 1 & 2: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab2_content), 1500);
+        elseif ($bab == 'bab4') $context = "KONTEKS BAB 1 & 3: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab3_content), 1800);
         elseif ($bab == 'bab5') {
-            $context = "HASIL PENELITIAN BAB 4: " . Str::limit(strip_tags($project->bab4_content), 1500);
+            $context = "HASIL PENELITIAN BAB 4: " . Str::limit(strip_tags($project->bab4_content), 1800);
             $allText = $project->bab1_content . " " . $project->bab2_content . " " . $project->bab3_content . " " . $project->bab4_content;
             $context .= "\n\n=== TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 12000);
         }
@@ -657,20 +962,21 @@ Sub-bab standar Hasil & Pembahasan Kuantitatif ({$project->metode_penelitian}):
 
         return match ($bab) {
             'bab1' => $master . "
-TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara lengkap.
-Sub-bab:
-1.1 Latar Belakang Masalah (Fenomena Makro, Kondisi Ideal vs Aktual, Data Awal Penelitian, Kutipan Jurnal Terbaru, Research Gap, dan Alasan Pemilihan Judul - minimal 5 paragraf mendalam)
-1.2 Identifikasi dan Batasan Masalah
-1.3 Rumusan Masalah
-1.4 Tujuan Penelitian
-1.5 Manfaat Penelitian (Manfaat Teoretis dan Praktis)
-1.6 Sistematika Penulisan",
+TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara lengkap dan sistematis sesuai standar skripsi Indonesia.
+Sub-bab WAJIB berurutan (7 sub-bab):
+1.1 Latar Belakang Masalah (Uraikan fenomena makro, data empiris / isu terkini, ketimpangan praktik vs teori, penelitian terdahulu yang relevan, research gap, dan urgensi pemilihan judul - minimal 5 paragraf mendalam; JANGAN gunakan kalimat pembuka 'Kondisi ideal dalam...')
+1.2 Identifikasi Masalah (Daftar permasalahan konkret yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.)
+1.3 Batasan Masalah (Batasi ruang lingkup penelitian secara tegas: variabel/algoritma yang dikaji, objek/populasi, periode waktu, dan pendekatan metode yang digunakan)
+1.4 Rumusan Masalah (Pertanyaan penelitian spesifik yang konsisten dengan judul dan batasan masalah dalam poin bernomor 1., 2., 3.)
+1.5 Tujuan Penelitian (Pernyataan tujuan operasional yang menjawab langsung setiap poin Rumusan Masalah)
+1.6 Manfaat Penelitian (Uraikan dalam dua bagian eksplisit: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi pihak terkait)
+1.7 Sistematika Penulisan (Ringkasan isi masing-masing bab yang akan dibahas)",
             'bab2' => $master . "\n$context\n
 TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA) secara lengkap.
-Sub-bab:
-2.1 Landasan Teori (Uraikan Grand Theory, Middle Theory, definisi para ahli, dimensi, dan indikator setiap variabel dalam judul)
-2.2 Penelitian Terdahulu (Bahas minimal 5 penelitian jurnal terbaru beserta persamaan dan perbedaannya)
-2.3 Kerangka Pemikiran
+Sub-bab WAJIB berurutan:
+2.1 Landasan Teori (Uraikan Grand Theory, Middle Theory, definisi para ahli, dimensi, dan indikator setiap variabel/konsep dalam judul secara mendalam)
+2.2 Penelitian Terdahulu (Bahas minimal 5 penelitian jurnal terbaru 2020-2026 beserta metode, hasil, persamaan, dan perbedaannya dengan penelitian ini)
+2.3 Kerangka Pemikiran (Alur logika hubungan antarvariabel/tahapan penelitian)
 2.4 Hipotesis Penelitian / Proposisi Penelitian",
             'bab3' => $master . "\n$context\n
 TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) secara lengkap.
@@ -682,11 +988,11 @@ $bab4Skill",
 TUGAS: Tulis Isi BAB V (PENUTUP) beserta DAFTAR PUSTAKA.
 Sub-bab:
 5.1 Kesimpulan (Menjawab rumusan masalah Bab 1 secara tegas berdasarkan hasil Bab 4)
-5.2 Saran (Saran akademis dan praktis)
+5.2 Saran (Saran akademis dan praktis yang spesifik)
 
 Setelah sub-bab 5.2 selesai, buat baris baru bertuliskan persis:
 ===DAFTAR PUSTAKA===
-Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh nama penulis yang dikutip pada Bab 1 hingga Bab 4.",
+Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th) yang mencakup seluruh nama penulis yang dikutip pada Bab 1 hingga Bab 4 tanpa kalimat pengantar dan tanpa placeholder.",
             default => $master
         };
     }
@@ -737,11 +1043,6 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh n
 
     public function generateChapter(Request $request, $id)
     {
-        $user = Auth::user();
-        if ($user->credits <= 0) {
-            return response()->json(['error' => 'Token habis! Silakan klaim token gratis terlebih dahulu.'], 403);
-        }
-
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $chapter = $request->chapter;
         $model = $request->input('model', 'auto');
@@ -757,30 +1058,29 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh n
                 $parts = explode('===DAFTAR PUSTAKA===', $cleanContent);
                 if (count($parts) > 1) {
                     $project->bab5_content = trim($parts[0]);
-                    $rawDP = strip_tags(end($parts));
-                    $linesDP = array_filter(explode("\n", $rawDP), fn($l) => strlen(trim($l)) > 5);
-                    $project->daftar_pustaka = implode("\n", array_map('trim', $linesDP));
+                    $project->daftar_pustaka = $this->cleanDaftarPustaka(end($parts));
                 } else {
                     $partsRegex = preg_split('/(DAFTAR PUSTAKA|REFERENSI)/i', $cleanContent);
                     if (count($partsRegex) > 1) {
                         $project->bab5_content = trim($partsRegex[0]);
-                        $rawDP = strip_tags(end($partsRegex));
-                        $linesDP = array_filter(explode("\n", $rawDP), fn($l) => strlen(trim($l)) > 5);
-                        $project->daftar_pustaka = implode("\n", array_map('trim', $linesDP));
+                        $project->daftar_pustaka = $this->cleanDaftarPustaka(end($partsRegex));
                     } else {
                         $project->bab5_content = $cleanContent;
                     }
                 }
             } else {
                 $project->{$chapter . '_content'} = $cleanContent;
-                // Ekstrak sitasi otomatis ke daftar pustaka sementara jika daftar pustaka masih kosong
-                if (empty($project->daftar_pustaka) && in_array($chapter, ['bab1', 'bab2', 'bab3'])) {
+                // Ekstrak sitasi otomatis ke daftar pustaka sementara saat Bab III selesai (Proposal) atau jika daftar pustaka masih kosong
+                if ((empty($project->daftar_pustaka) && in_array($chapter, ['bab1', 'bab2', 'bab3'])) || $chapter === 'bab3') {
                     try {
                         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content);
                         if (strlen($allText) > 500) {
-                            $dpPrompt = "Buat daftar pustaka APA 7th Edition (urut A-Z, tanpa bintang markdown) dari seluruh sitasi nama & tahun yang muncul di teks berikut:\n" . Str::limit($allText, 5000);
+                            $dpPrompt = "Tulis DAFTAR PUSTAKA APA 7th Edition berdasarkan sitasi nama penulis dan tahun yang dikutip pada naskah skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\nATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (A-Z) TANPA kalimat pembuka/pengantar seperti 'Berikut adalah daftar pustaka...'.\n2. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap referensi WAJIB memiliki judul artikel ilmiah lengkap dan spesifik, nama jurnal nyata, volume, nomor, dan halaman spesifik (contoh: 14(2), 112-125).\n3. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 5500);
                             $dpRaw = $this->ai->generateText($dpPrompt, $model);
-                            $project->daftar_pustaka = trim(str_replace(['*', '#'], '', strip_tags($dpRaw)));
+                            $cleanedDp = $this->cleanDaftarPustaka($dpRaw);
+                            if (!empty($cleanedDp)) {
+                                $project->daftar_pustaka = $cleanedDp;
+                            }
                         }
                     } catch (Throwable $e) {}
                 }
@@ -797,13 +1097,11 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh n
             }
 
             $project->save();
-            $user->decrement('credits');
 
             return response()->json([
                 'status' => 'success',
                 'content' => $project->{$chapter . '_content'},
                 'daftar_pustaka' => $project->daftar_pustaka,
-                'remaining_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'AI Error: ' . $e->getMessage()], 500);
@@ -812,20 +1110,25 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh n
 
     public function reviseChapter(Request $request, $id)
     {
-        $user = Auth::user();
-        if ($user->credits <= 0) {
-            return response()->json(['error' => 'Token habis! Silakan klaim token gratis terlebih dahulu.'], 403);
-        }
-
         $request->validate([
-            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5',
+            'chapter' => 'nullable|in:bab1,bab2,bab3,bab4,bab5',
+            'subchapter' => 'nullable|string',
+            'revision_mode' => 'nullable|in:content,format',
             'instruction' => 'nullable|string',
             'image_base64' => 'nullable|string',
             'revision_file' => 'nullable|file|max:15360',
         ]);
 
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
-        $chapter = $request->chapter;
+        $subchapter = trim((string) $request->input('subchapter', ''));
+        $revisionMode = $request->input('revision_mode', 'content');
+
+        // Otomatis tentukan bab dari awalan sub-bab jika dipilih (contoh: "2.1 Landasan Teori" -> "bab2")
+        $chapter = $request->input('chapter', 'bab1');
+        if (!empty($subchapter) && preg_match('/^([1-5])\./', $subchapter, $sm)) {
+            $chapter = 'bab' . $sm[1];
+        }
+
         $model = $request->input('model', 'auto');
         $currentContent = $project->{$chapter . '_content'} ?? '';
 
@@ -861,22 +1164,32 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z yang mencakup seluruh n
             ? "\nISI DOKUMEN REVISI / CORETAN DOSEN YANG DIUNGGAH:\n\"\"\"\n" . Str::limit($docExtract, 6000) . "\n\"\"\"\n"
             : '';
 
+        $targetScopeRule = !empty($subchapter) && !str_starts_with(strtolower($subchapter), 'semua')
+            ? "FOKUS REVISI KHUSUS SUB-BAB: \"{$subchapter}\". Perbaiki dan perdalam bagian \"{$subchapter}\" sesuai instruksi/catatan dosen, sementara sub-bab lainnya pada {$chapterName} HARUS TETAP DIPERTAHANKAN UTUH agar tidak hilang."
+            : "FOKUS REVISI PADA: Seluruh {$chapterName}.";
+
+        $modeRule = $revisionMode === 'format'
+            ? "MODE REVISI FORMAT PENULISAN: Perbaiki struktur kalimat sesuai EYD V & KBBI, hilangkan kalimat pembuka klise AI, rapikan penomoran sub-bab desimal & poin bernomor, serta pastikan format sitasi dalam teks konsisten."
+            : "MODE REVISI ISI SKRIPSI: Perdalam substansi akademik, tambahkan argumen empiris/sitasi terbaru, perbaiki celah logika, dan terapkan koreksi substansi dari dosen pembimbing.";
+
         $prompt = "PERAN: Anda adalah Profesor Pembimbing Skripsi Senior.
 TUGAS: Lakukan REVISI MENDALAM pada {$chapterName} untuk skripsi berjudul \"{$project->judul}\" (Prodi: {$project->prodi}, Metode: {$project->metode_penelitian}).
+{$targetScopeRule}
+{$modeRule}
 
 NASKAH {$chapterName} SAAT INI:
 \"\"\"
-" . Str::limit(strip_tags($currentContent), 10000) . "
+" . Str::limit(strip_tags($currentContent), 12000) . "
 \"\"\"
 {$docContext}
 INSTRUKSI REVISI DARI MAHASISWA / DOSEN PEMBIMBING:
 \"\"\"
-" . ($instruction ?: 'Perbaiki dan sempurnakan naskah bab ini sesuai coretan/dokumen terlampir.') . "
+" . ($instruction ?: 'Perbaiki dan sempurnakan bagian ini sesuai coretan/dokumen terlampir.') . "
 \"\"\"
 
 ATURAN REVISI:
 1. Jika terdapat gambar coretan dosen terlampir, baca seluruh catatan/koreksi pada gambar tersebut dan terapkan perbaikannya ke dalam naskah.
-2. Pertahankan sub-bab yang sudah benar dan perbaiki/tambahkan bagian yang diminta pada instruksi revisi secara lengkap dan mendalam.
+2. Pertahankan sub-bab yang sudah benar dan tidak diminta diubah secara utuh.
 3. Gunakan format penomoran sub-bab desimal (misal 1.1, 1.2) pada baris tersendiri, tanpa tanda bintang markdown (**) atau pagar (###), dan tanpa kata pengantar AI.
 4. Kembalikan naskah {$chapterName} yang sudah direvisi secara utuh.";
 
@@ -887,12 +1200,12 @@ ATURAN REVISI:
 
             $project->{$chapter . '_content'} = $cleanContent;
             $project->save();
-            $user->decrement('credits');
 
             return response()->json([
                 'status' => 'success',
+                'chapter' => $chapter,
+                'subchapter' => $subchapter,
                 'content' => $cleanContent,
-                'remaining_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Gagal merevisi bab: ' . $e->getMessage()], 500);
@@ -938,11 +1251,17 @@ ATURAN REVISI:
                 $section->addText(
                     $cleanLine,
                     ['bold' => true, 'name' => 'Times New Roman', 'size' => 12],
-                    ['spaceBefore' => 120, 'spaceAfter' => 120, 'indentation' => ['firstLine' => 0]]
+                    ['spaceBefore' => 120, 'spaceAfter' => 100, 'indentation' => ['firstLine' => 0]]
+                );
+            } elseif (preg_match('/^\d+\.\s+/', $cleanLine)) {
+                $section->addText(
+                    $cleanLine,
+                    ['name' => 'Times New Roman', 'size' => 12],
+                    ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['left' => 420, 'hanging' => 360], 'spaceAfter' => 60]
                 );
             } else {
-                $pStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720]];
-                $section->addText($cleanLine, [], $pStyle);
+                $pStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 80];
+                $section->addText($cleanLine, ['name' => 'Times New Roman', 'size' => 12], $pStyle);
             }
         }
     }
@@ -950,23 +1269,37 @@ ATURAN REVISI:
     private function resolveLogoTempPath(Request $request, array $meta = []): ?string
     {
         try {
+            $rawBytes = null;
             if ($request->hasFile('logo_kampus') && $request->file('logo_kampus')->isValid()) {
-                $file = $request->file('logo_kampus');
-                $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
-                $tmpPath = '/tmp/logo_' . uniqid() . '.' . $ext;
-                copy($file->getRealPath(), $tmpPath);
-                return $tmpPath;
-            }
-            $base64 = $request->input('logo_base64') ?: ($meta['logo_base64'] ?? '');
-            if (!empty($base64)) {
-                $clean = preg_replace('#^data:image/\w+;base64,#i', '', $base64);
-                $decoded = base64_decode($clean);
-                if ($decoded !== false && strlen($decoded) > 100) {
-                    $tmpPath = '/tmp/logo_' . uniqid() . '.png';
-                    file_put_contents($tmpPath, $decoded);
-                    return $tmpPath;
+                $rawBytes = @file_get_contents($request->file('logo_kampus')->getRealPath());
+            } else {
+                $base64 = $request->input('logo_base64') ?: ($meta['logo_base64'] ?? '');
+                if (!empty($base64)) {
+                    $clean = preg_replace('#^data:image/[^;]+;base64,#i', '', trim($base64));
+                    $rawBytes = @base64_decode($clean);
                 }
             }
+
+            if (empty($rawBytes) || strlen($rawBytes) < 60) {
+                return null;
+            }
+
+            $tmpPath = '/tmp/logo_' . uniqid() . '.png';
+            if (function_exists('imagecreatefromstring')) {
+                $img = @imagecreatefromstring($rawBytes);
+                if ($img !== false) {
+                    imagealphablending($img, false);
+                    imagesavealpha($img, true);
+                    imagepng($img, $tmpPath);
+                    imagedestroy($img);
+                    if (file_exists($tmpPath)) {
+                        return $tmpPath;
+                    }
+                }
+            }
+
+            file_put_contents($tmpPath, $rawBytes);
+            return $tmpPath;
         } catch (Throwable $e) {
             Log::warning('Logo resolve error: ' . $e->getMessage());
         }
@@ -985,11 +1318,15 @@ ATURAN REVISI:
         $marginBottom = (float) $request->input('margin_bottom', 3);
         $marginRight = (float) $request->input('margin_right', 3);
 
+        $tahap = strtolower((string) ($meta['tahap_pengerjaan'] ?? ''));
+        $defaultJenis = str_contains($tahap, 'proposal') ? 'PROPOSAL SKRIPSI' : 'SKRIPSI';
+
         $nama = $request->input('nama') ?: ($meta['nama'] ?? 'NAMA MAHASISWA');
         $npm = $request->input('npm') ?: ($meta['nim'] ?? 'NIM / NPM');
         $kampus = $request->input('kampus') ?: ($meta['kampus'] ?? 'UNIVERSITAS');
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
-        $jenisDokumen = strtoupper($request->input('jenis_dokumen', 'SKRIPSI'));
+        $jenisDokumen = strtoupper($request->input('jenis_dokumen', $defaultJenis));
+        $isProposal = str_contains($jenisDokumen, 'PROPOSAL');
 
         $phpWord->setDefaultParagraphStyle([
             'lineHeight' => 1.5,
@@ -997,9 +1334,11 @@ ATURAN REVISI:
         ]);
 
         $phpWord->addTitleStyle(1, ['name' => 'Times New Roman', 'size' => 14, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceAfter' => 240, 'indentation' => ['firstLine' => 0]]);
-        $phpWord->addTitleStyle(2, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'spaceBefore' => 120, 'spaceAfter' => 120, 'indentation' => ['firstLine' => 0]]);
+        $phpWord->addTitleStyle(2, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'spaceBefore' => 140, 'spaceAfter' => 100, 'indentation' => ['firstLine' => 0]]);
 
         $sectionStyle = [
+            'pageSizeW' => Converter::cmToTwip(21.0),
+            'pageSizeH' => Converter::cmToTwip(29.7),
             'marginTop' => Converter::cmToTwip($marginTop),
             'marginLeft' => Converter::cmToTwip($marginLeft),
             'marginBottom' => Converter::cmToTwip($marginBottom),
@@ -1008,7 +1347,6 @@ ATURAN REVISI:
 
         $section = $phpWord->addSection($sectionStyle);
         $center = ['alignment' => Jc::CENTER, 'indentation' => ['firstLine' => 0]];
-        $justify = ['alignment' => Jc::BOTH];
         $bold14 = ['bold' => true, 'size' => 14];
         $bold12 = ['bold' => true, 'size' => 12];
 
@@ -1046,9 +1384,41 @@ ATURAN REVISI:
         $section->addText(date('Y'), $bold14, $center);
         $section->addPageBreak();
 
-        $section->addText("DAFTAR ISI", $bold14, $center);
-        $section->addTextBreak(1);
-        $section->addTOC(['font' => 'Times New Roman', 'size' => 12], ['tabLeader' => TOC::TAB_LEADER_DOT], 1, 2);
+        // --- KATA PENGANTAR ---
+        $section->addTitle("KATA PENGANTAR", 1);
+        $section->addText(
+            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan {$jenisDokumen} yang berjudul \"" . $project->judul . "\" dapat diselesaikan sebagai salah satu syarat akademik pada Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
+            ['name' => 'Times New Roman', 'size' => 12],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+        );
+        $section->addText(
+            "Penulis menyadari bahwa penyusunan karya ilmiah ini masih terbuka terhadap saran dan masukan konstruktif demi penyempurnaan di masa mendatang. Semoga dokumen ini memberikan manfaat bagi pengembangan ilmu pengetahuan dan pihak yang membutuhkan.",
+            ['name' => 'Times New Roman', 'size' => 12],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 240]
+        );
+        $section->addText($kampus . ", " . date('F Y'), ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT]);
+        $section->addText("Penulis (" . $nama . ")", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT]);
+        $section->addPageBreak();
+
+        // --- DAFTAR ISI RAPI (DOT LEADER TAB STOP) ---
+        $section->addTitle("DAFTAR ISI", 1);
+        $printableWidthTwips = Converter::cmToTwip(max(10.0, 21.0 - $marginLeft - $marginRight));
+        $tocItems = $this->extractTocItemsForProject($project, $isProposal);
+        foreach ($tocItems as $item) {
+            $isLvl1 = ($item['level'] ?? 1) === 1;
+            $pStyle = [
+                'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
+                'indentation' => ['left' => $isLvl1 ? 0 : 420, 'firstLine' => 0],
+                'spaceAfter' => $isLvl1 ? 80 : 40,
+                'lineHeight' => 1.35,
+            ];
+            $fStyle = [
+                'name' => 'Times New Roman',
+                'size' => 12,
+                'bold' => $isLvl1,
+            ];
+            $section->addText($item['label'] . "\t" . $item['page'], $fStyle, $pStyle);
+        }
         $section->addPageBreak();
 
         $chapters = [
@@ -1058,7 +1428,7 @@ ATURAN REVISI:
             'bab4' => 'HASIL DAN PEMBAHASAN',
             'bab5' => 'PENUTUP'
         ];
-        if (str_contains($jenisDokumen, 'PROPOSAL')) {
+        if ($isProposal) {
             $chapters = [
                 'bab1' => 'PENDAHULUAN',
                 'bab2' => 'TINJAUAN PUSTAKA',
@@ -1086,7 +1456,7 @@ ATURAN REVISI:
             $refs = explode("\n", $dpContent);
             foreach ($refs as $ref) {
                 if (trim($ref)) {
-                    $section->addText(trim($ref), [], ['alignment' => Jc::BOTH, 'indentation' => ['hanging' => 720, 'firstLine' => 0]]);
+                    $section->addText(trim($ref), ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::BOTH, 'indentation' => ['left' => 720, 'hanging' => 720], 'spaceAfter' => 80]);
                 }
             }
         }
@@ -1099,6 +1469,13 @@ ATURAN REVISI:
         if (ob_get_length()) ob_end_clean();
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $meta = $this->getProjectMeta($project);
+        $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
+        foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
+            if (empty($meta[$field]) && !empty($defaultIdentity[$field])) {
+                $meta[$field] = $defaultIdentity[$field];
+            }
+        }
+
         $logoPath = $this->resolveLogoTempPath($request, $meta);
 
         $phpWord = $this->createPhpWordDocument($project, $request, $logoPath, $meta);
@@ -1121,13 +1498,24 @@ ATURAN REVISI:
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $meta = $this->getProjectMeta($project);
+        $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
+        foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
+            if (empty($meta[$field]) && !empty($defaultIdentity[$field])) {
+                $meta[$field] = $defaultIdentity[$field];
+            }
+        }
+
         $logoPath = $this->resolveLogoTempPath($request, $meta);
 
         $marginTop = $request->input('margin_top', 4);
         $marginLeft = $request->input('margin_left', 4);
         $marginBottom = $request->input('margin_bottom', 3);
         $marginRight = $request->input('margin_right', 3);
-        $jenisDokumen = strtoupper($request->input('jenis_dokumen', 'SKRIPSI'));
+
+        $tahap = strtolower((string) ($meta['tahap_pengerjaan'] ?? ''));
+        $defaultJenis = str_contains($tahap, 'proposal') ? 'PROPOSAL SKRIPSI' : 'SKRIPSI';
+        $jenisDokumen = strtoupper($request->input('jenis_dokumen', $defaultJenis));
+        $isProposal = str_contains($jenisDokumen, 'PROPOSAL');
 
         $nama = $request->input('nama') ?: ($meta['nama'] ?? 'NAMA MAHASISWA');
         $npm = $request->input('npm') ?: ($meta['nim'] ?? '');
@@ -1142,8 +1530,19 @@ ATURAN REVISI:
             @unlink($logoPath);
         }
 
+        $tocRowsHtml = '';
+        foreach ($this->extractTocItemsForProject($project, $isProposal) as $item) {
+            $pad = ($item['level'] ?? 1) === 1 ? '0' : '22px';
+            $weight = ($item['level'] ?? 1) === 1 ? 'bold' : 'normal';
+            $tocRowsHtml .= "<div style='display:table; width:100%; margin-bottom:5px; font-weight:{$weight};'>
+                <span style='display:table-cell; padding-left:{$pad};'>" . e($item['label']) . "</span>
+                <span style='display:table-cell; text-align:right; width:50px;'>" . e($item['page']) . "</span>
+            </div>";
+        }
+
         $html = "<html><head><style>
-            body{font-family:'Times New Roman', serif; margin:{$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; text-align:justify; line-height:1.5; font-size:12pt;}
+            @page { size: A4; margin: {$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; }
+            body{font-family:'Times New Roman', serif; margin:0; text-align:justify; line-height:1.5; font-size:12pt;}
             h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
             h3,h4{font-weight:bold; font-size:12pt;}
             p{text-indent: 1.27cm; margin: 0 0 8px 0;}
@@ -1164,6 +1563,13 @@ ATURAN REVISI:
         </div>
         <div style='page-break-after:always;'></div>";
 
+        $html .= "<h2>KATA PENGANTAR</h2>
+            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan {$jenisDokumen} berjudul \"" . e($project->judul) . "\" dapat diselesaikan pada Program Studi " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
+            <div style='page-break-after:always;'></div>
+            <h2>DAFTAR ISI</h2>
+            <div style='margin-top:16px;'>{$tocRowsHtml}</div>
+            <div style='page-break-after:always;'></div>";
+
         $chapters = [
             'bab1' => 'PENDAHULUAN',
             'bab2' => 'TINJAUAN PUSTAKA',
@@ -1171,7 +1577,7 @@ ATURAN REVISI:
             'bab4' => 'HASIL DAN PEMBAHASAN',
             'bab5' => 'PENUTUP'
         ];
-        if (str_contains($jenisDokumen, 'PROPOSAL')) {
+        if ($isProposal) {
             $chapters = [
                 'bab1' => 'PENDAHULUAN',
                 'bab2' => 'TINJAUAN PUSTAKA',
@@ -1182,7 +1588,7 @@ ATURAN REVISI:
         $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
         foreach ($chapters as $k => $v) {
             if ($c = $project->{$k . '_content'}) {
-                $html .= "<h2>BAB " . $nums[$k] . "<br>$v</h2>" . nl2br($c);
+                $html .= "<h2>BAB " . $nums[$k] . "<br>$v</h2>" . nl2br(e($c));
                 $html .= "<div style='page-break-after:always;'></div>";
             }
         }
@@ -1195,7 +1601,8 @@ ATURAN REVISI:
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         $dompdf->render();
-        return $dompdf->stream('Naskah_' . Str::slug(substr($project->judul, 0, 24), '_') . '.pdf');
+        $inline = $request->boolean('inline');
+        return $dompdf->stream('Naskah_' . Str::slug(substr($project->judul, 0, 24), '_') . '.pdf', ['Attachment' => !$inline]);
     }
 
     /**
@@ -1205,15 +1612,45 @@ ATURAN REVISI:
     {
         $samples = [
             'manajemen' => [
-                'judul' => 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi terhadap Kesiapan Kerja Mahasiswa di Era Transformasi Digital',
+                'judul' => 'Pengaruh Beban Kerja, Stres Kerja, dan Kepuasan Kerja terhadap Turnover Intention Karyawan',
                 'prodi' => 'Manajemen',
                 'nama' => 'Rizky Pratama Putra',
                 'nim' => '2021041082',
                 'kampus' => 'Universitas Indonesia',
-                'bab1' => "1.1 Latar Belakang Masalah\nPerkembangan teknologi informasi di era revolusi industri 4.0 telah mengubah struktur kompetensi yang dibutuhkan oleh dunia industri secara fundamental. Menurut Naufal & Wijaya (2024), lulusan perguruan tinggi tidak lagi hanya dituntut menguasai pengetahuan teoretis pada bidang keilmuannya, melainkan juga harus memiliki kecakapan literasi digital serta kemampuan adaptasi mandiri yang tinggi.\n\nHasil studi pendahuluan yang dilakukan oleh Kusuma et al. (2023) menunjukkan bahwa meskipun intensitas penggunaan perangkat digital di kalangan mahasiswa mencapai lebih dari 8 jam per hari, pemanfaatan teknologi untuk produktivitas akademik dan persiapan karier profesional masih tergolong belum optimal. Hal ini sejalan dengan temuan Pratama & Santoso (2024) yang mengungkapkan adanya kesenjangan antara penguasaan teknologi dasar dengan kesiapan kerja lulusan baru.\n\n1.2 Rumusan Masalah\n1. Apakah literasi digital berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?\n2. Apakah regulasi diri berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?\n3. Apakah dukungan institusi memoderasi pengaruh literasi digital dan regulasi diri terhadap kesiapan kerja mahasiswa?\n\n1.3 Tujuan Penelitian\nPenelitian ini bertujuan untuk menguji dan menganalisis secara empiris pengaruh literasi digital, regulasi diri, serta peran dukungan institusi terhadap kesiapan kerja mahasiswa.",
-                'bab2' => "2.1 Landasan Teori\nLiterasi digital didefinisikan oleh Gilster (dalam Rahmawati & Hidayat, 2023) sebagai kemampuan individu untuk memahami, mengevaluasi, dan mengintegrasikan informasi dalam berbagai format digital secara kritis dan produktif. Indikator literasi digital mencakup pencarian informasi daring, evaluasi kredibilitas konten, serta kolaborasi digital.\n\nRegulasi diri (self-regulation) menurut Zimmerman (2020) merupakan kapasitas psikologis individu dalam merencanakan, memantau, dan mengendalikan perilaku belajarnya guna mencapai target karier yang telah ditetapkan.\n\n2.2 Penelitian Terdahulu\nPenelitian oleh Handayani & Putri (2023) pada 210 mahasiswa tingkat akhir membuktikan bahwa literasi digital memiliki kontribusi sebesar 42,6% terhadap kesiapan memasuki pasar kerja.",
-                'bab3' => "3.1 Jenis dan Desain Penelitian\nPenelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei menggunakan instrumen kuesioner skala Likert 1 sampai 5.\n\n3.2 Populasi dan Sampel\nPopulasi dalam penelitian ini adalah mahasiswa tingkat akhir angkatan 2021–2022. Penentuan jumlah sampel menggunakan rumus Slovin dengan tingkat signifikansi 5%, sehingga diperoleh sebanyak 175 responden.\n\n3.3 Teknik Analisis Data\nAnalisis data dilakukan menggunakan metode Partial Least Square - Structural Equation Modeling (PLS-SEM) melalui pengujian Outer Model (validitas konvergen dan reliabilitas komposit) serta Inner Model (uji R-Square dan bootstrapping).",
-                'dp' => "Handayani, S., & Putri, M. A. (2023). Pengaruh kompetensi digital terhadap kesiapan kerja lulusan perguruan tinggi. Jurnal Manajemen Pendidikan Indonesia, 15(2), 112-125.\nKusuma, A. R., Pratama, D., & Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. Jurnal Ekonomi dan Bisnis, 18(1), 45-59.\nNaufal, M., & Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. Jurnal Riset Manajemen, 11(3), 201-215.\nRahmawati, L., & Hidayat, T. (2023). Evaluasi model kesiapan kerja mahasiswa berbasis regulasi diri. Jurnal Psikologi Industri, 9(2), 88-102."
+                'fakultas' => 'Fakultas Ekonomi dan Bisnis',
+                'jenis' => 'PROPOSAL SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nTingginya tingkat perpindahan karyawan (turnover intention) pada sektor jasa modern menjadi tantangan strategis dalam mempertahankan talenta produktif. Menurut Naufal & Wijaya (2024), beban kerja berlebih yang tidak diimbangi dengan kompensasi dan lingkungan kerja kondusif memicu kelelahan emosional.\n\nData observasi awal menunjukkan tingkat keluar-masuk karyawan mencapai 24% dalam dua tahun terakhir. Hal ini sejalan dengan temuan Kusuma et al. (2023) bahwa stres kerja yang kronis menurunkan kepuasan kerja dan meningkatkan keinginan berpindah.\n\n1.2 Identifikasi Masalah\n1. Tingginya target operasional harian memicu beban kerja psikologis.\n2. Stres kerja menurunkan komitmen afektif karyawan.\n\n1.3 Batasan Masalah\nPenelitian ini dibatasi pada variabel beban kerja, stres kerja, kepuasan kerja, dan turnover intention pada karyawan tetap masa kerja minimal 1 tahun.\n\n1.4 Rumusan Masalah\n1. Apakah beban kerja berpengaruh signifikan terhadap turnover intention karyawan?\n2. Apakah stres kerja berpengaruh terhadap turnover intention?\n3. Apakah kepuasan kerja memediasi pengaruh stres kerja terhadap turnover intention?",
+                'bab2' => "2.1 Landasan Teori\nBeban kerja (workload) merujuk pada kumpulan tuntutan tugas yang harus diselesaikan dalam jangka waktu tertentu (Pratama & Santoso, 2024). Sementara itu, turnover intention adalah kecenderungan sadar individu untuk mencari alternatif pekerjaan baru.\n\n2.2 Penelitian Terdahulu\nHandayani & Putri (2023) membuktikan pada 180 responden bahwa stres kerja berkontribusi sebesar 39,4% terhadap intensi keluar karyawan.",
+                'bab3' => "3.1 Jenis dan Desain Penelitian\nPendekatan kuantitatif asosiatif kausal dengan survei kuesioner skala Likert 1–5 pada 145 sampel karyawan.\n\n3.2 Teknik Analisis Data\nPengujian menggunakan Structural Equation Modeling berbasis Partial Least Square (PLS-SEM) meliputi Outer Model dan Inner Model.",
+                'dp' => "Handayani, S., & Putri, M. A. (2023). Stres kerja dan turnover intention karyawan milenial. Jurnal Manajemen Sumber Daya Manusia, 15(2), 112-125.\nKusuma, A. R., Pratama, D., & Wijaya, H. (2023). Pengaruh beban kerja terhadap retensi karyawan. Jurnal Ekonomi dan Bisnis, 18(1), 45-59.\nNaufal, M., & Wijaya, B. (2024). Kepuasan kerja sebagai mediator turnover intention. Jurnal Riset Manajemen, 11(3), 201-215."
+            ],
+            'kedokteran' => [
+                'judul' => 'Hubungan Intensitas Penggunaan Gadget dengan Kejadian Miopia pada Siswa SMA Negeri',
+                'prodi' => 'Kedokteran',
+                'nama' => 'Dr. Cand. Aulia Rahmawati',
+                'nim' => '21011020045',
+                'kampus' => 'Universitas Padjadjaran',
+                'fakultas' => 'Fakultas Kedokteran',
+                'jenis' => 'PROPOSAL SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nPrevalensi gangguan refraksi khususnya miopia pada usia remaja mengalami peningkatan signifikan seiring tingginya paparan layar gawai digital untuk pembelajaran maupun hiburan (Wijaya & Hartono, 2024). Aktivitas jarak dekat berkepanjangan menyebabkan spasme akomodasi mata.\n\n1.2 Identifikasi Masalah\n1. Durasi penggunaan gadget di kalangan pelajar melebihi 6 jam per hari.\n2. Pencahayaan kamar dan jarak baca yang tidak ergonomis.\n\n1.3 Batasan Masalah\nPenelitian difokuskan pada siswa SMA usia 15–18 tahun tanpa riwayat trauma okular maupun kelainan refraksi kongenital.\n\n1.4 Rumusan Masalah\nApakah terdapat hubungan bermakna antara durasi dan jarak penggunaan gadget dengan kejadian miopia pada siswa SMA?",
+                'bab2' => "2.1 Landasan Teori\nMiopia adalah kelainan refraksi di mana sinar sejajar yang masuk ke mata difokuskan di depan retina akibat panjang aksial bola mata yang melebihi normal (Siregar, 2023).",
+                'bab3' => "3.1 Desain Penelitian\nDesain penelitian observasional analitik dengan pendekatan cross-sectional menggunakan kuesioner paparan layar dan pemeriksaan visus Snellen Chart serta uji korelasi Spearman.",
+                'dp' => "Siregar, F. H. (2023). Faktor risiko kelainan refraksi miopia pada remaja sekolah menengah. Jurnal Kedokteran Nusantara, 14(2), 77-86.\nWijaya, K., & Hartono, B. (2024). Screen time exposure and myopia progression among Indonesian adolescents. Medical Journal of Indonesia, 33(1), 22-30."
+            ],
+            'pendidikan' => [
+                'judul' => 'Model Problem Based Learning Berbantuan Problem Card untuk Meningkatkan Keterampilan Membaca',
+                'prodi' => 'Pendidikan Bahasa',
+                'nama' => 'Ahmad Fauzan Mubarok',
+                'nim' => '200321614091',
+                'kampus' => 'Universitas Negeri Malang',
+                'fakultas' => 'Fakultas Sastra dan Pendidikan',
+                'jenis' => 'SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nKeterampilan membaca pemahaman (maharah qira'ah) masih menghadapi kendala rendahnya partisipasi aktif peserta didik dalam mengidentifikasi ide pokok teks akademik (Hidayat & Lestari, 2023).\n\n1.2 Batasan Masalah\nPenelitian tindakan kelas diterapkan dalam dua siklus pembelajaran menggunakan media problem card kontekstual.\n\n1.3 Rumusan Masalah\nBagaimana penerapan model Problem Based Learning berbantuan problem card dalam meningkatkan hasil belajar membaca siswa?",
+                'bab2' => "2.1 Landasan Teori\nProblem Based Learning (PBL) mendorong siswa membangun pengetahuan secara kolaboratif melalui pemecahan masalah autentik (Sanjaya, 2022).",
+                'bab3' => "3.1 Metode Penelitian\nPenelitian Tindakan Kelas (PTK) model Kemmis & McTaggart terdiri dari perencanaan, pelaksanaan, observasi, dan refleksi.",
+                'bab4' => "4.1 Hasil Penelitian Siklus I dan II\nKetuntasan belajar klasikal meningkat dari 62,5% pada Siklus I menjadi 89,3% pada Siklus II setelah optimalisasi kartu masalah.",
+                'bab5' => "5.1 Kesimpulan\nModel PBL berbantuan problem card terbukti efektif meningkatkan keterampilan membaca siswa secara signifikan.",
+                'dp' => "Hidayat, T., & Lestari, P. (2023). Efektivitas Problem Based Learning terhadap literasi membaca. Jurnal Pendidikan Bahasa, 12(1), 54-68.\nSanjaya, W. (2022). Strategi pembelajaran berorientasi standar proses pendidikan. Kencana."
             ],
             'it' => [
                 'judul' => 'Implementasi Algoritma Random Forest dan Ekstraksi Fitur Citra untuk Klasifikasi Penyakit Daun Padi Berbasis Web',
@@ -1221,21 +1658,42 @@ ATURAN REVISI:
                 'nama' => 'Aditya Mahendra',
                 'nim' => '1910511044',
                 'kampus' => 'Institut Teknologi Bandung',
-                'bab1' => "1.1 Latar Belakang Masalah\nKomoditas padi merupakan sumber pangan utama di Indonesia yang produktivitasnya sangat dipengaruhi oleh kesehatan tanaman pada fase vegetatif. Serangan patogen seperti hawar daun bakteri (Bacterial Leaf Blight) dan bercak coklat (Brown Spot) sering kali terlambat diidentifikasi secara kasatmata oleh petani (Setiawan & Nugroho, 2023).\n\nKemajuan bidang pengolahan citra digital (digital image processing) dan pembelajaran mesin memungkinkan deteksi penyakit daun dilakukan secara otomatis melalui ekstraksi fitur warna HSV dan tekstur Gray Level Co-occurrence Matrix (GLCM). Algoritma Random Forest dipilih karena kemampuannya menggabungkan banyak pohon keputusan (decision trees) sehingga menghasilkan akurasi klasifikasi yang tinggi dan stabil (saputra et al., 2024).\n\n1.2 Rumusan Masalah\n1. Bagaimana merancang tahapan ekstraksi fitur warna HSV dan tekstur GLCM pada citra daun padi?\n2. Berapa tingkat akurasi, presisi, dan recall algoritma Random Forest dalam mengklasifikasikan penyakit daun padi?",
-                'bab2' => "2.1 Landasan Teori\nPengolahan citra digital merupakan proses transformasi matriks piksel dua dimensi untuk meningkatkan kualitas visual atau mengekstraksi informasi ciri tertentu dari suatu objek (Gonzalez & Woods, 2021).\n\nAlgoritma Random Forest adalah metode ensemble learning yang membangun sejumlah pohon keputusan menggunakan teknik bootstrap aggregating (bagging) dan menentukan prediksi kelas akhir berdasarkan mekanisme pemungutan suara terbanyak (majority voting).",
-                'bab3' => "3.1 Metode Pengembangan Sistem\nPenelitian ini menerapkan metode Research and Development (R&D) dengan tahapan pengumpulan dataset (1.200 citra daun padi dari 4 kelas), preprocessing citra, ekstraksi fitur HSV dan GLCM, pelatihan model Random Forest, serta pengujian akurasi menggunakan Confusion Matrix dan 10-Fold Cross Validation.",
-                'dp' => "Gonzalez, R. C., & Woods, R. E. (2021). Digital image processing (4th ed.). Pearson.\nSaputra, D., Kurniawan, R., & Hakim, L. (2024). Klasifikasi penyakit tanaman pangan menggunakan ensemble machine learning. Jurnal Teknologi Informasi dan Ilmu Komputer, 11(1), 33-44.\nSetiawan, B., & Nugroho, A. (2023). Ekstraksi fitur GLCM dan ruang warna HSV pada deteksi penyakit daun padi. Jurnal Nasional Teknik Elektro dan Teknologi Informasi, 12(2), 140-148."
+                'fakultas' => 'Sekolah Teknik Elektro dan Informatika',
+                'jenis' => 'SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nKomoditas padi merupakan sumber pangan utama di Indonesia yang produktivitasnya sangat dipengaruhi oleh kesehatan tanaman pada fase vegetatif. Serangan hawar daun bakteri dan bercak coklat sering terlambat dideteksi oleh petani (Setiawan & Nugroho, 2023).\n\n1.2 Batasan Masalah\nDataset dibatasi pada 1.200 citra daun padi terbagi dalam 4 kelas menggunakan ekstraksi fitur HSV dan GLCM serta klasifikasi Random Forest.\n\n1.3 Rumusan Masalah\n1. Bagaimana merancang ekstraksi fitur HSV dan GLCM pada citra daun padi?\n2. Berapa tingkat akurasi Random Forest dalam mengklasifikasikan penyakit daun padi?",
+                'bab2' => "2.1 Landasan Teori\nAlgoritma Random Forest adalah metode ensemble learning berbasis banyak decision tree dengan mekanisme majority voting (Saputra et al., 2024).",
+                'bab3' => "3.1 Metode Pengembangan Sistem\nPenelitian menerapkan metode R&D dengan preprocessing citra, ekstraksi HSV+GLCM, pelatihan model Random Forest, dan evaluasi 10-Fold Cross Validation.",
+                'bab4' => "4.1 Hasil Evaluasi Model\nPengujian Confusion Matrix pada data uji menunjukkan akurasi klasifikasi sebesar 94,2% dengan nilai F1-Score rata-rata 0,94.",
+                'bab5' => "5.1 Kesimpulan\nIntegrasi fitur warna HSV, tekstur GLCM, dan Random Forest mampu mengenali penyakit daun padi secara akurat melalui sistem web.",
+                'dp' => "Saputra, D., Kurniawan, R., & Hakim, L. (2024). Klasifikasi penyakit tanaman pangan menggunakan ensemble machine learning. Jurnal Teknologi Informasi dan Ilmu Komputer, 11(1), 33-44.\nSetiawan, B., & Nugroho, A. (2023). Ekstraksi fitur GLCM dan ruang warna HSV pada deteksi penyakit daun padi. Jurnal Nasional Teknik Elektro dan Teknologi Informasi, 12(2), 140-148."
             ],
             'hukum' => [
-                'judul' => 'Pelindungan Hukum bagi Konsumen atas Kebocoran Data Pribadi pada Layanan Pinjaman Daring Berdasarkan Undang-Undang Nomor 27 Tahun 2022',
+                'judul' => 'Pelindungan Hukum bagi Konsumen atas Kebocoran Data Pribadi pada Layanan Pinjaman Daring Menurut UU Nomor 27 Tahun 2022',
                 'prodi' => 'Ilmu Hukum',
                 'nama' => 'Nabila Azzahra',
                 'nim' => '2010111095',
                 'kampus' => 'Universitas Gadjah Mada',
-                'bab1' => "1.1 Latar Belakang Masalah\nPerkembangan layanan pendanaan bersama berbasis teknologi informasi (fintech peer-to-peer lending) telah memperluas inklusi keuangan di Indonesia, namun di sisi lain menimbulkan kerentanan hukum terkait pelindungan data pribadi pengguna. Menurut Siregar & Wibowo (2023), berbagai insiden kegagalan keamanan sistem elektronik mengakibatkan data sensitif konsumen tersebar tanpa persetujuan yang sah.\n\nPengesahan Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP) menjadi instrumen hukum positif dalam mengatur kewajiban pengendali data. Namun demikian, mekanisme pertanggungjawaban perdata dan ganti kerugian bagi konsumen korban kebocoran data masih menghadapi kendala pembuktian (Maharani et al., 2024).\n\n1.2 Rumusan Masalah\n1. Bagaimana pengaturan kewajiban hukum penyelenggara layanan pinjaman daring sebagai pengendali data menurut UU Nomor 27 Tahun 2022?\n2. Bagaimana bentuk pertanggungjawaban hukum dan upaya pemulihan kerugian bagi konsumen apabila terjadi kebocoran data pribadi?",
-                'bab2' => "2.1 Tinjauan Pustaka\nTeori Pelindungan Hukum menurut Satjipto Rahardjo menekankan bahwa hukum hadir untuk mengintegrasikan dan mengoordinasikan berbagai kepentingan dalam masyarakat dengan cara melindungi hak-hak pihak yang berada pada posisi lemah secara struktural maupun kontraktual.",
-                'bab3' => "3.1 Jenis dan Pendekatan Penelitian\nPenelitian ini merupakan penelitian hukum yuridis normatif dengan menggunakan pendekatan perundang-undangan (statute approach) terhadap UU Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi dan Peraturan Otoritas Jasa Keuangan, serta pendekatan konseptual (conceptual approach).",
+                'fakultas' => 'Fakultas Hukum',
+                'jenis' => 'PROPOSAL SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nPerkembangan layanan pendanaan bersama berbasis teknologi informasi (fintech peer-to-peer lending) memperluas inklusi keuangan di Indonesia, namun menimbulkan kerentanan hukum terkait pelindungan data pribadi pengguna (Siregar & Wibowo, 2023).\n\n1.2 Batasan Masalah\nKajian difokuskan pada tanggung jawab pengendali data penyelenggara pinjaman daring berizin OJK menurut UU Nomor 27 Tahun 2022.\n\n1.3 Rumusan Masalah\n1. Bagaimana pengaturan kewajiban hukum pengendali data pada layanan pinjaman daring?\n2. Bagaimana mekanisme pemulihan hak dan ganti kerugian konsumen akibat kebocoran data?",
+                'bab2' => "2.1 Tinjauan Pustaka\nTeori Pelindungan Hukum menekankan jaminan kepastian hak warga negara dari potensi penyalahgunaan posisi dominan penyelenggara elektronik (Maharani et al., 2024).",
+                'bab3' => "3.1 Jenis dan Pendekatan Penelitian\nPenelitian hukum yuridis normatif dengan statute approach dan conceptual approach terhadap peraturan perundang-undangan terkait.",
                 'dp' => "Maharani, D., Prasetyo, Y., & Santoso, H. (2024). Tanggung jawab pengendali data pribadi dalam perspektif Undang-Undang Nomor 27 Tahun 2022. Jurnal Hukum Ius Quia Iustum, 31(1), 55-74.\nSiregar, R. A., & Wibowo, A. (2023). Pelindungan konsumen layanan finansial teknologi atas penyalahgunaan data pribadi. Jurnal Penelitian Hukum De Jure, 23(2), 189-204."
+            ],
+            'teknik' => [
+                'judul' => 'Analisis Sisa Umur Pakai Pipa Distribusi Gas Menggunakan Metode Fitness-for-Service Standar ASME B31.8',
+                'prodi' => 'Teknik Mesin / Perpipaan',
+                'nama' => 'Bagas Prakoso',
+                'nim' => '1806142093',
+                'kampus' => 'Institut Teknologi Sepuluh Nopember',
+                'fakultas' => 'Fakultas Teknologi Industri dan Rekayasa Sistem',
+                'jenis' => 'SKRIPSI',
+                'bab1' => "1.1 Latar Belakang Masalah\nIntegritas jaringan pipa distribusi gas bertekanan sangat rentan terhadap penipisan dinding akibat korosi internal dan eksternal. Evaluasi sisa umur pakai (remaining life assessment) krusial dilakukan guna mencegah kegagalan operasi (Nugraha et al., 2023).\n\n1.2 Batasan Masalah\nAnalisis dibatasi pada segmen pipa baja karbon API 5L Grade B dengan pendekatan tekanan operasi maksimum yang diizinkan (MAOP) sesuai ASME B31.8.\n\n1.3 Rumusan Masalah\nBerapa laju korosi aktual dan estimasi sisa umur pakai pipa distribusi gas berdasarkan perhitungan ketebalan minimum?",
+                'bab2' => "2.1 Landasan Teori\nPerhitungan ketebalan dinding minimum pipa gas dan faktor keselamatan desain mengacu pada formulasi hoop stress dalam standar ASME B31.8 (Firdaus & Santosa, 2022).",
+                'bab3' => "3.1 Metode Penelitian\nStudi kuantitatif eksperimental menggunakan data inspeksi Ultrasonic Thickness Gauge (UT) sepanjang 12 titik pengamatan untuk menghitung corrosion rate jangka panjang.",
+                'bab4' => "4.1 Hasil Perhitungan Sisa Umur\nLaju korosi rata-rata terukur sebesar 0,14 mm/tahun sehingga estimasi sisa umur pakai pipa hingga batas ketebalan kritis masih aman selama 11,4 tahun.",
+                'bab5' => "5.1 Kesimpulan\nJaringan pipa memenuhi kriteria kelayakan operasi ASME B31.8 dengan rekomendasi inspeksi ulang berkala setiap 3 tahun.",
+                'dp' => "Firdaus, A., & Santosa, H. (2022). Evaluasi integritas pipa transmisi gas berbasis ASME B31.8. Jurnal Teknik Mesin Indonesia, 17(2), 90-99.\nNugraha, R., Prasetyo, E., & Hadi, S. (2023). Remaining life assessment pada pipa distribusi baja karbon terkorosi. Jurnal Rekayasa Material, 10(1), 15-26."
             ]
         ];
 
@@ -1246,39 +1704,67 @@ ATURAN REVISI:
             'bab1_content' => $sample['bab1'],
             'bab2_content' => $sample['bab2'],
             'bab3_content' => $sample['bab3'],
+            'bab4_content' => $sample['bab4'] ?? null,
+            'bab5_content' => $sample['bab5'] ?? null,
             'daftar_pustaka' => $sample['dp'],
         ]);
 
+        $jenisDok = $sample['jenis'] ?? 'PROPOSAL SKRIPSI';
         $request->merge([
             'nama' => $sample['nama'],
             'npm' => $sample['nim'],
             'kampus' => $sample['kampus'],
-            'jenis_dokumen' => 'PROPOSAL SKRIPSI',
+            'fakultas' => $sample['fakultas'] ?? '',
+            'jenis_dokumen' => $jenisDok,
         ]);
 
         if ($format === 'pdf') {
+            $isProp = str_contains($jenisDok, 'PROPOSAL');
+            $tocHtml = '';
+            foreach ($this->extractTocItemsForProject($fakeProject, $isProp) as $item) {
+                $pad = ($item['level'] ?? 1) === 1 ? '0' : '22px';
+                $weight = ($item['level'] ?? 1) === 1 ? 'bold' : 'normal';
+                $tocHtml .= "<div style='display:table; width:100%; margin-bottom:5px; font-weight:{$weight};'>
+                    <span style='display:table-cell; padding-left:{$pad};'>" . e($item['label']) . "</span>
+                    <span style='display:table-cell; text-align:right; width:50px;'>" . e($item['page']) . "</span>
+                </div>";
+            }
+
             $html = "<html><head><style>
-                body{font-family:'Times New Roman', serif; margin:3.5cm 3cm 3cm 3.5cm; text-align:justify; line-height:1.5; font-size:12pt;}
+                @page { size: A4; margin: 4cm 3cm 3cm 4cm; }
+                body{font-family:'Times New Roman', serif; margin:0; text-align:justify; line-height:1.5; font-size:12pt;}
                 h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
                 p{text-indent: 1.27cm; margin: 0 0 8px 0;}
                 .cover p{text-indent:0; text-align:center;}
             </style></head><body>
             <div class='cover' style='text-align:center; padding-top:30px;'>
-                <h1>PROPOSAL SKRIPSI</h1>
+                <h1>{$jenisDok}</h1>
                 <h2 style='margin-top:24px;'>" . strtoupper(e($sample['judul'])) . "</h2>
                 <p style='margin-top:48px;'><strong>OLEH:</strong><br><u><strong>" . strtoupper(e($sample['nama'])) . "</strong></u><br>{$sample['nim']}</p>
                 <div style='margin-top:80px; font-weight:bold; font-size:13pt;'>
                     PROGRAM STUDI " . strtoupper(e($sample['prodi'])) . "<br>
+                    " . (!empty($sample['fakultas']) ? strtoupper(e($sample['fakultas'])) . "<br>" : "") . "
                     " . strtoupper(e($sample['kampus'])) . "<br>" . date('Y') . "
                 </div>
             </div>
+            <div style='page-break-after:always;'></div>
+            <h2>DAFTAR ISI</h2>
+            <div style='margin-top:16px;'>{$tocHtml}</div>
             <div style='page-break-after:always;'></div>
             <h2>BAB I<br>PENDAHULUAN</h2>" . nl2br(e($sample['bab1'])) . "
             <div style='page-break-after:always;'></div>
             <h2>BAB II<br>TINJAUAN PUSTAKA</h2>" . nl2br(e($sample['bab2'])) . "
             <div style='page-break-after:always;'></div>
-            <h2>BAB III<br>METODOLOGI PENELITIAN</h2>" . nl2br(e($sample['bab3'])) . "
-            <div style='page-break-after:always;'></div>
+            <h2>BAB III<br>METODOLOGI PENELITIAN</h2>" . nl2br(e($sample['bab3']));
+
+            if (!empty($sample['bab4'])) {
+                $html .= "<div style='page-break-after:always;'></div><h2>BAB IV<br>HASIL DAN PEMBAHASAN</h2>" . nl2br(e($sample['bab4']));
+            }
+            if (!empty($sample['bab5'])) {
+                $html .= "<div style='page-break-after:always;'></div><h2>BAB V<br>PENUTUP</h2>" . nl2br(e($sample['bab5']));
+            }
+
+            $html .= "<div style='page-break-after:always;'></div>
             <h2>DAFTAR PUSTAKA</h2><p style='text-indent:0; padding-left:1.27cm; text-indent:-1.27cm;'>" . nl2br(e($sample['dp'])) . "</p>
             </body></html>";
 
@@ -1287,12 +1773,135 @@ ATURAN REVISI:
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4');
             $dompdf->render();
-            return $dompdf->stream('Contoh_Proposal_' . ucfirst($major) . '.pdf');
+            $inline = $request->boolean('inline');
+            return $dompdf->stream('Contoh_' . ucfirst($major) . '.pdf', ['Attachment' => !$inline]);
         }
 
         if (ob_get_length()) ob_end_clean();
-        $phpWord = $this->createPhpWordDocument($fakeProject, $request);
-        $filename = 'Contoh_Proposal_' . ucfirst($major) . '.docx';
+        $phpWord = $this->createPhpWordDocument($fakeProject, $request, null, ['tahap_pengerjaan' => $jenisDok]);
+        $filename = 'Contoh_' . ucfirst($major) . '.docx';
+        Settings::setTempDir('/tmp');
+        $path = '/tmp/' . $filename;
+        $writer = IOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save($path);
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
+    }
+
+    private function cleanDaftarPustaka(string $raw): string
+    {
+        $text = strip_tags($raw);
+        $text = str_replace(['*', '#', '_', '`'], '', $text);
+        $lines = explode("\n", $text);
+        $cleaned = [];
+        foreach ($lines as $line) {
+            $l = trim($line);
+            if (strlen($l) < 12) continue;
+            if (preg_match('/^(berikut\s+adalah|daftar\s+pustaka|referensi\s*:|catatan\s*:|berikut\s+daftar)/i', $l)) {
+                continue;
+            }
+            $l = preg_replace('/^[\d\-\•]+\.?\s*/', '', $l);
+            $cleaned[] = trim($l);
+        }
+        return implode("\n", $cleaned);
+    }
+
+    public function landingPage()
+    {
+        $publicProjects = collect();
+        try {
+            $publicProjects = Project::whereNotNull('bab1_content')
+                ->where('bab1_content', '!=', '')
+                ->orderBy('updated_at', 'desc')
+                ->take(12)
+                ->get();
+        } catch (Throwable $e) {
+            $publicProjects = collect();
+        }
+        return view('landing', compact('publicProjects'));
+    }
+
+    public function downloadPublicProject($id, string $format, Request $request)
+    {
+        $project = Project::findOrFail($id);
+        $meta = $this->getProjectMeta($project);
+        $logoPath = $this->resolveLogoTempPath($request, $meta);
+
+        $hasFull = !empty($project->bab4_content) || !empty($project->bab5_content);
+        $request->merge([
+            'nama' => $meta['nama'] ?? 'Mahasiswa Peneliti',
+            'npm' => $meta['nim'] ?? '-',
+            'kampus' => $meta['kampus'] ?? 'Universitas di Indonesia',
+            'fakultas' => $meta['fakultas'] ?? '',
+            'jenis_dokumen' => $hasFull ? 'SKRIPSI' : 'PROPOSAL SKRIPSI',
+        ]);
+
+        if ($format === 'pdf') {
+            $jenisDokumen = $hasFull ? 'SKRIPSI' : 'PROPOSAL SKRIPSI';
+            $nama = $meta['nama'] ?? 'Mahasiswa Peneliti';
+            $npm = $meta['nim'] ?? '';
+            $kampus = $meta['kampus'] ?? 'Universitas';
+            $fakultas = $meta['fakultas'] ?? '';
+
+            $logoHtml = '';
+            if ($logoPath && file_exists($logoPath)) {
+                $mime = mime_content_type($logoPath) ?: 'image/png';
+                $b64 = base64_encode(file_get_contents($logoPath));
+                $logoHtml = "<div style='margin: 24px 0; text-align:center;'><img src='data:{$mime};base64,{$b64}' style='width:105px; height:auto;'></div>";
+                @unlink($logoPath);
+            }
+
+            $html = "<html><head><style>
+                @page { size: A4; margin: 4cm 3cm 3cm 4cm; }
+                body{font-family:'Times New Roman', serif; margin:0; text-align:justify; line-height:1.5; font-size:12pt;}
+                h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
+                h3,h4{font-weight:bold; font-size:12pt;}
+                p{text-indent: 1.27cm; margin: 0 0 8px 0;}
+                .cover p{text-indent:0; text-align:center;}
+            </style></head><body>
+            <div class='cover' style='text-align:center; padding-top:25px;'>
+                <h1>{$jenisDokumen}</h1>
+                <h2 style='margin-top:24px;'>" . strtoupper(e($project->judul)) . "</h2>
+                {$logoHtml}
+                <p style='margin-top:36px;'><strong>OLEH:</strong><br><u><strong>" . strtoupper(e($nama)) . "</strong></u><br>" . e($npm) . "</p>
+                <div style='margin-top:64px; font-weight:bold; font-size:13pt;'>
+                    PROGRAM STUDI " . strtoupper(e($project->prodi)) . "<br>
+                    " . ($fakultas ? strtoupper(e($fakultas)) . "<br>" : "") . "
+                    " . strtoupper(e($kampus)) . "<br>" . date('Y') . "
+                </div>
+            </div>
+            <div style='page-break-after:always;'></div>";
+
+            $chapters = [
+                'bab1' => 'PENDAHULUAN',
+                'bab2' => 'TINJAUAN PUSTAKA',
+                'bab3' => 'METODOLOGI PENELITIAN',
+                'bab4' => 'HASIL DAN PEMBAHASAN',
+                'bab5' => 'PENUTUP'
+            ];
+            $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
+            foreach ($chapters as $k => $v) {
+                if ($c = $project->{$k . '_content'}) {
+                    $html .= "<h2>BAB " . $nums[$k] . "<br>$v</h2>" . nl2br(e($c));
+                    $html .= "<div style='page-break-after:always;'></div>";
+                }
+            }
+            if (!empty($project->daftar_pustaka)) {
+                $html .= "<h2>DAFTAR PUSTAKA</h2><p style='text-indent:0; padding-left:1.27cm; text-indent:-1.27cm;'>" . nl2br(e($project->daftar_pustaka)) . "</p>";
+            }
+            $html .= "</body></html>";
+
+            $dompdf = new Dompdf();
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4');
+            $dompdf->render();
+            $inline = $request->boolean('inline');
+            return $dompdf->stream('Dokumen_' . Str::slug(substr($project->judul, 0, 28), '_') . '.pdf', ['Attachment' => !$inline]);
+        }
+
+        if (ob_get_length()) ob_end_clean();
+        $phpWord = $this->createPhpWordDocument($project, $request, $logoPath, $meta);
+        $filename = 'Dokumen_' . Str::slug(substr($project->judul, 0, 28), '_') . '.docx';
         Settings::setTempDir('/tmp');
         $path = '/tmp/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
@@ -1306,13 +1915,18 @@ ATURAN REVISI:
         $model = $request->input('model', 'auto');
 
         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
-        $prompt = "Buatkan DAFTAR PUSTAKA (APA Style 7th Edition) lengkap berdasarkan naskah skripsi berjudul '{$project->judul}' berikut ini. Ambil seluruh nama penulis dan tahun yang dikutip dalam kurung, lengkapi dengan jurnal ilmiah relevan, dan urutkan secara alfabetis (A-Z). Jangan gunakan tanda bintang markdown:\n\n" . substr($allText, 0, 8000);
+        $prompt = "Tulis DAFTAR PUSTAKA (Format APA 7th Edition) lengkap berdasarkan naskah skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}) berikut ini.
+ATURAN WAJIB:
+1. LANGSUNG tulis baris daftar pustaka pertama (urut A-Z) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
+2. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap entri WAJIB memiliki judul artikel ilmiah yang spesifik dan lengkap, nama jurnal akademik nyata, volume, nomor, dan halaman spesifik (misal: 12(2), 45-58).
+3. Jangan gunakan tanda bintang markdown (*).
+
+NASKAH:
+" . substr($allText, 0, 8000);
 
         try {
             $daftarPustaka = $this->ai->generateText($prompt, $model);
-            $cleanDP = strip_tags($daftarPustaka);
-            $cleanDP = str_replace(['*', '#', '_', '`'], '', $cleanDP);
-            $project->daftar_pustaka = trim($cleanDP);
+            $project->daftar_pustaka = $this->cleanDaftarPustaka($daftarPustaka);
             $project->save();
 
             if ($request->wantsJson()) {
@@ -1335,11 +1949,6 @@ ATURAN REVISI:
             'model'    => 'nullable|string'
         ]);
 
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis terlebih dahulu.']);
-        }
-
         try {
             $question = $request->question;
             $image = $request->image;
@@ -1350,12 +1959,10 @@ Jawab pertanyaan berikut secara sistematis, jelas, dan mudah dipahami:
 PERTANYAAN: {$question}";
 
             $answer = $this->ai->generateWithImage($prompt, $image, $model);
-            $user->decrement('credits');
 
             return response()->json([
                 'status' => 'success',
                 'answer' => $answer,
-                'new_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
@@ -1369,11 +1976,6 @@ PERTANYAAN: {$question}";
 
     public function paraphraseText(Request $request)
     {
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis terlebih dahulu.']);
-        }
-
         $request->validate([
             'text' => 'required|string|min:15',
             'style' => 'nullable|string',
@@ -1401,12 +2003,10 @@ TEKS ASLI:
 
         try {
             $result = $this->ai->generateText($prompt, $model);
-            $user->decrement('credits');
 
             return response()->json([
                 'status' => 'success',
                 'result' => trim($result),
-                'new_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
@@ -1415,11 +2015,6 @@ TEKS ASLI:
 
     public function generatePpt(Request $request)
     {
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis terlebih dahulu.']);
-        }
-
         $model = $request->input('model', 'auto');
         $docText = '';
         $docTitle = trim($request->input('judul', ''));
@@ -1502,13 +2097,10 @@ Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori,
                 ];
             }
 
-            $user->decrement('credits');
-
             return response()->json([
                 'status' => 'success',
                 'title' => $docTitle,
                 'slides_data' => $slidesArray,
-                'new_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
@@ -1517,11 +2109,6 @@ Buat 9 slide berurutan (Cover, Latar Belakang, Rumusan & Tujuan, Landasan Teori,
 
     public function simulateDefense(Request $request)
     {
-        $user = Auth::user();
-        if ($user->credits < 1) {
-            return response()->json(['status' => 'error', 'message' => 'Token habis! Silakan klaim token gratis terlebih dahulu.']);
-        }
-
         $mode = $request->input('mode', 'generate_questions');
         $model = $request->input('model', 'auto');
 
@@ -1594,13 +2181,10 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi 5 objek pertanyaan
                     ];
                 }
 
-                $user->decrement('credits');
-
                 return response()->json([
                     'status' => 'success',
                     'title' => $docTitle,
                     'questions' => array_slice($questions, 0, 5),
-                    'new_credits' => $user->credits
                 ]);
             }
 
@@ -1676,12 +2260,9 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Object murni dengan struktur berikut:
                 ];
             }
 
-            $user->decrement('credits');
-
             return response()->json([
                 'status' => 'success',
                 'evaluation' => $evalData,
-                'new_credits' => $user->credits
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);

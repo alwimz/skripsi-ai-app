@@ -6,82 +6,105 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class GroqService
 {
-    private array $models = [
-        'llama-3.3-70b-versatile',
-        'llama-3.1-8b-instant',
-    ];
-
     private function getApiKeys(): array
     {
-        $keys = [];
+        $rows = [];
         try {
+            $hasProvider = Schema::hasColumn('api_keys', 'provider');
             $dbKeys = DB::table('api_keys')
-                ->where('key', 'like', 'gsk_%')
                 ->where('is_active', true)
+                ->where(function ($q) use ($hasProvider) {
+                    $q->where('key', 'like', 'sk-%')
+                      ->orWhere('key', 'like', 'gsk_%');
+                    if ($hasProvider) {
+                        $q->orWhereIn('provider', ['deepseek', 'groq']);
+                    }
+                })
                 ->orderBy('usage_count', 'asc')
-                ->pluck('key')
-                ->toArray();
-            $keys = array_merge($keys, $dbKeys);
+                ->get(['id', 'key']);
+
+            foreach ($dbKeys as $item) {
+                $rows[] = (object) ['id' => $item->id, 'key' => trim($item->key)];
+            }
         } catch (Exception $e) {
-            Log::warning('Groq DB key lookup skipped: ' . $e->getMessage());
+            Log::warning('DeepSeek/Groq DB key lookup skipped: ' . $e->getMessage());
         }
 
-        $envKey = config('services.groq.key') ?: env('GROQ_API_KEY');
-        if (!empty($envKey)) {
-            $keys[] = trim($envKey);
+        $envKeys = array_filter([
+            config('services.deepseek.key') ?: env('DEEPSEEK_API_KEY'),
+            config('services.openrouter.key') ?: env('OPENROUTER_API_KEY'),
+            config('services.groq.key') ?: env('GROQ_API_KEY'),
+        ]);
+        foreach ($envKeys as $ek) {
+            $rows[] = (object) ['id' => 0, 'key' => trim($ek)];
         }
 
-        return array_values(array_unique(array_filter($keys)));
+        $unique = [];
+        $seen = [];
+        foreach ($rows as $r) {
+            if (!empty($r->key) && !isset($seen[$r->key])) {
+                $seen[$r->key] = true;
+                $unique[] = $r;
+            }
+        }
+
+        return $unique;
     }
 
     public function generateText(string $prompt): string
     {
         $keys = $this->getApiKeys();
-
-        if (empty($keys)) {
-            throw new Exception('API Key Groq belum diatur.');
-        }
-
         $lastError = '';
 
-        foreach ($keys as $apiKey) {
-            foreach ($this->models as $model) {
+        $systemMsg = 'Anda adalah Profesor Pembimbing Akademik Senior di Perguruan Tinggi Indonesia yang ahli menyusun naskah proposal dan skripsi S1 sesuai standar DIKTI, KBBI, dan EYD V.';
+
+        foreach ($keys as $keyRow) {
+            $apiKey = $keyRow->key;
+
+            if (str_starts_with($apiKey, 'sk-or-')) {
+                $endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+                $models = ['deepseek/deepseek-chat:free', 'deepseek/deepseek-r1:free', 'deepseek/deepseek-chat'];
+            } elseif (str_starts_with($apiKey, 'gsk_')) {
+                $endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+                $models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+            } else {
+                $endpoint = 'https://api.deepseek.com/chat/completions';
+                $models = ['deepseek-chat', 'deepseek-reasoner'];
+            }
+
+            foreach ($models as $model) {
                 try {
                     $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . trim($apiKey),
+                        'Authorization' => 'Bearer ' . $apiKey,
                         'Content-Type'  => 'application/json',
                     ])
-                    ->timeout(90)
-                    ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    ->timeout(110)
+                    ->post($endpoint, [
                         'model' => $model,
                         'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => 'Anda adalah Profesor Pembimbing Akademik Senior di Universitas Indonesia yang ahli menyusun naskah skripsi S1 sesuai standar DIKTI, KBBI, dan EYD V.'
-                            ],
-                            [
-                                'role' => 'user',
-                                'content' => $prompt
-                            ]
+                            ['role' => 'system', 'content' => $systemMsg],
+                            ['role' => 'user', 'content' => $prompt],
                         ],
-                        'temperature' => 0.6,
-                        'max_tokens' => 6000,
+                        'temperature' => 0.65,
+                        'max_tokens' => 6500,
                     ]);
 
                     if ($response->successful()) {
                         $content = $response->json()['choices'][0]['message']['content'] ?? '';
                         if (trim($content) !== '') {
+                            if (!empty($keyRow->id)) {
+                                DB::table('api_keys')->where('id', $keyRow->id)->increment('usage_count');
+                            }
                             return $content;
                         }
                     }
 
                     $lastError = 'HTTP ' . $response->status() . ': ' . $response->body();
-
-                    // Jika 401 (key kadaluarsa), langsung lanjut ke key berikutnya tanpa mencoba model lain pada key yang sama
-                    if ($response->status() === 401) {
+                    if ($response->status() === 401 || $response->status() === 402) {
                         break;
                     }
                 } catch (Exception $e) {
@@ -90,7 +113,37 @@ class GroqService
             }
         }
 
-        Log::error('Groq Error', ['error' => $lastError]);
-        throw new Exception('Gagal memproses AI (Groq): ' . $lastError);
+        // Engine DeepSeek Versi Gratis Realtime (otomatis jika belum ada key atau key terkena limit)
+        foreach (['deepseek', 'openai'] as $freeModel) {
+            try {
+                $freeResp = Http::withHeaders(['Content-Type' => 'application/json'])
+                    ->timeout(120)
+                    ->post('https://text.pollinations.ai/openai', [
+                        'model' => $freeModel,
+                        'messages' => [
+                            ['role' => 'system', 'content' => $systemMsg],
+                            ['role' => 'user', 'content' => $prompt],
+                        ],
+                        'temperature' => 0.65,
+                    ]);
+
+                if ($freeResp->successful()) {
+                    $json = $freeResp->json();
+                    $content = $json['choices'][0]['message']['content'] ?? '';
+                    if (trim($content) !== '') {
+                        return $content;
+                    }
+                    $rawBody = trim($freeResp->body());
+                    if (strlen($rawBody) > 25 && !str_starts_with($rawBody, '{')) {
+                        return $rawBody;
+                    }
+                }
+            } catch (Exception $e) {
+                $lastError = $e->getMessage();
+            }
+        }
+
+        Log::error('DeepSeek/Groq Error', ['error' => $lastError]);
+        throw new Exception('Gagal memproses AI DeepSeek: ' . $lastError);
     }
 }

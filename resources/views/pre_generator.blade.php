@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SkripsiAI — Ruang Kerja</title>
+    <title>SkripsiAI — Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,18 +17,18 @@
         }
 
         :root {
-            --bg-page: #ffffff;
+            --bg-page: #f8fafc;
             --bg-sidebar: #ffffff;
-            --bg-muted: #f3f4f6;
-            --bg-subtle: #f9fafb;
-            --text-main: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --border-light: #f3f4f6;
-            --primary: #2e2a5a;
-            --primary-hover: #242048;
-            --primary-soft: #ede9fe;
+            --bg-muted: #eff6ff;
+            --bg-subtle: #f8fafc;
+            --text-main: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #dbeafe;
         }
 
         body {
@@ -45,9 +45,9 @@
             color: inherit;
         }
 
-        /* Sidebar — Exact Clean Minimalist Style */
+        /* Sidebar — Clean Blue & White Collapsible Workspace Sidebar */
         .sidebar {
-            width: 240px;
+            width: 248px;
             background: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
@@ -56,15 +56,64 @@
             top: 0;
             bottom: 0;
             left: 0;
-            z-index: 40;
+            z-index: 50;
+            transition: transform 0.22s ease;
+        }
+
+        body.sidebar-collapsed .sidebar {
+            transform: translateX(-100%);
+        }
+
+        body.sidebar-collapsed .main-wrapper {
+            margin-left: 0;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 45;
+            display: none;
+        }
+
+        .sidebar-backdrop.open {
+            display: block;
         }
 
         .sidebar-header {
-            padding: 16px 18px;
+            padding: 15px 16px;
             border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 11px;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sidebar-brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .sidebar-close-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .sidebar-close-btn:hover {
+            background: var(--bg-muted);
+            color: var(--primary);
         }
 
         .brand-avatar {
@@ -134,19 +183,19 @@
 
         .nav-btn.active {
             background: var(--bg-muted);
-            color: var(--text-main);
+            color: var(--primary);
             font-weight: 600;
         }
 
         .nav-btn svg {
             width: 18px;
             height: 18px;
-            color: #4b5563;
+            color: #64748b;
             flex-shrink: 0;
         }
 
         .nav-btn.active svg {
-            color: var(--text-main);
+            color: var(--primary);
         }
 
         .sidebar-footer {
@@ -179,10 +228,21 @@
         /* Main Area */
         .main-wrapper {
             flex: 1;
-            margin-left: 240px;
+            margin-left: 248px;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-width: 0;
+            transition: margin-left 0.22s ease;
+        }
+
+        .nav-group-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            padding: 10px 12px 4px;
         }
 
         /* Top Bar / Breadcrumb */
@@ -533,7 +593,20 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            flex: 1;
             min-width: 0;
+            padding-right: 12px;
+        }
+
+        .project-row-action {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .project-initial {
@@ -613,34 +686,286 @@
             line-height: 1.45;
         }
 
-        /* Interactive PPT Studio (16:9 Slide Canvas) */
+        /* Interactive PPT Studio (16:9 Slide Canvas & Designer Templates) */
         .ppt-canvas {
             border-radius: 14px;
-            padding: 36px 40px;
-            min-height: 340px;
+            padding: 40px 44px;
+            min-height: 390px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
             transition: all 0.2s ease;
         }
 
-        .ppt-theme-navy { background: #1e1b4b; color: #ffffff; }
-        .ppt-theme-light { background: #ffffff; color: #111827; }
-        .ppt-theme-slate { background: #0f172a; color: #f8fafc; }
-        .ppt-theme-emerald { background: #064e3b; color: #ecfdf5; }
+        /* 1. Basic Navy (Klasik) */
+        .ppt-theme-basic_navy {
+            background: #1e1b4b;
+            color: #ffffff;
+        }
+        .ppt-theme-basic_navy .ppt-badge {
+            background: rgba(255, 255, 255, 0.14);
+            color: #e0e7ff;
+        }
 
-        .theme-dot {
-            width: 24px;
-            height: 24px;
+        /* 2. Basic White (Polos Kampus) */
+        .ppt-theme-basic_white {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1.5px solid #cbd5e1;
+        }
+        .ppt-theme-basic_white .ppt-badge {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        /* 3. Royal Blue Academic (Modern Kampus dengan Sidebar Biru & Ornamen) */
+        .ppt-theme-royal_academic {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+            color: #0f172a;
+            padding-left: 60px;
+            border: 1px solid #bfdbfe;
+        }
+        .ppt-theme-royal_academic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 18px;
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        .ppt-theme-royal_academic::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            border: 2px solid #e5e7eb;
+            background: rgba(37, 99, 235, 0.07);
+            pointer-events: none;
+        }
+        .ppt-theme-royal_academic .ppt-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .ppt-theme-royal_academic #slide-bullets-edit li {
+            background: rgba(255, 255, 255, 0.88);
+            border-left: 3px solid #2563eb;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 4. Canva Warm Editorial (Cream & Terracotta Cantik) */
+        .ppt-theme-canva_editorial {
+            background: #fbf8f3;
+            color: #292524;
+            border: 1px solid #e7e0d6;
+            padding-top: 48px;
+        }
+        .ppt-theme-canva_editorial::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);
+        }
+        .ppt-theme-canva_editorial .ppt-badge {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+        .ppt-theme-canva_editorial #slide-title-edit {
+            font-family: Georgia, 'Times New Roman', serif;
+            color: #1c1917;
+        }
+        .ppt-theme-canva_editorial #slide-bullets-edit li {
+            background: #ffffff;
+            border: 1px solid #ede6dc;
+            padding: 7px 12px;
+            border-radius: 8px;
+            list-style-position: inside;
+        }
+
+        /* 5. Emerald Botanical (Hijau Kampus & Aksen Emas) */
+        .ppt-theme-emerald_executive {
+            background: #f4fbf7;
+            color: #064e3b;
+            border: 1px solid #a7f3d0;
+            padding-top: 50px;
+        }
+        .ppt-theme-emerald_executive::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 14px;
+            background: linear-gradient(90deg, #065f46 0%, #047857 75%, #d97706 100%);
+        }
+        .ppt-theme-emerald_executive .ppt-badge {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .ppt-theme-emerald_executive #slide-bullets-edit li {
+            background: #ffffff;
+            border-left: 3px solid #059669;
+            padding: 7px 12px;
+            border-radius: 0 8px 8px 0;
+            list-style-position: inside;
+        }
+
+        /* 6. Swiss Minimal Grid (Editorial Monokrom) */
+        .ppt-theme-swiss_minimal {
+            background: #ffffff;
+            color: #111827;
+            border: 2px solid #111827;
+        }
+        .ppt-theme-swiss_minimal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: #111827;
+        }
+        .ppt-theme-swiss_minimal .ppt-badge {
+            background: #111827;
+            color: #ffffff;
+        }
+
+        .ppt-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* Template Card Selector */
+        .theme-card-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .theme-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: #ffffff;
+            cursor: pointer;
+            font-family: inherit;
+            text-align: left;
+            transition: all 0.15s ease;
+        }
+
+        .theme-chip:hover {
+            border-color: #94a3b8;
+        }
+
+        .theme-chip.active {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        .theme-swatch {
+            width: 100%;
+            height: 26px;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .theme-chip-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        /* External Slide Navigation Bar (Outside Editor) */
+        .ppt-nav-outside {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ppt-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .ppt-nav-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .ppt-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .ppt-num-strip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .ppt-num-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
         }
 
-        .theme-dot.active {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
+        .ppt-num-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
         }
 
         /* Simulasi Sidang Score Bar */
@@ -669,60 +994,266 @@
             border-radius: 999px;
         }
 
-        .mobile-menu-btn {
-            display: none;
-            background: none;
+        .sidebar-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
             border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 6px;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        @media (max-width: 840px) {
+        .sidebar-toggle-btn:hover {
+            background: var(--bg-muted);
+            color: var(--primary);
+            border-color: #bfdbfe;
+        }
+
+        /* Universal Loading Animation CSS */
+        @keyframes aiSpin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes aiShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .ai-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2.2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: aiSpin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+        .ai-spinner-blue {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid #dbeafe;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            display: inline-block;
+            animation: aiSpin 0.75s linear infinite;
+            flex-shrink: 0;
+        }
+        .ai-loading-card {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.06);
+        }
+        .ai-loading-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .ai-loading-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .ai-loading-sub {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .ai-shimmer-line {
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #eff6ff 25%, #dbeafe 50%, #eff6ff 75%);
+            background-size: 200% 100%;
+            animation: aiShimmer 1.4s ease-in-out infinite;
+            margin-bottom: 9px;
+        }
+        .scope-badge-id {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .scope-badge-int {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        @media (max-width: 900px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.2s ease;
+                box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
             }
             .sidebar.open {
                 transform: translateX(0);
             }
             .main-wrapper {
-                margin-left: 0;
+                margin-left: 0 !important;
+                width: 100%;
             }
-            .mobile-menu-btn {
-                display: inline-flex;
+            .topbar {
+                padding: 0 14px;
             }
-            .form-row, .dash-grid {
-                grid-template-columns: 1fr;
+            .page-content {
+                padding: 22px 16px 64px;
+            }
+            .form-row,
+            .dash-grid,
+            .theme-card-grid,
+            .responsive-grid-2,
+            .responsive-grid-3,
+            .responsive-grid-title-logo {
+                grid-template-columns: 1fr !important;
+            }
+            .ppt-canvas {
+                padding: 24px 20px;
+                min-height: 290px;
+            }
+            .ppt-nav-outside {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            #ppt-grid-preview-list {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                overflow-x: hidden;
+            }
+            .topbar {
+                height: auto;
+                min-height: 56px;
+                padding: 10px 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .topbar-right {
+                width: 100%;
+                justify-content: flex-end;
+                gap: 6px;
+            }
+            .model-select {
+                max-width: 100%;
+                flex: 1;
+                font-size: 12px;
+            }
+            .page-title {
+                font-size: 21px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .card-header-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+            .card-footer-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .card-footer-bar .btn-primary,
+            .card-footer-bar .btn-outline {
+                width: 100%;
+                justify-content: center;
+            }
+            .project-row {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px;
+                padding: 14px;
+            }
+            .project-row-left {
+                width: 100%;
+                padding-right: 0 !important;
+            }
+            .project-row-action {
+                align-self: flex-end;
+            }
+            .stepper {
+                gap: 6px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+            .step-pill {
+                padding: 6px 10px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+            #fs-slide-canvas {
+                padding: 24px 18px !important;
+                min-height: 300px !important;
+            }
+            #ppt-slideshow-modal .ppt-nav-btn {
+                font-size: 12px;
+                padding: 7px 10px;
+            }
+            #ppt-slideshow-modal > div {
+                flex-wrap: wrap;
+                gap: 8px;
             }
         }
     </style>
 </head>
 <body>
 
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
+
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <a href="/" class="brand-avatar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-            </a>
-            <div class="brand-info">
-                <div class="brand-name">SkripsiAI</div>
-                <div class="brand-user">{{ $user->name }}</div>
+            <div class="sidebar-brand-left">
+                <a href="/" class="brand-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                </a>
+                <div class="brand-info">
+                    <div class="brand-name">SkripsiAI</div>
+                    <div class="brand-user">{{ $user->name }}</div>
+                </div>
             </div>
+            <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" title="Tutup / Buka Sidebar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
+            <div class="nav-group-title">Utama</div>
             <button type="button" class="nav-btn active" id="nav-dashboard" onclick="openTab('dashboard', 'Dashboard')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span>Dashboard</span>
             </button>
 
-            <button type="button" class="nav-btn" id="nav-projects" onclick="openTab('projects', 'Proyek Skripsi')">
+            <button type="button" class="nav-btn" id="nav-projects" onclick="openTab('projects', 'Proyek Saya')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                <span>Proyek Skripsi</span>
+                <span style="flex: 1;">Proyek Saya</span>
+                <span style="font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--primary-soft); color: var(--primary);">{{ $history->count() }}</span>
             </button>
 
+            <div class="nav-group-title">Penulisan &amp; Riset</div>
             <button type="button" class="nav-btn" id="nav-titles" onclick="openTab('titles', 'Cari Judul')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>Cari Judul</span>
@@ -753,6 +1284,17 @@
                 <span>Diskusi & Tugas</span>
             </button>
 
+            <div class="nav-group-title">Akun &amp; Bonus</div>
+            <button type="button" class="nav-btn" id="nav-account" onclick="openTab('account', 'Akun Saya')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Akun Saya</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-referral" onclick="openTab('referral', 'Ajak Teman')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <span>Ajak Teman (Referral)</span>
+            </button>
+
             <button type="button" class="nav-btn" id="nav-apikeys" onclick="openTab('apikeys', 'Pengaturan API')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span>Pengaturan API</span>
@@ -775,26 +1317,26 @@
         <!-- Topbar -->
         <header class="topbar">
             <div class="breadcrumb">
-                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Buka / Tutup Menu Sidebar">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
-                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')">
+                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')" title="Kembali ke Dashboard">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
-                <span>Ruang Kerja</span>
+                <span>Workspace</span>
                 <span>›</span>
                 <span class="breadcrumb-current" id="breadcrumb-label">Dashboard</span>
             </div>
 
             <div class="topbar-right">
                 <select id="global-model" class="model-select">
-                    <option value="auto">Mode Otomatis (AI)</option>
-                    <option value="gemini">Google Gemini</option>
-                    <option value="groq">Groq Llama 3.3</option>
+                    <option value="auto">Mode Otomatis (Rotasi AI)</option>
+                    <option value="deepseek">DeepSeek AI (Gratis / Multi-Key)</option>
+                    <option value="gemini">Google Gemini (AI Studio)</option>
                 </select>
-                <button type="button" class="token-pill" onclick="claimFreeTokens()" title="Klik untuk tambah token gratis">
-                    <span>Token: <strong id="credit-count">{{ $user->credits }}</strong></span>
-                    <span style="color: var(--primary); font-weight: 700;">+</span>
+                <button type="button" class="token-pill" onclick="openTab('account', 'Akun Saya')" title="Status Langganan Mahasiswa">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
+                    <span style="font-weight: 600; color: var(--text-main);">Paket Aktif</span>
                 </button>
             </div>
         </header>
@@ -815,40 +1357,43 @@
             <!-- 1. TAB DASHBOARD -->
             <!-- ========================================================= -->
             <section class="tab-pane active" id="pane-dashboard">
-                <div class="page-eyebrow">Ruang Kerja Akademik</div>
+                <div class="page-eyebrow">Workspace Akademik</div>
                 <h1 class="page-title">Halo, {{ explode(' ', trim($user->name))[0] }}</h1>
                 <p class="page-subtitle">Pilih tahapan skripsi yang ingin kamu kerjakan hari ini, mulai dari mencari ide judul, menulis proposal & skripsi Bab 1–5, hingga persiapan sidang.</p>
 
-                <!-- Proyek Terakhir -->
+                <!-- Proyek Terbaru (Cukup 1 Terbaru agar Dashboard Rapi) -->
                 @if($history->count() > 0)
                     <div class="card-flush" style="margin-bottom: 24px;">
                         <div class="card-header-bar">
                             <div>Proyek Skripsi Terbaru <span class="count-badge">{{ $history->count() }}</span></div>
-                            <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="openTab('projects', 'Proyek Skripsi')">+ Proyek Baru</button>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="openTab('projects', 'Proyek Saya'); showProjectListView();">Lihat Semua ({{ $history->count() }})</button>
+                                <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openCreateProjectForm()">+ Proyek Baru</button>
+                            </div>
                         </div>
-                        @foreach($history->take(3) as $proj)
+                        @foreach($history->take(1) as $proj)
                             <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row">
                                 <div class="project-row-left">
                                     <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div>
+                                    <div style="min-width: 0;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $proj->updated_at->diffForHumans() }}</div>
                                     </div>
                                 </div>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <span class="project-row-action">Lanjutkan Workspace →</span>
                             </a>
                         @endforeach
                     </div>
                 @endif
 
                 <div class="dash-grid">
-                    <div class="dash-card" onclick="openTab('projects', 'Proyek Skripsi')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div class="dash-card" onclick="openCreateProjectForm()">
+                        <div class="dash-icon" style="background: var(--primary-soft); color: var(--primary);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </div>
                         <div>
-                            <h3>Tulis Proposal & Skripsi</h3>
-                            <p>Susun Bab 1–3 (Proposal) atau Bab 1–5 lengkap sesuai pedoman kampus.</p>
+                            <h3>Buat Proyek Baru (Proposal / Skripsi)</h3>
+                            <p>Susun Proposal (Bab 1–3) atau Full Skripsi (Bab 1–5) lengkap sesuai pedoman kampus.</p>
                         </div>
                     </div>
 
@@ -905,268 +1450,296 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 2. TAB PROYEK SKRIPSI (PROPOSAL BAB 1-3 & SKRIPSI BAB 1-5) -->
+            <!-- 2. TAB PROYEK SAYA (LIST PROYEK + TOMBOL BUAT PROYEK BARU) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-projects">
-                <div class="page-eyebrow">Penulisan Terstruktur</div>
-                <h1 class="page-title">Proyek Skripsi & Proposal</h1>
-                <p class="page-subtitle">Di dalam ruang kerja proyek, kamu bisa menyusun sampai Bab 3 untuk Seminar Proposal atau melanjutkan sampai Bab 5 untuk Skripsi lengkap.</p>
-
-                <!-- Form Buat Proyek Baru (Mantra Riset Complete Setup) -->
-                <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerText = 'Membuka Studio Skripsi...';">
-                    @csrf
-
-                    <!-- Card 1: Judul, Logo Kampus, & Identitas -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
-                            <div>
-                                <label class="form-label">Judul Penelitian <span class="req">*</span></label>
-                                <textarea name="judul" id="input-project-judul" class="form-textarea" style="min-height: 92px;" placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)" required></textarea>
-                            </div>
-                            <div>
-                                <label class="form-label">Logo Kampus <span class="opt">(opsional)</span></label>
-                                <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 92px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-subtle); cursor: pointer; text-align: center; padding: 8px; overflow: hidden;">
-                                    <img id="new-proj-logo-preview" src="" alt="" style="display:none; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
-                                    <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Unggah Logo</span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
-                                    <input type="file" name="logo_kampus" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="if(this.files[0]){ const r=new FileReader(); r.onload=e=>{ const img=document.getElementById('new-proj-logo-preview'); img.src=e.target.result; img.style.display='block'; document.getElementById('new-proj-logo-label').innerText=this.files[0].name.substring(0,16); }; r.readAsDataURL(this.files[0]); }">
-                                </label>
-                            </div>
+                <!-- VIEW A: DAFTAR PROYEK SAYA (DEFAULT SAAT KLIK MENU PROYEK SAYA) -->
+                <div id="projects-list-view">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+                        <div>
+                            <div class="page-eyebrow">Manajemen Dokumen</div>
+                            <h1 class="page-title">Proyek Saya</h1>
+                            <p class="page-subtitle" style="margin-bottom: 0;">Daftar proyek Proposal (Bab 1–3) dan Skripsi Lengkap (Bab 1–5) yang sedang kamu kerjakan.</p>
                         </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Nama lengkap</label>
-                                <input type="text" name="nama" class="form-input" value="{{ strtoupper($user->name) }}" placeholder="Nama Lengkap Mahasiswa">
-                            </div>
-                            <div>
-                                <label class="form-label">NIM</label>
-                                <input type="text" name="nim" class="form-input" placeholder="Nomor Induk Mahasiswa">
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
-                            <div>
-                                <label class="form-label">Nama kampus</label>
-                                <input type="text" name="kampus" class="form-input" placeholder="Contoh: UNIVERSITAS INDONESIA">
-                            </div>
-                            <div>
-                                <label class="form-label">Jurusan / Program studi <span class="req">*</span></label>
-                                <input type="text" name="prodi" id="input-project-prodi" class="form-input" placeholder="Contoh: MANAJEMEN" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Fakultas</label>
-                                <input type="text" name="fakultas" class="form-input" placeholder="Masukkan nama fakultas">
-                            </div>
-                        </div>
+                        <button type="button" class="btn-primary" onclick="showProjectCreateForm()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Buat Proyek Baru</span>
+                        </button>
                     </div>
 
-                    <!-- Card 2: Jenis dan Metode Penelitian -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Jenis dan metode penelitian</div>
-
-                        <label class="form-label" style="font-size: 12.5px; color: var(--text-secondary);">Jenis penelitian</label>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;">
-                            @foreach(['Skripsi (S1)', 'Tesis (S2)', 'Disertasi (S3)', 'Ubah Skripsi → Artikel'] as $idx => $jp)
-                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; background: #fff;">
-                                    <input type="radio" name="jenis_penelitian" value="{{ $jp }}" {{ $idx === 0 ? 'checked' : '' }}>
-                                    <span>{{ $jp }}</span>
-                                </label>
-                            @endforeach
+                    <div class="card-flush">
+                        <div class="card-header-bar">
+                            <div>Daftar Proyek Tersimpan <span class="count-badge">{{ $history->count() }}</span></div>
+                            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik proyek untuk membuka Workspace Penulisan</span>
                         </div>
-
-                        <label class="form-label" style="font-size: 12.5px; color: var(--text-secondary);">Metode penelitian <span class="req">*</span></label>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        @forelse($history as $proj)
                             @php
-                                $metodeOptions = [
-                                    ['val' => 'Kualitatif (Studi Kasus / Deskriptif)', 'title' => 'Kualitatif', 'sub' => 'Wawancara, observasi, studi kasus'],
-                                    ['val' => 'Kuantitatif (Survei / Regresi)', 'title' => 'Kuantitatif', 'sub' => 'Survei kuesioner, regresi, SEM'],
-                                    ['val' => 'Kuantitatif — Data Sekunder', 'title' => 'Kuantitatif — Data Sekunder', 'sub' => 'BPS, deret waktu, laporan arsip'],
-                                    ['val' => 'Studi Pustaka (Library Research)', 'title' => 'Studi Pustaka', 'sub' => 'Library Research / kajian literatur'],
-                                    ['val' => 'PTK (Penelitian Tindakan Kelas)', 'title' => 'PTK', 'sub' => 'Penelitian Tindakan Kelas'],
-                                    ['val' => 'R&D / Pengembangan Sistem', 'title' => 'R&D', 'sub' => 'Pengembangan produk / sistem IT'],
-                                    ['val' => 'Mixed Method', 'title' => 'Mixed Method', 'sub' => 'Kombinasi kualitatif & kuantitatif'],
-                                    ['val' => 'Hukum Normatif', 'title' => 'Hukum Normatif', 'sub' => 'Kajian perundang-undangan & doktrin'],
-                                    ['val' => 'Hukum Empiris', 'title' => 'Hukum Empiris', 'sub' => 'Sosiologi hukum & efektivitas lapangan'],
-                                    ['val' => 'Eksperimen / Rekayasa', 'title' => 'Eksperimen / Rekayasa', 'sub' => 'Bengkel, alat, uji laboratorium'],
-                                ];
+                                $doneCount = 0;
+                                foreach(['bab1','bab2','bab3','bab4','bab5'] as $b) {
+                                    if (!empty($proj->{$b.'_content'})) $doneCount++;
+                                }
+                                $projMeta = is_string($proj->citation_validation) ? json_decode($proj->citation_validation, true) : [];
+                                $projTahap = $projMeta['tahap_pengerjaan'] ?? 'Skripsi Lengkap (Bab I–V)';
                             @endphp
-                            @foreach($metodeOptions as $mIdx => $mOpt)
-                                <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; background: #fff;">
-                                    <input type="radio" name="metode_penelitian" value="{{ $mOpt['val'] }}" {{ $mIdx === 1 ? 'checked' : '' }} style="margin-top: 3px;">
+                            <div class="project-row" style="cursor: default;">
+                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1;">
+                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
                                     <div>
-                                        <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">{{ $mOpt['title'] }}</div>
-                                        <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35;">{{ $mOpt['sub'] }}</div>
+                                        <div class="project-row-title">{{ $proj->judul }}</div>
+                                        <div class="project-row-meta">
+                                            <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab selesai
+                                        </div>
+                                    </div>
+                                </a>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Buka Workspace →</a>
+                                    <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-outline" style="padding: 7px 10px; font-size: 12.5px; color: #dc2626; border-color: #fecaca;">Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @empty
+                            <div style="padding: 48px 24px; text-align: center;">
+                                <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Belum ada proyek skripsi</div>
+                                <div style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">Mulai susun Proposal (Bab 1–3) atau Skripsi Lengkap (Bab 1–5) sekarang.</div>
+                                <button type="button" class="btn-primary" onclick="showProjectCreateForm()">+ Buat Proyek Baru</button>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- VIEW B: FORM BUAT PROYEK BARU (FOKUS PROPOSAL BAB 1-3 & FULL SKRIPSI BAB 1-5) -->
+                <div id="projects-create-view" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <div class="page-eyebrow">Penulisan Terstruktur</div>
+                            <h1 class="page-title">Buat Proyek Proposal / Skripsi</h1>
+                            <p class="page-subtitle" style="margin-bottom: 0;">Fokus penyusunan untuk Proposal Skripsi (Bab 1–3) atau Full Skripsi Lengkap (Bab 1–5).</p>
+                        </div>
+                        <button type="button" class="btn-outline" onclick="showProjectListView()">
+                            ← Kembali ke Proyek Saya
+                        </button>
+                    </div>
+
+                    <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerHTML = '<span class=\'ai-spinner\'></span> Membuka Workspace Skripsi...';">
+                        @csrf
+                        <input type="hidden" name="jenis_penelitian" value="Skripsi (S1)">
+                        <input type="hidden" name="logo_base64" id="input-logo-base64" value="{{ $defaultIdentity['logo_base64'] ?? '' }}">
+
+                        <!-- Card 1: Fokus Tahap Penulisan (Proposal Bab 1-3 vs Full Skripsi Bab 1-5) -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Pilih Target Penulisan <span class="req">*</span></div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">Pilih apakah ingin menyusun Proposal (Bab 1–3) terlebih dahulu atau langsung Full Skripsi (Bab 1–5).</div>
+                            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <label style="display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff;">
+                                    <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" style="margin-top: 3px; accent-color: var(--primary);">
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Proposal Skripsi (Bab 1 – 3)</div>
+                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Sampul + Bab I Pendahuluan, Bab II Tinjauan Pustaka, Bab III Metodologi & Daftar Pustaka</div>
                                     </div>
                                 </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Tahap Pengerjaan -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Tahap pengerjaan</div>
-                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">Pilih sesuai kesiapan penelitianmu (dapat dilanjutkan kapan saja di ruang kerja).</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <label style="display: flex; align-items: center; gap: 9px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
-                                <input type="radio" name="tahap_pengerjaan" value="Proposal (Bab I–III)">
-                                <span>Proposal (Bab I–III)</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 9px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
-                                <input type="radio" name="tahap_pengerjaan" value="Skripsi Penuh (Bab I–V)" checked>
-                                <span>Skripsi Penuh (Bab I–V)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Card 4: Pedoman Kampus (Opsional) -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pedoman kampus <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                        </div>
-                        <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt" style="padding: 9px 12px; font-size: 13px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
-                    </div>
-
-                    <!-- Card 5: Struktur Bab Kustom (Opsional) -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur bab kustom <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                                <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
-                            </div>
-                            <input type="checkbox" onchange="document.getElementById('custom-structure-wrap').style.display = this.checked ? 'block' : 'none';" style="width: 18px; height: 18px; cursor: pointer;">
-                        </div>
-                        <div id="custom-structure-wrap" style="display: none; margin-top: 14px;">
-                            <textarea name="struktur_kustom" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Bab I terdiri dari 1.1 Konteks Penelitian, 1.2 Fokus Penelitian, 1.3 Tujuan Penelitian..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Card 6: Data Awal Penelitian (Opsional) -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Data awal penelitian <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                        <div style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 12px;">Tambahkan kondisi nyata, angka, atau hasil observasi awal untuk mendukung latar belakang penelitian.</div>
-                        <textarea name="data_awal" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Di SMAN 1 X, 62% siswa belum memanfaatkan e-library; rata-rata skor literasi digital 48/100 (survei 2024)."></textarea>
-                    </div>
-
-                    <!-- Card 7: Pengaturan Sitasi -->
-                    <div class="card" style="margin-bottom: 16px;">
-                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pengaturan sitasi</div>
-                        <div style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px;">Sesuaikan referensi dan format penulisan dengan kebutuhan penelitianmu.</div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Tahun terbit minimum</label>
-                                <select name="tahun_min" class="form-select">
-                                    <option value="2020">Semua tahun (2018–2026)</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023" selected>2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
-                                    <option value="2019">2019</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label">Asal referensi</label>
-                                <select name="asal_referensi" class="form-select">
-                                    <option value="Indonesia + Internasional">Indonesia + Internasional</option>
-                                    <option value="Indonesia">Indonesia (Nasional)</option>
-                                    <option value="Internasional">Internasional</option>
-                                </select>
+                                <label style="display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff;">
+                                    <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" checked style="margin-top: 3px; accent-color: var(--primary);">
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--primary);">Full Skripsi Lengkap (Bab 1 – 5)</div>
+                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Sampul + Halaman Awal + Bab I sampai Bab V (Hasil, Pembahasan & Penutup) + Daftar Pustaka</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Gaya sitasi</label>
-                                <select name="gaya_sitasi" class="form-select">
-                                    <option value="APA 7th">APA 7th</option>
-                                    <option value="IEEE">IEEE</option>
-                                    <option value="Harvard">Harvard</option>
-                                    <option value="Chicago">Chicago</option>
-                                    <option value="Vancouver">Vancouver</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label">Bahasa penulisan</label>
-                                <select name="bahasa_penulisan" class="form-select">
-                                    <option value="Indonesia">Indonesia</option>
-                                    <option value="Inggris">Inggris (English)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <label class="form-label">Sumber referensi</label>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                <input type="checkbox" name="sumber_referensi[]" value="Umum" checked>
-                                <span>Umum</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked>
-                                <span>Terindeks Sinta</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus">
-                                <span>Terindeks Scopus</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
-                    <div class="card" style="margin-bottom: 24px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel atau buku <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                            <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
-                        </div>
-                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
-                            Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus. Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
-                        </div>
-                        <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt" class="form-input" style="padding: 9px 12px; font-size: 13px;">
-
-                        <div class="card-footer-bar">
-                            <span class="footer-meta">SIAP DISUSUN DI STUDIO PENULISAN</span>
-                            <button type="submit" class="btn-primary">Buat Proyek & Buka Studio →</button>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Daftar Proyek Tersimpan -->
-                <div class="card-flush">
-                    <div class="card-header-bar">
-                        <div>Daftar Skripsi Saya <span class="count-badge">{{ $history->count() }}</span></div>
-                    </div>
-                    @forelse($history as $proj)
-                        @php
-                            $doneCount = 0;
-                            foreach(['bab1','bab2','bab3','bab4','bab5'] as $b) {
-                                if (!empty($proj->{$b.'_content'})) $doneCount++;
-                            }
-                        @endphp
-                        <div class="project-row" style="cursor: default;">
-                            <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1;">
-                                <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
+                        <!-- Card 2: Judul, Logo Kampus, & Identitas Mahasiswa -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div class="responsive-grid-title-logo" style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <div class="project-row-title">{{ $proj->judul }}</div>
-                                    <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab ditulis</div>
+                                    <label class="form-label">Judul Proposal / Skripsi <span class="req">*</span></label>
+                                    <textarea name="judul" id="input-project-judul" class="form-textarea" style="min-height: 92px;" placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)" required></textarea>
                                 </div>
-                            </a>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;">Buka</a>
-                                <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-outline" style="padding: 6px 10px; font-size: 12.5px; color: #dc2626; border-color: #fecaca;">Hapus</button>
-                                </form>
+                                <div>
+                                    <label class="form-label">Logo Kampus <span class="opt">(opsional)</span></label>
+                                    <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 92px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-subtle); cursor: pointer; text-align: center; padding: 8px; overflow: hidden;">
+                                        <img id="new-proj-logo-preview" src="{{ $defaultIdentity['logo_base64'] ?? '' }}" alt="" style="display:{{ !empty($defaultIdentity['logo_base64']) ? 'block' : 'none' }}; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
+                                        <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
+                                        <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
+                                        <input type="file" name="logo_kampus" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="if(this.files[0]){ const r=new FileReader(); r.onload=e=>{ const img=document.getElementById('new-proj-logo-preview'); img.src=e.target.result; img.style.display='block'; document.getElementById('new-proj-logo-label').innerText=this.files[0].name.substring(0,16); document.getElementById('input-logo-base64').value=''; }; r.readAsDataURL(this.files[0]); }">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label">Nama lengkap mahasiswa</label>
+                                    <input type="text" name="nama" class="form-input" value="{{ strtoupper($defaultIdentity['nama'] ?? $user->name) }}" placeholder="Nama Lengkap Mahasiswa">
+                                </div>
+                                <div>
+                                    <label class="form-label">NIM / NPM</label>
+                                    <input type="text" name="nim" class="form-input" value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
+                                </div>
+                            </div>
+
+                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                                <div>
+                                    <label class="form-label">Nama kampus / universitas</label>
+                                    <input type="text" name="kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: UNIVERSITAS INDONESIA">
+                                </div>
+                                <div>
+                                    <label class="form-label">Jurusan / Program studi <span class="req">*</span></label>
+                                    <input type="text" name="prodi" id="input-project-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: MANAJEMEN" required>
+                                </div>
+                                <div>
+                                    <label class="form-label">Fakultas</label>
+                                    <input type="text" name="fakultas" class="form-input" value="{{ $defaultIdentity['fakultas'] ?? '' }}" placeholder="Contoh: FAKULTAS EKONOMI DAN BISNIS">
+                                </div>
                             </div>
                         </div>
-                    @empty
-                        <div style="padding: 32px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
-                            Belum ada proyek skripsi. Isi form di atas untuk memulai.
+
+                        <!-- Card 3: Metode Penelitian -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <label class="form-label" style="font-size: 14px; color: var(--text-main); margin-bottom: 10px;">Metode penelitian <span class="req">*</span></label>
+                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                @php
+                                    $metodeOptions = [
+                                        ['val' => 'Kualitatif (Studi Kasus / Deskriptif)', 'title' => 'Kualitatif', 'sub' => 'Wawancara, observasi, studi kasus'],
+                                        ['val' => 'Kuantitatif (Survei / Regresi)', 'title' => 'Kuantitatif', 'sub' => 'Survei kuesioner, regresi, SEM'],
+                                        ['val' => 'Kuantitatif — Data Sekunder', 'title' => 'Kuantitatif — Data Sekunder', 'sub' => 'BPS, deret waktu, laporan keuangan'],
+                                        ['val' => 'Studi Pustaka (Library Research)', 'title' => 'Studi Pustaka', 'sub' => 'Library Research / kajian literatur'],
+                                        ['val' => 'PTK (Penelitian Tindakan Kelas)', 'title' => 'PTK', 'sub' => 'Penelitian Tindakan Kelas'],
+                                        ['val' => 'R&D / Pengembangan Sistem', 'title' => 'R&D / Sistem IT', 'sub' => 'Pengembangan produk / aplikasi'],
+                                        ['val' => 'Mixed Method', 'title' => 'Mixed Method', 'sub' => 'Kombinasi kualitatif & kuantitatif'],
+                                        ['val' => 'Hukum Normatif', 'title' => 'Hukum Normatif', 'sub' => 'Kajian perundang-undangan & doktrin'],
+                                        ['val' => 'Hukum Empiris', 'title' => 'Hukum Empiris', 'sub' => 'Sosiologi hukum & efektivitas lapangan'],
+                                    ];
+                                @endphp
+                                @foreach($metodeOptions as $mIdx => $mOpt)
+                                    <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; background: #fff;">
+                                        <input type="radio" name="metode_penelitian" value="{{ $mOpt['val'] }}" {{ $mIdx === 1 ? 'checked' : '' }} style="margin-top: 3px; accent-color: var(--primary);">
+                                        <div>
+                                            <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">{{ $mOpt['title'] }}</div>
+                                            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35;">{{ $mOpt['sub'] }}</div>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
-                    @endforelse
+
+                        <!-- Card 4: Pedoman Kampus (Opsional) -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pedoman kampus <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                            </div>
+                            <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt" style="padding: 9px 12px; font-size: 13px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
+                        </div>
+
+                        <!-- Card 5: Struktur Bab Kustom (Opsional) -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur bab kustom <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                                    <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
+                                </div>
+                                <input type="checkbox" onchange="document.getElementById('custom-structure-wrap').style.display = this.checked ? 'block' : 'none';" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+                            </div>
+                            <div id="custom-structure-wrap" style="display: none; margin-top: 14px;">
+                                <textarea name="struktur_kustom" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Bab I terdiri dari 1.1 Konteks Penelitian, 1.2 Fokus Penelitian, 1.3 Tujuan Penelitian..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Card 6: Data Awal Penelitian (Opsional) -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Data awal penelitian <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 12px;">Tambahkan kondisi nyata, angka, atau hasil observasi awal untuk mendukung latar belakang penelitian.</div>
+                            <textarea name="data_awal" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Di SMAN 1 X, 62% siswa belum memanfaatkan e-library; rata-rata skor literasi digital 48/100 (survei 2024)."></textarea>
+                        </div>
+
+                        <!-- Card 7: Pengaturan Sitasi -->
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pengaturan sitasi</div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px;">Sesuaikan referensi dan format penulisan dengan kebutuhan penelitianmu.</div>
+
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label">Tahun terbit minimum</label>
+                                    <select name="tahun_min" class="form-select">
+                                        <option value="2020">Semua tahun (2018–2026)</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023" selected>2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                        <option value="2019">2019</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Asal referensi</label>
+                                    <select name="asal_referensi" class="form-select">
+                                        <option value="Indonesia + Internasional">Indonesia + Internasional</option>
+                                        <option value="Indonesia">Indonesia (Nasional)</option>
+                                        <option value="Internasional">Internasional</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label">Gaya sitasi</label>
+                                    <select name="gaya_sitasi" class="form-select">
+                                        <option value="APA 7th">APA 7th</option>
+                                        <option value="IEEE">IEEE</option>
+                                        <option value="Harvard">Harvard</option>
+                                        <option value="Chicago">Chicago</option>
+                                        <option value="Vancouver">Vancouver</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Bahasa penulisan</label>
+                                    <select name="bahasa_penulisan" class="form-select">
+                                        <option value="Indonesia">Indonesia</option>
+                                        <option value="Inggris">Inggris (English)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <label class="form-label">Sumber referensi</label>
+                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" checked style="accent-color: var(--primary);">
+                                    <span>Umum</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked style="accent-color: var(--primary);">
+                                    <span>Terindeks Sinta</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus" style="accent-color: var(--primary);">
+                                    <span>Terindeks Scopus</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
+                        <div class="card" style="margin-bottom: 24px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel atau buku referensi wajib <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                                <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+                                Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus. Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
+                            </div>
+                            <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt" class="form-input" style="padding: 9px 12px; font-size: 13px;">
+
+                            <div class="card-footer-bar">
+                                <button type="button" class="btn-outline" onclick="showProjectListView()">Batal</button>
+                                <button type="submit" class="btn-primary">Buat Proyek & Buka Workspace →</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </section>
 
@@ -1202,15 +1775,18 @@
                     </div>
 
                     <div class="card-footer-bar">
-                        <span class="footer-meta">REKOMENDASI JUDUL TERSTRUKTUR</span>
-                        <button type="button" id="btn-find-titles" class="btn-primary" onclick="handleFindTitles()">Temukan Judul →</button>
+                        <span class="footer-meta">REKOMENDASI 10 JUDUL TERSTRUKTUR</span>
+                        <button type="button" id="btn-find-titles" class="btn-primary" onclick="handleFindTitles()">Temukan 10 Judul →</button>
                     </div>
                 </div>
+
+                <!-- Animasi Loading Cari Judul -->
+                <div id="titles-loading-box" style="display: none;"></div>
 
                 <!-- Hasil Judul -->
                 <div id="titles-result-box" style="display: none; margin-top: 20px;" class="card-flush">
                     <div class="card-header-bar">
-                        <span>Rekomendasi Judul Skripsi</span>
+                        <span>Rekomendasi 10 Judul Skripsi</span>
                         <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Gunakan Judul" untuk langsung menulis</span>
                     </div>
                     <div id="titles-list"></div>
@@ -1218,11 +1794,11 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 4. TAB PPT SIDANG (EXACT 4-STEP FLOW + LIVE PPT EDITOR) -->
+            <!-- 4. TAB PPT SIDANG (EXACT 4-STEP FLOW + DESIGNER TEMPLATES + PREVIEW) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-ppt">
                 <h1 class="page-title">PPT Sidang</h1>
-                <p class="page-subtitle">Slide sidang dari isi skripsimu. Tinggal rapikan, latihan presentasi, lalu unduh.</p>
+                <p class="page-subtitle">Slide sidang dari isi skripsimu. Pilih desain template, rapikan isi slide, preview presentasi seperti PowerPoint, lalu unduh <code>.pptx</code>.</p>
 
                 <!-- 4-Step Indicator -->
                 <div class="stepper">
@@ -1236,11 +1812,11 @@
                     </button>
                     <button type="button" class="step-pill" id="ppt-step-btn-3" onclick="if(pptSlides.length) setPptStep(3)">
                         <span class="step-num-circle">3</span>
-                        <span>Rapikan & latihan</span>
+                        <span>Edit & desain tema</span>
                     </button>
-                    <button type="button" class="step-pill" id="ppt-step-btn-4" onclick="if(pptSlides.length) downloadPptxFile()">
+                    <button type="button" class="step-pill" id="ppt-step-btn-4" onclick="if(pptSlides.length) openPptGridPreviewStep()">
                         <span class="step-num-circle">4</span>
-                        <span>Unduh</span>
+                        <span>Preview & unduh</span>
                     </button>
                 </div>
 
@@ -1248,18 +1824,18 @@
                 <div id="ppt-view-step-1">
                     <div class="card-flush" style="margin-bottom: 18px;">
                         <div class="card-header-bar">
-                            <div>Pilih skripsi <span class="count-badge">{{ $history->count() }}</span></div>
+                            <div>Pilih dari Proyek Saya <span class="count-badge">{{ $history->count() }}</span></div>
                         </div>
                         @forelse($history as $proj)
                             <div class="project-row" onclick="chooseProjectForPpt({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
                                 <div class="project-row-left">
                                     <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div>
+                                    <div style="min-width: 0;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
-                                        <div class="project-row-meta">{{ $proj->updated_at->diffForHumans() }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->updated_at->diffForHumans() }}</div>
                                     </div>
                                 </div>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <span class="project-row-action">Pilih Skripsi →</span>
                             </div>
                         @empty
                             <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
@@ -1278,12 +1854,12 @@
                     </div>
                 </div>
 
-                <!-- STEP 2: Buat Slide (Matches Screenshot 2) -->
+                <!-- STEP 2: Buat Slide -->
                 <div id="ppt-view-step-2" style="display: none;">
                     <div class="card">
                         <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
                             <div class="project-initial" id="ppt-selected-initial">S</div>
-                            <div>
+                            <div style="min-width: 0;">
                                 <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase;" id="ppt-selected-source">SKRIPSI</div>
                                 <div style="font-size: 15.5px; font-weight: 700; color: var(--text-main);" id="ppt-selected-title">-</div>
                             </div>
@@ -1291,60 +1867,161 @@
 
                         <button type="button" id="btn-generate-ppt" class="btn-primary btn-full" onclick="handleGeneratePpt()">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            <span>Buat slide sidang</span>
+                            <span>Buat slide sidang sekarang</span>
                         </button>
 
                         <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 12px;">
                             Sekitar 10–30 detik. Slide disusun dari isi skripsimu, lengkap dengan catatan bicara, dan bisa kamu ubah setelahnya.
                         </p>
                     </div>
+                    <div id="ppt-loading-box" style="display: none;"></div>
                 </div>
 
-                <!-- STEP 3 & 4: Rapikan, Edit Tema, & Unduh .PPTX -->
+                <!-- STEP 3: Edit Slide, Pilih Desain Template Cantik / Basic, & Preview -->
                 <div id="ppt-view-step-3" style="display: none;">
-                    <!-- Toolbar Tema & Download -->
-                    <div class="card" style="padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Tema Slide:</span>
-                            <button type="button" class="theme-dot active" style="background: #1e1b4b;" onclick="setPptTheme('navy', this)" title="Academic Navy"></button>
-                            <button type="button" class="theme-dot" style="background: #ffffff;" onclick="setPptTheme('light', this)" title="Clean White"></button>
-                            <button type="button" class="theme-dot" style="background: #0f172a;" onclick="setPptTheme('slate', this)" title="Modern Slate"></button>
-                            <button type="button" class="theme-dot" style="background: #064e3b;" onclick="setPptTheme('emerald', this)" title="Emerald Campus"></button>
+                    <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
+                    <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
+                                <button type="button" class="btn-outline" style="border-color: var(--primary); color: var(--primary); font-weight: 600;" onclick="openFullscreenSlideshow()">
+                                    ▶ Preview Slide Show
+                                </button>
+                                <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;" onclick="openPptGridPreviewStep()">
+                                    Preview Semua & Unduh (.pptx) →
+                                </button>
+                            </div>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
-                            <button type="button" class="btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="downloadPptxFile()">
-                                Unduh PowerPoint (.pptx)
+                        <div class="theme-card-grid" style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
+                            <button type="button" class="theme-chip active" onclick="setPptTheme('royal_academic', this)">
+                                <div class="theme-swatch" style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 6px solid #2563eb;"></div>
+                                <span class="theme-chip-name">Royal Blue Kampus</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('canva_editorial', this)">
+                                <div class="theme-swatch" style="background: #fbf8f3; border-top: 5px solid #ea580c;"></div>
+                                <span class="theme-chip-name">Canva Cream Aesthetic</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('emerald_executive', this)">
+                                <div class="theme-swatch" style="background: #f4fbf7; border-top: 5px solid #047857;"></div>
+                                <span class="theme-chip-name">Emerald Botanical</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('swiss_minimal', this)">
+                                <div class="theme-swatch" style="background: #ffffff; border-top: 5px solid #111827; border-bottom: 2px solid #111827;"></div>
+                                <span class="theme-chip-name">Swiss Grid Minimal</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('basic_navy', this)">
+                                <div class="theme-swatch" style="background: #1e1b4b;"></div>
+                                <span class="theme-chip-name">Basic Navy (Klasik)</span>
+                            </button>
+                            <button type="button" class="theme-chip" onclick="setPptTheme('basic_white', this)">
+                                <div class="theme-swatch" style="background: #ffffff; border: 1px solid #cbd5e1;"></div>
+                                <span class="theme-chip-name">Basic Putih (Polos)</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- 16:9 Editable PowerPoint Canvas -->
-                    <div id="ppt-canvas-box" class="ppt-canvas ppt-theme-navy">
+                    <!-- 16:9 Editable PowerPoint Canvas (MURNI SLIDE TANPA TOMBOL DI DALAMNYA) -->
+                    <div id="ppt-canvas-box" class="ppt-canvas ppt-theme-royal_academic">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; opacity: 0.7; font-size: 12px; font-weight: 600; margin-bottom: 14px;">
-                                <span id="slide-section-label" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
-                                <span id="slide-counter-label">Slide 1 / 9</span>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <span id="slide-section-label" class="ppt-badge" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
+                                <span id="slide-counter-label" style="font-size: 12px; font-weight: 700; opacity: 0.75;">Slide 1 / 9</span>
                             </div>
                             <h2 id="slide-title-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; outline: none;">Judul Slide</h2>
-                            <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 14px; opacity: 0.8; margin-bottom: 20px; outline: none;">Subjudul</div>
-                            <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="padding-left: 20px; font-size: 15px; line-height: 1.75; outline: none;"></ul>
+                            <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 14px; opacity: 0.85; margin-bottom: 20px; font-weight: 500; outline: none;">Subjudul</div>
+                            <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="padding-left: 18px; font-size: 14.5px; line-height: 1.7; outline: none; display: flex; flex-direction: column; gap: 8px;"></ul>
                         </div>
 
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; margin-top: 24px; border-top: 1px solid rgba(156,163,175,0.25); font-size: 12px; opacity: 0.75;">
-                            <span>Klik teks pada slide untuk mengedit isi secara langsung</span>
-                            <div style="display: flex; gap: 6px;">
-                                <button type="button" onclick="prevSlide()" style="padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(156,163,175,0.4); background: transparent; color: inherit; cursor: pointer;">← Sebelumnya</button>
-                                <button type="button" onclick="nextSlide()" style="padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(156,163,175,0.4); background: transparent; color: inherit; cursor: pointer;">Selanjutnya →</button>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 20px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11.5px; opacity: 0.7;">
+                            <span id="slide-footer-proj-title">Presentasi Sidang Skripsi</span>
+                            <span>💡 Klik teks pada slide di atas untuk mengedit isi secara langsung</span>
                         </div>
+                    </div>
+
+                    <!-- TOMBOL NAVIGASI SLIDE DI LUAR EDITOR (JELAS & MUDAH DIKLIK) -->
+                    <div class="ppt-nav-outside">
+                        <button type="button" class="ppt-nav-btn" id="btn-ppt-prev" onclick="prevSlide()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+                            <span>Slide Sebelumnya</span>
+                        </button>
+
+                        <div class="ppt-num-strip" id="ppt-num-strip">
+                            <!-- Diisi nomor slide 1..N oleh JS -->
+                        </div>
+
+                        <button type="button" class="ppt-nav-btn" id="btn-ppt-next" onclick="nextSlide()">
+                            <span>Slide Selanjutnya</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
                     </div>
 
                     <!-- Catatan Bicara Presenter (Editable) -->
                     <div class="card" style="margin-top: 14px;">
-                        <label class="form-label">Catatan Bicara (Speaker Notes) — bisa diedit</label>
+                        <label class="form-label">Catatan Bicara Presenter (Speaker Notes) — bisa diedit</label>
                         <textarea id="slide-notes-edit" class="form-textarea" style="min-height: 80px;" oninput="syncCurrentSlideEdit()"></textarea>
+                    </div>
+                </div>
+
+                <!-- STEP 4: PRATINJAU SEMUA SLIDE (SLIDE SORTER PREVIEW) SEBELUM UNDUH -->
+                <div id="ppt-view-step-4" style="display: none;">
+                    <div class="card" style="margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--text-main);">Pratinjau Seluruh Slide Presentasi</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">Periksa tampilan seluruh slide di bawah ini atau putar mode layar penuh sebelum mengunduh file PowerPoint (<code>.pptx</code>).</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn-outline" onclick="setPptStep(3)">← Kembali Edit Slide</button>
+                            <button type="button" class="btn-outline" style="border-color: var(--primary); color: var(--primary); font-weight: 600;" onclick="openFullscreenSlideshow()">
+                                ▶ Preview Layar Penuh
+                            </button>
+                            <button type="button" class="btn-primary" onclick="downloadPptxFile()">
+                                ⬇ Unduh File PowerPoint (.pptx)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="ppt-grid-preview-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                        <!-- Di-render oleh JS: semua slide tampil rapi sebelum download -->
+                    </div>
+                </div>
+
+                <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
+                <div id="ppt-slideshow-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+                    <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #ffffff;">
+                        <div style="font-size: 14px; font-weight: 600;">
+                            Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter" style="color: #93c5fd;">Slide 1 / 9</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="downloadPptxFile()">⬇ Unduh PowerPoint (.pptx)</button>
+                            <button type="button" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px;" onclick="closeFullscreenSlideshow()">✕ Tutup Preview</button>
+                        </div>
+                    </div>
+
+                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: 500px; padding: 52px 60px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <span id="fs-slide-section" class="ppt-badge">BAGIAN SLIDE</span>
+                                <span id="fs-slide-num-tag" style="font-size: 13px; font-weight: 700; opacity: 0.7;">1 / 9</span>
+                            </div>
+                            <h2 id="fs-slide-title" style="font-size: 30px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;">-</h2>
+                            <div id="fs-slide-subtitle" style="font-size: 16px; opacity: 0.85; margin-bottom: 24px; font-weight: 500;">-</div>
+                            <ul id="fs-slide-bullets" style="padding-left: 22px; font-size: 17px; line-height: 1.8; display: flex; flex-direction: column; gap: 10px;"></ul>
+                        </div>
+                        <div style="padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 12px; opacity: 0.75; display: flex; justify-content: space-between;">
+                            <span id="fs-slide-proj-title">Sidang Skripsi</span>
+                            <span>Gunakan tombol di bawah atau panah keyboard (← / →) untuk berpindah slide</span>
+                        </div>
+                    </div>
+
+                    <div style="width: 100%; max-width: 960px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px 20px; border-radius: 12px; color: #f8fafc;">
+                        <button type="button" class="ppt-nav-btn" onclick="prevSlide(); renderFullscreenSlide();">← Slide Sebelumnya</button>
+                        <div id="fs-speaker-notes" style="font-size: 13px; color: #cbd5e1; max-width: 540px; text-align: center; line-height: 1.45;"></div>
+                        <button type="button" class="ppt-nav-btn" onclick="nextSlide(); renderFullscreenSlide();">Slide Selanjutnya →</button>
                     </div>
                 </div>
             </section>
@@ -1373,6 +2050,8 @@
 
                 <!-- STEP 1: Pilih Skripsi atau Upload File PDF/DOCX -->
                 <div id="def-view-step-1">
+                    <div id="defense-loading-box" style="display: none; margin-bottom: 18px;"></div>
+
                     <div class="card-flush" style="margin-bottom: 18px;">
                         <div class="card-header-bar">
                             <div>Pilih skripsi untuk diujikan <span class="count-badge">{{ $history->count() }}</span></div>
@@ -1381,12 +2060,12 @@
                             <div class="project-row" onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
                                 <div class="project-row-left">
                                     <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div>
+                                    <div style="min-width: 0;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }}</div>
                                     </div>
                                 </div>
-                                <span style="font-size: 13px; font-weight: 600; color: var(--primary);">Mulai Sidang →</span>
+                                <span class="project-row-action">Mulai Sidang →</span>
                             </div>
                         @empty
                             <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
@@ -1399,7 +2078,7 @@
                         <div class="form-label">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
                         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca dokumenmu dan menyusun 5 pertanyaan penguji sesuai isi naskah.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; padding: 8px 12px; font-size: 13px;">
+                            <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px;">
                             <button type="button" id="btn-start-def-file" class="btn-primary" onclick="startDefenseWithFile()">Mulai Simulasi →</button>
                         </div>
                     </div>
@@ -1408,7 +2087,7 @@
                 <!-- STEP 2: Jawab Pertanyaan Satu per Satu -->
                 <div id="def-view-step-2" style="display: none;">
                     <div class="card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
                             <span style="font-size: 12.5px; font-weight: 600; color: var(--primary);" id="def-q-category">Bab I · Urgensi Penelitian</span>
                             <span style="font-size: 12.5px; color: var(--text-muted);" id="def-q-counter">Pertanyaan 1 dari 5</span>
                         </div>
@@ -1427,6 +2106,7 @@
                             <button type="button" id="btn-next-def-q" class="btn-primary" onclick="submitDefenseAnswer()">Simpan & Pertanyaan Berikutnya →</button>
                         </div>
                     </div>
+                    <div id="defense-eval-loading-box" style="display: none;"></div>
                 </div>
 
                 <!-- STEP 3: Hasil Evaluasi (Ringkasan | Detail Jawaban | Saran + Skor per Pertanyaan) -->
@@ -1444,12 +2124,19 @@
                         </div>
 
                         <!-- Sub-tabs: Ringkasan | Detail Jawaban | Saran -->
-                        <div style="display: flex; gap: 8px; margin: 16px 0; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
-                            <button type="button" class="btn-outline" id="eval-tab-summary" style="background: var(--bg-muted); font-weight: 600;" onclick="switchEvalSubtab('summary')">Ringkasan</button>
-                            <button type="button" class="btn-outline" id="eval-tab-details" onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin: 16px 0; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" id="eval-tab-summary" style="background: var(--bg-muted); font-weight: 600;" onclick="switchEvalSubtab('summary')">Ringkasan</button>
+                                <button type="button" class="btn-outline" id="eval-tab-details" onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" onclick="restartCurrentDefense()">🔄 Ulangi Simulasi Ini</button>
+                                <button type="button" class="btn-outline" onclick="setDefenseStep(1)">📂 Pilih Skripsi Lain</button>
+                                <button type="button" class="btn-primary" onclick="openTab('dashboard', 'Dashboard')">✓ Selesai</button>
+                            </div>
                         </div>
 
-                        <!-- Subtab 1: Ringkasan & Skor per Pertanyaan (Matches Screenshot 1) -->
+                        <!-- Subtab 1: Ringkasan & Skor per Pertanyaan -->
                         <div id="eval-pane-summary">
                             <p id="def-eval-summary" style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 20px;"></p>
                             <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">SKOR PER PERTANYAAN</div>
@@ -1460,6 +2147,14 @@
                         <div id="eval-pane-details" style="display: none;">
                             <div id="def-details-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
                         </div>
+
+                        <div class="card-footer-bar" style="margin-top: 20px;">
+                            <button type="button" class="btn-outline" onclick="restartCurrentDefense()">🔄 Ulangi Latihan Tanya-Jawab</button>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" onclick="setDefenseStep(1)">Pilih Skripsi Lain</button>
+                                <button type="button" class="btn-primary" onclick="openTab('dashboard', 'Dashboard')">✓ Selesai &amp; Kembali ke Dashboard</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1469,24 +2164,41 @@
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-journals">
                 <div class="page-eyebrow">Referensi Ilmiah Open-Access</div>
-                <h1 class="page-title">Cari Jurnal & Unduh PDF Asli</h1>
-                <p class="page-subtitle">Temukan jurnal penelitian relevan lengkap dengan tautan unduh PDF asli (Open-Access / DOI) serta format sitasi Daftar Pustaka APA.</p>
+                <h1 class="page-title">Cari Jurnal &amp; Unduh PDF Asli</h1>
+                <p class="page-subtitle">Temukan jurnal penelitian relevan dari Indonesia (Sinta/Garuda) maupun Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi APA.</p>
 
                 <div class="card">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Kata Kunci / Variabel Penelitian <span class="req">*</span></label>
-                        <input type="text" id="journal-keyword" class="form-input" placeholder="cth: pengaruh beban kerja terhadap kinerja karyawan, klasifikasi citra random forest...">
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div>
+                            <label class="form-label">Kata Kunci / Variabel Penelitian <span class="req">*</span></label>
+                            <input type="text" id="journal-keyword" class="form-input" placeholder="cth: naive bayes sentimen, beban kerja turnover intention...">
+                        </div>
+                        <div>
+                            <label class="form-label">Sumber Jurnal</label>
+                            <select id="journal-scope" class="form-select">
+                                <option value="all">Semua (Jurnal Indonesia + Internasional)</option>
+                                <option value="id">Khusus Jurnal Indonesia (Nasional / Sinta)</option>
+                                <option value="int">Khusus Jurnal Internasional (Global / Scopus)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="card-footer-bar">
-                        <span class="footer-meta">TERHUBUNG DATABASE OPENALEX & GOOGLE SCHOLAR PDF</span>
+                        <span class="footer-meta">DATABASE OPENALEX (INDONESIA &amp; INTERNASIONAL) + SCHOLAR PDF</span>
                         <button type="button" id="btn-find-journals" class="btn-primary" onclick="handleFindJournals()">Cari Jurnal →</button>
                     </div>
                 </div>
 
+                <div id="journals-loading-box" style="display: none;"></div>
+
                 <div id="journals-result-box" style="display: none; margin-top: 20px;" class="card-flush">
                     <div class="card-header-bar">
-                        <span>Hasil Pencarian Jurnal</span>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>Hasil Pencarian Jurnal</span>
+                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px; background: var(--primary-soft); color: var(--primary); border-color: #bfdbfe;" onclick="filterJournalResults('all', this)">Semua</button>
+                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="filterJournalResults('Indonesia', this)">🇮🇩 Indonesia</button>
+                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="filterJournalResults('Internasional', this)">🌐 Internasional</button>
+                        </div>
                         <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
                     </div>
                     <div id="journals-list"></div>
@@ -1499,7 +2211,7 @@
             <section class="tab-pane" id="pane-paraphrase">
                 <div class="page-eyebrow">Penulisan Akademik</div>
                 <h1 class="page-title">Parafrase Online</h1>
-                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah KBBI & EYD V tanpa menghilangkan sitasi.</p>
+                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah KBBI &amp; EYD V tanpa menghilangkan sitasi.</p>
 
                 <div class="card">
                     <div class="form-group">
@@ -1507,7 +2219,7 @@
                         <select id="para-style" class="form-select">
                             <option value="academic">Akademik Standar (Bahasa Baku Skripsi)</option>
                             <option value="natural">Ubah Struktur Kalimat (Turunkan Kemiripan Turnitin)</option>
-                            <option value="concise">Ringkas & Padat</option>
+                            <option value="concise">Ringkas &amp; Padat</option>
                             <option value="expand">Perluas Penjelasan Ilmiah</option>
                         </select>
                     </div>
@@ -1523,8 +2235,10 @@
                     </div>
                 </div>
 
+                <div id="para-loading-box" style="display: none;"></div>
+
                 <div id="para-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                         <span class="form-label" style="margin-bottom: 0;">Hasil Parafrase</span>
                         <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="navigator.clipboard.writeText(document.getElementById('para-output').innerText); alert('Hasil parafrase disalin!');">Salin Teks</button>
                     </div>
@@ -1537,7 +2251,7 @@
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-qa">
                 <div class="page-eyebrow">Asisten Materi</div>
-                <h1 class="page-title">Diskusi Skripsi & Tugas Kuliah</h1>
+                <h1 class="page-title">Diskusi Skripsi &amp; Tugas Kuliah</h1>
                 <p class="page-subtitle">Tanyakan konsep teori, pengolahan data statistik, atau unggah foto soal untuk dibahas secara bertahap.</p>
 
                 <div class="card">
@@ -1555,8 +2269,10 @@
                     </div>
                 </div>
 
+                <div id="qa-loading-box" style="display: none;"></div>
+
                 <div id="qa-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div class="form-label">Jawaban & Pembahasan</div>
+                    <div class="form-label">Jawaban &amp; Pembahasan</div>
                     <div id="qa-output" style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;"></div>
                 </div>
             </section>
@@ -1565,29 +2281,27 @@
             <!-- 9. TAB PENGATURAN API KEY -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-apikeys">
-                <div class="page-eyebrow">Konfigurasi</div>
+                <div class="page-eyebrow">Konfigurasi AI Multi-Key</div>
                 <h1 class="page-title">Pengaturan API Key</h1>
-                <p class="page-subtitle">Tambahkan API Key Google Gemini (`AIza...`) atau Groq (`gsk_...`) milikmu sendiri untuk kecepatan akses penuh.</p>
+                <p class="page-subtitle">Tempelkan satu atau banyak API Key sekaligus (pisahkan per baris atau koma) dari Google AI Studio (<code>AIza...</code> / <code>AQ....</code>) maupun DeepSeek / OpenRouter (<code>sk-...</code>).</p>
 
                 <div class="card" style="margin-bottom: 20px;">
                     <form action="{{ route('api.key.add') }}" method="POST">
                         @csrf
-                        <div class="form-row" style="margin-bottom: 0;">
-                            <div>
-                                <label class="form-label">Provider AI</label>
-                                <select name="provider" class="form-select">
-                                    <option value="gemini">Google Gemini (AI Studio)</option>
-                                    <option value="groq">Groq Cloud (Llama 3.3)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label">API Key <span class="req">*</span></label>
-                                <input type="text" name="key" class="form-input" placeholder="Tempelkan API Key (AIza... atau gsk_...)" required>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label">Provider Default (opsional, sistem deteksi otomatis)</label>
+                            <select name="provider" class="form-select">
+                                <option value="gemini">Google Gemini (AI Studio · AIza / AQ.)</option>
+                                <option value="deepseek">DeepSeek AI (Official / OpenRouter)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Daftar API Key (Bisa Tempel Banyak Sekaligus) <span class="req">*</span></label>
+                            <textarea name="key" class="form-textarea" style="min-height: 100px; font-family: monospace; font-size: 12.5px;" placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;AQ.Ab8RN6...&#10;sk-..." required></textarea>
                         </div>
                         <div class="card-footer-bar">
-                            <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY</span>
-                            <button type="submit" class="btn-primary">Simpan API Key</button>
+                            <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY + FALLBACK DEEPSEEK REALTIME</span>
+                            <button type="submit" class="btn-primary">Simpan Semua API Key</button>
                         </div>
                     </form>
                 </div>
@@ -1598,11 +2312,14 @@
                     </div>
                     @forelse($apiKeys as $k)
                         <div class="project-row" style="cursor: default;">
-                            <div>
-                                <div class="project-row-title">{{ substr($k->key, 0, 10) }}••••••••••••</div>
-                                <div class="project-row-meta">Digunakan {{ $k->usage_count ?? 0 }}x</div>
+                            <div class="project-row-left">
+                                <div class="project-initial" style="font-size: 11px;">{{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}</div>
+                                <div style="min-width: 0;">
+                                    <div class="project-row-title">{{ substr($k->key, 0, 12) }}••••••••••••</div>
+                                    <div class="project-row-meta">{{ strtoupper($k->provider ?? 'GEMINI') }} · Digunakan {{ $k->usage_count ?? 0 }}x</div>
+                                </div>
                             </div>
-                            <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST">
+                            <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST" style="flex-shrink: 0;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-outline" style="color: #dc2626; padding: 5px 10px; font-size: 12px;">Hapus</button>
@@ -1610,9 +2327,107 @@
                         </div>
                     @empty
                         <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
-                            Belum ada API Key pribadi. Sistem saat ini menggunakan server cadangan otomatis.
+                            Belum ada API Key pribadi. Sistem otomatis menjalankan Gemini &amp; DeepSeek Realtime tanpa batas.
                         </div>
                     @endforelse
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 10. TAB AKUN SAYA & STATUS LANGGANAN -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-account">
+                <div class="page-eyebrow">Profil Mahasiswa &amp; Langganan</div>
+                <h1 class="page-title">Akun Saya</h1>
+                <p class="page-subtitle">Informasi akun mahasiswa, status akses Workspace AI tanpa token, dan paket berlanggananmu.</p>
+
+                <div class="card" style="margin-bottom: 18px;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
+                        <div style="width: 56px; height: 56px; border-radius: 14px; background: var(--primary); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center;">
+                            {{ strtoupper(substr($user->name ?? 'M', 0, 1)) }}
+                        </div>
+                        <div style="flex: 1; min-width: 180px;">
+                            <div style="font-size: 18px; font-weight: 700; color: var(--text-main);">{{ $user->name }}</div>
+                            <div style="font-size: 13.5px; color: var(--text-muted); margin-top: 2px;">{{ $user->email }}</div>
+                        </div>
+                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12.5px; font-weight: 600;">
+                            Langganan Aktif
+                        </span>
+                    </div>
+
+                    <div class="form-row">
+                        <div style="padding: 16px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff;">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">Paket Mahasiswa</div>
+                            <div style="font-size: 22px; font-weight: 700; color: var(--text-main); margin-top: 6px;">Akses Penuh (Tanpa Token)</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">Seluruh model AI (Otomatis, DeepSeek AI, Google Gemini) aktif untuk penulisan Bab I–V, PPT Sidang, &amp; Simulasi Sidang.</div>
+                        </div>
+
+                        <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc;">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Total Proyek Workspace</div>
+                            <div style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-top: 4px;">{{ $history->count() }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Proyek</span></div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Proposal (Bab 1–3) &amp; Full Skripsi (Bab 1–5) tersimpan aman.</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;">
+                        <button type="button" class="btn-primary" onclick="openCreateProjectForm()">+ Buat Proyek Baru</button>
+                        <button type="button" class="btn-outline" onclick="openTab('referral', 'Ajak Teman')">Undang Teman Sekampus →</button>
+                        <button type="button" class="btn-outline" onclick="openTab('apikeys', 'Pengaturan API')">Atur API Key Pribadi</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 11. TAB AJAK TEMAN (REFERRAL) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-referral">
+                @php
+                    $refCode = 'SKRIPSI-' . strtoupper(substr(md5(($user->id ?? '1') . ($user->email ?? 'user')), 0, 6));
+                    $refUrl = url('/register?ref=' . $refCode);
+                @endphp
+                <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
+                <h1 class="page-title">Ajak Teman (Referral)</h1>
+                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu untuk mendapatkan keuntungan paket langganan mahasiswa.</p>
+
+                <div class="card" style="margin-bottom: 18px; border-color: #bfdbfe; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                        <div style="max-width: 520px;">
+                            <div style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">DISKON LANGGANAN MAHASISWA</div>
+                            <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Bagikan Akses Workspace ke Teman Kuliah</h3>
+                            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Salin link referral di bawah atau bagikan langsung via WhatsApp agar temanmu dapat mencoba menyusun proposal &amp; skripsi lebih cepat.</p>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 18px; text-align: center; min-width: 170px;">
+                            <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Kode Referral Kamu</div>
+                            <div id="referral-code-text" style="font-size: 18px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">{{ $refCode }}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 18px;">
+                        <label class="form-label">Link Undangan Pribadi</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="referral-link-input" class="form-input" value="{{ $refUrl }}" readonly style="flex: 1; min-width: 220px; background: #fff;">
+                            <button type="button" class="btn-primary" onclick="copyReferralLink()">Salin Link</button>
+                            <button type="button" class="btn-outline" onclick="shareReferralWhatsapp()">Bagikan ke WhatsApp</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara Kerja Referral SkripsiAI</div>
+                    <div class="form-row responsive-grid-3" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+                        <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">1. Salin &amp; Bagikan</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Kirim link undanganmu ke teman kuliah atau grup angkatan.</div>
+                        </div>
+                        <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">2. Teman Mendaftar</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Teman langsung mendapat akses workspace untuk menulis proposal &amp; skripsi.</div>
+                        </div>
+                        <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">3. Ekstra Masa Aktif</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Dapatkan bonus perpanjangan paket langganan untuk tim bimbinganmu.</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1623,13 +2438,71 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         function getSelectedModel() {
-            return document.getElementById('global-model').value || 'auto';
+            const el = document.getElementById('global-model');
+            return el ? (el.value || 'auto') : 'auto';
         }
 
-        function updateCredits(val) {
-            if (val !== undefined && val !== null) {
-                document.getElementById('credit-count').innerText = val;
+        function renderLoadingCard(boxId, titleText, subText) {
+            const box = document.getElementById(boxId);
+            if (!box) return;
+            box.innerHTML = `
+                <div class="ai-loading-card">
+                    <div class="ai-loading-head">
+                        <span class="ai-spinner-blue"></span>
+                        <div>
+                            <div class="ai-loading-title">${titleText}</div>
+                            <div class="ai-loading-sub">${subText}</div>
+                        </div>
+                    </div>
+                    <div class="ai-shimmer-line" style="width: 92%;"></div>
+                    <div class="ai-shimmer-line" style="width: 78%;"></div>
+                    <div class="ai-shimmer-line" style="width: 60%; margin-bottom: 0;"></div>
+                </div>
+            `;
+            box.style.display = 'block';
+        }
+
+        function hideLoadingCard(boxId) {
+            const box = document.getElementById(boxId);
+            if (box) {
+                box.style.display = 'none';
+                box.innerHTML = '';
             }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (window.innerWidth <= 900) {
+                const isOpen = sidebar.classList.toggle('open');
+                if (backdrop) backdrop.classList.toggle('show', isOpen);
+            } else {
+                sidebar.classList.toggle('collapsed');
+                document.body.classList.toggle('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            }
+        }
+
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar) sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+        }
+
+        function showProjectListView() {
+            const listView = document.getElementById('projects-list-view');
+            const createView = document.getElementById('projects-create-view');
+            if (listView) listView.style.display = 'block';
+            if (createView) createView.style.display = 'none';
+        }
+
+        function openCreateProjectForm() {
+            openTab('projects', 'Proyek Saya');
+            const listView = document.getElementById('projects-list-view');
+            const createView = document.getElementById('projects-create-view');
+            if (listView) listView.style.display = 'none';
+            if (createView) createView.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openTab(tabId, label) {
@@ -1642,10 +2515,15 @@
             const navBtn = document.getElementById('nav-' + tabId);
             if (navBtn) navBtn.classList.add('active');
 
+            if (tabId === 'projects') {
+                showProjectListView();
+            }
+
             if (label) {
                 document.getElementById('breadcrumb-label').innerText = label;
             }
-            document.getElementById('sidebar').classList.remove('open');
+            closeSidebarMobile();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Buka tab sesuai parameter URL ?tab=...
@@ -1654,40 +2532,45 @@
             const tab = params.get('tab');
             const map = {
                 'dashboard': 'Dashboard',
-                'projects': 'Proyek Skripsi',
-                'skripsi': 'Proyek Skripsi',
-                'proposal': 'Proyek Skripsi',
+                'projects': 'Proyek Saya',
+                'skripsi': 'Proyek Saya',
+                'proposal': 'Proyek Saya',
                 'titles': 'Cari Judul',
                 'ppt': 'PPT Sidang',
                 'defense': 'Simulasi Sidang',
                 'journals': 'Cari Jurnal',
                 'paraphrase': 'Parafrase',
                 'qa': 'Diskusi & Tugas',
+                'account': 'Akun Saya',
+                'referral': 'Ajak Teman',
                 'apikeys': 'Pengaturan API'
             };
             if (tab && map[tab]) {
                 const target = (tab === 'skripsi' || tab === 'proposal') ? 'projects' : tab;
                 openTab(target, map[tab]);
+                if (params.get('create') === '1') {
+                    openCreateProjectForm();
+                }
             }
         })();
 
-        async function claimFreeTokens() {
-            try {
-                const res = await fetch("{{ route('reward.claim') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ type: 'share' })
-                });
-                const data = await res.json();
-                if (data.status === 'success') {
-                    updateCredits(data.new_credits);
-                    alert(data.message);
-                }
-            } catch (e) {}
+        function copyReferralLink() {
+            const inp = document.getElementById('referral-link-input');
+            if (!inp) return;
+            navigator.clipboard.writeText(inp.value).then(() => {
+                alert('Link referral berhasil disalin! Bagikan ke teman kampusmu.');
+            });
+        }
+
+        function shareReferralWhatsapp() {
+            const urlEl = document.getElementById('referral-link-input');
+            const refUrl = urlEl ? urlEl.value : window.location.origin;
+            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiAI untuk susun Bab 1-5, cari jurnal, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
         // =====================================================================
-        // 1. CARI JUDUL SKRIPSI
+        // 1. CARI JUDUL SKRIPSI (10 REKOMENDASI + ANIMASI LOADING)
         // =====================================================================
         async function handleFindTitles() {
             const topik = document.getElementById('title-topik').value.trim();
@@ -1701,7 +2584,9 @@
 
             const btn = document.getElementById('btn-find-titles');
             btn.disabled = true;
-            btn.innerText = 'Mencari Judul...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyusun 10 Judul...</span>';
+            document.getElementById('titles-result-box').style.display = 'none';
+            renderLoadingCard('titles-loading-box', 'AI sedang merumuskan 10 rekomendasi judul skripsi...', 'Menganalisis kebaruan riset, variabel penelitian, dan metodologi yang sesuai...');
 
             try {
                 const res = await fetch("{{ route('tools.titles') }}", {
@@ -1711,7 +2596,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    updateCredits(data.new_credits);
                     const list = document.getElementById('titles-list');
                     list.innerHTML = '';
                     (data.data || []).forEach((t, i) => {
@@ -1719,11 +2603,11 @@
                         row.className = 'project-row';
                         row.style.cursor = 'default';
                         row.innerHTML = `
-                            <div class="project-row-left" style="flex:1; padding-right:12px;">
+                            <div class="project-row-left">
                                 <div class="project-initial">${i + 1}</div>
                                 <div class="project-row-title">${t}</div>
                             </div>
-                            <button type="button" class="btn-outline" onclick="useTitleForProject('${t.replace(/'/g, "\\'")}', '${prodi.replace(/'/g, "\\'")}')">Gunakan Judul →</button>
+                            <button type="button" class="btn-outline" style="white-space: nowrap; flex-shrink: 0;" onclick="useTitleForProject('${t.replace(/'/g, "\\'")}', '${prodi.replace(/'/g, "\\'")}')">Gunakan Judul →</button>
                         `;
                         list.appendChild(row);
                     });
@@ -1734,34 +2618,34 @@
             } catch (e) {
                 alert('Terjadi kesalahan koneksi.');
             } finally {
+                hideLoadingCard('titles-loading-box');
                 btn.disabled = false;
-                btn.innerText = 'Temukan Judul →';
+                btn.innerHTML = 'Temukan 10 Judul →';
             }
         }
 
         function useTitleForProject(judul, prodi) {
+            openCreateProjectForm();
             document.getElementById('input-project-judul').value = judul;
             if (prodi) document.getElementById('input-project-prodi').value = prodi;
-            openTab('projects', 'Proyek Skripsi');
         }
 
         // =====================================================================
-        // 2. PPT SIDANG (4-STEP WORKFLOW + LIVE PPTX EXPORT)
+        // 2. PPT SIDANG (4-STEP WORKFLOW + 6 TEMPLATE + FULLSCREEN SLIDE SHOW)
         // =====================================================================
         let selectedPptProject = { id: null, title: '' };
         let pptSlides = [];
         let currentSlideIdx = 0;
-        let currentPptTheme = 'navy';
+        let currentPptTheme = 'royal_academic';
 
         function setPptStep(step) {
-            [1, 2, 3].forEach(s => {
+            [1, 2, 3, 4].forEach(s => {
                 const view = document.getElementById('ppt-view-step-' + s);
                 if (view) view.style.display = (s === step) ? 'block' : 'none';
-            });
-            [1, 2, 3, 4].forEach(s => {
                 const pill = document.getElementById('ppt-step-btn-' + s);
                 if (pill) pill.classList.toggle('active', s === step);
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function chooseProjectForPpt(id, title) {
@@ -1786,7 +2670,8 @@
         async function handleGeneratePpt() {
             const btn = document.getElementById('btn-generate-ppt');
             btn.disabled = true;
-            btn.innerHTML = '<span>Menyusun 9 Slide Presentasi...</span>';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyusun 9 Slide Presentasi...</span>';
+            renderLoadingCard('ppt-loading-box', 'AI sedang merangkum naskah menjadi 9 slide sidang...', 'Menyusun poin presentasi Bab I–V dan catatan bicara (speaker notes)...');
 
             const formData = new FormData();
             formData.append('model', getSelectedModel());
@@ -1809,7 +2694,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success' && Array.isArray(data.slides_data)) {
-                    updateCredits(data.new_credits);
                     pptSlides = data.slides_data;
                     currentSlideIdx = 0;
                     renderCurrentSlide();
@@ -1820,9 +2704,28 @@
             } catch (e) {
                 alert('Gagal menyusun slide PPT.');
             } finally {
+                hideLoadingCard('ppt-loading-box');
                 btn.disabled = false;
-                btn.innerHTML = '<span>Buat slide sidang</span>';
+                btn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Buat slide sidang sekarang</span>';
             }
+        }
+
+        function renderSlideNumberStrip() {
+            const strip = document.getElementById('ppt-num-strip');
+            if (!strip) return;
+            strip.innerHTML = '';
+            pptSlides.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'ppt-num-btn' + (i === currentSlideIdx ? ' active' : '');
+                dot.innerText = i + 1;
+                dot.onclick = () => {
+                    syncCurrentSlideEdit();
+                    currentSlideIdx = i;
+                    renderCurrentSlide();
+                };
+                strip.appendChild(dot);
+            });
         }
 
         function renderCurrentSlide() {
@@ -1832,17 +2735,24 @@
             document.getElementById('slide-counter-label').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
             document.getElementById('slide-title-edit').innerText = s.title || '';
             document.getElementById('slide-subtitle-edit').innerText = s.subtitle || '';
+            const foot = document.getElementById('slide-footer-proj-title');
+            if (foot) foot.innerText = selectedPptProject.title || 'Presentasi Sidang Skripsi';
 
             const ul = document.getElementById('slide-bullets-edit');
             ul.innerHTML = '';
             (s.bullets || []).forEach(b => {
                 const li = document.createElement('li');
                 li.innerText = b;
-                li.style.marginBottom = '6px';
                 ul.appendChild(li);
             });
 
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
+            renderSlideNumberStrip();
+
+            const prevBtn = document.getElementById('btn-ppt-prev');
+            const nextBtn = document.getElementById('btn-ppt-next');
+            if (prevBtn) prevBtn.disabled = currentSlideIdx === 0;
+            if (nextBtn) nextBtn.disabled = currentSlideIdx >= pptSlides.length - 1;
         }
 
         function syncCurrentSlideEdit() {
@@ -1892,10 +2802,99 @@
         function setPptTheme(theme, btn) {
             currentPptTheme = theme;
             const box = document.getElementById('ppt-canvas-box');
-            box.className = 'ppt-canvas ppt-theme-' + theme;
-            document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
-            btn.classList.add('active');
+            if (box) box.className = 'ppt-canvas ppt-theme-' + theme;
+            document.querySelectorAll('.theme-chip').forEach(d => d.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            const gridView = document.getElementById('ppt-view-step-4');
+            if (gridView && gridView.style.display === 'block') {
+                renderPptGridPreview();
+            }
         }
+
+        function openPptGridPreviewStep() {
+            syncCurrentSlideEdit();
+            renderPptGridPreview();
+            setPptStep(4);
+        }
+
+        function renderPptGridPreview() {
+            const container = document.getElementById('ppt-grid-preview-list');
+            if (!container) return;
+            container.innerHTML = '';
+            pptSlides.forEach((s, idx) => {
+                const bulletsHtml = (s.bullets || []).map(b => `<li style="margin-bottom:4px;">${b}</li>`).join('');
+                const card = document.createElement('div');
+                card.className = `ppt-canvas ppt-theme-${currentPptTheme}`;
+                card.style.minHeight = '230px';
+                card.style.padding = '22px';
+                card.style.cursor = 'pointer';
+                card.onclick = () => {
+                    currentSlideIdx = idx;
+                    renderCurrentSlide();
+                    setPptStep(3);
+                };
+                card.innerHTML = `
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span class="ppt-badge" style="font-size:10px; padding:3px 9px;">${s.section || 'Slide ' + (idx + 1)}</span>
+                            <span style="font-size:11px; font-weight:700; opacity:0.7;">#${idx + 1}</span>
+                        </div>
+                        <div style="font-size:16px; font-weight:700; line-height:1.3; margin-bottom:5px;">${s.title || ''}</div>
+                        <div style="font-size:12px; opacity:0.8; margin-bottom:10px;">${s.subtitle || ''}</div>
+                        <ul style="padding-left:16px; font-size:12px; line-height:1.5;">${bulletsHtml}</ul>
+                    </div>
+                    <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
+                        <span>Klik untuk edit slide ini</span>
+                        <span>${idx + 1} / ${pptSlides.length}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openFullscreenSlideshow() {
+            syncCurrentSlideEdit();
+            if (!pptSlides.length) return;
+            const modal = document.getElementById('ppt-slideshow-modal');
+            modal.style.display = 'flex';
+            renderFullscreenSlide();
+        }
+
+        function closeFullscreenSlideshow() {
+            const modal = document.getElementById('ppt-slideshow-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function renderFullscreenSlide() {
+            if (!pptSlides.length) return;
+            const s = pptSlides[currentSlideIdx];
+            const canvas = document.getElementById('fs-slide-canvas');
+            canvas.className = 'ppt-canvas ppt-theme-' + currentPptTheme;
+            document.getElementById('fs-slide-counter').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
+            document.getElementById('fs-slide-num-tag').innerText = `${currentSlideIdx + 1} / ${pptSlides.length}`;
+            document.getElementById('fs-slide-section').innerText = s.section || `Slide ${currentSlideIdx + 1}`;
+            document.getElementById('fs-slide-title').innerText = s.title || '';
+            document.getElementById('fs-slide-subtitle').innerText = s.subtitle || '';
+            document.getElementById('fs-slide-proj-title').innerText = selectedPptProject.title || 'Sidang Skripsi';
+            document.getElementById('fs-speaker-notes').innerText = s.speaker_notes ? ('Catatan Pembicara: ' + s.speaker_notes) : '';
+
+            const ul = document.getElementById('fs-slide-bullets');
+            ul.innerHTML = '';
+            (s.bullets || []).forEach(b => {
+                const li = document.createElement('li');
+                li.innerText = b;
+                ul.appendChild(li);
+            });
+        }
+
+        document.addEventListener('keydown', function (e) {
+            const modal = document.getElementById('ppt-slideshow-modal');
+            if (modal && modal.style.display === 'flex') {
+                if (e.key === 'ArrowRight') { nextSlide(); renderFullscreenSlide(); }
+                if (e.key === 'ArrowLeft') { prevSlide(); renderFullscreenSlide(); }
+                if (e.key === 'Escape') { closeFullscreenSlideshow(); }
+            }
+        });
 
         function downloadPptxFile() {
             syncCurrentSlideEdit();
@@ -1905,16 +2904,19 @@
             pptx.layout = 'LAYOUT_16x9';
 
             const palettes = {
-                navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE' },
-                light: { bg: 'FFFFFF', fg: '111827', sub: '4B5563' },
-                slate: { bg: '0F172A', fg: 'F8FAFC', sub: '94A3B8' },
-                emerald: { bg: '064E3B', fg: 'ECFDF5', sub: 'A7F3D0' }
+                royal_academic: { bg: 'FFFFFF', fg: '0F172A', sub: '2563EB', bar: '2563EB' },
+                canva_editorial: { bg: 'FBF8F3', fg: '292524', sub: 'C2410C', bar: 'EA580C' },
+                emerald_executive: { bg: 'F4FBF7', fg: '064E3B', sub: '047857', bar: '059669' },
+                swiss_minimal: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: '111827' },
+                basic_navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE', bar: '6366F1' },
+                basic_white: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: 'CBD5E1' }
             };
-            const pal = palettes[currentPptTheme] || palettes.navy;
+            const pal = palettes[currentPptTheme] || palettes.royal_academic;
 
             pptSlides.forEach((s, idx) => {
                 const slide = pptx.addSlide();
                 slide.background = { color: pal.bg };
+                slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.14, fill: { color: pal.bar } });
 
                 slide.addText(s.section || `Slide ${idx + 1}`, {
                     x: 0.6, y: 0.4, w: 8.5, h: 0.35,
@@ -1950,7 +2952,7 @@
         }
 
         // =====================================================================
-        // 3. SIMULASI SIDANG (PILIH SKRIPSI / UPLOAD FILE -> 5 SOAL -> SKOR & SARAN)
+        // 3. SIMULASI SIDANG (ANIMASI LOADING PERTANYAAN & EVALUASI + ULANGI)
         // =====================================================================
         let defenseTitle = '';
         let defenseQuestions = [];
@@ -1964,6 +2966,18 @@
                 const p = document.getElementById('def-step-btn-' + s);
                 if (p) p.classList.toggle('active', s === step);
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restartCurrentDefense() {
+            if (!defenseQuestions.length) {
+                setDefenseStep(1);
+                return;
+            }
+            defenseAnswers = [];
+            defCurrentIdx = 0;
+            renderDefenseQuestion();
+            setDefenseStep(2);
         }
 
         async function startDefenseWithProject(projectId, title) {
@@ -1973,7 +2987,7 @@
             formData.append('project_id', projectId);
             formData.append('judul', title);
             formData.append('model', getSelectedModel());
-            await requestDefenseQuestions(formData);
+            await requestDefenseQuestions(formData, title);
         }
 
         async function startDefenseWithFile() {
@@ -1984,19 +2998,22 @@
             }
             const btn = document.getElementById('btn-start-def-file');
             btn.disabled = true;
-            btn.innerText = 'Membuat Pertanyaan...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Membuat Pertanyaan...</span>';
 
             const formData = new FormData();
             formData.append('mode', 'generate_questions');
             formData.append('file_skripsi', fileInput.files[0]);
             formData.append('model', getSelectedModel());
 
-            await requestDefenseQuestions(formData);
+            await requestDefenseQuestions(formData, fileInput.files[0].name);
             btn.disabled = false;
             btn.innerText = 'Mulai Simulasi →';
         }
 
-        async function requestDefenseQuestions(formData) {
+        async function requestDefenseQuestions(formData, labelTitle) {
+            renderLoadingCard('defense-loading-box', 'Dewan Penguji AI sedang menyiapkan 5 pertanyaan sidang...', `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             try {
                 const res = await fetch("{{ route('tools.defense') }}", {
                     method: 'POST',
@@ -2005,7 +3022,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success' && Array.isArray(data.questions)) {
-                    updateCredits(data.new_credits);
                     defenseTitle = data.title || defenseTitle;
                     defenseQuestions = data.questions;
                     defenseAnswers = [];
@@ -2017,6 +3033,8 @@
                 }
             } catch (e) {
                 alert('Terjadi kesalahan saat memulai simulasi sidang.');
+            } finally {
+                hideLoadingCard('defense-loading-box');
             }
         }
 
@@ -2052,10 +3070,11 @@
                 return;
             }
 
-            // Semua pertanyaan selesai -> Evaluasi Akhir
+            // Semua pertanyaan selesai -> Evaluasi Akhir dengan animasi loading jelas
             const btn = document.getElementById('btn-next-def-q');
             btn.disabled = true;
-            btn.innerText = 'Mengevaluasi Seluruh Jawaban...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menilai Jawaban Sidang...</span>';
+            renderLoadingCard('defense-eval-loading-box', 'Dewan Penguji AI sedang mengevaluasi seluruh jawabanmu...', 'Menghitung skor per pertanyaan, memberikan catatan penguji, dan menyusun saran jawaban terbaik...');
 
             try {
                 const res = await fetch("{{ route('tools.defense') }}", {
@@ -2070,7 +3089,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success' && data.evaluation) {
-                    updateCredits(data.new_credits);
                     renderDefenseEvaluation(data.evaluation);
                     setDefenseStep(3);
                 } else {
@@ -2079,7 +3097,9 @@
             } catch (e) {
                 alert('Gagal mengevaluasi sesi sidang.');
             } finally {
+                hideLoadingCard('defense-eval-loading-box');
                 btn.disabled = false;
+                btn.innerText = 'Selesai & Lihat Skor Evaluasi →';
             }
         }
 
@@ -2134,12 +3154,15 @@
         }
 
         // =====================================================================
-        // 4. CARI JURNAL & DOWNLOAD PDF ASLI
+        // 4. CARI JURNAL (INDONESIA + INTERNASIONAL + ANIMASI LOADING)
         // =====================================================================
         let lastJournals = [];
 
         async function handleFindJournals() {
             const keyword = document.getElementById('journal-keyword').value.trim();
+            const scopeEl = document.getElementById('journal-scope');
+            const scope = scopeEl ? scopeEl.value : 'all';
+
             if (!keyword) {
                 alert('Masukkan kata kunci atau topik penelitian.');
                 return;
@@ -2147,44 +3170,20 @@
 
             const btn = document.getElementById('btn-find-journals');
             btn.disabled = true;
-            btn.innerText = 'Mencari Jurnal...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Mencari Jurnal...</span>';
+            document.getElementById('journals-result-box').style.display = 'none';
+            renderLoadingCard('journals-loading-box', 'Sedang menelusuri database OpenAlex & Scholar...', 'Mengumpulkan artikel jurnal ilmiah Indonesia (Sinta) & Internasional beserta tautan PDF asli...');
 
             try {
                 const res = await fetch("{{ route('tools.journals') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ keyword, model: getSelectedModel() })
+                    body: JSON.stringify({ keyword, scope, model: getSelectedModel() })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    updateCredits(data.new_credits);
                     lastJournals = data.data || [];
-                    const list = document.getElementById('journals-list');
-                    list.innerHTML = '';
-
-                    lastJournals.forEach((j, idx) => {
-                        const row = document.createElement('div');
-                        row.className = 'project-row';
-                        row.style.cursor = 'default';
-                        row.style.alignItems = 'flex-start';
-                        row.innerHTML = `
-                            <div class="project-row-left" style="flex:1; padding-right:14px; align-items:flex-start;">
-                                <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
-                                <div>
-                                    <div class="project-row-title">${j.title}</div>
-                                    <div class="project-row-meta">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
-                                    <div style="font-size:12px; color:var(--text-muted); margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px;">
-                                        Sitasi APA: ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="display:flex; gap:6px; flex-shrink:0;">
-                                <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12.5px;">Unduh PDF Asli ↗</a>
-                            </div>
-                        `;
-                        list.appendChild(row);
-                    });
-
+                    renderJournalsList('all');
                     document.getElementById('journals-result-box').style.display = 'block';
                 } else {
                     alert(data.message || 'Gagal mencari jurnal.');
@@ -2192,14 +3191,73 @@
             } catch (e) {
                 alert('Terjadi kesalahan saat mencari jurnal.');
             } finally {
+                hideLoadingCard('journals-loading-box');
                 btn.disabled = false;
                 btn.innerText = 'Cari Jurnal →';
             }
         }
 
+        function filterJournalResults(scopeFilter, btn) {
+            document.querySelectorAll('.journal-filter-btn').forEach(b => {
+                b.style.background = '#fff';
+                b.style.color = 'var(--text-secondary)';
+                b.style.borderColor = 'var(--border)';
+            });
+            if (btn) {
+                btn.style.background = 'var(--primary-soft)';
+                btn.style.color = 'var(--primary)';
+                btn.style.borderColor = '#bfdbfe';
+            }
+            renderJournalsList(scopeFilter);
+        }
+
+        function renderJournalsList(scopeFilter) {
+            const list = document.getElementById('journals-list');
+            list.innerHTML = '';
+            const items = (scopeFilter && scopeFilter !== 'all')
+                ? lastJournals.filter(j => (j.scope || '').toLowerCase() === scopeFilter.toLowerCase())
+                : lastJournals;
+
+            if (!items.length) {
+                list.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13.5px;">Tidak ada hasil pada kategori ini.</div>';
+                return;
+            }
+
+            items.forEach((j, idx) => {
+                const isIndo = (j.scope || '').toLowerCase() === 'indonesia';
+                const badgeHtml = isIndo
+                    ? '<span class="scope-badge-id">🇮🇩 Jurnal Indonesia</span>'
+                    : '<span class="scope-badge-int">🌐 Jurnal Internasional</span>';
+
+                const row = document.createElement('div');
+                row.className = 'project-row';
+                row.style.cursor = 'default';
+                row.style.alignItems = 'flex-start';
+                row.innerHTML = `
+                    <div class="project-row-left" style="align-items:flex-start;">
+                        <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
+                        <div style="min-width:0;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                                ${badgeHtml}
+                            </div>
+                            <div class="project-row-title">${j.title}</div>
+                            <div class="project-row-meta">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px; word-break:break-word;">
+                                Sitasi APA: ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-row-action">
+                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12.5px;">Unduh PDF Asli ↗</a>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
         function downloadJournalListTxt() {
             if (!lastJournals.length) return;
-            const lines = lastJournals.map((j, i) => `${i + 1}. ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}\n   Link PDF: ${j.pdf_url}`).join('\n\n');
+            const lines = lastJournals.map((j, i) => `${i + 1}. [${j.scope || 'Jurnal'}] ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}\n   Link PDF: ${j.pdf_url}`).join('\n\n');
             const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -2208,7 +3266,7 @@
         }
 
         // =====================================================================
-        // 5. PARAFRASE & DISKUSI
+        // 5. PARAFRASE & DISKUSI (DENGAN ANIMASI LOADING)
         // =====================================================================
         async function handleParaphrase() {
             const text = document.getElementById('para-input').value.trim();
@@ -2219,7 +3277,9 @@
             }
             const btn = document.getElementById('btn-paraphrase');
             btn.disabled = true;
-            btn.innerText = 'Memproses...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Memproses Parafrase...</span>';
+            document.getElementById('para-result-card').style.display = 'none';
+            renderLoadingCard('para-loading-box', 'AI sedang memparafrase paragraf sesuai KBBI & EYD V...', 'Menyusun ulang struktur kalimat ilmiah dan mempertahankan sitasi di dalam kurung...');
 
             try {
                 const res = await fetch("{{ route('tools.paraphrase') }}", {
@@ -2229,7 +3289,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    updateCredits(data.new_credits);
                     document.getElementById('para-output').innerText = data.result;
                     document.getElementById('para-result-card').style.display = 'block';
                 } else {
@@ -2238,6 +3297,7 @@
             } catch (e) {
                 alert('Gagal memproses parafrase.');
             } finally {
+                hideLoadingCard('para-loading-box');
                 btn.disabled = false;
                 btn.innerText = 'Parafrase Sekarang →';
             }
@@ -2251,7 +3311,9 @@
             }
             const btn = document.getElementById('btn-solve-qa');
             btn.disabled = true;
-            btn.innerText = 'Memproses...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyusun Pembahasan...</span>';
+            document.getElementById('qa-result-card').style.display = 'none';
+            renderLoadingCard('qa-loading-box', 'Dosen Pembimbing AI sedang menganalisis pertanyaanmu...', 'Menyusun penjelasan sistematis dan langkah-langkah ilmiah yang mudah dipahami...');
 
             let imageBase64 = null;
             const imgInput = document.getElementById('qa-image');
@@ -2271,7 +3333,6 @@
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    updateCredits(data.new_credits);
                     document.getElementById('qa-output').innerText = data.answer;
                     document.getElementById('qa-result-card').style.display = 'block';
                 } else {
@@ -2280,6 +3341,7 @@
             } catch (e) {
                 alert('Gagal memproses pertanyaan.');
             } finally {
+                hideLoadingCard('qa-loading-box');
                 btn.disabled = false;
                 btn.innerText = 'Kirim Pertanyaan →';
             }

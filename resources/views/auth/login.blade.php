@@ -43,7 +43,7 @@
             width: 28px;
             height: 28px;
             border-radius: 7px;
-            background: #2e2a5a;
+            background: #2563eb;
             color: #fff;
             display: flex;
             align-items: center;
@@ -62,13 +62,13 @@
             margin-bottom: 16px;
             outline: none;
         }
-        input:focus { border-color: #2e2a5a; }
+        input:focus { border-color: #2563eb; }
         .btn {
             width: 100%;
             padding: 11px;
             border: none;
             border-radius: 9px;
-            background: #2e2a5a;
+            background: #2563eb;
             color: #ffffff;
             font-size: 14px;
             font-weight: 600;
@@ -76,9 +76,9 @@
             cursor: pointer;
             margin-top: 4px;
         }
-        .btn:hover { background: #231f46; }
+        .btn:hover { background: #1d4ed8; }
         .footer-text { margin-top: 20px; text-align: center; font-size: 13px; color: #6b7280; }
-        .footer-text a { color: #2e2a5a; font-weight: 600; text-decoration: none; }
+        .footer-text a { color: #2563eb; font-weight: 600; text-decoration: none; }
         .alert { padding: 10px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 13px; margin-bottom: 16px; }
     </style>
 </head>

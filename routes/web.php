@@ -10,12 +10,10 @@ use App\Http\Controllers\AuthController;
 |--------------------------------------------------------------------------
 */
 
-// 1. HALAMAN PUBLIK & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
-Route::get('/', function () {
-    return view('landing');
-})->name('home');
-
+// 1. HALAMAN PUBLIK, ARSIP PROYEK MAHASISWA & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
+Route::get('/', [GeneratorController::class, 'landingPage'])->name('home');
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
+Route::get('/public/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
 
 // 2. AUTHENTICATION (Login, Register, Logout)
 Route::middleware('guest')->group(function () {

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiAI — Studio Penulisan Skripsi & Proposal</title>
+    <title>SkripsiAI — Workspace Penulisan Skripsi & Proposal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -17,14 +17,16 @@
         :root {
             --bg-main: #ffffff;
             --bg-subtle: #f8fafc;
-            --bg-muted: #f3f4f6;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
-            --border-hover: #d1d5db;
-            --primary: #2e2a5a;
-            --blue: #2563eb;
+            --bg-muted: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #eff6ff;
+            --primary-border: #bfdbfe;
         }
 
         body {
@@ -43,12 +45,12 @@
 
         .container {
             width: 100%;
-            max-width: 1120px;
+            max-width: 1140px;
             margin: 0 auto;
             padding: 0 24px;
         }
 
-        /* Navbar — Clean Skripsita Style */
+        /* Navbar */
         .navbar {
             position: sticky;
             top: 0;
@@ -66,33 +68,36 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
+            gap: 12px;
         }
 
         .brand {
             font-size: 17px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-primary);
             letter-spacing: -0.02em;
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .brand-mark {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            background: var(--primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             list-style: none;
         }
 
@@ -104,7 +109,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 14px;
+            padding: 8px 13px;
             font-size: 14px;
             font-weight: 500;
             color: var(--text-secondary);
@@ -114,14 +119,14 @@
             cursor: pointer;
             font-family: inherit;
             transition: background 0.15s ease, color 0.15s ease;
+            white-space: nowrap;
         }
 
         .nav-link:hover, .nav-trigger:hover, .nav-item:hover .nav-trigger {
-            background: var(--bg-muted);
-            color: var(--text-primary);
+            background: var(--primary-soft);
+            color: var(--primary-hover);
         }
 
-        /* Dropdown Panel (Matches Reference Image 1) */
         .dropdown-panel {
             position: absolute;
             top: calc(100% + 8px);
@@ -130,7 +135,7 @@
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            box-shadow: 0 20px 40px -15px rgba(17, 24, 39, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
             padding: 14px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -158,15 +163,15 @@
         }
 
         .dropdown-item:hover {
-            background: var(--bg-subtle);
+            background: var(--primary-soft);
         }
 
         .dropdown-icon {
             width: 36px;
             height: 36px;
             border-radius: 8px;
-            background: var(--bg-muted);
-            color: #374151;
+            background: var(--primary-soft);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -191,14 +196,15 @@
         .nav-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 7px;
             font-size: 13.5px;
             font-weight: 600;
             padding: 9px 16px;
@@ -207,6 +213,7 @@
             transition: all 0.15s ease;
             font-family: inherit;
             white-space: nowrap;
+            border: 1px solid transparent;
         }
 
         .btn-ghost {
@@ -215,29 +222,31 @@
         }
 
         .btn-ghost:hover {
-            color: var(--text-primary);
-            background: var(--bg-muted);
+            color: var(--primary);
+            background: var(--primary-soft);
         }
 
         .btn-primary {
             background: var(--primary);
             color: #ffffff;
-            border: 1px solid var(--primary);
+            border-color: var(--primary);
         }
 
         .btn-primary:hover {
-            background: #231f46;
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
 
         .btn-outline {
             background: #ffffff;
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
+            border-color: var(--border-color);
         }
 
         .btn-outline:hover {
-            background: var(--bg-subtle);
-            border-color: var(--border-hover);
+            background: var(--primary-soft);
+            border-color: var(--primary-border);
+            color: var(--primary-hover);
         }
 
         /* Hero Section */
@@ -245,29 +254,37 @@
             padding: 68px 0 56px;
             text-align: center;
             border-bottom: 1px solid var(--border-color);
+            background: radial-gradient(circle at top, #eff6ff 0%, #ffffff 65%);
         }
 
         .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             font-size: 12.5px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
-            margin-bottom: 12px;
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-border);
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 3.8vw + 0.5rem, 3.1rem);
-            font-weight: 700;
+            font-size: clamp(1.95rem, 3.8vw + 0.5rem, 3.1rem);
+            font-weight: 800;
             letter-spacing: -0.03em;
             line-height: 1.18;
             color: var(--text-primary);
-            max-width: 720px;
+            max-width: 740px;
             margin: 0 auto 16px;
         }
 
         .hero p {
             font-size: 16px;
             color: var(--text-secondary);
-            max-width: 580px;
+            max-width: 600px;
             margin: 0 auto 28px;
         }
 
@@ -281,7 +298,7 @@
 
         /* Section Generic */
         .section {
-            padding: 72px 0;
+            padding: 68px 0;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -290,22 +307,24 @@
         }
 
         .section-header {
-            max-width: 640px;
-            margin: 0 auto 36px;
+            max-width: 660px;
+            margin: 0 auto 32px;
             text-align: center;
         }
 
         .section-label {
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             color: var(--primary);
             margin-bottom: 6px;
             display: block;
         }
 
         .section-title {
-            font-size: clamp(1.45rem, 2.4vw, 2rem);
-            font-weight: 700;
+            font-size: clamp(1.4rem, 2.4vw, 2rem);
+            font-weight: 800;
             letter-spacing: -0.025em;
             color: var(--text-primary);
             margin-bottom: 10px;
@@ -316,7 +335,7 @@
             color: var(--text-secondary);
         }
 
-        /* Studio Workspace Preview (Matches Mantra Riset Studio Screenshot) */
+        /* Workspace Preview */
         .major-selector {
             display: flex;
             justify-content: center;
@@ -335,6 +354,12 @@
             color: var(--text-secondary);
             cursor: pointer;
             font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .major-pill:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         .major-pill.active {
@@ -344,18 +369,18 @@
         }
 
         .studio-frame {
-            background: #f1f5f9;
+            background: #eef2f7;
             border: 1px solid #cbd5e1;
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.1);
             display: grid;
-            grid-template-columns: 230px 1fr;
-            min-height: 580px;
+            grid-template-columns: 245px 1fr;
+            min-height: 540px;
         }
 
         .studio-frame-sidebar {
-            background: #f8fafc;
+            background: #ffffff;
             border-right: 1px solid #e2e8f0;
             padding: 16px 12px;
             display: flex;
@@ -373,20 +398,21 @@
 
         .sf-sub {
             font-size: 10.5px;
-            font-weight: 600;
-            color: #64748b;
+            font-weight: 700;
+            color: var(--primary);
             text-transform: uppercase;
+            margin-top: 4px;
         }
 
         .sf-nav-btn {
             width: 100%;
             text-align: left;
             padding: 8px 10px;
-            border-radius: 7px;
-            border: none;
+            border-radius: 8px;
+            border: 1px solid transparent;
             background: transparent;
             font-size: 12.5px;
-            font-weight: 500;
+            font-weight: 600;
             color: #475569;
             cursor: pointer;
             font-family: inherit;
@@ -396,18 +422,19 @@
         }
 
         .sf-nav-btn:hover {
-            background: #e2e8f0;
+            background: #f1f5f9;
         }
 
         .sf-nav-btn.active {
-            background: #0f172a;
-            color: #ffffff;
-            font-weight: 600;
+            background: var(--primary-soft);
+            color: var(--primary-hover);
+            border-color: var(--primary-border);
         }
 
         .studio-frame-main {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .sf-topbar {
@@ -425,7 +452,7 @@
             padding: 24px;
             flex: 1;
             overflow-y: auto;
-            max-height: 540px;
+            max-height: 500px;
         }
 
         .sf-a4-paper {
@@ -433,7 +460,7 @@
             border: 1px solid #cbd5e1;
             max-width: 720px;
             margin: 0 auto;
-            padding: 44px 52px;
+            padding: 40px 48px;
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
             line-height: 1.75;
@@ -460,6 +487,116 @@
             text-underline-offset: 2px;
         }
 
+        /* Sample Showcase Cards Gallery */
+        .sample-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .sample-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        }
+
+        .sample-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-border);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+        }
+
+        .sample-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-blue {
+            background: var(--primary-soft);
+            color: var(--primary-hover);
+            border: 1px solid var(--primary-border);
+        }
+
+        .badge-slate {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sample-card h3 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.45;
+            margin-bottom: 8px;
+        }
+
+        .sample-meta {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .sample-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .sample-btn {
+            padding: 7px 11px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .sample-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .sample-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .sample-btn.primary:hover {
+            background: var(--primary-hover);
+            color: #ffffff;
+        }
+
         /* Features Grid */
         .features-grid {
             display: grid;
@@ -470,7 +607,7 @@
         .feature-card {
             background: #ffffff;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 22px;
             display: flex;
             flex-direction: column;
@@ -478,11 +615,11 @@
         }
 
         .feature-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 9px;
-            background: var(--bg-muted);
-            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--primary-soft);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -491,7 +628,7 @@
 
         .feature-card h3 {
             font-size: 15.5px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 6px;
         }
 
@@ -503,13 +640,52 @@
 
         .feature-link {
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
+        }
+
+        /* Native PDF Modal Dialog */
+        dialog.pdf-dialog {
+            margin: auto;
+            width: min(94vw, 960px);
+            height: 88vh;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+        }
+        dialog.pdf-dialog::backdrop {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(3px);
+        }
+        .pdf-dialog-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+        .pdf-dialog-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .pdf-dialog-frame {
+            width: 100%;
+            height: calc(88vh - 56px);
+            border: none;
+            background: #f1f5f9;
         }
 
         /* Footer */
         .footer {
-            padding: 40px 0;
+            padding: 36px 0;
             background: var(--bg-subtle);
             font-size: 13px;
             color: var(--text-muted);
@@ -523,23 +699,22 @@
             gap: 12px;
         }
 
-        @media (max-width: 900px) {
-            .studio-frame {
-                grid-template-columns: 1fr;
-            }
-            .studio-frame-sidebar {
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
-            }
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            .nav-links {
-                display: none;
-            }
-            .sf-a4-paper {
-                padding: 24px 20px;
-            }
+        @media (max-width: 960px) {
+            .studio-frame { grid-template-columns: 1fr; }
+            .studio-frame-sidebar { border-right: none; border-bottom: 1px solid #e2e8f0; }
+            .sample-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 0 16px; }
+            .hero { padding: 48px 0 40px; }
+            .section { padding: 48px 0; }
+            .sample-grid { grid-template-columns: 1fr; }
+            .sf-paper-area { padding: 12px; }
+            .sf-a4-paper { padding: 22px 16px; font-size: 11pt; }
+            .btn { padding: 8px 12px; font-size: 12.5px; }
         }
     </style>
 </head>
@@ -568,7 +743,7 @@
                             </div>
                             <div>
                                 <div class="dropdown-title">Cari Judul Skripsi</div>
-                                <div class="dropdown-desc">Ide judul sesuai jurusan & metodologi</div>
+                                <div class="dropdown-desc">10 saran judul sesuai jurusan & metodologi</div>
                             </div>
                         </a>
 
@@ -577,8 +752,8 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </div>
                             <div>
-                                <div class="dropdown-title">Studio Proposal & Skripsi</div>
-                                <div class="dropdown-desc">Susun Bab 1–3 atau Bab 1–5 sesuai pedoman</div>
+                                <div class="dropdown-title">Workspace Proposal & Skripsi</div>
+                                <div class="dropdown-desc">Susun Bab 1–3 atau Bab 1–5 + Lab Revisi</div>
                             </div>
                         </a>
 
@@ -588,7 +763,7 @@
                             </div>
                             <div>
                                 <div class="dropdown-title">Parafrase Online</div>
-                                <div class="dropdown-desc">Parafrase akademik, hasil natural</div>
+                                <div class="dropdown-desc">Parafrase akademik, hasil natural & bebas plagiasi</div>
                             </div>
                         </a>
 
@@ -597,8 +772,8 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                             </div>
                             <div>
-                                <div class="dropdown-title">Cari Jurnal & Unduh PDF</div>
-                                <div class="dropdown-desc">Jurnal open-access & sitasi APA, IEEE</div>
+                                <div class="dropdown-title">Cari Jurnal Nasional & Internasional</div>
+                                <div class="dropdown-desc">Referensi OpenAlex & DOI siap sitasi APA/IEEE</div>
                             </div>
                         </a>
 
@@ -607,8 +782,8 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
                             </div>
                             <div>
-                                <div class="dropdown-title">PPT Sidang</div>
-                                <div class="dropdown-desc">Slide sidang otomatis dari isi skripsimu</div>
+                                <div class="dropdown-title">PPT Sidang & Slide Show</div>
+                                <div class="dropdown-desc">Generate slide presentasi sidang otomatis</div>
                             </div>
                         </a>
 
@@ -618,21 +793,22 @@
                             </div>
                             <div>
                                 <div class="dropdown-title">Simulasi Sidang</div>
-                                <div class="dropdown-desc">Latihan tanya-jawab & evaluasi jawaban</div>
+                                <div class="dropdown-desc">Latihan tanya-jawab penguji & skor evaluasi</div>
                             </div>
                         </a>
                     </div>
                 </li>
-                <li><a href="#studio-contoh" class="nav-link">Contoh Hasil & Unduh</a></li>
+                <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
+                <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
                 <li><a href="#fitur-lengkap" class="nav-link">Fitur</a></li>
             </ul>
 
             <div class="nav-actions">
                 @auth
-                    <a href="{{ route('app.create') }}" class="btn btn-primary">Buka Ruang Kerja</a>
+                    <a href="{{ route('app.create') }}" class="btn btn-primary">Buka Workspace</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-ghost">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai Gratis</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai Sekarang</a>
                 @endauth
             </div>
         </div>
@@ -641,40 +817,37 @@
     <!-- Hero -->
     <section class="hero">
         <div class="container">
-            <div class="hero-eyebrow">Studio Penulisan Akademik Mahasiswa</div>
+            <div class="hero-eyebrow">Workspace Penulisan Akademik Mahasiswa</div>
             <h1>Susun Proposal & Skripsi Lebih Terstruktur</h1>
-            <p>Mulai dari mencari judul, menyusun proposal Bab 1–3 dan skripsi Bab 1–5 sesuai pedoman kampus, hingga membuat slide PPT dan latihan simulasi sidang.</p>
+            <p>Mulai dari mencari judul, menyusun proposal Bab 1–3 dan skripsi Bab 1–5 sesuai pedoman kampus, revisi per sub-bab di Lab Revisi, hingga membuat slide PPT dan simulasi sidang.</p>
 
             <div class="hero-cta">
                 @auth
                     <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buat Proyek Baru →</a>
                 @else
-                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai Menulis →</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Masuk ke Workspace →</a>
                 @endauth
-                <a href="#studio-contoh" class="btn btn-outline">Lihat & Unduh Contoh Hasil</a>
+                <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal & Skripsi</a>
             </div>
         </div>
     </section>
 
-    <!-- Contoh Studio & Download File Word/PDF Asli -->
-    <section id="studio-contoh" class="section section-subtle">
+    <!-- Section 1: Pratinjau Workspace Interaktif -->
+    <section id="workspace-preview" class="section section-subtle">
         <div class="container">
             <div class="section-header">
-                <span class="section-label">Pratinjau Studio & File Hasil</span>
-                <h2 class="section-title">Lihat Tampilan Ruang Kerja & Unduh Contoh Asli</h2>
-                <p class="section-desc">Pilih program studi di bawah untuk melihat hasil penyusunan di atas kertas A4, atau langsung unduh file Word (.docx) dan PDF aslinya.</p>
+                <span class="section-label">Pratinjau Workspace</span>
+                <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi & Terstandar</h2>
+                <p class="section-desc">Coba pindah antarprogram studi dan bab di bawah ini untuk melihat langsung format penulisan kertas A4 lengkap dengan Daftar Pustaka otomatis.</p>
             </div>
 
-            <!-- Pilihan Prodi -->
             <div class="major-selector">
                 <button type="button" class="major-pill active" onclick="switchSampleMajor('manajemen', this)">Manajemen (Kuantitatif)</button>
                 <button type="button" class="major-pill" onclick="switchSampleMajor('it', this)">Teknik Informatika (R&D)</button>
                 <button type="button" class="major-pill" onclick="switchSampleMajor('hukum', this)">Ilmu Hukum (Normatif)</button>
             </div>
 
-            <!-- Studio Mockup (Matches Mantra Riset Studio Screenshot) -->
             <div class="studio-frame">
-                <!-- Left Studio Sidebar -->
                 <div class="studio-frame-sidebar">
                     <div>
                         <div class="sf-title" id="sf-proj-title">PENGARUH LITERASI DIGITAL, REGULASI DIRI, DAN DUKUNGAN INSTITUSI...</div>
@@ -688,58 +861,177 @@
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <button type="button" class="sf-nav-btn active" id="sf-btn-bab1" onclick="switchSampleChapter('bab1')">
                             <span>Bab I Pendahuluan</span>
-                            <span style="color: #22c55e;">●</span>
+                            <span style="color: #059669;">●</span>
                         </button>
                         <button type="button" class="sf-nav-btn" id="sf-btn-bab2" onclick="switchSampleChapter('bab2')">
                             <span>Bab II Tinjauan Pustaka</span>
-                            <span style="color: #22c55e;">●</span>
+                            <span style="color: #059669;">●</span>
                         </button>
                         <button type="button" class="sf-nav-btn" id="sf-btn-bab3" onclick="switchSampleChapter('bab3')">
                             <span>Bab III Metodologi</span>
-                            <span style="color: #22c55e;">●</span>
+                            <span style="color: #059669;">●</span>
                         </button>
                         <button type="button" class="sf-nav-btn" id="sf-btn-dp" onclick="switchSampleChapter('dp')">
                             <span>Daftar Pustaka</span>
-                            <span style="color: #22c55e;">●</span>
+                            <span style="color: #059669;">●</span>
                         </button>
                     </div>
 
-                    <div style="margin-top: auto; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 11.5px; color: #1e40af; line-height: 1.45;">
-                        <strong>Lanjutkan ke Bab IV–V</strong><br>
-                        Sudah selesai proposal? Buka 2 bab terakhir di proyek yang sama.
+                    <div style="margin-top: auto; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; font-size: 11.5px; color: #1e40af; line-height: 1.45;">
+                        <strong>🧪 Lab Revisi Sub-bab</strong><br>
+                        Perbaiki sub-bab spesifik (misal 1.1 atau 2.1) sesuai catatan dosen pembimbing.
                     </div>
                 </div>
 
-                <!-- Right Studio Main -->
                 <div class="studio-frame-main">
-                    <!-- Topbar dengan Tombol Download Word (.docx) & PDF Asli -->
                     <div class="sf-topbar">
                         <div style="font-size: 12px; font-weight: 600; color: #475569;">
-                            Nomor 1.1 / 1.1.1 · Sitasi APA 7th · Times New Roman 12pt
+                            Workspace Skripsi · Margin 4-4-3-3 · Times New Roman 12pt
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             <a id="sample-dl-docx" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'docx']) }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;">
-                                📄 Unduh Contoh Word (.docx)
+                                📄 Unduh Word (.docx)
                             </a>
-                            <a id="sample-dl-pdf" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'pdf']) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; background: #2563eb; border-color: #2563eb;">
-                                📕 Unduh Contoh PDF (.pdf)
+                            <a id="sample-dl-pdf" href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'pdf']) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                                📕 Unduh PDF (.pdf)
                             </a>
                         </div>
                     </div>
 
-                    <!-- Kertas A4 Word Preview -->
                     <div class="sf-paper-area">
-                        <div class="sf-a4-paper" id="sf-paper-content">
-                            <!-- Diisi oleh JS -->
-                        </div>
+                        <div class="sf-a4-paper" id="sf-paper-content"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Semua Fitur -->
-    <section id="fitur-lengkap" class="section">
+    <!-- Section 2: Contoh Hasil Proposal & Skripsi -->
+    <section id="contoh-hasil" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Contoh Hasil Proposal & Skripsi</span>
+                <h2 class="section-title">Galeri Contoh Naskah Siap Baca & Unduh</h2>
+                <p class="section-desc">Setiap dokumen memiliki halaman sampul, Kata Pengantar, Daftar Isi dengan titik-titik rapi, Bab I–III / Bab I–V lengkap, dan Daftar Pustaka terverifikasi.</p>
+            </div>
+
+            <div class="major-selector" id="gallery-filter-bar">
+                <button type="button" class="major-pill active" onclick="filterGallery('all', this)">Semua</button>
+                <button type="button" class="major-pill" onclick="filterGallery('proposal', this)">Proposal (Bab 1–3)</button>
+                <button type="button" class="major-pill" onclick="filterGallery('skripsi', this)">Full Skripsi (Bab 1–5)</button>
+            </div>
+
+            @php
+                $curatedSamples = [
+                    [
+                        'major' => 'manajemen',
+                        'stage' => 'proposal',
+                        'stage_label' => 'Proposal (Bab 1–3)',
+                        'prodi' => 'Manajemen',
+                        'metode' => 'Kuantitatif (Survei / Regresi)',
+                        'title' => 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi Terhadap Kesiapan Kerja Mahasiswa',
+                    ],
+                    [
+                        'major' => 'it',
+                        'stage' => 'skripsi',
+                        'stage_label' => 'Full Skripsi (Bab 1–5)',
+                        'prodi' => 'Teknik Informatika',
+                        'metode' => 'Research & Development (R&D)',
+                        'title' => 'Implementasi Algoritma Random Forest dan Ekstraksi Fitur Citra untuk Klasifikasi Penyakit Daun Padi',
+                    ],
+                    [
+                        'major' => 'hukum',
+                        'stage' => 'proposal',
+                        'stage_label' => 'Proposal (Bab 1–3)',
+                        'prodi' => 'Ilmu Hukum',
+                        'metode' => 'Yuridis Normatif',
+                        'title' => 'Pelindungan Hukum Bagi Konsumen atas Kebocoran Data Pribadi pada Layanan Pinjaman Daring Berdasarkan UU PDP',
+                    ],
+                    [
+                        'major' => 'kedokteran',
+                        'stage' => 'skripsi',
+                        'stage_label' => 'Full Skripsi (Bab 1–5)',
+                        'prodi' => 'Kedokteran / Keperawatan',
+                        'metode' => 'Kuantitatif Observasional Analitik',
+                        'title' => 'Hubungan Kualitas Tidur dan Tingkat Stres Akademik dengan Kejadian Hipertensi pada Mahasiswa Tingkat Akhir',
+                    ],
+                    [
+                        'major' => 'pendidikan',
+                        'stage' => 'proposal',
+                        'stage_label' => 'Proposal (Bab 1–3)',
+                        'prodi' => 'Pendidikan (PGSD / FKIP)',
+                        'metode' => 'Quasi-Eksperimen',
+                        'title' => 'Efektivitas Model Pembelajaran Problem Based Learning Berbantuan Media Interaktif Terhadap Berpikir Kritis Siswa',
+                    ],
+                    [
+                        'major' => 'teknik',
+                        'stage' => 'skripsi',
+                        'stage_label' => 'Full Skripsi (Bab 1–5)',
+                        'prodi' => 'Teknik Sipil / Industri',
+                        'metode' => 'Eksperimen & Uji Laboratorium',
+                        'title' => 'Analisis Kuat Tekan Beton Ramah Lingkungan dengan Substitusi Parsial Abu Sekam Padi dan Limbah Plastik',
+                    ],
+                ];
+            @endphp
+
+            <div class="sample-grid" id="sample-cards-grid">
+                @foreach ($curatedSamples as $item)
+                    @php
+                        $pdfUrl = route('sample.download', ['major' => $item['major'], 'format' => 'pdf']);
+                        $docxUrl = route('sample.download', ['major' => $item['major'], 'format' => 'docx']);
+                    @endphp
+                    <article class="sample-card" data-stage="{{ $item['stage'] }}">
+                        <div>
+                            <div class="sample-badges">
+                                <span class="badge badge-blue">{{ $item['stage_label'] }}</span>
+                                <span class="badge badge-slate">{{ $item['prodi'] }}</span>
+                            </div>
+                            <h3>{{ $item['title'] }}</h3>
+                            <div class="sample-meta">Metode: {{ $item['metode'] }}</div>
+                        </div>
+                        <div class="sample-actions">
+                            <button type="button" class="sample-btn primary" onclick="openPdfModal(@json($item['title']), @json($pdfUrl . '?inline=1'))">
+                                👁️ Lihat PDF
+                            </button>
+                            <a href="{{ $docxUrl }}" class="sample-btn">📄 .docx</a>
+                            <a href="{{ $pdfUrl }}" class="sample-btn">📕 .pdf</a>
+                        </div>
+                    </article>
+                @endforeach
+
+                @if (isset($publicProjects) && count($publicProjects) > 0)
+                    @foreach ($publicProjects as $proj)
+                        @php
+                            $projHas45 = !empty($proj->bab4_content) || !empty($proj->bab5_content);
+                            $projStage = $projHas45 ? 'skripsi' : 'proposal';
+                            $projPdfUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'pdf']);
+                            $projDocxUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'docx']);
+                        @endphp
+                        <article class="sample-card" data-stage="{{ $projStage }}">
+                            <div>
+                                <div class="sample-badges">
+                                    <span class="badge badge-blue">{{ $projHas45 ? 'Full Skripsi (Bab 1–5)' : 'Proposal (Bab 1–3)' }}</span>
+                                    <span class="badge badge-slate">{{ $proj->prodi ?: 'Skripsi S1' }}</span>
+                                </div>
+                                <h3>{{ $proj->judul }}</h3>
+                                <div class="sample-meta">Metode: {{ $proj->metode_penelitian ?: 'Akademik' }}</div>
+                            </div>
+                            <div class="sample-actions">
+                                <button type="button" class="sample-btn primary" onclick="openPdfModal(@json($proj->judul), @json($projPdfUrl . '?inline=1'))">
+                                    👁️ Lihat PDF
+                                </button>
+                                <a href="{{ $projDocxUrl }}" class="sample-btn">📄 .docx</a>
+                                <a href="{{ $projPdfUrl }}" class="sample-btn">📕 .pdf</a>
+                            </div>
+                        </article>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Semua Fitur -->
+    <section id="fitur-lengkap" class="section section-subtle">
         <div class="container">
             <div class="section-header">
                 <span class="section-label">Fitur Lengkap</span>
@@ -752,10 +1044,10 @@
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <h3>Studio Proposal & Skripsi</h3>
-                        <p>Mendukung unggah buku pedoman kampus (.pdf/.docx), logo universitas untuk sampul, pengaturan sitasi Sinta/Scopus, serta revisi bab dari foto coretan dosen.</p>
+                        <h3>Workspace Proposal & Skripsi</h3>
+                        <p>Atur pedoman kampus, logo universitas, dan identitas sekali di awal form proyek, lalu susun Bab I–III / Bab I–V lengkap dengan Lab Revisi per sub-bab.</p>
                     </div>
-                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('login') }}" class="feature-link">Buka Studio →</a>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('login') }}" class="feature-link">Buka Workspace →</a>
                 </div>
 
                 <div class="feature-card">
@@ -764,7 +1056,7 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
                         </div>
                         <h3>PPT Sidang Otomatis</h3>
-                        <p>Pilih proyek skripsimu atau unggah file PDF/Word, sesuaikan tema slide dan isinya langsung di layar, lalu unduh file PowerPoint (.pptx).</p>
+                        <p>Pilih proyek skripsimu atau unggah file PDF/Word, pilih dari 6 tema profesional, presentasikan Fullscreen Slide Show, atau ekspor PowerPoint (.pptx).</p>
                     </div>
                     <a href="{{ auth()->check() ? route('app.create', ['tab' => 'ppt']) : route('login') }}" class="feature-link">Buat Slide PPT →</a>
                 </div>
@@ -792,9 +1084,18 @@
                 </span>
                 SkripsiAI
             </div>
-            <div>&copy; {{ date('Y') }} SkripsiAI. Studio penulisan akademik mahasiswa Indonesia.</div>
+            <div>&copy; {{ date('Y') }} SkripsiAI. Workspace penulisan akademik mahasiswa Indonesia.</div>
         </div>
     </footer>
+
+    <!-- Modal Preview PDF -->
+    <dialog id="pdf-preview-dialog" class="pdf-dialog">
+        <div class="pdf-dialog-head">
+            <div class="pdf-dialog-title" id="pdf-dialog-title">Pratinjau Dokumen PDF</div>
+            <button type="button" class="sample-btn" onclick="closePdfModal()">✕ Tutup</button>
+        </div>
+        <iframe id="pdf-dialog-frame" class="pdf-dialog-frame" title="Pratinjau PDF Skripsi"></iframe>
+    </dialog>
 
     <script>
         const studioSamples = {
@@ -880,7 +1181,7 @@
 
         function switchSampleMajor(m, btn) {
             sampleMajor = m;
-            document.querySelectorAll('.major-pill').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#workspace-preview .major-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderSampleStudio();
         }
@@ -891,6 +1192,28 @@
                 document.getElementById('sf-btn-' + k).classList.toggle('active', k === ch);
             });
             renderSampleStudio();
+        }
+
+        function filterGallery(stage, btn) {
+            document.querySelectorAll('#gallery-filter-bar .major-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('#sample-cards-grid .sample-card').forEach(card => {
+                const show = stage === 'all' || card.dataset.stage === stage;
+                card.style.display = show ? 'flex' : 'none';
+            });
+        }
+
+        function openPdfModal(title, url) {
+            const dialog = document.getElementById('pdf-preview-dialog');
+            document.getElementById('pdf-dialog-title').textContent = title;
+            document.getElementById('pdf-dialog-frame').src = url;
+            dialog.showModal();
+        }
+
+        function closePdfModal() {
+            const dialog = document.getElementById('pdf-preview-dialog');
+            document.getElementById('pdf-dialog-frame').src = 'about:blank';
+            dialog.close();
         }
 
         renderSampleStudio();

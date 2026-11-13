@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\ApiKey;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
@@ -18,13 +20,25 @@ class GeminiService
         'gemini-1.5-pro',
     ];
 
+    private function geminiKeyQuery()
+    {
+        $hasProvider = Schema::hasColumn('api_keys', 'provider');
+        return ApiKey::where(function ($q) use ($hasProvider) {
+            $q->where('key', 'like', 'AIza%')
+              ->orWhere('key', 'like', 'AQ.%');
+            if ($hasProvider) {
+                $q->orWhere('provider', 'gemini');
+            }
+        });
+    }
+
     /**
-     * Ambil API key aktif khusus Gemini (key diawali 'AIza') atau fallback ke .env GEMINI_API_KEY
+     * Ambil API key aktif khusus Gemini ('AIza...' / 'AQ....') atau fallback ke .env GEMINI_API_KEY
      */
     private function getWorkingApiKey(array $excludedIds = []): ?object
     {
         try {
-            $query = ApiKey::where('key', 'like', 'AIza%')->where('is_active', true);
+            $query = $this->geminiKeyQuery()->where('is_active', true);
 
             if (!empty($excludedIds)) {
                 $query->whereNotIn('id', $excludedIds);
@@ -33,16 +47,15 @@ class GeminiService
             $key = $query->orderBy('usage_count', 'asc')->first();
 
             if (!$key) {
-                $totalGemini = ApiKey::where('key', 'like', 'AIza%')->count();
+                $totalGemini = $this->geminiKeyQuery()->count();
                 if ($totalGemini > 0) {
-                    // Re-aktifkan key Gemini jika sebelumnya terkena limit sementara
-                    ApiKey::where('key', 'like', 'AIza%')->update(['is_active' => true]);
-                    $retryQuery = ApiKey::where('key', 'like', 'AIza%')->where('is_active', true);
+                    $this->geminiKeyQuery()->update(['is_active' => true]);
+                    $retryQuery = $this->geminiKeyQuery()->where('is_active', true);
                     if (!empty($excludedIds)) {
                         $retryQuery->whereNotIn('id', $excludedIds);
                     }
                     $key = $retryQuery->orderBy('usage_count', 'asc')->first()
-                        ?: ApiKey::where('key', 'like', 'AIza%')->inRandomOrder()->first();
+                        ?: $this->geminiKeyQuery()->inRandomOrder()->first();
                 }
             }
 
@@ -72,7 +85,7 @@ class GeminiService
     {
         $totalKeys = 0;
         try {
-            $totalKeys = ApiKey::where('key', 'like', 'AIza%')->count();
+            $totalKeys = $this->geminiKeyQuery()->count();
         } catch (Exception $e) {}
 
         $maxRetries = max($totalKeys + 2, 3);
@@ -102,8 +115,10 @@ class GeminiService
                     usleep(300000);
                 }
 
+                $cleanApiKey = trim($apiKeyModel->key);
                 $response = $client->post($url, [
-                    'query' => ['key' => trim($apiKeyModel->key)],
+                    'headers' => ['x-goog-api-key' => $cleanApiKey],
+                    'query' => ['key' => $cleanApiKey],
                     'json' => [
                         'contents' => [
                             [
@@ -126,8 +141,8 @@ class GeminiService
                     throw new Exception('Konten kosong dari Gemini.');
                 }
 
-                if (empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'increment')) {
-                    $apiKeyModel->increment('usage_count');
+                if (empty($apiKeyModel->is_env) && !empty($apiKeyModel->id)) {
+                    DB::table('api_keys')->where('id', $apiKeyModel->id)->increment('usage_count');
                 }
 
                 return $text;
@@ -193,8 +208,10 @@ class GeminiService
                 }
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
 
+                $cleanApiKey = trim($apiKeyModel->key);
                 $response = $client->post($url, [
-                    'query' => ['key' => trim($apiKeyModel->key)],
+                    'headers' => ['x-goog-api-key' => $cleanApiKey],
+                    'query' => ['key' => $cleanApiKey],
                     'json' => [
                         'contents' => [
                             [
@@ -219,8 +236,8 @@ class GeminiService
                     throw new Exception('Respon kosong dari Gemini Vision.');
                 }
 
-                if (empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'increment')) {
-                    $apiKeyModel->increment('usage_count');
+                if (empty($apiKeyModel->is_env) && !empty($apiKeyModel->id)) {
+                    DB::table('api_keys')->where('id', $apiKeyModel->id)->increment('usage_count');
                 }
 
                 return $text;
