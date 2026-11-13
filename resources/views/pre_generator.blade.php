@@ -3,1596 +3,2287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Workspace - SkripsiAI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <title>SkripsiAI — Ruang Kerja</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
-            --sidebar-bg: #0f172a;
-            --sidebar-hover: #1e293b;
-            --sidebar-active: #2563eb;
-            --main-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --accent: #2563eb;
-            --border-color: #e2e8f0;
+            --bg-page: #ffffff;
+            --bg-sidebar: #ffffff;
+            --bg-muted: #f3f4f6;
+            --bg-subtle: #f9fafb;
+            --text-main: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --primary: #2e2a5a;
+            --primary-hover: #242048;
+            --primary-soft: #ede9fe;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--main-bg);
-            color: var(--text-primary);
-            overflow: hidden;
-            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            min-height: 100vh;
         }
 
-        /* --- SIDEBAR KIRI DENGAN SUB-MENU --- */
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Sidebar — Exact Clean Minimalist Style */
         .sidebar {
-            width: 280px;
-            height: 100dvh;
-            background: var(--sidebar-bg);
-            color: #e2e8f0;
+            width: 240px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
             position: fixed;
             top: 0;
+            bottom: 0;
             left: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 16px;
-            z-index: 1050;
-            transition: transform 0.3s ease;
-            border-right: 1px solid rgba(255,255,255,0.08);
+            z-index: 40;
         }
 
-        .brand-logo {
+        .sidebar-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 800;
-            font-size: 1.3rem;
-            letter-spacing: -0.5px;
+            gap: 11px;
         }
 
-        .brand-logo-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .btn-new-project {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        .brand-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary);
             color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-weight: 600;
-            font-size: 0.92rem;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            transition: all 0.2s ease;
-            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.45);
+            flex-shrink: 0;
         }
 
-        .btn-new-project:hover {
-            transform: translateY(-1px);
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: #fff;
+        .brand-info {
+            overflow: hidden;
         }
 
-        .sidebar-section-label {
-            text-transform: uppercase;
-            font-size: 0.7rem;
+        .brand-name {
+            font-size: 14px;
             font-weight: 700;
-            letter-spacing: 1px;
-            color: #64748b;
-            padding: 8px 12px 6px;
+            color: var(--text-main);
+            line-height: 1.25;
+            white-space: nowrap;
         }
 
-        .nav-submenu {
+        .brand-user {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-nav {
+            padding: 14px 10px;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             overflow-y: auto;
-            flex: 1;
-            padding-right: 4px;
         }
 
-        .nav-submenu::-webkit-scrollbar { width: 4px; }
-        .nav-submenu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-
-        .submenu-item {
+        .nav-btn {
+            width: 100%;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            color: #cbd5e1;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
+            gap: 11px;
+            padding: 9px 12px;
+            border-radius: 9px;
             border: none;
             background: transparent;
-            width: 100%;
+            color: #374151;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
             text-align: left;
-            transition: all 0.2s ease;
+            white-space: nowrap;
+            transition: background 0.12s ease, color 0.12s ease;
         }
 
-        .submenu-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 0.95rem;
-            color: #94a3b8;
-            transition: color 0.2s ease;
+        .nav-btn:hover {
+            background: var(--bg-subtle);
+            color: var(--text-main);
         }
 
-        .submenu-item:hover {
-            background: var(--sidebar-hover);
-            color: #ffffff;
-        }
-
-        .submenu-item:hover i {
-            color: #60a5fa;
-        }
-
-        .submenu-item[aria-current="page"],
-        .submenu-item.active {
-            background: rgba(37, 99, 235, 0.18);
-            color: #ffffff;
+        .nav-btn.active {
+            background: var(--bg-muted);
+            color: var(--text-main);
             font-weight: 600;
-            border-left: 3px solid #3b82f6;
         }
 
-        .submenu-item[aria-current="page"] i,
-        .submenu-item.active i {
-            color: #60a5fa;
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+            color: #4b5563;
+            flex-shrink: 0;
         }
 
-        .submenu-badge {
-            margin-left: auto;
-            font-size: 0.68rem;
-            padding: 2px 7px;
-            border-radius: 50px;
-            font-weight: 700;
-            background: rgba(59, 130, 246, 0.2);
-            color: #93c5fd;
+        .nav-btn.active svg {
+            color: var(--text-main);
         }
 
-        /* --- MAIN AREA --- */
-        .main-content {
-            margin-left: 280px;
-            height: 100dvh;
-            overflow-y: auto;
-            position: relative;
-            transition: margin-left 0.3s ease;
-        }
-
-        .top-nav {
-            padding: 14px 32px;
+        .sidebar-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .logout-btn:hover {
+            background: var(--bg-muted);
+            color: var(--text-main);
+        }
+
+        /* Main Area */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 240px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Bar / Breadcrumb */
+        .topbar {
+            height: 54px;
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
             position: sticky;
             top: 0;
-            background: rgba(248, 250, 252, 0.88);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 50;
+            z-index: 20;
         }
 
-        .profile-btn {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .breadcrumb {
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: 700;
-            color: #1d4ed8;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
         }
 
-        .mobile-toggle {
-            display: none;
-            border: none;
+        .breadcrumb-back {
             background: none;
-            font-size: 1.35rem;
-            color: var(--text-primary);
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px;
+            border-radius: 6px;
         }
 
-        /* --- SCREENS --- */
-        .welcome-area, .workspace-container {
-            max-width: 1080px;
+        .breadcrumb-back:hover {
+            background: var(--bg-muted);
+        }
+
+        .breadcrumb-current {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-select {
+            font-family: inherit;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            outline: none;
+        }
+
+        .token-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            padding: 5px 11px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .token-pill:hover {
+            background: var(--bg-muted);
+        }
+
+        /* Content Container */
+        .page-content {
+            width: 100%;
+            max-width: 780px;
             margin: 0 auto;
-            padding: 36px 28px 80px;
-            animation: fadeIn 0.25s ease;
+            padding: 44px 28px 80px;
         }
 
-        .workspace-container { display: none; }
+        .tab-pane {
+            display: none;
+        }
 
-        .greeting {
-            font-size: clamp(1.75rem, 1.2rem + 2vw, 2.6rem);
-            font-weight: 800;
-            letter-spacing: -0.8px;
-            background: linear-gradient(135deg, #1e293b 0%, #2563eb 60%, #7c3aed 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .tab-pane.active {
+            display: block;
+        }
+
+        .page-eyebrow {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--primary);
             margin-bottom: 6px;
         }
 
-        .option-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 22px;
-            cursor: pointer;
-            height: 100%;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            text-align: left;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
-        }
-
-        .option-card:hover {
-            border-color: #93c5fd;
-            transform: translateY(-4px);
-            box-shadow: 0 14px 28px -8px rgba(37, 99, 235, 0.14);
-        }
-
-        .card-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 14px;
-            font-size: 1.15rem;
-        }
-
-        .project-header {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 24px 28px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .panel-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 26px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-        }
-
-        .result-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .result-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
-        }
-
-        .form-control-custom {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 11px 14px;
-            font-size: 0.93rem;
-        }
-
-        .form-control-custom:focus {
-            background: #ffffff;
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
-
-        .markdown-output {
-            line-height: 1.75;
-            font-size: 0.95rem;
-            color: #1e293b;
-        }
-        .markdown-output h2, .markdown-output h3 {
+        .page-title {
+            font-size: 28px;
             font-weight: 700;
-            margin-top: 1.2rem;
-            margin-bottom: 0.6rem;
-            color: #0f172a;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            line-height: 1.2;
         }
 
-        /* --- CHAT FLOATING & SOLVER --- */
-        .btn-chat-float {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-            z-index: 1060;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .page-subtitle {
+            font-size: 14.5px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            margin-bottom: 28px;
+            line-height: 1.55;
         }
 
-        .chat-window {
-            position: fixed;
-            bottom: 96px;
-            right: 28px;
-            width: 360px;
-            height: 500px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.16);
-            z-index: 1060;
-            display: none;
-            flex-direction: column;
-            border: 1px solid var(--border-color);
+        /* Clean Card */
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .card-flush {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
             overflow: hidden;
         }
 
-        .chat-header {
-            background: linear-gradient(135deg, #1e293b, #2563eb);
-            padding: 14px 18px;
-            color: white;
+        .card-header-bar {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
         }
 
-        .chat-body {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            background: #f8fafc;
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--bg-muted);
+            color: var(--text-secondary);
+            font-size: 11.5px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        /* Form Elements — Clean & Spacious */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 7px;
+        }
+
+        .form-label span.req {
+            color: #ef4444;
+        }
+
+        .form-label span.opt {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-main);
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 110px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .card-footer-bar {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-light);
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .chat-footer { padding: 12px; background: white; border-top: 1px solid var(--border-color); }
-        .chat-bubble { max-width: 82%; padding: 10px 14px; border-radius: 12px; font-size: 0.88rem; line-height: 1.45; }
-        .ai-bubble { background: white; border: 1px solid var(--border-color); align-self: flex-start; }
-        .user-bubble { background: #2563eb; color: white; align-self: flex-end; }
+        .footer-meta {
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
 
-        .chat-container-solver {
-            height: 440px;
-            overflow-y: auto;
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 13px 20px;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-subtle);
+        }
+
+        /* Stepper Pills (1 Pilih skripsi  2 Buat slide  3 Rapikan & latihan  4 Unduh) */
+        .stepper {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .step-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            background: none;
+            border: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .step-num-circle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--bg-muted);
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-pill.active {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .step-pill.active .step-num-circle {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        /* Project Selection Row (Skripsita Style) */
+        .project-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background 0.12s ease;
+        }
+
+        .project-row:last-child {
+            border-bottom: none;
+        }
+
+        .project-row:hover {
+            background: var(--bg-subtle);
+        }
+
+        .project-row-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .project-initial {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 13.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .project-row-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        .project-row-meta {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Dashboard Grid */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .dash-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
+            cursor: pointer;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .dash-card:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .dash-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: var(--bg-muted);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .dash-card h3 {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .dash-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Interactive PPT Studio (16:9 Slide Canvas) */
+        .ppt-canvas {
+            border-radius: 14px;
+            padding: 36px 40px;
+            min-height: 340px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
         }
-        .bubble-solver { padding: 14px 18px; border-radius: 12px; max-width: 88%; font-size: 0.93rem; line-height: 1.6; }
-        .bubble-user-solver { align-self: flex-end; background: #2563eb; color: #ffffff; }
-        .bubble-ai-solver { align-self: flex-start; background: #ffffff; border: 1px solid var(--border-color); color: #1e293b; }
 
-        .img-preview-box { display: none; width: 56px; height: 56px; border-radius: 8px; border: 1px dashed #94a3b8; margin-right: 10px; background-size: cover; background-position: center; position: relative; }
-        .img-preview-close { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .ppt-theme-navy { background: #1e1b4b; color: #ffffff; }
+        .ppt-theme-light { background: #ffffff; color: #111827; }
+        .ppt-theme-slate { background: #0f172a; color: #f8fafc; }
+        .ppt-theme-emerald { background: #064e3b; color: #ecfdf5; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .theme-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+        }
 
-        @media (max-width: 991px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .mobile-toggle { display: block; }
-            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 1040; }
-            .sidebar-overlay.active { display: block; }
-            .chat-window { width: 92%; right: 4%; bottom: 90px; height: 62dvh; }
+        .theme-dot.active {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Simulasi Sidang Score Bar */
+        .score-row {
+            margin-bottom: 14px;
+        }
+
+        .score-row-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .score-bar-track {
+            height: 8px;
+            background: var(--bg-muted);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 999px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 840px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-wrapper {
+                margin-left: 0;
+            }
+            .mobile-menu-btn {
+                display: inline-flex;
+            }
+            .form-row, .dash-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-<!-- SIDEBAR KIRI DENGAN SUB-MENU LENGKAP -->
-<aside class="sidebar" id="sidebar">
-    <div class="d-flex align-items-center justify-content-between mb-4 px-2">
-        <a href="{{ route('home') }}" class="brand-logo">
-            <div class="brand-logo-icon"><i class="fas fa-feather-alt"></i></div>
-            <span>SkripsiAI</span>
-        </a>
-        <button class="btn text-white d-lg-none p-1" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-    </div>
-
-    <button type="button" class="btn-new-project" onclick="navigateMenu('formScreen', this)">
-        <i class="fas fa-plus-circle"></i>
-        <span>Proyek Skripsi Baru</span>
-    </button>
-
-    <div class="nav-submenu" role="navigation" aria-label="Menu Utama">
-        <div class="sidebar-section-label">Menu Utama</div>
-
-        <button type="button" class="submenu-item active" id="nav-welcomeScreen" aria-current="page" onclick="navigateMenu('welcomeScreen', this)">
-            <i class="fas fa-th-large"></i>
-            <span>Beranda AI</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-myProjectsScreen" onclick="navigateMenu('myProjectsScreen', this)">
-            <i class="fas fa-folder-open"></i>
-            <span>Proyek Saya</span>
-            <span class="submenu-badge">{{ count($history) }}</span>
-        </button>
-
-        <div class="sidebar-section-label mt-2">Penulisan & Riset</div>
-
-        <button type="button" class="submenu-item" id="nav-proposalScreen" onclick="navigateMenu('proposalScreen', this)">
-            <i class="fas fa-file-signature"></i>
-            <span>Generator Proposal</span>
-            <span class="submenu-badge">Bab 1-3</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-titleScreen" onclick="navigateMenu('titleScreen', this)">
-            <i class="fas fa-lightbulb"></i>
-            <span>Cari Judul Skripsi</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-journalScreen" onclick="navigateMenu('journalScreen', this)">
-            <i class="fas fa-book-open"></i>
-            <span>Cari Jurnal Ilmiah</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-paraphraseScreen" onclick="navigateMenu('paraphraseScreen', this)">
-            <i class="fas fa-wand-magic-sparkles"></i>
-            <span>Parafrase Online</span>
-        </button>
-
-        <div class="sidebar-section-label mt-2">Persiapan Sidang</div>
-
-        <button type="button" class="submenu-item" id="nav-pptScreen" onclick="navigateMenu('pptScreen', this)">
-            <i class="fas fa-desktop"></i>
-            <span>AI PPT Sidang</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-defenseScreen" onclick="navigateMenu('defenseScreen', this)">
-            <i class="fas fa-user-tie"></i>
-            <span>Simulasi Sidang</span>
-            <span class="submenu-badge" style="background:rgba(16,185,129,0.2);color:#6ee7b7;">Live</span>
-        </button>
-
-        <button type="button" class="submenu-item" id="nav-solverScreen" onclick="navigateMenu('solverScreen', this)">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Tanya Jawab & Soal</span>
-        </button>
-
-        @if(count($history) > 0)
-            <div class="sidebar-section-label mt-3">Terakhir Dikerjakan</div>
-            @foreach($history->take(4) as $h)
-                <a href="{{ route('app.index', ['id' => $h->id]) }}" class="submenu-item py-2" title="{{ $h->judul }}">
-                    <i class="far fa-file-word text-info"></i>
-                    <span class="text-truncate">{{ Str::limit($h->judul, 22) }}</span>
-                </a>
-            @endforeach
-        @endif
-    </div>
-
-    <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-        <button type="button" class="submenu-item py-2" data-bs-toggle="modal" data-bs-target="#modalApiKey">
-            <i class="fas fa-key text-warning"></i>
-            <span>API Key Gratisan</span>
-        </button>
-        <form action="{{ route('logout') }}" method="POST" class="mt-1">
-            @csrf
-            <button type="submit" class="submenu-item py-2 text-danger">
-                <i class="fas fa-sign-out-alt text-danger"></i>
-                <span>Keluar (Logout)</span>
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- MAIN CONTENT -->
-<div class="main-content">
-    <div class="top-nav">
-        <div class="d-flex align-items-center gap-3">
-            <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <div class="d-none d-sm-flex align-items-center gap-2 text-secondary small fw-medium">
-                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">Standar DIKTI & APA 7th</span>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="brand-avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+            </a>
+            <div class="brand-info">
+                <div class="brand-name">SkripsiAI</div>
+                <div class="brand-user">{{ $user->name }}</div>
             </div>
         </div>
 
-        <div class="d-flex align-items-center ms-auto gap-3">
-            <div class="d-none d-md-flex align-items-center bg-white rounded-pill px-3 py-1 border shadow-sm">
-                <i class="fas fa-microchip text-primary me-2"></i>
-                <select id="globalAiModel" class="border-0 bg-transparent fw-semibold text-dark" style="outline:none; cursor:pointer; font-size: 0.85rem;">
-                    <option value="auto" selected>Mode Auto (Gemini + Groq Fallback)</option>
-                    <option value="gemini">Google Gemini 2.0 Flash</option>
-                    <option value="groq">Groq Llama 3.3 70B (Ultra Cepat)</option>
-                </select>
-            </div>
-
-            <button class="btn btn-light rounded-pill border px-3 py-1 d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalMission" title="Tambah Token Gratis">
-                <i class="fas fa-coins text-warning"></i>
-                <span class="fw-bold text-dark" id="creditDisplay">{{ Auth::user()->credits }}</span>
-                <span class="small text-primary fw-bold">+</span>
+        <nav class="sidebar-nav">
+            <button type="button" class="nav-btn active" id="nav-dashboard" onclick="openTab('dashboard', 'Dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Dashboard</span>
             </button>
 
-            <div class="dropdown">
-                <button class="profile-btn" type="button" data-bs-toggle="dropdown">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-3" style="width: 260px;">
-                    <li class="text-center mb-3">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold" style="width: 48px; height: 48px; font-size: 1.2rem;">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </div>
-                        <h6 class="fw-bold mb-0">{{ Auth::user()->name }}</h6>
-                        <small class="text-muted">{{ Auth::user()->email }}</small>
-                    </li>
-                    <li><button class="dropdown-item rounded-3 py-2 gap-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalMission"><i class="fas fa-gift text-success width-20"></i> Klaim Token Gratis</button></li>
-                    <li><button class="dropdown-item rounded-3 py-2 gap-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalApiKey"><i class="fas fa-key text-primary width-20"></i> Atur API Key Gratis</button></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button class="dropdown-item rounded-3 text-danger py-2 gap-2 d-flex align-items-center"><i class="fas fa-power-off"></i> Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- 1. BERANDA DASHBOARD -->
-    <div id="welcomeScreen" class="welcome-area">
-        <div class="mb-4">
-            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2 fw-semibold">
-                <i class="fas fa-sparkles me-1"></i> Asisten Akademik Terpadu
-            </span>
-            <h1 class="greeting">Halo, {{ explode(' ', Auth::user()->name)[0] }}!</h1>
-            <p class="text-secondary fs-5 mb-0">Pilih asisten AI untuk mempercepat penyusunan proposal, skripsi Bab 1–5, hingga latihan sidang.</p>
-        </div>
-
-        <div class="row g-3 mb-5">
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('formScreen')">
-                    <div>
-                        <div class="card-icon bg-primary bg-opacity-10 text-primary"><i class="fas fa-book"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">Full Skripsi Bab 1–5</h5>
-                        <p class="text-secondary small mb-0">Susun naskah lengkap Bab 1 sampai Bab 5 + Daftar Pustaka APA & Export Word/PDF.</p>
-                    </div>
-                    <div class="mt-3 text-primary small fw-bold">Mulai Menulis <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('proposalScreen')">
-                    <div>
-                        <div class="card-icon bg-indigo bg-opacity-10" style="background:#eef2ff;color:#4f46e5;"><i class="fas fa-file-signature"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">Generator Proposal</h5>
-                        <p class="text-secondary small mb-0">Generate cepat draf Proposal Seminar (Bab 1, Bab 2, Bab 3) sesuai metode riset kampus.</p>
-                    </div>
-                    <div class="mt-3 small fw-bold" style="color:#4f46e5;">Buat Proposal <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('titleScreen')">
-                    <div>
-                        <div class="card-icon bg-success bg-opacity-10 text-success"><i class="fas fa-lightbulb"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">Cari Judul Skripsi</h5>
-                        <p class="text-secondary small mb-0">Rekomendasi ide judul spesifik lengkap dengan variabel X/Y dan objek penelitian terbaru.</p>
-                    </div>
-                    <div class="mt-3 text-success small fw-bold">Cari Ide Judul <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('paraphraseScreen')">
-                    <div>
-                        <div class="card-icon" style="background:#fdf2f8;color:#db2777;"><i class="fas fa-wand-magic-sparkles"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">Parafrase Online</h5>
-                        <p class="text-secondary small mb-0">Ubah struktur kalimat menjadi bahasa ilmiah baku KBBI & turunkan skor Turnitin.</p>
-                    </div>
-                    <div class="mt-3 small fw-bold" style="color:#db2777;">Mulai Parafrase <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('pptScreen')">
-                    <div>
-                        <div class="card-icon bg-warning bg-opacity-10 text-warning"><i class="fas fa-desktop"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">AI PPT Sidang</h5>
-                        <p class="text-secondary small mb-0">Susun otomatis 9 slide presentasi sempro/sidang lengkap dengan script bicara presenter.</p>
-                    </div>
-                    <div class="mt-3 text-warning small fw-bold">Buat Slide PPT <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="option-card" onclick="navigateMenu('defenseScreen')">
-                    <div>
-                        <div class="card-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-user-tie"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">Simulasi Sidang AI</h5>
-                        <p class="text-secondary small mb-0">Latihan tanya-jawab dengan Dosen Penguji AI lengkap dengan skor evaluasi & saran jawaban A.</p>
-                    </div>
-                    <div class="mt-3 small fw-bold" style="color:#059669;">Mulai Simulasi <i class="fas fa-arrow-right ms-1"></i></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. PROYEK SAYA (RIWAYAT SKRIPSI) -->
-    <div id="myProjectsScreen" class="workspace-container">
-        <div class="project-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Workspace Tersimpan</span>
-                <h2 class="fw-bold text-dark mb-0">Proyek Skripsi Saya</h2>
-                <small class="text-muted">Daftar draf skripsi Bab 1–5 yang pernah Anda kerjakan.</small>
-            </div>
-            <button class="btn btn-primary rounded-pill px-4 fw-semibold" onclick="navigateMenu('formScreen')">
-                <i class="fas fa-plus me-2"></i> Buat Proyek Baru
+            <button type="button" class="nav-btn" id="nav-projects" onclick="openTab('projects', 'Proyek Skripsi')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Proyek Skripsi</span>
             </button>
-        </div>
 
-        <div class="row g-3">
-            @forelse($history as $item)
-                @php
-                    $doneCount = 0;
-                    foreach(['bab1_content','bab2_content','bab3_content','bab4_content','bab5_content'] as $col) {
-                        if (!empty($item->$col)) $doneCount++;
-                    }
-                    $pct = $doneCount * 20;
-                @endphp
-                <div class="col-12">
-                    <div class="panel-card d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ $item->prodi }}</span>
-                                <span class="badge bg-light text-secondary border">{{ $item->metode_penelitian }}</span>
-                                <small class="text-muted ms-2"><i class="far fa-clock me-1"></i> {{ $item->updated_at->diffForHumans() }}</small>
-                            </div>
-                            <h5 class="fw-bold text-dark mb-2">{{ $item->judul }}</h5>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="progress" style="width: 160px; height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: {{ $pct }}%"></div>
-                                </div>
-                                <small class="fw-semibold text-secondary">{{ $doneCount }}/5 Bab Selesai ({{ $pct }}%)</small>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('app.index', ['id' => $item->id]) }}" class="btn btn-primary rounded-pill px-4 fw-semibold">
-                                <i class="fas fa-pen-fancy me-2"></i> Buka Workspace
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="panel-card text-center py-5">
-                        <i class="far fa-folder-open fa-3x text-secondary opacity-50 mb-3"></i>
-                        <h5 class="fw-bold">Belum Ada Proyek Skripsi</h5>
-                        <p class="text-muted small mb-4">Mulai proyek pertama Anda untuk menyusun Bab 1 hingga Bab 5 secara otomatis.</p>
-                        <button class="btn btn-primary rounded-pill px-4 fw-semibold" onclick="navigateMenu('formScreen')">
-                            <i class="fas fa-plus me-2"></i> Buat Proyek Sekarang
-                        </button>
-                    </div>
-                </div>
-            @endforelse
-        </div>
-    </div>
+            <button type="button" class="nav-btn" id="nav-titles" onclick="openTab('titles', 'Cari Judul')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Cari Judul</span>
+            </button>
 
-    <!-- 3. FORM PROYEK BARU (BAB 1-5 WORKSPACE) -->
-    <div id="formScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Workspace Bab 1–5</span>
-                <h2 class="fw-bold text-dark mb-0">Mulai Proyek Skripsi Baru</h2>
-                <small class="text-muted">Sistem otomatis menyesuaikan struktur sub-bab dengan metode penelitian (Kuantitatif, Kualitatif, atau R&D/IT).</small>
-            </div>
-        </div>
-        <div class="panel-card">
-            <form action="{{ route('project.start') }}" method="POST">
+            <button type="button" class="nav-btn" id="nav-ppt" onclick="openTab('ppt', 'PPT Sidang')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <span>PPT Sidang</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-defense" onclick="openTab('defense', 'Simulasi Sidang')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <span>Simulasi Sidang</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-journals" onclick="openTab('journals', 'Cari Jurnal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span>Cari Jurnal</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-paraphrase" onclick="openTab('paraphrase', 'Parafrase')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>Parafrase</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-qa" onclick="openTab('qa', 'Diskusi & Tugas')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Diskusi & Tugas</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-apikeys" onclick="openTab('apikeys', 'Pengaturan API')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Pengaturan API</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <div class="mb-4">
-                    <label class="fw-bold small text-secondary text-uppercase mb-2">Judul Skripsi <span class="text-danger">*</span></label>
-                    <textarea id="formJudulInput" name="judul" class="form-control form-control-custom" rows="2" placeholder="Contoh: Pengaruh Kualitas Layanan Digital dan Kepercayaan Terhadap Loyalitas Nasabah..." required></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label class="fw-bold small text-secondary text-uppercase mb-2">Program Studi / Jurusan <span class="text-danger">*</span></label>
-                        <input id="formProdiInput" type="text" name="prodi" class="form-control form-control-custom" placeholder="Cth: Manajemen / Teknik Informatika / Hukum" required>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <label class="fw-bold small text-secondary text-uppercase mb-2">Metode Penelitian (Skill Adaptif) <span class="text-danger">*</span></label>
-                        <select name="metode_penelitian" class="form-select form-control-custom" required>
-                            <option value="" disabled selected>Pilih Metode Penelitian...</option>
-                            <option value="Kuantitatif (Survei / Regresi)">Kuantitatif - Survei / Regresi / SEM-PLS</option>
-                            <option value="Kuantitatif (Eksperimen)">Kuantitatif - Eksperimen (Pre-test / Post-test)</option>
-                            <option value="Kualitatif (Deskriptif / Studi Kasus)">Kualitatif - Deskriptif / Studi Kasus (Miles & Huberman)</option>
-                            <option value="R&D (Waterfall)">R&D / IT - SDLC Waterfall (UML & Blackbox)</option>
-                            <option value="R&D (Agile)">R&D / IT - Agile / Scrum Development</option>
-                            <option value="R&D (Prototype)">R&D / IT - Prototyping Model</option>
-                            <option value="Mixed Methods">Mixed Methods (Kombinasi Kuantitatif & Kualitatif)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label class="fw-bold small text-secondary text-uppercase mb-2">Variabel / Fokus Kajian</label>
-                        <input type="text" name="variabel_penelitian" class="form-control form-control-custom" placeholder="Cth: Variabel X1, X2 terhadap Y atau Algoritma Random Forest">
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <label class="fw-bold small text-secondary text-uppercase mb-2">Objek / Sumber Data Penelitian</label>
-                        <input type="text" name="sumber_data" class="form-control form-control-custom" placeholder="Cth: Studi Kasus pada PT X / Mahasiswa Kampus Y / Dataset Publik">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
-                    <i class="fas fa-rocket me-2"></i> Buat Proyek & Masuk ke Editor Bab 1–5
+                <button type="submit" class="logout-btn" title="Keluar">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Keluar</span>
                 </button>
             </form>
         </div>
-    </div>
+    </aside>
 
-    <!-- 4. GENERATOR PROPOSAL (BAB 1-3 INSTAN) -->
-    <div id="proposalScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Seminar Proposal</span>
-                <h2 class="fw-bold text-dark mb-0">Generator Proposal Skripsi (Bab 1–3)</h2>
-                <small class="text-muted">Susun draf proposal lengkap (Pendahuluan, Tinjauan Pustaka, Metodologi & Referensi Awal) dalam sekali klik.</small>
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="breadcrumb">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span>Ruang Kerja</span>
+                <span>›</span>
+                <span class="breadcrumb-current" id="breadcrumb-label">Dashboard</span>
             </div>
-        </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="panel-card">
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Judul Proposal Skripsi</label>
-                        <textarea id="propJudul" class="form-control form-control-custom" rows="3" placeholder="Masukkan judul proposal Anda..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Program Studi</label>
-                        <input id="propProdi" class="form-control form-control-custom" placeholder="Cth: Sistem Informasi / Akuntansi">
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Metode Penelitian</label>
-                        <select id="propMetode" class="form-select form-control-custom">
-                            <option value="Kuantitatif (Survei & Regresi)">Kuantitatif (Survei & Regresi)</option>
-                            <option value="Kualitatif (Studi Kasus & Miles Huberman)">Kualitatif (Studi Kasus)</option>
-                            <option value="R&D (Pengembangan Sistem Waterfall)">R&D / Pengembangan Sistem (Waterfall/Agile)</option>
-                            <option value="Kuantitatif Eksperimen">Kuantitatif Eksperimen</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Fenomena / Masalah di Lapangan (Opsional)</label>
-                        <textarea id="propMasalah" class="form-control form-control-custom" rows="2" placeholder="Cth: Proses pencatatan masih manual atau penurunan kepuasan pelanggan..."></textarea>
-                    </div>
-                    <button class="btn btn-primary w-100 rounded-pill py-2 fw-bold" onclick="generateProposal()">
-                        <i class="fas fa-file-signature me-2"></i> Generate Proposal Lengkap
-                    </button>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="panel-card h-100">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <h6 class="fw-bold mb-0"><i class="fas fa-file-alt text-primary me-2"></i> Hasil Naskah Proposal (Bab I – III)</h6>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copyTextFromElement('proposalOutput')">
-                                <i class="far fa-copy me-1"></i> Salin Naskah
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="transferProposalToFullProject()">
-                                <i class="fas fa-arrow-right me-1"></i> Lanjut ke Bab 1–5 Penuh
-                            </button>
-                        </div>
-                    </div>
-                    <div id="proposalOutput" class="markdown-output" style="max-height: 560px; overflow-y: auto;">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-file-signature fa-3x mb-3 opacity-25"></i>
-                            <p class="mb-0">Isi judul dan klik <strong>Generate Proposal Lengkap</strong> untuk menyusun draf Bab 1, Bab 2, dan Bab 3 sesuai standar kampus Indonesia.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 5. CARI JUDUL SKRIPSI -->
-    <div id="titleScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-success bg-opacity-10 text-success mb-2">Eksplorasi Topik</span>
-                <h2 class="fw-bold text-dark mb-0">Cari Judul Skripsi Spesifik</h2>
-                <small class="text-muted">Rekomendasi 10 judul skripsi terbaru yang memiliki variabel jelas dan layak disetujui dosen pembimbing.</small>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="panel-card">
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Jurusan / Program Studi</label>
-                        <input id="inputProdi" class="form-control form-control-custom" placeholder="Cth: Teknik Informatika / Manajemen">
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Minat Topik / Metode / Masalah</label>
-                        <textarea id="inputTopik" class="form-control form-control-custom" rows="3" placeholder="Cth: Machine Learning klasifikasi penyakit, atau Pengaruh Digital Marketing UMKM"></textarea>
-                    </div>
-                    <button class="btn btn-success w-100 rounded-pill py-2 fw-bold" onclick="generateTitles()">
-                        <i class="fas fa-magic me-2"></i> Cari 10 Ide Judul
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div id="titleResults">
-                    <div class="panel-card text-center py-5 text-muted">
-                        <i class="far fa-lightbulb fa-3x mb-3 text-success opacity-50"></i>
-                        <p class="mb-0">Masukkan program studi dan topik minat Anda untuk melihat rekomendasi judul skripsi.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 6. CARI JURNAL ILMIAH -->
-    <div id="journalScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-warning bg-opacity-10 text-warning text-dark mb-2">Literatur & Sitasi</span>
-                <h2 class="fw-bold text-dark mb-0">Pencari Jurnal Ilmiah (2020–2025)</h2>
-                <small class="text-muted">Temukan referensi jurnal nasional (SINTA) dan internasional untuk memperkuat Bab 1 dan Bab 2.</small>
-            </div>
-        </div>
-        <div class="panel-card mb-4">
-            <div class="d-flex flex-column flex-sm-row gap-2">
-                <input id="inputJournalKeyword" class="form-control form-control-custom flex-grow-1" placeholder="Masukkan topik atau variabel penelitian (Cth: Pengaruh Beban Kerja terhadap Kinerja Karyawan)...">
-                <button class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2" onclick="findJournals()">
-                    <i class="fas fa-search me-2"></i> Cari Jurnal
+            <div class="topbar-right">
+                <select id="global-model" class="model-select">
+                    <option value="auto">Mode Otomatis (AI)</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="groq">Groq Llama 3.3</option>
+                </select>
+                <button type="button" class="token-pill" onclick="claimFreeTokens()" title="Klik untuk tambah token gratis">
+                    <span>Token: <strong id="credit-count">{{ $user->credits }}</strong></span>
+                    <span style="color: var(--primary); font-weight: 700;">+</span>
                 </button>
             </div>
-        </div>
-        <div id="journalResults">
-            <div class="panel-card text-center py-5 text-muted">
-                <i class="fas fa-book-open fa-3x mb-3 text-warning opacity-50"></i>
-                <p class="mb-0">Daftar referensi jurnal beserta tautan pencarian PDF akan muncul di sini.</p>
-            </div>
-        </div>
-    </div>
+        </header>
 
-    <!-- 7. PARAFRASE ONLINE AKADEMIK -->
-    <div id="paraphraseScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-danger bg-opacity-10 text-danger mb-2">Anti-Plagiasi & Turnitin</span>
-                <h2 class="fw-bold text-dark mb-0">Parafrase Online Akademik</h2>
-                <small class="text-muted">Tulis ulang kutipan atau paragraf skripsi dengan bahasa ilmiah baku KBBI tanpa menghilangkan sitasi.</small>
-            </div>
-        </div>
-
-        <div class="panel-card mb-3">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="small fw-bold text-secondary">Mode Gaya Bahasa:</span>
-                    <select id="paraphraseStyle" class="form-select form-select-sm rounded-pill px-3" style="width: auto;">
-                        <option value="academic">Formal Akademik Baku (Standar Skripsi/SINTA)</option>
-                        <option value="anti_turnitin">Penurun Skor Turnitin (Ubah Struktur Aktif/Pasif)</option>
-                        <option value="concise">Ringkas, Padat & Lugas (EYD V)</option>
-                        <option value="expand">Perdalam & Perluas Elaborasi Ilmiah</option>
-                    </select>
+        <main class="page-content">
+            @if(session('success'))
+                <div style="padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-size: 13.5px; margin-bottom: 20px;">
+                    {{ session('success') }}
                 </div>
-                <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="runParaphrase()">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i> Parafrase Sekarang
-                </button>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="small fw-bold text-secondary mb-1">Teks Asli (Sebelum Parafrase)</label>
-                    <textarea id="paraphraseInput" class="form-control form-control-custom" rows="10" placeholder="Tempelkan paragraf skripsi atau kutipan jurnal di sini..."></textarea>
+            @endif
+            @if(session('error'))
+                <div style="padding: 12px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: 13.5px; margin-bottom: 20px;">
+                    {{ session('error') }}
                 </div>
-                <div class="col-md-6">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="small fw-bold text-success mb-0">Hasil Parafrase Ilmiah</label>
-                        <button class="btn btn-sm btn-light border rounded-pill px-3 py-0" onclick="copyTextFromElement('paraphraseOutput')">
-                            <i class="far fa-copy me-1"></i> Copy
-                        </button>
-                    </div>
-                    <div id="paraphraseOutput" class="form-control form-control-custom bg-white" style="height: 235px; overflow-y: auto; line-height: 1.7;">
-                        <span class="text-muted">Hasil parafrase akan tampil di sini...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            @endif
 
-    <!-- 8. AI PPT SIDANG -->
-    <div id="pptScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-warning bg-opacity-10 text-dark mb-2">Presentasi Sidang</span>
-                <h2 class="fw-bold text-dark mb-0">Generator AI PPT Sidang Skripsi</h2>
-                <small class="text-muted">Susun otomatis 9 slide presentasi sidang beserta naskah bicara (speaker notes) tiap slide.</small>
-            </div>
-        </div>
+            <!-- ========================================================= -->
+            <!-- 1. TAB DASHBOARD -->
+            <!-- ========================================================= -->
+            <section class="tab-pane active" id="pane-dashboard">
+                <div class="page-eyebrow">Ruang Kerja Akademik</div>
+                <h1 class="page-title">Halo, {{ explode(' ', trim($user->name))[0] }}</h1>
+                <p class="page-subtitle">Pilih tahapan skripsi yang ingin kamu kerjakan hari ini, mulai dari mencari ide judul, menulis proposal & skripsi Bab 1–5, hingga persiapan sidang.</p>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="panel-card">
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Judul Skripsi</label>
-                        <textarea id="pptJudul" class="form-control form-control-custom" rows="3" placeholder="Masukkan judul skripsi Anda..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Program Studi</label>
-                        <input id="pptProdi" class="form-control form-control-custom" placeholder="Cth: Ilmu Komunikasi / Teknik Sipil">
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Metode Penelitian</label>
-                        <input id="pptMetode" class="form-control form-control-custom" placeholder="Cth: Kuantitatif Regresi / R&D Waterfall">
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Ringkasan Hasil Temuan (Opsional)</label>
-                        <textarea id="pptRingkasan" class="form-control form-control-custom" rows="2" placeholder="Cth: Variabel X berpengaruh positif sebesar 74,5% terhadap Y..."></textarea>
-                    </div>
-                    <button class="btn btn-warning text-dark w-100 rounded-pill py-2 fw-bold" onclick="generatePptSlides()">
-                        <i class="fas fa-desktop me-2"></i> Buat 9 Slide PPT + Script Bicara
-                    </button>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="panel-card h-100">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <h6 class="fw-bold mb-0"><i class="fas fa-layer-group text-warning me-2"></i> Struktur Slide & Script Presentasi</h6>
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copyTextFromElement('pptOutput')">
-                            <i class="far fa-copy me-1"></i> Salin Semua Slide
-                        </button>
-                    </div>
-                    <div id="pptOutput" class="markdown-output" style="max-height: 550px; overflow-y: auto;">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-desktop fa-3x mb-3 opacity-25"></i>
-                            <p class="mb-0">Masukkan judul skripsi Anda untuk menghasilkan poin tayangan 9 slide lengkap dengan kalimat pembuka hingga penutup sidang.</p>
+                <!-- Proyek Terakhir -->
+                @if($history->count() > 0)
+                    <div class="card-flush" style="margin-bottom: 24px;">
+                        <div class="card-header-bar">
+                            <div>Proyek Skripsi Terbaru <span class="count-badge">{{ $history->count() }}</span></div>
+                            <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="openTab('projects', 'Proyek Skripsi')">+ Proyek Baru</button>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 9. SIMULASI SIDANG SKRIPSI -->
-    <div id="defenseScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-success bg-opacity-10 text-success mb-2">Ujian Lisan Interaktif</span>
-                <h2 class="fw-bold text-dark mb-0">Simulasi Sidang Skripsi bersama Dosen Penguji AI</h2>
-                <small class="text-muted">Latihan menjawab pertanyaan kritis dosen penguji dan dapatkan skor penilaian serta saran jawaban terbaik.</small>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="panel-card">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-id-card-clip text-success me-2"></i> Data Sidang Mahasiswa</h6>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Judul Skripsi yang Diujikan</label>
-                        <textarea id="defJudul" class="form-control form-control-custom" rows="3" placeholder="Masukkan judul skripsi Anda..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold small text-secondary mb-1">Metode Penelitian</label>
-                        <input id="defMetode" class="form-control form-control-custom" placeholder="Cth: Kuantitatif / Kualitatif / R&D">
-                    </div>
-                    <button class="btn btn-success w-100 rounded-pill py-2 fw-bold" onclick="startDefenseSimulation()">
-                        <i class="fas fa-play me-2"></i> Mulai Sesi Ujian Sidang
-                    </button>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="panel-card">
-                    <div class="chat-container-solver" id="defenseChatBody">
-                        <div class="bubble-solver bubble-ai-solver">
-                            <strong>👨‍🏫 Dewan Dosen Penguji AI:</strong><br>
-                            Selamat datang di ruang Simulasi Sidang Skripsi. Silakan isi <strong>Judul Skripsi</strong> dan <strong>Metode Penelitian</strong> Anda di sebelah kiri, lalu klik <em>"Mulai Sesi Ujian Sidang"</em>. Saya akan mengajukan pertanyaan penguji satu per satu dan menilai kualitas jawaban Anda.
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <textarea id="defenseAnswerInput" class="form-control form-control-custom" rows="2" placeholder="Ketik jawaban argumen sidang Anda di sini..."></textarea>
-                        <button class="btn btn-primary rounded-4 px-4 fw-bold" onclick="submitDefenseAnswer()">
-                            <i class="fas fa-paper-plane me-1"></i> Jawab
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 10. TANYA JAWAB & SOAL (SOLVER VISION) -->
-    <div id="solverScreen" class="workspace-container">
-        <div class="project-header d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-info bg-opacity-10 text-info text-dark mb-2">AI Tutor Multimodal</span>
-                <h2 class="fw-bold text-dark mb-0">Tanya Jawab & Bedah Soal</h2>
-                <small class="text-muted">Upload foto soal statistik/koding/teori atau tanyakan materi kuliah apa pun.</small>
-            </div>
-        </div>
-
-        <div class="panel-card">
-            <div class="chat-container-solver" id="solverChatBody">
-                <div class="bubble-solver bubble-ai-solver">
-                    👋 Halo! Silakan unggah foto soal/tabel statistik atau ketik pertanyaan akademik Anda. Saya siap membantu menjelaskan langkah demi langkah!
-                </div>
-            </div>
-
-            <div class="d-flex align-items-end gap-2 bg-light p-2 rounded-3 border">
-                <div id="solverImgPreview" class="img-preview-box">
-                    <div class="img-preview-close" onclick="clearSolverImage()"><i class="fas fa-times"></i></div>
-                </div>
-                <input type="file" id="solverFileInput" accept="image/*" style="display: none;" onchange="handleSolverFile(this)">
-                <button class="btn btn-white border text-secondary rounded-circle" style="width: 42px; height: 42px;" onclick="document.getElementById('solverFileInput').click()" title="Upload Gambar">
-                    <i class="fas fa-camera"></i>
-                </button>
-                <textarea id="solverInput" class="form-control border-0 bg-transparent" rows="1" placeholder="Ketik pertanyaan Anda..." style="resize: none;"></textarea>
-                <button class="btn btn-primary rounded-circle" style="width: 42px; height: 42px;" onclick="sendSolver()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- FLOATING DOSEN AI CHAT -->
-<button class="btn-chat-float" onclick="toggleChat()" title="Konsultasi Dosen AI"><i class="fas fa-comments fa-lg"></i></button>
-<div class="chat-window" id="chatWindow">
-    <div class="chat-header">
-        <div class="d-flex align-items-center gap-2"><i class="fas fa-user-graduate"></i><h6 class="mb-0 fw-bold">Konsultasi Dosen AI</h6></div>
-        <button class="btn btn-sm text-white" onclick="toggleChat()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="chat-body" id="chatBody">
-        <div class="chat-bubble ai-bubble">Halo! Ada yang ingin dikonsultasikan mengenai bab skripsi atau metodologi Anda hari ini?</div>
-    </div>
-    <div class="chat-footer">
-        <form onsubmit="event.preventDefault(); sendChat();">
-            <div class="input-group">
-                <input type="text" id="chatInput" class="form-control rounded-pill" placeholder="Tulis pertanyaan..." autocomplete="off">
-                <button class="btn btn-primary rounded-circle ms-2" type="submit"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL API KEY GRATISAN -->
-<div class="modal fade" id="modalApiKey" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold"><i class="fas fa-key text-primary me-2"></i> Pengaturan API Key Gratisan</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="alert alert-info small rounded-3 mb-4">
-                    <i class="fas fa-info-circle me-1"></i>
-                    <strong>Tips Build Gratisan:</strong> Anda dapat menggunakan API Key gratis dari <strong>Google AI Studio (Gemini)</strong> di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="fw-bold">aistudio.google.com</a> atau <strong>Groq Cloud</strong> di <a href="https://console.groq.com/keys" target="_blank" class="fw-bold">console.groq.com</a>. Sistem akan merotasi key secara otomatis!
-                </div>
-                <div class="row g-4">
-                    <div class="col-md-5 border-end">
-                        <h6 class="fw-bold mb-3 text-secondary">Tambah API Key Baru</h6>
-                        <ul class="nav nav-pills mb-3">
-                            <li class="nav-item"><button class="nav-link active btn-sm rounded-pill" data-bs-toggle="pill" data-bs-target="#pills-gemini">Gemini (Gratis)</button></li>
-                            <li class="nav-item"><button class="nav-link btn-sm rounded-pill" data-bs-toggle="pill" data-bs-target="#pills-groq">Groq (Gratis)</button></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="pills-gemini">
-                                <form action="{{ route('api.key.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="provider" value="gemini">
-                                    <div class="mb-3">
-                                        <input type="text" name="key" class="form-control form-control-custom" placeholder="Paste AIzaSy... (Gemini Key)" required>
-                                    </div>
-                                    <button class="btn btn-primary w-100 rounded-pill fw-semibold">Simpan Key Gemini</button>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="pills-groq">
-                                <form action="{{ route('api.key.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="provider" value="groq">
-                                    <div class="mb-3">
-                                        <input type="text" name="key" class="form-control form-control-custom" placeholder="Paste gsk_... (Groq Key)" required>
-                                    </div>
-                                    <button class="btn btn-dark w-100 rounded-pill fw-semibold">Simpan Key Groq</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <h6 class="fw-bold mb-3 text-secondary">Daftar API Key Aktif</h6>
-                        <div style="max-height: 240px; overflow-y: auto;">
-                            @forelse($apiKeys as $k)
-                                <div class="card border shadow-sm mb-2 rounded-3">
-                                    <div class="card-body p-2 px-3 d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            @if($k->provider == 'groq')
-                                                <span class="badge bg-dark rounded-pill">GROQ</span>
-                                            @else
-                                                <span class="badge bg-primary rounded-pill">GEMINI</span>
-                                            @endif
-                                            <span class="fw-semibold small font-monospace">{{ Str::limit($k->key, 16) }}••••</span>
-                                        </div>
-                                        <form action="{{ route('api.key.delete', $k->id) }}" method="POST">
-                                            @csrf @method('DELETE')
-                                            <button class="btn btn-light btn-sm text-danger border"><i class="fas fa-trash"></i></button>
-                                        </form>
+                        @foreach($history->take(3) as $proj)
+                            <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row">
+                                <div class="project-row-left">
+                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
+                                    <div>
+                                        <div class="project-row-title">{{ $proj->judul }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $proj->updated_at->diffForHumans() }}</div>
                                     </div>
                                 </div>
-                            @empty
-                                <div class="text-muted small py-3 text-center bg-light rounded-3">Belum ada API key di database (menggunakan fallback .env jika tersedia).</div>
-                            @endforelse
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="dash-grid">
+                    <div class="dash-card" onclick="openTab('projects', 'Proyek Skripsi')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div>
+                            <h3>Tulis Proposal & Skripsi</h3>
+                            <p>Susun Bab 1–3 (Proposal) atau Bab 1–5 lengkap sesuai pedoman kampus.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('titles', 'Cari Judul')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <div>
+                            <h3>Cari Judul Skripsi</h3>
+                            <p>Dapatkan saran judul penelitian sesuai topik, jurusan, dan metodologi.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('ppt', 'PPT Sidang')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+                        </div>
+                        <div>
+                            <h3>PPT Sidang</h3>
+                            <p>Buat slide sidang otomatis dari proyek skripsimu, edit tema, lalu unduh .pptx.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('defense', 'Simulasi Sidang')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+                        <div>
+                            <h3>Simulasi Sidang</h3>
+                            <p>Latihan tanya-jawab dengan penguji AI lengkap dengan skor dan saran jawaban.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('journals', 'Cari Jurnal')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <div>
+                            <h3>Cari Jurnal & Download PDF</h3>
+                            <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi APA.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('paraphrase', 'Parafrase')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </div>
+                        <div>
+                            <h3>Parafrase Akademik</h3>
+                            <p>Ubah kalimat kutipan menjadi bahasa ilmiah baku tanpa mengubah makna.</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+            </section>
 
-<!-- MODAL MISI REWARD TOKEN -->
-<div class="modal fade" id="modalMission" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-header border-0">
-                <h5 class="fw-bold">🎁 Klaim Token AI Gratis</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 pt-2">
-                <div class="card border bg-light mb-3 rounded-3">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div><h6 class="fw-bold mb-0">Bonus Login Harian</h6><small class="text-muted">+2 Token Generate</small></div>
-                        <button class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold" onclick="claimReward('login')">Klaim +2</button>
-                    </div>
-                </div>
-                <div class="card border bg-light rounded-3">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div><h6 class="fw-bold mb-0">Bonus Ekstra Mahasiswa</h6><small class="text-muted">+5 Token Generate</small></div>
-                        <button class="btn btn-sm btn-warning rounded-pill px-3 fw-semibold" onclick="claimReward('extra')">Klaim +5</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            <!-- ========================================================= -->
+            <!-- 2. TAB PROYEK SKRIPSI (PROPOSAL BAB 1-3 & SKRIPSI BAB 1-5) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-projects">
+                <div class="page-eyebrow">Penulisan Terstruktur</div>
+                <h1 class="page-title">Proyek Skripsi & Proposal</h1>
+                <p class="page-subtitle">Di dalam ruang kerja proyek, kamu bisa menyusun sampai Bab 3 untuk Seminar Proposal atau melanjutkan sampai Bab 5 untuk Skripsi lengkap.</p>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+                <!-- Form Buat Proyek Baru (Mantra Riset Complete Setup) -->
+                <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerText = 'Membuka Studio Skripsi...';">
+                    @csrf
 
-<script>
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-    function navigateMenu(screenId, btnEl = null) {
-        document.querySelectorAll('.workspace-container, .welcome-area').forEach(el => el.style.display = 'none');
-        const target = document.getElementById(screenId);
-        if (target) target.style.display = 'block';
-
-        document.querySelectorAll('.submenu-item').forEach(item => {
-            item.classList.remove('active');
-            item.removeAttribute('aria-current');
-        });
-
-        const navBtn = btnEl || document.getElementById('nav-' + screenId);
-        if (navBtn && navBtn.classList.contains('submenu-item')) {
-            navBtn.classList.add('active');
-            navBtn.setAttribute('aria-current', 'page');
-        }
-
-        if (window.innerWidth < 992) {
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
-    }
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-
-    function copyTextFromElement(elId) {
-        const text = document.getElementById(elId).innerText;
-        navigator.clipboard.writeText(text);
-        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Teks berhasil disalin!', showConfirmButton: false, timer: 1500 });
-    }
-
-    // Buka tab otomatis jika ada query ?tab=... dari halaman depan
-    document.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        const tab = params.get('tab');
-        if (tab && document.getElementById(tab)) {
-            navigateMenu(tab);
-        }
-    });
-
-    @if(session('success')) Swal.fire({icon:'success',title:'Berhasil!',text:"{{ session('success') }}",timer:1800,showConfirmButton:false}); @endif
-    @if(session('error')) Swal.fire({icon:'error',title:'Perhatian',text:"{{ session('error') }}"}); @endif
-
-    // 1. CARI JUDUL SKRIPSI
-    function generateTitles() {
-        const prodi = document.getElementById('inputProdi').value.trim();
-        const topik = document.getElementById('inputTopik').value.trim();
-        const model = document.getElementById('globalAiModel').value;
-
-        if (!prodi || !topik) return Swal.fire('Info', 'Mohon isi Program Studi dan Minat Topik terlebih dahulu.', 'warning');
-
-        document.getElementById('titleResults').innerHTML = '<div class="panel-card text-center py-5 text-primary"><div class="spinner-border mb-3"></div><p class="mb-0 fw-semibold">Dosen AI sedang merumuskan 10 judul skripsi...</p></div>';
-
-        fetch("{{ route('tools.titles') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ prodi, topik, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                let html = '';
-                res.data.forEach(judul => {
-                    const safeJudul = judul.replace(/'/g, "\\'");
-                    html += `
-                    <div class="result-card">
-                        <div class="fw-semibold text-dark">${judul}</div>
-                        <div class="d-flex gap-2 flex-shrink-0">
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="useTitleForProject('${safeJudul}', '${prodi.replace(/'/g, "\\'")}')">
-                                Pakai Judul
-                            </button>
-                            <button class="btn btn-sm btn-light border rounded-circle" onclick="navigator.clipboard.writeText('${safeJudul}');Swal.fire({toast:true,position:'top-end',icon:'success',title:'Disalin!',showConfirmButton:false,timer:1000})">
-                                <i class="far fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                });
-                document.getElementById('titleResults').innerHTML = html;
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-        });
-    }
-
-    function useTitleForProject(judul, prodi) {
-        document.getElementById('formJudulInput').value = judul;
-        document.getElementById('formProdiInput').value = prodi;
-        document.getElementById('propJudul').value = judul;
-        document.getElementById('propProdi').value = prodi;
-        navigateMenu('formScreen');
-        Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Judul dimasukkan ke form proyek!', showConfirmButton: false, timer: 1800 });
-    }
-
-    // 2. CARI JURNAL
-    function findJournals() {
-        const keyword = document.getElementById('inputJournalKeyword').value.trim();
-        const model = document.getElementById('globalAiModel').value;
-        if (!keyword) return Swal.fire('Info', 'Masukkan topik jurnal terlebih dahulu.', 'warning');
-
-        document.getElementById('journalResults').innerHTML = '<div class="panel-card text-center py-5 text-warning"><div class="spinner-border mb-3"></div><p class="mb-0 text-dark fw-semibold">Mencari referensi jurnal ilmiah relevan...</p></div>';
-
-        fetch("{{ route('tools.journals') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ keyword, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                let html = '';
-                res.data.forEach(j => {
-                    const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(j.title)}`;
-                    html += `
-                    <div class="result-card">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-3 bg-warning bg-opacity-10 p-3 text-warning"><i class="fas fa-book-journal-whills fa-lg"></i></div>
+                    <!-- Card 1: Judul, Logo Kampus, & Identitas -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                             <div>
-                                <h6 class="fw-bold mb-1 text-dark">${j.title}</h6>
-                                <small class="text-secondary">${j.author} • <strong>${j.journal || 'Jurnal Ilmiah'}</strong> (${j.year})</small>
+                                <label class="form-label">Judul Penelitian <span class="req">*</span></label>
+                                <textarea name="judul" id="input-project-judul" class="form-textarea" style="min-height: 92px;" placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)" required></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Logo Kampus <span class="opt">(opsional)</span></label>
+                                <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 92px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-subtle); cursor: pointer; text-align: center; padding: 8px; overflow: hidden;">
+                                    <img id="new-proj-logo-preview" src="" alt="" style="display:none; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
+                                    <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Unggah Logo</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
+                                    <input type="file" name="logo_kampus" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="if(this.files[0]){ const r=new FileReader(); r.onload=e=>{ const img=document.getElementById('new-proj-logo-preview'); img.src=e.target.result; img.style.display='block'; document.getElementById('new-proj-logo-label').innerText=this.files[0].name.substring(0,16); }; r.readAsDataURL(this.files[0]); }">
+                                </label>
                             </div>
                         </div>
-                        <a href="${scholarUrl}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold flex-shrink-0">
-                            <i class="fas fa-external-link-alt me-1"></i> Google Scholar
-                        </a>
-                    </div>`;
-                });
-                document.getElementById('journalResults').innerHTML = html;
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-        });
-    }
 
-    // 3. GENERATOR PROPOSAL (BAB 1-3)
-    function generateProposal() {
-        const judul = document.getElementById('propJudul').value.trim();
-        const prodi = document.getElementById('propProdi').value.trim();
-        const metode = document.getElementById('propMetode').value;
-        const masalah = document.getElementById('propMasalah').value.trim();
-        const model = document.getElementById('globalAiModel').value;
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Nama lengkap</label>
+                                <input type="text" name="nama" class="form-input" value="{{ strtoupper($user->name) }}" placeholder="Nama Lengkap Mahasiswa">
+                            </div>
+                            <div>
+                                <label class="form-label">NIM</label>
+                                <input type="text" name="nim" class="form-input" placeholder="Nomor Induk Mahasiswa">
+                            </div>
+                        </div>
 
-        if (!judul || !prodi) return Swal.fire('Info', 'Mohon lengkapi Judul Proposal dan Program Studi.', 'warning');
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                            <div>
+                                <label class="form-label">Nama kampus</label>
+                                <input type="text" name="kampus" class="form-input" placeholder="Contoh: UNIVERSITAS INDONESIA">
+                            </div>
+                            <div>
+                                <label class="form-label">Jurusan / Program studi <span class="req">*</span></label>
+                                <input type="text" name="prodi" id="input-project-prodi" class="form-input" placeholder="Contoh: MANAJEMEN" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Fakultas</label>
+                                <input type="text" name="fakultas" class="form-input" placeholder="Masukkan nama fakultas">
+                            </div>
+                        </div>
+                    </div>
 
-        document.getElementById('proposalOutput').innerHTML = '<div class="text-center py-5 text-primary"><div class="spinner-border mb-3"></div><p class="fw-semibold mb-0">Menyusun Proposal Skripsi Bab I, Bab II, dan Bab III sesuai standar DIKTI...</p></div>';
+                    <!-- Card 2: Jenis dan Metode Penelitian -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Jenis dan metode penelitian</div>
 
-        fetch("{{ route('tools.proposal') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ judul, prodi, metode, masalah, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                document.getElementById('proposalOutput').innerHTML = marked.parse(res.proposal);
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-        });
-    }
+                        <label class="form-label" style="font-size: 12.5px; color: var(--text-secondary);">Jenis penelitian</label>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;">
+                            @foreach(['Skripsi (S1)', 'Tesis (S2)', 'Disertasi (S3)', 'Ubah Skripsi → Artikel'] as $idx => $jp)
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; background: #fff;">
+                                    <input type="radio" name="jenis_penelitian" value="{{ $jp }}" {{ $idx === 0 ? 'checked' : '' }}>
+                                    <span>{{ $jp }}</span>
+                                </label>
+                            @endforeach
+                        </div>
 
-    function transferProposalToFullProject() {
-        document.getElementById('formJudulInput').value = document.getElementById('propJudul').value;
-        document.getElementById('formProdiInput').value = document.getElementById('propProdi').value;
-        navigateMenu('formScreen');
-    }
+                        <label class="form-label" style="font-size: 12.5px; color: var(--text-secondary);">Metode penelitian <span class="req">*</span></label>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            @php
+                                $metodeOptions = [
+                                    ['val' => 'Kualitatif (Studi Kasus / Deskriptif)', 'title' => 'Kualitatif', 'sub' => 'Wawancara, observasi, studi kasus'],
+                                    ['val' => 'Kuantitatif (Survei / Regresi)', 'title' => 'Kuantitatif', 'sub' => 'Survei kuesioner, regresi, SEM'],
+                                    ['val' => 'Kuantitatif — Data Sekunder', 'title' => 'Kuantitatif — Data Sekunder', 'sub' => 'BPS, deret waktu, laporan arsip'],
+                                    ['val' => 'Studi Pustaka (Library Research)', 'title' => 'Studi Pustaka', 'sub' => 'Library Research / kajian literatur'],
+                                    ['val' => 'PTK (Penelitian Tindakan Kelas)', 'title' => 'PTK', 'sub' => 'Penelitian Tindakan Kelas'],
+                                    ['val' => 'R&D / Pengembangan Sistem', 'title' => 'R&D', 'sub' => 'Pengembangan produk / sistem IT'],
+                                    ['val' => 'Mixed Method', 'title' => 'Mixed Method', 'sub' => 'Kombinasi kualitatif & kuantitatif'],
+                                    ['val' => 'Hukum Normatif', 'title' => 'Hukum Normatif', 'sub' => 'Kajian perundang-undangan & doktrin'],
+                                    ['val' => 'Hukum Empiris', 'title' => 'Hukum Empiris', 'sub' => 'Sosiologi hukum & efektivitas lapangan'],
+                                    ['val' => 'Eksperimen / Rekayasa', 'title' => 'Eksperimen / Rekayasa', 'sub' => 'Bengkel, alat, uji laboratorium'],
+                                ];
+                            @endphp
+                            @foreach($metodeOptions as $mIdx => $mOpt)
+                                <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; background: #fff;">
+                                    <input type="radio" name="metode_penelitian" value="{{ $mOpt['val'] }}" {{ $mIdx === 1 ? 'checked' : '' }} style="margin-top: 3px;">
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">{{ $mOpt['title'] }}</div>
+                                        <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35;">{{ $mOpt['sub'] }}</div>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
 
-    // 4. PARAFRASE ONLINE
-    function runParaphrase() {
-        const text = document.getElementById('paraphraseInput').value.trim();
-        const style = document.getElementById('paraphraseStyle').value;
-        const model = document.getElementById('globalAiModel').value;
+                    <!-- Card 3: Tahap Pengerjaan -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Tahap pengerjaan</div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">Pilih sesuai kesiapan penelitianmu (dapat dilanjutkan kapan saja di ruang kerja).</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 9px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
+                                <input type="radio" name="tahap_pengerjaan" value="Proposal (Bab I–III)">
+                                <span>Proposal (Bab I–III)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 9px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
+                                <input type="radio" name="tahap_pengerjaan" value="Skripsi Penuh (Bab I–V)" checked>
+                                <span>Skripsi Penuh (Bab I–V)</span>
+                            </label>
+                        </div>
+                    </div>
 
-        if (text.length < 20) return Swal.fire('Info', 'Masukkan minimal 1 kalimat/paragraf (20 karakter) untuk diparafrase.', 'warning');
+                    <!-- Card 4: Pedoman Kampus (Opsional) -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pedoman kampus <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                        </div>
+                        <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt" style="padding: 9px 12px; font-size: 13px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
+                    </div>
 
-        document.getElementById('paraphraseOutput').innerHTML = '<div class="text-center py-5 text-primary"><div class="spinner-border spinner-border-sm me-2"></div> Memparafrase kalimat secara ilmiah...</div>';
+                    <!-- Card 5: Struktur Bab Kustom (Opsional) -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur bab kustom <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                                <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
+                            </div>
+                            <input type="checkbox" onchange="document.getElementById('custom-structure-wrap').style.display = this.checked ? 'block' : 'none';" style="width: 18px; height: 18px; cursor: pointer;">
+                        </div>
+                        <div id="custom-structure-wrap" style="display: none; margin-top: 14px;">
+                            <textarea name="struktur_kustom" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Bab I terdiri dari 1.1 Konteks Penelitian, 1.2 Fokus Penelitian, 1.3 Tujuan Penelitian..."></textarea>
+                        </div>
+                    </div>
 
-        fetch("{{ route('tools.paraphrase') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ text, style, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                document.getElementById('paraphraseOutput').innerHTML = marked.parse(res.result);
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-        });
-    }
+                    <!-- Card 6: Data Awal Penelitian (Opsional) -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Data awal penelitian <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 12px;">Tambahkan kondisi nyata, angka, atau hasil observasi awal untuk mendukung latar belakang penelitian.</div>
+                        <textarea name="data_awal" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Di SMAN 1 X, 62% siswa belum memanfaatkan e-library; rata-rata skor literasi digital 48/100 (survei 2024)."></textarea>
+                    </div>
 
-    // 5. AI PPT SIDANG
-    function generatePptSlides() {
-        const judul = document.getElementById('pptJudul').value.trim();
-        const prodi = document.getElementById('pptProdi').value.trim();
-        const metode = document.getElementById('pptMetode').value.trim();
-        const ringkasan = document.getElementById('pptRingkasan').value.trim();
-        const model = document.getElementById('globalAiModel').value;
+                    <!-- Card 7: Pengaturan Sitasi -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pengaturan sitasi</div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px;">Sesuaikan referensi dan format penulisan dengan kebutuhan penelitianmu.</div>
 
-        if (!judul) return Swal.fire('Info', 'Masukkan Judul Skripsi terlebih dahulu.', 'warning');
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Tahun terbit minimum</label>
+                                <select name="tahun_min" class="form-select">
+                                    <option value="2020">Semua tahun (2018–2026)</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023" selected>2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2019">2019</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Asal referensi</label>
+                                <select name="asal_referensi" class="form-select">
+                                    <option value="Indonesia + Internasional">Indonesia + Internasional</option>
+                                    <option value="Indonesia">Indonesia (Nasional)</option>
+                                    <option value="Internasional">Internasional</option>
+                                </select>
+                            </div>
+                        </div>
 
-        document.getElementById('pptOutput').innerHTML = '<div class="text-center py-5 text-warning"><div class="spinner-border mb-3"></div><p class="fw-semibold text-dark mb-0">Menyusun 9 Slide PPT Sidang beserta Naskah Bicara Presenter...</p></div>';
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Gaya sitasi</label>
+                                <select name="gaya_sitasi" class="form-select">
+                                    <option value="APA 7th">APA 7th</option>
+                                    <option value="IEEE">IEEE</option>
+                                    <option value="Harvard">Harvard</option>
+                                    <option value="Chicago">Chicago</option>
+                                    <option value="Vancouver">Vancouver</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Bahasa penulisan</label>
+                                <select name="bahasa_penulisan" class="form-select">
+                                    <option value="Indonesia">Indonesia</option>
+                                    <option value="Inggris">Inggris (English)</option>
+                                </select>
+                            </div>
+                        </div>
 
-        fetch("{{ route('tools.ppt') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ judul, prodi, metode, ringkasan, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                document.getElementById('pptOutput').innerHTML = marked.parse(res.slides);
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-        });
-    }
+                        <label class="form-label">Sumber referensi</label>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                <input type="checkbox" name="sumber_referensi[]" value="Umum" checked>
+                                <span>Umum</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked>
+                                <span>Terindeks Sinta</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus">
+                                <span>Terindeks Scopus</span>
+                            </label>
+                        </div>
+                    </div>
 
-    // 6. SIMULASI SIDANG SKRIPSI
-    let lastDefenseQuestion = '';
+                    <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel atau buku <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                            <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
+                        </div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+                            Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus. Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
+                        </div>
+                        <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt" class="form-input" style="padding: 9px 12px; font-size: 13px;">
 
-    function startDefenseSimulation() {
-        const judul = document.getElementById('defJudul').value.trim();
-        const metode = document.getElementById('defMetode').value.trim();
-        const model = document.getElementById('globalAiModel').value;
-        const chatBody = document.getElementById('defenseChatBody');
+                        <div class="card-footer-bar">
+                            <span class="footer-meta">SIAP DISUSUN DI STUDIO PENULISAN</span>
+                            <button type="submit" class="btn-primary">Buat Proyek & Buka Studio →</button>
+                        </div>
+                    </div>
+                </form>
 
-        if (!judul) return Swal.fire('Info', 'Masukkan Judul Skripsi Anda di sebelah kiri untuk memulai sidang.', 'warning');
+                <!-- Daftar Proyek Tersimpan -->
+                <div class="card-flush">
+                    <div class="card-header-bar">
+                        <div>Daftar Skripsi Saya <span class="count-badge">{{ $history->count() }}</span></div>
+                    </div>
+                    @forelse($history as $proj)
+                        @php
+                            $doneCount = 0;
+                            foreach(['bab1','bab2','bab3','bab4','bab5'] as $b) {
+                                if (!empty($proj->{$b.'_content'})) $doneCount++;
+                            }
+                        @endphp
+                        <div class="project-row" style="cursor: default;">
+                            <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1;">
+                                <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
+                                <div>
+                                    <div class="project-row-title">{{ $proj->judul }}</div>
+                                    <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab ditulis</div>
+                                </div>
+                            </a>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;">Buka</a>
+                                <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-outline" style="padding: 6px 10px; font-size: 12.5px; color: #dc2626; border-color: #fecaca;">Hapus</button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <div style="padding: 32px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
+                            Belum ada proyek skripsi. Isi form di atas untuk memulai.
+                        </div>
+                    @endforelse
+                </div>
+            </section>
 
-        chatBody.innerHTML += `<div class="bubble-solver bubble-ai-solver"><i class="fas fa-spinner fa-spin me-2"></i> Dewan Penguji sedang mempelajari naskah skripsi Anda...</div>`;
-        chatBody.scrollTop = chatBody.scrollHeight;
+            <!-- ========================================================= -->
+            <!-- 3. TAB CARI JUDUL SKRIPSI (EXACT SKRIPSITA STYLE) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-titles">
+                <div class="page-eyebrow">Eksplorasi Topik · AI Akademik</div>
+                <h1 class="page-title">Cari Judul Skripsi</h1>
+                <p class="page-subtitle">Isi topik dan metodologi — sistem langsung sarankan judul terbaik sesuai bidangmu dalam hitungan detik.</p>
 
-        fetch("{{ route('tools.defense') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ judul, metode, mode: 'start', model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                lastDefenseQuestion = res.reply;
-                chatBody.innerHTML += `<div class="bubble-solver bubble-ai-solver">${marked.parse(res.reply)}</div>`;
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-            chatBody.scrollTop = chatBody.scrollHeight;
-        });
-    }
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Topik atau Bidang Penelitian <span class="req">*</span></label>
+                        <input type="text" id="title-topik" class="form-input" placeholder="cth: machine learning, manajemen SDM, hukum perdata...">
+                    </div>
 
-    function submitDefenseAnswer() {
-        const judul = document.getElementById('defJudul').value.trim();
-        const metode = document.getElementById('defMetode').value.trim();
-        const answer = document.getElementById('defenseAnswerInput').value.trim();
-        const model = document.getElementById('globalAiModel').value;
-        const chatBody = document.getElementById('defenseChatBody');
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div>
+                            <label class="form-label">Metodologi <span class="req">*</span></label>
+                            <select id="title-metode" class="form-select">
+                                <option value="">Pilih Metodologi</option>
+                                <option value="Kuantitatif (Survei / Regresi)">Kuantitatif</option>
+                                <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif</option>
+                                <option value="R&D / Pengembangan Sistem (Waterfall / Prototype)">R&D / Pengembangan Sistem</option>
+                                <option value="Yuridis Normatif / Empiris">Yuridis Normatif / Empiris</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Program Studi <span class="opt">(opsional)</span></label>
+                            <input type="text" id="title-prodi" class="form-input" placeholder="cth: Informatika, Manajemen...">
+                        </div>
+                    </div>
 
-        if (!judul) return Swal.fire('Info', 'Klik "Mulai Sesi Ujian Sidang" terlebih dahulu.', 'warning');
-        if (!answer) return Swal.fire('Info', 'Ketik jawaban argumen Anda terlebih dahulu.', 'warning');
+                    <div class="card-footer-bar">
+                        <span class="footer-meta">REKOMENDASI JUDUL TERSTRUKTUR</span>
+                        <button type="button" id="btn-find-titles" class="btn-primary" onclick="handleFindTitles()">Temukan Judul →</button>
+                    </div>
+                </div>
 
-        chatBody.innerHTML += `<div class="bubble-solver bubble-user-solver">${answer}</div>`;
-        document.getElementById('defenseAnswerInput').value = '';
-        const loadId = 'def-load-' + Date.now();
-        chatBody.innerHTML += `<div id="${loadId}" class="bubble-solver bubble-ai-solver"><i class="fas fa-spinner fa-spin me-2"></i> Dosen Penguji sedang mengevaluasi jawaban Anda...</div>`;
-        chatBody.scrollTop = chatBody.scrollHeight;
+                <!-- Hasil Judul -->
+                <div id="titles-result-box" style="display: none; margin-top: 20px;" class="card-flush">
+                    <div class="card-header-bar">
+                        <span>Rekomendasi Judul Skripsi</span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Gunakan Judul" untuk langsung menulis</span>
+                    </div>
+                    <div id="titles-list"></div>
+                </div>
+            </section>
 
-        fetch("{{ route('tools.defense') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ judul, metode, mode: 'answer', question: lastDefenseQuestion, answer, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            const loader = document.getElementById(loadId);
-            if (loader) loader.remove();
-            if (res.status === 'success') {
-                lastDefenseQuestion = res.reply;
-                chatBody.innerHTML += `<div class="bubble-solver bubble-ai-solver">${marked.parse(res.reply)}</div>`;
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-            } else {
-                Swal.fire('Gagal', res.message, 'error');
-            }
-            chatBody.scrollTop = chatBody.scrollHeight;
-        });
-    }
+            <!-- ========================================================= -->
+            <!-- 4. TAB PPT SIDANG (EXACT 4-STEP FLOW + LIVE PPT EDITOR) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-ppt">
+                <h1 class="page-title">PPT Sidang</h1>
+                <p class="page-subtitle">Slide sidang dari isi skripsimu. Tinggal rapikan, latihan presentasi, lalu unduh.</p>
 
-    // 7. REWARD & CHAT FLOATING & SOLVER
-    function claimReward(type) {
-        fetch("{{ route('reward.claim') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ type })
-        })
-        .then(r => r.json())
-        .then(d => {
-            if (d.status === 'success') {
-                document.getElementById('creditDisplay').innerText = d.new_credits;
-                Swal.fire('Berhasil!', d.message, 'success');
-            }
-        });
-    }
+                <!-- 4-Step Indicator -->
+                <div class="stepper">
+                    <button type="button" class="step-pill active" id="ppt-step-btn-1" onclick="setPptStep(1)">
+                        <span class="step-num-circle">1</span>
+                        <span>Pilih skripsi</span>
+                    </button>
+                    <button type="button" class="step-pill" id="ppt-step-btn-2" onclick="if(selectedPptProject.title || document.getElementById('ppt-file-input').files.length) setPptStep(2)">
+                        <span class="step-num-circle">2</span>
+                        <span>Buat slide</span>
+                    </button>
+                    <button type="button" class="step-pill" id="ppt-step-btn-3" onclick="if(pptSlides.length) setPptStep(3)">
+                        <span class="step-num-circle">3</span>
+                        <span>Rapikan & latihan</span>
+                    </button>
+                    <button type="button" class="step-pill" id="ppt-step-btn-4" onclick="if(pptSlides.length) downloadPptxFile()">
+                        <span class="step-num-circle">4</span>
+                        <span>Unduh</span>
+                    </button>
+                </div>
 
-    function toggleChat() {
-        const w = document.getElementById('chatWindow');
-        w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
-    }
+                <!-- STEP 1: Pilih Skripsi atau Upload File -->
+                <div id="ppt-view-step-1">
+                    <div class="card-flush" style="margin-bottom: 18px;">
+                        <div class="card-header-bar">
+                            <div>Pilih skripsi <span class="count-badge">{{ $history->count() }}</span></div>
+                        </div>
+                        @forelse($history as $proj)
+                            <div class="project-row" onclick="chooseProjectForPpt({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
+                                <div class="project-row-left">
+                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
+                                    <div>
+                                        <div class="project-row-title">{{ $proj->judul }}</div>
+                                        <div class="project-row-meta">{{ $proj->updated_at->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </div>
+                        @empty
+                            <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
+                                Belum ada proyek di akunmu. Kamu bisa mengunggah file skripsi (.pdf / .docx) di bawah ini.
+                            </div>
+                        @endforelse
+                    </div>
 
-    function sendChat() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        const model = document.getElementById('globalAiModel').value;
-        if (!message) return;
+                    <!-- Opsi Upload File PDF/DOCX Langsung -->
+                    <div class="card">
+                        <div class="form-label" style="margin-bottom: 8px;">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan merangkum isi file dokumenmu dan menyusun 9 slide presentasi sidang secara otomatis.</p>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" id="ppt-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; padding: 8px 12px; font-size: 13px;" onchange="onUploadFileForPpt(this)">
+                        </div>
+                    </div>
+                </div>
 
-        const body = document.getElementById('chatBody');
-        body.innerHTML += `<div class="chat-bubble user-bubble">${message}</div>`;
-        input.value = '';
-        body.scrollTop = body.scrollHeight;
+                <!-- STEP 2: Buat Slide (Matches Screenshot 2) -->
+                <div id="ppt-view-step-2" style="display: none;">
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+                            <div class="project-initial" id="ppt-selected-initial">S</div>
+                            <div>
+                                <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase;" id="ppt-selected-source">SKRIPSI</div>
+                                <div style="font-size: 15.5px; font-weight: 700; color: var(--text-main);" id="ppt-selected-title">-</div>
+                            </div>
+                        </div>
 
-        fetch("{{ route('chat.ask') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ message, model })
-        })
-        .then(r => r.json())
-        .then(d => {
-            body.innerHTML += `<div class="chat-bubble ai-bubble">${d.reply}</div>`;
-            body.scrollTop = body.scrollHeight;
-        });
-    }
+                        <button type="button" id="btn-generate-ppt" class="btn-primary btn-full" onclick="handleGeneratePpt()">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            <span>Buat slide sidang</span>
+                        </button>
 
-    let solverImageBase64 = null;
-    function handleSolverFile(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                solverImageBase64 = e.target.result;
-                const preview = document.getElementById('solverImgPreview');
-                preview.style.backgroundImage = `url(${solverImageBase64})`;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(input.files[0]);
+                        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 12px;">
+                            Sekitar 10–30 detik. Slide disusun dari isi skripsimu, lengkap dengan catatan bicara, dan bisa kamu ubah setelahnya.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- STEP 3 & 4: Rapikan, Edit Tema, & Unduh .PPTX -->
+                <div id="ppt-view-step-3" style="display: none;">
+                    <!-- Toolbar Tema & Download -->
+                    <div class="card" style="padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Tema Slide:</span>
+                            <button type="button" class="theme-dot active" style="background: #1e1b4b;" onclick="setPptTheme('navy', this)" title="Academic Navy"></button>
+                            <button type="button" class="theme-dot" style="background: #ffffff;" onclick="setPptTheme('light', this)" title="Clean White"></button>
+                            <button type="button" class="theme-dot" style="background: #0f172a;" onclick="setPptTheme('slate', this)" title="Modern Slate"></button>
+                            <button type="button" class="theme-dot" style="background: #064e3b;" onclick="setPptTheme('emerald', this)" title="Emerald Campus"></button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
+                            <button type="button" class="btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="downloadPptxFile()">
+                                Unduh PowerPoint (.pptx)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 16:9 Editable PowerPoint Canvas -->
+                    <div id="ppt-canvas-box" class="ppt-canvas ppt-theme-navy">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; opacity: 0.7; font-size: 12px; font-weight: 600; margin-bottom: 14px;">
+                                <span id="slide-section-label" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
+                                <span id="slide-counter-label">Slide 1 / 9</span>
+                            </div>
+                            <h2 id="slide-title-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; outline: none;">Judul Slide</h2>
+                            <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 14px; opacity: 0.8; margin-bottom: 20px; outline: none;">Subjudul</div>
+                            <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="padding-left: 20px; font-size: 15px; line-height: 1.75; outline: none;"></ul>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; margin-top: 24px; border-top: 1px solid rgba(156,163,175,0.25); font-size: 12px; opacity: 0.75;">
+                            <span>Klik teks pada slide untuk mengedit isi secara langsung</span>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" onclick="prevSlide()" style="padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(156,163,175,0.4); background: transparent; color: inherit; cursor: pointer;">← Sebelumnya</button>
+                                <button type="button" onclick="nextSlide()" style="padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(156,163,175,0.4); background: transparent; color: inherit; cursor: pointer;">Selanjutnya →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Bicara Presenter (Editable) -->
+                    <div class="card" style="margin-top: 14px;">
+                        <label class="form-label">Catatan Bicara (Speaker Notes) — bisa diedit</label>
+                        <textarea id="slide-notes-edit" class="form-textarea" style="min-height: 80px;" oninput="syncCurrentSlideEdit()"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 5. TAB SIMULASI SIDANG (PILIH SKRIPSI / UPLOAD PDF -> JAWAB 1-5 -> SKOR & SARAN) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-defense">
+                <h1 class="page-title">Simulasi Sidang</h1>
+                <p class="page-subtitle">Latihan tanya-jawab berdasarkan isi skripsimu, lengkap dengan skor per pertanyaan dan saran jawaban.</p>
+
+                <div class="stepper">
+                    <button type="button" class="step-pill active" id="def-step-btn-1" onclick="setDefenseStep(1)">
+                        <span class="step-num-circle">1</span>
+                        <span>Pilih skripsi</span>
+                    </button>
+                    <button type="button" class="step-pill" id="def-step-btn-2">
+                        <span class="step-num-circle">2</span>
+                        <span>Latihan tanya-jawab</span>
+                    </button>
+                    <button type="button" class="step-pill" id="def-step-btn-3">
+                        <span class="step-num-circle">3</span>
+                        <span>Evaluasi & skor</span>
+                    </button>
+                </div>
+
+                <!-- STEP 1: Pilih Skripsi atau Upload File PDF/DOCX -->
+                <div id="def-view-step-1">
+                    <div class="card-flush" style="margin-bottom: 18px;">
+                        <div class="card-header-bar">
+                            <div>Pilih skripsi untuk diujikan <span class="count-badge">{{ $history->count() }}</span></div>
+                        </div>
+                        @forelse($history as $proj)
+                            <div class="project-row" onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
+                                <div class="project-row-left">
+                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
+                                    <div>
+                                        <div class="project-row-title">{{ $proj->judul }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }}</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 13px; font-weight: 600; color: var(--primary);">Mulai Sidang →</span>
+                            </div>
+                        @empty
+                            <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
+                                Belum ada proyek tersimpan. Unggah file skripsimu di bawah ini untuk memulai simulasi.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="card">
+                        <div class="form-label">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca dokumenmu dan menyusun 5 pertanyaan penguji sesuai isi naskah.</p>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; padding: 8px 12px; font-size: 13px;">
+                            <button type="button" id="btn-start-def-file" class="btn-primary" onclick="startDefenseWithFile()">Mulai Simulasi →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Jawab Pertanyaan Satu per Satu -->
+                <div id="def-view-step-2" style="display: none;">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 12.5px; font-weight: 600; color: var(--primary);" id="def-q-category">Bab I · Urgensi Penelitian</span>
+                            <span style="font-size: 12.5px; color: var(--text-muted);" id="def-q-counter">Pertanyaan 1 dari 5</span>
+                        </div>
+
+                        <h3 id="def-q-text" style="font-size: 17px; font-weight: 600; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">-</h3>
+
+                        <div id="def-q-hint" style="padding: 10px 14px; background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: 9px; font-size: 13px; color: var(--text-secondary); margin-bottom: 18px;"></div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Jawabanmu</label>
+                            <textarea id="def-answer-input" class="form-textarea" placeholder="Ketik jawaban argumen sidangmu di sini..."></textarea>
+                        </div>
+
+                        <div class="card-footer-bar">
+                            <span class="footer-meta" id="def-progress-label">JAWAB SATU PER SATU</span>
+                            <button type="button" id="btn-next-def-q" class="btn-primary" onclick="submitDefenseAnswer()">Simpan & Pertanyaan Berikutnya →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Hasil Evaluasi (Ringkasan | Detail Jawaban | Saran + Skor per Pertanyaan) -->
+                <div id="def-view-step-3" style="display: none;">
+                    <div class="card" style="margin-bottom: 18px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
+                            <div>
+                                <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">HASIL SIMULASI SIDANG</div>
+                                <h3 id="def-eval-verdict" style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 2px;">-</h3>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="def-eval-score">0.0/10</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Rata-rata Skor Jawaban</div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-tabs: Ringkasan | Detail Jawaban | Saran -->
+                        <div style="display: flex; gap: 8px; margin: 16px 0; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+                            <button type="button" class="btn-outline" id="eval-tab-summary" style="background: var(--bg-muted); font-weight: 600;" onclick="switchEvalSubtab('summary')">Ringkasan</button>
+                            <button type="button" class="btn-outline" id="eval-tab-details" onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
+                        </div>
+
+                        <!-- Subtab 1: Ringkasan & Skor per Pertanyaan (Matches Screenshot 1) -->
+                        <div id="eval-pane-summary">
+                            <p id="def-eval-summary" style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 20px;"></p>
+                            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">SKOR PER PERTANYAAN</div>
+                            <div id="def-score-bars"></div>
+                        </div>
+
+                        <!-- Subtab 2: Detail Jawaban & Saran Jawaban Terbaik -->
+                        <div id="eval-pane-details" style="display: none;">
+                            <div id="def-details-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 6. TAB CARI JURNAL & DOWNLOAD PDF ASLI -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-journals">
+                <div class="page-eyebrow">Referensi Ilmiah Open-Access</div>
+                <h1 class="page-title">Cari Jurnal & Unduh PDF Asli</h1>
+                <p class="page-subtitle">Temukan jurnal penelitian relevan lengkap dengan tautan unduh PDF asli (Open-Access / DOI) serta format sitasi Daftar Pustaka APA.</p>
+
+                <div class="card">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Kata Kunci / Variabel Penelitian <span class="req">*</span></label>
+                        <input type="text" id="journal-keyword" class="form-input" placeholder="cth: pengaruh beban kerja terhadap kinerja karyawan, klasifikasi citra random forest...">
+                    </div>
+
+                    <div class="card-footer-bar">
+                        <span class="footer-meta">TERHUBUNG DATABASE OPENALEX & GOOGLE SCHOLAR PDF</span>
+                        <button type="button" id="btn-find-journals" class="btn-primary" onclick="handleFindJournals()">Cari Jurnal →</button>
+                    </div>
+                </div>
+
+                <div id="journals-result-box" style="display: none; margin-top: 20px;" class="card-flush">
+                    <div class="card-header-bar">
+                        <span>Hasil Pencarian Jurnal</span>
+                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
+                    </div>
+                    <div id="journals-list"></div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 7. TAB PARAFRASE ONLINE -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-paraphrase">
+                <div class="page-eyebrow">Penulisan Akademik</div>
+                <h1 class="page-title">Parafrase Online</h1>
+                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah KBBI & EYD V tanpa menghilangkan sitasi.</p>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Gaya Parafrase</label>
+                        <select id="para-style" class="form-select">
+                            <option value="academic">Akademik Standar (Bahasa Baku Skripsi)</option>
+                            <option value="natural">Ubah Struktur Kalimat (Turunkan Kemiripan Turnitin)</option>
+                            <option value="concise">Ringkas & Padat</option>
+                            <option value="expand">Perluas Penjelasan Ilmiah</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Teks Asli <span class="req">*</span></label>
+                        <textarea id="para-input" class="form-textarea" placeholder="Tempelkan paragraf yang ingin diparafrase di sini..."></textarea>
+                    </div>
+
+                    <div class="card-footer-bar">
+                        <span class="footer-meta">SITASI DALAM KURUNG TETAP DIPERTAHANKAN</span>
+                        <button type="button" id="btn-paraphrase" class="btn-primary" onclick="handleParaphrase()">Parafrase Sekarang →</button>
+                    </div>
+                </div>
+
+                <div id="para-result-card" class="card" style="display: none; margin-top: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span class="form-label" style="margin-bottom: 0;">Hasil Parafrase</span>
+                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="navigator.clipboard.writeText(document.getElementById('para-output').innerText); alert('Hasil parafrase disalin!');">Salin Teks</button>
+                    </div>
+                    <div id="para-output" style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;"></div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 8. TAB DISKUSI & TUGAS KULIAH -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-qa">
+                <div class="page-eyebrow">Asisten Materi</div>
+                <h1 class="page-title">Diskusi Skripsi & Tugas Kuliah</h1>
+                <p class="page-subtitle">Tanyakan konsep teori, pengolahan data statistik, atau unggah foto soal untuk dibahas secara bertahap.</p>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Pertanyaan atau Instruksi <span class="req">*</span></label>
+                        <textarea id="qa-question" class="form-textarea" placeholder="Tulis pertanyaanmu di sini..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Lampiran Gambar Soal / Tabel <span class="opt">(opsional)</span></label>
+                        <input type="file" id="qa-image" class="form-input" accept="image/*" style="padding: 8px 12px; font-size: 13px;">
+                    </div>
+                    <div class="card-footer-bar">
+                        <span class="footer-meta">PENJELASAN SISTEMATIS</span>
+                        <button type="button" id="btn-solve-qa" class="btn-primary" onclick="handleSolveQa()">Kirim Pertanyaan →</button>
+                    </div>
+                </div>
+
+                <div id="qa-result-card" class="card" style="display: none; margin-top: 18px;">
+                    <div class="form-label">Jawaban & Pembahasan</div>
+                    <div id="qa-output" style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;"></div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 9. TAB PENGATURAN API KEY -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-apikeys">
+                <div class="page-eyebrow">Konfigurasi</div>
+                <h1 class="page-title">Pengaturan API Key</h1>
+                <p class="page-subtitle">Tambahkan API Key Google Gemini (`AIza...`) atau Groq (`gsk_...`) milikmu sendiri untuk kecepatan akses penuh.</p>
+
+                <div class="card" style="margin-bottom: 20px;">
+                    <form action="{{ route('api.key.add') }}" method="POST">
+                        @csrf
+                        <div class="form-row" style="margin-bottom: 0;">
+                            <div>
+                                <label class="form-label">Provider AI</label>
+                                <select name="provider" class="form-select">
+                                    <option value="gemini">Google Gemini (AI Studio)</option>
+                                    <option value="groq">Groq Cloud (Llama 3.3)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">API Key <span class="req">*</span></label>
+                                <input type="text" name="key" class="form-input" placeholder="Tempelkan API Key (AIza... atau gsk_...)" required>
+                            </div>
+                        </div>
+                        <div class="card-footer-bar">
+                            <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY</span>
+                            <button type="submit" class="btn-primary">Simpan API Key</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-flush">
+                    <div class="card-header-bar">
+                        <span>Daftar API Key Tersimpan <span class="count-badge">{{ count($apiKeys) }}</span></span>
+                    </div>
+                    @forelse($apiKeys as $k)
+                        <div class="project-row" style="cursor: default;">
+                            <div>
+                                <div class="project-row-title">{{ substr($k->key, 0, 10) }}••••••••••••</div>
+                                <div class="project-row-meta">Digunakan {{ $k->usage_count ?? 0 }}x</div>
+                            </div>
+                            <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-outline" style="color: #dc2626; padding: 5px 10px; font-size: 12px;">Hapus</button>
+                            </form>
+                        </div>
+                    @empty
+                        <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
+                            Belum ada API Key pribadi. Sistem saat ini menggunakan server cadangan otomatis.
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        function getSelectedModel() {
+            return document.getElementById('global-model').value || 'auto';
         }
-    }
 
-    function clearSolverImage() {
-        solverImageBase64 = null;
-        document.getElementById('solverFileInput').value = "";
-        document.getElementById('solverImgPreview').style.display = 'none';
-    }
-
-    function sendSolver() {
-        const txt = document.getElementById('solverInput').value.trim();
-        const model = document.getElementById('globalAiModel').value;
-        const bodyChat = document.getElementById('solverChatBody');
-
-        if (!txt && !solverImageBase64) return Swal.fire('Info', 'Ketik pertanyaan atau upload gambar soal.', 'warning');
-
-        let userHtml = `<div class="bubble-solver bubble-user-solver">`;
-        if (solverImageBase64) userHtml += `<img src="${solverImageBase64}" style="max-height:110px; border-radius:8px; display:block; margin-bottom:6px;">`;
-        userHtml += `${txt}</div>`;
-        bodyChat.innerHTML += userHtml;
-
-        const loadingId = 'load-' + Date.now();
-        bodyChat.innerHTML += `<div id="${loadingId}" class="bubble-solver bubble-ai-solver"><i class="fas fa-spinner fa-spin me-2"></i> Menganalisis jawaban...</div>`;
-        bodyChat.scrollTop = bodyChat.scrollHeight;
-
-        const imgToSend = solverImageBase64;
-        document.getElementById('solverInput').value = '';
-        clearSolverImage();
-
-        fetch("{{ route('tools.solve') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify({ question: txt || "Jelaskan dan selesaikan soal pada gambar ini", image: imgToSend, model })
-        })
-        .then(r => r.json())
-        .then(res => {
-            const loader = document.getElementById(loadingId);
-            if (loader) loader.remove();
-            if (res.status === 'success') {
-                bodyChat.innerHTML += `<div class="bubble-solver bubble-ai-solver">${marked.parse(res.answer)}</div>`;
-                document.getElementById('creditDisplay').innerText = res.new_credits;
-                if (window.MathJax) MathJax.typesetPromise([bodyChat]);
-            } else {
-                bodyChat.innerHTML += `<div class="bubble-solver bubble-ai-solver text-danger">Error: ${res.message}</div>`;
+        function updateCredits(val) {
+            if (val !== undefined && val !== null) {
+                document.getElementById('credit-count').innerText = val;
             }
-            bodyChat.scrollTop = bodyChat.scrollHeight;
-        });
-    }
-</script>
+        }
+
+        function openTab(tabId, label) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            const pane = document.getElementById('pane-' + tabId);
+            if (pane) pane.classList.add('active');
+
+            const navBtn = document.getElementById('nav-' + tabId);
+            if (navBtn) navBtn.classList.add('active');
+
+            if (label) {
+                document.getElementById('breadcrumb-label').innerText = label;
+            }
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        // Buka tab sesuai parameter URL ?tab=...
+        (function initTabFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            const map = {
+                'dashboard': 'Dashboard',
+                'projects': 'Proyek Skripsi',
+                'skripsi': 'Proyek Skripsi',
+                'proposal': 'Proyek Skripsi',
+                'titles': 'Cari Judul',
+                'ppt': 'PPT Sidang',
+                'defense': 'Simulasi Sidang',
+                'journals': 'Cari Jurnal',
+                'paraphrase': 'Parafrase',
+                'qa': 'Diskusi & Tugas',
+                'apikeys': 'Pengaturan API'
+            };
+            if (tab && map[tab]) {
+                const target = (tab === 'skripsi' || tab === 'proposal') ? 'projects' : tab;
+                openTab(target, map[tab]);
+            }
+        })();
+
+        async function claimFreeTokens() {
+            try {
+                const res = await fetch("{{ route('reward.claim') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ type: 'share' })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateCredits(data.new_credits);
+                    alert(data.message);
+                }
+            } catch (e) {}
+        }
+
+        // =====================================================================
+        // 1. CARI JUDUL SKRIPSI
+        // =====================================================================
+        async function handleFindTitles() {
+            const topik = document.getElementById('title-topik').value.trim();
+            const metode = document.getElementById('title-metode').value;
+            const prodi = document.getElementById('title-prodi').value.trim();
+
+            if (!topik) {
+                alert('Silakan isi Topik atau Bidang Penelitian terlebih dahulu.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-find-titles');
+            btn.disabled = true;
+            btn.innerText = 'Mencari Judul...';
+
+            try {
+                const res = await fetch("{{ route('tools.titles') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ topik, metode, prodi: prodi || topik, model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateCredits(data.new_credits);
+                    const list = document.getElementById('titles-list');
+                    list.innerHTML = '';
+                    (data.data || []).forEach((t, i) => {
+                        const row = document.createElement('div');
+                        row.className = 'project-row';
+                        row.style.cursor = 'default';
+                        row.innerHTML = `
+                            <div class="project-row-left" style="flex:1; padding-right:12px;">
+                                <div class="project-initial">${i + 1}</div>
+                                <div class="project-row-title">${t}</div>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="useTitleForProject('${t.replace(/'/g, "\\'")}', '${prodi.replace(/'/g, "\\'")}')">Gunakan Judul →</button>
+                        `;
+                        list.appendChild(row);
+                    });
+                    document.getElementById('titles-result-box').style.display = 'block';
+                } else {
+                    alert(data.message || 'Gagal mencari judul.');
+                }
+            } catch (e) {
+                alert('Terjadi kesalahan koneksi.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Temukan Judul →';
+            }
+        }
+
+        function useTitleForProject(judul, prodi) {
+            document.getElementById('input-project-judul').value = judul;
+            if (prodi) document.getElementById('input-project-prodi').value = prodi;
+            openTab('projects', 'Proyek Skripsi');
+        }
+
+        // =====================================================================
+        // 2. PPT SIDANG (4-STEP WORKFLOW + LIVE PPTX EXPORT)
+        // =====================================================================
+        let selectedPptProject = { id: null, title: '' };
+        let pptSlides = [];
+        let currentSlideIdx = 0;
+        let currentPptTheme = 'navy';
+
+        function setPptStep(step) {
+            [1, 2, 3].forEach(s => {
+                const view = document.getElementById('ppt-view-step-' + s);
+                if (view) view.style.display = (s === step) ? 'block' : 'none';
+            });
+            [1, 2, 3, 4].forEach(s => {
+                const pill = document.getElementById('ppt-step-btn-' + s);
+                if (pill) pill.classList.toggle('active', s === step);
+            });
+        }
+
+        function chooseProjectForPpt(id, title) {
+            selectedPptProject = { id, title };
+            document.getElementById('ppt-selected-initial').innerText = title.charAt(0).toUpperCase();
+            document.getElementById('ppt-selected-source').innerText = 'SKRIPSI';
+            document.getElementById('ppt-selected-title').innerText = title;
+            setPptStep(2);
+        }
+
+        function onUploadFileForPpt(input) {
+            if (input.files && input.files[0]) {
+                const fname = input.files[0].name;
+                selectedPptProject = { id: null, title: fname.replace(/\.[^/.]+$/, '') };
+                document.getElementById('ppt-selected-initial').innerText = 'F';
+                document.getElementById('ppt-selected-source').innerText = 'DOKUMEN UNGGAHAN';
+                document.getElementById('ppt-selected-title').innerText = fname;
+                setPptStep(2);
+            }
+        }
+
+        async function handleGeneratePpt() {
+            const btn = document.getElementById('btn-generate-ppt');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Menyusun 9 Slide Presentasi...</span>';
+
+            const formData = new FormData();
+            formData.append('model', getSelectedModel());
+            if (selectedPptProject.id) {
+                formData.append('project_id', selectedPptProject.id);
+                formData.append('judul', selectedPptProject.title);
+            } else {
+                const fileInput = document.getElementById('ppt-file-input');
+                if (fileInput.files.length > 0) {
+                    formData.append('file_skripsi', fileInput.files[0]);
+                }
+                formData.append('judul', selectedPptProject.title);
+            }
+
+            try {
+                const res = await fetch("{{ route('tools.ppt') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.status === 'success' && Array.isArray(data.slides_data)) {
+                    updateCredits(data.new_credits);
+                    pptSlides = data.slides_data;
+                    currentSlideIdx = 0;
+                    renderCurrentSlide();
+                    setPptStep(3);
+                } else {
+                    alert(data.message || 'Gagal menyusun slide.');
+                }
+            } catch (e) {
+                alert('Gagal menyusun slide PPT.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Buat slide sidang</span>';
+            }
+        }
+
+        function renderCurrentSlide() {
+            if (!pptSlides.length) return;
+            const s = pptSlides[currentSlideIdx];
+            document.getElementById('slide-section-label').innerText = s.section || ('Slide ' + (currentSlideIdx + 1));
+            document.getElementById('slide-counter-label').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
+            document.getElementById('slide-title-edit').innerText = s.title || '';
+            document.getElementById('slide-subtitle-edit').innerText = s.subtitle || '';
+
+            const ul = document.getElementById('slide-bullets-edit');
+            ul.innerHTML = '';
+            (s.bullets || []).forEach(b => {
+                const li = document.createElement('li');
+                li.innerText = b;
+                li.style.marginBottom = '6px';
+                ul.appendChild(li);
+            });
+
+            document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
+        }
+
+        function syncCurrentSlideEdit() {
+            if (!pptSlides.length) return;
+            const s = pptSlides[currentSlideIdx];
+            s.section = document.getElementById('slide-section-label').innerText.trim();
+            s.title = document.getElementById('slide-title-edit').innerText.trim();
+            s.subtitle = document.getElementById('slide-subtitle-edit').innerText.trim();
+            const bullets = [];
+            document.querySelectorAll('#slide-bullets-edit li').forEach(li => {
+                if (li.innerText.trim()) bullets.push(li.innerText.trim());
+            });
+            if (bullets.length) s.bullets = bullets;
+            s.speaker_notes = document.getElementById('slide-notes-edit').value;
+        }
+
+        function prevSlide() {
+            syncCurrentSlideEdit();
+            if (currentSlideIdx > 0) {
+                currentSlideIdx--;
+                renderCurrentSlide();
+            }
+        }
+
+        function nextSlide() {
+            syncCurrentSlideEdit();
+            if (currentSlideIdx < pptSlides.length - 1) {
+                currentSlideIdx++;
+                renderCurrentSlide();
+            }
+        }
+
+        function addNewSlide() {
+            syncCurrentSlideEdit();
+            pptSlides.push({
+                slide_number: pptSlides.length + 1,
+                section: 'Slide Tambahan',
+                title: 'Judul Slide Baru (Klik untuk Edit)',
+                subtitle: 'Subjudul atau Poin Utama',
+                bullets: ['Poin penjelasan pertama', 'Poin penjelasan kedua', 'Poin penjelasan ketiga'],
+                speaker_notes: 'Catatan bicara untuk slide ini...'
+            });
+            currentSlideIdx = pptSlides.length - 1;
+            renderCurrentSlide();
+        }
+
+        function setPptTheme(theme, btn) {
+            currentPptTheme = theme;
+            const box = document.getElementById('ppt-canvas-box');
+            box.className = 'ppt-canvas ppt-theme-' + theme;
+            document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function downloadPptxFile() {
+            syncCurrentSlideEdit();
+            if (!pptSlides.length) return;
+
+            const pptx = new PptxGenJS();
+            pptx.layout = 'LAYOUT_16x9';
+
+            const palettes = {
+                navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE' },
+                light: { bg: 'FFFFFF', fg: '111827', sub: '4B5563' },
+                slate: { bg: '0F172A', fg: 'F8FAFC', sub: '94A3B8' },
+                emerald: { bg: '064E3B', fg: 'ECFDF5', sub: 'A7F3D0' }
+            };
+            const pal = palettes[currentPptTheme] || palettes.navy;
+
+            pptSlides.forEach((s, idx) => {
+                const slide = pptx.addSlide();
+                slide.background = { color: pal.bg };
+
+                slide.addText(s.section || `Slide ${idx + 1}`, {
+                    x: 0.6, y: 0.4, w: 8.5, h: 0.35,
+                    fontSize: 11, bold: true, color: pal.sub
+                });
+
+                slide.addText(s.title || '', {
+                    x: 0.6, y: 0.85, w: 8.8, h: 0.9,
+                    fontSize: 22, bold: true, color: pal.fg
+                });
+
+                if (s.subtitle) {
+                    slide.addText(s.subtitle, {
+                        x: 0.6, y: 1.75, w: 8.8, h: 0.4,
+                        fontSize: 13, color: pal.sub
+                    });
+                }
+
+                const bulletItems = (s.bullets || []).map(b => ({ text: b, options: { bullet: true, breakLine: true } }));
+                if (bulletItems.length) {
+                    slide.addText(bulletItems, {
+                        x: 0.6, y: 2.3, w: 8.8, h: 2.6,
+                        fontSize: 14, color: pal.fg, lineSpacing: 24, valign: 'top'
+                    });
+                }
+
+                if (s.speaker_notes) {
+                    slide.addNotes(s.speaker_notes);
+                }
+            });
+
+            pptx.writeFile({ fileName: 'Slide_Sidang_SkripsiAI.pptx' });
+        }
+
+        // =====================================================================
+        // 3. SIMULASI SIDANG (PILIH SKRIPSI / UPLOAD FILE -> 5 SOAL -> SKOR & SARAN)
+        // =====================================================================
+        let defenseTitle = '';
+        let defenseQuestions = [];
+        let defenseAnswers = [];
+        let defCurrentIdx = 0;
+
+        function setDefenseStep(step) {
+            [1, 2, 3].forEach(s => {
+                const v = document.getElementById('def-view-step-' + s);
+                if (v) v.style.display = (s === step) ? 'block' : 'none';
+                const p = document.getElementById('def-step-btn-' + s);
+                if (p) p.classList.toggle('active', s === step);
+            });
+        }
+
+        async function startDefenseWithProject(projectId, title) {
+            defenseTitle = title;
+            const formData = new FormData();
+            formData.append('mode', 'generate_questions');
+            formData.append('project_id', projectId);
+            formData.append('judul', title);
+            formData.append('model', getSelectedModel());
+            await requestDefenseQuestions(formData);
+        }
+
+        async function startDefenseWithFile() {
+            const fileInput = document.getElementById('def-file-input');
+            if (!fileInput.files.length) {
+                alert('Pilih file skripsi (.pdf / .docx) terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-start-def-file');
+            btn.disabled = true;
+            btn.innerText = 'Membuat Pertanyaan...';
+
+            const formData = new FormData();
+            formData.append('mode', 'generate_questions');
+            formData.append('file_skripsi', fileInput.files[0]);
+            formData.append('model', getSelectedModel());
+
+            await requestDefenseQuestions(formData);
+            btn.disabled = false;
+            btn.innerText = 'Mulai Simulasi →';
+        }
+
+        async function requestDefenseQuestions(formData) {
+            try {
+                const res = await fetch("{{ route('tools.defense') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.status === 'success' && Array.isArray(data.questions)) {
+                    updateCredits(data.new_credits);
+                    defenseTitle = data.title || defenseTitle;
+                    defenseQuestions = data.questions;
+                    defenseAnswers = [];
+                    defCurrentIdx = 0;
+                    renderDefenseQuestion();
+                    setDefenseStep(2);
+                } else {
+                    alert(data.message || 'Gagal menyiapkan pertanyaan sidang.');
+                }
+            } catch (e) {
+                alert('Terjadi kesalahan saat memulai simulasi sidang.');
+            }
+        }
+
+        function renderDefenseQuestion() {
+            const q = defenseQuestions[defCurrentIdx];
+            document.getElementById('def-q-category').innerText = q.category || 'Pertanyaan Penguji';
+            document.getElementById('def-q-counter').innerText = `Pertanyaan ${defCurrentIdx + 1} dari ${defenseQuestions.length}`;
+            document.getElementById('def-q-text').innerText = q.question || '';
+            document.getElementById('def-q-hint').innerText = 'Kisi-kisi: ' + (q.hint || 'Jawab secara sistematis sesuai kerangka penelitian Anda.');
+            document.getElementById('def-answer-input').value = '';
+
+            const btn = document.getElementById('btn-next-def-q');
+            btn.innerText = (defCurrentIdx === defenseQuestions.length - 1)
+                ? 'Selesai & Lihat Skor Evaluasi →'
+                : 'Simpan & Pertanyaan Berikutnya →';
+        }
+
+        async function submitDefenseAnswer() {
+            const ans = document.getElementById('def-answer-input').value.trim();
+            if (!ans) {
+                alert('Silakan isi jawabanmu terlebih dahulu.');
+                return;
+            }
+
+            defenseAnswers.push({
+                question: defenseQuestions[defCurrentIdx].question,
+                answer: ans
+            });
+
+            if (defCurrentIdx < defenseQuestions.length - 1) {
+                defCurrentIdx++;
+                renderDefenseQuestion();
+                return;
+            }
+
+            // Semua pertanyaan selesai -> Evaluasi Akhir
+            const btn = document.getElementById('btn-next-def-q');
+            btn.disabled = true;
+            btn.innerText = 'Mengevaluasi Seluruh Jawaban...';
+
+            try {
+                const res = await fetch("{{ route('tools.defense') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        mode: 'evaluate_all',
+                        judul: defenseTitle,
+                        qa_list: defenseAnswers,
+                        model: getSelectedModel()
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.evaluation) {
+                    updateCredits(data.new_credits);
+                    renderDefenseEvaluation(data.evaluation);
+                    setDefenseStep(3);
+                } else {
+                    alert(data.message || 'Gagal mengevaluasi jawaban.');
+                }
+            } catch (e) {
+                alert('Gagal mengevaluasi sesi sidang.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function renderDefenseEvaluation(ev) {
+            document.getElementById('def-eval-verdict').innerText = ev.verdict || 'Evaluasi Selesai';
+            document.getElementById('def-eval-score').innerText = (ev.overall_score || 7.8) + '/10';
+            document.getElementById('def-eval-summary').innerText = ev.summary || '';
+
+            const bars = document.getElementById('def-score-bars');
+            bars.innerHTML = '';
+            const details = document.getElementById('def-details-list');
+            details.innerHTML = '';
+
+            (ev.items || []).forEach((item, i) => {
+                const sc = parseFloat(item.score || 7.5);
+                const pct = Math.min(100, Math.max(10, sc * 10));
+
+                bars.innerHTML += `
+                    <div class="score-row">
+                        <div class="score-row-top">
+                            <span>Pertanyaan ${i + 1}</span>
+                            <span style="color: var(--primary); font-weight: 700;">${sc}/10</span>
+                        </div>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill" style="width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+
+                details.innerHTML += `
+                    <div style="padding: 16px; border: 1px solid var(--border); border-radius: 11px;">
+                        <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--primary); margin-bottom:6px;">
+                            <span>Pertanyaan ${i + 1}</span>
+                            <span>Skor: ${sc}/10</span>
+                        </div>
+                        <div style="font-size:14px; font-weight:600; margin-bottom:8px;">${item.question}</div>
+                        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Jawabanmu:</strong> ${item.student_answer}</div>
+                        <div style="font-size:13px; color:var(--text-main); margin-bottom:10px;"><strong>Evaluasi Penguji:</strong> ${item.feedback}</div>
+                        <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px; font-size:13px; color:var(--text-main);">
+                            <strong>Saran Jawaban Terbaik:</strong><br>${item.better_answer}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function switchEvalSubtab(sub) {
+            document.getElementById('eval-pane-summary').style.display = (sub === 'summary') ? 'block' : 'none';
+            document.getElementById('eval-pane-details').style.display = (sub === 'details') ? 'block' : 'none';
+            document.getElementById('eval-tab-summary').style.background = (sub === 'summary') ? 'var(--bg-muted)' : '#fff';
+            document.getElementById('eval-tab-details').style.background = (sub === 'details') ? 'var(--bg-muted)' : '#fff';
+        }
+
+        // =====================================================================
+        // 4. CARI JURNAL & DOWNLOAD PDF ASLI
+        // =====================================================================
+        let lastJournals = [];
+
+        async function handleFindJournals() {
+            const keyword = document.getElementById('journal-keyword').value.trim();
+            if (!keyword) {
+                alert('Masukkan kata kunci atau topik penelitian.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-find-journals');
+            btn.disabled = true;
+            btn.innerText = 'Mencari Jurnal...';
+
+            try {
+                const res = await fetch("{{ route('tools.journals') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ keyword, model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateCredits(data.new_credits);
+                    lastJournals = data.data || [];
+                    const list = document.getElementById('journals-list');
+                    list.innerHTML = '';
+
+                    lastJournals.forEach((j, idx) => {
+                        const row = document.createElement('div');
+                        row.className = 'project-row';
+                        row.style.cursor = 'default';
+                        row.style.alignItems = 'flex-start';
+                        row.innerHTML = `
+                            <div class="project-row-left" style="flex:1; padding-right:14px; align-items:flex-start;">
+                                <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
+                                <div>
+                                    <div class="project-row-title">${j.title}</div>
+                                    <div class="project-row-meta">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
+                                    <div style="font-size:12px; color:var(--text-muted); margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px;">
+                                        Sitasi APA: ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:6px; flex-shrink:0;">
+                                <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12.5px;">Unduh PDF Asli ↗</a>
+                            </div>
+                        `;
+                        list.appendChild(row);
+                    });
+
+                    document.getElementById('journals-result-box').style.display = 'block';
+                } else {
+                    alert(data.message || 'Gagal mencari jurnal.');
+                }
+            } catch (e) {
+                alert('Terjadi kesalahan saat mencari jurnal.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Cari Jurnal →';
+            }
+        }
+
+        function downloadJournalListTxt() {
+            if (!lastJournals.length) return;
+            const lines = lastJournals.map((j, i) => `${i + 1}. ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}\n   Link PDF: ${j.pdf_url}`).join('\n\n');
+            const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Daftar_Jurnal_Referensi.txt';
+            a.click();
+        }
+
+        // =====================================================================
+        // 5. PARAFRASE & DISKUSI
+        // =====================================================================
+        async function handleParaphrase() {
+            const text = document.getElementById('para-input').value.trim();
+            const style = document.getElementById('para-style').value;
+            if (text.length < 15) {
+                alert('Masukkan minimal 1 kalimat lengkap untuk diparafrase.');
+                return;
+            }
+            const btn = document.getElementById('btn-paraphrase');
+            btn.disabled = true;
+            btn.innerText = 'Memproses...';
+
+            try {
+                const res = await fetch("{{ route('tools.paraphrase') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ text, style, model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateCredits(data.new_credits);
+                    document.getElementById('para-output').innerText = data.result;
+                    document.getElementById('para-result-card').style.display = 'block';
+                } else {
+                    alert(data.message || 'Gagal memproses parafrase.');
+                }
+            } catch (e) {
+                alert('Gagal memproses parafrase.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Parafrase Sekarang →';
+            }
+        }
+
+        async function handleSolveQa() {
+            const question = document.getElementById('qa-question').value.trim();
+            if (!question) {
+                alert('Tuliskan pertanyaan terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-solve-qa');
+            btn.disabled = true;
+            btn.innerText = 'Memproses...';
+
+            let imageBase64 = null;
+            const imgInput = document.getElementById('qa-image');
+            if (imgInput.files && imgInput.files[0]) {
+                imageBase64 = await new Promise(resolve => {
+                    const r = new FileReader();
+                    r.onload = e => resolve(e.target.result);
+                    r.readAsDataURL(imgInput.files[0]);
+                });
+            }
+
+            try {
+                const res = await fetch("{{ route('tools.solve') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ question, image: imageBase64, model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateCredits(data.new_credits);
+                    document.getElementById('qa-output').innerText = data.answer;
+                    document.getElementById('qa-result-card').style.display = 'block';
+                } else {
+                    alert(data.message || 'Gagal memproses pertanyaan.');
+                }
+            } catch (e) {
+                alert('Gagal memproses pertanyaan.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kirim Pertanyaan →';
+            }
+        }
+    </script>
 </body>
 </html>

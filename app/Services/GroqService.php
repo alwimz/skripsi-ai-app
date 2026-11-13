@@ -19,7 +19,7 @@ class GroqService
         $keys = [];
         try {
             $dbKeys = DB::table('api_keys')
-                ->where('provider', 'groq')
+                ->where('key', 'like', 'gsk_%')
                 ->where('is_active', true)
                 ->orderBy('usage_count', 'asc')
                 ->pluck('key')
@@ -31,7 +31,7 @@ class GroqService
 
         $envKey = config('services.groq.key') ?: env('GROQ_API_KEY');
         if (!empty($envKey)) {
-            $keys[] = $envKey;
+            $keys[] = trim($envKey);
         }
 
         return array_values(array_unique(array_filter($keys)));
@@ -42,7 +42,7 @@ class GroqService
         $keys = $this->getApiKeys();
 
         if (empty($keys)) {
-            throw new Exception('API Key Gratis belum diatur. Silakan tambahkan API Key Gemini atau Groq di menu "Atur API Key" atau di file .env (GEMINI_API_KEY / GROQ_API_KEY).');
+            throw new Exception('API Key Groq belum diatur.');
         }
 
         $lastError = '';
@@ -51,7 +51,7 @@ class GroqService
             foreach ($this->models as $model) {
                 try {
                     $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . $apiKey,
+                        'Authorization' => 'Bearer ' . trim($apiKey),
                         'Content-Type'  => 'application/json',
                     ])
                     ->timeout(90)
@@ -79,6 +79,11 @@ class GroqService
                     }
 
                     $lastError = 'HTTP ' . $response->status() . ': ' . $response->body();
+
+                    // Jika 401 (key kadaluarsa), langsung lanjut ke key berikutnya tanpa mencoba model lain pada key yang sama
+                    if ($response->status() === 401) {
+                        break;
+                    }
                 } catch (Exception $e) {
                     $lastError = $e->getMessage();
                 }

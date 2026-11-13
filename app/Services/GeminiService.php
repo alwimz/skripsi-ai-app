@@ -13,17 +13,18 @@ class GeminiService
 {
     private array $fallbackModels = [
         'gemini-2.0-flash',
+        'gemini-2.5-flash',
         'gemini-1.5-flash',
         'gemini-1.5-pro',
     ];
 
     /**
-     * Ambil API key aktif khusus provider 'gemini' (atau fallback ke .env GEMINI_API_KEY)
+     * Ambil API key aktif khusus Gemini (key diawali 'AIza') atau fallback ke .env GEMINI_API_KEY
      */
     private function getWorkingApiKey(array $excludedIds = []): ?object
     {
         try {
-            $query = ApiKey::where('provider', 'gemini')->where('is_active', true);
+            $query = ApiKey::where('key', 'like', 'AIza%')->where('is_active', true);
 
             if (!empty($excludedIds)) {
                 $query->whereNotIn('id', $excludedIds);
@@ -32,15 +33,16 @@ class GeminiService
             $key = $query->orderBy('usage_count', 'asc')->first();
 
             if (!$key) {
-                $totalActive = ApiKey::where('provider', 'gemini')->where('is_active', true)->count();
-
-                if ($totalActive > 0 && count($excludedIds) >= $totalActive) {
-                    return ApiKey::where('provider', 'gemini')->where('is_active', true)->inRandomOrder()->first();
-                }
-
-                if ($totalActive === 0 && ApiKey::where('provider', 'gemini')->count() > 0) {
-                    ApiKey::where('provider', 'gemini')->update(['is_active' => true]);
-                    return ApiKey::where('provider', 'gemini')->where('is_active', true)->orderBy('usage_count', 'asc')->first();
+                $totalGemini = ApiKey::where('key', 'like', 'AIza%')->count();
+                if ($totalGemini > 0) {
+                    // Re-aktifkan key Gemini jika sebelumnya terkena limit sementara
+                    ApiKey::where('key', 'like', 'AIza%')->update(['is_active' => true]);
+                    $retryQuery = ApiKey::where('key', 'like', 'AIza%')->where('is_active', true);
+                    if (!empty($excludedIds)) {
+                        $retryQuery->whereNotIn('id', $excludedIds);
+                    }
+                    $key = $retryQuery->orderBy('usage_count', 'asc')->first()
+                        ?: ApiKey::where('key', 'like', 'AIza%')->inRandomOrder()->first();
                 }
             }
 
@@ -48,15 +50,14 @@ class GeminiService
                 return $key;
             }
         } catch (Exception $e) {
-            Log::warning('DB ApiKey lookup skipped: ' . $e->getMessage());
+            Log::warning('DB ApiKey Gemini lookup skipped: ' . $e->getMessage());
         }
 
-        // Fallback ke .env GEMINI_API_KEY untuk tahap build / gratisan
         $envKey = config('services.gemini.key') ?: env('GEMINI_API_KEY');
         if (!empty($envKey)) {
             return (object) [
                 'id' => 0,
-                'key' => $envKey,
+                'key' => trim($envKey),
                 'is_env' => true,
             ];
         }
@@ -71,10 +72,10 @@ class GeminiService
     {
         $totalKeys = 0;
         try {
-            $totalKeys = ApiKey::where('provider', 'gemini')->where('is_active', true)->count();
+            $totalKeys = ApiKey::where('key', 'like', 'AIza%')->count();
         } catch (Exception $e) {}
 
-        $maxRetries = $totalKeys > 0 ? $totalKeys + 2 : 3;
+        $maxRetries = max($totalKeys + 2, 3);
         $excludedIds = [];
         $lastError = '';
         $modelIndex = 0;
@@ -86,7 +87,7 @@ class GeminiService
                 $apiKeyModel = $this->getWorkingApiKey($excludedIds);
 
                 if (!$apiKeyModel) {
-                    throw new Exception('API Key Gemini belum diatur di menu API Key maupun di .env (GEMINI_API_KEY).');
+                    throw new Exception('API Key Gemini belum tersedia.');
                 }
 
                 $client = new Client([
@@ -98,11 +99,11 @@ class GeminiService
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
                 if ($attempt > 1) {
-                    usleep(400000);
+                    usleep(300000);
                 }
 
                 $response = $client->post($url, [
-                    'query' => ['key' => $apiKeyModel->key],
+                    'query' => ['key' => trim($apiKeyModel->key)],
                     'json' => [
                         'contents' => [
                             [
@@ -133,8 +134,9 @@ class GeminiService
 
             } catch (RequestException $e) {
                 $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+                $body = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
 
-                if ($status === 404 && $modelIndex < count($this->fallbackModels) - 1) {
+                if (($status === 404 || $status === 429 || $status === 503) && $modelIndex < count($this->fallbackModels) - 1) {
                     $modelIndex++;
                     $attempt--;
                     continue;
@@ -144,25 +146,13 @@ class GeminiService
                     $excludedIds[] = $apiKeyModel->id;
                 }
 
-                if ($status === 429) {
-                    $lastError = "HTTP 429: Kuota rate limit tercapai.";
-                    continue;
-                }
-
-                if (($status === 400 || $status === 403) && $apiKeyModel && empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'update')) {
-                    $apiKeyModel->update(['is_active' => false]);
-                    $lastError = "HTTP $status: API Key tidak valid.";
-                    continue;
-                }
-
-                $lastError = "HTTP $status: " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage());
+                $lastError = "HTTP $status: " . $body;
 
             } catch (ConnectException $e) {
                 if ($apiKeyModel && empty($apiKeyModel->is_env)) {
                     $excludedIds[] = $apiKeyModel->id;
                 }
                 $lastError = 'Koneksi ke server Gemini terputus.';
-                sleep(1);
 
             } catch (Exception $e) {
                 if ($apiKeyModel && empty($apiKeyModel->is_env)) {
@@ -176,7 +166,7 @@ class GeminiService
     }
 
     /**
-     * Generate dari Gambar + Teks (Multimodal Vision)
+     * Generate dari Gambar + Teks (Multimodal Vision untuk Revisi Coretan Dosen & Tanya Soal)
      */
     public function generateVision(string $prompt, string $imageBase64): string
     {
@@ -197,10 +187,14 @@ class GeminiService
                 $currentModel = $this->fallbackModels[$modelIndex] ?? 'gemini-2.0-flash';
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
+                $mimeType = 'image/jpeg';
+                if (preg_match('#^data:(image/\w+);base64,#i', $imageBase64, $matches)) {
+                    $mimeType = $matches[1];
+                }
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
 
                 $response = $client->post($url, [
-                    'query' => ['key' => $apiKeyModel->key],
+                    'query' => ['key' => trim($apiKeyModel->key)],
                     'json' => [
                         'contents' => [
                             [
@@ -208,7 +202,7 @@ class GeminiService
                                     ['text' => $prompt],
                                     [
                                         'inline_data' => [
-                                            'mime_type' => 'image/jpeg',
+                                            'mime_type' => $mimeType,
                                             'data'      => $cleanBase64
                                         ]
                                     ]
@@ -233,7 +227,7 @@ class GeminiService
 
             } catch (RequestException $e) {
                 $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
-                if ($status === 404 && $modelIndex < count($this->fallbackModels) - 1) {
+                if (($status === 404 || $status === 429) && $modelIndex < count($this->fallbackModels) - 1) {
                     $modelIndex++;
                     $attempt--;
                     continue;

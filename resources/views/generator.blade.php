@@ -3,413 +3,1127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workspace - {{ $project->judul }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <title>Studio Penulisan — {{ $project->judul }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
-            --sidebar-bg: #1e1f20;
-            --main-bg: #ffffff;
-            --text-primary: #1f1f1f;
-            --text-secondary: #5f6368;
-            --accent-color: #4285f4; /* Google Blue */
-            --success-color: #10b981;
+            --bg-canvas: #f1f5f9;
+            --bg-sidebar: #f8fafc;
+            --bg-white: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --blue: #2563eb;
+            --blue-hover: #1d4ed8;
+            --dark-active: #0f172a;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--main-bg); color: var(--text-primary); overflow-x: hidden; }
-
-        /* --- SIDEBAR (Sama Persis dengan Pre-Generate) --- */
-        .sidebar {
-            width: 280px; height: 100vh; background: var(--sidebar-bg); color: #e3e3e3;
-            position: fixed; top: 0; left: 0; display: flex; flex-direction: column; padding: 20px 15px;
-            z-index: 1050; transition: transform 0.3s ease;
-        }
-        .btn-new-chat {
-            background: #282a2c; color: #e3e3e3; border-radius: 50px; padding: 12px 20px; font-weight: 500;
-            cursor: pointer; display: flex; align-items: center; gap: 12px; margin-bottom: 25px; text-decoration: none;
-        }
-        .btn-new-chat:hover { background: #37393b; color: white; }
-        .history-item {
-            display: block; padding: 10px 15px; border-radius: 50px; color: #e3e3e3; text-decoration: none;
-            font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
-        }
-        .history-item:hover { background: #282a2c; }
-        
-        /* --- MAIN CONTENT --- */
-        .main-content { margin-left: 280px; min-height: 100vh; display: flex; flex-direction: column; transition: margin-left 0.3s ease; }
-        
-        .top-nav {
-            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 50;
-            border-bottom: 1px solid #f0f0f0;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-canvas);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- PROJECT WORKSPACE --- */
-        .workspace-container { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
-
-        .project-header {
-            background: #f8fafc; border-radius: 16px; padding: 25px; margin-bottom: 30px; border: 1px solid #e2e8f0;
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
-        .chapter-card {
-            background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 15px;
-            transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
-        }
-        .chapter-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .chapter-card.done { border-left: 4px solid var(--success-color); background: #f0fdf4; }
-        
-        .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; text-transform: uppercase; }
-        .badge-empty { background: #f3f4f6; color: #6b7280; }
-        .badge-done { background: #d1fae5; color: #065f46; }
-
-        /* --- STICKY SIDE PANEL (DOWNLOAD) --- */
-        .sticky-panel { position: sticky; top: 100px; }
-        .panel-card {
-            background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        /* Left Studio Sidebar (Matches Mantra Riset Studio Screenshot) */
+        .studio-sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            overflow-y: auto;
         }
 
-        .form-control-sm-custom {
-            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.9rem;
+        .sidebar-top {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* Responsive */
-        .mobile-toggle { display: none; border: none; background: none; font-size: 1.5rem; color: var(--text-secondary); }
-        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
 
-        @media (max-width: 991px) {
-            .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; } .mobile-toggle { display: block; }
-            .sidebar-overlay.active { display: block; }
-            .project-header h2 { font-size: 1.5rem; }
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        .proj-title-side {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .proj-type-side {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .progress-box {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--blue);
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
+        .chapter-nav {
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .chapter-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.12s ease;
+        }
+
+        .chapter-item:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .chapter-item.active {
+            background: var(--dark-active);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .ch-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            flex-shrink: 0;
+        }
+
+        .ch-status-dot.done {
+            background: #22c55e;
+        }
+
+        /* Callout Box: Lanjutkan ke Bab IV-V */
+        .continue-box {
+            margin: 8px 12px;
+            padding: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+        }
+
+        .continue-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .continue-desc {
+            font-size: 11.5px;
+            color: #3b82f6;
+            line-height: 1.45;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-tools {
+            margin-top: auto;
+            padding: 12px 10px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        /* Main Studio Area */
+        .studio-main {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Studio Toolbar */
+        .studio-toolbar {
+            height: 54px;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            gap: 12px;
+        }
+
+        .toolbar-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 420px;
+            text-transform: uppercase;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .tool-pill {
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-pill:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-blue {
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #ffffff;
+            background: var(--blue);
+            border: none;
+            border-radius: 7px;
+            padding: 7px 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-blue:hover {
+            background: var(--blue-hover);
+        }
+
+        /* Document Action Strip above A4 Paper */
+        .paper-subbar {
+            max-width: 820px;
+            width: 100%;
+            margin: 20px auto 12px;
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Realistic A4 Microsoft Word Paper */
+        .word-paper-wrap {
+            flex: 1;
+            padding: 0 20px 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .word-paper {
+            width: 100%;
+            max-width: 820px;
+            min-height: 980px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06);
+            padding: 64px 76px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.75;
+            color: #0f172a;
+            text-align: justify;
+        }
+
+        .word-paper h2.bab-heading {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+
+        .word-paper h3.subbab-heading {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: left;
+            margin: 20px 0 8px;
+            text-indent: 0;
+        }
+
+        .word-paper p {
+            text-indent: 1.27cm;
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        /* Blue Academic Citation Link Highlight (Matches Mantra Riset Screenshot) */
+        .cite-link {
+            color: #2563eb;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+
+        /* Floating Progress Toast (Bottom-Left — Matches Screenshot) */
+        .floating-progress {
+            position: fixed;
+            bottom: 20px;
+            left: 280px;
+            width: 420px;
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.15);
+            padding: 14px 18px;
+            z-index: 60;
+            display: none;
+        }
+
+        /* Modal Overlay (Pedoman Kampus, Revisi Dosen, & Download Sampul) */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+            z-index: 80;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 13.5px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .form-textarea {
+            min-height: 95px;
+            resize: vertical;
+        }
+
+        @media (max-width: 900px) {
+            .studio-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+            }
+            .studio-sidebar.open {
+                transform: translateX(0);
+            }
+            .studio-main {
+                margin-left: 0;
+            }
+            .word-paper {
+                padding: 32px 24px;
+            }
+            .floating-progress {
+                left: 16px;
+                right: 16px;
+                width: auto;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    @php
+        $chaptersList = [
+            'bab1' => ['num' => 'I', 'label' => 'Bab I Pendahuluan', 'full' => 'PENDAHULUAN'],
+            'bab2' => ['num' => 'II', 'label' => 'Bab II Tinjauan Pustaka', 'full' => 'TINJAUAN PUSTAKA'],
+            'bab3' => ['num' => 'III', 'label' => 'Bab III Metodologi', 'full' => 'METODOLOGI PENELITIAN'],
+            'bab4' => ['num' => 'IV', 'label' => 'Bab IV Hasil Penelitian', 'full' => 'HASIL DAN PEMBAHASAN'],
+            'bab5' => ['num' => 'V', 'label' => 'Bab V Penutup', 'full' => 'PENUTUP'],
+        ];
+        $doneCount = 0;
+        foreach (array_keys($chaptersList) as $ck) {
+            if (!empty($project->{$ck . '_content'})) $doneCount++;
+        }
+        $pctDone = round(($doneCount / 5) * 100);
+        $tahap = $meta['tahap_pengerjaan'] ?? 'Skripsi Penuh (Bab I–V)';
+    @endphp
 
-<div class="sidebar" id="sidebar">
-    <div class="d-flex align-items-center justify-content-between mb-4 px-2">
-        <a href="{{ route('home') }}" class="text-white text-decoration-none fw-bold fs-5">SkripsiAI</a>
-        <button class="btn text-white d-md-none" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-    </div>
-
-    <a href="{{ route('app.create') }}" class="btn-new-chat">
-        <i class="fas fa-arrow-left"></i> <span>Kembali ke Menu</span>
-    </a>
-
-    <div class="text-uppercase small text-muted fw-bold px-3 mb-2" style="font-size: 0.7rem;">Proyek Aktif</div>
-    
-    <div style="flex-grow: 1; overflow-y: auto;">
-        @php
-            $historySidebar = \App\Models\Project::where('user_id', Auth::id())->orderBy('updated_at', 'desc')->take(10)->get();
-        @endphp
-
-        @foreach($historySidebar as $h)
-            <a href="{{ route('app.index', ['id' => $h->id]) }}" class="history-item {{ $h->id == $project->id ? 'bg-secondary bg-opacity-25 text-white' : '' }}" title="{{ $h->judul }}">
-                <i class="far fa-file-alt me-2"></i> {{ Str::limit($h->judul, 20) }}
+    <!-- Left Studio Sidebar -->
+    <aside class="studio-sidebar" id="studio-sidebar">
+        <div class="sidebar-top">
+            <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="back-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>Kembali ke Proyek</span>
             </a>
-        @endforeach
-    </div>
-
-    <div class="mt-3 pt-3 border-top border-secondary">
-        <div class="d-flex align-items-center gap-2 px-2 text-white-50">
-            <small>Token: {{ Auth::user()->credits }}</small>
+            <div class="proj-title-side">{{ $project->judul }}</div>
+            <div class="proj-type-side">{{ $tahap }}</div>
         </div>
-    </div>
-</div>
 
-<div class="main-content">
-    
-    <div class="top-nav">
-        <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <h6 class="mb-0 fw-bold text-secondary d-none d-md-block">Workspace Penulisan</h6>
-        
-        <div class="d-flex align-items-center gap-3 ms-auto">
-            
-            <div class="d-none d-md-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border">
-                <i class="fas fa-robot text-accent-color me-2" style="color: var(--accent-color);"></i>
-                <select id="globalAiModel" class="border-0 bg-transparent fw-bold text-secondary" style="outline:none; cursor:pointer; font-size: 0.9rem;">
-                    <option value="gemini" selected>Gemini AI</option>
-                    <option value="groq">Groq (Ultra Fast)</option>
+        <div class="progress-box">
+            <div class="progress-top">
+                <span id="sidebar-done-label">{{ $doneCount }} dari 5 Bab</span>
+                <span id="sidebar-pct-label">{{ $pctDone }}% selesai</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="sidebar-progress-fill" style="width: {{ $pctDone }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Daftar Bab -->
+        <div class="chapter-nav">
+            @foreach($chaptersList as $key => $info)
+                @php $hasContent = !empty($project->{$key . '_content'}); @endphp
+                <button type="button" class="chapter-item {{ $key === 'bab1' ? 'active' : '' }}" id="nav-item-{{ $key }}" onclick="selectChapterView('{{ $key }}')">
+                    <span>{{ $info['label'] }}</span>
+                    <span class="ch-status-dot {{ $hasContent ? 'done' : '' }}" id="dot-{{ $key }}"></span>
+                </button>
+            @endforeach
+
+            <button type="button" class="chapter-item" id="nav-item-daftar_pustaka" onclick="selectChapterView('daftar_pustaka')">
+                <span>Daftar Pustaka</span>
+                <span class="ch-status-dot {{ !empty($project->daftar_pustaka) ? 'done' : '' }}" id="dot-daftar_pustaka"></span>
+            </button>
+        </div>
+
+        <!-- Callout: Lanjutkan Proposal Bab 1-3 atau Bab 4-5 -->
+        <div class="continue-box">
+            <div class="continue-title">
+                <span>⚡ Susun Otomatis</span>
+            </div>
+            <div class="continue-desc">
+                Susun berurutan Bab I–III untuk Seminar Proposal, atau lanjutkan ke Bab IV–V untuk Skripsi penuh.
+            </div>
+            <button type="button" class="btn-blue" style="width: 100%; justify-content: center; font-size: 12px; padding: 7px 10px;" onclick="generateSequentialProposal()">
+                Generate Proposal (Bab I–III)
+            </button>
+        </div>
+
+        <!-- Bottom Tools: Pedoman Kampus & Revisi Dosen -->
+        <div class="sidebar-tools">
+            <button type="button" class="chapter-item" onclick="openModal('modal-guideline')">
+                <span>📄 Pedoman Kampus</span>
+                <span style="font-size: 11px; color: var(--blue);">{{ !empty($meta['pedoman_text']) ? 'Aktif' : 'Atur' }}</span>
+            </button>
+            <button type="button" class="chapter-item" onclick="openModal('modal-revise')">
+                <span>✏️ Revisi Dosen (AI)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Foto/Doc</span>
+            </button>
+            <button type="button" class="chapter-item" onclick="openModal('modal-download')">
+                <span>🎓 Logo & Unduh File</span>
+                <span style="font-size: 11px; color: var(--text-muted);">.docx/.pdf</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Studio Area -->
+    <div class="studio-main">
+        <!-- Top Studio Toolbar (Matches Mantra Riset Topbar) -->
+        <header class="studio-toolbar">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <button type="button" class="tool-pill" style="display: none;" id="mobile-sidebar-btn" onclick="document.getElementById('studio-sidebar').classList.toggle('open')">☰</button>
+                <div class="toolbar-title">{{ $project->judul }}</div>
+            </div>
+
+            <div class="toolbar-actions">
+                <select id="studio-model" class="tool-pill">
+                    <option value="auto">AI: Otomatis</option>
+                    <option value="gemini">Gemini AI</option>
+                    <option value="groq">Groq Llama 3.3</option>
                 </select>
-            </div>
 
-            <div class="dropdown">
-                <button class="btn btn-light rounded-circle border" type="button" data-bs-toggle="dropdown" style="width: 40px; height: 40px;">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                <span class="tool-pill">Nomor 1.1 / 1.1.1</span>
+                <span class="tool-pill">Sitasi: {{ $meta['sitasi']['gaya'] ?? 'APA 7th' }}</span>
+
+                <button type="button" class="tool-pill" onclick="openModal('modal-guideline')">
+                    Pedoman Kampus
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                    <li><h6 class="dropdown-header">{{ Auth::user()->name }}</h6></li>
-                    
-                    <li class="d-md-none mb-3 px-3">
-                        <label class="small text-muted">Model AI</label>
-                        <select class="form-select form-select-sm" onchange="document.getElementById('globalAiModel').value = this.value">
-                            <option value="gemini" selected>Gemini AI</option>
-                            <option value="groq">Groq (Llama 3)</option>
-                        </select>
-                    </li>
 
-                    <li><a class="dropdown-item" href="{{ route('app.create') }}">Dashboard Utama</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button class="dropdown-item text-danger">Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+                <button type="button" class="tool-pill" onclick="openModal('modal-revise')">
+                    Revisi Bab
+                </button>
 
-    <div class="workspace-container">
-        
-        <div class="project-header">
-            <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Judul Skripsi</span>
-            <h2 class="fw-bold text-dark mb-3">{{ $project->judul }}</h2>
-            <div class="d-flex flex-wrap gap-3 text-muted small">
-                <span><i class="fas fa-graduation-cap me-1"></i> {{ $project->prodi }}</span>
-                <span><i class="fas fa-code-branch me-1"></i> {{ $project->metode_penelitian }}</span>
-                <span><i class="far fa-clock me-1"></i> Updated {{ $project->updated_at->diffForHumans() }}</span>
-            </div>
-        </div>
-
-        {{-- ================= VALIDASI SITASI & DAFTAR PUSTAKA ================= --}}
-        @if(!empty($project->citation_validation))
-            @php
-                $validation = json_decode($project->citation_validation, true);
-            @endphp
-            
-            <div class="mt-3 mb-3">
-                <button type="button" onclick="refineReferences()" class="btn btn-outline-primary">
-                    🔧 Rapikan Daftar Pustaka (AI)
+                <button type="button" class="btn-blue" onclick="openModal('modal-download')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Unduh Proposal / Skripsi</span>
                 </button>
             </div>
+        </header>
 
-            <div class="alert {{ empty($validation['missing_in_references']) && empty($validation['unused_references']) 
-                    ? 'alert-success' 
-                    : 'alert-warning' }} mt-3">
+        <!-- Center Document Canvas -->
+        <div class="word-paper-wrap">
+            <!-- Sub-bar Aksi Bab Aktif -->
+            <div class="paper-subbar">
+                <div>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--text-main);" id="active-chapter-title">BAB I · PENDAHULUAN</span>
+                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;" id="active-chapter-status">Pratinjau Kertas A4 (Times New Roman 12pt)</span>
+                </div>
 
-                <strong>Validasi Sitasi & Daftar Pustaka</strong><br>
-
-                @if(empty($validation['missing_in_references']) && empty($validation['unused_references']))
-                    ✅ Semua sitasi sudah sesuai dengan daftar pustaka.
-                @endif
-
-                @if(!empty($validation['missing_in_references']))
-                    <div class="mt-2">
-                        <strong>⚠️ Sitasi ada di teks tetapi tidak ada di daftar pustaka:</strong>
-                        <ul>
-                            @foreach($validation['missing_in_references'] as $item)
-                                <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @if(!empty($validation['unused_references']))
-                    <div class="mt-2">
-                        <strong>⚠️ Daftar pustaka tidak pernah disitasi:</strong>
-                        <ul>
-                            @foreach($validation['unused_references'] as $item)
-                                <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-            </div>
-        @endif
-        {{-- ================= END VALIDASI ================= --}}
-
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <h5 class="fw-bold mb-3 text-secondary">Struktur Naskah</h5>
-                
-                @php
-                    $chapters = [
-                        'bab1' => 'BAB I - Pendahuluan',
-                        'bab2' => 'BAB II - Tinjauan Pustaka',
-                        'bab3' => 'BAB III - Metodologi Penelitian',
-                        'bab4' => 'BAB IV - Hasil dan Pembahasan',
-                        'bab5' => 'BAB V - Penutup'
-                    ];
-                @endphp
-
-                @foreach($chapters as $key => $label)
-                    @php $hasContent = !empty($project->{$key . '_content'}); @endphp
-                    
-                    <div class="chapter-card {{ $hasContent ? 'done' : '' }}">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 40px; height: 40px; background: {{ $hasContent ? '#d1fae5' : '#f3f4f6' }}; color: {{ $hasContent ? '#059669' : '#9ca3af' }}">
-                                <i class="fas {{ $hasContent ? 'fa-check' : 'fa-pen' }}"></i>
-                            </div>
-                            <div>
-                                <h6 class="fw-bold mb-0 text-dark">{{ $label }}</h6>
-                                <small class="text-muted">
-                                    {{ $hasContent ? 'Tersedia. Siap unduh.' : 'Belum ditulis.' }}
-                                </small>
-                            </div>
-                        </div>
-                        
-                        <div class="text-end">
-                            <span class="status-badge {{ $hasContent ? 'badge-done' : 'badge-empty' }} d-block mb-2">
-                                {{ $hasContent ? 'SELESAI' : 'KOSONG' }}
-                            </span>
-                            <button onclick="generateChapter('{{ $key }}')" class="btn btn-sm {{ $hasContent ? 'btn-outline-primary' : 'btn-primary' }} rounded-pill px-3">
-                                <i class="fas fa-magic me-1"></i> {{ $hasContent ? 'Re-Generate' : 'Tulis' }}
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            <div class="col-lg-4">
-                <div class="sticky-panel">
-                    <div class="panel-card">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <div class="bg-primary text-white rounded p-2"><i class="fas fa-download"></i></div>
-                            <h5 class="fw-bold mb-0">Download File</h5>
-                        </div>
-                        <p class="text-muted small mb-4">Isi identitas diri untuk dicetak pada halaman sampul (Cover).</p>
-                        
-                        <form action="{{ route('app.downloadDocx', ['id' => $project->id]) }}" method="POST">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Nama Lengkap</label>
-                                <input type="text" name="nama" class="form-control form-control-sm-custom" placeholder="Cth: Budi Santoso" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">NIM / NPM</label>
-                                <input type="text" name="npm" class="form-control form-control-sm-custom" placeholder="Cth: 12345678" required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold">Nama Kampus</label>
-                                <input type="text" name="kampus" class="form-control form-control-sm-custom" placeholder="Cth: Universitas Indonesia" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold">Pengaturan Margin (cm)</label>
-                                <div class="row g-2">
-                                    <div class="col-3">
-                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Top</label>
-                                        <input type="number" step="0.1" name="margin_top" class="form-control form-control-sm-custom text-center" value="4">
-                                    </div>
-                                    <div class="col-3">
-                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Left</label>
-                                        <input type="number" step="0.1" name="margin_left" class="form-control form-control-sm-custom text-center" value="4">
-                                    </div>
-                                    <div class="col-3">
-                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Bottom</label>
-                                        <input type="number" step="0.1" name="margin_bottom" class="form-control form-control-sm-custom text-center" value="3">
-                                    </div>
-                                    <div class="col-3">
-                                        <label class="small text-muted mb-1 d-block text-center" style="font-size: 0.75rem;">Right</label>
-                                        <input type="number" step="0.1" name="margin_right" class="form-control form-control-sm-custom text-center" value="3">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-dark py-2 rounded-3 fw-bold">
-                                    <i class="fas fa-file-word me-2"></i> Word (.docx)
-                                </button>
-                                <button type="submit" formaction="{{ route('project.download.pdf', ['id' => $project->id]) }}" class="btn btn-outline-danger py-2 rounded-3 fw-bold">
-                                    <i class="fas fa-file-pdf me-2"></i> PDF Document
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="text-center mt-4 text-muted small">
-                        <i class="fas fa-info-circle me-1"></i> Generate membutuhkan 1 token per bab.
-                    </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="tool-pill" id="btn-write-chapter" onclick="generateActiveChapter()">
+                        ✨ Tulis / Susun Ulang Bab Ini
+                    </button>
+                    <button type="button" class="tool-pill" onclick="openModal('modal-revise')">
+                        ✏️ Revisi Dosen (Ketik / Upload Coretan)
+                    </button>
+                    <button type="button" class="tool-pill" id="btn-save-manual" onclick="saveManualEdits()" style="display: none; background: #dcfce7; border-color: #86efac; color: #166534; font-weight: 600;">
+                        💾 Simpan Editan Teks
+                    </button>
                 </div>
             </div>
+
+            <!-- Realistic A4 Microsoft Word Paper -->
+            <div class="word-paper" id="word-paper-canvas" contenteditable="true" oninput="document.getElementById('btn-save-manual').style.display = 'inline-flex';">
+                <!-- Diisi oleh JavaScript sesuai Bab yang dipilih -->
+            </div>
         </div>
     </div>
-</div>
 
-{{-- LOADING OVERLAY --}}
-<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
-    <div class="spinner-border text-primary mb-3" role="status"></div>
-    <h5 class="fw-bold text-dark">AI Sedang Menulis...</h5>
-    <p class="text-muted small text-center px-3" style="max-width:400px;">Mohon tunggu, sedang menyusun narasi akademik.</p>
-</div>
+    <!-- Floating Progress Toast (Bottom-Left — Matches Mantra Riset Screenshot) -->
+    <div class="floating-progress" id="floating-progress">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 600; color: var(--blue); margin-bottom: 6px;">
+            <span id="fp-label">Menulis Latar Belakang - Rumusan Masalah - Tujuan Penelitian...</span>
+            <span id="fp-pct">35%</span>
+        </div>
+        <div class="progress-track" style="height: 7px; margin-bottom: 6px;">
+            <div class="progress-fill" id="fp-bar" style="width: 35%;"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted);">
+            Tunggu beberapa saat, jangan tutup tab ini sampai proses penulisan selesai.
+        </div>
+    </div>
 
-{{-- FORM HIDDEN UNTUK REFINE REFERENCES (Agar bisa pakai JS & Model) --}}
-<form id="refineForm" method="POST" action="{{ route('project.refine.references', $project->id) }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="model" id="refineModelInput">
-</form>
+    <!-- ================================================================= -->
+    <!-- MODAL 1: UPLOAD PEDOMAN SKRIPSI KAMPUS (DI ATAS STRUKTUR NASKAH) -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="modal-guideline">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">Pedoman Skripsi Kampus & Data Awal</div>
+                <button type="button" class="tool-pill" onclick="closeModal('modal-guideline')">✕</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+                Setiap kampus memiliki buku pedoman penulisan skripsi masing-masing. Unggah berkas pedoman kampusmu (.pdf / .docx) atau tuliskan aturan sub-bab khusus agar AI menyesuaikan naskah Bab I–V.
+            </p>
+            <form id="form-guideline" onsubmit="submitGuideline(event)">
+                <label class="form-label">Pilih Berkas Pedoman Kampus (.pdf / .docx / .txt)</label>
+                <input type="file" name="pedoman_file" id="guideline-file" class="form-input" accept=".pdf,.docx,.doc,.txt">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function toggleSidebar(){
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
+                <label class="form-label">Aturan Sub-bab / Catatan Pedoman Kampus (Opsional)</label>
+                <textarea name="pedoman_text" id="guideline-text" class="form-textarea" placeholder="Contoh: Bab I wajib memuat 1.1 Konteks Penelitian, 1.2 Fokus Penelitian...">{{ $meta['pedoman_text'] ?? '' }}</textarea>
 
-    // UPDATE: Generate Function dengan Pesan Kontekstual
-    function generateChapter(chapter) {
-        let selectedModel = document.getElementById('globalAiModel').value;
-        
-        let loadingText = document.querySelector('#loadingOverlay h5');
-        let loadingDesc = document.querySelector('#loadingOverlay p');
-        
-        // Pesan loading dinamis biar user tidak bosan
-        if(chapter === 'bab4' || chapter === 'bab5') {
-            loadingText.innerText = "Menganalisis & Menjaga Benang Merah...";
-            loadingDesc.innerText = "AI sedang membaca bab-bab sebelumnya (Bab 1-3) agar pembahasan dan kesimpulan tetap konsisten.";
-        } else if (chapter === 'bab2') {
-            loadingText.innerText = "Mencari Referensi Teori...";
-            loadingDesc.innerText = "AI sedang menyusun tinjauan pustaka dan mensintesis pendapat ahli.";
-        } else {
-            loadingText.innerText = "AI Sedang Menulis...";
-            loadingDesc.innerText = "Menyusun narasi akademik yang formal dan rapi.";
+                <label class="form-label">Data Awal Penelitian / Fenomena Objek (Opsional)</label>
+                <textarea name="data_awal" id="guideline-data-awal" class="form-textarea" style="min-height: 70px;" placeholder="Contoh: Data observasi awal di lokasi penelitian...">{{ $meta['data_awal'] ?? '' }}</textarea>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button type="button" class="tool-pill" onclick="closeModal('modal-guideline')">Batal</button>
+                    <button type="submit" class="btn-blue" id="btn-save-guideline">Simpan Pedoman Kampus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL 2: REVISI BAB (KETIK LANGSUNG + UPLOAD GAMBAR CORETAN / DOC) -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="modal-revise">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">Revisi Bab Bersama AI (<span id="revise-modal-bab-label">BAB I</span>)</div>
+                <button type="button" class="tool-pill" onclick="closeModal('modal-revise')">✕</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+                Ketik instruksi revisi dari dosen pembimbing, atau unggah <strong>foto coretan dosen (JPG/PNG)</strong> maupun <strong>dokumen revisi (.docx / .pdf)</strong>. AI akan membaca konteksnya dan memperbaiki bab ini.
+            </p>
+            <form id="form-revise" onsubmit="submitRevision(event)">
+                <label class="form-label">Pilih Bab yang Direvisi</label>
+                <select id="revise-chapter-select" class="form-select">
+                    <option value="bab1">Bab I · Pendahuluan</option>
+                    <option value="bab2">Bab II · Tinjauan Pustaka</option>
+                    <option value="bab3">Bab III · Metodologi Penelitian</option>
+                    <option value="bab4">Bab IV · Hasil dan Pembahasan</option>
+                    <option value="bab5">Bab V · Penutup</option>
+                </select>
+
+                <label class="form-label">Catatan / Instruksi Revisi (Ketik Langsung)</label>
+                <textarea id="revise-instruction" class="form-textarea" placeholder="Contoh: Tambahkan data empiris terbaru di paragraf ke-2 latar belakang, dan perjelas rumusan masalah menjadi 3 poin sesuai coretan dosen..."></textarea>
+
+                <label class="form-label">Unggah Foto Coretan Dosen (JPG/PNG) atau Dokumen Revisi (.docx / .pdf) — Opsional</label>
+                <input type="file" id="revise-file" class="form-input" accept="image/*,.pdf,.docx,.doc,.txt">
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button type="button" class="tool-pill" onclick="closeModal('modal-revise')">Batal</button>
+                    <button type="submit" class="btn-blue" id="btn-submit-revise">Proses Revisi dengan AI</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL 3: UPLOAD LOGO KAMPUS (DI ATAS NAMA) & DOWNLOAD WORD / PDF -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="modal-download">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">Pengaturan Sampul (Cover) & Unduh Naskah</div>
+                <button type="button" class="tool-pill" onclick="closeModal('modal-download')">✕</button>
+            </div>
+
+            <form id="form-download" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="logo_base64" id="download-logo-base64" value="{{ $meta['logo_base64'] ?? '' }}">
+
+                <!-- Jenis Dokumen Sampul -->
+                <label class="form-label">Format Dokumen yang Diunduh</label>
+                <select name="jenis_dokumen" class="form-select">
+                    <option value="PROPOSAL SKRIPSI" {{ str_contains($tahap, 'Proposal') ? 'selected' : '' }}>Proposal Skripsi (Cover Proposal + Bab I–III + Daftar Pustaka)</option>
+                    <option value="SKRIPSI" {{ !str_contains($tahap, 'Proposal') ? 'selected' : '' }}>Skripsi Lengkap (Cover Skripsi + Bab I–V + Daftar Pustaka)</option>
+                </select>
+
+                <!-- UPLOAD LOGO KAMPUS DI ATAS NAMA LENGKAP -->
+                <label class="form-label">Upload Logo Kampus (Dicetak pada Halaman Sampul / Cover)</label>
+                <div style="display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-sidebar); margin-bottom: 14px;">
+                    <img id="cover-logo-preview" src="{{ $meta['logo_base64'] ?? '' }}" alt="Logo" style="width: 52px; height: 52px; object-fit: contain; border-radius: 6px; background: #fff; border: 1px solid var(--border); {{ empty($meta['logo_base64']) ? 'display:none;' : '' }}">
+                    <div style="flex: 1;">
+                        <input type="file" name="logo_kampus" accept="image/png,image/jpeg,image/webp" style="font-size: 12.5px;" onchange="previewCoverLogo(this)">
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Format PNG/JPG transparan disarankan agar rapi di tengah sampul.</div>
+                    </div>
+                </div>
+
+                <!-- Identitas Mahasiswa -->
+                <label class="form-label">Nama Lengkap Mahasiswa</label>
+                <input type="text" name="nama" class="form-input" value="{{ $meta['nama'] ?? auth()->user()->name }}" placeholder="Cth: Budi Santoso">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label class="form-label">NIM / NPM</label>
+                        <input type="text" name="npm" class="form-input" value="{{ $meta['nim'] ?? '' }}" placeholder="Cth: 2021041082">
+                    </div>
+                    <div>
+                        <label class="form-label">Fakultas</label>
+                        <input type="text" name="fakultas" class="form-input" value="{{ $meta['fakultas'] ?? '' }}" placeholder="Cth: Fakultas Ekonomi dan Bisnis">
+                    </div>
+                </div>
+
+                <label class="form-label">Nama Kampus / Universitas</label>
+                <input type="text" name="kampus" class="form-input" value="{{ $meta['kampus'] ?? '' }}" placeholder="Cth: Universitas Indonesia">
+
+                <!-- Pengaturan Margin -->
+                <label class="form-label">Pengaturan Margin Kertas A4 (cm)</label>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;">
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Atas (Top)</span>
+                        <input type="number" step="0.5" name="margin_top" value="4" class="form-input" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Kiri (Left)</span>
+                        <input type="number" step="0.5" name="margin_left" value="4" class="form-input" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Bawah (Bottom)</span>
+                        <input type="number" step="0.5" name="margin_bottom" value="3" class="form-input" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Kanan (Right)</span>
+                        <input type="number" step="0.5" name="margin_right" value="3" class="form-input" style="margin-bottom: 0;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button type="submit" formaction="{{ route('app.downloadDocx', ['id' => $project->id]) }}" class="btn-blue" style="justify-content: center; padding: 11px; background: #0f172a;">
+                        📄 Unduh Word (.docx)
+                    </button>
+                    <button type="submit" formaction="{{ route('project.download.pdf', ['id' => $project->id]) }}" class="btn-blue" style="justify-content: center; padding: 11px;">
+                        📕 Unduh PDF (.pdf)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const projectId = {{ $project->id }};
+
+        const chapterMeta = {
+            bab1: { num: 'I', title: 'PENDAHULUAN', stepText: 'Menulis Latar Belakang - Rumusan Masalah - Tujuan Penelitian...' },
+            bab2: { num: 'II', title: 'TINJAUAN PUSTAKA', stepText: 'Menyusun Landasan Teori - Penelitian Terdahulu - Hipotesis...' },
+            bab3: { num: 'III', title: 'METODOLOGI PENELITIAN', stepText: 'Menyusun Desain Penelitian - Populasi/Sampel - Teknik Analisis Data...' },
+            bab4: { num: 'IV', title: 'HASIL DAN PEMBAHASAN', stepText: 'Menyusun Hasil Analisis Data - Pengujian - Pembahasan Temuan...' },
+            bab5: { num: 'V', title: 'PENUTUP', stepText: 'Menyusun Kesimpulan - Saran - Ekstraksi Daftar Pustaka APA...' },
+            daftar_pustaka: { num: '', title: 'DAFTAR PUSTAKA', stepText: 'Memperbarui Sitasi & Daftar Pustaka APA 7th Edition...' }
+        };
+
+        const chapterContents = {
+            bab1: @json($project->bab1_content ?? ''),
+            bab2: @json($project->bab2_content ?? ''),
+            bab3: @json($project->bab3_content ?? ''),
+            bab4: @json($project->bab4_content ?? ''),
+            bab5: @json($project->bab5_content ?? ''),
+            daftar_pustaka: @json($project->daftar_pustaka ?? '')
+        };
+
+        let activeChapter = 'bab1';
+
+        function formatAcademicPaperHtml(chapterKey, rawText) {
+            const info = chapterMeta[chapterKey];
+            const headingHtml = info.num
+                ? `<h2 class="bab-heading">BAB ${info.num}<br>${info.title}</h2>`
+                : `<h2 class="bab-heading">${info.title}</h2>`;
+
+            if (!rawText || !rawText.trim()) {
+                return `
+                    ${headingHtml}
+                    <div contenteditable="false" style="text-align: center; padding: 64px 20px; font-family: 'Inter', sans-serif; color: #64748b;">
+                        <p style="text-indent: 0; text-align: center; font-size: 14px; margin-bottom: 16px;">
+                            Naskah <strong>${info.title}</strong> belum ditulis. Klik tombol di bawah untuk menyusun bab ini sesuai judul dan pedoman kampusmu.
+                        </p>
+                        <button type="button" class="btn-blue" style="padding: 10px 20px; font-size: 13.5px;" onclick="generateActiveChapter()">
+                            ✨ Tulis ${info.num ? 'Bab ' + info.num : info.title} Sekarang
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Format baris menjadi subbab dan paragraf dengan highlight sitasi biru ala Mantra Riset
+            const lines = rawText.replace(/<\/p>/gi, '\n').replace(/<br\s*\/?>/gi, '\n').split('\n');
+            let bodyHtml = '';
+
+            lines.forEach(line => {
+                const clean = line.replace(/<[^>]+>/g, '').trim();
+                if (!clean) return;
+
+                if (/^\d+\.\d+(\.\d+)?\s+/.test(clean)) {
+                    bodyHtml += `<h3 class="subbab-heading">${clean}</h3>`;
+                } else {
+                    // Highlight in-text citations: e.g. (Wijaya et al., 2023) atau Kusuma (2024)
+                    const highlighted = clean
+                        .replace(/(\([A-Z][A-Za-z\s\&\.,]+,\s*\d{4}[a-z]?\))/g, '<span class="cite-link">$1</span>')
+                        .replace(/([A-Z][a-zA-Z]+(?:\s+(?:&|dan|et\s+al\.)\s+[A-Z][a-zA-Z]+)?\s*\(\d{4}[a-z]?\))/g, '<span class="cite-link">$1</span>');
+
+                    if (chapterKey === 'daftar_pustaka') {
+                        bodyHtml += `<p style="text-indent: -1.27cm; padding-left: 1.27cm; margin-bottom: 10px;">${highlighted}</p>`;
+                    } else {
+                        bodyHtml += `<p>${highlighted}</p>`;
+                    }
+                }
+            });
+
+            return headingHtml + bodyHtml;
         }
 
-        document.getElementById('loadingOverlay').style.display = 'flex';
+        function selectChapterView(chKey) {
+            activeChapter = chKey;
+            document.querySelectorAll('.chapter-nav .chapter-item').forEach(b => b.classList.remove('active'));
+            const navBtn = document.getElementById('nav-item-' + chKey);
+            if (navBtn) navBtn.classList.add('active');
 
-        fetch("{{ route('project.generate', ['id' => $project->id]) }}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ chapter: chapter, model: selectedModel })
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('loadingOverlay').style.display = 'none';
-            if(data.status === 'success') {
-                Swal.fire({
-                    title: 'Selesai!', text: 'Bab berhasil ditulis.', icon: 'success', timer: 1500, showConfirmButton: false
-                }).then(() => { location.reload(); });
-            } else {
-                Swal.fire('Gagal', data.error || 'Terjadi kesalahan.', 'error');
+            const info = chapterMeta[chKey];
+            document.getElementById('active-chapter-title').innerText = info.num ? `BAB ${info.num} · ${info.title}` : info.title;
+            document.getElementById('revise-modal-bab-label').innerText = info.num ? `BAB ${info.num}` : info.title;
+            if (chKey !== 'daftar_pustaka') {
+                document.getElementById('revise-chapter-select').value = chKey;
             }
-        })
-        .catch(error => {
-            document.getElementById('loadingOverlay').style.display = 'none';
-            Swal.fire('Error', 'Koneksi terputus.', 'error');
-        });
-    }
 
-    function refineReferences() {
-        let selectedModel = document.getElementById('globalAiModel').value;
-        document.getElementById('refineModelInput').value = selectedModel;
-        document.getElementById('loadingOverlay h5').innerText = "Merapikan Daftar Pustaka...";
-        document.getElementById('loadingOverlay').style.display = 'flex'; 
-        document.getElementById('refineForm').submit();
-    }
-</script>
+            document.getElementById('btn-save-manual').style.display = 'none';
+            document.getElementById('word-paper-canvas').innerHTML = formatAcademicPaperHtml(chKey, chapterContents[chKey]);
+        }
 
+        function updateProgressCounts() {
+            let count = 0;
+            ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'].forEach(k => {
+                const has = !!(chapterContents[k] && chapterContents[k].trim());
+                if (has) count++;
+                const dot = document.getElementById('dot-' + k);
+                if (dot) dot.classList.toggle('done', has);
+            });
+            const dpDot = document.getElementById('dot-daftar_pustaka');
+            if (dpDot) dpDot.classList.toggle('done', !!(chapterContents.daftar_pustaka && chapterContents.daftar_pustaka.trim()));
+
+            const pct = Math.round((count / 5) * 100);
+            document.getElementById('sidebar-done-label').innerText = `${count} dari 5 Bab`;
+            document.getElementById('sidebar-pct-label').innerText = `${pct}% selesai`;
+            document.getElementById('sidebar-progress-fill').style.width = `${pct}%`;
+        }
+
+        let progressTimer = null;
+        function showFloatingProgress(text) {
+            const box = document.getElementById('floating-progress');
+            const lbl = document.getElementById('fp-label');
+            const pctEl = document.getElementById('fp-pct');
+            const bar = document.getElementById('fp-bar');
+
+            lbl.innerText = text;
+            let p = 12;
+            pctEl.innerText = p + '%';
+            bar.style.width = p + '%';
+            box.style.display = 'block';
+
+            clearInterval(progressTimer);
+            progressTimer = setInterval(() => {
+                if (p < 92) {
+                    p += Math.floor(Math.random() * 7) + 2;
+                    if (p > 92) p = 92;
+                    pctEl.innerText = p + '%';
+                    bar.style.width = p + '%';
+                }
+            }, 900);
+        }
+
+        function hideFloatingProgress() {
+            clearInterval(progressTimer);
+            document.getElementById('fp-pct').innerText = '100%';
+            document.getElementById('fp-bar').style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('floating-progress').style.display = 'none';
+            }, 500);
+        }
+
+        async function generateActiveChapter() {
+            if (activeChapter === 'daftar_pustaka') {
+                await refreshReferences();
+                return;
+            }
+            await runGenerateChapter(activeChapter);
+        }
+
+        async function runGenerateChapter(chKey) {
+            const info = chapterMeta[chKey];
+            const btn = document.getElementById('btn-write-chapter');
+            btn.disabled = true;
+            showFloatingProgress(info.stepText);
+
+            try {
+                const res = await fetch(`/project/${projectId}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        chapter: chKey,
+                        model: document.getElementById('studio-model').value
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    chapterContents[chKey] = data.content || '';
+                    if (data.daftar_pustaka) {
+                        chapterContents.daftar_pustaka = data.daftar_pustaka;
+                    }
+                    updateProgressCounts();
+                    selectChapterView(chKey);
+                } else {
+                    alert(data.error || 'Gagal menyusun bab.');
+                }
+            } catch (e) {
+                alert('Terjadi kesalahan jaringan saat menyusun bab.');
+            } finally {
+                btn.disabled = false;
+                hideFloatingProgress();
+            }
+        }
+
+        async function generateSequentialProposal() {
+            for (const ch of ['bab1', 'bab2', 'bab3']) {
+                selectChapterView(ch);
+                await runGenerateChapter(ch);
+            }
+        }
+
+        async function refreshReferences() {
+            showFloatingProgress(chapterMeta.daftar_pustaka.stepText);
+            try {
+                const res = await fetch(`/project/${projectId}/refine-references`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ model: document.getElementById('studio-model').value })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    chapterContents.daftar_pustaka = data.daftar_pustaka || '';
+                    updateProgressCounts();
+                    selectChapterView('daftar_pustaka');
+                }
+            } catch (e) {} finally {
+                hideFloatingProgress();
+            }
+        }
+
+        async function saveManualEdits() {
+            const paper = document.getElementById('word-paper-canvas');
+            const clone = paper.cloneNode(true);
+            const h2 = clone.querySelector('h2.bab-heading');
+            if (h2) h2.remove();
+
+            const paragraphs = [];
+            clone.querySelectorAll('h3, p').forEach(el => {
+                if (el.innerText.trim()) paragraphs.push(el.innerText.trim());
+            });
+            const newText = paragraphs.length ? paragraphs.join('\n\n') : clone.innerText.trim();
+
+            const btn = document.getElementById('btn-save-manual');
+            btn.innerText = 'Menyimpan...';
+
+            try {
+                const res = await fetch(`/project/${projectId}/save-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ chapter: activeChapter, content: newText })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    chapterContents[activeChapter] = data.content;
+                    updateProgressCounts();
+                    btn.innerText = '✓ Tersimpan';
+                    setTimeout(() => {
+                        btn.style.display = 'none';
+                        btn.innerText = '💾 Simpan Editan Teks';
+                    }, 1200);
+                }
+            } catch (e) {
+                alert('Gagal menyimpan perubahan.');
+                btn.innerText = '💾 Simpan Editan Teks';
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        async function submitGuideline(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-guideline');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const fd = new FormData(document.getElementById('form-guideline'));
+            try {
+                const res = await fetch(`/project/${projectId}/guideline`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: fd
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeModal('modal-guideline');
+                } else {
+                    alert(data.message || 'Gagal menyimpan pedoman.');
+                }
+            } catch (err) {
+                alert('Gagal mengunggah pedoman kampus.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simpan Pedoman Kampus';
+            }
+        }
+
+        async function submitRevision(e) {
+            e.preventDefault();
+            const ch = document.getElementById('revise-chapter-select').value;
+            const instruction = document.getElementById('revise-instruction').value.trim();
+            const fileInput = document.getElementById('revise-file');
+
+            if (!instruction && (!fileInput.files || !fileInput.files.length)) {
+                alert('Tuliskan catatan revisi atau unggah foto coretan / dokumen revisi dosen.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-revise');
+            btn.disabled = true;
+            btn.innerText = 'Memproses Revisi...';
+            closeModal('modal-revise');
+            showFloatingProgress('Merevisi ' + (chapterMeta[ch]?.title || 'Bab') + ' sesuai arahan dosen...');
+
+            const fd = new FormData();
+            fd.append('chapter', ch);
+            fd.append('instruction', instruction);
+            fd.append('model', document.getElementById('studio-model').value);
+            if (fileInput.files && fileInput.files[0]) {
+                fd.append('revision_file', fileInput.files[0]);
+            }
+
+            try {
+                const res = await fetch(`/project/${projectId}/revise`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: fd
+                });
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    chapterContents[ch] = data.content;
+                    updateProgressCounts();
+                    selectChapterView(ch);
+                    document.getElementById('revise-instruction').value = '';
+                    fileInput.value = '';
+                } else {
+                    alert(data.error || 'Gagal merevisi bab.');
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan saat merevisi bab.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Proses Revisi dengan AI';
+                hideFloatingProgress();
+            }
+        }
+
+        function previewCoverLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById('cover-logo-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('download-logo-base64').value = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Render Bab I saat pertama kali dibuka
+        selectChapterView('bab1');
+    </script>
 </body>
 </html>
