@@ -49,10 +49,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api-key/add', [GeneratorController::class, 'addApiKey'])->name('api.key.add');
     Route::post('/reward/claim', [GeneratorController::class, 'claimReward'])->name('reward.claim');
 
-    // --- AI TOOLS (JUDUL, JURNAL, & CHAT) ---
+    // --- AI TOOLS (JUDUL, JURNAL, PROPOSAL, PARAFRASE, PPT, SIMULASI SIDANG & CHAT) ---
     Route::post('/tools/generate-titles', [GeneratorController::class, 'generateTitles'])->name('tools.titles');
     Route::post('/tools/find-journals', [GeneratorController::class, 'findJournals'])->name('tools.journals');
     Route::post('/tools/solve-question', [GeneratorController::class, 'solveQuestion'])->name('tools.solve');
+    Route::post('/tools/generate-proposal', [GeneratorController::class, 'generateProposal'])->name('tools.proposal');
+    Route::post('/tools/paraphrase', [GeneratorController::class, 'paraphraseText'])->name('tools.paraphrase');
+    Route::post('/tools/generate-ppt', [GeneratorController::class, 'generatePpt'])->name('tools.ppt');
+    Route::post('/tools/simulate-defense', [GeneratorController::class, 'simulateDefense'])->name('tools.defense');
     
     // INI YANG SEBELUMNYA HILANG/ERROR:
     Route::post('/chat/ask', [GeneratorController::class, 'askAi'])->name('chat.ask');

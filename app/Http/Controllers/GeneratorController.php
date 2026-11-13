@@ -230,95 +230,168 @@ ATURAN STRUKTURAL & LINGUISTIK (SANGAT KETAT):
     private function promptBab(string $bab, Project $project): string
     {
         $master = $this->promptMaster($project);
-        
+        $metodeLower = strtolower($project->metode_penelitian ?? '');
+        $isRnD = str_contains($metodeLower, 'r&d') || str_contains($metodeLower, 'waterfall') || str_contains($metodeLower, 'agile') || str_contains($metodeLower, 'prototype');
+        $isKualitatif = str_contains($metodeLower, 'kualitatif');
+
         $context = "";
-        if ($bab == 'bab2') $context = "KONTEKS BAB 1: " . Str::limit(strip_tags($project->bab1_content), 1000);
-        elseif ($bab == 'bab3') $context = "KONTEKS TUJUAN: " . Str::limit(strip_tags($project->bab1_content), 800);
-        elseif ($bab == 'bab4') $context = "KONTEKS METODE: " . Str::limit(strip_tags($project->bab3_content), 800);
+        if ($bab == 'bab2') $context = "KONTEKS BAB 1 (RUMUSAN & TUJUAN): " . Str::limit(strip_tags($project->bab1_content), 1200);
+        elseif ($bab == 'bab3') $context = "KONTEKS BAB 1 & 2: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab2_content), 1200);
+        elseif ($bab == 'bab4') $context = "KONTEKS RUMUSAN MASALAH & METODOLOGI BAB 3: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab3_content), 1500);
         elseif ($bab == 'bab5') {
-            $context = "HASIL PENELITIAN: " . Str::limit(strip_tags($project->bab4_content), 1000);
-            
-            // MENAIKKAN LIMIT KARAKTER AGAR LEBIH BANYAK SITASI TERBACA
+            $context = "HASIL PENELITIAN BAB 4: " . Str::limit(strip_tags($project->bab4_content), 1500);
             $allText = $project->bab1_content . " " . $project->bab2_content . " " . $project->bab3_content . " " . $project->bab4_content;
-            $context .= "\n\n=== TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 15000); 
+            $context .= "\n\n=== TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 15000);
         }
+
+        // SKILL KHUSUS BAB 3 BERDASARKAN METODE PENELITIAN KAMPUS INDONESIA
+        $bab3Skill = match (true) {
+            $isRnD => "
+Sub-bab wajib untuk Metode R&D / Rekayasa Sistem ({$project->metode_penelitian}):
+3.1 Metode Pengembangan Sistem
+   - Jelaskan tahapan pengembangan sistem secara sistematis sesuai model {$project->metode_penelitian} (Analisis Kebutuhan, Desain Sistem, Implementasi Pengkodean, Pengujian, dan Pemeliharaan).
+3.2 Tempat dan Waktu Penelitian
+   - Uraikan lokasi objek penelitian dan rincian tahapan waktu pelaksanaan penelitian.
+3.3 Teknik Pengumpulan Data
+   - Jelaskan teknik Observasi sistem berjalan, Wawancara dengan stakeholder/pengguna, dan Studi Pustaka.
+3.4 Analisis Sistem Berjalan dan Kebutuhan Sistem
+   - Uraikan identifikasi masalah sistem berjalan (analisis PIECES), Kebutuhan Fungsional (fitur utama sistem), serta Kebutuhan Non-Fungsional (spesifikasi perangkat keras dan perangkat lunak).
+3.5 Perancangan Sistem
+   - Jelaskan rancangan arsitektur sistem, pemodelan Unified Modeling Language (Use Case Diagram, Activity Diagram, Sequence Diagram, Class Diagram), perancangan struktur basis data (Entity Relationship Diagram / ERD), serta rancangan antarmuka pengguna (User Interface).
+3.6 Metode Pengujian Sistem
+   - Uraikan skenario pengujian fungsional menggunakan metode Black-Box Testing (Equivalence Partitioning) dan pengujian kelayakan pengguna (User Acceptance Test / System Usability Scale).",
+
+            $isKualitatif => "
+Sub-bab wajib untuk Metode Kualitatif ({$project->metode_penelitian}):
+3.1 Pendekatan dan Jenis Penelitian
+   - Argumentasikan pemilihan pendekatan kualitatif deskriptif/studi kasus untuk membedah fenomena penelitian secara holistik dan mendalam.
+3.2 Lokasi dan Waktu Penelitian
+   - Paparkan alasan akademik dan empiris pemilihan lokasi penelitian.
+3.3 Fokus Penelitian
+   - Tetapkan batasan dan indikator fokus penelitian agar eksplorasi lapangan terarah.
+3.4 Sumber Data dan Teknik Penentuan Informan
+   - Bedakan Data Primer dan Data Sekunder. Jelaskan pemilihan Informan Kunci (Key Informant), Informan Utama, dan Informan Pendukung menggunakan teknik Purposive Sampling atau Snowball Sampling.
+3.5 Teknik Pengumpulan Data
+   - Uraikan pelaksanaan Observasi Partisipatif, Wawancara Mendalam (In-depth Interview) semi-terstruktur, dan Studi Dokumentasi.
+3.6 Teknik Pemeriksaan Keabsahan Data
+   - Jelaskan uji kredibilitas data melalui Triangulasi Sumber, Triangulasi Teknik, Triangulasi Waktu, serta Member Check menurut Lincoln & Guba / Sugiyono.
+3.7 Teknik Analisis Data
+   - Uraikan tahapan analisis model interaktif Miles, Huberman, dan Saldana: Kondensasi Data (Data Condensation), Penyajian Data (Data Display), dan Penarikan Kesimpulan/Verifikasi (Conclusion Drawing).",
+
+            default => "
+Sub-bab wajib untuk Metode Kuantitatif ({$project->metode_penelitian}):
+3.1 Jenis dan Desain Penelitian
+   - Jelaskan pendekatan kuantitatif asosiatif/kausal atau eksperimen beserta rasionalitas ilmiahnya.
+3.2 Lokasi dan Waktu Penelitian
+   - Uraikan tempat dan jadwal tahapan riset.
+3.3 Populasi dan Sampel Penelitian
+   - Jelaskan karakteristik populasi target, teknik sampling (Probability/Non-Probability Sampling), dan penentuan ukuran sampel minimum (misalnya menggunakan Rumus Slovin atau Hair et al.).
+3.4 Definisi Operasional dan Pengukuran Variabel
+   - Jabarkan definisi operasional setiap variabel (Variabel Independen dan Dependen), dimensi, indikator pengukuran, serta penggunaan Skala Likert 1-5.
+3.5 Teknik dan Instrumen Pengumpulan Data
+   - Uraikan penyusunan kuesioner/angket, studi dokumentasi, dan kisi-kisi instrumen penelitian.
+3.6 Uji Instrumen Penelitian
+   - Jelaskan prosedur Uji Validitas (Pearson Product Moment r-hitung > r-tabel) dan Uji Reliabilitas (Cronbach's Alpha > 0,70).
+3.7 Teknik Analisis Data dan Uji Hipotesis
+   - Uraikan tahapan Analisis Statistik Deskriptif, Uji Asumsi Klasik (Uji Normalitas Kolmogorov-Smirnov, Uji Multikolinearitas Tolerance & VIF, Uji Heteroskedastisitas Glejser), Analisis Regresi Linear, Uji Parsial (Uji t), Uji Simultan (Uji F), dan Koefisien Determinasi (R-Square)."
+        };
+
+        // SKILL KHUSUS BAB 4 BERDASARKAN METODE PENELITIAN
+        $bab4Skill = match (true) {
+            $isRnD => "
+Sub-bab wajib untuk Hasil & Pembahasan R&D / Sistem ({$project->metode_penelitian}):
+4.1 Gambaran Umum Objek Penelitian dan Analisis Sistem Berjalan
+   - Deskripsikan profil instansi/objek riset dan alur kerja sistem yang sedang berjalan beserta kendalanya.
+4.2 Hasil Perancangan dan Implementasi Sistem
+   - Uraikan realisasi perancangan basis data, arsitektur modul, spesifikasi lingkungan implementasi, serta penjelasan detail setiap fitur/halaman utama yang telah dibangun.
+4.3 Hasil Pengujian Sistem
+   - Sajikan hasil pengujian Black-Box pada setiap modul utama (semua skenario valid) dan hasil rekapitulasi kuesioner pengujian pengguna (User Acceptance Test) dengan persentase kelayakan tinggi.
+4.4 Pembahasan Hasil Penelitian
+   - Analisis secara kritis bagaimana sistem yang dibangun menjawab rumusan masalah di Bab 1, kelebihan arsitektur sistem, serta perbandingannya dengan penelitian terdahulu di Bab 2. MINIMAL 5 PARAGRAF EKSTENSIF.",
+
+            $isKualitatif => "
+Sub-bab wajib untuk Hasil & Pembahasan Kualitatif ({$project->metode_penelitian}):
+4.1 Gambaran Umum Lokasi Penelitian dan Karakteristik Informan
+   - Deskripsikan konteks sosial/institusional objek penelitian dan profil informan penelitian secara mendalam.
+4.2 Paparan Data dan Temuan Penelitian
+   - Sajikan temuan lapangan secara naratif untuk setiap fokus penelitian, dilengkapi kutipan wawancara konseptual dari informan kunci dan hasil observasi dokumentasi.
+4.3 Pembahasan Temuan Penelitian
+   - Lakukan analisis sintesis yang mempertemukan temuan empiris lapangan dengan Landasan Teori (Grand/Middle Theory) dan penelitian terdahulu pada Bab 2. MINIMAL 6 PARAGRAF EKSTENSIF.",
+
+            default => "
+Sub-bab wajib untuk Hasil & Pembahasan Kuantitatif ({$project->metode_penelitian}):
+4.1 Gambaran Umum Objek Penelitian dan Karakteristik Responden
+   - Deskripsikan profil objek penelitian serta distribusi demografis responden (usia, jenis kelamin, tingkat pendidikan/lama bekerja).
+4.2 Hasil Analisis Data
+   - Sajikan narasi lengkap hasil Analisis Statistik Deskriptif, hasil Uji Validitas dan Reliabilitas instrumen (seluruh item valid dan reliabel dengan Cronbach's Alpha > 0,70), hasil Uji Asumsi Klasik (data berdistribusi normal, bebas multikolinearitas dan heteroskedastisitas), serta hasil persamaan Regresi, Uji t (parsial), Uji F (simultan), dan nilai Koefisien Determinasi (R2).
+4.3 Pembahasan Hasil Penelitian
+   - Interpretasikan secara mendalam makna statistik dari setiap hipotesis yang diuji. Jelaskan mekanisme kausalitas mengapa variabel independen berpengaruh signifikan terhadap variabel dependen, lalu bandingkan kesesuaiannya dengan teori para ahli dan jurnal penelitian terdahulu di Bab 2. MINIMAL 6 PARAGRAF EKSTENSIF."
+        };
 
         return match ($bab) {
             'bab1' => $master . "
-TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara komprehensif. LANGSUNG DIMULAI DARI SUB-BAB PERTAMA (Tanpa judul Bab besar).
+TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara komprehensif sesuai pedoman skripsi universitas di Indonesia (DIKTI). LANGSUNG DIMULAI DARI SUB-BAB PERTAMA (Tanpa judul Bab besar).
 
 Sub-bab wajib:
 1.1 Latar Belakang Masalah
-   - Gunakan pendekatan piramida terbalik: mulai dari konteks makro/global, turun ke fenomena/masalah empiris spesifik pada objek studi, lalu soroti research gap. Beri dukungan kutipan ahli dan uraikan mengapa skripsi ini HARUS diteliti. MINIMAL 5 PARAGRAF PANJANG.
-1.2 Rumusan Masalah
-   - Susun dalam bentuk pertanyaan penelitian yang tajam berdasarkan identifikasi masalah (poin 1., 2., 3.).
-1.3 Tujuan Penelitian
-   - Kalimat afirmatif untuk menjawab rumusan masalah.
-1.4 Manfaat Penelitian
-   - Uraikan kegunaan Teoritis (akademis) dan Praktis (untuk subjek riset/instansi).
-1.5 Sistematika Penulisan
-   - Jelaskan garis besar penulisan Bab 1 hingga 5 dalam satu paragraf per-bab.
+   - Gunakan struktur Piramida Terbalik 5 lapis:
+     (1) Konteks makro/perkembangan global dan regulasi nasional terkait topik;
+     (2) Kondisi ideal (Das Sollen) menurut teori dan standar keilmuan;
+     (3) Fenomena/masalah aktual di lapangan (Das Sein) beserta bukti empiris dan kutipan jurnal 5 tahun terakhir;
+     (4) Research Gap (kesenjangan temuan dari penelitian-penelitian terdahulu);
+     (5) Urgensi penelitian dan alasan pemilihan judul '{$project->judul}'. MINIMAL 5-6 PARAGRAF PANJANG.
+1.2 Identifikasi dan Batasan Masalah
+   - Rincikan permasalahan yang teridentifikasi di lapangan lalu tetapkan batasan masalah agar ruang lingkup penelitian terfokus.
+1.3 Rumusan Masalah
+   - Susun 3 pertanyaan penelitian akademis yang tajam, terukur, dan selaras dengan variabel judul (poin 1., 2., 3.).
+1.4 Tujuan Penelitian
+   - Susun kalimat afirmatif yang menjawab secara presisi ketiga poin pada Rumusan Masalah.
+1.5 Manfaat Penelitian
+   - Uraikan Manfaat Teoretis (kontribusi bagi pengembangan ilmu di prodi {$project->prodi}) dan Manfaat Praktis (bagi objek penelitian, praktisi, dan peneliti selanjutnya).
+1.6 Sistematika Penulisan
+   - Jelaskan rincian isi Bab I Pendahuluan, Bab II Tinjauan Pustaka, Bab III Metodologi Penelitian, Bab IV Hasil dan Pembahasan, hingga Bab V Penutup.
 ",
             'bab2' => $master . "
 $context
-TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA). INI ADALAH BAGIAN TEORETIS PALING MENDALAM.
+TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA) secara komprehensif sesuai standar skripsi Indonesia.
 
 Sub-bab wajib:
 2.1 Landasan Teori
-   - Bedah grand theory, middle range theory, dan applied theory dari setiap variabel dalam judul. Jabarkan dimensi, indikator, fungsionalitas teori menurut tokoh/ahli utama di bidang ini (sertakan nama dan tahun terkaan validitas akademis tinggi). MINIMAL 6-8 PARAGRAF MENDALAM.
+   - Bedah Grand Theory, Middle Range Theory, dan Applied Theory untuk seluruh variabel/konsep dalam judul '{$project->judul}'. Jabarkan pengertian menurut minimal 4-5 ahli (sertakan sitasi tahun), dimensi, indikator, serta faktor-faktor yang memengaruhi setiap variabel secara mendalam. MINIMAL 7-8 PARAGRAF EKSTENSIF.
 2.2 Penelitian Terdahulu
-   - Bahas 5 penelitian terdahulu yang relevan. Jangan berbentuk tabel. Bentuk teks naratif: Nama Peneliti (Tahun) meneliti mengenai... dengan metode... hasil dan implikasinya... Letak perbedaan penelitian saat ini adalah (posisi state of the art).
-2.3 Kerangka Berpikir / Konseptual
-   - Jelaskan narasi rasionalitas antar-variabel atau antar-fenomena dari hulu ke hilir.
-2.4 Hipotesis Penelitian / Fokus Peneltian
-   - Tergantung jenis riset, ajukan dugaan sementara secara jelas (Ha dan H0 jika studi kuantitatif).
+   - Bahas minimal 5 penelitian jurnal terdahulu (rentang 2020-2025) secara naratif: sebutkan Nama Peneliti (Tahun), judul/fokus topik, metode yang dipakai, hasil temuan utama, serta persamaan dan perbedaan (letak kebaruan / state of the art) dengan penelitian ini.
+2.3 Kerangka Pemikiran
+   - Jelaskan alur logika teoretis yang menghubungkan antar-variabel atau tahapan pemecahan masalah dari awal hingga akhir secara sistematis.
+2.4 Hipotesis Penelitian / Proposisi Penelitian
+   - Rumuskan hipotesis penelitian (H0 dan Ha) secara jelas jika kuantitatif/eksperimen, atau fokus proposisi kerja jika kualitatif/R&D.
 ",
             'bab3' => $master . "
 $context
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN). Sesuaikan dengan ketat metode: {$project->metode_penelitian}.
-
-Sub-bab wajib:
-3.1 Pendekatan dan Jenis Penelitian
-   - Argumentasikan MENGAPA metode rasionalis ini digunakan untuk mensintesis judul. 
-3.2 Objek, Tempat, dan Waktu Penelitian
-   - Paparkan alasan penentuan area studi.
-3.3 Populasi dan Sampel (Kuantitatif) / Informan (Kualitatif)
-   - Jabarkan penentuan subjek, sebut teknis purposif/random, lalu argumentasikan rumusnya jika kuantitatif (Misal Slovin).
-3.4 Teknik Pengumpulan Data
-   - Uraikan instrumen: Observasi, Wawancara, Kuesioner/Survei, Dokumentasi. Beri ulasan setiap instrumenya.
-3.5 Uji Keabsahan / Instrumen Validitas dan Reliabilitas
-3.6 Teknik Analisis Data
-   - Uraikan tahap pengolahan data persis dengan metode statistik (Misal regresi linear berganda) atau Miles & Huberman (reduksi, display, penarikan kesimpulan kualitatif).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) yang presisi dan sesuai pedoman skripsi Indonesia untuk metode: {$project->metode_penelitian}.
+$bab3Skill
 ",
             'bab4' => $master . "
 $context
-TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN). Bagian ini adalah ruh inti intelektual penelitian.
-
-Sub-bab wajib:
-4.1 Gambaran Umum Objek Penelitian
-   - Buat narasi simulasi deskripsi fisik, historis, dan sosiologis lokasi/objek riset yang sesuai topik persoalan judul proyek.
-4.2 Hasil Penelitian
-   - Sajikan deskripsi statistik atau pemaparan bukti lapangan secara naratif dan panjang. Gunakan data numerik proksi wajar untuk meyakinkan pembaca (Jika Kuantitatif) atau kutipan transkrip wawancara konseptual.
-4.3 Pembahasan
-   - BAGIAN PALING PENTING. Analisis, sintesis, dan interpretasikan temuan nomor 4.2. Konfirmasi apakah temuan ini KONGRUEN dengan Landasan Teori Bab 2 dan menolak / mendukung Hipotesis. Tulis argumen saintifik setajam mungkin mengapa hasil tersebut terjadi di lapangan. MINIMAL 5 PARAGRAF EKSTENSIF.
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN) secara mendalam, akademis, dan selaras dengan rumusan masalah serta metode {$project->metode_penelitian}.
+$bab4Skill
 ",
             'bab5' => $master . "
 $context
-TUGAS: Tulis Isi BAB V (PENUTUP).
+TUGAS: Tulis Isi BAB V (PENUTUP) yang koheren dengan Bab 1 hingga Bab 4.
 
 Sub-bab wajib:
 5.1 Kesimpulan
-   - Jangan menyalin ulang hasil/pembahasan. Konversikan temuan menjadi jawaban sintesis tegas atas seluruh rumusan masalah.
+   - Jawab secara tegas, lugas, dan sistematis setiap poin Rumusan Masalah di Bab 1 berdasarkan sintesis hasil temuan di Bab 4.
 5.2 Saran
-   - Berikan rekomendasi operasional untuk praktisi dan terobosan akademis untuk peneliti selanjutnya.
+   - Berikan rekomendasi aplikatif yang konkret bagi instansi/objek penelitian dan saran metodologis bagi peneliti selanjutnya.
 
 INSTRUKSI KHUSUS DAFTAR PUSTAKA:
-1. Selesaikan paragraf Saran.
+1. Selesaikan seluruh sub-bab Saran.
 2. BUAT BARIS BARU DENGAN TULISAN EXACT BERIKUT:
 ===DAFTAR PUSTAKA===
-3. Di bawah garis tersebut, tulis minimal 15 REFERENSI dengan format APA Style.
-4. SUMBER REFERENSI: Kumpulkan dari SETIAP NAMA (SITASI) YANG TELAH MUNCUL DARI BAB 1 HINGGA BAB 4, ditambahkan referensi fundamen tambahan khusus pakar metodologi penelitian dan pakar teori inti variabel proyek ini.
-5. Urutkan berdasarkan Abjad A-Z.
+3. Di bawah pemisah tersebut, susun minimal 15-20 REFERENSI ilmiah dengan format APA Style 7th Edition yang baku.
+4. SUMBER REFERENSI: Wajib mencakup SELURUH nama penulis dan tahun sitasi yang muncul di dalam teks Bab 1 hingga Bab 4, ditambah buku metodologi penelitian standar Indonesia (seperti Sugiyono, Creswell, Arikunto, atau Pressman) dan jurnal bereputasi sesuai bidang '{$project->prodi}'.
+5. Urutkan secara alfabetis (A-Z).
 ",
             default => $master
         };
@@ -733,6 +806,237 @@ INSTRUKSI KHUSUS DAFTAR PUSTAKA:
                 'new_credits' => $user->credits
             ]);
 
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // =========================================================================
+    // 7. FITUR BARU: GENERATOR PROPOSAL, PARAFRASE, PPT SIDANG, SIMULASI SIDANG
+    // =========================================================================
+
+    public function generateProposal(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->credits < 1) {
+            return response()->json(['status' => 'error', 'message' => 'Token habis! Klaim reward harian terlebih dahulu.']);
+        }
+
+        $request->validate([
+            'judul' => 'required|string',
+            'prodi' => 'required|string',
+            'metode' => 'required|string',
+            'masalah' => 'nullable|string',
+        ]);
+
+        $model = $request->input('model', 'auto');
+
+        $prompt = "PERAN: Anda adalah Profesor Pembimbing Skripsi Senior di Universitas Indonesia.
+TUGAS: Susun Draf PROPOSAL SKRIPSI (BAB I, BAB II, dan BAB III) yang sangat terstruktur, mendalam, dan sesuai standar buku pedoman skripsi perguruan tinggi Indonesia (DIKTI, KBBI, EYD V, APA 7th Edition).
+
+DETAIL PENELITIAN:
+- Judul Proposal: {$request->judul}
+- Program Studi: {$request->prodi}
+- Metode Penelitian: {$request->metode}
+- Fenomena / Masalah Utama: " . ($request->masalah ?: 'Sesuaikan secara empiris dengan judul penelitian') . "
+
+STRUKTUR WAJIB YANG HARUS DITULIS LENGKAP:
+
+## BAB I PENDAHULUAN
+### 1.1 Latar Belakang Masalah
+(Tulis minimal 4 paragraf mendalam dengan pendekatan Piramida Terbalik: Fenomena Makro -> Das Sollen vs Das Sein -> Kutipan Jurnal 2020-2025 -> Research Gap -> Urgensi Judul)
+### 1.2 Identifikasi dan Batasan Masalah
+### 1.3 Rumusan Masalah (3 Pertanyaan Penelitian)
+### 1.4 Tujuan Penelitian
+### 1.5 Manfaat Penelitian (Teoretis & Praktis)
+
+## BAB II TINJAUAN PUSTAKA
+### 2.1 Landasan Teori (Grand Theory, Middle Theory, & Indikator Variabel menurut para ahli)
+### 2.2 Penelitian Terdahulu (3-5 Jurnal Relevan beserta letak State of the Art / kebaruan)
+### 2.3 Kerangka Pemikiran
+### 2.4 Hipotesis / Proposisi Penelitian
+
+## BAB III METODOLOGI PENELITIAN
+### 3.1 Pendekatan dan Desain Penelitian ({$request->metode})
+### 3.2 Objek, Populasi/Sampel atau Subjek/Informan Penelitian
+### 3.3 Teknik Pengumpulan Data & Instrumen
+### 3.4 Teknik Analisis Data & Pengujian
+
+## DAFTAR PUSTAKA AWAL (APA Style 7th Edition - Minimal 8 Referensi)
+
+INSTRUKSI: Gunakan bahasa Indonesia ilmiah yang baku dan kohesif. Jangan beri kalimat pembuka basa-basi AI.";
+
+        try {
+            $proposal = $this->ai->generateText($prompt, $model);
+            $user->decrement('credits');
+
+            return response()->json([
+                'status' => 'success',
+                'proposal' => $proposal,
+                'new_credits' => $user->credits
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function paraphraseText(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->credits < 1) {
+            return response()->json(['status' => 'error', 'message' => 'Token habis! Klaim reward harian terlebih dahulu.']);
+        }
+
+        $request->validate([
+            'text' => 'required|string|min:20',
+            'style' => 'nullable|string',
+        ]);
+
+        $style = $request->input('style', 'academic');
+        $model = $request->input('model', 'auto');
+
+        $styleInstruction = match ($style) {
+            'anti_turnitin' => 'Ubah struktur kalimat aktif/pasif dan gunakan sinonim akademik tingkat lanjut agar lolos uji kemiripan Turnitin (<10% similarity) tanpa mengubah makna ilmiah maupun sitasi dalam kurung.',
+            'concise' => 'Padatkan dan ringkas kalimat agar lebih lugas, efektif, dan tidak bertele-tele sesuai kaidah EYD V dan KBBI.',
+            'expand' => 'Perluas dan perdalam penjelasan akademik dengan menambahkan elaborasi logis dan kohesi antar-kalimat yang elegan.',
+            default => 'Tulis ulang dengan gaya Bahasa Indonesia Ilmiah Baku (Standar Skripsi/Jurnal SINTA) yang mengalir alami, koheren, dan bebas plagiarisme.'
+        };
+
+        $prompt = "PERAN: Anda adalah Editor Bahasa Ilmiah & Pakar Parafrase Akademik (KBBI & EYD V).
+TUGAS: Lakukan parafrase pada teks akademik berikut.
+GAYA PARAFRASE: {$styleInstruction}
+
+ATURAN KETAT:
+1. Pertahankan seluruh sitasi nama penulis dan tahun (misal: Menurut Sugiyono (2022) atau (Wijaya, 2023)) agar tidak hilang.
+2. Jangan tambahkan kata pengantar seperti 'Berikut hasil parafrasenya:'. Langsung berikan teks hasil parafrase saja.
+
+TEKS ASLI:
+\"\"\"
+{$request->text}
+\"\"\"
+
+HASIL PARAFRASE:";
+
+        try {
+            $result = $this->ai->generateText($prompt, $model);
+            $user->decrement('credits');
+
+            return response()->json([
+                'status' => 'success',
+                'result' => trim($result),
+                'new_credits' => $user->credits
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function generatePpt(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->credits < 1) {
+            return response()->json(['status' => 'error', 'message' => 'Token habis! Klaim reward harian terlebih dahulu.']);
+        }
+
+        $request->validate([
+            'judul' => 'required|string',
+            'prodi' => 'nullable|string',
+            'metode' => 'nullable|string',
+            'ringkasan' => 'nullable|string',
+        ]);
+
+        $model = $request->input('model', 'auto');
+
+        $prompt = "PERAN: Anda adalah Konsultan Presentasi Sidang Skripsi Akademik.
+TUGAS: Buatkan struktur materi SLIDE PPT SIDANG SKRIPSI (9 Slide Lengkap) beserta NASKAH BICARA PRESENTER (Speaker Notes) yang memukau Dosen Penguji.
+
+DATA SKRIPSI:
+- Judul: {$request->judul}
+- Program Studi: " . ($request->prodi ?: 'Umum') . "
+- Metode Penelitian: " . ($request->metode ?: 'Ilmiah') . "
+- Ringkasan / Poin Tambahan: " . ($request->ringkasan ?: 'Sesuaikan secara logis dengan judul') . "
+
+FORMAT OUTPUT WAJIB (Gunakan Markdown rapi per Slide):
+Buat tepat 9 Slide:
+- **Slide 1: Cover & Identitas Penelitian**
+- **Slide 2: Latar Belakang & Urgensi Masalah (Fenomena & Data)**
+- **Slide 3: Research Gap & Rumusan Masalah**
+- **Slide 4: Tujuan & Manfaat Penelitian**
+- **Slide 5: Landasan Teori & Kerangka Pemikiran**
+- **Slide 6: Penelitian Terdahulu (State of the Art)**
+- **Slide 7: Metodologi Penelitian & Tahapan Analisis**
+- **Slide 8: Hasil Penelitian & Pembahasan Utama**
+- **Slide 9: Kesimpulan, Saran & Penutup**
+
+Pada SETIAP Slide, wajib tuliskan:
+1. **Poin Visual Slide** (3-4 bullet pendek & padat untuk ditampilkan di layar PPT)
+2. **🎙️ Naskah Bicara (Script Presentasi):** Kalimat yang diucapkan mahasiswa saat menjelaskan slide tersebut di depan dosen penguji.";
+
+        try {
+            $slides = $this->ai->generateText($prompt, $model);
+            $user->decrement('credits');
+
+            return response()->json([
+                'status' => 'success',
+                'slides' => $slides,
+                'new_credits' => $user->credits
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function simulateDefense(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->credits < 1) {
+            return response()->json(['status' => 'error', 'message' => 'Token habis! Klaim reward harian terlebih dahulu.']);
+        }
+
+        $request->validate([
+            'judul' => 'required|string',
+            'metode' => 'nullable|string',
+            'mode' => 'required|in:start,answer',
+            'question' => 'nullable|string',
+            'answer' => 'nullable|string',
+        ]);
+
+        $model = $request->input('model', 'auto');
+
+        if ($request->mode === 'start') {
+            $prompt = "PERAN: Anda adalah Ketua Dewan Dosen Penguji Sidang Skripsi S1 yang kritis, objektif, namun konstruktif.
+KONTEKS MAHASISWA:
+- Judul Skripsi: {$request->judul}
+- Metode Penelitian: " . ($request->metode ?: 'Sesuai judul') . "
+
+TUGAS:
+1. Sambut mahasiswa di ruang sidang secara singkat dan berwibawa.
+2. Ajukan 1 PERTANYAAN PENGUJI YANG PALING KRITIS & SERING DITANYAKAN saat sidang skripsi terkait urgensi pemilihan judul, fenomena masalah (research gap), atau ketepatan metode penelitian di atas.
+3. Berikan juga *Hint / Kisi-kisi singkat* di bagian bawah tentang poin apa yang sebaiknya mahasiswa masukkan dalam jawabannya.";
+        } else {
+            $prompt = "PERAN: Anda adalah Dewan Dosen Penguji Sidang Skripsi S1.
+KONTEKS SKRIPSI:
+- Judul: {$request->judul}
+- Metode: " . ($request->metode ?: 'Sesuai judul') . "
+- Pertanyaan Dosen Sebelumnya: \"{$request->question}\"
+- Jawaban Mahasiswa: \"{$request->answer}\"
+
+TUGAS EVALUASI SIDANG:
+1. **🎯 Skor Jawaban:** Berikan nilai (0-100) untuk kualitas argumen jawaban mahasiswa tersebut.
+2. **📋 Evaluasi Dosen Penguji:** Berikan ulasan apa yang sudah bagus dari jawaban mahasiswa dan bagian mana yang masih kurang tajam/kurang landasan ilmiah.
+3. **💡 Contoh Jawaban Terbaik (Standar Nilai A):** Tuliskan contoh kalimat jawaban lisan yang paling ideal dan meyakinkan untuk menjawab pertanyaan tadi.
+4. **❓ Pertanyaan Penguji Berikutnya:** Ajukan 1 pertanyaan lanjutan baru yang menguji penguasaan Bab 2 (Teori/Variabel), Bab 3 (Instrumen/Metode), atau Bab 4 (Hasil & Implikasi).";
+        }
+
+        try {
+            $reply = $this->ai->generateText($prompt, $model);
+            $user->decrement('credits');
+
+            return response()->json([
+                'status' => 'success',
+                'reply' => $reply,
+                'new_credits' => $user->credits
+            ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }

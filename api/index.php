@@ -30,11 +30,15 @@ $_SERVER['APP_SERVICES_CACHE'] = '/tmp/services.php';
 $_SERVER['APP_PACKAGES_CACHE'] = '/tmp/packages.php';
 $_SERVER['APP_ROUTES_CACHE'] = '/tmp/routes.php';
 
-// C. Hardcode APP_KEY (Ganti teks di bawah dengan key Anda!)
-$key = 'base64:7nVjl4abxJYdrnyryvJBcNckBFUKI60T5YSluLwB3lE='; // <--- CONTOH: 'base64:XyZ/3uO9a+...'
+// C. Hardcode APP_KEY & Gunakan Cookie Session agar tidak 419 Page Expired di Serverless Vercel
+$key = 'base64:7nVjl4abxJYdrnyryvJBcNckBFUKI60T5YSluLwB3lE=';
 putenv('APP_KEY=' . $key);
 $_ENV['APP_KEY'] = $key;
 $_SERVER['APP_KEY'] = $key;
+
+putenv('SESSION_DRIVER=cookie');
+$_ENV['SESSION_DRIVER'] = 'cookie';
+$_SERVER['SESSION_DRIVER'] = 'cookie';
 
 /* ========================================================= */
 

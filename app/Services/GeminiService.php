@@ -11,65 +11,82 @@ use GuzzleHttp\Exception\ConnectException;
 
 class GeminiService
 {
+    private array $fallbackModels = [
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+    ];
+
     /**
-     * Ambil API key aktif (paling jarang dipakai)
-     * Ditambahkan filter $excludedIds agar tidak mengambil key yang sedang limit
+     * Ambil API key aktif khusus provider 'gemini' (atau fallback ke .env GEMINI_API_KEY)
      */
-    private function getWorkingApiKey(array $excludedIds = []): ?ApiKey
+    private function getWorkingApiKey(array $excludedIds = []): ?object
     {
-        // Query dasar
-        $query = ApiKey::where('is_active', true);
+        try {
+            $query = ApiKey::where('provider', 'gemini')->where('is_active', true);
 
-        // FITUR BARU: Jangan ambil key yang ada di daftar exclude
-        if (!empty($excludedIds)) {
-            $query->whereNotIn('id', $excludedIds);
-        }
-
-        $key = $query->orderBy('usage_count', 'asc')->first();
-
-        // Jika tidak ada key (mungkin semua masuk exclude atau mati semua)
-        if (!$key) {
-            // Cek apakah database kosong total dari key aktif?
-            $totalActive = ApiKey::where('is_active', true)->count();
-
-            // Jika excludedIds penuh (semua key sudah dicoba), reset exclude list untuk coba lagi
-            if ($totalActive > 0 && count($excludedIds) >= $totalActive) {
-                return ApiKey::where('is_active', true)->inRandomOrder()->first();
+            if (!empty($excludedIds)) {
+                $query->whereNotIn('id', $excludedIds);
             }
 
-            // Fail-safe: aktifkan ulang semua key jika semua mati
-            if ($totalActive === 0) {
-                ApiKey::query()->update(['is_active' => true]);
-                return ApiKey::where('is_active', true)->orderBy('usage_count', 'asc')->first();
+            $key = $query->orderBy('usage_count', 'asc')->first();
+
+            if (!$key) {
+                $totalActive = ApiKey::where('provider', 'gemini')->where('is_active', true)->count();
+
+                if ($totalActive > 0 && count($excludedIds) >= $totalActive) {
+                    return ApiKey::where('provider', 'gemini')->where('is_active', true)->inRandomOrder()->first();
+                }
+
+                if ($totalActive === 0 && ApiKey::where('provider', 'gemini')->count() > 0) {
+                    ApiKey::where('provider', 'gemini')->update(['is_active' => true]);
+                    return ApiKey::where('provider', 'gemini')->where('is_active', true)->orderBy('usage_count', 'asc')->first();
+                }
             }
-            
-            return null;
+
+            if ($key) {
+                return $key;
+            }
+        } catch (Exception $e) {
+            Log::warning('DB ApiKey lookup skipped: ' . $e->getMessage());
         }
 
-        return $key;
+        // Fallback ke .env GEMINI_API_KEY untuk tahap build / gratisan
+        $envKey = config('services.gemini.key') ?: env('GEMINI_API_KEY');
+        if (!empty($envKey)) {
+            return (object) [
+                'id' => 0,
+                'key' => $envKey,
+                'is_env' => true,
+            ];
+        }
+
+        return null;
     }
 
     /**
-     * Generate text dari Gemini (AUTO ROTATE + RETRY)
+     * Generate text dari Gemini (AUTO ROTATE KEY + AUTO FALLBACK MODEL)
      */
     public function generateText(string $prompt): string
     {
-        // Hitung jumlah key agar retry menyesuaikan jumlah key
-        $totalKeys = ApiKey::where('is_active', true)->count();
-        $maxRetries = $totalKeys > 0 ? $totalKeys + 2 : 5;
+        $totalKeys = 0;
+        try {
+            $totalKeys = ApiKey::where('provider', 'gemini')->where('is_active', true)->count();
+        } catch (Exception $e) {}
 
-        $excludedIds = []; // Daftar Key yang error di request ini
-        $lastError = ''; // Menyimpan pesan error asli dari API
+        $maxRetries = $totalKeys > 0 ? $totalKeys + 2 : 3;
+        $excludedIds = [];
+        $lastError = '';
+        $modelIndex = 0;
 
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             $apiKeyModel = null;
 
             try {
-                // Minta key, tapi hindari yang sudah gagal (exclude)
                 $apiKeyModel = $this->getWorkingApiKey($excludedIds);
 
                 if (!$apiKeyModel) {
-                    throw new Exception('Semua API Key telah dicoba dan limit/habis.');
+                    throw new Exception('API Key Gemini belum diatur di menu API Key maupun di .env (GEMINI_API_KEY).');
                 }
 
                 $client = new Client([
@@ -77,12 +94,12 @@ class GeminiService
                     'verify'  => false,
                 ]);
 
-                // Otomatis fallback jika 404
-                $currentModel = $currentModel ?? 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1/models/{$currentModel}:generateContent";
+                $currentModel = $this->fallbackModels[$modelIndex] ?? 'gemini-2.0-flash';
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
-                // Jeda sedikit agar tidak spamming server
-                if ($attempt > 1) sleep(1);
+                if ($attempt > 1) {
+                    usleep(400000);
+                }
 
                 $response = $client->post($url, [
                     'query' => ['key' => $apiKeyModel->key],
@@ -93,6 +110,10 @@ class GeminiService
                                     ['text' => $prompt]
                                 ]
                             ]
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.65,
+                            'maxOutputTokens' => 8192,
                         ]
                     ]
                 ]);
@@ -104,117 +125,80 @@ class GeminiService
                     throw new Exception('Konten kosong dari Gemini.');
                 }
 
-                // Sukses -> Update penggunaan
-                $apiKeyModel->increment('usage_count');
+                if (empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'increment')) {
+                    $apiKeyModel->increment('usage_count');
+                }
 
                 return $text;
 
             } catch (RequestException $e) {
                 $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
 
-                // Catat ID key ini agar tidak dipilih lagi di putaran berikutnya
-                if ($apiKeyModel) {
-                    $excludedIds[] = $apiKeyModel->id;
-                }
-
-                // ===== QUOTA / RATE LIMIT (429) =====
-                if ($status === 429) {
-                    Log::warning("Gemini 429 (Limit) pada Key ID {$apiKeyModel?->id}. Ganti ke key lain...");
-                    $lastError = "HTTP 429: Rate limit dicapai. " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '');
-                    // PERBAIKAN UTAMA: Hapus sleep(60).
-                    // Langsung continue agar fungsi getWorkingApiKey mengambil key BERIKUTNYA.
-                    continue; 
-                }
-
-                // ===== MODEL / REQUEST ERROR (FATAL) =====
-                if ($status === 404) {
-                    Log::error("Model $currentModel tidak ditemukan. Mencoba fallback model...");
-                    
-                    if ($currentModel === 'gemini-1.5-flash') {
-                        $currentModel = 'gemini-pro';
-                        $attempt--; // Jangan hitung sebagai kegagalan limit key
-                        continue;
-                    }
-                    
-                    if ($currentModel === 'gemini-pro') {
-                        $currentModel = 'gemini-1.5-pro';
-                        $attempt--;
-                        continue;
-                    }
-
-                    $rawBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : '';
-                    Log::error("Semua model fallback gagal/404 pada Key ID {$apiKeyModel?->id}. Raw: $rawBody");
-                    $lastError = "HTTP 404: $rawBody";
-                    continue; 
-                }
-
-                if ($status === 400 || $status === 403) {
-                    // Key rusak, matikan
-                    if ($apiKeyModel) {
-                        $apiKeyModel->update(['is_active' => false]);
-                    }
-                    $lastError = "HTTP $status: " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage());
+                if ($status === 404 && $modelIndex < count($this->fallbackModels) - 1) {
+                    $modelIndex++;
+                    $attempt--;
                     continue;
                 }
 
-                $lastError = "RequestException HTTP $status: " . $e->getMessage();
-                Log::error('Gemini RequestException', [
-                    'status' => $status,
-                    'attempt' => $attempt,
-                    'message' => $e->getMessage()
-                ]);
+                if ($apiKeyModel && empty($apiKeyModel->is_env)) {
+                    $excludedIds[] = $apiKeyModel->id;
+                }
+
+                if ($status === 429) {
+                    $lastError = "HTTP 429: Kuota rate limit tercapai.";
+                    continue;
+                }
+
+                if (($status === 400 || $status === 403) && $apiKeyModel && empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'update')) {
+                    $apiKeyModel->update(['is_active' => false]);
+                    $lastError = "HTTP $status: API Key tidak valid.";
+                    continue;
+                }
+
+                $lastError = "HTTP $status: " . ($e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage());
 
             } catch (ConnectException $e) {
-                // Koneksi gagal, hindari key ini sementara
-                if ($apiKeyModel) $excludedIds[] = $apiKeyModel->id;
-                Log::warning('Koneksi ke Gemini gagal. Retry...', ['attempt' => $attempt]);
-                sleep(2);
+                if ($apiKeyModel && empty($apiKeyModel->is_env)) {
+                    $excludedIds[] = $apiKeyModel->id;
+                }
+                $lastError = 'Koneksi ke server Gemini terputus.';
+                sleep(1);
 
             } catch (Exception $e) {
-                // Error umum
-                if ($apiKeyModel) $excludedIds[] = $apiKeyModel->id;
-                Log::error('Gemini General Error', [
-                    'attempt' => $attempt,
-                    'message' => $e->getMessage()
-                ]);
+                if ($apiKeyModel && empty($apiKeyModel->is_env)) {
+                    $excludedIds[] = $apiKeyModel->id;
+                }
+                $lastError = $e->getMessage();
             }
         }
 
-        throw new Exception(
-            'GAGAL: Server AI menolak permintaan. Error Terakhir: ' . $lastError
-        );
+        throw new Exception('Gemini gagal merespons: ' . $lastError);
     }
 
     /**
-     * FITUR BARU: Generate dari Gambar + Teks (Multimodal)
+     * Generate dari Gambar + Teks (Multimodal Vision)
      */
     public function generateVision(string $prompt, string $imageBase64): string
     {
-        // 1. Logika Rotasi Key (Sama dengan generateText)
-        $totalKeys = ApiKey::where('is_active', true)->count();
-        $maxRetries = $totalKeys > 0 ? $totalKeys + 2 : 5;
         $excludedIds = [];
+        $modelIndex = 0;
 
-        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+        for ($attempt = 1; $attempt <= 4; $attempt++) {
             $apiKeyModel = null;
 
             try {
                 $apiKeyModel = $this->getWorkingApiKey($excludedIds);
 
                 if (!$apiKeyModel) {
-                    throw new Exception('Semua API Key limit/habis.');
+                    throw new Exception('API Key Gemini tidak tersedia untuk memproses gambar.');
                 }
 
                 $client = new Client(['timeout' => 120, 'verify' => false]);
+                $currentModel = $this->fallbackModels[$modelIndex] ?? 'gemini-2.0-flash';
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
-                // === MODEL VISION (Dengan Fallback) ===
-                $currentModelVision = $currentModelVision ?? 'gemini-1.5-flash'; 
-                $url = "https://generativelanguage.googleapis.com/v1/models/{$currentModelVision}:generateContent";
-
-                // Bersihkan header base64 jika ada
                 $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageBase64);
 
-                // Payload Khusus Gambar
                 $response = $client->post($url, [
                     'query' => ['key' => $apiKeyModel->key],
                     'json' => [
@@ -224,7 +208,7 @@ class GeminiService
                                     ['text' => $prompt],
                                     [
                                         'inline_data' => [
-                                            'mime_type' => 'image/jpeg', 
+                                            'mime_type' => 'image/jpeg',
                                             'data'      => $cleanBase64
                                         ]
                                     ]
@@ -237,46 +221,35 @@ class GeminiService
                 $data = json_decode($response->getBody()->getContents(), true);
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
-                if (trim($text) === '') throw new Exception('Respon kosong.');
+                if (trim($text) === '') {
+                    throw new Exception('Respon kosong dari Gemini Vision.');
+                }
 
-                $apiKeyModel->increment('usage_count');
+                if (empty($apiKeyModel->is_env) && method_exists($apiKeyModel, 'increment')) {
+                    $apiKeyModel->increment('usage_count');
+                }
+
                 return $text;
 
             } catch (RequestException $e) {
                 $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
-                if ($apiKeyModel) $excludedIds[] = $apiKeyModel->id;
-
-                if ($status === 429) { 
-                    // sleep(4); // Opsional: Jeda jika limit
-                    continue; 
-                }
-                if ($status === 404) {
-                    if ($currentModelVision === 'gemini-1.5-flash') {
-                        $currentModelVision = 'gemini-pro-vision';
-                        $attempt--;
-                        continue;
-                    }
-                    if ($currentModelVision === 'gemini-pro-vision') {
-                        $currentModelVision = 'gemini-1.5-flash-latest';
-                        $attempt--;
-                        continue;
-                    }
-                }
-
-                if ($status === 400 || $status === 403) {
-                    if ($apiKeyModel) $apiKeyModel->update(['is_active' => false]);
+                if ($status === 404 && $modelIndex < count($this->fallbackModels) - 1) {
+                    $modelIndex++;
+                    $attempt--;
                     continue;
                 }
-                // Error lain
+                if ($apiKeyModel && empty($apiKeyModel->is_env)) {
+                    $excludedIds[] = $apiKeyModel->id;
+                }
                 continue;
-
             } catch (Exception $e) {
-                if ($apiKeyModel) $excludedIds[] = $apiKeyModel->id;
-                Log::error('Gemini Vision Error: ' . $e->getMessage());
+                if ($apiKeyModel && empty($apiKeyModel->is_env)) {
+                    $excludedIds[] = $apiKeyModel->id;
+                }
                 continue;
             }
         }
 
-        throw new Exception('Gagal memproses gambar setelah mencoba semua key.');
+        throw new Exception('Gagal memproses gambar setelah mencoba seluruh API Key Gemini.');
     }
 }

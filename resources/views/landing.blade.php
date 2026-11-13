@@ -3,499 +3,994 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiAI - Asisten Penulisan Akademik Cerdas</title>
-    <!-- Fonts: Inter for reading, Playfair Display for academic feel -->
+    <title>SkripsiAI — Platform AI Penulisan Skripsi, Proposal & Simulasi Sidang #1 Indonesia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
         :root {
-            --primary-bg: #f8fafc;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --border-color: #e2e8f0;
+            --bg-light: #f8fafc;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-subtle: #e2e8f0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            color: var(--text-dark);
-            background-color: var(--primary-bg);
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(217, 100%, 96%, 1) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(210, 100%, 96%, 1) 0px, transparent 50%);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
             overflow-x: hidden;
         }
 
-        h1, h2, h3, .brand-font {
+        .serif-italic {
             font-family: 'Playfair Display', serif;
+            font-style: italic;
         }
 
-        /* --- NAVBAR --- */
-        .navbar {
-            padding: 15px 0;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+        /* --- NAVBAR & MEGA DROPDOWN FITUR --- */
+        .site-navbar {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 14px 0;
+            transition: all 0.25s ease;
         }
-        .navbar.scrolled {
-            padding: 10px 0;
-            background: rgba(255, 255, 255, 0.95);
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
         }
-        .navbar-brand { font-weight: 700; font-size: 1.5rem; color: var(--text-dark) !important; letter-spacing: -0.5px; }
-        .nav-link { font-weight: 500; color: var(--text-muted) !important; transition: 0.3s; font-size: 0.95rem; margin: 0 10px; }
-        .nav-link:hover { color: var(--accent-color) !important; transform: translateY(-1px); }
-        .btn-nav-cta {
-            background: var(--text-dark); color: white; border-radius: 8px;
-            padding: 10px 24px; font-weight: 600; font-size: 0.9rem; transition: 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+        .brand-badge-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
         }
-        .btn-nav-cta:hover { background: var(--accent-color); color: white; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+
+        .nav-link {
+            font-weight: 600;
+            color: #334155 !important;
+            font-size: 0.94rem;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+            background: #f1f5f9;
+        }
+
+        /* Mega Menu Fitur ala Skripsita */
+        .mega-dropdown-menu {
+            width: min(92dvw, 680px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.16);
+            margin-top: 10px !important;
+        }
+
+        .mega-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .mega-item:hover {
+            background: #f1f5f9;
+            transform: translateX(3px);
+        }
+
+        .mega-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+        }
+
+        .mega-item:hover .mega-icon {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .mega-title {
+            font-weight: 700;
+            font-size: 0.93rem;
+            margin-bottom: 2px;
+            color: #0f172a;
+        }
+
+        .mega-desc {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0;
+            line-height: 1.35;
+        }
 
         /* --- HERO SECTION --- */
         .hero-section {
-            padding: 160px 0 100px;
-            text-align: center;
-            position: relative;
+            padding: 140px 0 80px;
+            background: radial-gradient(circle at 15% 20%, rgba(219, 234, 254, 0.7) 0%, transparent 45%),
+                        radial-gradient(circle at 85% 15%, rgba(237, 233, 254, 0.7) 0%, transparent 45%),
+                        linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
-        .hero-badge {
-            background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%);
-            color: var(--accent-color); font-weight: 600; font-size: 0.85rem;
-            padding: 8px 20px; border-radius: 50px; display: inline-block; margin-bottom: 30px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            animation: fadeInDown 0.8s ease-out;
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+            margin-bottom: 24px;
         }
-        .hero-title {
-            font-size: 4.5rem; font-weight: 700; line-height: 1.15; margin-bottom: 24px;
-            color: var(--text-dark);
-            animation: fadeInUp 1s ease-out 0.2s both;
+
+        .hero-headline {
+            font-size: clamp(2.2rem, 1.5rem + 3vw, 4.1rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.2px;
+            margin-bottom: 22px;
+            color: #0f172a;
         }
-        .hero-title span {
-            /* Text highlight or gradient */
-            background: linear-gradient(135deg, var(--accent-color) 0%, #60a5fa 100%);
+
+        .hero-headline .highlight {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-style: italic;
         }
-        .hero-desc { font-size: 1.15rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 40px; line-height: 1.8; animation: fadeInUp 1s ease-out 0.4s both; font-family: 'Inter', sans-serif;}
-        .btn-hero {
-            padding: 16px 45px; font-size: 1.05rem; border-radius: 12px; font-weight: 600;
-            transition: all 0.3s ease; border: none; letter-spacing: 0.5px;
-        }
-        .btn-hero-primary { background: var(--accent-color); color: white; box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4); }
-        .btn-hero-primary:hover { background: var(--accent-hover); color: white; transform: translateY(-3px); box-shadow: 0 20px 35px -5px rgba(37, 99, 235, 0.5); }
-        
-        .hero-actions { animation: fadeInUp 1s ease-out 0.6s both; }
 
-        /* --- DASHBOARD PREVIEW --- */
-        .dashboard-preview {
-            margin-top: 80px;
+        .hero-subtext {
+            font-size: clamp(1rem, 0.95rem + 0.3vw, 1.18rem);
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 36px;
+            line-height: 1.75;
+        }
+
+        .btn-cta-main {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            padding: 15px 34px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            box-shadow: 0 12px 28px -6px rgba(37, 99, 235, 0.45);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-cta-main:hover {
+            transform: translateY(-2px);
+            color: #fff;
+            box-shadow: 0 18px 34px -6px rgba(37, 99, 235, 0.55);
+        }
+
+        .btn-cta-secondary {
+            background: #ffffff;
+            color: #0f172a;
+            padding: 15px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-cta-secondary:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        /* --- FEATURE PILLS BAR --- */
+        .quick-tools-strip {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 42px;
+        }
+
+        .tool-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+
+        .tool-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* --- SHOWCASE CONTOH GENERATE PROPOSAL USER --- */
+        .showcase-section {
+            padding: 90px 0;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .proposal-browser-card {
+            background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.1);
             overflow: hidden;
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(20px);
-            animation: zoomIn 1s ease-out 0.8s both;
         }
-        .mockup-header {
-            background: rgba(248, 250, 252, 0.8);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 20px;
+
+        .proposal-browser-top {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        
-        /* --- FEATURES --- */
-        .features-section { padding: 100px 0; background: white;  position: relative;}
-        .section-title { font-size: 3rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem; }
-        .section-subtitle { text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--accent-color); font-size: 0.85rem; margin-bottom: 0.5rem; font-family: 'Inter', sans-serif;}
-        
-        .feature-card {
-            padding: 40px 30px; border-radius: 16px; background: #ffffff; 
-            border: 1px solid var(--border-color);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); height: 100%;
+
+        .window-dots {
+            display: flex;
+            gap: 7px;
+        }
+
+        .window-dots span {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .sample-selector-btn {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #334155;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+        }
+
+        .sample-selector-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        .chapter-tab-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .chapter-tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .paper-preview-area {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #1e293b;
+            background: #ffffff;
+            padding: 32px 38px;
+            max-height: 460px;
+            overflow-y: auto;
+            text-align: justify;
+        }
+
+        .paper-preview-area h4 {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: bold;
+            font-size: 1.15rem;
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+            color: #000;
+        }
+
+        .paper-preview-area p {
+            text-indent: 1.27cm;
+            margin-bottom: 1rem;
+        }
+
+        /* --- FEATURE CARDS --- */
+        .feature-box {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 30px 26px;
+            height: 100%;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .feature-box:hover {
+            border-color: #93c5fd;
+            transform: translateY(-6px);
+            box-shadow: 0 20px 36px -12px rgba(37, 99, 235, 0.14);
+        }
+
+        .feature-icon-lg {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 20px;
+        }
+
+        /* --- SKILL TIAP BAB CARD --- */
+        .skill-step-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
             position: relative;
-            z-index: 1;
         }
-        .feature-card::after {
-            content: ""; position: absolute; inset: 0; border-radius: 16px;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); opacity: 0; transition: opacity 0.4s ease; z-index: -1;
+
+        .testimonial-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 26px;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
-        .feature-card:hover { transform: translateY(-8px); border-color: transparent; }
-        .feature-card:hover::after { opacity: 1; }
-        
-        .feature-icon-box {
-            width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 25px; transition: transform 0.3s ease;
-        }
-        .feature-card:hover .feature-icon-box { transform: scale(1.1) rotate(5deg); }
-        .feature-title { font-weight: 700; margin-bottom: 15px; font-size: 1.25rem; font-family: 'Inter', sans-serif; color: #1e293b;}
-        .feature-desc { color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; }
 
-        /* --- WORKFLOW --- */
-        .workflow-section { padding: 100px 0; background: #f8fafc; }
-        .step-card {
-            background: #ffffff; padding: 40px 30px; border-radius: 20px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);
-            height: 100%; position: relative; overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .step-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); }
-        .step-number {
-            font-size: 6rem; font-weight: 700; color: #f1f5f9; position: absolute; top: -10px; right: 10px; z-index: 0;
-            line-height: 1; font-family: 'Playfair Display', serif; font-style: italic;
-        }
-        .step-content { position: relative; z-index: 1; }
-
-        /* --- FAQ --- */
-        .accordion-button { font-weight: 600; color: var(--text-dark); padding: 20px; font-family: 'Inter', sans-serif;}
-        .accordion-button:not(.collapsed) { background-color: #f8fafc; color: var(--accent-color); box-shadow: none; }
-        .accordion-button:focus { box-shadow: none; border-color: rgba(0,0,0,0.1); }
-        .accordion-body { color: var(--text-muted); line-height: 1.8; padding: 0 20px 20px; background-color: #f8fafc;}
-        .accordion-item { border: 1px solid var(--border-color); border-radius: 12px !important; margin-bottom: 15px; overflow: hidden; }
-
-        /* --- FOOTER --- */
-        footer { border-top: 1px solid var(--border-color); padding: 80px 0 40px; background: #ffffff; }
-        .footer-logo { font-weight: 700; font-size: 1.4rem; color: var(--text-dark); text-decoration: none; }
-        .footer-link { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
-        .footer-link:hover { color: var(--accent-color); }
-        .social-icon { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; color: var(--text-muted); transition: all 0.3s ease; }
-        .social-icon:hover { background: var(--accent-color); color: white; transform: translateY(-3px); }
-
-        /* Animations */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        @media (max-width: 768px) {
-            .hero-title { font-size: 3rem; }
-            .hero-section { padding: 120px 0 60px; }
-            .section-title { font-size: 2.2rem; }
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 70px 0 36px;
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
-        <div class="container">
-            <a class="navbar-brand brand-font" href="#">
-                <i class="fas fa-feather-alt text-primary me-2"></i>SkripsiAI
+<!-- NAVBAR DENGAN MEGA DROPDOWN FITUR PERSIS REFERENSI -->
+<nav class="navbar navbar-expand-lg fixed-top site-navbar">
+    <div class="container">
+        <a class="brand-title" href="#">
+            <span class="brand-badge-icon"><i class="fas fa-feather-alt"></i></span>
+            <span>SkripsiAI</span>
+        </a>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <i class="fas fa-bars fs-4 text-dark"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav mx-auto align-items-lg-center gap-lg-1 mt-3 mt-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Fitur <i class="fas fa-chevron-down ms-1 small"></i>
+                    </a>
+                    <div class="dropdown-menu mega-dropdown-menu">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'titleScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="far fa-lightbulb"></i></div>
+                                    <div>
+                                        <div class="mega-title">Cari Judul Skripsi</div>
+                                        <p class="mega-desc">Ide judul sesuai jurusan, variabel & metode riset</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'proposalScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="far fa-file-lines"></i></div>
+                                    <div>
+                                        <div class="mega-title">Generator Proposal</div>
+                                        <p class="mega-desc">Susun proposal Bab 1–3 dengan struktur DIKTI</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'paraphraseScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                                    <div>
+                                        <div class="mega-title">Parafrase Online</div>
+                                        <p class="mega-desc">Parafrase akademik KBBI & penurun skor Turnitin</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'formScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-book"></i></div>
+                                    <div>
+                                        <div class="mega-title">Full Skripsi Bab 1–5 Otomatis</div>
+                                        <p class="mega-desc">Format margin 4-4-3-3, Times New Roman & TOC</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'journalScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-quote-right"></i></div>
+                                    <div>
+                                        <div class="mega-title">Cari Jurnal & Sitasi APA</div>
+                                        <p class="mega-desc">Jurnal SINTA/Scopus 2020–2025 & Daftar Pustaka</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'solverScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-chart-column"></i></div>
+                                    <div>
+                                        <div class="mega-title">Olah Data & Konsultasi</div>
+                                        <p class="mega-desc">Validitas, reliabilitas, regresi & tanya jawab soal</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'pptScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-desktop"></i></div>
+                                    <div>
+                                        <div class="mega-title">AI PPT Sidang</div>
+                                        <p class="mega-desc">Slide sidang otomatis + script bicara presenter</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ route('app.create', ['tab' => 'defenseScreen']) }}" class="mega-item">
+                                    <div class="mega-icon"><i class="fas fa-user-tie"></i></div>
+                                    <div>
+                                        <div class="mega-title">Simulasi Sidang</div>
+                                        <p class="mega-desc">Latihan tanya-jawab dengan Dosen Penguji AI</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#contoh-proposal">Contoh Proposal User</a></li>
+                <li class="nav-item"><a class="nav-link" href="#skill-bab">Standar Bab 1–5</a></li>
+                <li class="nav-item"><a class="nav-link" href="#fitur-lengkap">Semua Fitur</a></li>
+                <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+            </ul>
+
+            <div class="d-flex gap-2 align-items-center mt-3 mt-lg-0">
+                @auth
+                    <a href="{{ route('app.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="fas fa-th-large me-1"></i> Buka Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-light rounded-pill px-4 fw-bold border">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-dark rounded-pill px-4 fw-bold">Daftar Gratis</a>
+                @endauth
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero-section text-center">
+    <div class="container">
+        <div class="hero-pill">
+            <i class="fas fa-bolt text-warning"></i>
+            <span>Dilengkapi Skill Standar Pedoman Skripsi DIKTI Indonesia</span>
+        </div>
+
+        <h1 class="hero-headline">
+            Susun Proposal, Skripsi Bab 1–5,<br>
+            hingga <span class="highlight serif-italic">Lulus Sidang</span> Lebih Cepat.
+        </h1>
+
+        <p class="hero-subtext">
+            Satu platform AI akademik lengkap untuk mahasiswa Indonesia: mulai dari <strong>Cari Judul</strong>, <strong>Generator Proposal Bab 1–3</strong>, <strong>Full Skripsi Bab 1–5 Adaptif Metode</strong>, <strong>Parafrase Anti-Turnitin</strong>, <strong>AI PPT Sidang</strong>, hingga <strong>Simulasi Sidang Dosen AI</strong>.
+        </p>
+
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ auth()->check() ? route('app.create') : route('register') }}" class="btn-cta-main">
+                <span>Mulai Buat Skripsi Gratis</span>
+                <i class="fas fa-arrow-right"></i>
             </a>
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fas fa-bars fs-4 text-dark"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="#fitur">Fitur Unggulan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#cara-kerja">Metodologi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
-                </ul>
-                <div class="d-flex gap-3 align-items-center mt-3 mt-lg-0">
-                    @auth
-                        <a href="{{ route('app.create') }}" class="btn btn-nav-cta px-4">Ke Dashboard</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-decoration-none fw-semibold text-dark hover-primary" style="transition:0.3s">Masuk</a>
-                        <a href="{{ route('register') }}" class="btn btn-nav-cta">Daftar Sekarang</a>
-                    @endauth
-                </div>
-            </div>
+            <a href="#contoh-proposal" class="btn-cta-secondary">
+                <i class="fas fa-eye text-primary"></i>
+                <span>Lihat Contoh Hasil Proposal</span>
+            </a>
         </div>
-    </nav>
 
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-badge">
-                <i class="fas fa-bolt text-warning me-2"></i> Era Baru Penulisan Skripsi dengan AI
-            </div>
-            <h1 class="hero-title">Selesaikan Skripsi Anda<br>Lebih Cerdas & <span>Sistematis</span>.</h1>
-            <p class="hero-desc">
-                Pendamping penulisan akademik ultimate Anda. Dirancang khusus untuk membantu mahasiswa menyusun Bab 1-5, mencari literatur relevan, dan menstrukturkan ide sesuai standar akademik kampus.
+        <!-- PINTASAN FITUR LANGSUNG -->
+        <div class="quick-tools-strip">
+            <a href="{{ route('app.create', ['tab' => 'titleScreen']) }}" class="tool-chip"><i class="far fa-lightbulb text-success"></i> Cari Judul</a>
+            <a href="{{ route('app.create', ['tab' => 'proposalScreen']) }}" class="tool-chip"><i class="fas fa-file-signature text-primary"></i> Generator Proposal</a>
+            <a href="{{ route('app.create', ['tab' => 'journalScreen']) }}" class="tool-chip"><i class="fas fa-book-open text-warning"></i> Cari Jurnal</a>
+            <a href="{{ route('app.create', ['tab' => 'paraphraseScreen']) }}" class="tool-chip"><i class="fas fa-wand-magic-sparkles text-danger"></i> Parafrase Online</a>
+            <a href="{{ route('app.create', ['tab' => 'pptScreen']) }}" class="tool-chip"><i class="fas fa-desktop text-info"></i> Generate PPT Sidang</a>
+            <a href="{{ route('app.create', ['tab' => 'defenseScreen']) }}" class="tool-chip"><i class="fas fa-user-tie text-success"></i> Simulasi Sidang</a>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION BARU: CONTOH HASIL GENERATE PROPOSAL DARI USER (INTERAKTIF) -->
+<section id="contoh-proposal" class="showcase-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold mb-2">LIVE OUTPUT SHOWCASE</span>
+            <h2 class="fw-bold display-6 mb-2">Contoh Nyata Hasil Generate Proposal dari Pengguna</h2>
+            <p class="text-secondary mx-auto" style="max-width: 680px;">
+                Lihat bagaimana SkripsiAI menyusun naskah proposal dengan gaya bahasa akademik baku, piramida terbalik, sitasi jurnal nyata, dan metodologi yang presisi.
             </p>
-            <div class="d-flex gap-3 justify-content-center hero-actions flex-wrap">
-                <a href="{{ route('register') }}" class="btn btn-hero btn-hero-primary d-inline-flex align-items-center gap-2">
-                    Mulai Menulis <i class="fas fa-arrow-right"></i>
+
+            <!-- Pilihan Sampel Prodi User -->
+            <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+                <button type="button" class="sample-selector-btn active" onclick="switchProposalSample(0, this)">
+                    <i class="fas fa-laptop-code me-1"></i> Teknik Informatika (R&D - Waterfall)
+                </button>
+                <button type="button" class="sample-selector-btn" onclick="switchProposalSample(1, this)">
+                    <i class="fas fa-chart-line me-1"></i> Manajemen Bisnis (Kuantitatif - Regresi)
+                </button>
+                <button type="button" class="sample-selector-btn" onclick="switchProposalSample(2, this)">
+                    <i class="fas fa-scale-balanced me-1"></i> Ilmu Komunikasi / Sosial (Kualitatif)
+                </button>
+            </div>
+        </div>
+
+        <div class="proposal-browser-card mx-auto" style="max-width: 980px;">
+            <div class="proposal-browser-top">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="window-dots">
+                        <span style="background:#ef4444;"></span>
+                        <span style="background:#f59e0b;"></span>
+                        <span style="background:#10b981;"></span>
+                    </div>
+                    <span class="small fw-semibold font-monospace text-white-50" id="sampleMetaBadge">
+                        User: Andi Pratama • Prodi: Teknik Informatika • Metode: R&D (SDLC Waterfall)
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                        <i class="fas fa-check-circle me-1"></i> Skor Turnitin &lt; 12%
+                    </span>
+                    <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25">
+                        Format Times New Roman 12pt
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bar Judul & Tab Bab -->
+            <div class="bg-light px-4 pt-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2">
+                <div class="pb-2">
+                    <small class="text-uppercase fw-bold text-primary" style="font-size: 0.72rem;">Judul Proposal Skripsi:</small>
+                    <h5 class="fw-bold text-dark mb-0" id="sampleProposalTitle">
+                        Rancang Bangun Sistem Deteksi Dini Penyakit Tanaman Padi Menggunakan Algoritma Convolutional Neural Network (CNN) Berbasis Web
+                    </h5>
+                </div>
+                <div class="d-flex gap-1 flex-shrink-0">
+                    <button type="button" class="chapter-tab-btn active" onclick="switchSampleChapter('bab1', this)">BAB I Pendahuluan</button>
+                    <button type="button" class="chapter-tab-btn" onclick="switchSampleChapter('bab2', this)">BAB II Tinjauan Pustaka</button>
+                    <button type="button" class="chapter-tab-btn" onclick="switchSampleChapter('bab3', this)">BAB III Metodologi</button>
+                </div>
+            </div>
+
+            <!-- Area Kertas Skripsi -->
+            <div class="paper-preview-area" id="samplePaperContent">
+                <!-- Diisi otomatis oleh JS -->
+            </div>
+
+            <div class="bg-light px-4 py-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <small class="text-secondary">
+                    <i class="fas fa-file-word text-primary me-1"></i> Siap diunduh dalam format <strong>.DOCX (Microsoft Word)</strong> &amp; <strong>.PDF</strong> lengkap dengan Daftar Isi &amp; Daftar Pustaka APA 7th.
+                </small>
+                <a href="{{ route('app.create', ['tab' => 'proposalScreen']) }}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">
+                    Buat Proposal Seperti Ini <i class="fas fa-arrow-right ms-1"></i>
                 </a>
-                <a href="#demo" class="btn btn-hero btn-light border bg-white d-inline-flex align-items-center gap-2 text-dark">
-                    <i class="fas fa-play-circle text-primary"></i> Lihat Cara Kerja
-                </a>
-            </div>
-
-            <!-- Mockup Dashboard -->
-            <div class="dashboard-preview mx-auto" style="max-width: 1040px;">
-                <div class="mockup-header d-flex gap-2 align-items-center">
-                    <div class="rounded-circle" style="width:12px;height:12px; background:#ff5f56;"></div>
-                    <div class="rounded-circle" style="width:12px;height:12px; background:#ffbd2e;"></div>
-                    <div class="rounded-circle" style="width:12px;height:12px; background:#27c93f;"></div>
-                    <div class="ms-auto text-muted small fw-medium" style="font-family: monospace;">SkripsiAI Workspace</div>
-                </div>
-                <div style="background: center/cover url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=1200&h=600'); position:relative;">
-                    <div style="position: absolute; inset:0; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);"></div>
-                    
-                    <!-- Fake UI Elements overlay to look like app -->
-                    <div class="p-4 p-md-5 position-relative text-start d-flex flex-column flex-md-row gap-4">
-                        <div class="d-none d-md-block" style="width: 200px; border-right: 1px solid #eee;">
-                             <div class="mb-4 fw-bold text-dark"><i class="fas fa-pen-nib me-2"></i> Draft Skripsi</div>
-                             <div class="p-2 bg-primary bg-opacity-10 rounded text-primary fw-medium mb-2 small"><i class="fas fa-file-alt me-2"></i> Bab 1: Pendahuluan</div>
-                             <div class="p-2 text-muted fw-medium mb-2 small hover-bg"><i class="fas fa-file-alt me-2"></i> Bab 2: Tinjauan Pustaka</div>
-                             <div class="p-2 text-muted fw-medium mb-2 small hover-bg"><i class="fas fa-file-alt me-2"></i> Bab 3: Metodologi</div>
-                        </div>
-                        <div class="flex-grow-1">
-                             <div class="h3 brand-font mb-4">Pengaruh Artificial Intelligence Terhadap Efisiensi Waktu...</div>
-                             <div class="p-4 bg-white rounded-3 shadow-sm border mb-3">
-                                 <h6 class="fw-bold mb-3">1.1 Latar Belakang</h6>
-                                 <div class="bg-light rounded p-2 mb-2 w-100" style="height: 12px;"></div>
-                                 <div class="bg-light rounded p-2 mb-2 w-100" style="height: 12px;"></div>
-                                 <div class="bg-light rounded p-2 w-75" style="height: 12px;"></div>
-                             </div>
-                             <div class="d-flex gap-2 flex-wrap">
-                                 <div class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm"><i class="fas fa-magic me-1"></i> Generate Paragraf</div>
-                                 <div class="btn btn-sm btn-outline-secondary px-3 rounded-pill bg-white"><i class="fas fa-search me-1"></i> Cari Referensi</div>
-                             </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section id="fitur" class="features-section">
-        <div class="container">
-            <div class="text-center mb-5 pb-3">
-                <h6 class="section-subtitle">Kapabilitas Sistem</h6>
-                <h2 class="section-title">Fitur Akademik Komprehensif</h2>
-                <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.1rem;">Rangkaian alat mutakhir yang didesain khusus untuk mengatasi *writer's block* dan mempercepat proses riset Anda.</p>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box bg-primary bg-opacity-10 text-primary">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h4 class="feature-title">Generator Analitis Bab 1-5</h4>
-                        <p class="feature-desc">Membangun narasi akademik yang kohesif. Mulai dari latar belakang masalah empiris hingga sintesis kesimpulan berbasis data.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box" style="background: #ecfdf5; color: #10b981;">
-                            <i class="fas fa-book-journal-whills"></i>
-                        </div>
-                        <h4 class="feature-title">Ekstraksi Jurnal Mutakhir</h4>
-                        <p class="feature-desc">Terintegrasi dengan basis data publikasi untuk mencarikan referensi jurnal (2019-2024) relevan guna memperkuat *state of the art* riset Anda.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box" style="background: #fef3c7; color: #d97706;">
-                            <i class="fas fa-microscope"></i>
-                        </div>
-                        <h4 class="feature-title">Eksplorasi Judul Variabel</h4>
-                        <p class="feature-desc">Kalkulasi dan pemetaan ide. Dapatkan rekomendasi judul skripsi orisinal yang disesuaikan dengan tren keilmuan prodi Anda.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box" style="background: #f3e8ff; color: #9333ea;">
-                            <i class="fas fa-quote-left"></i>
-                        </div>
-                        <h4 class="feature-title">Automasi Manajemen Sitasi</h4>
-                        <p class="feature-desc">Injeksi in-text citation dan penyusunan daftar pustaka berstandar APA/IEEE secara otomatis tanpa perlu software pihak ketiga.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box" style="background: #fee2e2; color: #ef4444;">
-                            <i class="fas fa-file-export"></i>
-                        </div>
-                        <h4 class="feature-title">Eksport Manuskrip Instan</h4>
-                        <p class="feature-desc">Konversi hasil generate ke format Microsoft Word (.docx) atau PDF yang rapi, terstruktur, dan siap dilampirkan untuk bimbingan.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="feature-card">
-                        <div class="feature-icon-box" style="background: #f1f5f9; color: #334155;">
-                            <i class="fas fa-key"></i>
-                        </div>
-                        <h4 class="feature-title">Infrastruktur API Dedikasi</h4>
-                        <p class="feature-desc">Gunakan Google Gemini API Key Anda sendiri untuk kontrol penuh, akses tak terbatas, dan jaminan kerahasiaan data riset.</p>
-                    </div>
-                </div>
-            </div>
+<!-- SECTION SKILL PER BAB STANDAR SKRIPSI INDONESIA -->
+<section id="skill-bab" class="py-5 my-4">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold mb-2">ARSITEKTUR SKILL TIAP BAB</span>
+            <h2 class="fw-bold display-6 mb-2">Mengapa Hasil Generate SkripsiAI Sesuai Standar Dosen Indonesia?</h2>
+            <p class="text-secondary mx-auto" style="max-width: 700px;">
+                Berbeda dari ChatGPT biasa yang menghasilkan tulisan pendek dan seragam, SkripsiAI ditanamkan <strong>Skill Khusus per Bab &amp; Adaptif Metode Penelitian</strong> sesuai buku pedoman universitas di Indonesia.
+            </p>
         </div>
-    </section>
 
-    <section id="cara-kerja" class="workflow-section">
-        <div class="container">
-            <div class="row align-items-center mb-5 pb-2">
-                <div class="col-lg-6">
-                    <h6 class="section-subtitle">Alur Orkestrasi</h6>
-                    <h2 class="section-title">Metodologi Kerja Platform</h2>
-                </div>
-                <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
-                    <p class="text-muted mb-0 fs-5">Pendekatan empat tahap yang menyederhanakan kompleksitas penyusunan tugas akhir.</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="step-card">
-                        <div class="step-number">01</div>
-                        <div class="step-content">
-                            <div class="text-primary mb-3"><i class="fas fa-keyboard fs-3"></i></div>
-                            <h5 class="fw-bold text-dark">Inisialisasi Variabel</h5>
-                            <p class="text-muted small mt-2">Definisikan judul penelitian, program studi, serta pendekatan metodologis (Kualitatif/Kuantitatif/R&D).</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="step-card">
-                        <div class="step-number">02</div>
-                        <div class="step-content">
-                            <div class="text-primary mb-3"><i class="fas fa-cogs fs-3"></i></div>
-                            <h5 class="fw-bold text-dark">Proses Generasi AI</h5>
-                            <p class="text-muted small mt-2">Mesin AI akan memproses instruksi dan mensintesis kerangka berpikir serta draf konten yang relevan dan terstruktur.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="step-card">
-                        <div class="step-number">03</div>
-                        <div class="step-content">
-                            <div class="text-primary mb-3"><i class="fas fa-edit fs-3"></i></div>
-                            <h5 class="fw-bold text-dark">Redaksi & Kurasi</h5>
-                            <p class="text-muted small mt-2">Anda bertindak sebagai *Editor in Chief*. Baca, perbaiki, dan sesuaikan gaya bahasa AI dengan preferensi pembimbing.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="step-card">
-                        <div class="step-number">04</div>
-                        <div class="step-content">
-                            <div class="text-primary mb-3"><i class="fas fa-check-double fs-3"></i></div>
-                            <h5 class="fw-bold text-dark">Finalisasi Dokumen</h5>
-                            <p class="text-muted small mt-2">Ekspor ke format standar institusi (.docx) siap pakai untuk pengajuan proposal atau sidang tugas akhir.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="faq" class="features-section">
-        <div class="container max-width-800" style="max-width: 800px;">
-            <div class="text-center mb-5">
-                <h6 class="section-subtitle">Pusat Bantuan</h6>
-                <h2 class="section-title">Frequently Asked Questions</h2>
-            </div>
-            <div class="accordion" id="accordionFAQ">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true">
-                            Mengenai Otentisitas & Plagiarisme (Turnitin)
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
-                        <div class="accordion-body">
-                            Platform kami merangkai kalimat secara generatif, sehingga meminimalisir persentase kesamaan teks langsung (plagiarisme). Meskipun demikian, untuk menjaga integritas akademik, Anda diwajibkan untuk memparafrase ulang, melakukan triangulasi data lapangan, dan memvalidasi kebenaran setiap teori yang dihasilkan sebelum uji Turnitin.
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                            Apakah saya tetap butuh observasi lapangan?
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                        <div class="accordion-body">
-                            <strong>Sangat wajib.</strong> AI membantu dalam penyusunan struktural, tata bahasa, dan kerangka teoritis (Bab 1, 2, dan 3 awal). Namun, untuk hasil penelitian dan pembahasan (Bab 4), Anda harus menyuntikkan data real hasil observasi, kuesioner, atau wawancara yang Anda lakukan sendiri agar laporan memiliki validitas empiris.
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                            Integrasi API Key Gemini
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                        <div class="accordion-body">
-                            Untuk skalabilitas tinggi, kami memungkinkan Anda menyambungkan API Key Gemini (dari Google AI Studio) milik Anda sendiri ke dalam akun Anda. Ini menjamin Anda terhindar dari *rate limit* global kami dan memberikan keleluasaan dalam frekuensi *generate*.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4 md-mb-4">
-                    <a href="#" class="footer-logo brand-font mb-3 d-inline-block">
-                        <i class="fas fa-feather-alt text-primary me-2"></i>SkripsiAI
-                    </a>
-                    <p class="text-muted mt-2 pe-lg-4" style="font-size: 0.95rem; line-height: 1.6;">
-                        Platform cerdas berbasis Artificial Intelligence yang memberdayakan mahasiswa Indonesia untuk mereset dan menyusun draf tugas akhir secara lebih sistematis dan terstruktur.
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="skill-step-card">
+                    <span class="badge bg-primary mb-3">SKILL BAB I</span>
+                    <h5 class="fw-bold">Piramida Terbalik &amp; Research Gap</h5>
+                    <p class="text-secondary small mb-0">
+                        Menyusun Latar Belakang 5 lapis: fenomena makro, kondisi ideal (<em>Das Sollen</em>) vs realita lapangan (<em>Das Sein</em>), kutipan jurnal terbaru, <em>research gap</em>, hingga sinkronisasi Rumusan &amp; Tujuan Penelitian.
                     </p>
-                    <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4">
-                    <h6 class="fw-bold mb-4 text-dark">Modul App</h6>
-                    <ul class="list-unstyled text-muted d-flex flex-column gap-3">
-                        <li><a href="#" class="footer-link">Automasi Bab</a></li>
-                        <li><a href="#" class="footer-link">Mesin Jurnal</a></li>
-                        <li><a href="#" class="footer-link">Eksplorasi Ide</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-4">
-                    <h6 class="fw-bold mb-4 text-dark">Informasi Legal</h6>
-                    <ul class="list-unstyled text-muted d-flex flex-column gap-3">
-                        <li><a href="#" class="footer-link">Syarat & Ketentuan</a></li>
-                        <li><a href="#" class="footer-link">Kebijakan Privasi</a></li>
-                        <li><a href="#" class="footer-link">Etika Akademik</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4 col-md-4">
-                    <h6 class="fw-bold mb-4 text-dark">Bantuan & Dukungan</h6>
-                    <p class="text-muted small mb-2">Mengalami kendala atau butuh kustomisasi kampus tertentu?</p>
-                    <a href="mailto:support@skripsiai.com" class="text-primary fw-medium text-decoration-none d-inline-flex align-items-center gap-2">
-                        <i class="fas fa-envelope"></i> support@skripsiai.com
-                    </a>
                 </div>
             </div>
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-4 mt-5 border-top">
-                <small class="text-muted">&copy; 2025 SkripsiAI Platform. All rights reserved.</small>
-                <small class="text-muted mt-2 mt-md-0">Engineered with <i class="fas fa-heart text-danger mx-1"></i> by Muh Alwi Syahrir.</small>
+            <div class="col-md-6 col-lg-4">
+                <div class="skill-step-card">
+                    <span class="badge bg-primary mb-3">SKILL BAB II</span>
+                    <h5 class="fw-bold">Grand, Middle &amp; Applied Theory</h5>
+                    <p class="text-secondary small mb-0">
+                        Membedah definisi variabel menurut para ahli, dimensi &amp; indikator, sintesis minimal 5 Penelitian Terdahulu lengkap dengan tabel matriks komparasi (<em>State of the Art</em>), Kerangka Pikir, dan Hipotesis.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="skill-step-card">
+                    <span class="badge bg-primary mb-3">SKILL BAB III (ADAPTIF)</span>
+                    <h5 class="fw-bold">Otomatis Sesuai Metode Riset</h5>
+                    <p class="text-secondary small mb-0">
+                        Otomatis membedakan struktur sub-bab: <strong>Kuantitatif</strong> (Slovin, Validitas, Asumsi Klasik, Regresi), <strong>Kualitatif</strong> (Informan Kunci, Triangulasi, Miles &amp; Huberman), atau <strong>R&amp;D IT</strong> (SDLC Waterfall/Agile, UML, Black-Box).
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <div class="skill-step-card">
+                    <span class="badge bg-success mb-3">SKILL BAB IV</span>
+                    <h5 class="fw-bold">Hasil Analisis &amp; Dialog Teoretis Mendalam</h5>
+                    <p class="text-secondary small mb-0">
+                        Bukan sekadar ringkasan, melainkan menginterpretasikan temuan lapangan/pengujian sistem dan membandingkannya secara ilmiah dengan teori para ahli serta jurnal terdahulu di Bab II.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-6">
+                <div class="skill-step-card">
+                    <span class="badge bg-dark mb-3">SKILL BAB V &amp; SITASI</span>
+                    <h5 class="fw-bold">Kesimpulan Presisi &amp; Ekstraksi Daftar Pustaka APA 7th</h5>
+                    <p class="text-secondary small mb-0">
+                        Menjawab rumusan masalah poin demi poin secara lugas, lalu mengekstrak seluruh sitasi <code>(Nama, Tahun)</code> yang muncul di Bab I–IV menjadi Daftar Pustaka format APA Style 7th Edition berurutan A–Z.
+                    </p>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Navbar Scrolled Effect
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                document.getElementById('navbar').classList.add('scrolled');
-            } else {
-                document.getElementById('navbar').classList.remove('scrolled');
-            }
-        });
-    </script>
+<!-- SECTION SEMUA FITUR UNGGULAN -->
+<section id="fitur-lengkap" class="py-5 bg-light border-top border-bottom">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold mb-2">EKOSISTEM LENGKAP</span>
+            <h2 class="fw-bold display-6 mb-2">Semua Alat yang Anda Butuhkan dari Sempro hingga Wisuda</h2>
+            <p class="text-secondary mx-auto" style="max-width: 640px;">
+                Dirancang agar ringan, cepat, dan terintegrasi dalam satu workspace.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg bg-primary bg-opacity-10 text-primary"><i class="fas fa-file-signature"></i></div>
+                        <h5 class="fw-bold">Generator Proposal (Bab 1–3)</h5>
+                        <p class="text-secondary small">Susun draf proposal skripsi untuk Seminar Proposal lengkap dengan latar belakang piramida terbalik, kajian pustaka, dan metodologi.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'proposalScreen']) }}" class="text-primary fw-bold small text-decoration-none mt-2">Coba Generator Proposal <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg bg-success bg-opacity-10 text-success"><i class="far fa-lightbulb"></i></div>
+                        <h5 class="fw-bold">Cari Judul &amp; Topik Skripsi</h5>
+                        <p class="text-secondary small">Hasilkan 10 ide judul skripsi spesifik yang memiliki kebaruan (novelty), variabel X/Y yang terukur, dan objek penelitian yang realistis.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'titleScreen']) }}" class="text-success fw-bold small text-decoration-none mt-2">Cari Ide Judul <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg bg-warning bg-opacity-10 text-warning"><i class="fas fa-book-open"></i></div>
+                        <h5 class="fw-bold">Pencari Jurnal Ilmiah</h5>
+                        <p class="text-secondary small">Temukan rekomendasi jurnal nasional terakreditasi SINTA dan jurnal internasional 5 tahun terakhir lengkap dengan tautan Google Scholar.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'journalScreen']) }}" class="text-warning text-dark fw-bold small text-decoration-none mt-2">Cari Referensi Jurnal <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg bg-danger bg-opacity-10 text-danger"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <h5 class="fw-bold">Parafrase Online Anti-Turnitin</h5>
+                        <p class="text-secondary small">Ubah struktur kalimat secara cerdas dengan bahasa ilmiah baku sesuai KBBI &amp; EYD V untuk menurunkan persentase kemiripan plagiarisme.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'paraphraseScreen']) }}" class="text-danger fw-bold small text-decoration-none mt-2">Buka Alat Parafrase <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg bg-info bg-opacity-10 text-info"><i class="fas fa-desktop"></i></div>
+                        <h5 class="fw-bold">Generator AI PPT Sidang</h5>
+                        <p class="text-secondary small">Otomatis mengubah judul dan isi skripsi menjadi 9 slide presentasi sidang yang ringkas beserta naskah bicara presenter tiap slide.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'pptScreen']) }}" class="text-info text-dark fw-bold small text-decoration-none mt-2">Buat PPT Sidang <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-box">
+                    <div>
+                        <div class="feature-icon-lg" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-user-tie"></i></div>
+                        <h5 class="fw-bold">Simulasi Sidang Skripsi AI</h5>
+                        <p class="text-secondary small">Hadapi pertanyaan tajam dari Dosen Penguji AI, dapatkan evaluasi skor penguasaan (0–100), dan pelajari contoh jawaban standar nilai A.</p>
+                    </div>
+                    <a href="{{ route('app.create', ['tab' => 'defenseScreen']) }}" class="fw-bold small text-decoration-none mt-2" style="color:#7c3aed;">Mulai Simulasi Sidang <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONI MAHASISWA -->
+<section class="py-5 my-4">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold mb-2">CERITA MAHASISWA</span>
+            <h2 class="fw-bold display-6">Dipercaya Mahasiswa dari Berbagai Kampus</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="text-warning mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="text-secondary small mb-4">"Fitur Generator Proposal dan Skill Bab 3 R&amp;D-nya beneran paham struktur SDLC Waterfall dan Black-Box testing. Dosen pembimbing saya langsung ACC Bab 1-3 dengan revisi minor!"</p>
+                    <div class="fw-bold text-dark">Rizky Ramadhan</div>
+                    <small class="text-muted">Mahasiswa S1 Teknik Informatika</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="text-warning mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="text-secondary small mb-4">"Simulasi Sidang dan AI PPT Sidang-nya sangat membantu malam sebelum sempro. Pertanyaan yang diajukan Dosen AI ternyata keluar persis waktu sidang beneran!"</p>
+                    <div class="fw-bold text-dark">Nabila Putri</div>
+                    <small class="text-muted">Mahasiswa S1 Manajemen</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="text-warning mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="text-secondary small mb-4">"Export Word-nya rapi banget, sudah otomatis Times New Roman 12, margin 4-4-3-3, dan daftar pustaka APA-nya urut abjad. Hemat waktu berminggu-minggu."</p>
+                    <div class="fw-bold text-dark">Fajar Pratama</div>
+                    <small class="text-muted">Mahasiswa S1 Ilmu Hukum</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section id="faq" class="py-5 bg-light border-top">
+    <div class="container" style="max-width: 820px;">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Pertanyaan yang Sering Diajukan (FAQ)</h2>
+        </div>
+        <div class="accordion" id="faqAcc">
+            <div class="accordion-item rounded-4 mb-3 border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                        Apakah bisa menggunakan API Key gratisan (Gemini / Groq)?
+                    </button>
+                </h2>
+                <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+                    <div class="accordion-body text-secondary">
+                        Ya! SkripsiAI mendukung penuh API Key gratis dari <strong>Google AI Studio (Gemini 2.0 Flash / 1.5 Flash)</strong> dan <strong>Groq Cloud (Llama 3.3 70B)</strong>. Anda bisa menambahkannya kapan saja di menu pengaturan API Key pada dashboard.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item rounded-4 mb-3 border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                        Apakah struktur Bab 1 sampai Bab 5 menyesuaikan metode penelitian?
+                    </button>
+                </h2>
+                <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                    <div class="accordion-body text-secondary">
+                        Benar. Sistem kami memiliki skill adaptif: jika Anda memilih metode <strong>Kuantitatif</strong>, Bab 3 &amp; 4 otomatis membahas populasi Slovin, uji validitas/reliabilitas, asumsi klasik, dan regresi. Jika memilih <strong>R&amp;D/IT</strong>, otomatis membahas SDLC, UML, ERD, dan Black-Box testing. Jika <strong>Kualitatif</strong>, membahas informan, triangulasi, dan analisis Miles &amp; Huberman.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item rounded-4 mb-3 border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                        Apakah hasil dokumen bisa langsung diunduh ke Microsoft Word (.docx)?
+                    </button>
+                </h2>
+                <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                    <div class="accordion-body text-secondary">
+                        Bisa! Seluruh naskah dapat diunduh dalam format <strong>.DOCX (Word)</strong> dan <strong>.PDF</strong> lengkap dengan halaman cover, daftar isi otomatis, penomoran sub-bab rapi, dan daftar pustaka APA Style.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="row g-4 justify-content-between align-items-center">
+            <div class="col-md-6">
+                <a class="brand-title text-white mb-2" href="#">
+                    <span class="brand-badge-icon"><i class="fas fa-feather-alt"></i></span>
+                    <span>SkripsiAI</span>
+                </a>
+                <p class="small mb-0 mt-2" style="max-width: 420px;">
+                    Platform AI Asisten Penulisan Skripsi, Generator Proposal, Parafrase Akademik, dan Simulasi Sidang untuk Mahasiswa Indonesia.
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <small>&copy; {{ date('Y') }} SkripsiAI Indonesia. All rights reserved.</small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // DATA CONTOH GENERATE PROPOSAL NYATA DARI USER
+    const proposalSamples = [
+        {
+            meta: "User: Andi Pratama • Prodi: Teknik Informatika • Metode: R&D (SDLC Waterfall)",
+            title: "Rancang Bangun Sistem Deteksi Dini Penyakit Tanaman Padi Menggunakan Algoritma Convolutional Neural Network (CNN) Berbasis Web",
+            bab1: `
+                <h4>1.1 Latar Belakang Masalah</h4>
+                <p>Sektor pertanian memegang peranan strategis dalam menjaga ketahanan pangan nasional di Indonesia, di mana komoditas padi (Oryza sativa) menjadi sumber karbohidrat utama bagi lebih dari 95% penduduk (Badan Pusat Statistik, 2024). Namun, produktivitas hasil panen padi sering mengalami penurunan signifikan akibat serangan patogen penyakit daun seperti hawar daun bakteri (bacterial leaf blight), bercak coklat (brown spot), dan penyakit blas (Magnaporthe oryzae). Menurut penelitian Rahmawati dan Nugroho (2023), keterlambatan identifikasi gejala visual pada daun padi dapat menyebabkan gagal panen hingga mencapai 35% sampai 50% pada satu musim tanam.</p>
+                <p>Secara ideal (Das Sollen), proses diagnosis penyakit tanaman padi harus dilakukan secara cepat, objektif, dan akurat sejak gejala awal muncul pada permukaan helai daun. Akan tetapi, kondisi faktual di lapangan (Das Sein) menunjukkan bahwa sebagian besar petani masih mengandalkan pengamatan kasat mata secara konvensional yang bersifat subjektif dan terbatas oleh ketersediaan penyuluh pertanian lapangan. Kesenjangan (research gap) dari studi terdahulu yang dilakukan oleh Pratama et al. (2022) menunjukkan bahwa model klasifikasi citra konvensional berbasis ekstraksi fitur warna manual masih memiliki akurasi rendah ketika dihadapkan pada variasi pencahayaan lapangan.</p>
+                <h4>1.2 Rumusan Masalah</h4>
+                <p>Berdasarkan latar belakang masalah di atas, maka rumusan masalah dalam penelitian ini adalah: (1) Bagaimana merancang dan membangun arsitektur model Convolutional Neural Network (CNN) untuk mengklasifikasikan citra penyakit daun padi secara akurat? (2) Bagaimana mengintegrasikan model CNN ke dalam sistem berbasis web yang responsif dan mudah diakses oleh petani maupun penyuluh pertanian?</p>
+            `,
+            bab2: `
+                <h4>2.1 Landasan Teori</h4>
+                <p>Convolutional Neural Network (CNN) merupakan salah satu arsitektur Deep Learning yang dirancang khusus untuk memproses data berformat grid dua dimensi seperti citra digital (Goodfellow et al., 2021). Arsitektur CNN terdiri atas tiga lapisan utama, yaitu Convolutional Layer untuk mengekstraksi peta fitur lokal (feature map), Pooling Layer untuk mereduksi dimensi spasial citra, serta Fully Connected Layer untuk menghasilkan probabilitas klasifikasi melalui fungsi aktivasi Softmax (Suryani & Hidayat, 2023).</p>
+                <h4>2.2 Penelitian Terdahulu</h4>
+                <p>Penelitian pertama oleh Kusuma dan Wijaya (2023) berjudul "Klasifikasi Penyakit Daun Padi Menggunakan Arsitektur MobileNetV2" berhasil memperoleh akurasi pengujian sebesar 92,4%, namun belum diimplementasikan ke dalam antarmuka sistem informasi berbasis web. Penelitian kedua oleh Setiawan et al. (2024) menerapkan metode Support Vector Machine (SVM) dengan akurasi 84,5%. Kebaruan (state of the art) pada penelitian ini terletak pada optimasi hiperparameter arsitektur CNN yang terintegrasi langsung dengan platform web real-time untuk diagnosis lapangan.</p>
+            `,
+            bab3: `
+                <h4>3.1 Metode Pengembangan Sistem</h4>
+                <p>Penelitian ini menggunakan metode Research and Development (R&D) dengan model pengembangan perangkat lunak System Development Life Cycle (SDLC) Waterfall menurut Pressman (2020). Tahapan penelitian meliputi: (1) Requirement Analysis, yaitu pengumpulan dataset 2.400 citra daun padi; (2) System & Model Design, yakni perancangan arsitektur CNN, Use Case Diagram, Activity Diagram, dan Entity Relationship Diagram (ERD); (3) Implementation, yaitu pelatihan model dan pengembangan web; serta (4) System Testing.</p>
+                <h4>3.2 Metode Pengujian Sistem</h4>
+                <p>Evaluasi performa model klasifikasi dilakukan menggunakan Confusion Matrix untuk menghitung nilai Accuracy, Precision, Recall, dan F1-Score. Sementara itu, pengujian fungsionalitas aplikasi web dilakukan menggunakan metode Black-Box Testing (Equivalence Partitioning) untuk memastikan seluruh modul unggah citra dan laporan hasil diagnosis berjalan valid tanpa galat.</p>
+            `
+        },
+        {
+            meta: "User: Siti Rahma • Prodi: Manajemen Bisnis • Metode: Kuantitatif (Regresi Linear Berganda)",
+            title: "Pengaruh Content Marketing, Live Streaming, dan Online Customer Review Terhadap Keputusan Pembelian Produk Fashion Lokal di TikTok Shop",
+            bab1: `
+                <h4>1.1 Latar Belakang Masalah</h4>
+                <p>Transformasi digital telah mengubah lanskap perdagangan elektronik (social commerce) di Indonesia secara fundamental, di mana integrasi konten hiburan pendek dengan fitur transaksi langsung mendorong pertumbuhan nilai transaksi ritel daring secara eksponensial (Kotler et al., 2022). Fenomena ini menuntut pelaku usaha merek fashion lokal untuk mengoptimalkan strategi komunikasi pemasaran interaktif guna mempertahankan daya saing pasar.</p>
+                <p>Meskipun adopsi fitur Live Streaming dan Content Marketing meningkat pesat, data survei Asosiasi E-Commerce Indonesia (2024) mengindikasikan bahwa tingkat konversi penjualan pada merek lokal masih mengalami fluktuasi tajam akibat keraguan konsumen terhadap kualitas produk aktual. Penelitian Saputra dan Lestari (2023) menemukan bahwa Content Marketing berpengaruh signifikan terhadap minat beli, sedangkan studi Handayani (2022) justru menyatakan bahwa konten promosi tanpa dukungan Online Customer Review yang kredibel tidak mampu mendorong keputusan pembelian nyata. Adanya inkonsistensi temuan tersebut (research gap) mendorong perlunya pengujian empiris secara simultan.</p>
+                <h4>1.2 Rumusan Masalah</h4>
+                <p>Rumusan masalah dalam penelitian ini meliputi: (1) Apakah Content Marketing berpengaruh positif dan signifikan terhadap Keputusan Pembelian? (2) Apakah Live Streaming berpengaruh positif dan signifikan terhadap Keputusan Pembelian? (3) Apakah Online Customer Review berpengaruh positif dan signifikan secara parsial maupun simultan terhadap Keputusan Pembelian?</p>
+            `,
+            bab2: `
+                <h4>2.1 Landasan Teori</h4>
+                <p>Menurut Kotler dan Armstrong (2021), Keputusan Pembelian merupakan tahapan evaluasi dalam proses pengambilan keputusan konsumen di mana individu benar-benar memilih dan membeli suatu produk di antara berbagai alternatif merek yang tersedia. Indikator keputusan pembelian mencakup kemantapan pada sebuah produk, kebiasaan dalam membeli produk, kecepatan dalam memutuskan pembelian, serta kesediaan memberikan rekomendasi kepada orang lain (Tjiptono, 2022).</p>
+                <h4>2.2 Kerangka Pemikiran dan Hipotesis</h4>
+                <p>Berdasarkan landasan teori Stimulus-Organism-Response (S-O-R), paparan Content Marketing (X1) dan interaksi sinkron pada Live Streaming (X2) berperan sebagai stimulus eksternal, sementara Online Customer Review (X3) memperkuat persepsi kepercayaan kognitif konsumen yang bermuara pada respon perilaku berupa Keputusan Pembelian (Y). Dengan demikian, diajukan hipotesis H1, H2, H3, dan H4 bahwa ketiga variabel independen berpengaruh positif dan signifikan baik secara parsial maupun simultan.</p>
+            `,
+            bab3: `
+                <h4>3.1 Populasi dan Sampel Penelitian</h4>
+                <p>Pendekatan penelitian yang digunakan adalah kuantitatif dengan desain asosiatif kausal. Populasi dalam penelitian ini adalah konsumen generasi Z yang pernah melakukan pembelian produk fashion lokal melalui platform TikTok Shop. Teknik pengambilan sampel menggunakan Non-Probability Sampling dengan metode Purposive Sampling. Mengacu pada rumus Hair et al. (2021), ukuran sampel minimum ditetapkan sebanyak 150 responden dengan skala pengukuran Likert 1 sampai 5.</p>
+                <h4>3.2 Teknik Analisis Data dan Uji Hipotesis</h4>
+                <p>Tahapan analisis data dilakukan menggunakan perangkat lunak statistik yang mencakup: (1) Uji Instrumen (Uji Validitas Pearson Product Moment dan Uji Reliabilitas Cronbach's Alpha > 0,70); (2) Uji Asumsi Klasik (Uji Normalitas Kolmogorov-Smirnov, Uji Multikolinearitas VIF < 10, dan Uji Heteroskedastisitas Glejser); serta (3) Analisis Regresi Linear Berganda, Uji Parsial (Uji t), Uji Kelayakan Model (Uji F), dan Koefisien Determinasi (R-Square).</p>
+            `
+        },
+        {
+            meta: "User: Dimas Aditya • Prodi: Ilmu Komunikasi • Metode: Kualitatif (Studi Kasus Deskriptif)",
+            title: "Strategi Komunikasi Krisis Public Relations dalam Memulihkan Reputasi Korporasi Pasca Insiden Kebocoran Data Pelanggan",
+            bab1: `
+                <h4>1.1 Latar Belakang Masalah</h4>
+                <p>Di era ekonomi digital, keamanan data pribadi pelanggan merupakan aset kepercayaan paling krusial bagi keberlangsungan reputasi sebuah institusi korporasi. Insiden kebocoran data siber tidak hanya menimbulkan kerugian operasional, tetapi juga memicu krisis kepercayaan publik yang teramplifikasi secara masif melalui opini media sosial dalam hitungan jam (Coombs, 2022).</p>
+                <p>Kajian ini berfokus pada bagaimana praktisi Public Relations merumuskan strategi respons krisis yang transparan, empatik, dan akuntabel untuk meredam sentimen negatif publik serta memulihkan legitimasi institusi di mata pemangku kepentingan (stakeholders).</p>
+            `,
+            bab2: `
+                <h4>2.1 Landasan Teori (Situational Crisis Communication Theory)</h4>
+                <p>Penelitian ini menggunakan pijakan utama Situational Crisis Communication Theory (SCCT) yang dikembangkan oleh W. Timothy Coombs (2021). Teori SCCT memetakan strategi respons komunikasi krisis ke dalam empat klaster utama, yaitu Denial Posture (penyangkalan), Diminish Posture (pengurangan atribusi), Rebuild Posture (pembangunan kembali kepercayaan melalui kompensasi dan permintaan maaf terbuka), serta Bolstering Posture.</p>
+            `,
+            bab3: `
+                <h4>3.1 Pendekatan Penelitian dan Teknik Penentuan Informan</h4>
+                <p>Penelitian ini menggunakan pendekatan kualitatif dengan metode Studi Kasus (Yin, 2020). Pemilihan informan dilakukan secara Purposive Sampling yang terdiri atas Informan Kunci (Head of Corporate Communications), Informan Utama (Tim Manajemen Krisis & Keamanan Siber), serta Informan Pendukung (perwakilan nasabah dan pengamat komunikasi publik).</p>
+                <h4>3.2 Uji Keabsahan dan Analisis Data</h4>
+                <p>Keabsahan data diuji menggunakan teknik Triangulasi Sumber dan Triangulasi Teknik untuk memastikan kredibilitas temuan lapangan. Seluruh transkrip wawancara mendalam dianalisis menggunakan model interaktif Miles, Huberman, dan Saldana (2019) yang meliputi tahapan Kondensasi Data (Data Condensation), Penyajian Data (Data Display), serta Penarikan Kesimpulan dan Verifikasi.</p>
+            `
+        }
+    ];
+
+    let currentSampleIdx = 0;
+    let currentChapterKey = 'bab1';
+
+    function renderProposalSample() {
+        const sample = proposalSamples[currentSampleIdx];
+        document.getElementById('sampleMetaBadge').innerText = sample.meta;
+        document.getElementById('sampleProposalTitle').innerText = sample.title;
+        document.getElementById('samplePaperContent').innerHTML = sample[currentChapterKey];
+    }
+
+    function switchProposalSample(idx, btn) {
+        currentSampleIdx = idx;
+        document.querySelectorAll('.sample-selector-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProposalSample();
+    }
+
+    function switchSampleChapter(chapterKey, btn) {
+        currentChapterKey = chapterKey;
+        document.querySelectorAll('.chapter-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProposalSample();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderProposalSample();
+    });
+</script>
 </body>
 </html>
