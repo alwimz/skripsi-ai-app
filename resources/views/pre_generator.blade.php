@@ -77,7 +77,8 @@
             display: none;
         }
 
-        .sidebar-backdrop.open {
+        .sidebar-backdrop.open,
+        .sidebar-backdrop.show {
             display: block;
         }
 
@@ -627,7 +628,9 @@
             font-size: 14px;
             font-weight: 600;
             color: var(--text-main);
-            line-height: 1.35;
+            line-height: 1.4;
+            word-break: break-word;
+            white-space: normal;
         }
 
         .project-row-meta {
@@ -1708,7 +1711,7 @@
                                 <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1; min-width: 0;">
                                     <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
                                     <div style="min-width: 0;">
-                                        <div class="project-row-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $proj->judul }}</div>
+                                        <div class="project-row-title" style="white-space: normal; word-break: break-word; line-height: 1.45; margin-bottom: 4px;">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">
                                             <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab
                                         </div>

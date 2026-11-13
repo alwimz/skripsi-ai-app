@@ -451,36 +451,49 @@ class GeneratorController extends Controller
         try {
             if ($provider === 'gemini') {
                 $isOAuthBearer = str_starts_with($rawKey, 'ya29.');
-                $client = new \GuzzleHttp\Client(['timeout' => 12, 'verify' => false]);
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-                $headers = ['Content-Type' => 'application/json'];
-                $options = [
-                    'json' => [
-                        'contents' => [['parts' => [['text' => 'Ping']]]]
-                    ]
-                ];
-                if ($isOAuthBearer) {
-                    $headers['Authorization'] = 'Bearer ' . $rawKey;
-                } else {
-                    $headers['x-goog-api-key'] = $rawKey;
-                    $options['query'] = ['key' => $rawKey];
-                }
-                $options['headers'] = $headers;
-                try {
-                    $res = $client->post($url, $options);
-                } catch (\GuzzleHttp\Exception\RequestException $tryBearer) {
-                    if ($tryBearer->hasResponse() && $tryBearer->getResponse()->getStatusCode() === 401 && !$isOAuthBearer) {
-                        $fallbackOptions = $options;
-                        unset($fallbackOptions['query']);
-                        $fallbackOptions['headers']['Authorization'] = 'Bearer ' . $rawKey;
-                        unset($fallbackOptions['headers']['x-goog-api-key']);
-                        $res = $client->post($url, $fallbackOptions);
-                    } else {
-                        throw $tryBearer;
+                $client = new \GuzzleHttp\Client(['timeout' => 14, 'verify' => false]);
+                $testModels = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+                $lastEx = null;
+
+                foreach ($testModels as $testModel) {
+                    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$testModel}:generateContent";
+
+                    // Metode 1: Header x-goog-api-key (Standar resmi Google untuk kunci AQ. dan AIza)
+                    try {
+                        $headers = [
+                            'Content-Type' => 'application/json',
+                            $isOAuthBearer ? 'Authorization' : 'x-goog-api-key' => $isOAuthBearer ? ('Bearer ' . $rawKey) : $rawKey,
+                        ];
+                        $res = $client->post($url, [
+                            'headers' => $headers,
+                            'json' => ['contents' => [['parts' => [['text' => 'Ping']]]]]
+                        ]);
+                        if ($res->getStatusCode() === 200) {
+                            return response()->json(['status' => 'success', 'message' => "API Key Google Gemini Valid & Aktif! ({$testModel})"]);
+                        }
+                    } catch (\Throwable $exA) {
+                        $lastEx = $exA;
+                    }
+
+                    // Metode 2: Query param ?key= (Fallback alternatif)
+                    if (!$isOAuthBearer) {
+                        try {
+                            $res = $client->post($url, [
+                                'headers' => ['Content-Type' => 'application/json'],
+                                'query' => ['key' => $rawKey],
+                                'json' => ['contents' => [['parts' => [['text' => 'Ping']]]]]
+                            ]);
+                            if ($res->getStatusCode() === 200) {
+                                return response()->json(['status' => 'success', 'message' => "API Key Google Gemini Valid & Aktif! ({$testModel})"]);
+                            }
+                        } catch (\Throwable $exB) {
+                            $lastEx = $exB;
+                        }
                     }
                 }
-                if ($res->getStatusCode() === 200) {
-                    return response()->json(['status' => 'success', 'message' => 'API Key Google Gemini Valid & Aktif!']);
+
+                if ($lastEx) {
+                    throw $lastEx;
                 }
             } else {
                 if (str_starts_with($rawKey, 'sk-or-')) {
@@ -1534,30 +1547,32 @@ ATURAN REVISI:
 
         // --- HALAMAN SAMPUL (COVER) ---
         $section->addText($jenisDokumen, $bold14, $center);
-        $section->addTextBreak(2);
+        $section->addTextBreak(1);
         $section->addText(strtoupper($project->judul), $bold14, $center);
-        $section->addTextBreak(2);
+        $section->addTextBreak(1);
+        $section->addText("Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . $project->prodi, ['size' => 11], $center);
+        $section->addTextBreak(1);
 
-        if ($logoPath && file_exists($logoPath)) {
+        $defaultLogoFile = public_path('images/default_emblem.png');
+        $resolvedLogo = ($logoPath && file_exists($logoPath)) ? $logoPath : (file_exists($defaultLogoFile) ? $defaultLogoFile : null);
+
+        if ($resolvedLogo && file_exists($resolvedLogo)) {
             try {
-                $section->addImage($logoPath, [
-                    'width' => 110,
-                    'height' => 110,
+                $section->addImage($resolvedLogo, [
+                    'width' => 95,
+                    'height' => 95,
                     'alignment' => Jc::CENTER,
                 ]);
-            } catch (Throwable $e) {
-                $section->addText("[ LOGO UNIVERSITAS ]", ['size' => 10], $center);
-            }
-        } else {
-            $section->addTextBreak(1);
-            $section->addText("[ LOGO UNIVERSITAS ]", ['size' => 10], $center);
+            } catch (Throwable $e) {}
         }
 
-        $section->addTextBreak(2);
+        $section->addTextBreak(1);
         $section->addText("OLEH:", $bold12, $center);
         $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single'], $center);
-        $section->addText($npm, $bold12, $center);
-        $section->addTextBreak(3);
+        if (!empty($npm)) {
+            $section->addText("NIM: " . $npm, $bold12, $center);
+        }
+        $section->addTextBreak(2);
         $section->addText(strtoupper("PROGRAM STUDI " . $project->prodi), $bold14, $center);
         if (!empty($fakultas)) {
             $section->addText(strtoupper($fakultas), $bold14, $center);
@@ -1704,12 +1719,18 @@ ATURAN REVISI:
         $kampus = $request->input('kampus') ?: ($meta['kampus'] ?? 'UNIVERSITAS');
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
 
-        $logoHtml = "<div style='margin: 36px 0;'>[ LOGO UNIVERSITAS ]</div>";
+        $defaultLogoFile = public_path('images/default_emblem.png');
+        $logoHtml = '';
         if ($logoPath && file_exists($logoPath)) {
             $mime = mime_content_type($logoPath) ?: 'image/png';
             $b64 = base64_encode(file_get_contents($logoPath));
-            $logoHtml = "<div style='margin: 28px 0; text-align:center;'><img src='data:{$mime};base64,{$b64}' style='width:115px; height:auto;'></div>";
+            $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
             @unlink($logoPath);
+        } elseif (file_exists($defaultLogoFile)) {
+            $b64 = base64_encode(file_get_contents($defaultLogoFile));
+            $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
+        } else {
+            $logoHtml = "<div style='font-size:12pt; font-weight:bold; padding:12pt 0;'>[ LAMBANG UNIVERSITAS ]</div>";
         }
 
         $tocRowsHtml = '';
@@ -1731,16 +1752,23 @@ ATURAN REVISI:
             .cover p{text-indent:0; text-align:center;}
         </style></head><body>";
 
-        $html .= "<div class='cover' style='text-align:center; padding-top:20px;'>
-            <h1 style='font-size:14pt;'>{$jenisDokumen}</h1>
-            <h2 style='font-size:14pt; margin-top:24px;'>" . strtoupper(e($project->judul)) . "</h2>
-            {$logoHtml}
-            <p style='margin-top:28px;'><strong>OLEH:</strong><br><u><strong>" . strtoupper(e($nama)) . "</strong></u><br>" . e($npm) . "</p>
-            <div style='margin-top:60px; font-weight:bold; font-size:13pt;'>
-                PROGRAM STUDI " . strtoupper(e($project->prodi)) . "<br>
-                " . ($fakultas ? strtoupper(e($fakultas)) . "<br>" : "") . "
-                " . strtoupper(e($kampus)) . "<br>
-                " . date('Y') . "
+        $html .= "<div class='cover' style='text-align:center;'>
+            <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+            <div style='font-size:13pt; font-weight:bold; margin-top:14pt; margin-bottom:10pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
+            <div style='font-size:11pt; line-height:1.35; max-width:440pt; margin:0 auto 12pt auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+            <div style='margin:10pt auto 12pt auto; text-align:center;'>
+                {$logoHtml}
+            </div>
+            <div style='margin-top:10pt; font-size:11.5pt; line-height:1.4;'>
+                <div>OLEH:</div>
+                <div style='margin-top:2pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                " . ($npm ? "<div style='margin-top:1pt;'>NIM: " . e($npm) . "</div>" : "") . "
+            </div>
+            <div style='margin-top:20pt; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                <div>" . strtoupper(e($kampus)) . "</div>
+                <div>" . date('Y') . "</div>
             </div>
         </div>
         <div style='page-break-after:always;'></div>";
@@ -1795,8 +1823,12 @@ ATURAN REVISI:
 
         try {
             $canvas = $dompdf->getCanvas();
-            $font = $dompdf->getFontMetrics()->getFont('Times-Roman', 'normal');
-            $canvas->page_text(297, 804, "{PAGE_NUM}", $font, 10, [0.15, 0.15, 0.15]);
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+                if ($pageNumber > 1) {
+                    $font = $fontMetrics->getFont('Times-Roman', 'normal');
+                    $canvas->text(297, 804, (string)$pageNumber, $font, 10, [0.15, 0.15, 0.15]);
+                }
+            });
         } catch (\Throwable $e) {}
 
         $inline = $request->boolean('inline');

@@ -95,11 +95,8 @@
             font-size: 13px;
             font-weight: 700;
             color: var(--text-primary);
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            line-height: 1.45;
+            word-break: break-word;
             margin-bottom: 6px;
         }
         .project-mode-badge {
@@ -361,10 +358,9 @@
             font-size: 13.5px;
             font-weight: 700;
             color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 420px;
+            line-height: 1.35;
+            word-break: break-word;
+            max-width: 650px;
         }
 
         .topbar-actions {
@@ -483,11 +479,13 @@
             border: 1px solid #dbe3ee;
             border-radius: 4px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            padding: 64px 68px;
+            padding: 75px 60px 60px 75px; /* Rasio standar margin skripsi 4-4-3-3 cm */
             color: #111827;
             font-family: "Times New Roman", Georgia, serif;
             font-size: 16px;
             line-height: 1.75;
+            box-sizing: border-box;
+            word-break: break-word;
         }
 
         .cover-sheet {
@@ -495,49 +493,53 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 820px;
+            min-height: 1050px;
+            box-sizing: border-box;
+            padding: 75px 60px 60px 75px;
         }
         .cover-kind {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            margin-bottom: 18px;
-        }
-        .cover-title {
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.5;
-            text-transform: uppercase;
             margin-bottom: 14px;
         }
+        .cover-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.45;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
         .cover-sub {
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13.5px;
+            line-height: 1.5;
             max-width: 520px;
-            margin: 0 auto 24px;
+            margin: 0 auto 16px;
         }
         .cover-logo-box {
-            margin: 20px auto;
+            margin: 16px auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
         }
         .cover-logo-img {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             object-fit: contain;
+            display: block;
+            margin: 0 auto;
         }
         .cover-author-block {
-            margin: 24px 0;
-            font-size: 15px;
-            line-height: 1.7;
+            margin: 18px 0;
+            font-size: 14.5px;
+            line-height: 1.6;
         }
         .cover-campus-block {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
-            line-height: 1.55;
+            line-height: 1.5;
             text-transform: uppercase;
         }
 
@@ -570,6 +572,24 @@
         .toc-dots {
             flex: 1;
             border-bottom: 1px dotted #94a3b8;
+        }
+        .toc-page {
+            font-weight: 700;
+            min-width: 24px;
+            text-align: right;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        .sheet-footer {
+            margin-top: 38px;
+            padding-top: 14px;
+            text-align: center;
+            font-size: 13.5px;
+            font-family: 'Times New Roman', serif;
+            font-weight: 600;
+            color: #475569;
+            border-top: 1px solid rgba(203, 213, 225, 0.6);
+            user-select: none;
         }
 
         .paper-editor {
@@ -847,7 +867,7 @@
         .toast.success { background: #065f46; }
         .toast.error { background: #991b1b; }
 
-        /* Responsive */
+        /* Responsive Styles */
         @media (max-width: 900px) {
             .studio-sidebar {
                 position: fixed;
@@ -855,6 +875,7 @@
                 top: 0;
                 transform: translateX(-100%);
                 margin-left: 0 !important;
+                z-index: 100;
             }
             .studio-shell.mobile-sidebar-open .studio-sidebar {
                 transform: translateX(0);
@@ -862,23 +883,133 @@
             .studio-shell.mobile-sidebar-open .sidebar-backdrop {
                 display: block;
             }
-            .a4-sheet {
-                padding: 36px 28px;
-                font-size: 15px;
-            }
-            .topbar-title { max-width: 210px; }
         }
-        @media (max-width: 640px) {
-            .studio-topbar { padding: 8px 12px; }
-            .canvas-scroll { padding: 14px 10px 48px; }
-            .a4-sheet {
-                padding: 26px 18px;
-                font-size: 14.5px;
+
+        @media (max-width: 768px) {
+            .studio-topbar {
+                height: auto;
+                min-height: 52px;
+                padding: 10px 12px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
             }
-            .cover-sheet { min-height: auto; padding-top: 32px; padding-bottom: 32px; }
-            .topbar-actions { width: 100%; justify-content: flex-end; }
-            .btn-top, .model-select { font-size: 12px; padding: 0 10px; }
-            .revisi-card { padding: 16px; }
+            .topbar-left {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .topbar-title {
+                max-width: calc(100vw - 75px);
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .topbar-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .topbar-actions .model-select {
+                grid-column: span 2;
+                width: 100%;
+                height: 32px;
+                font-size: 12px;
+            }
+            .topbar-actions #btn-generate-current {
+                grid-column: span 2;
+                justify-content: center;
+                height: 34px;
+                font-size: 12.5px;
+            }
+            .topbar-actions #btn-save-edit {
+                grid-column: span 2;
+                justify-content: center;
+                height: 34px;
+                font-size: 12.5px;
+            }
+            .topbar-actions .btn-top:not(#btn-generate-current):not(#btn-save-edit) {
+                width: 100%;
+                justify-content: center;
+                height: 32px;
+                font-size: 12px;
+                padding: 0 6px;
+            }
+            .chapter-bar {
+                padding: 10px 12px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .chapter-bar-actions {
+                width: 100%;
+            }
+            .chapter-bar-actions .btn-top {
+                width: 100%;
+                justify-content: center;
+            }
+            .canvas-scroll {
+                padding: 10px 8px 60px;
+            }
+            #sheets-container {
+                width: 100%;
+                max-width: 100%;
+            }
+            .a4-sheet {
+                padding: 24px 16px;
+                font-size: 14px;
+                line-height: 1.65;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+                word-break: break-word;
+            }
+            .cover-sheet {
+                min-height: auto;
+                padding: 24px 14px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            .cover-title {
+                font-size: 14px;
+                line-height: 1.4;
+            }
+            .cover-sub {
+                font-size: 11.5px;
+                line-height: 1.4;
+                margin: 0 auto 10px;
+            }
+            .cover-logo-img {
+                width: 80px;
+                height: 80px;
+            }
+            .cover-author-block {
+                margin: 12px 0;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+            .cover-campus-block {
+                font-size: 12.5px;
+                line-height: 1.4;
+            }
+            .front-heading {
+                font-size: 15px;
+                margin-bottom: 16px;
+            }
+            .toc-row {
+                font-size: 13px;
+                gap: 6px;
+            }
+            .toc-row.sub {
+                padding-left: 12px;
+            }
+            .revisi-card {
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -1065,6 +1196,7 @@ const projectId = @json($project->id);
 const projectTitle = @json($project->judul);
 const projectProdi = @json($project->prodi);
 const projectMeta = @json($meta ?? []);
+const defaultUserName = @json(auth()->user()->name ?? 'Mahasiswa');
 const isProposalMode = @json($isProposal);
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -1309,7 +1441,7 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
 }
 
 function buildCoverAndFrontMatterHtml() {
-    const nama = projectMeta.nama || @json(auth()->user()->name ?? 'Mahasiswa');
+    const nama = projectMeta.nama || defaultUserName;
     const nim = projectMeta.nim || '';
     const kampus = projectMeta.kampus || 'UNIVERSITAS';
     const fakultas = projectMeta.fakultas || '';
@@ -1317,39 +1449,89 @@ function buildCoverAndFrontMatterHtml() {
     const tahun = new Date().getFullYear();
     const docKind = allowBab45 ? 'SKRIPSI' : 'PROPOSAL SKRIPSI';
 
-    const tocChapters = allowBab45
-        ? [
-            { title: 'BAB I PENDAHULUAN', subs: ['1.1 Latar Belakang Masalah', '1.2 Identifikasi Masalah', '1.3 Batasan Masalah', '1.4 Rumusan Masalah', '1.5 Tujuan Penelitian', '1.6 Manfaat Penelitian', '1.7 Sistematika Penulisan'] },
-            { title: 'BAB II TINJAUAN PUSTAKA', subs: ['2.1 Landasan Teori', '2.2 Penelitian Terdahulu', '2.3 Kerangka Pemikiran', '2.4 Hipotesis Penelitian'] },
-            { title: 'BAB III METODOLOGI PENELITIAN', subs: ['3.1 Jenis dan Desain Penelitian', '3.2 Lokasi dan Waktu Penelitian', '3.3 Populasi dan Sampel', '3.4 Teknik Pengumpulan Data', '3.5 Teknik Analisis Data'] },
-            { title: 'BAB IV HASIL PENELITIAN DAN PEMBAHASAN', subs: ['4.1 Gambaran Umum Objek', '4.2 Hasil Penelitian', '4.3 Pembahasan'] },
-            { title: 'BAB V PENUTUP', subs: ['5.1 Kesimpulan', '5.2 Saran'] }
-        ]
-        : [
-            { title: 'BAB I PENDAHULUAN', subs: ['1.1 Latar Belakang Masalah', '1.2 Identifikasi Masalah', '1.3 Batasan Masalah', '1.4 Rumusan Masalah', '1.5 Tujuan Penelitian', '1.6 Manfaat Penelitian', '1.7 Sistematika Penulisan'] },
-            { title: 'BAB II TINJAUAN PUSTAKA', subs: ['2.1 Landasan Teori', '2.2 Penelitian Terdahulu', '2.3 Kerangka Pemikiran', '2.4 Hipotesis Penelitian'] },
-            { title: 'BAB III METODOLOGI PENELITIAN', subs: ['3.1 Jenis dan Desain Penelitian', '3.2 Lokasi dan Waktu Penelitian', '3.3 Populasi dan Sampel', '3.4 Teknik Pengumpulan Data', '3.5 Teknik Analisis Data'] }
-        ];
+    const chaptersDef = [
+        { key: 'bab1', num: 'I', title: 'BAB I PENDAHULUAN' },
+        { key: 'bab2', num: 'II', title: 'BAB II TINJAUAN PUSTAKA' },
+        { key: 'bab3', num: 'III', title: 'BAB III METODOLOGI PENELITIAN' },
+        { key: 'bab4', num: 'IV', title: 'BAB IV HASIL PENELITIAN DAN PEMBAHASAN' },
+        { key: 'bab5', num: 'V', title: 'BAB V PENUTUP' }
+    ];
 
-    const tocHtml = tocChapters.map((ch) => {
-        const subsHtml = ch.subs.map((s) => `<div class="toc-row sub"><span>${escapeHtml(s)}</span><span class="toc-dots"></span><span>•</span></div>`).join('');
-        return `<div class="toc-row main"><span>${escapeHtml(ch.title)}</span><span class="toc-dots"></span><span>•</span></div>${subsHtml}`;
-    }).join('') + `<div class="toc-row main"><span>DAFTAR PUSTAKA</span><span class="toc-dots"></span><span>•</span></div>`;
+    let currentPage = 1;
+    const tocRows = [];
+
+    // Bagian Awal Standar Akademik Indonesia
+    tocRows.push({ title: 'HALAMAN JUDUL', page: '', isMain: true, isSub: false });
+    tocRows.push({ title: 'KATA PENGANTAR', page: 'i', isMain: true, isSub: false });
+    tocRows.push({ title: 'DAFTAR ISI', page: 'ii', isMain: true, isSub: false });
+
+    chaptersDef.forEach((ch) => {
+        if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
+        const text = (chapterContents[ch.key] || '').trim();
+        // HANYA tampilkan bab yang sudah di-generate!
+        if (!text) return;
+
+        const chPage = currentPage;
+        tocRows.push({ title: ch.title, page: String(chPage), isMain: true, isSub: false });
+
+        // Ekstrak sub-bab aktual dari naskah
+        const lines = text.split('\n');
+        let subCount = 0;
+        lines.forEach((raw) => {
+            const line = raw.trim();
+            const m = line.match(/^(?:##\s+)?(\d+\.\d+\.?\s+[^\n]+)/) ||
+                      line.match(/^(?:##\s+)?([A-Z]\.\s+[A-Z][^\n]+)/);
+            if (m && m[1]) {
+                const clean = m[1].replace(/^##\s+/, '').trim();
+                if (clean.length >= 4 && clean.length <= 80) {
+                    subCount++;
+                    const subPage = chPage + Math.floor((subCount - 1) / 2);
+                    tocRows.push({ title: clean, page: String(subPage), isMain: false, isSub: true });
+                }
+            }
+        });
+
+        if (subCount === 0) {
+            defaultSubchapters.forEach((item, idx) => {
+                if (item.chapter === ch.key && item.code) {
+                    const subPage = chPage + Math.floor(idx / 2);
+                    tocRows.push({ title: item.label, page: String(subPage), isMain: false, isSub: true });
+                    subCount++;
+                }
+            });
+        }
+
+        const estimatedPages = Math.max(2, Math.ceil(text.length / 2200), Math.ceil(subCount / 2));
+        currentPage += estimatedPages;
+    });
+
+    const dpContent = (chapterContents.daftar_pustaka || '').trim();
+    if (dpContent) {
+        tocRows.push({ title: 'DAFTAR PUSTAKA', page: String(currentPage), isMain: true, isSub: false });
+    }
+
+    const tocHtml = tocRows.map((r) => {
+        const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
+        const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
+        return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
+    }).join('');
+
+    const logoSrc = (logo && logo.length > 50) ? logo : '/images/default_emblem.png';
 
     return `
         <div class="a4-sheet cover-sheet">
-            <div>
+            <div class="cover-top-block">
                 <div class="cover-kind">${docKind}</div>
                 <div class="cover-title">${escapeHtml(projectTitle)}</div>
                 <div class="cover-sub">Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}</div>
             </div>
             <div class="cover-logo-box">
-                ${logo ? `<img src="${logo}" alt="Logo Kampus" class="cover-logo-img">` : '<div style="font-size:12px;color:#64748b;">[Logo Kampus]</div>'}
+                <img src="${logoSrc}" alt="Logo Kampus" class="cover-logo-img">
             </div>
-            <div>
+            <div class="cover-bottom-block">
                 <div class="cover-author-block">
-                    <div>Oleh:</div>
-                    <div><strong>${escapeHtml(nama)}</strong></div>
+                    <div>OLEH:</div>
+                    <div><u><strong>${escapeHtml(nama)}</strong></u></div>
                     ${nim ? `<div>NIM / NPM: ${escapeHtml(nim)}</div>` : ''}
                 </div>
                 <div class="cover-campus-block">
@@ -1363,6 +1545,7 @@ function buildCoverAndFrontMatterHtml() {
         <div class="a4-sheet front-body">
             <div class="front-heading">DAFTAR ISI</div>
             <div class="toc-list">${tocHtml}</div>
+            <div class="sheet-footer">ii</div>
         </div>
     `;
 }
@@ -1552,10 +1735,18 @@ function renderActiveSheet() {
     const frontHtml = (activeView === 'bab1') ? buildCoverAndFrontMatterHtml() : '';
     const bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
 
+    let pageNumLabel = '1';
+    if (activeView === 'bab2') pageNumLabel = '8';
+    else if (activeView === 'bab3') pageNumLabel = '16';
+    else if (activeView === 'bab4') pageNumLabel = '24';
+    else if (activeView === 'bab5') pageNumLabel = '36';
+    else if (activeView === 'daftar_pustaka') pageNumLabel = '42';
+
     container.innerHTML = `
         ${frontHtml}
         <div class="a4-sheet">
             <div class="paper-editor" id="paper-editor" contenteditable="true" spellcheck="false">${bodyHtml}</div>
+            <div class="sheet-footer">${pageNumLabel}</div>
         </div>
     `;
 
