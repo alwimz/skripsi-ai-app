@@ -3159,11 +3159,6 @@
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
 
-            const prevBtn = document.getElementById('btn-ppt-prev');
-            const nextBtn = document.getElementById('btn-ppt-next');
-            if (prevBtn) prevBtn.disabled = currentSlideIdx === 0;
-            if (nextBtn) nextBtn.disabled = currentSlideIdx >= pptSlides.length - 1;
-
             if (currentSlideIdx === 0) {
                 secLabel.innerText = 'SLIDE 1 · JUDUL & COVER SIDANG';
                 titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');

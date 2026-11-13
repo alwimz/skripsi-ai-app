@@ -33,6 +33,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             height: 100%;
+            overflow: hidden;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-app);
             color: var(--text-primary);
@@ -41,9 +42,10 @@
 
         .studio-shell {
             display: flex;
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
             width: 100%;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* Sidebar */
@@ -55,8 +57,9 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            position: sticky;
-            top: 0;
+            max-height: 100vh;
+            overflow: hidden;
+            position: relative;
             z-index: 40;
             transition: margin-left 0.22s ease, transform 0.22s ease;
         }
@@ -306,13 +309,18 @@
         .studio-main {
             flex: 1;
             min-width: 0;
+            height: 100vh;
+            max-height: 100vh;
             display: flex;
             flex-direction: column;
             background: var(--bg-canvas);
+            overflow: hidden;
         }
 
         .studio-topbar {
+            height: var(--topbar-h);
             min-height: var(--topbar-h);
+            flex-shrink: 0;
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--border);
@@ -321,8 +329,6 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            position: sticky;
-            top: 0;
             z-index: 30;
             flex-wrap: wrap;
         }
@@ -423,11 +429,15 @@
         /* Paper Canvas */
         .canvas-scroll {
             flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
             padding: 24px 20px 64px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 18px;
+            -webkit-overflow-scrolling: touch;
         }
         .chapter-bar {
             width: 100%;
@@ -1365,24 +1375,47 @@ function buildSubchapterOptions() {
     const options = [];
     const seen = new Set();
 
-    defaultSubchapters.forEach((item) => {
-        if (!allowedChapters.includes(item.chapter)) return;
-        const val = `${item.chapter}|${item.label}`;
-        seen.add(item.label.toLowerCase());
-        options.push({ value: val, label: item.label });
-    });
+    // Hanya tampilkan bab yang sudah memiliki isi naskah
+    const activeChapters = allowedChapters.filter((ch) => Boolean((chapterContents[ch] || '').trim()));
+    const targetChapters = activeChapters.length > 0 ? activeChapters : ['bab1'];
 
-    // Tambahkan sub-bab aktual dari naskah bila ada yang kustom
-    allowedChapters.forEach((ch) => {
-        const text = chapterContents[ch] || '';
-        const matches = text.match(/^##\s+(.+)$/gm) || [];
-        matches.forEach((heading) => {
-            const clean = heading.replace(/^##\s+/, '').trim();
-            if (clean && !seen.has(clean.toLowerCase())) {
-                seen.add(clean.toLowerCase());
-                options.push({ value: `${ch}|${clean}`, label: clean });
-            }
-        });
+    targetChapters.forEach((ch) => {
+        const text = (chapterContents[ch] || '').trim();
+        const foundSubs = [];
+
+        if (text) {
+            const lines = text.split('\n');
+            lines.forEach((raw) => {
+                const line = raw.trim();
+                const m = line.match(/^(?:##\s+)?(\d+\.\d+\.?\s+[^\n]+)/) ||
+                          line.match(/^(?:##\s+)?([A-Z]\.\s+[A-Z][^\n]+)/);
+                if (m && m[1]) {
+                    const clean = m[1].replace(/^##\s+/, '').trim();
+                    if (clean.length >= 4 && clean.length <= 80 && !seen.has(clean.toLowerCase())) {
+                        seen.add(clean.toLowerCase());
+                        foundSubs.push(clean);
+                    }
+                }
+            });
+        }
+
+        if (foundSubs.length > 0) {
+            foundSubs.forEach((lbl) => {
+                options.push({ value: `${ch}|${lbl}`, label: lbl });
+            });
+        } else {
+            defaultSubchapters.forEach((item) => {
+                if (item.chapter === ch && item.code) {
+                    if (!seen.has(item.label.toLowerCase())) {
+                        seen.add(item.label.toLowerCase());
+                        options.push({ value: `${ch}|${item.label}`, label: item.label });
+                    }
+                }
+            });
+        }
+
+        const chLabel = chapterLabels[ch] || ch.toUpperCase();
+        options.push({ value: `${ch}|Semua ${chLabel} (Utuh)`, label: `Semua ${chLabel} (Utuh)` });
     });
 
     return options;
@@ -1393,23 +1426,31 @@ function extractSubchapterPreview(chapterKey, subLabel) {
     if (!content) {
         return 'Bab ini belum disusun. Kamu tetap bisa memproses atau membuat ulang isi sub-bab langsung dari instruksi di atas.';
     }
-    if (subLabel.toLowerCase().includes('semua bab')) {
+    if (subLabel.toLowerCase().includes('semua bab') || subLabel.toLowerCase().includes('utuh')) {
         return content.slice(0, 900) + (content.length > 900 ? '\n...' : '');
     }
-    const codeMatch = subLabel.match(/^(\d+\.\d+)/);
-    const code = codeMatch ? codeMatch[1] : '';
-    const titlePart = subLabel.replace(/^\d+\.\d+\s*/, '').trim();
-    const escapedCode = code.replace('.', '\\.');
+
+    const codeMatch = subLabel.match(/^(\d+\.\d+|[A-Z]\.)/);
+    const code = codeMatch ? codeMatch[1].replace('.', '\\.') : '';
+    const titlePart = subLabel.replace(/^(\d+\.\d+|[A-Z]\.)\s*/, '').trim();
     const escapedTitle = titlePart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = code
-        ? new RegExp(`##\\s*${escapedCode}[^\\n]*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i')
-        : new RegExp(`##\\s*[^\\n]*${escapedTitle}[^\\n]*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i');
-    const m = content.match(regex);
-    if (m && m[0]) {
-        const slice = m[0].trim();
-        return slice.slice(0, 900) + (slice.length > 900 ? '\n...' : '');
+
+    let regex = null;
+    if (code) {
+        regex = new RegExp(`(?:##\\s*)?${code}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
+    } else if (escapedTitle) {
+        regex = new RegExp(`(?:##\\s*)?[^\\n]*${escapedTitle}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
     }
-    return `Sub-bab "${subLabel}" belum ditemukan secara eksplisit pada ${chapterKey.toUpperCase()}, AI akan menyisipkan/memperbaruinya ke dalam ${chapterKey.toUpperCase()}.`;
+
+    if (regex) {
+        const m = content.match(regex);
+        if (m && m[0]) {
+            const slice = m[0].trim();
+            return slice.slice(0, 900) + (slice.length > 900 ? '\n...' : '');
+        }
+    }
+
+    return content.slice(0, 600) + (content.length > 600 ? '\n...' : '');
 }
 
 function updateRevisePreview() {
@@ -1507,7 +1548,8 @@ function renderActiveSheet() {
         return;
     }
 
-    const frontHtml = '';
+    // Tampilkan Cover & Daftar Isi otomatis saat membuka Bab I
+    const frontHtml = (activeView === 'bab1') ? buildCoverAndFrontMatterHtml() : '';
     const bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
 
     container.innerHTML = `
