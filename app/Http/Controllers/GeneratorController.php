@@ -268,9 +268,13 @@ class GeneratorController extends Controller
     private function extractTocItemsForProject(Project $project, bool $isProposal = false): array
     {
         $items = [
-            ['label' => 'HALAMAN SAMPUL', 'page' => 'i', 'level' => 1],
-            ['label' => 'KATA PENGANTAR', 'page' => 'ii', 'level' => 1],
-            ['label' => 'DAFTAR ISI', 'page' => 'iii', 'level' => 1],
+            ['label' => 'HALAMAN JUDUL', 'page' => '', 'level' => 1],
+            ['label' => 'LEMBAR PENGESAHAN', 'page' => 'i', 'level' => 1],
+            ['label' => 'PERNYATAAN KEASLIAN', 'page' => 'ii', 'level' => 1],
+            ['label' => 'ABSTRAK', 'page' => 'iii', 'level' => 1],
+            ['label' => 'ABSTRACT', 'page' => 'iv', 'level' => 1],
+            ['label' => 'KATA PENGANTAR', 'page' => 'v', 'level' => 1],
+            ['label' => 'DAFTAR ISI', 'page' => 'vi', 'level' => 1],
         ];
 
         $chapters = [
@@ -823,10 +827,12 @@ Syarat:
         };
 
         try {
+            $headers = ['User-Agent' => 'SkripsiAI-Academic/2.0 (mailto:support@skripsi-ai.app)'];
+
             if ($scope === 'all' || $scope === 'id') {
-                $oaId = Http::timeout(10)->get('https://api.openalex.org/works', [
+                $oaId = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                     'search' => $keyword,
-                    'filter' => 'is_oa:true,from_publication_date:2019-01-01,institutions.country_code:ID',
+                    'filter' => 'from_publication_date:2019-01-01,language:id',
                     'per-page' => $scope === 'id' ? 10 : 5,
                 ]);
                 if ($oaId->successful()) {
@@ -836,13 +842,13 @@ Syarat:
                     }
                 }
                 if (count($journalsId) < 3) {
-                    $oaIdLang = Http::timeout(10)->get('https://api.openalex.org/works', [
+                    $oaIdFallback = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                         'search' => $keyword . ' Indonesia',
-                        'filter' => 'is_oa:true,from_publication_date:2019-01-01,language:id',
+                        'filter' => 'from_publication_date:2019-01-01',
                         'per-page' => 5,
                     ]);
-                    if ($oaIdLang->successful()) {
-                        foreach ($oaIdLang->json()['results'] ?? [] as $w) {
+                    if ($oaIdFallback->successful()) {
+                        foreach ($oaIdFallback->json()['results'] ?? [] as $w) {
                             $item = $mapOpenAlexWork($w, 'Indonesia');
                             if ($item) $journalsId[] = $item;
                         }
@@ -851,9 +857,9 @@ Syarat:
             }
 
             if ($scope === 'all' || $scope === 'int') {
-                $oaInt = Http::timeout(10)->get('https://api.openalex.org/works', [
+                $oaInt = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                     'search' => $keyword,
-                    'filter' => 'is_oa:true,from_publication_date:2019-01-01,language:en',
+                    'filter' => 'from_publication_date:2019-01-01,language:en',
                     'per-page' => $scope === 'int' ? 10 : 5,
                 ]);
                 if ($oaInt->successful()) {
@@ -863,19 +869,62 @@ Syarat:
                     }
                 }
             }
+
+            // CrossRef query jika hasil masih sedikit (database DOI publikasi nyata dunia)
+            if (count($journalsId) + count($journalsInt) < 4) {
+                $crRes = Http::timeout(10)->withHeaders($headers)->get('https://api.crossref.org/works', [
+                    'query' => $keyword,
+                    'rows' => 8,
+                    'select' => 'title,author,container-title,published,DOI,URL'
+                ]);
+                if ($crRes->successful()) {
+                    foreach ($crRes->json()['message']['items'] ?? [] as $crItem) {
+                        $cTitle = !empty($crItem['title'][0]) ? trim($crItem['title'][0]) : '';
+                        if (empty($cTitle)) continue;
+                        $cAuthors = [];
+                        foreach (array_slice($crItem['author'] ?? [], 0, 3) as $a) {
+                            $cAuthors[] = trim(($a['given'] ?? '') . ' ' . ($a['family'] ?? ''));
+                        }
+                        $cAuthStr = !empty($cAuthors) ? implode(', ', array_filter($cAuthors)) : 'Peneliti';
+                        $cVenue = !empty($crItem['container-title'][0]) ? $crItem['container-title'][0] : 'Jurnal Ilmiah Bereputasi';
+                        $cYear = $crItem['published']['date-parts'][0][0] ?? '2023';
+                        $cUrl = $crItem['URL'] ?? ('https://doi.org/' . ($crItem['DOI'] ?? ''));
+                        $cScope = (preg_match('/[a-z]/i', $keyword) && (str_contains(strtolower($cTitle), 'indonesia') || str_contains(strtolower($cVenue), 'jurnal'))) ? 'Indonesia' : 'Internasional';
+
+                        $crEntry = [
+                            'title' => $cTitle,
+                            'author' => $cAuthStr,
+                            'journal' => $cVenue,
+                            'year' => (string) $cYear,
+                            'pdf_url' => $cUrl,
+                            'doi_url' => $cUrl,
+                            'citation' => "{$cAuthStr} ({$cYear}). {$cTitle}. {$cVenue}. {$cUrl}",
+                            'scope' => $cScope,
+                            'is_real_oa' => true,
+                        ];
+                        if ($cScope === 'Indonesia' && ($scope === 'all' || $scope === 'id')) {
+                            $journalsId[] = $crEntry;
+                        } elseif ($cScope !== 'Indonesia' && ($scope === 'all' || $scope === 'int')) {
+                            $journalsInt[] = $crEntry;
+                        }
+                    }
+                }
+            }
         } catch (Throwable $e) {
-            Log::warning('OpenAlex search fallback: ' . $e->getMessage());
+            Log::warning('Scholar search API notice: ' . $e->getMessage());
         }
 
-        // Lengkapi via AI jika hasil OpenAlex masih kurang
+        // Lengkapi via AI akademis jika masih kurang dari 4 artikel nyata
         if (($scope === 'all' && (count($journalsId) < 3 || count($journalsInt) < 3))
-            || ($scope === 'id' && count($journalsId) < 5)
-            || ($scope === 'int' && count($journalsInt) < 5)) {
+            || ($scope === 'id' && count($journalsId) < 4)
+            || ($scope === 'int' && count($journalsInt) < 4)) {
             try {
-                $prompt = "Berikan referensi jurnal ilmiah (2020-2026) yang relevan dengan topik '{$keyword}'.
-Bagi menjadi Jurnal Indonesia (terindeks Sinta/Garuda) dan Jurnal Internasional (Scopus/IEEE/Springer/Elsevier).
-Format WAJIB per baris: Kategori(Indonesia/Internasional)|Judul Artikel|Nama Penulis|Nama Jurnal|Tahun
-Berikan masing-masing 4 artikel Indonesia dan 4 artikel Internasional tanpa nomor urut dan tanpa kalimat pengantar.";
+                $prompt = "PERAN: Pustakawan Akademik & Kurator Jurnal Ilmiah SINTA & Scopus.
+TUGAS: Berikan daftar referensi jurnal ilmiah ASLI dan NYATA yang benar-benar pernah terbit (2020-2026) dan terindeks di Google Scholar / SINTA / Scopus / IEEE / ScienceDirect terkait kata kunci: '{$keyword}'.
+ATURAN KETAT:
+1. DILARANG KERAS mengarang/halusinasi judul fiktif. Seluruh artikel harus nyata dan dapat ditemukan di Google Scholar / Garuda Dikti.
+2. Format WAJIB per baris: Kategori(Indonesia/Internasional)|Judul Artikel Nyata|Nama Penulis|Nama Jurnal Ilmiah Terakreditasi|Tahun Terbit
+3. Berikan masing-masing 4 artikel Indonesia dan 4 artikel Internasional tanpa nomor urut dan tanpa teks pembuka/penutup.";
 
                 $content = $this->ai->generateText($prompt, $model);
                 $lines = array_filter(explode("\n", $content), fn($t) => !empty(trim($t)));
@@ -1014,18 +1063,89 @@ PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 
 ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 1. Gaya Bahasa: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan bebas klise AI (DILARANG membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era globalisasi saat ini...\", atau \"Pada era modern...\").
-2. Kedalaman Materi: Setiap sub-bab wajib ditulis mendalam minimal 3-5 paragraf utuh (450-750 kata per sub-bab) dengan argumentasi berbasis fenomena, teori, dan bukti empiris.
+2. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
 3. Sitasi Ilmiah: WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, misalnya: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)) dengan tahun terbit minimal {$tahunMin}.
 4. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
 5. Tanpa Simbol Markdown: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
     }
 
-    private function promptBab(string $bab, Project $project): string
+    private function promptBab(string $bab, Project $project, array $dataRiil = []): string
     {
         $master = $this->promptMaster($project);
+        $meta = is_array($project->meta) ? $project->meta : json_decode($project->meta ?? '[]', true);
+        if (empty($dataRiil) && !empty($meta['data_riil']) && is_array($meta['data_riil'])) {
+            $dataRiil = $meta['data_riil'];
+        }
+
+        $judulLower = strtolower($project->judul ?? '');
+        $prodiLower = strtolower($project->prodi ?? '');
         $metodeLower = strtolower($project->metode_penelitian ?? '');
-        $isRnD = str_contains($metodeLower, 'r&d') || str_contains($metodeLower, 'waterfall') || str_contains($metodeLower, 'agile') || str_contains($metodeLower, 'prototype') || str_contains($metodeLower, 'sistem') || str_contains($metodeLower, 'rekayasa');
-        $isKualitatif = str_contains($metodeLower, 'kualitatif') || str_contains($metodeLower, 'normatif') || str_contains($metodeLower, 'pustaka');
+
+        // Deteksi Rumpun Keilmuan / Disiplin Mahasiswa
+        $isInformatika = str_contains($prodiLower, 'informatika')
+            || str_contains($prodiLower, 'komputer')
+            || str_contains($prodiLower, 'sistem informasi')
+            || str_contains($prodiLower, 'teknologi informasi')
+            || str_contains($prodiLower, 'data science')
+            || str_contains($prodiLower, 'rekayasa perangkat lunak')
+            || str_contains($judulLower, 'algoritma')
+            || str_contains($judulLower, 'naive bayes')
+            || str_contains($judulLower, 'sentimen')
+            || str_contains($judulLower, 'sentiment')
+            || str_contains($judulLower, 'machine learning')
+            || str_contains($judulLower, 'deep learning')
+            || str_contains($judulLower, 'klasifikasi')
+            || str_contains($judulLower, 'neural network')
+            || str_contains($judulLower, 'nlp')
+            || str_contains($judulLower, 'svm')
+            || str_contains($judulLower, 'cnn')
+            || str_contains($judulLower, 'lstm')
+            || str_contains($judulLower, 'k-means')
+            || str_contains($judulLower, 'decision tree')
+            || str_contains($judulLower, 'random forest')
+            || str_contains($judulLower, 'data mining');
+
+        $isEkonomi = str_contains($prodiLower, 'manajemen')
+            || str_contains($prodiLower, 'akuntansi')
+            || str_contains($prodiLower, 'ekonomi')
+            || str_contains($prodiLower, 'bisnis')
+            || str_contains($prodiLower, 'perbankan')
+            || str_contains($prodiLower, 'keuangan')
+            || str_contains($prodiLower, 'pemasaran');
+
+        $isPendidikan = str_contains($prodiLower, 'pendidikan')
+            || str_contains($prodiLower, 'fkip')
+            || str_contains($prodiLower, 'tarbiyah')
+            || str_contains($prodiLower, 'pembelajaran')
+            || str_contains($prodiLower, 'guru');
+
+        $isKesehatan = str_contains($prodiLower, 'farmasi')
+            || str_contains($prodiLower, 'keperawatan')
+            || str_contains($prodiLower, 'kebidanan')
+            || str_contains($prodiLower, 'kesehatan')
+            || str_contains($prodiLower, 'kedokteran');
+
+        $isRnD = str_contains($metodeLower, 'r&d')
+            || str_contains($metodeLower, 'waterfall')
+            || str_contains($metodeLower, 'agile')
+            || str_contains($metodeLower, 'prototype')
+            || str_contains($metodeLower, 'rekayasa');
+
+        $isKualitatif = str_contains($metodeLower, 'kualitatif')
+            || str_contains($metodeLower, 'normatif')
+            || str_contains($metodeLower, 'pustaka');
+
+        // Parameter Data Riil Mahasiswa (Jika Diberikan)
+        $dataRiilPrompt = "";
+        if (!empty($dataRiil) && (is_array($dataRiil) && count(array_filter($dataRiil)) > 0)) {
+            $dataRiilPrompt = "\n=== PARAMETER DATA PENELITIAN RIIL MAHASISWA (WAJIB DIGUNAKAN SECARA PERSIS) ===\n";
+            if (!empty($dataRiil['metode'])) $dataRiilPrompt .= "- Metode / Algoritma Spesifik: {$dataRiil['metode']}\n";
+            if (!empty($dataRiil['sampel'])) $dataRiilPrompt .= "- Populasi / Sampel / Dataset: {$dataRiil['sampel']}\n";
+            if (!empty($dataRiil['lokasi'])) $dataRiilPrompt .= "- Lokasi / Sumber Data: {$dataRiil['lokasi']}\n";
+            if (!empty($dataRiil['metrik'])) $dataRiilPrompt .= "- Nilai Metrik / Hasil Temuan Kunci: {$dataRiil['metrik']}\n";
+            if (!empty($dataRiil['evaluasi'])) $dataRiilPrompt .= "- Teknik Evaluasi / Pengujian: {$dataRiil['evaluasi']}\n";
+            $dataRiilPrompt .= "PERINGATAN KERAS: AI WAJIB menyematkan angka-angka, nama metode, dan metrik di atas ke dalam naskah narasi dan tabel perhitungan secara persis. DILARANG mengarang angka atau metode yang bertentangan dengan data riil ini!\n";
+        }
 
         $context = "";
         if ($bab == 'bab2') $context = "KONTEKS BAB 1: " . Str::limit(strip_tags($project->bab1_content), 1500);
@@ -1037,87 +1157,214 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
             $context .= "\n\n=== TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 12000);
         }
 
-        $bab3Skill = match (true) {
-            $isRnD => "
-Sub-bab standar Metode R&D / Pengembangan Sistem ({$project->metode_penelitian}):
-3.1 Metode Pengembangan Sistem
-3.2 Tempat dan Waktu Penelitian
-3.3 Teknik Pengumpulan Data
-3.4 Analisis Sistem Berjalan dan Kebutuhan Sistem (Fungsional & Non-Fungsional)
-3.5 Perancangan Sistem (Arsitektur, UML Use Case/Activity/Class Diagram, Basis Data/ERD, & Antarmuka)
-3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Test)",
-            $isKualitatif => "
-Sub-bab standar Metode Kualitatif ({$project->metode_penelitian}):
-3.1 Pendekatan dan Jenis Penelitian
-3.2 Lokasi dan Waktu Penelitian
-3.3 Fokus Penelitian
-3.4 Sumber Data dan Teknik Penentuan Informan
-3.5 Teknik Pengumpulan Data (Observasi, Wawancara Mendalam, Dokumentasi)
-3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi)
-3.7 Teknik Analisis Data (Kondensasi Data, Penyajian Data, Penarikan Kesimpulan)",
+        // Bab II Sesuai Rumpun Ilmu & WAJIB TABEL PENELITIAN TERDAHULU
+        $bab2Prompt = match (true) {
+            $isInformatika => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG INFORMATIKA / ILMU KOMPUTER / SISTEM CERDAS.
+WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
+2.1 Landasan Teori (Uraikan konsep dasar topik, Text Preprocessing [Case Folding, Cleaning, Tokenizing, Slang Normalization, Stopwords Removal, Stemming Sastrawi], Pembobotan Kata [TF-IDF], Teori dan Rumus Matematis Algoritma Naive Bayes/SVM/Machine Learning yang dipakai, serta Teori Confusion Matrix).
+2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan minimal 4-5 penelitian jurnal bereputasi 2020-2024 terkait dalam format Markdown Table dengan kolom:
+| No | Peneliti & Tahun | Judul Penelitian | Metode / Algoritma | Hasil / Akurasi | Persamaan, Perbedaan & Celah Penelitian |
+Lalu berikan 2 paragraf sintesis posisi riset dan kebaruan (novelty) penelitian ini dibandingkan riset terdahulu).
+2.3 Kerangka Pemikiran (Uraikan alur logika pemecahan masalah komputasi dari input teks mentah, pra-pemrosesan, pembobotan fitur, pemodelan, hingga evaluasi akurasi).
+2.4 Batasan Kinerja / Hipotesis Penelitian (Kemukakan ekspektasi performa model yang dirumuskan secara tegas).",
+
+            $isEkonomi => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG EKONOMI / MANAJEMEN / AKUNTANSI.
+WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
+2.1 Landasan Teori (Uraikan Grand Theory [misal Agency Theory / TAM / RBV], Middle Theory, dan Applied Theory, serta definisi konseptual dan indikator variabel penelitian secara komprehensif).
+2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan 5-7 jurnal bereputasi SINTA/Scopus dalam format Markdown Table:
+| No | Peneliti & Tahun | Judul Penelitian | Variabel / Metode | Hasil Penelitian | Perbedaan dengan Penelitian Ini |
+Diikuti 2 paragraf perbandingan dan gap penelitian).
+2.3 Kerangka Konseptual (Uraikan hubungan keterkaitan logis antarvariabel independen terhadap variabel dependen).
+2.4 Pengembangan Hipotesis (Rumuskan hipotesis penelitian H1, H2, H3 secara eksplisit dengan argumen teoretis pendukung).",
+
+            $isPendidikan => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN / KEGURUAN.
+WAJIB MEMUAT:
+2.1 Landasan Teori (Hakikat pembelajaran, model/metode pembelajaran yang diuji, karakteristik hasil belajar/keterampilan siswa, materi ajar).
+2.2 Penelitian Terdahulu (WAJIB sajikan TABEL komparasi jurnal pendidikan bereputasi SINTA).
+2.3 Kerangka Berpikir.
+2.4 Hipotesis Tindakan / Hipotesis Statistik.",
+
             default => "
-Sub-bab standar Metode Kuantitatif ({$project->metode_penelitian}):
-3.1 Jenis dan Desain Penelitian
-3.2 Lokasi dan Waktu Penelitian
-3.3 Populasi dan Sampel Penelitian
-3.4 Definisi Operasional dan Pengukuran Variabel
-3.5 Teknik dan Instrumen Pengumpulan Data
-3.6 Uji Instrumen Penelitian (Uji Validitas dan Reliabilitas)
-3.7 Teknik Analisis Data dan Uji Hipotesis (Uji Asumsi Klasik, Regresi, Uji t, Uji F, R-Square)"
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) secara komprehensif berstandar skripsi S1 nasional Indonesia.
+WAJIB MEMUAT:
+2.1 Landasan Teori (Grand theory, teori pendukung, definisi ahli, dan dimensi/indikator operasional).
+2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan minimal 4-5 penelitian jurnal bereputasi 2020-2024 terkait dalam format Markdown Table:
+| No | Peneliti & Tahun | Judul Penelitian | Metode yang Digunakan | Hasil / Temuan | Celah Penelitian |).
+2.3 Kerangka Pemikiran.
+2.4 Hipotesis / Proposisi Penelitian."
         };
 
-        $bab4Skill = match (true) {
+        // Bab III Sesuai Rumpun Ilmu (Flowchart Sistem & Metodologi Valid)
+        $bab3Prompt = match (true) {
+            $isInformatika => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KOMPUTASI / INFORMATIKA).
+WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
+3.1 Desain Penelitian & Alur Sistem (Flowchart)
+Sajikan penjelasan terperinci dan GAMBARKAN BAGAN ALUR (FLOWCHART SISTEM) menggunakan diagram alur berbasis teks/kotak yang rapi di dalam blok kode, contoh:
+```
+[Mulai] --> [Pengumpulan Dataset] --> [Text Preprocessing]
+             |--> Case Folding, Cleaning, Tokenizing
+             |--> Normalisasi Slang & Stopword Removal
+             |--> Stemming (Algoritma Sastrawi)
+             V
+[Pembobotan TF-IDF] --> [Data Splitting 80:20]
+             V
+[Pelatihan Model Naive Bayes] --> [Pengujian Data Uji]
+             V
+[Evaluasi: Confusion Matrix (Akurasi, Presisi, Recall, F1)] --> [Selesai]
+```
+Jelaskan setiap tahapan bagan alur di atas secara terperinci.
+3.2 Sumber dan Teknik Pengumpulan Dataset (Jelaskan sumber data, teknik crawling/scraping API, kata kunci pencarian, periode penarikan data, dan total volume korpus data).
+3.3 Tahapan Pra-Pemrosesan Data (Text Preprocessing) (Jelaskan mekanisme kerja Case Folding, Cleaning, Tokenizing, Slang Normalization dengan kamus baku, Filtering/Stopword Removal, dan Stemming Sastrawi).
+3.4 Pembobotan Fitur dan Pembagian Data (Jabarkan rumus pembobotan TF-IDF dan rasio pembagian dataset latih dan uji, misal 80:20 atau 10-Fold Cross Validation).
+3.5 Pemodelan Algoritma Klasifikasi (Tuliskan rumus matematis Teorema Bayes: P(C|X) = P(X|C)P(C) / P(X) beserta penjelasan prior probability, likelihood, dan Laplace Smoothing).
+3.6 Metrik Evaluasi Kinerja (Rumuskan Confusion Matrix [TP, TN, FP, FN] serta rumus perhitungan Akurasi, Precision, Recall, dan F1-Score).",
+
+            $isEkonomi => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN BISNIS / EKONOMI KUANTITATIF).
+3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal).
+3.2 Lokasi, Objek, dan Waktu Penelitian.
+3.3 Populasi dan Penentuan Sampel (Teknik sampling, rumus Slovin / Hair et al.).
+3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan TABEL Operasional Variabel dengan kolom: Variabel | Dimensi/Indikator | Butir Pernyataan | Skala Pengukuran [Likert 1-5]).
+3.5 Teknik dan Instrumen Pengumpulan Data (Kuesioner / Data Sekunder Laporan Keuangan).
+3.6 Uji Instrumen Penelitian (Uji Validitas Corrected Item-Total Correlation dan Uji Reliabilitas Cronbach's Alpha > 0.60).
+3.7 Teknik Analisis Data & Uji Hipotesis (Uji Asumsi Klasik: Normalitas, Multikolinearitas, Heteroskedastisitas; dan Analisis Regresi Linier Berganda / SEM-PLS: Uji t, Uji F, Koefisien Determinasi R-Square).",
+
+            $isPendidikan => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN PENDIDIKAN / QUASI-EKSPERIMEN).
+3.1 Desain Penelitian (Nonequivalent Pretest-Posttest Control Group Design).
+3.2 Tempat dan Waktu Penelitian.
+3.3 Populasi dan Sampel (Kelas eksperimen vs kelas kontrol).
+3.4 Variabel Penelitian dan Definisi Operasional.
+3.5 Instrumen Pengumpulan Data (Tes kognitif pretest-posttest dan lembar observasi).
+3.6 Uji Coba Instrumen (Uji Validitas Butir, Reliabilitas KR-20/Cronbach, Tingkat Kesukaran, Daya Beda).
+3.7 Teknik Analisis Data (Uji Normalitas, Homogenitas, Uji Hipotesis Independent Sample t-test, dan Skor N-Gain).",
+
             $isRnD => "
-Sub-bab standar Hasil & Pembahasan R&D ({$project->metode_penelitian}):
-4.1 Gambaran Umum Objek Penelitian dan Analisis Sistem Berjalan
-4.2 Hasil Perancangan dan Implementasi Sistem
-4.3 Hasil Pengujian Sistem (Black-Box & Kelayakan Pengguna)
-4.4 Pembahasan Hasil Penelitian",
+TUGAS: Tulis Isi BAB III (METODOLOGI PENGEMBANGAN SISTEM / R&D).
+3.1 Model Pengembangan Sistem (SDLC Waterfall / Agile / Prototyping).
+3.2 Waktu dan Tempat Penelitian.
+3.3 Teknik Pengumpulan Data (Wawancara, Observasi, Studi Pustaka).
+3.4 Analisis Kebutuhan Sistem (Kebutuhan Fungsional & Kebutuhan Non-Fungsional).
+3.5 Perancangan Sistem (Arsitektur Sistem, Use Case Diagram, Activity Diagram, ERD Basis Data, Wireframe Antarmuka).
+3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Testing / SUS).",
+
             $isKualitatif => "
-Sub-bab standar Hasil & Pembahasan Kualitatif ({$project->metode_penelitian}):
-4.1 Gambaran Umum Objek Penelitian dan Profil Informan
-4.2 Paparan Data dan Temuan Penelitian
-4.3 Pembahasan Temuan Penelitian",
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUALITATIF).
+3.1 Pendekatan dan Jenis Penelitian.
+3.2 Lokasi dan Waktu Penelitian.
+3.3 Fokus Penelitian.
+3.4 Sumber Data dan Teknik Pemilihan Informan (Purposive Sampling).
+3.5 Teknik Pengumpulan Data (Observasi Partisipatif, Wawancara Mendalam, Dokumentasi).
+3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi Sumber dan Triangulasi Teknik).
+3.7 Teknik Analisis Data (Kondensasi Data, Penyajian Data, dan Penarikan Kesimpulan Miles & Huberman).",
+
             default => "
-Sub-bab standar Hasil & Pembahasan Kuantitatif ({$project->metode_penelitian}):
-4.1 Gambaran Umum Objek Penelitian dan Karakteristik Responden
-4.2 Hasil Analisis Data (Statistik Deskriptif, Validitas, Reliabilitas, Asumsi Klasik, & Uji Hipotesis)
-4.3 Pembahasan Hasil Penelitian"
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) secara lengkap berstandar S1.
+3.1 Jenis dan Desain Penelitian.
+3.2 Lokasi dan Waktu Penelitian.
+3.3 Populasi dan Sampel Penelitian.
+3.4 Definisi Operasional dan Pengukuran Variabel (Sajikan TABEL Indikator Variabel).
+3.5 Teknik Pengumpulan Data.
+3.6 Uji Keabsahan / Instrumen Data.
+3.7 Teknik Analisis Data dan Prosedur Pengujian."
         };
 
-        return match ($bab) {
-            'bab1' => $master . "
-TUGAS: Tulis Isi BAB I (PENDAHULUAN) secara lengkap dan sistematis sesuai standar skripsi Indonesia.
-Sub-bab WAJIB berurutan (7 sub-bab):
-1.1 Latar Belakang Masalah (Uraikan fenomena makro, data empiris / isu terkini, ketimpangan praktik vs teori, penelitian terdahulu yang relevan, research gap, dan urgensi pemilihan judul - minimal 5 paragraf mendalam; JANGAN gunakan kalimat pembuka 'Kondisi ideal dalam...')
-1.2 Identifikasi Masalah (Daftar permasalahan konkret yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.)
-1.3 Batasan Masalah (Batasi ruang lingkup penelitian secara tegas: variabel/algoritma yang dikaji, objek/populasi, periode waktu, dan pendekatan metode yang digunakan)
-1.4 Rumusan Masalah (Pertanyaan penelitian spesifik yang konsisten dengan judul dan batasan masalah dalam poin bernomor 1., 2., 3.)
-1.5 Tujuan Penelitian (Pernyataan tujuan operasional yang menjawab langsung setiap poin Rumusan Masalah)
-1.6 Manfaat Penelitian (Uraikan dalam dua bagian eksplisit: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi pihak terkait)
-1.7 Sistematika Penulisan (Ringkasan isi masing-masing bab yang akan dibahas)",
-            'bab2' => $master . "\n$context\n
-TUGAS: Tulis Isi BAB II (TINJAUAN PUSTAKA) secara lengkap.
-Sub-bab WAJIB berurutan:
-2.1 Landasan Teori (Uraikan Grand Theory, Middle Theory, definisi para ahli, dimensi, dan indikator setiap variabel/konsep dalam judul secara mendalam)
-2.2 Penelitian Terdahulu (Bahas minimal 5 penelitian jurnal terbaru 2020-2026 beserta metode, hasil, persamaan, dan perbedaannya dengan penelitian ini)
-2.3 Kerangka Pemikiran (Alur logika hubungan antarvariabel/tahapan penelitian)
-2.4 Hipotesis Penelitian / Proposisi Penelitian",
-            'bab3' => $master . "\n$context\n
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) secara lengkap.
-$bab3Skill",
-            'bab4' => $master . "\n$context\n
-TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN) secara lengkap.
-$bab4Skill",
-            'bab5' => $master . "\n$context\n
-TUGAS: Tulis Isi BAB V (PENUTUP) beserta DAFTAR PUSTAKA.
+        // Bab IV Sesuai Rumpun Ilmu (Tabel Pengujian, Confusion Matrix / Regresi, Pembahasan Kritis)
+        $bab4Prompt = match (true) {
+            $isInformatika => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KOMPUTASI / INFORMATIKA).
+WAJIB MEMUAT TABEL DAN DATA EMPIRIS LENGKAP:
+4.1 Deskripsi dan Karakteristik Dataset Penelitian (Uraikan statistik data mentah, jumlah sampel per kelas sentimen/kategori dalam TABEL distribusi kelas).
+4.2 Hasil Pra-Pemrosesan Teks (Sajikan TABEL contoh perbandingan 3-4 kalimat sebelum dan sesudah melewati setiap tahapan: Raw Text -> Cleaning -> Slang Normalization -> Stopword Removed -> Stemmed).
+4.3 Hasil Pengujian dan Evaluasi Kinerja Algoritma (WAJIB sajikan TABEL Confusion Matrix [True Positive, True Negative, False Positive, False Negative] dan TABEL Perbandingan Metrik Evaluasi [Akurasi, Presisi, Recall, F1-Score] dengan angka-angka terukur dan realistis).
+4.4 Pembahasan Kritis Hasil Penelitian (Analisis mendalam mengapa model mencapai akurasi tersebut, identifikasi faktor pemicu kesalahan klasifikasi [False Positive & False Negative], pengaruh preprocessing terhadap akurasi, serta perbandingan kinerja terhadap penelitian terdahulu).",
+
+            $isEkonomi => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN EKONOMI / MANAJEMEN).
+WAJIB MEMUAT TABEL STATISTIK LENGKAP:
+4.1 Gambaran Umum Objek dan Karakteristik Responden (Sajikan TABEL Demografi Responden: Jenis kelamin, Usia, Pendidikan, Lama Bekerja/Pengeluaran).
+4.2 Analisis Statistik Deskriptif Variabel (Sajikan TABEL Statistik Deskriptif: N, Minimum, Maximum, Mean, Std. Deviation untuk setiap variabel).
+4.3 Hasil Uji Kualitas Data (Sajikan TABEL Uji Validitas r-hitung vs r-tabel dan TABEL Uji Reliabilitas Cronbach's Alpha).
+4.4 Hasil Uji Asumsi Klasik (Sajikan TABEL Uji Normalitas, Multikolinearitas [Tolerance & VIF], dan Heteroskedastisitas).
+4.5 Hasil Analisis Regresi Linier Berganda & Uji Hipotesis (Sajikan TABEL Ringkasan Regresi: Nilai R, R-Square, Adjusted R-Square, TABEL Uji F ANOVA, dan TABEL Uji Parsial t [Koefisien B, t-hitung, Nilai Sig]).
+4.6 Pembahasan Hasil Penelitian (Bahas secara kritis penerimaan/penolakan masing-masing hipotesis H1, H2, H3 dengan membandingkan terhadap teori pendukung dan temuan penelitian terdahulu).",
+
+            $isPendidikan => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN PENDIDIKAN).
+WAJIB MEMUAT:
+4.1 Deskripsi Data Hasil Belajar (Sajikan TABEL nilai rata-rata Pretest & Posttest kelas eksperimen vs kelas kontrol).
+4.2 Hasil Uji Prasyarat Analisis (Sajikan TABEL Uji Normalitas & Uji Homogenitas Varian).
+4.3 Hasil Pengujian Hipotesis & Efektivitas (Sajikan TABEL Uji-t Independent Sample dan TABEL Peningkatan Skor N-Gain).
+4.4 Pembahasan Temuan Penelitian.",
+
+            $isRnD => "
+TUGAS: Tulis Isi BAB IV (HASIL PENGEMBANGAN DAN PEMBAHASAN SISTEM).
+WAJIB MEMUAT:
+4.1 Hasil Analisis dan Desain Sistem.
+4.2 Implementasi Antarmuka Sistem (Deskripsikan halaman-halaman utama antarmuka).
+4.3 Hasil Pengujian Sistem (Sajikan TABEL Pengujian Black-Box Testing dan TABEL Hasil Skor UAT / System Usability Scale).
+4.4 Pembahasan Kelebihan dan Keterbatasan Sistem.",
+
+            default => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN).
+WAJIB MEMUAT TABEL DATA DAN ANALISIS EMPIRIS LENGKAP:
+4.1 Deskripsi Data dan Objek Penelitian.
+4.2 Hasil Analisis Data (Sajikan TABEL pengolahan data terstruktur).
+4.3 Pengujian Hipotesis / Capaian Solusi.
+4.4 Pembahasan Kritis Hasil Penelitian."
+        };
+
+        // Bab V Penutup & Daftar Pustaka Nyata
+        $bab5Prompt = "
+TUGAS: Tulis Isi BAB V (PENUTUP) beserta DAFTAR PUSTAKA ASLI & NYATA.
 Sub-bab:
-5.1 Kesimpulan (Menjawab rumusan masalah Bab 1 secara tegas berdasarkan hasil Bab 4)
-5.2 Saran (Saran akademis dan praktis yang spesifik)
+5.1 Kesimpulan (Menjawab rumusan masalah Bab 1 secara tegas berdasarkan capaian empiris Bab 4. Sebutkan angka-angka capaian seperti nilai akurasi atau signifikansi regresi secara konkret).
+5.2 Saran (Uraikan saran operasional dan saran teknis bagi penelitian lanjutan).
 
 Setelah sub-bab 5.2 selesai, buat baris baru bertuliskan persis:
 ===DAFTAR PUSTAKA===
-Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th) yang mencakup seluruh nama penulis yang dikutip pada Bab 1 hingga Bab 4 tanpa kalimat pengantar dan tanpa placeholder.",
+Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th Edition) yang mencakup seluruh nama penulis yang dikutip pada Bab 1 hingga Bab 4.
+ATURAN KETAT SITASI:
+1. Referensi WAJIB ASLI dan NYATA (terindeks SINTA/Garuda Kemdikbud untuk Indonesia, atau Scopus/IEEE/ACM/Elsevier/Springer untuk Internasional).
+2. DILARANG KERAS mencantumkan tahun masa depan (seperti 2025, 2026, 2027). Tahun terbit maksimal tahun 2024.
+3. Seluruh entri memiliki nama penulis lengkap, tahun, judul artikel spesifik, nama jurnal bereputasi, volume, nomor issue, dan halaman.
+4. Tanpa kalimat pengantar, langsung baris referensi pertama A-Z.";
+
+        return match ($bab) {
+            'bab1' => $master . "{$dataRiilPrompt}\n" . "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara komprehensif berstandar skripsi S1 nasional Indonesia.
+WAJIB MEMUAT SELURUH 7 SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
+1.1 Latar Belakang Masalah (Uraikan 3-4 paragraf ilmiah berbobot: fenomena makro/empiris, fakta lapangan terkini, tinjauan penelitian terdahulu yang relevan, research gap yang nyata, serta urgensi pemilihan judul. JANGAN gunakan kalimat pembuka klise seperti 'Kondisi ideal dalam...').
+1.2 Identifikasi Masalah (Tuliskan 3-5 poin permasalahan konkret yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.).
+1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara tegas dalam 2-4 poin: batasan variabel/algoritma, objek/sampel, periode data, dan lingkungan implementasi).
+1.4 Rumusan Masalah (Tuliskan 2-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras dengan batasan masalah).
+1.5 Tujuan Penelitian (Tuliskan 2-4 butir pernyataan tujuan operasional yang menjawab langsung setiap butir Rumusan Masalah).
+1.6 Manfaat Penelitian (Uraikan ke dalam dua bagian terpisah yang jelas: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi industri, kampus, dan peneliti selanjutnya).
+1.7 Sistematika Penulisan (Uraikan ringkasan isi Bab I hingga Bab V secara terstruktur).
+
+INSTRUKSI MUTLAK:
+- Seluruh 7 sub-bab (1.1 sampai 1.7) HARUS ditulis lengkap tuntas dalam satu kali respons ini. DILARANG berhenti hanya di 1.1 atau 1.2!
+- Langsung mulai dari '1.1 Latar Belakang Masalah' tanpa kata pengantar AI.",
+
+            'bab2' => $master . "\n$context\n{$dataRiilPrompt}\n{$bab2Prompt}\n
+INSTRUKSI MUTLAK:
+- Seluruh sub-bab (2.1 sampai 2.4) dan TABEL PENELITIAN TERDAHULU HARUS ditulis lengkap tuntas tanpa terpotong.
+- Langsung mulai dari '2.1 Landasan Teori' tanpa kata pengantar AI.",
+
+            'bab3' => $master . "\n$context\n{$dataRiilPrompt}\n{$bab3Prompt}\n
+INSTRUKSI MUTLAK:
+- Tulis seluruh sub-bab secara tuntas. Jika bidang informatika/komputer, WAJIB sertakan diagram alur flowchart sistem dan rumus matematis algoritma.",
+
+            'bab4' => $master . "\n$context\n{$dataRiilPrompt}\n{$bab4Prompt}\n
+INSTRUKSI MUTLAK:
+- WAJIB menyajikan TABEL pengolahan data empiris (Tabel Confusion Matrix & Metrik Akurasi untuk Informatika, atau Tabel Regresi & Asumsi Klasik untuk Ekonomi).",
+
+            'bab5' => $master . "\n$context\n{$dataRiilPrompt}\n{$bab5Prompt}",
+
             default => $master
         };
     }
@@ -1171,9 +1418,15 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th) yang m
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $chapter = $request->chapter;
         $model = $request->input('model', 'auto');
+        $dataRiil = $request->input('data_riil', []);
+        if (!empty($dataRiil) && is_array($dataRiil)) {
+            $m = is_array($project->meta) ? $project->meta : json_decode($project->meta ?? '[]', true);
+            $m['data_riil'] = $dataRiil;
+            $project->meta = $m;
+        }
 
         try {
-            $finalPrompt = $this->promptBab($chapter, $project);
+            $finalPrompt = $this->promptBab($chapter, $project, $dataRiil);
             $content = $this->ai->generateText($finalPrompt, $model);
 
             $cleanContent = $this->cleanTextKeepFormat($content);
@@ -1211,16 +1464,6 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th) yang m
                 }
             }
 
-            if ($chapter === 'bab2') {
-                try {
-                    $promptTable = "Buat HTML Table sederhana <table><tr><th>Peneliti & Tahun</th><th>Judul Penelitian</th><th>Metode</th><th>Hasil Temuan</th></tr>...</table> yang merangkum Penelitian Terdahulu dari teks ini: " . Str::limit(strip_tags($cleanContent), 4000);
-                    $tableHtml = $this->ai->generateText($promptTable, $model);
-                    if (preg_match('/<table.*?<\/table>/is', $tableHtml, $m)) {
-                        $project->bab2_tabel_penelitian = $m[0];
-                    }
-                } catch (Throwable $t) {}
-            }
-
             $project->save();
 
             return response()->json([
@@ -1229,7 +1472,12 @@ Lalu tuliskan minimal 15 referensi ilmiah urut abjad A-Z (format APA 7th) yang m
                 'daftar_pustaka' => $project->daftar_pustaka,
             ]);
         } catch (Exception $e) {
-            return response()->json(['error' => 'AI Error: ' . $e->getMessage()], 500);
+            Log::error('generateChapter error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyusun bab: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -1581,6 +1829,101 @@ ATURAN REVISI:
         $section->addText(date('Y'), $bold14, $center);
         $section->addPageBreak();
 
+        // --- LEMBAR PENGESAHAN ---
+        $section->addTitle("LEMBAR PENGESAHAN", 1);
+        $section->addTextBreak(1);
+        $section->addText(strtoupper($project->judul), $bold12, $center);
+        $section->addTextBreak(1);
+        $section->addText("Disusun Oleh: " . strtoupper($nama) . ($npm ? " (" . $npm . ")" : ""), ['size' => 11], $center);
+        $section->addTextBreak(1);
+        $section->addText(
+            "Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian " . $jenisDokumen . " pada Program Studi " . $project->prodi . ($fakultas ? ", " . $fakultas : "") . ($kampus ? ", " . $kampus : "") . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.",
+            ['name' => 'Times New Roman', 'size' => 11],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 200]
+        );
+        $section->addTextBreak(1);
+
+        $table = $section->addTable(['alignment' => Jc::CENTER]);
+        $row = $table->addRow();
+        $cell1 = $row->addCell(Converter::cmToTwip(7.5));
+        $cell1->addText("Dosen Pembimbing I", ['size' => 11], $center);
+        $cell1->addTextBreak(3);
+        $cell1->addText("( __________________________ )", ['size' => 11], $center);
+        $cell1->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
+
+        $cell2 = $row->addCell(Converter::cmToTwip(7.5));
+        $cell2->addText("Dosen Pembimbing II", ['size' => 11], $center);
+        $cell2->addTextBreak(3);
+        $cell2->addText("( __________________________ )", ['size' => 11], $center);
+        $cell2->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
+
+        $section->addTextBreak(2);
+        $section->addText("Mengetahui,", ['size' => 11], $center);
+        $section->addText("Ketua Program Studi " . $project->prodi, ['size' => 11], $center);
+        $section->addTextBreak(3);
+        $section->addText("( __________________________ )", ['size' => 11], $center);
+        $section->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
+        $section->addPageBreak();
+
+        // --- SURAT PERNYATAAN KEASLIAN ---
+        $section->addTitle("SURAT PERNYATAAN KEASLIAN", 1);
+        $section->addTextBreak(1);
+        $section->addText("Saya yang bertanda tangan di bawah ini:", ['size' => 11], ['alignment' => Jc::BOTH]);
+        $section->addText("Nama Mahasiswa\t: " . $nama, ['bold' => true, 'size' => 11], ['indentation' => ['left' => 360]]);
+        $section->addText("NIM / NPM\t: " . $npm, ['size' => 11], ['indentation' => ['left' => 360]]);
+        $section->addText("Program Studi\t: " . $project->prodi, ['size' => 11], ['indentation' => ['left' => 360]]);
+        if (!empty($fakultas)) {
+            $section->addText("Fakultas\t: " . $fakultas, ['size' => 11], ['indentation' => ['left' => 360]]);
+        }
+        $section->addTextBreak(1);
+        $section->addText(
+            "Menyatakan dengan sesungguhnya bahwa " . strtolower($jenisDokumen) . " berjudul \"" . $project->judul . "\" ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.",
+            ['name' => 'Times New Roman', 'size' => 11],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+        );
+        $section->addText(
+            "Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.",
+            ['name' => 'Times New Roman', 'size' => 11],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 160]
+        );
+        $section->addText(($kampus ? $kampus . ", " : "") . date('d F Y'), ['size' => 11], ['alignment' => Jc::RIGHT]);
+        $section->addText("Yang membuat pernyataan,", ['size' => 11], ['alignment' => Jc::RIGHT]);
+        $section->addText("[ Materai Rp 10.000 ]", ['size' => 8.5, 'color' => '666666'], ['alignment' => Jc::RIGHT]);
+        $section->addTextBreak(2);
+        $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single', 'size' => 11], ['alignment' => Jc::RIGHT]);
+        $section->addText("NIM. " . $npm, ['size' => 11], ['alignment' => Jc::RIGHT]);
+        $section->addPageBreak();
+
+        // --- ABSTRAK (BAHASA INDONESIA) ---
+        $section->addTitle("ABSTRAK", 1);
+        $section->addTextBreak(1);
+        $section->addText(strtoupper($project->judul), $bold12, $center);
+        $section->addText("Oleh: " . $nama . ($npm ? " (NIM: " . $npm . ")" : ""), ['size' => 10.5], $center);
+        $section->addText("Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['size' => 10, 'color' => '444444'], $center);
+        $section->addTextBreak(1);
+        $section->addText(
+            "Penelitian ini bertujuan untuk menginvestigasi dan menyelesaikan permasalahan pada topik \"" . $project->judul . "\". Metode penelitian yang diterapkan adalah " . ($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " dengan prosedur sistematis dan terukur. Hasil penelitian menunjukkan bahwa pendekatan yang dirumuskan mampu memberikan solusi teruji, tolok ukur kinerja yang solid, serta kontribusi empiris bagi pengembangan ilmu pengetahuan dan praktik pada bidang " . $project->prodi . ".",
+            ['name' => 'Times New Roman', 'size' => 11],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+        );
+        $section->addText("Kata Kunci: " . $project->prodi . ", " . ($project->metode_penelitian ?: 'Metode Penelitian') . ", Evaluasi Kinerja, Skripsi S1.", ['bold' => true, 'size' => 11], ['alignment' => Jc::BOTH]);
+        $section->addPageBreak();
+
+        // --- ABSTRACT (ENGLISH) ---
+        $section->addTitle("ABSTRACT", 1);
+        $section->addTextBreak(1);
+        $section->addText(strtoupper($project->judul), ['bold' => true, 'italic' => true, 'size' => 12], $center);
+        $section->addText("By: " . $nama . ($npm ? " (Student ID: " . $npm . ")" : ""), ['italic' => true, 'size' => 10.5], $center);
+        $section->addText("Department of " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['italic' => true, 'size' => 10, 'color' => '444444'], $center);
+        $section->addTextBreak(1);
+        $section->addText(
+            "This study aims to investigate and address the empirical challenges in \"" . $project->judul . "\". Utilizing a scientific methodology in " . ($project->metode_penelitian ?: 'scientific inquiry') . ", this research systematically collects and analyzes relevant data. The results demonstrate that the proposed method effectively accomplishes the research objectives, yields verifiable benchmark performance, and delivers valuable contributions to both academic literature and practical applications in " . $project->prodi . ".",
+            ['name' => 'Times New Roman', 'italic' => true, 'size' => 11],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+        );
+        $section->addText("Keywords: " . $project->prodi . ", Empirical Research, Performance Evaluation, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH]);
+        $section->addPageBreak();
+
         // --- KATA PENGANTAR ---
         $section->addTitle("KATA PENGANTAR", 1);
         $section->addText(
@@ -1720,17 +2063,19 @@ ATURAN REVISI:
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
 
         $defaultLogoFile = public_path('images/default_emblem.png');
+        $hasGd = extension_loaded('gd');
         $logoHtml = '';
-        if ($logoPath && file_exists($logoPath)) {
+        if ($hasGd && $logoPath && file_exists($logoPath)) {
             $mime = mime_content_type($logoPath) ?: 'image/png';
             $b64 = base64_encode(file_get_contents($logoPath));
             $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
             @unlink($logoPath);
-        } elseif (file_exists($defaultLogoFile)) {
+        } elseif ($hasGd && file_exists($defaultLogoFile)) {
             $b64 = base64_encode(file_get_contents($defaultLogoFile));
             $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
         } else {
-            $logoHtml = "<div style='font-size:12pt; font-weight:bold; padding:12pt 0;'>[ LAMBANG UNIVERSITAS ]</div>";
+            // Elegant typographic seal (Zero GD extension required, 100% Vercel safe)
+            $logoHtml = "<div style='margin:14pt auto; width:85px; height:85px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:80px; font-size:10pt; font-weight:bold; letter-spacing:1px; color:#0f172a; display:inline-block;'>UNIVERSITAS</div>";
         }
 
         $tocRowsHtml = '';
@@ -1752,6 +2097,7 @@ ATURAN REVISI:
             .cover p{text-indent:0; text-align:center;}
         </style></head><body>";
 
+        // 1. HALAMAN JUDUL (COVER)
         $html .= "<div class='cover' style='text-align:center;'>
             <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
             <div style='font-size:13pt; font-weight:bold; margin-top:14pt; margin-bottom:10pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
@@ -1773,10 +2119,96 @@ ATURAN REVISI:
         </div>
         <div style='page-break-after:always;'></div>";
 
+        // 2. LEMBAR PENGESAHAN
+        $html .= "<div style='text-align:center;'>
+            <h2>LEMBAR PENGESAHAN</h2>
+            <div style='font-size:12pt; margin:16pt 0 10pt; font-weight:bold; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
+            <div style='margin-bottom:16pt; font-size:11pt;'>Disusun Oleh: <u>" . strtoupper(e($nama)) . "</u> (" . e($npm) . ")</div>
+            <p style='text-indent:1.27cm; line-height:1.5; font-size:11pt;'>Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian " . e($jenisDokumen) . " pada Program Studi " . e($project->prodi) . ", " . ($fakultas ? e($fakultas) . ', ' : '') . e($kampus) . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.</p>
+            <div style='margin-top:28pt; width:100%;'>
+                <div style='float:left; width:48%; text-align:center; font-size:11pt;'>
+                    <div>Dosen Pembimbing I</div>
+                    <div style='height:50pt;'></div>
+                    <div>( __________________________ )</div>
+                    <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+                </div>
+                <div style='float:right; width:48%; text-align:center; font-size:11pt;'>
+                    <div>Dosen Pembimbing II</div>
+                    <div style='height:50pt;'></div>
+                    <div>( __________________________ )</div>
+                    <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+                </div>
+                <div style='clear:both;'></div>
+            </div>
+            <div style='margin-top:24pt; text-align:center; font-size:11pt;'>
+                <div>Mengetahui,</div>
+                <div>Ketua Program Studi " . e($project->prodi) . "</div>
+                <div style='height:48pt;'></div>
+                <div>( __________________________ )</div>
+                <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+            </div>
+        </div>
+        <div style='page-break-after:always;'></div>";
+
+        // 3. SURAT PERNYATAAN KEASLIAN
+        $html .= "<div style='text-align:center;'>
+            <h2>SURAT PERNYATAAN KEASLIAN</h2>
+        </div>
+        <div style='margin-top:16pt; font-size:11pt; line-height:1.5;'>
+            <p style='text-indent:0;'>Saya yang bertanda tangan di bawah ini:</p>
+            <table style='width:100%; margin:8pt 0 12pt 16pt; font-size:11pt; border-collapse:collapse;'>
+                <tr><td style='width:120pt; border:none; padding:2pt 0;'>Nama Mahasiswa</td><td style='border:none; padding:2pt 0;'>: <strong>" . e($nama) . "</strong></td></tr>
+                <tr><td style='border:none; padding:2pt 0;'>NIM / NPM</td><td style='border:none; padding:2pt 0;'>: " . e($npm) . "</td></tr>
+                <tr><td style='border:none; padding:2pt 0;'>Program Studi</td><td style='border:none; padding:2pt 0;'>: " . e($project->prodi) . "</td></tr>
+                <tr><td style='border:none; padding:2pt 0;'>Fakultas</td><td style='border:none; padding:2pt 0;'>: " . e($fakultas) . "</td></tr>
+            </table>
+            <p>Menyatakan dengan sesungguhnya bahwa " . strtolower(e($jenisDokumen)) . " berjudul <strong>\"" . e($project->judul) . "\"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.</p>
+            <p>Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.</p>
+            <div style='margin-top:24pt; float:right; width:190pt; text-align:center; font-size:11pt;'>
+                <div>" . ($kampus ? e($kampus) . ", " : "") . date('d F Y') . "</div>
+                <div style='margin-top:3pt;'>Yang membuat pernyataan,</div>
+                <div style='margin-top:8pt; font-size:8.5pt; color:#666;'>[ Materai Rp 10.000 ]</div>
+                <div style='height:36pt;'></div>
+                <div><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                <div>NIM. " . e($npm) . "</div>
+            </div>
+            <div style='clear:both;'></div>
+        </div>
+        <div style='page-break-after:always;'></div>";
+
+        // 4. ABSTRAK (BAHASA INDONESIA) & ABSTRACT (ENGLISH)
+        $html .= "<div style='text-align:center;'>
+            <h2>ABSTRAK</h2>
+            <div style='font-size:11.5pt; font-weight:bold; margin-top:8pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
+            <div style='font-size:10.5pt; margin-top:4pt;'>Oleh: " . e($nama) . " (NIM: " . e($npm) . ")</div>
+            <div style='font-size:10pt; color:#444; margin-bottom:12pt;'>Program Studi " . e($project->prodi) . ", " . e($kampus) . "</div>
+        </div>
+        <div style='font-size:11pt; line-height:1.45;'>
+            <p>Penelitian ini bertujuan untuk menginvestigasi dan menyelesaikan permasalahan pada topik \"" . e($project->judul) . "\". Metode penelitian yang diterapkan adalah " . e($project->metode_penelitian) . " dengan prosedur sistematis dan terukur. Hasil penelitian menunjukkan bahwa pendekatan yang dirumuskan mampu memberikan solusi teruji, tolok ukur kinerja yang solid, serta kontribusi empiris bagi pengembangan ilmu pengetahuan dan praktik pada bidang " . e($project->prodi) . ".</p>
+            <p style='text-indent:0; margin-top:8pt;'><strong>Kata Kunci:</strong> " . e($project->prodi) . ", " . e($project->metode_penelitian) . ", Evaluasi Kinerja, Skripsi S1.</p>
+        </div>
+        <div style='page-break-after:always;'></div>
+
+        <div style='text-align:center;'>
+            <h2>ABSTRACT</h2>
+            <div style='font-size:11.5pt; font-weight:bold; margin-top:8pt; font-style:italic; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
+            <div style='font-size:10.5pt; margin-top:4pt;'>By: " . e($nama) . " (Student ID: " . e($npm) . ")</div>
+            <div style='font-size:10pt; color:#444; margin-bottom:12pt;'>Department of " . e($project->prodi) . ", " . e($kampus) . "</div>
+        </div>
+        <div style='font-size:11pt; line-height:1.45; font-style:italic;'>
+            <p>This study aims to investigate and address the empirical challenges in \"" . e($project->judul) . "\". Utilizing a scientific methodology in " . e($project->metode_penelitian) . ", this research systematically collects and analyzes relevant data. The results demonstrate that the proposed method effectively accomplishes the research objectives, yields verifiable benchmark performance, and delivers valuable contributions to both academic literature and practical applications in " . e($project->prodi) . ".</p>
+            <p style='text-indent:0; margin-top:8pt;'><strong>Keywords:</strong> " . e($project->prodi) . ", Empirical Research, Performance Evaluation, Undergraduate Thesis.</p>
+        </div>
+        <div style='page-break-after:always;'></div>";
+
+        // 5. KATA PENGANTAR
         $html .= "<h2>KATA PENGANTAR</h2>
             <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan {$jenisDokumen} berjudul \"" . e($project->judul) . "\" dapat diselesaikan pada Program Studi " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
+            <p>Penyusunan naskah ini diajukan sebagai salah satu syarat akademik guna menyelesaikan studi Program Sarjana (S1). Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, dosen pembimbing, dosen penguji, serta keluarga tercinta atas bimbingan dan doa yang tiada henti.</p>
             <div style='page-break-after:always;'></div>
-            <h2>DAFTAR ISI</h2>
+
+        // 6. DAFTAR ISI
+        <h2>DAFTAR ISI</h2>
             <div style='margin-top:16px;'>{$tocRowsHtml}</div>
             <div style='page-break-after:always;'></div>";
 
@@ -1816,10 +2248,21 @@ ATURAN REVISI:
 
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->set_option('isRemoteEnabled', false);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
-        $dompdf->render();
+        try {
+            $dompdf->render();
+        } catch (\Throwable $e) {
+            Log::warning('Dompdf render fallback triggered: ' . $e->getMessage());
+            $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
+            $dompdf = new Dompdf();
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->loadHtml($fallbackHtml);
+            $dompdf->setPaper('A4');
+            $dompdf->render();
+        }
 
         try {
             $canvas = $dompdf->getCanvas();
@@ -2073,12 +2516,15 @@ ATURAN REVISI:
             $kampus = $meta['kampus'] ?? 'Universitas';
             $fakultas = $meta['fakultas'] ?? '';
 
+            $hasGd = extension_loaded('gd');
             $logoHtml = '';
-            if ($logoPath && file_exists($logoPath)) {
+            if ($hasGd && $logoPath && file_exists($logoPath)) {
                 $mime = mime_content_type($logoPath) ?: 'image/png';
                 $b64 = base64_encode(file_get_contents($logoPath));
-                $logoHtml = "<div style='margin: 24px 0; text-align:center;'><img src='data:{$mime};base64,{$b64}' style='width:105px; height:auto;'></div>";
+                $logoHtml = "<div style='margin: 20px 0; text-align:center;'><img src='data:{$mime};base64,{$b64}' style='width:100px; height:auto;'></div>";
                 @unlink($logoPath);
+            } else {
+                $logoHtml = "<div style='margin: 18px auto; width:85px; height:85px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:80px; font-weight:bold; font-size:10pt; letter-spacing:1px; color:#0f172a;'>UNIVERSITAS</div>";
             }
 
             $html = "<html><head><style>
@@ -2121,7 +2567,8 @@ ATURAN REVISI:
                 $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
                 $dpLines = explode("
 ", str_replace(["
-", ""], "
+", "
+"], "
 ", (string) $project->daftar_pustaka));
                 foreach ($dpLines as $dpl) {
                     $trimDpl = trim($dpl);
@@ -2134,10 +2581,21 @@ ATURAN REVISI:
 
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
-            $dompdf->set_option('isRemoteEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', false);
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4');
-            $dompdf->render();
+            try {
+                $dompdf->render();
+            } catch (\Throwable $e) {
+                Log::warning('Dompdf downloadProjectDocument render fallback: ' . $e->getMessage());
+                $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
+                $dompdf = new Dompdf();
+                $dompdf->set_option('isHtml5ParserEnabled', true);
+                $dompdf->set_option('isRemoteEnabled', false);
+                $dompdf->loadHtml($fallbackHtml);
+                $dompdf->setPaper('A4');
+                $dompdf->render();
+            }
 
             try {
                 $canvas = $dompdf->getCanvas();
@@ -2348,30 +2806,132 @@ Kembalikan HANYA JSON Array valid (tanpa teks pengantar, tanpa markdown ```json)
         try {
             $raw = $this->ai->generateText($prompt, $model);
 
+            // Bersihkan markdown code fences
+            $cleanRaw = preg_replace('/```(?:json)?\s*([\s\S]*?)\s*```/i', '$1', $raw);
+            $cleanRaw = trim($cleanRaw);
+
             $slidesArray = null;
-            if (preg_match('/\[\s*\{.*\}\s*\]/s', $raw, $matches)) {
-                $slidesArray = json_decode($matches[0], true);
-            } else {
-                $slidesArray = json_decode($raw, true);
+            if (preg_match('/\[\s*\{[\s\S]*\}\s*\]/', $cleanRaw, $matches)) {
+                $candidate = $matches[0];
+                $slidesArray = json_decode($candidate, true);
+                if (!$slidesArray) {
+                    $fixed = preg_replace('/,\s*([\]\}])/', '$1', $candidate);
+                    $slidesArray = json_decode($fixed, true);
+                }
             }
 
-            if (!is_array($slidesArray) || empty($slidesArray)) {
+            if (!$slidesArray) {
+                $slidesArray = json_decode($cleanRaw, true);
+            }
+
+            // Jika JSON parsing gagal, buat 9 slide terstruktur akademik yang nyata (DILARANG dump raw JSON)
+            if (!is_array($slidesArray) || count($slidesArray) < 3) {
+                $safeTitle = $docTitle ?: 'Presentasi Sidang Skripsi';
                 $slidesArray = [
                     [
                         'slide_number' => 1,
                         'section' => 'Sampul Sidang',
-                        'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
-                        'subtitle' => 'Sidang Skripsi / Seminar Proposal',
-                        'bullets' => ['Presentasi Hasil Penelitian Tugas Akhir', 'Fokus Kajian Utama'],
-                        'speaker_notes' => 'Selamat pagi Bapak/Ibu Dosen Penguji. Pada kesempatan ini saya akan memaparkan penelitian berjudul ' . $docTitle
+                        'title' => $safeTitle,
+                        'subtitle' => 'Program Studi ' . $projProdi . ' · Sidang Skripsi',
+                        'bullets' => ['Presentasi Tugas Akhir / Skripsi', 'Fokus Kajian Ilmiah & Evaluasi Kinerja'],
+                        'speaker_notes' => 'Selamat pagi Bapak dan Ibu Dosen Penguji serta Pembimbing. Terima kasih atas kesempatan untuk memaparkan skripsi saya berjudul ' . $safeTitle
                     ],
                     [
                         'slide_number' => 2,
                         'section' => 'Latar Belakang Masalah',
                         'title' => 'Latar Belakang & Urgensi Penelitian',
-                        'subtitle' => 'Fenomena dan Kesenjangan Penelitian',
-                        'bullets' => array_values(array_filter(array_slice(explode("\n", strip_tags($raw)), 0, 4))),
-                        'speaker_notes' => 'Penelitian ini dilatarbelakangi oleh fenomena utama yang ditemukan pada objek penelitian.'
+                        'subtitle' => 'Fenomena Lapangan dan Kesenjangan Riset',
+                        'bullets' => [
+                            'Urgensi kebutuhan otomatisasi dan efisiensi pada objek penelitian',
+                            'Tantangan akurasi dan skalabilitas yang dihadapi saat ini',
+                            'Peran metode komputasi dalam memberikan solusi terukur',
+                            'Research gap yang menjadi fokus kebaruan penelitian ini'
+                        ],
+                        'speaker_notes' => 'Penelitian ini dilatarbelakangi oleh fenomena riil dan tantangan utama yang ditemukan pada objek kajian.'
+                    ],
+                    [
+                        'slide_number' => 3,
+                        'section' => 'Identifikasi & Batasan Masalah',
+                        'title' => 'Ruang Lingkup & Batasan Riset',
+                        'subtitle' => 'Fokus Kajian Agar Terarah dan Terukur',
+                        'bullets' => [
+                            'Batasan dataset, parameter, dan objek yang diuji',
+                            'Ruang lingkup variabel bebas dan variabel terikat',
+                            'Asumsi lingkungan implementasi dan evaluasi'
+                        ],
+                        'speaker_notes' => 'Agar penelitian fokus dan terukur, ruang lingkup dibatasi pada parameter dan objek yang relevan.'
+                    ],
+                    [
+                        'slide_number' => 4,
+                        'section' => 'Rumusan Masalah & Tujuan',
+                        'title' => 'Rumusan Masalah & Tujuan Penelitian',
+                        'subtitle' => 'Arah Solusi Akademik yang Dituju',
+                        'bullets' => [
+                            'Rumusan Masalah: Bagaimana implementasi dan tingkat kinerja metode yang diterapkan?',
+                            'Tujuan: Menganalisis dan mengevaluasi efektivitas solusi yang dibangun',
+                            'Kontribusi: Memberikan tolok ukur empiris bagi pengembangan selanjutnya'
+                        ],
+                        'speaker_notes' => 'Tujuan penelitian ini menjawab secara langsung rumusan masalah yang telah diidentifikasi.'
+                    ],
+                    [
+                        'slide_number' => 5,
+                        'section' => 'Tinjauan Pustaka',
+                        'title' => 'Landasan Teori & Penelitian Terdahulu',
+                        'subtitle' => 'Kerangka Teoretis Pendukung',
+                        'bullets' => [
+                            'Grand theory dan konsep dasar yang melandasi penelitian',
+                            'Kajian 4-5 artikel jurnal bereputasi terkait',
+                            'Posisi kebaruan (novelty) terhadap studi-studi terdahulu'
+                        ],
+                        'speaker_notes' => 'Pustaka acuan mengacu pada publikasi ilmiah bereputasi terkini periode 2020 hingga 2026.'
+                    ],
+                    [
+                        'slide_number' => 6,
+                        'section' => 'Metodologi Penelitian',
+                        'title' => 'Tahapan & Metode Penelitian',
+                        'subtitle' => 'Alur Kerja dan Prosedur Evaluasi',
+                        'bullets' => [
+                            'Desain penelitian dan prosedur pengumpulan data',
+                            'Tahapan pra-pemrosesan dan rekayasa fitur',
+                            'Metrik evaluasi kinerja (akurasi, presisi, recall, dll.)'
+                        ],
+                        'speaker_notes' => 'Metodologi disusun sistematis mulai dari penyiapan data hingga tahapan validasi hasil.'
+                    ],
+                    [
+                        'slide_number' => 7,
+                        'section' => 'Hasil Penelitian',
+                        'title' => 'Hasil Pengujian & Analisis Data',
+                        'subtitle' => 'Temuan Empiris dan Capaian Kinerja',
+                        'bullets' => [
+                            'Hasil pengujian algoritma/sistem pada data uji',
+                            'Perbandingan performa terhadap baseline skenario',
+                            'Tingkat akurasi dan stabilitas model'
+                        ],
+                        'speaker_notes' => 'Berikut adalah hasil pengujian empiris yang menunjukkan performa sistem.'
+                    ],
+                    [
+                        'slide_number' => 8,
+                        'section' => 'Pembahasan',
+                        'title' => 'Pembahasan & Analisis Kritis',
+                        'subtitle' => 'Interpretasi Temuan Riset',
+                        'bullets' => [
+                            'Kesesuaian hasil pengujian terhadap hipotesis kerja',
+                            'Faktor-faktor penentu keberhasilan performa',
+                            'Implikasi teoretis dan praktis dari temuan'
+                        ],
+                        'speaker_notes' => 'Pembahasan ini membuktikan efektivitas metode yang diajukan serta implikasinya.'
+                    ],
+                    [
+                        'slide_number' => 9,
+                        'section' => 'Kesimpulan & Saran',
+                        'title' => 'Kesimpulan & Saran Pengembangan',
+                        'subtitle' => 'Penutup Sidang Skripsi',
+                        'bullets' => [
+                            'Kesimpulan utama: Metode berhasil menyelesaikan rumusan masalah',
+                            'Saran 1: Pengayaan dataset dan skenario pengujian lebih luas',
+                            'Saran 2: Integrasi dengan arsitektur teknologi lanjutan'
+                        ],
+                        'speaker_notes' => 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan.'
                     ]
                 ];
             }

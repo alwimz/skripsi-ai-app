@@ -15,7 +15,6 @@ class GeminiService
 {
     private array $fallbackModels = [
         'gemini-2.0-flash',
-        'gemini-2.5-flash',
         'gemini-1.5-flash',
         'gemini-1.5-pro',
     ];
@@ -38,13 +37,21 @@ class GeminiService
     private function getWorkingApiKey(array $excludedIds = []): ?object
     {
         try {
-            $query = $this->geminiKeyQuery()->where('is_active', true);
+            $baseQuery = $this->geminiKeyQuery()->where('is_active', true);
 
             if (!empty($excludedIds)) {
-                $query->whereNotIn('id', $excludedIds);
+                $baseQuery->whereNotIn('id', $excludedIds);
             }
 
-            $key = $query->orderBy('usage_count', 'asc')->first();
+            // Prioritaskan kunci milik user yang sedang aktif
+            if (\Illuminate\Support\Facades\Auth::check() && Schema::hasColumn('api_keys', 'user_id')) {
+                $userKey = (clone $baseQuery)->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('usage_count', 'asc')->first();
+                if ($userKey) {
+                    return $userKey;
+                }
+            }
+
+            $key = $baseQuery->orderBy('usage_count', 'asc')->first();
 
             if (!$key) {
                 $totalGemini = $this->geminiKeyQuery()->count();
@@ -53,6 +60,12 @@ class GeminiService
                     $retryQuery = $this->geminiKeyQuery()->where('is_active', true);
                     if (!empty($excludedIds)) {
                         $retryQuery->whereNotIn('id', $excludedIds);
+                    }
+                    if (\Illuminate\Support\Facades\Auth::check() && Schema::hasColumn('api_keys', 'user_id')) {
+                        $retryUserKey = (clone $retryQuery)->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('usage_count', 'asc')->first();
+                        if ($retryUserKey) {
+                            return $retryUserKey;
+                        }
                     }
                     $key = $retryQuery->orderBy('usage_count', 'asc')->first()
                         ?: $this->geminiKeyQuery()->inRandomOrder()->first();
@@ -104,7 +117,7 @@ class GeminiService
                 }
 
                 $client = new Client([
-                    'timeout' => 120,
+                    'timeout' => 35,
                     'verify'  => false,
                 ]);
 
@@ -179,7 +192,7 @@ class GeminiService
                 $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
                 $body = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
 
-                if (($status === 404 || $status === 429 || $status === 503) && $modelIndex < count($this->fallbackModels) - 1) {
+                if (($status === 400 || $status === 404 || $status === 429 || $status === 503) && $modelIndex < count($this->fallbackModels) - 1) {
                     $modelIndex++;
                     $attempt--;
                     continue;

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="goldRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="none" stroke="url(#goldRing)" stroke-width="4" stroke-dasharray="2 3" />
+  <circle cx="80" cy="80" r="70" fill="none" stroke="url(#goldRing)" stroke-width="2" />
+
+  <!-- Laurel Wreath Around Shield -->
+  <g fill="#f59e0b" opacity="0.9">
+    <!-- Left Leaves -->
+    <path d="M 40 85 C 32 75 30 65 34 52 C 37 60 42 66 45 74 Z" />
+    <path d="M 45 68 C 38 58 38 48 44 38 C 47 46 51 52 52 60 Z" />
+    <path d="M 54 50 C 50 40 52 30 60 22 C 61 31 63 38 62 46 Z" />
+    <path d="M 38 100 C 32 110 32 120 37 130 C 40 122 43 114 45 106 Z" />
+    <path d="M 46 115 C 42 125 45 133 52 140 C 53 131 54 123 53 115 Z" />
+    <!-- Right Leaves -->
+    <path d="M 120 85 C 128 75 130 65 126 52 C 123 60 118 66 115 74 Z" />
+    <path d="M 115 68 C 122 58 122 48 116 38 C 113 46 109 52 108 60 Z" />
+    <path d="M 106 50 C 110 40 108 30 100 22 C 99 31 97 38 98 46 Z" />
+    <path d="M 122 100 C 128 110 128 120 123 130 C 120 122 117 114 115 106 Z" />
+    <path d="M 114 115 C 118 125 115 133 108 140 C 107 131 106 123 107 115 Z" />
+  </g>
+
+  <!-- Central Shield -->
+  <path d="M 80 32 C 102 32 114 40 114 56 C 114 92 80 124 80 124 C 80 124 46 92 46 56 C 46 40 58 32 80 32 Z" fill="url(#shieldGrad)" stroke="#f59e0b" stroke-width="2.5" />
+
+  <!-- Open Book of Knowledge -->
+  <path d="M 80 72 C 73 68 62 68 56 71 L 56 94 C 62 91 73 91 80 95 C 87 91 98 91 104 94 L 104 71 C 98 68 87 68 80 72 Z" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5" />
+  <line x1="80" y1="72" x2="80" y2="95" stroke="#1e3a8a" stroke-width="1.5" />
+
+  <!-- Academic Torch of Truth above Book -->
+  <path d="M 76 64 L 84 64 L 82 54 L 78 54 Z" fill="#f59e0b" />
+  <path d="M 80 43 C 83 47 85 49 83 53 C 81 55 79 55 77 53 C 75 49 78 47 80 43 Z" fill="#ef4444" />
+  <path d="M 80 46 C 81 48 82 50 81 52 C 80 53 79 53 79 52 C 78 50 79 48 80 46 Z" fill="#facc15" />
+
+  <!-- Five Academic Stars (Pancasila / Excellence) -->
+  <g fill="#f59e0b">
+    <polygon points="80,102 81.5,106 85.5,106 82,108.5 83.5,112.5 80,110 76.5,112.5 78,108.5 74.5,106 78.5,106" />
+  </g>
+</svg>

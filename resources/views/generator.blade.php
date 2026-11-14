@@ -888,55 +888,47 @@
         @media (max-width: 768px) {
             .studio-topbar {
                 height: auto;
-                min-height: 52px;
-                padding: 10px 12px;
-                flex-direction: column;
-                align-items: stretch;
+                min-height: 50px;
+                padding: 8px 12px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
                 gap: 8px;
             }
             .topbar-left {
-                width: 100%;
+                width: auto;
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
-            .topbar-title {
-                max-width: calc(100vw - 75px);
-                font-size: 13px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+            .topbar-brand-label {
+                font-size: 13px !important;
             }
             .topbar-actions {
-                width: 100%;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                width: auto;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
                 gap: 6px;
+                flex-wrap: nowrap;
             }
             .topbar-actions .model-select {
-                grid-column: span 2;
-                width: 100%;
+                max-width: 125px;
                 height: 32px;
-                font-size: 12px;
+                font-size: 11px;
+                padding: 4px 6px;
             }
             .topbar-actions #btn-generate-current {
-                grid-column: span 2;
-                justify-content: center;
-                height: 34px;
-                font-size: 12.5px;
+                height: 32px;
+                font-size: 11.5px;
+                padding: 0 10px;
+                white-space: nowrap;
             }
             .topbar-actions #btn-save-edit {
-                grid-column: span 2;
-                justify-content: center;
-                height: 34px;
-                font-size: 12.5px;
-            }
-            .topbar-actions .btn-top:not(#btn-generate-current):not(#btn-save-edit) {
-                width: 100%;
-                justify-content: center;
                 height: 32px;
-                font-size: 12px;
-                padding: 0 6px;
+                font-size: 11.5px;
+                padding: 0 10px;
+                white-space: nowrap;
             }
             .chapter-bar {
                 padding: 10px 12px;
@@ -946,10 +938,16 @@
             }
             .chapter-bar-actions {
                 width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
             }
             .chapter-bar-actions .btn-top {
-                width: 100%;
+                flex: 1 1 calc(50% - 6px);
+                min-width: 120px;
                 justify-content: center;
+                font-size: 11.5px;
+                padding: 6px 8px;
             }
             .canvas-scroll {
                 padding: 10px 8px 60px;
@@ -959,20 +957,31 @@
                 max-width: 100%;
             }
             .a4-sheet {
-                padding: 24px 16px;
-                font-size: 14px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                padding: 26px 16px 22px 20px;
+                font-size: 13.5px;
+                line-height: 1.6;
+                border-radius: 6px;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+                word-break: break-word;
+                overflow-x: hidden;
+            }
                 line-height: 1.65;
-                border-radius: 8px;
+                border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
             }
             .cover-sheet {
-                min-height: auto;
-                padding: 24px 14px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                gap: 16px;
+                min-height: 580px !important;
+                aspect-ratio: 210 / 297;
+                padding: 36px 20px 28px 24px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                gap: 12px;
+                box-sizing: border-box;
             }
             .cover-title {
                 font-size: 14px;
@@ -1067,6 +1076,28 @@
 
         <nav class="sidebar-nav" aria-label="Navigasi Bab Skripsi">
             <div class="nav-section-label">Struktur Naskah</div>
+            <button type="button"
+                    class="nav-item"
+                    id="nav-item-all"
+                    onclick="selectChapterView('all')"
+                    style="margin-bottom: 6px; background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); border: 1px solid #bfdbfe;">
+                <span class="nav-item-left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span class="nav-item-text" style="color: #1e40af; font-weight: 700;">Scroll Semua Bab (Full)</span>
+                </span>
+                <span style="font-size: 10px; font-weight: 700; color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 999px;">A4 Full</span>
+            </button>
+            <button type="button"
+                    class="nav-item"
+                    id="nav-item-front"
+                    onclick="selectChapterView('front')"
+                    style="margin-bottom: 8px;">
+                <span class="nav-item-left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span class="nav-item-text">Sampul &amp; Bagian Depan</span>
+                </span>
+                <span style="font-size: 10px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 999px;">Lengkap</span>
+            </button>
             @foreach ($chapterTitles as $key => $label)
                 <button type="button"
                         class="nav-item {{ $key === 'bab1' ? 'active' : '' }}"
@@ -1133,15 +1164,14 @@
         <header class="studio-topbar">
             <div class="topbar-left">
                 <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar" title="Buka/Tutup Sidebar">☰</button>
-                <div class="topbar-title" title="{{ $project->judul }}">{{ $project->judul }}</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="/images/logo.svg" alt="SkripsiAI" style="width: 24px; height: 24px; border-radius: 6px;">
+                    <span class="topbar-brand-label" style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em;">Workspace Penulisan</span>
+                </div>
             </div>
 
             <div class="topbar-actions">
-                <select id="studio-model" class="model-select" aria-label="Pilih Model AI">
-                    <option value="auto" selected>Mode Otomatis (AI)</option>
-                    <option value="deepseek">DeepSeek AI</option>
-                    <option value="gemini">Google Gemini</option>
-                </select>
+                <input type="hidden" id="studio-model" value="auto">
                 <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;" onclick="saveActiveEdit()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                     <span>Simpan Editan</span>
@@ -1150,18 +1180,24 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     <span>Tulis / Susun Ulang Bab Ini</span>
                 </button>
-                <button type="button" class="btn-top" onclick="submitQuickDownload('docx')">Unduh Word</button>
-                <button type="button" class="btn-top" onclick="submitQuickDownload('pdf')">Unduh PDF</button>
             </div>
         </header>
 
         <div class="canvas-scroll">
             <div class="chapter-bar" id="chapter-bar">
-                <div>
+                <div style="flex: 1; min-width: 220px;">
                     <div class="chapter-bar-title" id="active-chapter-title">BAB I · PENDAHULUAN</div>
-                    <div class="chapter-bar-sub" id="active-chapter-sub">Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm)</div>
+                    <div class="chapter-bar-sub" id="active-chapter-sub">Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm) — Klik teks untuk mengedit langsung</div>
                 </div>
-                <div class="chapter-bar-actions">
+                <div class="chapter-bar-actions" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn-top" onclick="selectChapterView('all')" title="Lihat naskah lengkap bersambung dari sampul sampai daftar pustaka">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        <span>Scroll Semua Bab</span>
+                    </button>
+                    <button type="button" class="btn-top" onclick="openDataRiilModal()" style="border-color: #cbd5e1;" title="Isi parameter penelitian nyata untuk Bab 3 & 4">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span>Data Riil (Opsional)</span>
+                    </button>
                     <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
                         <span>Buka Lab Revisi</span>
@@ -1189,6 +1225,51 @@
     <input type="hidden" name="margin_right" value="3">
 </form>
 
+<!-- Modal Data Penelitian Riil (Opsional) -->
+<div id="modal-data-riil" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+    <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+            <div>
+                <h3 style="font-size: 16.5px; font-weight: 700; color: #0f172a; margin: 0 0 4px;">Parameter Data Penelitian Riil (Opsional)</h3>
+                <p style="font-size: 12.5px; color: #64748b; margin: 0;">Isi parameter ini agar Bab III (Metodologi) &amp; Bab IV (Hasil) disusun berbasis fakta nyata penelitianmu, bukan karangan AI.</p>
+            </div>
+            <button type="button" onclick="closeDataRiilModal()" style="border: none; background: none; font-size: 22px; color: #94a3b8; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Metode / Algoritma Spesifik</label>
+                <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Algoritma Naive Bayes dengan Pembobotan TF-IDF dan Laplace Smoothing">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Populasi / Sampel / Dataset Riil</label>
+                <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: 1.500 komentar TikTok diunduh via API scraping periode Jan-Mar 2024">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Lokasi / Sumber Data Penelitian</label>
+                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Akun Resmi TikTok @kemkominfo / PT XYZ Cabang Surabaya">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Nilai Metrik / Hasil Temuan Kunci (Untuk Bab IV)</label>
+                <textarea id="riil-metrik" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="Contoh: Akurasi = 88.5%, Precision = 86.2%, Recall = 89.1%, F1-Score = 87.6%. Data uji 300 komentar (200 positif, 70 negatif, 30 netral)."></textarea>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Teknik Pengujian / Evaluasi</label>
+                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Confusion Matrix, 10-Fold Cross Validation, Uji Validitas Ahli">
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+            <button type="button" onclick="closeDataRiilModal()" style="padding: 8px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer;">Batal</button>
+            <button type="button" onclick="saveDataRiil()" style="padding: 8px 18px; border: none; background: #2563eb; color: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Parameter</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -1206,6 +1287,7 @@ let isDirty = false;
 let currentReviseMode = 'content';
 
 const chapterLabels = {
+    front: 'SAMPUL & HALAMAN DEPAN',
     bab1: 'BAB I · PENDAHULUAN',
     bab2: 'BAB II · TINJAUAN PUSTAKA',
     bab3: 'BAB III · METODOLOGI PENELITIAN',
@@ -1306,15 +1388,27 @@ function selectChapterView(viewKey) {
     const navEl = document.getElementById(`nav-item-${viewKey}`);
     if (navEl) navEl.classList.add('active');
 
-    document.getElementById('active-chapter-title').textContent = chapterLabels[viewKey] || 'WORKSPACE';
+    const titleEl = document.getElementById('active-chapter-title');
     const subEl = document.getElementById('active-chapter-sub');
     const genBtn = document.getElementById('btn-generate-current');
 
-    if (viewKey === 'revisi') {
+    if (viewKey === 'all') {
+        titleEl.textContent = 'NASKAH LENGKAP SKRIPSI (FULL DOCUMENT)';
+        subEl.textContent = 'Mode Scroll Berkelanjutan: Dari Sampul sampai Daftar Pustaka';
+        genBtn.style.display = 'none';
+        document.getElementById('btn-save-edit').style.display = 'none';
+    } else if (viewKey === 'front') {
+        titleEl.textContent = 'SAMPUL & HALAMAN DEPAN';
+        subEl.textContent = 'Sampul, Lembar Pengesahan, Orisinalitas, Abstrak (ID/EN), Kata Pengantar, & Daftar Isi';
+        genBtn.style.display = 'none';
+        document.getElementById('btn-save-edit').style.display = 'none';
+    } else if (viewKey === 'revisi') {
+        titleEl.textContent = chapterLabels[viewKey] || 'LAB REVISI';
         subEl.textContent = 'Revisi spesifik per sub-bab sesuai catatan dosen pembimbing atau perbaikan format penulisan';
         genBtn.style.display = 'none';
         document.getElementById('btn-save-edit').style.display = 'none';
     } else {
+        titleEl.textContent = chapterLabels[viewKey] || 'WORKSPACE';
         subEl.textContent = 'Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm) — Klik teks untuk mengedit langsung';
         genBtn.style.display = 'inline-flex';
         genBtn.textContent = viewKey === 'daftar_pustaka'
@@ -1328,20 +1422,86 @@ function selectChapterView(viewKey) {
     renderActiveSheet();
 }
 
+let loadingProgressInterval = null;
+
 function renderLoadingSheet(title, subtitle) {
+    if (loadingProgressInterval) {
+        clearInterval(loadingProgressInterval);
+        loadingProgressInterval = null;
+    }
+
     const container = document.getElementById('sheets-container');
     container.innerHTML = `
-        <div class="ai-loading-card">
-            <div class="ai-spinner"></div>
-            <div class="ai-loading-title">${escapeHtml(title)}</div>
-            <div class="ai-loading-sub">${escapeHtml(subtitle)}</div>
-            <div class="shimmer-lines">
+        <div class="ai-loading-card" style="padding: 40px 28px; max-width: 600px; margin: 36px auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04); border: 1px solid #e2e8f0; text-align: center;">
+            <div class="ai-spinner" style="width: 44px; height: 44px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; margin: 0 auto 16px; animation: spin 0.85s linear infinite;"></div>
+            <div class="ai-loading-title" style="font-size: 16.5px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">${escapeHtml(title)}</div>
+            <div class="ai-loading-sub" id="loading-stage-label" style="font-size: 13px; color: #64748b; margin-bottom: 20px;">${escapeHtml(subtitle || 'Mempersiapkan penyusunan naskah akademik...')}</div>
+
+            <!-- Live Animated 0% to 100% Progress Bar -->
+            <div style="background: #f1f5f9; border-radius: 999px; height: 10px; width: 100%; overflow: hidden; position: relative; margin-bottom: 12px; border: 1px solid #e2e8f0;">
+                <div id="loading-progress-bar" style="background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #06b6d4 100%); height: 100%; width: 2%; border-radius: 999px; transition: width 0.3s ease;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; font-weight: 600;">
+                <span id="loading-progress-step" style="display: flex; align-items: center; gap: 5px;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2563eb;"></span>
+                    <span>Menganalisis metodologi & rumusan masalah...</span>
+                </span>
+                <span id="loading-progress-pct" style="color: #2563eb; font-weight: 700; font-size: 13px;">0%</span>
+            </div>
+
+            <div class="shimmer-lines" style="margin-top: 22px; opacity: 0.65;">
                 <div class="shimmer-bar" style="width: 92%"></div>
                 <div class="shimmer-bar" style="width: 78%"></div>
                 <div class="shimmer-bar" style="width: 85%"></div>
             </div>
         </div>
     `;
+
+    let currentPct = 2;
+    const bar = document.getElementById('loading-progress-bar');
+    const pctLabel = document.getElementById('loading-progress-pct');
+    const stepLabel = document.getElementById('loading-progress-step');
+
+    const stages = [
+        { pct: 15, text: 'Menganalisis struktur prodi & rumusan masalah...' },
+        { pct: 35, text: 'Menyusun struktur sub-bab akademik standar S1...' },
+        { pct: 55, text: 'Merumuskan landasan teori & komparasi ilmiah...' },
+        { pct: 75, text: 'Mengintegrasikan data empiris & sitasi jurnal...' },
+        { pct: 90, text: 'Memvalidasi koherensi kalimat & standar APA 7th...' },
+        { pct: 96, text: 'Memformat naskah sesuai standar kertas A4...' }
+    ];
+
+    loadingProgressInterval = setInterval(() => {
+        if (currentPct < 96) {
+            const inc = Math.max(0.6, (96 - currentPct) * 0.05);
+            currentPct = Math.min(96, currentPct + inc);
+            if (bar) bar.style.width = `${Math.round(currentPct)}%`;
+            if (pctLabel) pctLabel.textContent = `${Math.round(currentPct)}%`;
+
+            for (let i = stages.length - 1; i >= 0; i--) {
+                if (currentPct >= stages[i].pct) {
+                    if (stepLabel && stepLabel.lastElementChild) {
+                        stepLabel.lastElementChild.textContent = stages[i].text;
+                    }
+                    break;
+                }
+            }
+        }
+    }, 400);
+}
+
+function finishLoadingSheet() {
+    if (loadingProgressInterval) {
+        clearInterval(loadingProgressInterval);
+        loadingProgressInterval = null;
+    }
+    const bar = document.getElementById('loading-progress-bar');
+    const pctLabel = document.getElementById('loading-progress-pct');
+    const stepLabel = document.getElementById('loading-progress-step');
+    if (bar) bar.style.width = '100%';
+    if (pctLabel) pctLabel.textContent = '100%';
+    if (stepLabel && stepLabel.lastElementChild) stepLabel.lastElementChild.textContent = 'Selesai! Menampilkan naskah...';
 }
 
 function formatInlineMarkdown(text) {
@@ -1357,6 +1517,8 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
     let inUl = false;
     let inOl = false;
     let inTable = false;
+    let inCode = false;
+    let codeBuffer = '';
     let tableRows = [];
 
     const flushLists = () => {
@@ -1378,6 +1540,26 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
 
     lines.forEach((raw) => {
         const line = raw.trim();
+
+        // Handle Code Blocks / Flowcharts / Architecture Diagrams
+        if (line.startsWith('```')) {
+            flushLists();
+            flushTable();
+            if (inCode) {
+                html += `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #1e293b;">${escapeHtml(codeBuffer.trim())}</div>`;
+                inCode = false;
+                codeBuffer = '';
+            } else {
+                inCode = true;
+                codeBuffer = '';
+            }
+            return;
+        }
+        if (inCode) {
+            codeBuffer += raw + '\n';
+            return;
+        }
+
         if (!line) {
             flushLists();
             flushTable();
@@ -1460,21 +1642,23 @@ function buildCoverAndFrontMatterHtml() {
     let currentPage = 1;
     const tocRows = [];
 
-    // Bagian Awal Standar Akademik Indonesia
+    // Bagian Awal Standar Akademik Indonesia (Front Matter)
     tocRows.push({ title: 'HALAMAN JUDUL', page: '', isMain: true, isSub: false });
-    tocRows.push({ title: 'KATA PENGANTAR', page: 'i', isMain: true, isSub: false });
-    tocRows.push({ title: 'DAFTAR ISI', page: 'ii', isMain: true, isSub: false });
+    tocRows.push({ title: 'LEMBAR PENGESAHAN', page: 'i', isMain: true, isSub: false });
+    tocRows.push({ title: 'SURAT PERNYATAAN KEASLIAN', page: 'ii', isMain: true, isSub: false });
+    tocRows.push({ title: 'ABSTRAK (BAHASA INDONESIA)', page: 'iii', isMain: true, isSub: false });
+    tocRows.push({ title: 'ABSTRACT (ENGLISH)', page: 'iv', isMain: true, isSub: false });
+    tocRows.push({ title: 'KATA PENGANTAR', page: 'v', isMain: true, isSub: false });
+    tocRows.push({ title: 'DAFTAR ISI', page: 'vi', isMain: true, isSub: false });
 
     chaptersDef.forEach((ch) => {
         if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
         const text = (chapterContents[ch.key] || '').trim();
-        // HANYA tampilkan bab yang sudah di-generate!
         if (!text) return;
 
         const chPage = currentPage;
         tocRows.push({ title: ch.title, page: String(chPage), isMain: true, isSub: false });
 
-        // Ekstrak sub-bab aktual dari naskah
         const lines = text.split('\n');
         let subCount = 0;
         lines.forEach((raw) => {
@@ -1516,9 +1700,10 @@ function buildCoverAndFrontMatterHtml() {
         return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
     }).join('');
 
-    const logoSrc = (logo && logo.length > 50) ? logo : '/images/default_emblem.png';
+    const logoSrc = (logo && logo.length > 50) ? logo : '/images/academic_seal.svg';
 
     return `
+        <!-- 1. HALAMAN JUDUL (COVER) -->
         <div class="a4-sheet cover-sheet">
             <div class="cover-top-block">
                 <div class="cover-kind">${docKind}</div>
@@ -1526,7 +1711,7 @@ function buildCoverAndFrontMatterHtml() {
                 <div class="cover-sub">Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}</div>
             </div>
             <div class="cover-logo-box">
-                <img src="${logoSrc}" alt="Logo Kampus" class="cover-logo-img">
+                <img src="${logoSrc}" alt="Logo Kampus" class="cover-logo-img" onerror="this.onerror=null;this.src='/images/academic_seal.svg';">
             </div>
             <div class="cover-bottom-block">
                 <div class="cover-author-block">
@@ -1542,10 +1727,145 @@ function buildCoverAndFrontMatterHtml() {
                 </div>
             </div>
         </div>
+
+        <!-- 2. LEMBAR PENGESAHAN -->
+        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="front-heading">LEMBAR PENGESAHAN</div>
+                <div style="text-align: center; margin: 18px 0; font-weight: 700; font-size: 13pt; line-height: 1.4; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <div style="text-align: center; font-size: 11pt; margin-bottom: 22px;">
+                    Disusun Oleh: <u><strong>${escapeHtml(nama)}</strong></u> ${nim ? `(NIM: ${escapeHtml(nim)})` : ''}
+                </div>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
+                    Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian ${docKind} pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}, dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.
+                </p>
+
+                <div style="margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: center; font-size: 11pt;">
+                    <div>
+                        <div>Dosen Pembimbing I,</div>
+                        <div style="height: 65px;"></div>
+                        <div>( __________________________ )</div>
+                        <div style="font-size: 10pt; color: #64748b; margin-top: 2px;">NIP / NIDN.</div>
+                    </div>
+                    <div>
+                        <div>Dosen Pembimbing II,</div>
+                        <div style="height: 65px;"></div>
+                        <div>( __________________________ )</div>
+                        <div style="font-size: 10pt; color: #64748b; margin-top: 2px;">NIP / NIDN.</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 36px; text-align: center; font-size: 11pt;">
+                    <div>Mengetahui,</div>
+                    <div>Ketua Program Studi ${escapeHtml(projectProdi)}</div>
+                    <div style="height: 65px;"></div>
+                    <div>( __________________________ )</div>
+                    <div style="font-size: 10pt; color: #64748b; margin-top: 2px;">NIP / NIDN.</div>
+                </div>
+            </div>
+            <div class="sheet-footer">i</div>
+        </div>
+
+        <!-- 3. SURAT PERNYATAAN KEASLIAN -->
+        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
+                <p style="text-indent: 0; margin-top: 24px; font-size: 11.5pt;">Saya yang bertanda tangan di bawah ini:</p>
+                <div style="margin: 14px 0 20px 24px; font-size: 11.5pt; line-height: 1.8;">
+                    <div>Nama Mahasiswa &nbsp;: <strong>${escapeHtml(nama)}</strong></div>
+                    <div>NIM / NPM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(nim || '-')}</div>
+                    <div>Program Studi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(projectProdi)}</div>
+                    <div>Fakultas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(fakultas || '-')}</div>
+                </div>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
+                    Menyatakan dengan sesungguhnya bahwa ${docKind} berjudul <strong>"${escapeHtml(projectTitle)}"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.
+                </p>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 12px;">
+                    Seluruh ide, kutipan, dan data yang bersumber dari karya pihak lain telah disitasi dan dicantumkan secara bertanggung jawab dalam daftar pustaka. Apabila di kemudian hari ditemukan bukti plagiarisme, saya bersedia menerima sanksi pencabutan gelar akademik dan sanksi hukum sesuai ketentuan yang berlaku.
+                </p>
+
+                <div style="margin-top: 40px; float: right; width: 220px; text-align: center; font-size: 11pt;">
+                    <div>${escapeHtml(kampus)}, ${tahun}</div>
+                    <div style="margin-top: 4px;">Yang membuat pernyataan,</div>
+                    <div style="margin-top: 14px; font-size: 9pt; color: #94a3b8; border: 1px dashed #cbd5e1; padding: 6px; border-radius: 4px; display: inline-block;">Materai Rp 10.000</div>
+                    <div style="height: 48px;"></div>
+                    <div><u><strong>${escapeHtml(nama)}</strong></u></div>
+                    ${nim ? `<div>NIM. ${escapeHtml(nim)}</div>` : ''}
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="sheet-footer">ii</div>
+        </div>
+
+        <!-- 4. ABSTRAK & ABSTRACT -->
+        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="front-heading">ABSTRAK</div>
+                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11pt; line-height: 1.35; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <div style="text-align: center; font-size: 10pt; color: #475569; margin-bottom: 14px;">
+                    Oleh: ${escapeHtml(nama)} (NIM: ${escapeHtml(nim || '-')})<br>
+                    Program Studi ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
+                </div>
+                <p style="text-align: justify; line-height: 1.5; font-size: 11pt; text-indent: 1.27cm;">
+                    Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan memecahkan permasalahan pada topik <em>"${escapeHtml(projectTitle)}"</em>. Menggunakan metode penelitian ${escapeHtml(projectMeta.metode || 'kuantitatif dan komputasi')} yang terstruktur, penelitian ini mengumpulkan dan memproses data empiris lapangan secara sistematis. Hasil pengujian menunjukkan bahwa implementasi metode mampu menjawab rumusan masalah secara komprehensif, memberikan akurasi atau tolok ukur terukur, serta berkontribusi nyata bagi pengembangan keilmuan dan kebutuhan praktis pada bidang ${escapeHtml(projectProdi)}.
+                </p>
+                <div style="font-size: 11pt; margin-top: 12px;">
+                    <strong>Kata Kunci:</strong> ${escapeHtml(projectProdi)}, ${escapeHtml(projectMeta.metode || 'Analisis Empiris')}, Evaluasi Kinerja, Standar Skripsi S1.
+                </div>
+
+                <div style="border-top: 1px dashed #cbd5e1; margin: 24px 0 18px;"></div>
+
+                <div class="front-heading" style="font-size: 13pt;">ABSTRACT</div>
+                <div style="text-align: center; margin: 10px 0 14px; font-weight: 700; font-size: 10.5pt; line-height: 1.35; font-style: italic; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <p style="text-align: justify; line-height: 1.5; font-size: 10.5pt; text-indent: 1.27cm; font-style: italic;">
+                    This research aims to investigate, analyze, and resolve the academic and empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes field data. The experimental results demonstrate that the proposed method effectively addresses the research questions, yields verifiable benchmark performance, and delivers valuable empirical contributions to both theoretical frameworks and practical implementations.
+                </p>
+                <div style="font-size: 10.5pt; margin-top: 10px; font-style: italic;">
+                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
+                </div>
+            </div>
+            <div class="sheet-footer">iii</div>
+        </div>
+
+        <!-- 5. KATA PENGANTAR -->
+        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="front-heading">KATA PENGANTAR</div>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 18px;">
+                    Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyelesaikan naskah ${docKind} yang berjudul <strong>"${escapeHtml(projectTitle)}"</strong> dengan baik dan lancar.
+                </p>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
+                    Penyusunan naskah ini diajukan sebagai salah satu syarat akademik guna menyelesaikan studi Program Sarjana (S1) pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}. Penulis menyadari sepenuhnya bahwa penyusunan naskah ini tidak lepas dari bimbingan, arahan, dan dukungan moril dari berbagai pihak. Oleh karena itu, pada kesempatan ini penulis menyampaikan rasa hormat dan terima kasih yang sebesar-besarnya kepada:
+                </p>
+                <ol style="margin: 12px 0 16px 28px; line-height: 1.7; font-size: 11pt;">
+                    <li>Rektor ${escapeHtml(kampus)} beserta jajaran pimpinan universitas;</li>
+                    <li>Dekan ${fakultas ? escapeHtml(fakultas) : 'Fakultas'} yang telah memberikan fasilitas dan kesempatan belajar;</li>
+                    <li>Ketua Program Studi ${escapeHtml(projectProdi)} yang senantiasa membimbing dan mengarahkan jalannya perkuliahan;</li>
+                    <li>Dosen Pembimbing yang telah meluangkan waktu dan pemikiran dengan penuh kesabaran dalam membimbing penulisan skripsi ini;</li>
+                    <li>Seluruh Dosen dan Staf Pengajar Program Studi ${escapeHtml(projectProdi)};</li>
+                    <li>Kedua orang tua dan keluarga tercinta atas doa yang tiada henti, kasih sayang, dan pengorbanan yang tulus.</li>
+                </ol>
+                <div style="margin-top: 30px; float: right; width: 200px; text-align: center; font-size: 11pt;">
+                    <div>${escapeHtml(kampus)}, ${tahun}</div>
+                    <div style="height: 44px;"></div>
+                    <div><strong>Penulis</strong></div>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="sheet-footer">iv</div>
+        </div>
+
+        <!-- 6. DAFTAR ISI -->
         <div class="a4-sheet front-body">
             <div class="front-heading">DAFTAR ISI</div>
             <div class="toc-list">${tocHtml}</div>
-            <div class="sheet-footer">ii</div>
+            <div class="sheet-footer">v</div>
         </div>
     `;
 }
@@ -1712,8 +2032,119 @@ function renderLabRevisi() {
     `;
 }
 
+let researchDataRiil = projectMeta.data_riil || {};
+try {
+    const cached = localStorage.getItem(`skripsi_data_riil_${projectId}`);
+    if (cached) researchDataRiil = Object.assign({}, researchDataRiil, JSON.parse(cached));
+} catch(e) {}
+
+function openDataRiilModal() {
+    const m = document.getElementById('modal-data-riil');
+    if (!m) return;
+    document.getElementById('riil-metode').value = researchDataRiil.metode || '';
+    document.getElementById('riil-sampel').value = researchDataRiil.sampel || '';
+    document.getElementById('riil-lokasi').value = researchDataRiil.lokasi || '';
+    document.getElementById('riil-metrik').value = researchDataRiil.metrik || '';
+    document.getElementById('riil-evaluasi').value = researchDataRiil.evaluasi || '';
+    m.style.display = 'flex';
+}
+
+function closeDataRiilModal() {
+    const m = document.getElementById('modal-data-riil');
+    if (m) m.style.display = 'none';
+}
+
+function saveDataRiil() {
+    researchDataRiil = {
+        metode: (document.getElementById('riil-metode').value || '').trim(),
+        sampel: (document.getElementById('riil-sampel').value || '').trim(),
+        lokasi: (document.getElementById('riil-lokasi').value || '').trim(),
+        metrik: (document.getElementById('riil-metrik').value || '').trim(),
+        evaluasi: (document.getElementById('riil-evaluasi').value || '').trim()
+    };
+    try {
+        localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil));
+    } catch(e) {}
+    closeDataRiilModal();
+    showToast('Parameter data riil penelitian berhasil disimpan!', 'success');
+}
+
+function renderAllSheets() {
+    const container = document.getElementById('sheets-container');
+    const frontHtml = buildCoverAndFrontMatterHtml();
+
+    const chapterHeaders = {
+        'bab1': { num: 'BAB I', title: 'PENDAHULUAN', page: '1' },
+        'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA', page: '8' },
+        'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN', page: '16' },
+        'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN', page: '24' },
+        'bab5': { num: 'BAB V', title: 'PENUTUP', page: '36' },
+        'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA', page: '42' }
+    };
+
+    const keys = allowBab45
+        ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
+        : ['bab1', 'bab2', 'bab3', 'daftar_pustaka'];
+
+    let sheetsHtml = frontHtml;
+
+    keys.forEach((key) => {
+        const raw = (chapterContents[key] || '').trim();
+        const curH = chapterHeaders[key];
+        if (!raw) {
+            sheetsHtml += `
+                <div class="a4-sheet empty-sheet" style="margin-top: 28px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed #cbd5e1; background: #fafafa;">
+                    <h3 style="font-size: 15px; font-weight: 700; color: #475569; margin-bottom: 6px;">${escapeHtml(chapterLabels[key] || curH.title)}</h3>
+                    <p style="font-size: 12.5px; color: #94a3b8; margin-bottom: 12px;">Bagian ini belum ditulis.</p>
+                    <button type="button" class="btn-top primary" onclick="selectChapterView('${key}')">Buka & Tulis ${escapeHtml(curH.num || curH.title)}</button>
+                </div>
+            `;
+            return;
+        }
+
+        let bodyHtml = markdownToAcademicHtml(raw, key === 'daftar_pustaka');
+        const testUpper = bodyHtml.slice(0, 350).toUpperCase();
+        const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
+        if (!hasHeaderAlready) {
+            const hHtml = `
+                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
+                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
+                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
+                </div>
+            `;
+            bodyHtml = hHtml + bodyHtml;
+        }
+
+        sheetsHtml += `
+            <div class="a4-sheet" style="margin-top: 28px;">
+                <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${key}">${bodyHtml}</div>
+                <div class="sheet-footer">${curH.page}</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = sheetsHtml;
+
+    container.querySelectorAll('.paper-editor[data-chapter]').forEach((editor) => {
+        editor.addEventListener('input', () => {
+            const chKey = editor.getAttribute('data-chapter');
+            chapterContents[chKey] = editor.innerText;
+            isDirty = true;
+            document.getElementById('btn-save-edit').style.display = 'inline-flex';
+        });
+    });
+}
+
 function renderActiveSheet() {
     const container = document.getElementById('sheets-container');
+    if (activeView === 'all') {
+        renderAllSheets();
+        return;
+    }
+    if (activeView === 'front') {
+        container.innerHTML = buildCoverAndFrontMatterHtml();
+        return;
+    }
     if (activeView === 'revisi') {
         renderLabRevisi();
         return;
@@ -1731,9 +2162,41 @@ function renderActiveSheet() {
         return;
     }
 
-    // Tampilkan Cover & Daftar Isi otomatis saat membuka Bab I
-    const frontHtml = (activeView === 'bab1') ? buildCoverAndFrontMatterHtml() : '';
-    const bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
+    // Banner panduan Halaman Depan saat membuka Bab I
+    const frontNoticeHtml = (activeView === 'bab1') ? `
+        <div style="margin: 0 auto 16px; max-width: 820px; font-size: 12.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 16px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
+                <span>Halaman Depan (Sampul, Lembar Pengesahan, Pernyataan Keaslian, Abstrak ID/EN, Kata Pengantar, Daftar Isi) sudah terangkai lengkap.</span>
+            </div>
+            <button type="button" onclick="selectChapterView('front')" style="border: none; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11.5px; white-space: nowrap;">Lihat Halaman Depan &rarr;</button>
+        </div>
+    ` : '';
+    let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
+
+    // Header Bab Standar Skripsi Indonesia (BAB I PENDAHULUAN, dll.)
+    const chapterHeaders = {
+        'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
+        'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
+        'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
+        'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
+        'bab5': { num: 'BAB V', title: 'PENUTUP' },
+        'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
+    };
+    const curH = chapterHeaders[activeView];
+    if (curH) {
+        const testUpper = bodyHtml.slice(0, 350).toUpperCase();
+        const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
+        if (!hasHeaderAlready) {
+            const hHtml = `
+                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
+                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
+                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
+                </div>
+            `;
+            bodyHtml = hHtml + bodyHtml;
+        }
+    }
 
     let pageNumLabel = '1';
     if (activeView === 'bab2') pageNumLabel = '8';
@@ -1743,7 +2206,7 @@ function renderActiveSheet() {
     else if (activeView === 'daftar_pustaka') pageNumLabel = '42';
 
     container.innerHTML = `
-        ${frontHtml}
+        ${frontNoticeHtml}
         <div class="a4-sheet">
             <div class="paper-editor" id="paper-editor" contenteditable="true" spellcheck="false">${bodyHtml}</div>
             <div class="sheet-footer">${pageNumLabel}</div>
@@ -1779,6 +2242,7 @@ async function generateCurrentView() {
         } catch (err) {
             showToast(err.message || 'Terjadi kesalahan.', 'error');
         } finally {
+            finishLoadingSheet();
             if (dot) dot.classList.remove('generating');
             updateProgressUI();
             renderActiveSheet();
@@ -1791,7 +2255,7 @@ async function generateCurrentView() {
         const res = await fetch(`/project/${projectId}/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: JSON.stringify({ chapter: activeView, model })
+            body: JSON.stringify({ chapter: activeView, model, data_riil: researchDataRiil })
         });
         const data = await res.json();
         if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun bab.');
@@ -1801,6 +2265,7 @@ async function generateCurrentView() {
     } catch (err) {
         showToast(err.message || 'Gagal memproses AI.', 'error');
     } finally {
+        finishLoadingSheet();
         if (dot) dot.classList.remove('generating');
         updateProgressUI();
         renderActiveSheet();
@@ -1822,14 +2287,16 @@ async function generateSequential() {
             const res = await fetch(`/project/${projectId}/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ chapter: key, model })
+                body: JSON.stringify({ chapter: key, model, data_riil: researchDataRiil })
             });
             const data = await res.json();
             if (!res.ok || data.status !== 'success') throw new Error(data.message || `Gagal menyusun ${key}`);
             chapterContents[key] = data.content || '';
             if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
+            finishLoadingSheet();
             updateProgressUI();
         } catch (err) {
+            finishLoadingSheet();
             showToast(err.message || `Berhenti di ${key}`, 'error');
             if (dot) dot.classList.remove('generating');
             break;

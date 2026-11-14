@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SkripsiAI — Workspace</title>
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -704,6 +705,49 @@
             transition: all 0.2s ease;
         }
 
+        /* Sidang Crimson / Magenta (Desain Modern Sesuai Pedoman Sidang Resmi) */
+        .ppt-theme-sidang_crimson {
+            background: linear-gradient(135deg, #be185d 0%, #db2777 50%, #e11d48 100%);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+        .ppt-theme-sidang_crimson::before {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: -35px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+            pointer-events: none;
+        }
+        .ppt-theme-sidang_crimson::after {
+            content: '';
+            position: absolute;
+            bottom: -35px;
+            right: -35px;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            pointer-events: none;
+        }
+        .ppt-theme-sidang_crimson .ppt-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            backdrop-filter: blur(4px);
+        }
+        .ppt-theme-sidang_crimson #slide-bullets-edit li {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 7px 12px;
+            border-radius: 8px;
+            list-style-position: inside;
+        }
+
         /* 1. Basic Navy (Klasik) */
         .ppt-theme-basic_navy {
             background: #1e1b4b;
@@ -1356,35 +1400,44 @@
             .topbar {
                 height: 52px;
                 min-height: 52px;
-                padding: 0 12px;
+                padding: 0 10px;
                 flex-wrap: nowrap;
-                gap: 8px;
+                justify-content: space-between;
+                gap: 6px;
             }
             .topbar-right {
                 width: auto;
                 justify-content: flex-end;
                 gap: 6px;
+                flex-shrink: 0;
             }
             .topbar-right .token-pill {
                 display: none !important;
             }
             .model-select {
-                max-width: 155px;
-                font-size: 11.5px;
-                padding: 5px 8px;
+                max-width: 125px;
+                font-size: 11px;
+                padding: 4px 6px;
+                flex-shrink: 0;
             }
             .breadcrumb {
                 font-size: 12px;
-                gap: 6px;
+                gap: 5px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                min-width: 0;
+                flex: 1;
+            }
+            .breadcrumb > span:not(.breadcrumb-current) {
+                display: none !important;
             }
             .breadcrumb-current {
                 max-width: 120px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                font-weight: 700;
             }
             .page-title {
                 font-size: 21px;
@@ -1409,16 +1462,40 @@
             }
             .project-row {
                 flex-direction: column;
-                align-items: flex-start !important;
-                gap: 10px;
+                align-items: stretch !important;
+                gap: 12px;
                 padding: 14px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                margin-bottom: 12px;
+                background: #ffffff;
             }
             .project-row-left {
                 width: 100%;
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
                 padding-right: 0 !important;
             }
+            .project-row-title {
+                font-size: 13.5px;
+                font-weight: 700;
+                line-height: 1.45;
+                margin-bottom: 4px;
+            }
+            .project-row-meta {
+                font-size: 11.5px;
+                color: var(--text-muted);
+            }
             .project-row-action {
-                align-self: flex-end;
+                align-self: stretch;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                width: 100%;
+                padding-top: 10px;
+                border-top: 1px solid #f1f5f9;
             }
             .stepper {
                 gap: 6px;
@@ -1430,13 +1507,43 @@
                 font-size: 12px;
                 white-space: nowrap;
             }
+            .ppt-canvas {
+                aspect-ratio: 16 / 9 !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: unset !important;
+                box-sizing: border-box !important;
+            }
             #fs-slide-canvas {
-                padding: 24px 18px !important;
-                min-height: 300px !important;
+                padding: 16px 14px !important;
+                min-height: unset !important;
+                height: auto !important;
+                aspect-ratio: 16 / 9 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            #fs-slide-title {
+                font-size: clamp(13px, 3.8vw, 22px) !important;
+                line-height: 1.25 !important;
+                margin-bottom: 6px !important;
+            }
+            #fs-slide-subtitle {
+                font-size: clamp(10px, 2.5vw, 14px) !important;
+                margin-bottom: 10px !important;
+            }
+            #fs-slide-bullets {
+                font-size: clamp(9.5px, 2.5vw, 13px) !important;
+                line-height: 1.45 !important;
+                gap: 4px !important;
+            }
+            #ppt-slideshow-modal {
+                padding: 12px 10px !important;
+                justify-content: flex-start !important;
+                overflow-y: auto !important;
             }
             #ppt-slideshow-modal .ppt-nav-btn {
-                font-size: 12px;
-                padding: 7px 10px;
+                font-size: 11.5px;
+                padding: 6px 10px;
             }
             #ppt-slideshow-modal > div {
                 flex-wrap: wrap;
@@ -1453,8 +1560,8 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-brand-left">
-                <a href="/" class="brand-avatar">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                <a href="/" class="brand-avatar" style="padding: 0; background: none; border: none;">
+                    <img src="/images/logo.svg" alt="SkripsiAI" style="width: 32px; height: 32px; border-radius: 8px; display: block;">
                 </a>
                 <div class="brand-info">
                     <div class="brand-name">SkripsiAI</div>
@@ -1555,11 +1662,7 @@
             </div>
 
             <div class="topbar-right">
-                <select id="global-model" class="model-select">
-                    <option value="auto">Mode Otomatis (Rotasi AI)</option>
-                    <option value="deepseek">DeepSeek AI (Gratis / Multi-Key)</option>
-                    <option value="gemini">Google Gemini (AI Studio)</option>
-                </select>
+                <input type="hidden" id="global-model" value="auto">
                 <button type="button" class="token-pill" onclick="openTab('account', 'Akun Saya')" title="Status Langganan Mahasiswa">
                     <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
                     <span style="font-weight: 600; color: var(--text-main);">Paket Aktif</span>
@@ -2126,6 +2229,16 @@
                                 </div>
                             </div>
 
+                            <div style="margin-bottom: 14px;">
+                                <label class="form-label">Logo Kampus (Opsional - Tampil di Slide Cover Sidang)</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="file" id="ppt-input-logo" class="form-input" accept="image/*" onchange="onUploadPptLogo(this)" style="padding: 6px 10px; font-size: 12.5px; flex: 1;">
+                                    <div id="ppt-logo-preview-box" style="display: none; width: 36px; height: 36px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; align-items: center; justify-content: center; overflow: hidden;">
+                                        <img id="ppt-logo-preview-img" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0;">
                                 <div style="background: #ffffff; padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px;">
                                     <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">Dosen Pembimbing</div>
@@ -2177,6 +2290,10 @@
                         </div>
 
                         <div class="theme-card-grid" style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
+                            <button type="button" class="theme-chip" onclick="setPptTheme('sidang_crimson', this)">
+                                <div class="theme-swatch" style="background: linear-gradient(135deg, #be123c 0%, #881337 100%); border-top: 5px solid #fda4af;"></div>
+                                <span class="theme-chip-name">Sidang Crimson (Merah)</span>
+                            </button>
                             <button type="button" class="theme-chip active" onclick="setPptTheme('royal_academic', this)">
                                 <div class="theme-swatch" style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 6px solid #2563eb;"></div>
                                 <span class="theme-chip-name">Royal Blue Kampus</span>
@@ -3024,6 +3141,23 @@
         let pptCoverMeta = {};
         let currentSlideIdx = 0;
         let currentPptTheme = 'royal_academic';
+        let uploadedPptLogoBase64 = '';
+
+        function onUploadPptLogo(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedPptLogoBase64 = e.target.result;
+                const pBox = document.getElementById('ppt-logo-preview-box');
+                const pImg = document.getElementById('ppt-logo-preview-img');
+                if (pBox && pImg) {
+                    pImg.src = uploadedPptLogoBase64;
+                    pBox.style.display = 'inline-flex';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
 
         function setPptStep(step) {
             [1, 2, 3, 4].forEach(s => {
@@ -3092,6 +3226,7 @@
             if (p2El) formData.append('pembimbing_2', p2El.value.trim());
             if (u1El) formData.append('penguji_1', u1El.value.trim());
             if (u2El) formData.append('penguji_2', u2El.value.trim());
+            if (uploadedPptLogoBase64) formData.append('logo_base64', uploadedPptLogoBase64);
 
             try {
                 const res = await fetch("{{ route('tools.ppt') }}", {
@@ -3421,6 +3556,7 @@
             pptx.layout = 'LAYOUT_16x9';
 
             const palettes = {
+                sidang_crimson: { bg: 'FFF1F2', fg: '1E293B', sub: '9F1239', bar: 'BE123C' },
                 royal_academic: { bg: 'FFFFFF', fg: '0F172A', sub: '2563EB', bar: '2563EB' },
                 canva_editorial: { bg: 'FBF8F3', fg: '292524', sub: 'C2410C', bar: 'EA580C' },
                 emerald_executive: { bg: 'F4FBF7', fg: '064E3B', sub: '047857', bar: '059669' },
