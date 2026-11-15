@@ -2342,9 +2342,9 @@ ATURAN REVISI (SANGAT KETAT):
                 // Distribusi lebar kolom proporsional standar tabel skripsi APA 7th Edition
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = ['4%', '15%', '18%', '14%', '17%', '32%'];
+                    $colWidths = ['4%', '16%', '20%', '13%', '17%', '30%'];
                 } elseif ($colCount === 5) {
-                    $colWidths = ['5%', '18%', '22%', '20%', '35%'];
+                    $colWidths = ['5%', '18%', '24%', '20%', '33%'];
                 } elseif ($colCount === 4) {
                     $colWidths = ['6%', '28%', '32%', '34%'];
                 } elseif ($colCount === 3) {
@@ -2353,27 +2353,32 @@ ATURAN REVISI (SANGAT KETAT):
                     $colWidths = ['35%', '65%'];
                 }
 
-                $avoidSplit = count($rows) <= 10 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:9pt; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
+                $avoidSplit = count($rows) <= 3 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
+                $fontSize = ($colCount >= 5) ? '8pt' : '9pt';
+                $headerSize = ($colCount >= 5) ? '8.5pt' : '9.5pt';
+                $lineHeight = ($colCount >= 5) ? '1.2' : '1.25';
+                $cellPadding = ($colCount >= 5) ? '3.5pt 4pt' : '5pt 6pt';
+
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:8pt 0 14pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff;'>";
+                        $html .= "<thead style='display:table-header-group;'><tr style='border-bottom:1.2pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:5pt 6pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.25; font-size:9.5pt;'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:{$lineHeight}; font-size:{$headerSize};'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0;'>";
+                        $html .= "<tr style='border-bottom:0.5pt solid #cbd5e1; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:5pt 6pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.3; font-size:9pt;'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border:none; line-height:{$lineHeight}; font-size:{$fontSize};'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -3430,52 +3435,43 @@ ATURAN REVISI (SANGAT KETAT):
             </div>";
         }
 
+        $bMarginPt = (int) round($marginBottom * 28.35);
+
         $html = "<html><head><style>
             @page { size: A4; margin: {$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; }
-            body{font-family:'Times New Roman', serif; margin:0; text-align:justify; line-height:1.5; font-size:12pt;}
-            h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
-            h3,h4{font-weight:bold; font-size:12pt;}
-            p{text-indent: 1.27cm; margin: 0 0 8px 0;}
-            .cover p{text-indent:0; text-align:center;}
+            html, body { height: 100%; margin: 0; }
+            body { font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt; }
+            h1,h2 { text-align:center; font-weight:bold; font-size:14pt; }
+            h3,h4 { font-weight:bold; font-size:12pt; }
+            p { text-indent: 1.27cm; margin: 0 0 8px 0; }
+            .cover p { text-indent:0; text-align:center; }
         </style></head><body>";
 
         // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
-        // Terbagi proporsional vertikal (Area cetak A4 ~640pt di antara margin 4cm dan 3cm)
-        // Menggunakan 1 tabel layout vertikal Dompdf-safe untuk distribusi ruang proporsional sempurna
-        $html .= "<div class='cover' style='width:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
-            <table style='width:100%; height:640pt; border-collapse:collapse; text-align:center;'>
-                <tr style='height:180pt; vertical-align:top;'>
-                    <td style='border:none; text-align:center; padding:0;'>
-                        <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-                        <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
-                        <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-                    </td>
-                </tr>
-                <tr style='height:160pt; vertical-align:middle;'>
-                    <td style='border:none; text-align:center; padding:0;'>
-                        {$logoHtml}
-                    </td>
-                </tr>
-                <tr style='height:140pt; vertical-align:middle;'>
-                    <td style='border:none; text-align:center; padding:0;'>
-                        <div style='font-size:11.5pt; line-height:1.5;'>
-                            <div>OLEH:</div>
-                            <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                            " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
-                        </div>
-                    </td>
-                </tr>
-                <tr style='height:160pt; vertical-align:bottom;'>
-                    <td style='border:none; text-align:center; padding:0;'>
-                        <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
-                            <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                            " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                            <div>" . strtoupper(e($kampus)) . "</div>
-                            <div style='margin-top:3pt;'>" . date('Y') . "</div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+        // Distribusi vertikal proporsional dan terikat presisi pada margin bawah (position: absolute; bottom: {$bMarginPt}pt)
+        $html .= "<div class='cover' style='position:relative; width:100%; height:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
+            <div style='text-align:center;'>
+                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+                <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
+                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+            </div>
+
+            <div style='text-align:center; margin-top:65pt;'>
+                {$logoHtml}
+            </div>
+
+            <div style='text-align:center; margin-top:55pt; font-size:11.5pt; line-height:1.5;'>
+                <div>OLEH:</div>
+                <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
+            </div>
+
+            <div style='position:absolute; bottom:{$bMarginPt}pt; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                <div>" . strtoupper(e($kampus)) . "</div>
+                <div style='margin-top:3pt;'>" . date('Y') . "</div>
+            </div>
         </div>";
 
         // 2. LEMBAR PENGESAHAN
@@ -3973,24 +3969,30 @@ ATURAN REVISI (SANGAT KETAT):
 
             $html = "<html><head><style>
                 @page { size: A4; margin: 4cm 3cm 3cm 4cm; }
-                body{font-family:'Times New Roman', serif; margin:0; text-align:justify; line-height:1.5; font-size:12pt;}
+                html, body { height: 100%; margin: 0; }
+                body{font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt;}
                 h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
                 h3,h4{font-weight:bold; font-size:12pt;}
                 p{text-indent: 1.27cm; margin: 0 0 8px 0;}
                 .cover p{text-indent:0; text-align:center;}
             </style></head><body>
-            <div class='cover' style='text-align:center; padding-top:25px;'>
-                <h1>{$jenisDokumen}</h1>
-                <h2 style='margin-top:24px;'>" . strtoupper(e($project->judul)) . "</h2>
-                {$logoHtml}
-                <p style='margin-top:36px;'><strong>OLEH:</strong><br><u><strong>" . strtoupper(e($nama)) . "</strong></u><br>" . e($npm) . "</p>
-                <div style='margin-top:64px; font-weight:bold; font-size:13pt;'>
-                    PROGRAM STUDI " . strtoupper(e($project->prodi)) . "<br>
-                    " . ($fakultas ? strtoupper(e($fakultas)) . "<br>" : "") . "
-                    " . strtoupper(e($kampus)) . "<br>" . date('Y') . "
+            <div class='cover' style='position:relative; width:100%; height:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
+                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+                <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
+                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+                <div style='text-align:center; margin-top:65pt;'>{$logoHtml}</div>
+                <div style='text-align:center; margin-top:55pt; font-size:11.5pt; line-height:1.5;'>
+                    <div>OLEH:</div>
+                    <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                    " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
                 </div>
-            </div>
-            <div style='page-break-after:always;'></div>";
+                <div style='position:absolute; bottom:85pt; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                    <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                    " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                    <div>" . strtoupper(e($kampus)) . "</div>
+                    <div style='margin-top:3pt;'>" . date('Y') . "</div>
+                </div>
+            </div>";
 
             $chapters = [
                 'bab1' => 'PENDAHULUAN',
