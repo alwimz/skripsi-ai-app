@@ -364,9 +364,14 @@ class GeneratorController extends Controller
             foreach ($lines as $lIdx => $line) {
                 $trimmed = trim(strip_tags($line));
                 if (preg_match('/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i', $trimmed, $m)) {
+                    $rawTitle = trim(ltrim($m[2], ":- \t"));
+                    // Abaikan jika baris ini adalah kalimat analisis/pembahasan dalam paragraf, bukan judul tabel
+                    if (mb_strlen($rawTitle) > 80 || preg_match('/memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada/i', $rawTitle)) {
+                        continue;
+                    }
                     $tblIdx++;
                     $num = $m[1];
-                    $title = trim(ltrim($m[2], ":- \t")) ?: "Tabel {$num}";
+                    $title = $rawTitle ?: "Tabel {$num}";
                     $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
                     $tables[] = ['label' => "Tabel {$num} {$title}", 'page' => $estPage];
                 } elseif (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|')) {
@@ -2366,11 +2371,11 @@ ATURAN REVISI (SANGAT KETAT):
                     $colWidths = ['35%', '65%'];
                 }
 
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; page-break-inside:avoid; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; page-break-inside:auto; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff;'>";
+                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
@@ -2378,7 +2383,7 @@ ATURAN REVISI (SANGAT KETAT):
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0;'>";
+                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
@@ -2404,21 +2409,22 @@ ATURAN REVISI (SANGAT KETAT):
             if ($isFlowchart) {
                 $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
                 $renderedImg = $isFramework ? $this->renderKerangkaPemikiranPng($rawCode, $judul) : $this->renderFlowchartPng($rawCode, $judul);
+                $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
 
                 if ($renderedImg && file_exists($renderedImg)) {
                     $b64 = base64_encode(file_get_contents($renderedImg));
                     @unlink($renderedImg);
-                    $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
                     $html .= "<div style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>"
                         . "<div style='font-size:11pt; font-weight:bold; margin-bottom:6pt; text-align:center; color:#000;'>" . e($caption) . "</div>"
                         . "<img src='data:image/png;base64,{$b64}' style='width:450pt; max-width:100%; height:auto; display:block; margin:0 auto;'>"
                         . "</div>";
                 } else {
-                    // Fallback visual murni CSS (Bebas dari karakter unicode panah ↓ yang menjadi ? di Dompdf)
+                    // Fallback visual murni CSS standar akademik bebas kotak hitam di Dompdf
                     preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
                     $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
                     if (!empty($nodes)) {
                         $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
                         $nodeCount = count($nodes);
                         foreach (array_values($nodes) as $nIdx => $node) {
                             $cleanNode = trim(strip_tags($node));
@@ -2427,13 +2433,11 @@ ATURAN REVISI (SANGAT KETAT):
                             $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
                             $radius = $isSE ? '999px' : '0px';
                             $weight = $isSE ? 'bold' : 'normal';
-                            $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; border-radius:{$radius}; background:#ffffff; font-size:11pt; color:#000000; font-weight:{$weight}; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
+                            $borderStyle = $isSE ? 'border:1.5pt solid #000000;' : (preg_match('/^(pengumpulan|input|output|pembagian|pengujian)/i', $cleanNode) ? 'border:2pt double #000000;' : 'border:1.5pt solid #000000;');
+                            $html .= "<div style='display:inline-block; padding:6pt 16pt; {$borderStyle} border-radius:{$radius}; background:#ffffff; font-size:10.5pt; color:#000000; font-weight:{$weight}; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
                             if ($nIdx < $nodeCount - 1) {
-                                // Panah geometris murni CSS border triangle (tidak akan pernah berubah jadi tanda tanya ?)
-                                $html .= "<table align='center' cellpadding='0' cellspacing='0' style='margin:2pt auto 2pt auto; border-collapse:collapse;'>"
-                                    . "<tr><td style='width:1.5pt; height:12pt; background:#000000; padding:0; margin:0 auto;'></td></tr>"
-                                    . "<tr><td style='width:0; height:0; border-left:4pt solid transparent; border-right:4pt solid transparent; border-top:5pt solid #000000; padding:0;'></td></tr>"
-                                    . "</table>";
+                                // Panah presisi DejaVu Sans (bawaan resmi Dompdf, tajam & tidak berubah jadi kotak hitam)
+                                $html .= "<div style='font-family:DejaVu Sans, sans-serif; font-size:14pt; line-height:1; color:#000000; text-align:center; margin:2.5pt auto 3.5pt;'>&#8595;</div>";
                             }
                         }
                         $html .= "</div>";
@@ -2688,11 +2692,18 @@ ATURAN REVISI (SANGAT KETAT):
                             }
                         }
                         if (!empty($cleanNodes)) {
-                            $boxTable = $section->addTable(['alignment' => Jc::CENTER, 'cantSplit' => true]);
                             $nodeCount = count($cleanNodes);
+                            // Mulai di halaman baru jika diagram memiliki banyak node agar utuh 1 halaman & tidak terpotong
+                            if ($nodeCount >= 5) {
+                                $section->addPageBreak();
+                            }
+                            $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 120]);
+
+                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
                             foreach ($cleanNodes as $nIdx => $cleanNode) {
                                 $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
                                 $boxRow = $boxTable->addRow();
+                                $boxRow->getProperties()->setCantSplit(true);
                                 $boxCell = $boxRow->addCell(Converter::cmToTwip(10.5), [
                                     'bgColor' => 'FFFFFF',
                                     'borderColor' => '000000',
@@ -2712,6 +2723,7 @@ ATURAN REVISI (SANGAT KETAT):
 
                                 if ($nIdx < $nodeCount - 1) {
                                     $arrRow = $boxTable->addRow();
+                                    $arrRow->getProperties()->setCantSplit(true);
                                     $arrCell = $arrRow->addCell(Converter::cmToTwip(10.5), ['borderSize' => 0]);
                                     $arrCell->addText('↓', [
                                         'name' => 'Times New Roman',
@@ -2955,7 +2967,24 @@ ATURAN REVISI (SANGAT KETAT):
         $section->addTextBreak(1);
 
         $defaultLogoFile = public_path('images/default_emblem.png');
-        $resolvedLogo = ($logoPath && file_exists($logoPath)) ? $logoPath : (file_exists($defaultLogoFile) ? $defaultLogoFile : null);
+        $resolvedLogo = ($logoPath && file_exists($logoPath)) ? $logoPath : null;
+        if (!$resolvedLogo) {
+            $rawLogoB64 = $request->input('logo_base64') ?: ($meta['logo_base64'] ?? '');
+            if (!empty($rawLogoB64)) {
+                $clean = preg_replace('#^data:image/[^;]+;base64,#i', '', trim($rawLogoB64));
+                $decoded = @base64_decode($clean);
+                if (!empty($decoded) && strlen($decoded) > 60) {
+                    $tmpLogo = tempnam(sys_get_temp_dir(), 'wlogo_') . '.png';
+                    if (@file_put_contents($tmpLogo, $decoded)) {
+                        $resolvedLogo = $tmpLogo;
+                        $this->docxTempFiles[] = $tmpLogo;
+                    }
+                }
+            }
+        }
+        if (!$resolvedLogo && file_exists($defaultLogoFile)) {
+            $resolvedLogo = $defaultLogoFile;
+        }
 
         if ($resolvedLogo && file_exists($resolvedLogo)) {
             try {
@@ -3369,8 +3398,9 @@ ATURAN REVISI (SANGAT KETAT):
             $b64 = base64_encode(file_get_contents($logoPath));
             $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
             @unlink($logoPath);
-        } elseif (!empty($meta['logo_base64'])) {
-            $b64 = trim($meta['logo_base64']);
+        } elseif (!empty($request->input('logo_base64')) || !empty($meta['logo_base64'])) {
+            $rawB64 = $request->input('logo_base64') ?: $meta['logo_base64'];
+            $b64 = trim($rawB64);
             if (!str_starts_with($b64, 'data:image/')) {
                 $b64 = 'data:image/png;base64,' . $b64;
             }
@@ -3435,8 +3465,7 @@ ATURAN REVISI (SANGAT KETAT):
                     <div style='margin-top:2pt;'>" . date('Y') . "</div>
                 </div>
             </div>
-        </div>
-        <div style='page-break-after:always;'></div>";
+        </div>";
 
         // 2. LEMBAR PENGESAHAN
         $html .= "<div style='text-align:center;'>

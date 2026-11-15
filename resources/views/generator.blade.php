@@ -552,7 +552,7 @@
             border: 1px solid #dbe3ee;
             border-radius: 4px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            padding: 75px 60px 60px 75px;
+            padding: 75px 60px 80px 75px;
             /* Rasio standar margin skripsi 4-4-3-3 cm */
             color: #111827;
             font-family: "Times New Roman", Georgia, serif;
@@ -562,7 +562,7 @@
             word-break: break-word;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             margin-bottom: 24px;
             position: relative;
         }
@@ -692,8 +692,11 @@
         }
 
         .sheet-footer {
-            margin-top: 38px;
-            padding-top: 14px;
+            position: absolute;
+            bottom: 25px;
+            left: 60px;
+            right: 60px;
+            padding-top: 10px;
             text-align: center;
             font-size: 13.5px;
             font-family: 'Times New Roman', serif;
@@ -1207,19 +1210,20 @@
             .a4-sheet {
                 width: 100%;
                 max-width: 100%;
-                min-height: 520px;
+                min-height: 1123px;
                 box-sizing: border-box;
-                padding: 24px 16px 20px 20px;
-                font-size: 13.5px;
-                line-height: 1.6;
+                padding: 40px 24px 60px 28px;
+                font-size: 14px;
+                line-height: 1.65;
                 border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
                 overflow-x: hidden;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
-                margin-bottom: 20px;
+                justify-content: flex-start;
+                margin-bottom: 24px;
+                position: relative;
             }
 
             .cover-sheet {
@@ -2436,8 +2440,13 @@
                     const trimmed = line.trim();
                     const capMatch = trimmed.match(/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i);
                     if (capMatch) {
+                        const rawTitle = capMatch[2].replace(/^[:\-\s]+/, '').trim();
+                        // Abaikan jika ini kalimat pembahasan/analisis teks di dalam paragraf
+                        if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada/i.test(rawTitle)) {
+                            return;
+                        }
                         tableIdx++;
-                        const title = capMatch[2].replace(/^[:\-\s]+/, '').trim() || `Tabel ${capMatch[1]}`;
+                        const title = rawTitle || `Tabel ${capMatch[1]}`;
                         const estPage = basePage + Math.floor(lIdx / 45);
                         list.push({ num: capMatch[1], title: `Tabel ${capMatch[1]} ${title}`, page: estPage });
                     } else if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
@@ -2637,7 +2646,7 @@
         </div>
 
         <!-- 2. LEMBAR PENGESAHAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">LEMBAR PENGESAHAN</div>
                 <div style="text-align: center; margin: 18px 0; font-weight: 700; font-size: 13pt; line-height: 1.4; text-transform: uppercase;">
@@ -2677,7 +2686,7 @@
         </div>
 
         <!-- 3. SURAT PERNYATAAN KEASLIAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
                 <p style="text-indent: 0; margin-top: 24px; font-size: 11.5pt;">Saya yang bertanda tangan di bawah ini:</p>
@@ -2708,7 +2717,7 @@
         </div>
 
         <!-- 4. ABSTRAK (BAHASA INDONESIA) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">ABSTRAK</div>
                 <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; text-transform: uppercase;">
@@ -2729,7 +2738,7 @@
         </div>
 
         <!-- 5. ABSTRACT (ENGLISH) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">ABSTRACT</div>
                 <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; font-style: italic; text-transform: uppercase;">
@@ -2750,7 +2759,7 @@
         </div>
 
         <!-- 6. KATA PENGANTAR -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">KATA PENGANTAR</div>
                 <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 18px;">
@@ -2778,38 +2787,46 @@
         </div>
 
         <!-- 7. DAFTAR ISI -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR ISI</div>
-            <div class="toc-list">${tocHtml}</div>
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">DAFTAR ISI</div>
+                <div class="toc-list">${tocHtml}</div>
+            </div>
             <div class="sheet-footer">vi</div>
         </div>
 
         <!-- 8. DAFTAR TABEL -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR TABEL</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                ${daftarTabelHtml}
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">DAFTAR TABEL</div>
+                <div class="toc-list" style="margin-top: 20px;">
+                    ${daftarTabelHtml}
+                </div>
             </div>
             <div class="sheet-footer">vii</div>
         </div>
 
         <!-- 9. DAFTAR GAMBAR -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR GAMBAR</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                ${daftarGambarHtml}
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">DAFTAR GAMBAR</div>
+                <div class="toc-list" style="margin-top: 20px;">
+                    ${daftarGambarHtml}
+                </div>
             </div>
             <div class="sheet-footer">viii</div>
         </div>
 
         <!-- 10. DAFTAR LAMPIRAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR LAMPIRAN</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage}</span></div>
-                <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 2}</span></div>
-                <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 4}</span></div>
-                <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 6}</span></div>
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">DAFTAR LAMPIRAN</div>
+                <div class="toc-list" style="margin-top: 20px;">
+                    <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage}</span></div>
+                    <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 2}</span></div>
+                    <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 4}</span></div>
+                    <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 6}</span></div>
+                </div>
             </div>
             <div class="sheet-footer">ix</div>
         </div>
@@ -3056,7 +3073,7 @@
             if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
 
             const fallbackHtml = `
-                <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
                     <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
                     <div class="sheet-footer">${startPageNum}</div>
                 </div>
@@ -3074,8 +3091,8 @@
                 const pages = [];
                 let curPageBlocks = [];
                 let curPageWeight = 0;
-                // Kapasitas bobot teks standar kertas A4 akademik (setara ~1800 - 2200 karakter atau ~850px tinggi area cetak)
-                const MAX_PAGE_WEIGHT = 1950;
+                // Kapasitas bobot teks standar kertas A4 akademik (~3800 karakter penuh)
+                const MAX_PAGE_WEIGHT = 3800;
 
                 blocks.forEach((block) => {
                     const textLen = (block.innerText || '').length;
@@ -3084,27 +3101,30 @@
 
                     // Bobot visual proporsional elemen tabel, bagan, list, dan heading
                     if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                        blockWeight = Math.max(textLen, 950);
+                        blockWeight = Math.max(textLen, 900);
                     } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                        blockWeight = Math.max(textLen, 260);
+                        blockWeight = Math.max(textLen, 120);
                     } else if (tagName === 'ul' || tagName === 'ol') {
-                        blockWeight = Math.max(textLen, 400);
+                        blockWeight = Math.max(textLen, 250);
                     } else {
-                        blockWeight = Math.max(textLen, 190);
+                        blockWeight = Math.max(textLen, 150);
                     }
 
-                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi batas kapasitas
-                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 360) : MAX_PAGE_WEIGHT;
+                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi sedikit kapasitas
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 400) : MAX_PAGE_WEIGHT;
 
-                    if (curPageBlocks.length > 0 && (curPageWeight + blockWeight > curLimit)) {
-                        // Hindari meletakkan heading sendirian di paling bawah halaman (orphan heading)
+                    // HANYA ganti halaman jika halaman saat ini memang sudah terisi penuh (minimal 2200 bobot) dan melebihi batas kapasitas
+                    // Mencegah kertas berganti prematur saat baru terisi 1 paragraf atau hanya judul
+                    if (curPageBlocks.length > 0 && curPageWeight >= 2200 && (curPageWeight + blockWeight > curLimit)) {
+                        // Hindari meletakkan heading sendirian di paling bawah halaman penuh (orphan heading)
                         const lastBlock = curPageBlocks[curPageBlocks.length - 1];
                         const lastTag = (lastBlock.tagName || '').toLowerCase();
-                        if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 1) {
+
+                        if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 2) {
                             const orphanHeading = curPageBlocks.pop();
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                             curPageBlocks = [orphanHeading, block];
-                            curPageWeight = 260 + blockWeight;
+                            curPageWeight = 120 + blockWeight;
                         } else {
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                             curPageBlocks = [block];
@@ -3126,7 +3146,7 @@
                 pages.forEach((pageContent, pIdx) => {
                     const thisPageNum = startPageNum + pIdx;
                     outputHtml += `
-                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
                             <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
                                 ${pageContent}
                             </div>
@@ -3576,6 +3596,12 @@
 
         function submitQuickDownload(format) {
             const form = document.getElementById('quick-download-form');
+            const coverImg = document.querySelector('.cover-logo-img');
+            const activeLogo = (projectMeta && projectMeta.logo_base64) || (coverImg && coverImg.src && coverImg.src.startsWith('data:image/') ? coverImg.src : '') || localStorage.getItem(`skripsi_logo_${projectId}`) || '';
+            if (activeLogo) {
+                const logoInp = form.querySelector('input[name="logo_base64"]');
+                if (logoInp) logoInp.value = activeLogo;
+            }
             form.action = format === 'pdf'
                 ? @json(route('project.download.pdf', ['id' => $project->id]))
                 : @json(route('app.downloadDocx', ['id' => $project->id]));

@@ -700,8 +700,12 @@
         /* Interactive PPT Studio (16:9 Slide Canvas & Designer Templates) */
         .ppt-canvas {
             border-radius: 14px;
-            padding: 40px 44px;
-            min-height: 390px;
+            padding: clamp(16px, 3.5vw, 40px) clamp(18px, 4vw, 44px);
+            width: 100%;
+            max-width: 920px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -4997,7 +5001,6 @@
                         </div>
                     </li>
                 `;
-            }
             } else {
                 titleEl.style.textAlign = 'left';
                 subEl.style.textAlign = 'left';
@@ -5222,7 +5225,6 @@
                         </div>
                     </li>
                 `;
-            }
             } else {
                 titleEl.style.textAlign = 'left';
                 subEl.style.textAlign = 'left';
