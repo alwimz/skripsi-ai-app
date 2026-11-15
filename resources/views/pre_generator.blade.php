@@ -2403,7 +2403,7 @@
                         @csrf
                         <input type="hidden" name="jenis_penelitian" value="Skripsi (S1)">
                         <input type="hidden" name="logo_base64" id="input-logo-base64"
-                            value="{{ $defaultIdentity['logo_base64'] ?? '' }}">
+                            value="{{ preg_replace('#^data:image/\w+;base64,#i', '', $defaultIdentity['logo_base64'] ?? '') }}">
 
                         <!-- Card 1: Fokus Tahap Penulisan (Proposal Bab 1-3 vs Full Skripsi Bab 1-5) -->
                         <div class="card" style="margin-bottom: 16px;">
@@ -2465,8 +2465,8 @@
                                             style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
                                         <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2
                                             MB</span>
-                                        <input type="file" id="new-proj-logo-file"
-                                            accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;"
+                                        <input type="file" id="new-proj-logo-file" name="logo_kampus"
+                                            accept="image/png,image/jpeg,image/webp" style="display:none;"
                                             onchange="handleNewProjectLogoSelect(this)">
                                     </label>
                                 </div>
@@ -4602,7 +4602,7 @@
                 const img = new Image();
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
-                    const maxDim = 320;
+                    const maxDim = 240;
                     let w = img.width;
                     let h = img.height;
                     if (w > maxDim || h > maxDim) {
@@ -4617,8 +4617,10 @@
                     canvas.width = w;
                     canvas.height = h;
                     const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
-                    const dataUrl = canvas.toDataURL('image/png', 0.9);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
 
                     const prev = document.getElementById('new-proj-logo-preview');
                     if (prev) {
@@ -4627,8 +4629,11 @@
                     }
                     const lbl = document.getElementById('new-proj-logo-label');
                     if (lbl) lbl.innerText = file.name.substring(0, 16);
+                    
+                    // Simpan raw base64 tanpa prefix data:image/... untuk menghindari pencekalan WAF Vercel (CRS rule 931130 RFI)
+                    const rawB64 = dataUrl.split(',')[1] || '';
                     const hidden = document.getElementById('input-logo-base64');
-                    if (hidden) hidden.value = dataUrl;
+                    if (hidden) hidden.value = rawB64;
                 };
                 img.src = e.target.result;
             };

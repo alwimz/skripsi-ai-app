@@ -135,7 +135,7 @@ class GeneratorController extends Controller
     }
 
     /**
-     * Kompres & konversi logo universitas menjadi PNG base64 kecil agar aman disimpan di TEXT column & terbaca PhpWord/Dompdf
+     * Kompres & konversi logo universitas menjadi JPEG base64 kecil agar aman disimpan di TEXT column & terbaca PhpWord/Dompdf tanpa GD
      */
     private function normalizeLogoBase64($fileOrBase64): string
     {
@@ -148,43 +148,50 @@ class GeneratorController extends Controller
                 $rawBytes = @base64_decode($clean);
             }
 
-            if (empty($rawBytes) || strlen($rawBytes) < 60) {
+            if (empty($rawBytes) || strlen($rawBytes) < 30) {
                 return '';
             }
 
+            // Jika GD tersedia, kompres & ubah ke JPEG dengan background putih (kompatibel Dompdf tanpa GD runtime)
             if (function_exists('imagecreatefromstring')) {
                 $src = @imagecreatefromstring($rawBytes);
                 if ($src !== false) {
                     $origW = imagesx($src);
                     $origH = imagesy($src);
-                    $maxDim = 220;
+                    $maxDim = 240;
                     $scale = min(1.0, $maxDim / max(1, $origW, $origH));
                     $newW = max(1, (int) round($origW * $scale));
                     $newH = max(1, (int) round($origH * $scale));
 
                     $dst = imagecreatetruecolor($newW, $newH);
-                    imagealphablending($dst, false);
-                    imagesavealpha($dst, true);
-                    $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-                    imagefilledrectangle($dst, 0, 0, $newW, $newH, $transparent);
+                    $white = imagecolorallocate($dst, 255, 255, 255);
+                    imagefilledrectangle($dst, 0, 0, $newW, $newH, $white);
                     imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
                     ob_start();
-                    imagepng($dst, null, 7);
-                    $pngBytes = ob_get_clean();
+                    imagejpeg($dst, null, 85);
+                    $jpgBytes = ob_get_clean();
                     imagedestroy($src);
                     imagedestroy($dst);
 
-                    if (!empty($pngBytes)) {
-                        return 'data:image/png;base64,' . base64_encode($pngBytes);
+                    if (!empty($jpgBytes)) {
+                        return 'data:image/jpeg;base64,' . base64_encode($jpgBytes);
                     }
                 }
             }
 
-            if (strlen($rawBytes) <= 42000) {
+            // Jika GD tidak tersedia (misal di Vercel serverless), deteksi jenis file mentah
+            $isJpg = str_starts_with($rawBytes, "\xFF\xD8\xFF");
+            $isPng = str_starts_with($rawBytes, "\x89PNG");
+
+            if ($isJpg) {
+                return 'data:image/jpeg;base64,' . base64_encode($rawBytes);
+            } elseif ($isPng) {
                 return 'data:image/png;base64,' . base64_encode($rawBytes);
+            } elseif (strlen($rawBytes) <= 60000) {
+                return 'data:image/jpeg;base64,' . base64_encode($rawBytes);
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             Log::warning('Logo normalization error: ' . $e->getMessage());
         }
         return '';
@@ -931,13 +938,13 @@ class GeneratorController extends Controller
 
         // Encode & kompres logo kampus agar aman disimpan & terbaca di Word/PDF
         $logoBase64 = '';
-        if ($request->hasFile('logo_kampus') && $request->file('logo_kampus')->isValid()) {
-            $logoBase64 = $this->normalizeLogoBase64($request->file('logo_kampus'));
-        } elseif ($request->filled('logo_base64')) {
+        if ($request->filled('logo_base64')) {
             $logoBase64 = $this->normalizeLogoBase64($request->input('logo_base64'));
+        } elseif ($request->hasFile('logo_kampus') && $request->file('logo_kampus')->isValid()) {
+            $logoBase64 = $this->normalizeLogoBase64($request->file('logo_kampus'));
         }
         if (empty($logoBase64) && !empty($defaultIdentity['logo_base64'])) {
-            $logoBase64 = $defaultIdentity['logo_base64'];
+            $logoBase64 = $this->normalizeLogoBase64($defaultIdentity['logo_base64']);
         }
 
         $namaInput = trim($request->input('nama', ''));
@@ -2691,41 +2698,52 @@ ATURAN REVISI (SANGAT KETAT):
                         if (!empty($cleanNodes)) {
                             $nodeCount = count($cleanNodes);
                             // Mulai di halaman baru jika diagram memiliki banyak node agar utuh 1 halaman & tidak terpotong
-                            if ($nodeCount >= 5) {
+                            if ($nodeCount >= 7) {
                                 $section->addPageBreak();
                             }
                             $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 120]);
 
-                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
                             foreach ($cleanNodes as $nIdx => $cleanNode) {
                                 $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                                $boxRow = $boxTable->addRow(null, ['cantSplit' => true]);
-                                $boxCell = $boxRow->addCell(Converter::cmToTwip(10.5), [
-                                    'bgColor' => 'FFFFFF',
+                                $len = mb_strlen($cleanNode);
+                                if ($isSE) {
+                                    $boxWidth = Converter::cmToTwip(5.5);
+                                } elseif ($len <= 25) {
+                                    $boxWidth = Converter::cmToTwip(8.5);
+                                } elseif ($len <= 50) {
+                                    $boxWidth = Converter::cmToTwip(10.5);
+                                } else {
+                                    $boxWidth = Converter::cmToTwip(12.5);
+                                }
+
+                                // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
+                                $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
+                                $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
+                                $boxCell = $boxRow->addCell($boxWidth, [
+                                    'bgColor' => $isSE ? 'F8FAFC' : 'FFFFFF',
                                     'borderColor' => '000000',
-                                    'borderSize' => $isSE ? 16 : 10,
-                                    'cellMarginTop' => 60,
-                                    'cellMarginBottom' => 60,
-                                    'cellMarginLeft' => 120,
-                                    'cellMarginRight' => 120,
+                                    'borderSize' => $isSE ? 14 : 9,
+                                    'cellMarginTop' => 70,
+                                    'cellMarginBottom' => 70,
+                                    'cellMarginLeft' => 140,
+                                    'cellMarginRight' => 140,
                                     'valign' => 'center'
                                 ]);
                                 $boxCell->addText($cleanNode, [
                                     'name' => 'Times New Roman',
-                                    'size' => 10.5,
+                                    'size' => 10,
                                     'bold' => $isSE,
                                     'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
 
                                 if ($nIdx < $nodeCount - 1) {
-                                    $arrRow = $boxTable->addRow(null, ['cantSplit' => true]);
-                                    $arrCell = $arrRow->addCell(Converter::cmToTwip(10.5), ['borderSize' => 0]);
-                                    $arrCell->addText('↓', [
+                                    // Paragraf tanda panah independen di antara kotak yang memisahkan masing-masing box
+                                    $section->addText('↓', [
                                         'name' => 'Times New Roman',
-                                        'size' => 13,
+                                        'size' => 12,
                                         'bold' => true,
                                         'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 10, 'spaceAfter' => 10]);
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 25, 'spaceAfter' => 25]);
                                 }
                             }
                         }
@@ -2886,16 +2904,31 @@ ATURAN REVISI (SANGAT KETAT):
                 return null;
             }
 
-            $tmpPath = '/tmp/logo_' . uniqid() . '.png';
+            $isJpg = str_starts_with($rawBytes, "\xFF\xD8\xFF");
+            $ext = $isJpg ? 'jpg' : 'png';
+            $tmpPath = '/tmp/logo_' . uniqid() . '.' . $ext;
+
             if (function_exists('imagecreatefromstring')) {
                 $img = @imagecreatefromstring($rawBytes);
                 if ($img !== false) {
-                    imagealphablending($img, false);
-                    imagesavealpha($img, true);
-                    imagepng($img, $tmpPath);
+                    $origW = imagesx($img);
+                    $origH = imagesy($img);
+                    $maxDim = 240;
+                    $scale = min(1.0, $maxDim / max(1, $origW, $origH));
+                    $newW = max(1, (int) round($origW * $scale));
+                    $newH = max(1, (int) round($origH * $scale));
+
+                    $dst = imagecreatetruecolor($newW, $newH);
+                    $white = imagecolorallocate($dst, 255, 255, 255);
+                    imagefilledrectangle($dst, 0, 0, $newW, $newH, $white);
+                    imagecopyresampled($dst, $img, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+                    $tmpJpg = '/tmp/logo_' . uniqid() . '.jpg';
+                    imagejpeg($dst, $tmpJpg, 85);
                     imagedestroy($img);
-                    if (file_exists($tmpPath)) {
-                        return $tmpPath;
+                    imagedestroy($dst);
+                    if (file_exists($tmpJpg)) {
+                        return $tmpJpg;
                     }
                 }
             }
