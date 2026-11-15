@@ -1189,12 +1189,14 @@
             width: 100% !important;
             box-shadow: none !important;
         }
+
         #slide-bullets-edit li.ppt-cover-pembimbing-li::marker,
         #fs-slide-bullets li.ppt-cover-pembimbing-li::marker,
         .ppt-cover-pembimbing-li::marker {
             content: "" !important;
             display: none !important;
         }
+
         .ppt-pembimbing-grid {
             display: grid !important;
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -1202,6 +1204,7 @@
             width: 100% !important;
             box-sizing: border-box !important;
         }
+
         .ppt-pembimbing-card {
             background: rgba(255, 255, 255, 0.16) !important;
             border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -1211,6 +1214,7 @@
             box-sizing: border-box !important;
             text-align: left !important;
         }
+
         .ppt-pembimbing-label {
             font-size: 10px !important;
             font-weight: 700 !important;
@@ -1219,6 +1223,7 @@
             letter-spacing: 0.5px !important;
             margin-bottom: 3px !important;
         }
+
         .ppt-pembimbing-name {
             font-size: 11.5px !important;
             font-weight: 600 !important;
@@ -1711,9 +1716,11 @@
                 flex-direction: column !important;
                 justify-content: space-between !important;
             }
+
             .ppt-theme-royal_academic {
                 padding-left: 20px !important;
             }
+
             .ppt-theme-royal_academic::before {
                 width: 6px !important;
             }
@@ -1748,44 +1755,54 @@
                 line-height: 1.2 !important;
                 margin-bottom: 2px !important;
             }
+
             .ppt-cover-title-text.ppt-title-long {
                 font-size: clamp(8.5px, 2.4vw, 11.5px) !important;
                 line-height: 1.18 !important;
             }
+
             .ppt-cover-oleh-box {
                 margin-top: 3px !important;
                 line-height: 1.15 !important;
             }
+
             .ppt-cover-oleh-tag {
                 font-size: 8px !important;
             }
+
             .ppt-cover-author-name {
                 font-size: 10px !important;
                 margin-top: 1px !important;
             }
+
             .ppt-cover-nim {
                 font-size: 8.5px !important;
                 margin-top: 1px !important;
             }
+
             .ppt-cover-pembimbing-li {
                 margin-top: 4px !important;
                 background: transparent !important;
                 border: none !important;
                 padding: 0 !important;
             }
+
             .ppt-pembimbing-grid {
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 6px !important;
             }
+
             .ppt-pembimbing-card {
                 padding: 4px 6px !important;
                 border-radius: 6px !important;
             }
+
             .ppt-pembimbing-label {
                 font-size: 8px !important;
                 margin-bottom: 1px !important;
             }
+
             .ppt-pembimbing-name {
                 font-size: 9px !important;
                 line-height: 1.15 !important;
@@ -1798,11 +1815,13 @@
                 line-height: 1.2 !important;
                 margin-bottom: 3px !important;
             }
+
             #slide-subtitle-edit,
             #fs-slide-subtitle {
                 font-size: clamp(8.5px, 2.2vw, 10.5px) !important;
                 margin-bottom: 3px !important;
             }
+
             #slide-bullets-edit,
             #fs-slide-bullets {
                 font-size: clamp(8px, 2.1vw, 10px) !important;
@@ -1810,6 +1829,7 @@
                 gap: 2px !important;
                 padding-left: 14px !important;
             }
+
             #slide-bullets-edit li,
             #fs-slide-bullets li {
                 margin: 0 !important;
@@ -3137,42 +3157,72 @@
                 </div>
 
                 <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
-                <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
-                    <div style="width: 100%; max-width: 960px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; color: #ffffff; gap: 8px; text-align: center;">
+                <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()"
+                    style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+                    <div
+                        style="width: 100%; max-width: 960px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 12px; color: #ffffff; gap: 8px; text-align: center;">
                         <div style="font-size: 13.5px; font-weight: 600; text-align: center;">
                             Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter"
                                 style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
-                        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
-                            <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.35);" onclick="downloadPptxFile()">⬇ Unduh (.pptx)</button>
-                            <button type="button" onclick="closeFullscreenSlideshow()" style="padding: 7px 14px; font-size: 12px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
+                        <div
+                            style="display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                            <button type="button" class="btn-primary"
+                                style="padding: 7px 14px; font-size: 12px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.35);"
+                                onclick="downloadPptxFile()">⬇ Unduh (.pptx)</button>
+                            <button type="button" onclick="closeFullscreenSlideshow()"
+                                style="padding: 7px 14px; font-size: 12px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(220,38,38,0.4);">
                                 ✕ Tutup Preview
                             </button>
                         </div>
                     </div>
 
-                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: auto; padding: 32px 36px; box-sizing: border-box; overflow: hidden;">
+                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic"
+                        style="width: 100%; max-width: 960px; min-height: auto; padding: 32px 36px; box-sizing: border-box; overflow: hidden;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 60px);">
-                                    <span id="fs-slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06); white-space: nowrap;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 60px);">
+                                    <span id="fs-slide-campus-badge" class="ppt-campus-pill"
+                                        style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06); white-space: nowrap;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                            stroke-width="2.2">
+                                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                            <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
+                                        </svg>
                                         <span id="fs-slide-campus-name">UNIVERSITAS</span>
                                     </span>
-                                    <span id="fs-slide-section" class="ppt-badge" style="white-space: nowrap;">BAGIAN SLIDE</span>
+                                    <span id="fs-slide-section" class="ppt-badge" style="white-space: nowrap;">BAGIAN
+                                        SLIDE</span>
                                 </div>
-                                <span id="fs-slide-num-tag" style="font-size: 12px; font-weight: 700; opacity: 0.75; white-space: nowrap;">1 / 9</span>
+                                <span id="fs-slide-num-tag"
+                                    style="font-size: 12px; font-weight: 700; opacity: 0.75; white-space: nowrap;">1 /
+                                    9</span>
                             </div>
-                            <h2 id="fs-slide-title" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; word-break: break-word;">-</h2>
-                            <div id="fs-slide-subtitle" style="font-size: 14px; opacity: 0.85; margin-bottom: 18px; font-weight: 500; word-break: break-word;">-</div>
-                            <ul id="fs-slide-bullets" style="padding-left: 20px; font-size: 14.5px; line-height: 1.65; display: flex; flex-direction: column; gap: 8px;"></ul>
+                            <h2 id="fs-slide-title"
+                                style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; word-break: break-word;">
+                                -</h2>
+                            <div id="fs-slide-subtitle"
+                                style="font-size: 14px; opacity: 0.85; margin-bottom: 18px; font-weight: 500; word-break: break-word;">
+                                -</div>
+                            <ul id="fs-slide-bullets"
+                                style="padding-left: 20px; font-size: 14.5px; line-height: 1.65; display: flex; flex-direction: column; gap: 8px;">
+                            </ul>
                         </div>
                     </div>
 
-                    <div style="width: 100%; max-width: 960px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 8px 14px; border-radius: 10px; color: #f8fafc; gap: 8px;">
-                        <button type="button" class="ppt-nav-btn" style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;" onclick="prevSlide(); renderFullscreenSlide();">← Sebelumnya</button>
-                        <div id="fs-speaker-notes" style="font-size: 11.5px; color: #cbd5e1; text-align: center; line-height: 1.35; flex: 2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"></div>
-                        <button type="button" class="ppt-nav-btn" style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;" onclick="nextSlide(); renderFullscreenSlide();">Selanjutnya →</button>
+                    <div
+                        style="width: 100%; max-width: 960px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 8px 14px; border-radius: 10px; color: #f8fafc; gap: 8px;">
+                        <button type="button" class="ppt-nav-btn"
+                            style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;"
+                            onclick="prevSlide(); renderFullscreenSlide();">← Sebelumnya</button>
+                        <div id="fs-speaker-notes"
+                            style="font-size: 11.5px; color: #cbd5e1; text-align: center; line-height: 1.35; flex: 2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        </div>
+                        <button type="button" class="ppt-nav-btn"
+                            style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;"
+                            onclick="nextSlide(); renderFullscreenSlide();">Selanjutnya →</button>
                     </div>
                 </div>
             </section>
@@ -5907,10 +5957,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-row-action">
-                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:8px 16px; font-size:12.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
-                            <span>Unduh PDF</span>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <div class="project-row-action" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <a href="${directUrl}" target="_blank" rel="noopener" class="btn-outline" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Unduh Jurnal</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Unduh PDF Otomatis</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         </a>
                     </div>
                 `;
