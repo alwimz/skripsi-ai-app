@@ -52,6 +52,31 @@ class AuthController extends Controller
         return redirect()->route('app.create');
     }
 
+    public function quickGoogleLogin(Request $request) {
+        $email = trim($request->input('email', ''));
+        $name = trim($request->input('name', ''));
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->route('login')->withErrors(['email' => 'Silakan masukkan alamat email Google / Gmail yang valid.']);
+        }
+
+        if (empty($name)) {
+            $name = explode('@', $email)[0];
+            $name = ucwords(str_replace(['.', '_', '-'], ' ', $name));
+        }
+
+        $user = User::firstOrCreate(
+            ['email' => strtolower($email)],
+            [
+                'name' => $name,
+                'password' => Hash::make(Str::random(24)),
+            ]
+        );
+
+        Auth::login($user, true);
+        return redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Akun Google berhasil.");
+    }
+
     public function redirectToGoogle() {
         $clientId = env('GOOGLE_CLIENT_ID');
         if (empty($clientId)) {

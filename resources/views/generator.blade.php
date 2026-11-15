@@ -1155,7 +1155,7 @@
                     style="margin-bottom: 6px; background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); border: 1px solid #bfdbfe;">
                 <span class="nav-item-left">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    <span class="nav-item-text" style="color: #1e40af; font-weight: 700;">Scroll Semua Bab (Full)</span>
+                    <span class="nav-item-text" style="color: #1e40af; font-weight: 700;">Lihat Semua Bab (Full)</span>
                 </span>
                 <span style="font-size: 10px; font-weight: 700; color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 999px;">A4 Full</span>
             </button>
@@ -1280,10 +1280,7 @@
             <div class="topbar-left">
                 <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar" title="Buka/Tutup Sidebar">☰</button>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-                    </div>
-                    <span class="topbar-brand-label" style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em;">Workspace Penulisan</span>
+                    <span class="topbar-brand-label" style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace Penulisan</span>
                 </div>
             </div>
 
@@ -1309,11 +1306,11 @@
                 <div class="chapter-bar-actions" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                     <button type="button" class="btn-top" onclick="selectChapterView('all')" title="Lihat naskah lengkap bersambung dari sampul sampai daftar pustaka">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                        <span>Scroll Semua Bab</span>
+                        <span>Lihat Semua Bab</span>
                     </button>
-                    <button type="button" class="btn-top" onclick="openDataRiilModal()" style="border-color: #cbd5e1;" title="Isi parameter penelitian nyata untuk Bab 3 & 4">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        <span>Data Riil (Opsional)</span>
+                    <button type="button" class="btn-top" id="btn-menu-olah-data" onclick="openDataRiilModal()" style="border-color: #cbd5e1;" title="Isi data olahan & rumus penelitian (SPSS / PLS / ML / Eksperimen) untuk Bab 3 & 4">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                        <span>Olah Data Penelitian</span>
                     </button>
                     <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
@@ -1342,48 +1339,69 @@
     <input type="hidden" name="margin_right" value="3">
 </form>
 
-<!-- Modal Data Penelitian Riil (Opsional) -->
+<!-- Modal Menu Olah Data & Hasil Penelitian -->
 <div id="modal-data-riil" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
-    <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+    <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
             <div>
-                <h3 style="font-size: 16.5px; font-weight: 700; color: #0f172a; margin: 0 0 4px;">Parameter Data Penelitian Riil (Opsional)</h3>
-                <p style="font-size: 12.5px; color: #64748b; margin: 0;">Isi parameter ini agar Bab III (Metodologi) &amp; Bab IV (Hasil) disusun berbasis fakta nyata penelitianmu, bukan karangan AI.</p>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    </div>
+                    <h3 style="font-size: 16.5px; font-weight: 700; color: #0f172a; margin: 0;">Menu Olah Data &amp; Hasil Penelitian</h3>
+                </div>
+                <p style="font-size: 12.5px; color: #64748b; margin: 6px 0 0;">Masukkan output pengolahan data riil (seperti SPSS, SmartPLS, Confusion Matrix Machine Learning, atau Eksperimen) beserta rumus yang wajib dijabarkan langkah demi langkah di Bab III &amp; Bab IV.</p>
             </div>
             <button type="button" onclick="closeDataRiilModal()" style="border: none; background: none; font-size: 22px; color: #94a3b8; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Metode / Algoritma Spesifik</label>
-                <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Kuantitatif Asosiatif / Regresi Linier / Algoritma Komputasi / Eksperimen / Studi Kasus">
-            </div>
-
-            <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Populasi / Sampel / Dataset Riil</label>
-                <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: 150 Responden Mahasiswa / 1.000 Sampel Data / 5 Tahun Laporan Keuangan">
-            </div>
-
-            <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Lokasi / Sumber Data Penelitian</label>
-                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Instansi / Perusahaan / Sekolah / Rumah Sakit / Database Publik">
-            </div>
-
-            <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Nilai Metrik / Hasil Temuan Kunci (Untuk Bab IV)</label>
-                <textarea id="riil-metrik" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="Contoh: R-Square = 0.72, Nilai Sig. = 0.002 < 0.05, Akurasi = 88.5%, atau Peningkatan Skor N-Gain = 0.71"></textarea>
-            </div>
-
-            <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Teknik Pengujian / Evaluasi</label>
-                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Uji Asumsi Klasik &amp; Uji Hipotesis / Confusion Matrix / Uji Validitas &amp; Reliabilitas / Triangulasi">
+        <!-- Preset Template Cepat -->
+        <div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Template Olah Data Siap Pakai</div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('spss')">📊 SPSS (Regresi &amp; Asumsi Klasik)</button>
+                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('pls')">📈 SmartPLS (SEM-PLS)</button>
+                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('ml')">🤖 Machine Learning (Akurasi/Confusion Matrix)</button>
+                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('eksperimen')">🧪 Eksperimen (N-Gain / T-Test)</button>
             </div>
         </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Software / Metode Olah Data</label>
+                    <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: IBM SPSS Statistics 26 (Regresi Linier Berganda)">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Populasi / Sampel / Dataset Riil</label>
+                    <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: 120 Responden Mahasiswa / 1.500 Data Transaksi">
+                </div>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Rumus Matematika / Statistik yang Wajib Dijabarkan Langkah demi Langkah</label>
+                <input type="text" id="riil-rumus" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, atau Akurasi = (TP+TN)/Total">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Lokasi / Objek / Sumber Data Penelitian</label>
+                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Universitas / PT X / Rumah Sakit / Database Publik Kaggle">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Nilai Metrik / Angka Riil Hasil Pengujian (Untuk Tabel &amp; Narasi Bab IV)</label>
+                <textarea id="riil-metrik" rows="4" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="cth: Output SPSS: R-Square = 0.684, F-hitung = 45.21 (Sig 0.000 < 0.05). Koefisien: X1 t-hitung = 3.42 (Sig 0.001), X2 t-hitung = 4.15 (Sig 0.000). Semua lolos uji normalitas & multikolinearitas."></textarea>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Teknik Pengujian &amp; Kriteria Uji Hipotesis</label>
+                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Uji Asumsi Klasik (Kolmogorov-Smirnov, VIF, Glejser), Uji t parsial, Uji F simultan, Koefisien Determinasi"></textarea>
+            </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
             <button type="button" onclick="closeDataRiilModal()" style="padding: 8px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer;">Batal</button>
-            <button type="button" onclick="saveDataRiil()" style="padding: 8px 18px; border: none; background: #2563eb; color: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Parameter</button>
+            <button type="button" onclick="saveDataRiil()" style="padding: 8px 18px; border: none; background: #2563eb; color: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Data Olahan</button>
         </div>
     </div>
 </div>
@@ -1534,6 +1552,24 @@ function selectChapterView(viewKey) {
 
     if (window.innerWidth <= 900) {
         document.getElementById('studio-shell').classList.remove('mobile-sidebar-open');
+    }
+
+    // Sorot tombol Menu Olah Data pada Bab 3, Bab 4, dan Lihat Semua Bab
+    const olahBtn = document.getElementById('btn-menu-olah-data');
+    if (olahBtn) {
+        if (viewKey === 'bab4' || viewKey === 'bab3' || viewKey === 'all') {
+            olahBtn.style.background = '#eff6ff';
+            olahBtn.style.color = '#1d4ed8';
+            olahBtn.style.borderColor = '#93c5fd';
+            olahBtn.style.fontWeight = '700';
+            olahBtn.title = 'Prioritas Bab 3 & 4: Klik untuk mengisi atau melihat olah data & rumus penelitian';
+        } else {
+            olahBtn.style.background = '';
+            olahBtn.style.color = '';
+            olahBtn.style.borderColor = '#cbd5e1';
+            olahBtn.style.fontWeight = '';
+            olahBtn.title = 'Isi data olahan & rumus penelitian (SPSS / PLS / ML / Eksperimen) untuk Bab 3 & 4';
+        }
     }
 
     // Auto-scroll ke paling atas halaman saat navigasi bab diklik
@@ -2225,11 +2261,44 @@ try {
     if (cached) researchDataRiil = Object.assign({}, researchDataRiil, JSON.parse(cached));
 } catch(e) {}
 
+function applyOlahDataPreset(type) {
+    if (type === 'spss') {
+        document.getElementById('riil-metode').value = 'IBM SPSS Statistics 26 (Analisis Regresi Linier Berganda)';
+        document.getElementById('riil-sampel').value = '120 Responden Mahasiswa (Kuesioner Skala Likert 1-5)';
+        document.getElementById('riil-rumus').value = 'Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, Uji F';
+        document.getElementById('riil-lokasi').value = 'Universitas / Lingkup Objek Penelitian Mahasiswa';
+        document.getElementById('riil-metrik').value = 'R-Square = 0.684 (68.4%), F-hitung = 45.21 (Sig 0.000 < 0.05). Koefisien B: X1 = 0.382 (t-hitung 3.42, Sig 0.001); X2 = 0.451 (t-hitung 4.15, Sig 0.000). Uji Normalitas K-S Asymp. Sig = 0.200 > 0.05, Multikolinearitas Tolerance > 0.10 & VIF < 10.';
+        document.getElementById('riil-evaluasi').value = 'Uji Validitas Item (r-hitung > r-tabel), Uji Reliabilitas Cronbach Alpha > 0.70, Uji Asumsi Klasik, Uji t parsial, Uji F simultan, Koefisien Determinasi R2';
+    } else if (type === 'pls') {
+        document.getElementById('riil-metode').value = 'SmartPLS 4 (Structural Equation Modeling - Partial Least Squares)';
+        document.getElementById('riil-sampel').value = '150 Responden Karyawan / Konsumen';
+        document.getElementById('riil-rumus').value = 'Outer Model (Loading Factor > 0.70, AVE > 0.50, Composite Reliability > 0.70), Inner Model (R2, f2, Q2, Path Coefficients t-statistic > 1.96)';
+        document.getElementById('riil-lokasi').value = 'Objek Perusahaan / Organisasi';
+        document.getElementById('riil-metrik').value = 'AVE semua konstruk > 0.55, Cronbach Alpha > 0.80, Composite Reliability > 0.85. Path Coefficient: X1 -> Y = 0.345 (p-value 0.002), X2 -> Y = 0.420 (p-value 0.000). R2 = 0.612.';
+        document.getElementById('riil-evaluasi').value = 'Evaluasi Measurement Model (Convergent & Discriminant Validity HTMT) dan Structural Model (Bootstrapping 5000 subsamples)';
+    } else if (type === 'ml') {
+        document.getElementById('riil-metode').value = 'Python Scikit-Learn (Algoritma Naive Bayes / SVM / Random Forest)';
+        document.getElementById('riil-sampel').value = '1.500 Data Teks Ulasan / Komentar Media Sosial (Rasio Split 80:20)';
+        document.getElementById('riil-rumus').value = 'Teorema Bayes: P(C|X) = P(X|C)P(C)/P(X); Akurasi = (TP+TN)/(TP+TN+FP+FN); Presisi = TP/(TP+FP); Recall = TP/(TP+FN); F1-Score = 2*(Presisi*Recall)/(Presisi+Recall)';
+        document.getElementById('riil-lokasi').value = 'Platform Twitter (X) / TikTok / Google Play Review';
+        document.getElementById('riil-metrik').value = 'Akurasi Keseluruhan = 88.50%, Macro Average Precision = 87.20%, Recall = 88.10%, F1-Score = 87.65%. Confusion Matrix: TP = 120, TN = 135, FP = 18, FN = 17.';
+        document.getElementById('riil-evaluasi').value = 'K-Fold Cross Validation (10-Fold), Confusion Matrix (Akurasi, Precision, Recall, F1-Score)';
+    } else if (type === 'eksperimen') {
+        document.getElementById('riil-metode').value = 'Quasi-Experimental Design (Nonequivalent Pretest-Posttest Control Group)';
+        document.getElementById('riil-sampel').value = '64 Siswa (Kelas Eksperimen n=32, Kelas Kontrol n=32)';
+        document.getElementById('riil-rumus').value = 'Skor N-Gain = (Skor Posttest - Skor Pretest) / (Skor Maksimal - Skor Pretest), Independent Samples t-test';
+        document.getElementById('riil-lokasi').value = 'Sekolah / Lembaga Pendidikan';
+        document.getElementById('riil-metrik').value = 'Kelas Eksperimen: Rata-rata Pretest 54.20 -> Posttest 85.50 (N-Gain 0.683 kategori Sedang-Tinggi / Efektif). Kelas Kontrol: Pretest 53.80 -> Posttest 68.20 (N-Gain 0.311). Nilai t-hitung = 5.241 (Sig 0.000 < 0.05).';
+        document.getElementById('riil-evaluasi').value = 'Uji Normalitas Shapiro-Wilk, Uji Homogenitas Levene, Independent Sample t-test, Kategori Tafsiran N-Gain Hake';
+    }
+}
+
 function openDataRiilModal() {
     const m = document.getElementById('modal-data-riil');
     if (!m) return;
     document.getElementById('riil-metode').value = researchDataRiil.metode || '';
     document.getElementById('riil-sampel').value = researchDataRiil.sampel || '';
+    document.getElementById('riil-rumus').value = researchDataRiil.rumus || '';
     document.getElementById('riil-lokasi').value = researchDataRiil.lokasi || '';
     document.getElementById('riil-metrik').value = researchDataRiil.metrik || '';
     document.getElementById('riil-evaluasi').value = researchDataRiil.evaluasi || '';
@@ -2245,6 +2314,7 @@ function saveDataRiil() {
     researchDataRiil = {
         metode: (document.getElementById('riil-metode').value || '').trim(),
         sampel: (document.getElementById('riil-sampel').value || '').trim(),
+        rumus: (document.getElementById('riil-rumus')?.value || '').trim(),
         lokasi: (document.getElementById('riil-lokasi').value || '').trim(),
         metrik: (document.getElementById('riil-metrik').value || '').trim(),
         evaluasi: (document.getElementById('riil-evaluasi').value || '').trim()
@@ -2253,7 +2323,7 @@ function saveDataRiil() {
         localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil));
     } catch(e) {}
     closeDataRiilModal();
-    showToast('Parameter data riil penelitian berhasil disimpan!', 'success');
+    showToast('Data olahan & rumus penelitian berhasil disimpan! Siap diterapkan ke Bab 3 & 4.', 'success');
 }
 
 function renderAllSheets() {

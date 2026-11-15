@@ -1550,6 +1550,22 @@
                 gap: 8px;
             }
         }
+        .qa-prompt-chip {
+            padding: 5px 10px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 11.5px;
+            color: #1e40af;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .qa-prompt-chip:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
     </style>
 </head>
 <body>
@@ -1864,7 +1880,24 @@
                         </button>
                     </div>
 
-                    <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerHTML = '<span class=\'ai-spinner\'></span> Membuka Workspace Skripsi...';">
+                    <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="
+                        const pedomanFile = this.querySelector('input[name=pedoman_file]');
+                        const refFiles = this.querySelector('input[name=\'referensi_files[]\']');
+                        let totalBytes = 0;
+                        if (pedomanFile && pedomanFile.files && pedomanFile.files[0]) totalBytes += pedomanFile.files[0].size;
+                        if (refFiles && refFiles.files) {
+                            for (let i = 0; i < refFiles.files.length; i++) totalBytes += refFiles.files[i].size;
+                        }
+                        if (totalBytes > 3.5 * 1024 * 1024) {
+                            alert('Total ukuran file pedoman/referensi melebihi batas 3.5 MB serverless Vercel. Silakan unggah berkas yang lebih ringkas atau gunakan catatan teks pedoman.');
+                            return false;
+                        }
+                        const btn = this.querySelector('button[type=submit]');
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class=\'ai-spinner\'></span> Membuka Workspace Skripsi...';
+                        }
+                    ">
                         @csrf
                         <input type="hidden" name="jenis_penelitian" value="Skripsi (S1)">
                         <input type="hidden" name="logo_base64" id="input-logo-base64" value="{{ $defaultIdentity['logo_base64'] ?? '' }}">
@@ -1873,19 +1906,19 @@
                         <div class="card" style="margin-bottom: 16px;">
                             <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Pilih Target Penulisan <span class="req">*</span></div>
                             <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <label style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff;">
+                                <label id="label-target-proposal" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" style="accent-color: var(--primary);">
-                                        <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">Proposal Skripsi (Bab 1–3)</span>
+                                        <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" checked style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
+                                        <span id="title-target-proposal" style="font-size: 14px; font-weight: 700; color: var(--primary);">Proposal Skripsi (Bab 1–3)</span>
                                     </div>
-                                    <span style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Seminar Proposal</span>
+                                    <span id="badge-target-proposal" style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Seminar Proposal</span>
                                 </label>
-                                <label style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff;">
+                                <label id="label-target-full" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" checked style="accent-color: var(--primary);">
-                                        <span style="font-size: 14px; font-weight: 700; color: var(--primary);">Full Skripsi Lengkap (Bab 1–5)</span>
+                                        <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
+                                        <span id="title-target-full" style="font-size: 14px; font-weight: 700; color: var(--text-main);">Full Skripsi Lengkap (Bab 1–5)</span>
                                     </div>
-                                    <span style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Sidang Akhir</span>
+                                    <span id="badge-target-full" style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Sidang Akhir</span>
                                 </label>
                             </div>
                         </div>
@@ -1903,7 +1936,7 @@
                                         <img id="new-proj-logo-preview" src="{{ $defaultIdentity['logo_base64'] ?? '' }}" alt="" style="display:{{ !empty($defaultIdentity['logo_base64']) ? 'block' : 'none' }}; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
                                         <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
                                         <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
-                                        <input type="file" id="new-proj-logo-file" name="logo_kampus" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleNewProjectLogoSelect(this)">
+                                        <input type="file" id="new-proj-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleNewProjectLogoSelect(this)">
                                     </label>
                                 </div>
                             </div>
@@ -2164,7 +2197,14 @@
                             <div>Pilih dari Proyek Saya <span class="count-badge">{{ $history->count() }}</span></div>
                         </div>
                         @forelse($history as $proj)
-                            <div class="project-row" onclick="chooseProjectForPpt({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
+                            <div class="project-row" 
+                                 data-id="{{ $proj->id }}"
+                                 data-title="{{ e($proj->judul) }}"
+                                 data-prodi="{{ e($proj->prodi ?? '') }}"
+                                 data-kampus="{{ e($proj->kampus ?? '') }}"
+                                 data-nim="{{ e($proj->nim ?? '') }}"
+                                 data-fakultas="{{ e($proj->fakultas ?? '') }}"
+                                 onclick="chooseProjectElementForPpt(this)">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
@@ -2474,6 +2514,46 @@
                 <div id="def-view-step-1">
                     <div id="defense-loading-box" style="display: none; margin-bottom: 18px;"></div>
 
+                    <!-- Pengaturan Parameter Simulasi Sidang -->
+                    <div class="card" style="margin-bottom: 18px; background: #f8fafc; border: 1px solid var(--border);">
+                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Pengaturan Karakter Penguji &amp; Parameter Sidang</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Atur tingkat kesulitan dosen penguji dan jumlah pertanyaan sebelum memulai ujian.</div>
+
+                        <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                            <div>
+                                <label class="form-label">Karakter Dosen Penguji</label>
+                                <select id="def-mode-dosen" class="form-select">
+                                    <option value="kritis" selected>Kritis &amp; Metodologis (Standar)</option>
+                                    <option value="santai">Santai &amp; Bimbingan (Ramah)</option>
+                                    <option value="tegas">Tegas &amp; Formal (Lugas)</option>
+                                    <option value="galak">Galak / Killer (Uji Mental)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Jumlah Pertanyaan</label>
+                                <select id="def-jumlah-soal" class="form-select">
+                                    <option value="4">4 Pertanyaan (Cepat)</option>
+                                    <option value="5" selected>5 Pertanyaan (Standar)</option>
+                                    <option value="6">6 Pertanyaan (Mendalam)</option>
+                                    <option value="8">8 Pertanyaan (Komprehensif)</option>
+                                    <option value="10">10 Pertanyaan (Sangat Lengkap)</option>
+                                    <option value="12">12 Pertanyaan (Simulasi Penuh)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Standar Kelulusan (Passing Grade)</label>
+                                <select id="def-min-score" class="form-select">
+                                    <option value="6.0">Skor Minimal 6.0 / 10</option>
+                                    <option value="6.5">Skor Minimal 6.5 / 10</option>
+                                    <option value="7.0" selected>Skor Minimal 7.0 / 10 (Standar B)</option>
+                                    <option value="7.5">Skor Minimal 7.5 / 10 (Standar B+)</option>
+                                    <option value="8.0">Skor Minimal 8.0 / 10 (Standar A)</option>
+                                    <option value="8.5">Skor Minimal 8.5 / 10 (Cum Laude)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card-flush" style="margin-bottom: 18px;">
                         <div class="card-header-bar">
                             <div>Pilih skripsi untuk diujikan <span class="count-badge">{{ $history->count() }}</span></div>
@@ -2551,9 +2631,18 @@
                                 <button type="button" class="btn-outline" id="eval-tab-details" onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" onclick="restartCurrentDefense()">🔄 Ulangi Simulasi Ini</button>
-                                <button type="button" class="btn-outline" onclick="setDefenseStep(1)">📂 Pilih Skripsi Lain</button>
-                                <button type="button" class="btn-primary" onclick="openTab('dashboard', 'Dashboard')">✓ Selesai</button>
+                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="restartCurrentDefense()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                    <span>Ulangi Simulasi Ini</span>
+                                </button>
+                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="setDefenseStep(1)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                    <span>Pilih Skripsi Lain</span>
+                                </button>
+                                <button type="button" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px;" onclick="openTab('dashboard', 'Dashboard')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <span>Selesai</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2570,10 +2659,19 @@
                         </div>
 
                         <div class="card-footer-bar" style="margin-top: 20px;">
-                            <button type="button" class="btn-outline" onclick="restartCurrentDefense()">🔄 Ulangi Latihan Tanya-Jawab</button>
+                            <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="restartCurrentDefense()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                <span>Ulangi Latihan Tanya-Jawab</span>
+                            </button>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" onclick="setDefenseStep(1)">Pilih Skripsi Lain</button>
-                                <button type="button" class="btn-primary" onclick="openTab('dashboard', 'Dashboard')">✓ Selesai &amp; Kembali ke Dashboard</button>
+                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="setDefenseStep(1)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                    <span>Pilih Skripsi Lain</span>
+                                </button>
+                                <button type="button" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px;" onclick="openTab('dashboard', 'Dashboard')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <span>Selesai &amp; Kembali ke Dashboard</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2615,10 +2713,7 @@
                 <div id="journals-result-box" style="display: none; margin-top: 20px;" class="card-flush">
                     <div class="card-header-bar">
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <span>Hasil Pencarian Jurnal</span>
-                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px; background: var(--primary-soft); color: var(--primary); border-color: #bfdbfe;" onclick="filterJournalResults('all', this)">Semua</button>
-                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="filterJournalResults('Indonesia', this)">🇮🇩 Indonesia</button>
-                            <button type="button" class="btn-outline journal-filter-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="filterJournalResults('Internasional', this)">🌐 Internasional</button>
+                            <span style="font-weight: 700; color: var(--text-main);">Daftar Artikel Jurnal Relevan</span>
                         </div>
                         <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
                     </div>
@@ -2668,33 +2763,64 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 8. TAB DISKUSI & TUGAS KULIAH -->
+            <!-- 8. TAB DISKUSI & TUGAS KULIAH (INTERACTIVE CHAT AI) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-qa">
-                <div class="page-eyebrow">Asisten Materi</div>
+                <div class="page-eyebrow">Asisten Akademik Interaktif</div>
                 <h1 class="page-title">Diskusi Skripsi &amp; Tugas Kuliah</h1>
-                <p class="page-subtitle">Tanyakan konsep teori, pengolahan data statistik, atau unggah foto soal untuk dibahas secara bertahap.</p>
+                <p class="page-subtitle">Konsultasikan teori, kendala statistik (SPSS/PLS/ML), rumus pengujian, atau unggah foto tabel naskah untuk dibahas interaktif langkah demi langkah.</p>
 
-                <div class="card">
-                    <div class="form-group">
-                        <label class="form-label">Pertanyaan atau Instruksi <span class="req">*</span></label>
-                        <textarea id="qa-question" class="form-textarea" placeholder="Tulis pertanyaanmu di sini..."></textarea>
+                <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 540px; max-height: 75vh; border: 1px solid var(--border);">
+                    <!-- Header Chat Status -->
+                    <div style="padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);"></div>
+                            <span style="font-size: 13px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing AI (Aktif Multi-Turn)</span>
+                        </div>
+                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;" onclick="resetQaChat()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Mulai Obrolan Baru</span>
+                        </button>
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Lampiran Gambar Soal / Tabel <span class="opt">(opsional)</span></label>
-                        <input type="file" id="qa-image" class="form-input" accept="image/*" style="padding: 8px 12px; font-size: 13px;">
-                    </div>
-                    <div class="card-footer-bar">
-                        <span class="footer-meta">PENJELASAN SISTEMATIS</span>
-                        <button type="button" id="btn-solve-qa" class="btn-primary" onclick="handleSolveQa()">Kirim Pertanyaan →</button>
-                    </div>
-                </div>
 
-                <div id="qa-loading-box" style="display: none;"></div>
+                    <!-- Scrollable Messages Container -->
+                    <div id="qa-chat-messages" style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
+                        <!-- Initial Assistant Greeting -->
+                        <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 14px; font-weight: 700;">AI</div>
+                            <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+                                Halo! Saya adalah Asisten Dosen Pembimbing SkripsiAI. Ada materi teori, rumus uji statistik (SPSS / SEM-PLS / Confusion Matrix), atau tugas kuliah yang ingin Anda diskusikan? Anda juga bisa melampirkan gambar grafik, tabel, atau foto soal di bawah.
+                            </div>
+                        </div>
+                    </div>
 
-                <div id="qa-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div class="form-label">Jawaban &amp; Pembahasan</div>
-                    <div id="qa-output" style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;"></div>
+                    <!-- Suggestion Chips -->
+                    <div style="padding: 8px 18px; background: #ffffff; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
+                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana cara membaca output regresi linier berganda dan uji t pada SPSS?')">📊 Interpretasi Regresi SPSS</button>
+                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Jelaskan cara menghitung Confusion Matrix (Akurasi, Presisi, Recall, F1-Score) beserta rumusnya!')">🤖 Rumus Confusion Matrix</button>
+                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Apa perbedaan Grand Theory, Middle Theory, dan Applied Theory beserta contohnya untuk skripsi?')">📚 Grand vs Applied Theory</button>
+                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana kriteria uji validitas Corrected Item-Total Correlation dan reliabilitas Cronbach Alpha?')">🔍 Uji Validitas &amp; Reliabilitas</button>
+                    </div>
+
+                    <!-- Attached Image Preview Bar -->
+                    <div id="qa-image-preview-bar" style="display: none; padding: 8px 18px; background: #f8fafc; border-top: 1px solid var(--border); align-items: center; gap: 10px;">
+                        <img id="qa-image-preview-img" src="" alt="preview" style="height: 38px; width: 38px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);">
+                        <span id="qa-image-name" style="font-size: 12px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
+                        <button type="button" onclick="removeQaImage()" style="border: none; background: none; font-size: 16px; color: #ef4444; cursor: pointer;">&times;</button>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div style="padding: 12px 18px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end;">
+                        <label title="Lampirkan foto/gambar soal atau tabel" style="margin-bottom: 2px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #ffffff; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                            <input type="file" id="qa-image" accept="image/*" style="display: none;" onchange="handleQaImageSelect(this)">
+                        </label>
+                        <textarea id="qa-question" class="form-textarea" rows="1" style="min-height: 40px; max-height: 120px; padding: 9px 12px; font-size: 13.5px; resize: none; flex: 1; border-radius: 10px;" placeholder="Tulis pertanyaanmu di sini... (Shift+Enter untuk baris baru)" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSolveQa(); }"></textarea>
+                        <button type="button" id="btn-solve-qa" class="btn-primary" style="padding: 10px 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;" onclick="handleSolveQa()">
+                            <span>Kirim</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -2924,11 +3050,11 @@
                             <div>
                                 <label class="form-label">Kategori Pesan <span class="req">*</span></label>
                                 <select id="fb-kategori" class="form-select" required>
-                                    <option value="Saran Fitur Baru">💡 Saran Fitur Baru</option>
-                                    <option value="Laporan Kendala / Bug">⚠️ Laporan Kendala / Bug</option>
-                                    <option value="Permintaan Format Kampus Khusus">🎓 Permintaan Format Kampus Khusus</option>
-                                    <option value="Pertanyaan Bimbingan Skripsi">❓ Pertanyaan Bimbingan Skripsi</option>
-                                    <option value="Lainnya">💬 Lainnya</option>
+                                    <option value="Saran Fitur Baru">Saran Fitur Baru</option>
+                                    <option value="Laporan Kendala / Bug">Laporan Kendala / Bug</option>
+                                    <option value="Permintaan Format Kampus Khusus">Permintaan Format Kampus Khusus</option>
+                                    <option value="Pertanyaan Bimbingan Skripsi">Pertanyaan Bimbingan Skripsi</option>
+                                    <option value="Lainnya">Lainnya</option>
                                 </select>
                             </div>
                             <div>
@@ -2960,7 +3086,7 @@
 
                         <button type="submit" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 20px; border: none; border-radius: 10px; background: #16a34a; color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(22,163,74,0.3); transition: all 0.2s;" onmouseover="this.style.background='#15803d';" onmouseout="this.style.background='#16a34a';">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                            <span>Kirim ke WhatsApp Pengembang (082195036971)</span>
+                            <span>Kirim ke WhatsApp Pengembang</span>
                         </button>
                     </form>
                 </div>
@@ -3307,9 +3433,12 @@
 
         function chooseProjectForPpt(id, title) {
             selectedPptProject = { id, title };
-            document.getElementById('ppt-selected-initial').innerText = title.charAt(0).toUpperCase();
-            document.getElementById('ppt-selected-source').innerText = 'SKRIPSI';
-            document.getElementById('ppt-selected-title').innerText = title;
+            const initEl = document.getElementById('ppt-selected-initial');
+            if (initEl) initEl.innerText = title.charAt(0).toUpperCase();
+            const srcEl = document.getElementById('ppt-selected-source');
+            if (srcEl) srcEl.innerText = 'SKRIPSI';
+            const titleEl = document.getElementById('ppt-selected-title');
+            if (titleEl) titleEl.innerText = title;
             setPptStep(2);
         }
 
@@ -3317,9 +3446,12 @@
             if (input.files && input.files[0]) {
                 const fname = input.files[0].name;
                 selectedPptProject = { id: null, title: fname.replace(/\.[^/.]+$/, '') };
-                document.getElementById('ppt-selected-initial').innerText = 'F';
-                document.getElementById('ppt-selected-source').innerText = 'DOKUMEN UNGGAHAN';
-                document.getElementById('ppt-selected-title').innerText = fname;
+                const initEl = document.getElementById('ppt-selected-initial');
+                if (initEl) initEl.innerText = 'F';
+                const srcEl = document.getElementById('ppt-selected-source');
+                if (srcEl) srcEl.innerText = 'DOKUMEN UNGGAHAN';
+                const titleEl = document.getElementById('ppt-selected-title');
+                if (titleEl) titleEl.innerText = fname;
                 setPptStep(2);
             }
         }
@@ -3810,12 +3942,64 @@
             setDefenseStep(2);
         }
 
+        function updateTargetStyle(radio) {
+            const isProp = radio.value.includes('Proposal');
+            const labelProp = document.getElementById('label-target-proposal');
+            const labelFull = document.getElementById('label-target-full');
+            const titleProp = document.getElementById('title-target-proposal');
+            const titleFull = document.getElementById('title-target-full');
+            const badgeProp = document.getElementById('badge-target-proposal');
+            const badgeFull = document.getElementById('badge-target-full');
+            if (!labelProp || !labelFull) return;
+
+            if (isProp) {
+                labelProp.style.borderColor = 'var(--primary)';
+                labelProp.style.background = '#f8fbff';
+                if (titleProp) titleProp.style.color = 'var(--primary)';
+                if (badgeProp) {
+                    badgeProp.style.background = '#dbeafe';
+                    badgeProp.style.color = '#1d4ed8';
+                }
+
+                labelFull.style.borderColor = 'var(--border)';
+                labelFull.style.background = '#fff';
+                if (titleFull) titleFull.style.color = 'var(--text-main)';
+                if (badgeFull) {
+                    badgeFull.style.background = '#f1f5f9';
+                    badgeFull.style.color = '#475569';
+                }
+            } else {
+                labelFull.style.borderColor = 'var(--primary)';
+                labelFull.style.background = '#f8fbff';
+                if (titleFull) titleFull.style.color = 'var(--primary)';
+                if (badgeFull) {
+                    badgeFull.style.background = '#dbeafe';
+                    badgeFull.style.color = '#1d4ed8';
+                }
+
+                labelProp.style.borderColor = 'var(--border)';
+                labelProp.style.background = '#fff';
+                if (titleProp) titleProp.style.color = 'var(--text-main)';
+                if (badgeProp) {
+                    badgeProp.style.background = '#f1f5f9';
+                    badgeProp.style.color = '#475569';
+                }
+            }
+        }
+
         async function startDefenseWithProject(projectId, title) {
             defenseTitle = title;
+            const modeDosen = document.getElementById('def-mode-dosen')?.value || 'kritis';
+            const jumlahSoal = document.getElementById('def-jumlah-soal')?.value || '5';
+            const minScore = document.getElementById('def-min-score')?.value || '7.0';
+
             const formData = new FormData();
             formData.append('mode', 'generate_questions');
             formData.append('project_id', projectId);
             formData.append('judul', title);
+            formData.append('mode_dosen', modeDosen);
+            formData.append('jumlah_soal', jumlahSoal);
+            formData.append('min_score', minScore);
             formData.append('model', getSelectedModel());
             await requestDefenseQuestions(formData, title);
         }
@@ -3830,9 +4014,16 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="ai-spinner"></span><span>Membuat Pertanyaan...</span>';
 
+            const modeDosen = document.getElementById('def-mode-dosen')?.value || 'kritis';
+            const jumlahSoal = document.getElementById('def-jumlah-soal')?.value || '5';
+            const minScore = document.getElementById('def-min-score')?.value || '7.0';
+
             const formData = new FormData();
             formData.append('mode', 'generate_questions');
             formData.append('file_skripsi', fileInput.files[0]);
+            formData.append('mode_dosen', modeDosen);
+            formData.append('jumlah_soal', jumlahSoal);
+            formData.append('min_score', minScore);
             formData.append('model', getSelectedModel());
 
             await requestDefenseQuestions(formData, fileInput.files[0].name);
@@ -3841,7 +4032,8 @@
         }
 
         async function requestDefenseQuestions(formData, labelTitle) {
-            renderLoadingCard('defense-loading-box', 'Dosen Penguji AI sedang menyiapkan 5 pertanyaan sidang...', `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
+            const jml = formData.get('jumlah_soal') || 5;
+            renderLoadingCard('defense-loading-box', `Dosen Penguji AI sedang menyiapkan ${jml} pertanyaan sidang...`, `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             try {
@@ -3906,6 +4098,9 @@
             btn.innerHTML = '<span class="ai-spinner"></span><span>Menilai Jawaban Sidang...</span>';
             renderLoadingCard('defense-eval-loading-box', 'Dosen Penguji AI sedang mengevaluasi seluruh jawabanmu...', 'Menghitung skor per pertanyaan, memberikan catatan penguji, dan menyusun saran jawaban terbaik...');
 
+            const modeDosen = document.getElementById('def-mode-dosen')?.value || 'kritis';
+            const minScore = document.getElementById('def-min-score')?.value || '7.0';
+
             try {
                 const res = await fetch("{{ route('tools.defense') }}", {
                     method: 'POST',
@@ -3914,6 +4109,8 @@
                         mode: 'evaluate_all',
                         judul: defenseTitle,
                         qa_list: defenseAnswers,
+                        mode_dosen: modeDosen,
+                        min_score: minScore,
                         model: getSelectedModel()
                     })
                 });
@@ -3935,7 +4132,10 @@
 
         function renderDefenseEvaluation(ev) {
             document.getElementById('def-eval-verdict').innerText = ev.verdict || 'Evaluasi Selesai';
-            document.getElementById('def-eval-score').innerText = (ev.overall_score || 7.8) + '/10';
+            const overall = (ev.overall_score !== undefined && ev.overall_score !== null)
+                ? Number(ev.overall_score).toFixed(1)
+                : '3.0';
+            document.getElementById('def-eval-score').innerText = overall + '/10';
             document.getElementById('def-eval-summary').innerText = ev.summary || '';
 
             const bars = document.getElementById('def-score-bars');
@@ -3944,7 +4144,7 @@
             details.innerHTML = '';
 
             (ev.items || []).forEach((item, i) => {
-                const sc = parseFloat(item.score || 7.5);
+                const sc = (item.score !== undefined && item.score !== null) ? parseFloat(item.score) : 2.5;
                 const pct = Math.min(100, Math.max(10, sc * 10));
 
                 bars.innerHTML += `
@@ -4054,10 +4254,9 @@
             }
 
             items.forEach((j, idx) => {
-                const isIndo = (j.scope || '').toLowerCase() === 'indonesia';
-                const badgeHtml = isIndo
-                    ? '<span class="scope-badge-id">🇮🇩 Jurnal Indonesia</span>'
-                    : '<span class="scope-badge-int">🌐 Jurnal Internasional</span>';
+                let citationText = j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`;
+                // Autolink DOI or URL
+                const citationHtml = citationText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">$1</a>');
 
                 const row = document.createElement('div');
                 row.className = 'project-row';
@@ -4067,18 +4266,15 @@
                     <div class="project-row-left" style="align-items:flex-start;">
                         <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
                         <div style="min-width:0;">
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
-                                ${badgeHtml}
-                            </div>
                             <div class="project-row-title">${j.title}</div>
                             <div class="project-row-meta">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
                             <div style="font-size:12px; color:var(--text-muted); margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px; word-break:break-word;">
-                                Sitasi APA: ${j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`}
+                                Sitasi APA: ${citationHtml}
                             </div>
                         </div>
                     </div>
                     <div class="project-row-action">
-                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12.5px;">Unduh PDF Asli ↗</a>
+                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 14px; font-size:12.5px; white-space:nowrap;">Buka Jurnal &amp; PDF ↗</a>
                     </div>
                 `;
                 list.appendChild(row);
@@ -4133,47 +4329,152 @@
             }
         }
 
+        let qaChatHistory = [];
+        let qaAttachedImageBase64 = null;
+
+        function handleQaImageSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const r = new FileReader();
+                r.onload = e => {
+                    qaAttachedImageBase64 = e.target.result;
+                    const prevBar = document.getElementById('qa-image-preview-bar');
+                    const prevImg = document.getElementById('qa-image-preview-img');
+                    const prevName = document.getElementById('qa-image-name');
+                    if (prevBar && prevImg && prevName) {
+                        prevImg.src = e.target.result;
+                        prevName.innerText = file.name;
+                        prevBar.style.display = 'flex';
+                    }
+                };
+                r.readAsDataURL(file);
+            }
+        }
+
+        function removeQaImage() {
+            qaAttachedImageBase64 = null;
+            const input = document.getElementById('qa-image');
+            if (input) input.value = '';
+            const prevBar = document.getElementById('qa-image-preview-bar');
+            if (prevBar) prevBar.style.display = 'none';
+        }
+
+        function resetQaChat() {
+            qaChatHistory = [];
+            removeQaImage();
+            const msgBox = document.getElementById('qa-chat-messages');
+            if (msgBox) {
+                msgBox.innerHTML = `
+                    <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 14px; font-weight: 700;">AI</div>
+                        <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+                            Halo! Obrolan baru dimulai. Silakan ajukan pertanyaan seputar skripsi, bimbingan dosen, olah data statistik, atau tugas kuliah Anda.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            const qInput = document.getElementById('qa-question');
+            if (qInput) {
+                qInput.value = promptText;
+                handleSolveQa();
+            }
+        }
+
         async function handleSolveQa() {
-            const question = document.getElementById('qa-question').value.trim();
-            if (!question) {
-                alert('Tuliskan pertanyaan terlebih dahulu.');
+            const qInput = document.getElementById('qa-question');
+            const question = (qInput?.value || '').trim();
+            if (!question && !qaAttachedImageBase64) {
+                alert('Tuliskan pertanyaan atau lampirkan gambar terlebih dahulu.');
                 return;
             }
+
             const btn = document.getElementById('btn-solve-qa');
             btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyusun Pembahasan...</span>';
-            document.getElementById('qa-result-card').style.display = 'none';
-            renderLoadingCard('qa-loading-box', 'Dosen Pembimbing AI sedang menganalisis pertanyaanmu...', 'Menyusun penjelasan sistematis dan langkah-langkah ilmiah yang mudah dipahami...');
+            btn.innerHTML = '<span class="ai-spinner"></span>';
 
-            let imageBase64 = null;
-            const imgInput = document.getElementById('qa-image');
-            if (imgInput.files && imgInput.files[0]) {
-                imageBase64 = await new Promise(resolve => {
-                    const r = new FileReader();
-                    r.onload = e => resolve(e.target.result);
-                    r.readAsDataURL(imgInput.files[0]);
-                });
+            const msgBox = document.getElementById('qa-chat-messages');
+
+            // Render User Bubble
+            const userImgHtml = qaAttachedImageBase64 ? `<img src="${qaAttachedImageBase64}" style="max-height:120px; border-radius:8px; margin-bottom:8px; display:block;">` : '';
+            const userHtml = `
+                <div class="chat-msg user" style="display: flex; gap: 10px; align-items: flex-start; justify-content: flex-end; width: 100%;">
+                    <div style="background: #2563eb; color: #ffffff; padding: 12px 16px; border-radius: 14px 4px 14px 14px; font-size: 13.5px; line-height: 1.6; max-width: 85%; word-break: break-word;">
+                        ${userImgHtml}
+                        ${question ? question.replace(/\n/g, '<br>') : ''}
+                    </div>
+                </div>
+            `;
+            if (msgBox) {
+                msgBox.innerHTML += userHtml;
+                msgBox.scrollTop = msgBox.scrollHeight;
+            }
+
+            // Clear input & image
+            const currentImg = qaAttachedImageBase64;
+            if (qInput) qInput.value = '';
+            removeQaImage();
+
+            // Render Assistant Typing Indicator
+            const typingId = 'typing-' + Date.now();
+            if (msgBox) {
+                msgBox.innerHTML += `
+                    <div id="${typingId}" class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 14px; font-weight: 700;">AI</div>
+                        <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
+                            <span class="ai-spinner-blue" style="width:14px; height:14px;"></span>
+                            <span>Dosen AI sedang menganalisis &amp; menyusun penjelasan...</span>
+                        </div>
+                    </div>
+                `;
+                msgBox.scrollTop = msgBox.scrollHeight;
             }
 
             try {
+                // Include conversation context
+                const historyContext = qaChatHistory.slice(-4).map(h => `Tanya: ${h.q}\nJawab: ${h.a}`).join('\n\n');
+                const fullQuestion = historyContext ? `${historyContext}\n\nPertanyaan lanjutan: ${question}` : question;
+
                 const res = await fetch("{{ route('tools.solve') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ question, image: imageBase64, model: getSelectedModel() })
+                    body: JSON.stringify({ question: fullQuestion, image: currentImg, model: getSelectedModel() })
                 });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    document.getElementById('qa-output').innerText = data.answer;
-                    document.getElementById('qa-result-card').style.display = 'block';
+                const typingEl = document.getElementById(typingId);
+                if (typingEl) typingEl.remove();
+
+                if (data.status === 'success' && data.answer) {
+                    qaChatHistory.push({ q: question, a: data.answer });
+                    const ansId = 'ans-' + Date.now();
+                    const cleanAnswerHtml = data.answer.replace(/\n/g, '<br>');
+
+                    if (msgBox) {
+                        msgBox.innerHTML += `
+                            <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 90%;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 14px; font-weight: 700;">AI</div>
+                                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 18px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.65; color: var(--text-main); width: 100%;">
+                                    <div id="${ansId}">${cleanAnswerHtml}</div>
+                                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+                                        <button type="button" class="btn-outline" style="padding: 3px 9px; font-size: 11px;" onclick="navigator.clipboard.writeText(document.getElementById('${ansId}').innerText); alert('Jawaban disalin!');">Salin Teks</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        msgBox.scrollTop = msgBox.scrollHeight;
+                    }
                 } else {
                     alert(data.message || 'Gagal memproses pertanyaan.');
                 }
             } catch (e) {
+                const typingEl = document.getElementById(typingId);
+                if (typingEl) typingEl.remove();
                 alert('Gagal memproses pertanyaan.');
             } finally {
-                hideLoadingCard('qa-loading-box');
                 btn.disabled = false;
-                btn.innerText = 'Kirim Pertanyaan →';
+                btn.innerHTML = '<span>Kirim</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
             }
         }
     </script>

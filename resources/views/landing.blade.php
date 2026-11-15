@@ -724,9 +724,7 @@
     <header class="navbar">
         <div class="container nav-inner">
             <a href="/" class="brand">
-                <span class="brand-mark">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-                </span>
+                <img src="/images/logo.svg" alt="SkripsiAI" style="width: 32px; height: 32px; border-radius: 8px; display: block;">
                 SkripsiAI
             </a>
 
@@ -1098,9 +1096,7 @@
     <footer class="footer">
         <div class="container footer-inner">
             <div class="brand" style="font-size: 15px;">
-                <span class="brand-mark" style="width: 24px; height: 24px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-                </span>
+                <img src="/images/logo.svg" alt="SkripsiAI" style="width: 26px; height: 26px; border-radius: 6px; display: block;">
                 SkripsiAI
             </div>
             <div>&copy; {{ date('Y') }} SkripsiAI &bull; Demo by Muh Alwi Syahrir &bull; Workspace penulisan akademik mahasiswa Indonesia.</div>
