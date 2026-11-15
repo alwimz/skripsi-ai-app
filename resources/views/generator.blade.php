@@ -2358,10 +2358,6 @@
 
             return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
         }
-            }
-
-            return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
-        }
 
         function computeDocumentPagination() {
             const pageMap = {};
@@ -3059,82 +3055,91 @@
         function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum) {
             if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = fullBodyHtml;
+            const fallbackHtml = `
+                <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                    <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
+                    <div class="sheet-footer">${startPageNum}</div>
+                </div>
+            `;
 
-            const blocks = Array.from(tempDiv.children);
-            if (!blocks.length) {
-                return `
-                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
-                        <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
-                        <div class="sheet-footer">${startPageNum}</div>
-                    </div>
-                `;
-            }
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = fullBodyHtml;
 
-            const pages = [];
-            let curPageBlocks = [];
-            let curPageWeight = 0;
-            // Kapasitas bobot teks standar kertas A4 akademik (setara ~1800 - 2200 karakter atau ~850px tinggi area cetak)
-            const MAX_PAGE_WEIGHT = 1950;
-
-            blocks.forEach((block) => {
-                const textLen = (block.innerText || '').length;
-                const tagName = block.tagName.toLowerCase();
-                let blockWeight = textLen;
-
-                // Bobot visual proporsional elemen tabel, bagan, list, dan heading
-                if (tagName === 'table' || block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap') || block.querySelector('table')) {
-                    blockWeight = Math.max(textLen, 950);
-                } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || block.classList.contains('academic-chapter-header')) {
-                    blockWeight = Math.max(textLen, 260);
-                } else if (tagName === 'ul' || tagName === 'ol') {
-                    blockWeight = Math.max(textLen, 400);
-                } else {
-                    blockWeight = Math.max(textLen, 190);
+                const blocks = Array.from(tempDiv.children);
+                if (!blocks.length) {
+                    return fallbackHtml;
                 }
 
-                // Halaman pertama memiliki judul bab besar di bagian atas, kurangi batas kapasitas
-                const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 360) : MAX_PAGE_WEIGHT;
+                const pages = [];
+                let curPageBlocks = [];
+                let curPageWeight = 0;
+                // Kapasitas bobot teks standar kertas A4 akademik (setara ~1800 - 2200 karakter atau ~850px tinggi area cetak)
+                const MAX_PAGE_WEIGHT = 1950;
 
-                if (curPageBlocks.length > 0 && (curPageWeight + blockWeight > curLimit)) {
-                    // Hindari meletakkan heading sendirian di paling bawah halaman (orphan heading)
-                    const lastBlock = curPageBlocks[curPageBlocks.length - 1];
-                    const lastTag = lastBlock.tagName.toLowerCase();
-                    if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 1) {
-                        const orphanHeading = curPageBlocks.pop();
-                        pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                        curPageBlocks = [orphanHeading, block];
-                        curPageWeight = 260 + blockWeight;
+                blocks.forEach((block) => {
+                    const textLen = (block.innerText || '').length;
+                    const tagName = (block.tagName || '').toLowerCase();
+                    let blockWeight = textLen;
+
+                    // Bobot visual proporsional elemen tabel, bagan, list, dan heading
+                    if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
+                        blockWeight = Math.max(textLen, 950);
+                    } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
+                        blockWeight = Math.max(textLen, 260);
+                    } else if (tagName === 'ul' || tagName === 'ol') {
+                        blockWeight = Math.max(textLen, 400);
                     } else {
-                        pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                        curPageBlocks = [block];
-                        curPageWeight = blockWeight;
+                        blockWeight = Math.max(textLen, 190);
                     }
-                } else {
-                    curPageBlocks.push(block);
-                    curPageWeight += blockWeight;
+
+                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi batas kapasitas
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 360) : MAX_PAGE_WEIGHT;
+
+                    if (curPageBlocks.length > 0 && (curPageWeight + blockWeight > curLimit)) {
+                        // Hindari meletakkan heading sendirian di paling bawah halaman (orphan heading)
+                        const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                        const lastTag = (lastBlock.tagName || '').toLowerCase();
+                        if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 1) {
+                            const orphanHeading = curPageBlocks.pop();
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [orphanHeading, block];
+                            curPageWeight = 260 + blockWeight;
+                        } else {
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [block];
+                            curPageWeight = blockWeight;
+                        }
+                    } else {
+                        curPageBlocks.push(block);
+                        curPageWeight += blockWeight;
+                    }
+                });
+
+                if (curPageBlocks.length > 0) {
+                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                 }
-            });
 
-            if (curPageBlocks.length > 0) {
-                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-            }
+                if (!pages.length) return fallbackHtml;
 
-            let outputHtml = '';
-            pages.forEach((pageContent, pIdx) => {
-                const thisPageNum = startPageNum + pIdx;
-                outputHtml += `
-                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
-                        <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
-                            ${pageContent}
+                let outputHtml = '';
+                pages.forEach((pageContent, pIdx) => {
+                    const thisPageNum = startPageNum + pIdx;
+                    outputHtml += `
+                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                            <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
+                                ${pageContent}
+                            </div>
+                            <div class="sheet-footer">${thisPageNum}</div>
                         </div>
-                        <div class="sheet-footer">${thisPageNum}</div>
-                    </div>
-                `;
-            });
+                    `;
+                });
 
-            return outputHtml;
+                return outputHtml || fallbackHtml;
+            } catch (e) {
+                console.error('Error paginasi chapter:', e);
+                return fallbackHtml;
+            }
         }
 
         function renderAllSheets() {
