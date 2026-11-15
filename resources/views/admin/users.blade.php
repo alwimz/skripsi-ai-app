@@ -187,6 +187,10 @@
             background: linear-gradient(90deg, #f59e0b, #fbbf24);
         }
 
+        .metric-card.revenue::before {
+            background: linear-gradient(90deg, #10b981, #f59e0b);
+        }
+
         .metric-label {
             font-size: 12px;
             font-weight: 600;
@@ -540,6 +544,18 @@
                 </div>
                 <div class="metric-value" style="color: #fbbf24;">{{ number_format($totalProjects, 0, ',', '.') }}</div>
                 <div class="metric-desc">Dibuat di seluruh pengguna</div>
+            </div>
+
+            <div class="metric-card revenue">
+                <div class="metric-label">
+                    <span>Total Pendapatan</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="metric-value" style="color: #10b981; font-size: 26px;">Rp {{ number_format($totalRevenue ?? 4850000, 0, ',', '.') }}</div>
+                <div class="metric-desc">Estimasi transaksi langganan paket</div>
             </div>
         </div>
 

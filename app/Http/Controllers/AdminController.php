@@ -65,6 +65,8 @@ class AdminController extends Controller
         $usersThisWeek = User::where('created_at', '>=', Carbon::now()->subDays(7))->count();
         $usersThisMonth = User::whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
         $totalProjects = Project::count();
+        // Estimasi Pendapatan Langganan Paket (Dummy Jutaan Sesuai Permintaan)
+        $totalRevenue = 4850000;
 
         // Pencarian pengguna
         $q = trim($request->query('q', ''));
@@ -85,6 +87,7 @@ class AdminController extends Controller
             'usersThisWeek',
             'usersThisMonth',
             'totalProjects',
+            'totalRevenue',
             'users',
             'q'
         ));

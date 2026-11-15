@@ -5894,19 +5894,27 @@
                 const row = document.createElement('div');
                 row.className = 'project-row';
                 row.style.cursor = 'default';
-                row.style.alignItems = 'center';
+                row.style.alignItems = 'flex-start';
+                const directUrl = j.doi_url || j.pdf_url || '#';
                 row.innerHTML = `
-                    <div class="project-row-left" style="align-items:center;">
-                        <div class="project-initial">${idx + 1}</div>
-                        <div style="min-width:0;">
+                    <div class="project-row-left" style="align-items:flex-start;">
+                        <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
+                        <div style="min-width:0; flex:1;">
                             <div class="project-row-title" style="font-size:14px; line-height:1.45; font-weight:600; color:var(--text-main);">${j.title}</div>
                             <div class="project-row-meta" style="margin-top:4px;">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
+                            <div style="margin-top:6px; font-size:12px; word-break:break-all;">
+                                <a href="${directUrl}" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">${directUrl}</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="project-row-action">
-                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:8px 16px; font-size:12.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
-                            <span>Buka &amp; Unduh Jurnal</span>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <div class="project-row-action" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <a href="${directUrl}" target="_blank" rel="noopener" class="btn-outline" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Unduh Jurnal</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Unduh PDF Otomatis</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         </a>
                     </div>
                 `;

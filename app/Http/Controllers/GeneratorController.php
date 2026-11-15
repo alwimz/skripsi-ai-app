@@ -2342,38 +2342,37 @@ ATURAN REVISI (SANGAT KETAT):
                 // Distribusi lebar kolom proporsional standar tabel skripsi APA 7th Edition
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = ['6%', '18%', '22%', '16%', '16%', '22%'];
+                    $colWidths = ['4%', '15%', '18%', '14%', '17%', '32%'];
                 } elseif ($colCount === 5) {
-                    $colWidths = ['7%', '22%', '24%', '22%', '25%'];
+                    $colWidths = ['5%', '18%', '22%', '20%', '35%'];
                 } elseif ($colCount === 4) {
-                    $colWidths = ['8%', '28%', '32%', '32%'];
+                    $colWidths = ['6%', '28%', '32%', '34%'];
                 } elseif ($colCount === 3) {
-                    $colWidths = ['10%', '45%', '45%'];
+                    $colWidths = ['8%', '46%', '46%'];
                 } elseif ($colCount === 2) {
                     $colWidths = ['35%', '65%'];
                 }
 
-                $avoidSplit = count($rows) <= 10 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; {$avoidSplit} border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:9pt; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; page-break-inside:auto;'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
+                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:6pt 8pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.35;'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:5pt 6pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.25; font-size:9.5pt;'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0; page-break-inside:avoid;'>";
+                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:6pt 8pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.45;'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:5pt 6pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.3; font-size:9pt;'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -3386,7 +3385,7 @@ ATURAN REVISI (SANGAT KETAT):
         if ($logoPath && file_exists($logoPath) && filesize($logoPath) > 50) {
             $mime = function_exists('mime_content_type') ? (@mime_content_type($logoPath) ?: 'image/png') : 'image/png';
             $b64 = base64_encode(file_get_contents($logoPath));
-            $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='data:{$mime};base64,{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
             @unlink($logoPath);
         } elseif (!empty($request->input('logo_base64')) || !empty($meta['logo_base64'])) {
             $rawB64 = $request->input('logo_base64') ?: $meta['logo_base64'];
@@ -3394,14 +3393,14 @@ ATURAN REVISI (SANGAT KETAT):
             if (!str_starts_with($b64, 'data:image/')) {
                 $b64 = 'data:image/png;base64,' . $b64;
             }
-            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
         } elseif (file_exists($defaultLogoFile)) {
             $b64 = base64_encode(file_get_contents($defaultLogoFile));
-            $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='data:image/png;base64,{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
         } else {
             // Elegant embedded academic seal (100% Vercel & Dompdf safe)
             $b64 = $this->getDefaultEmblemBase64();
-            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
         }
 
         $tocRowsHtml = '';
@@ -3424,38 +3423,41 @@ ATURAN REVISI (SANGAT KETAT):
         </style></head><body>";
 
         // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
-        // Terbagi proporsional vertikal (Area cetak A4 ~640pt di antara margin 4cm dan 3cm)
+        // Menggunakan 1 tabel layout vertikal Dompdf-safe untuk distribusi ruang proporsional sempurna
         $html .= "<div class='cover' style='width:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
-            <!-- Bagian Atas: Jenis Dokumen & Judul Skripsi -->
-            <div style='margin-top:0;'>
-                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-                <div style='font-size:13pt; font-weight:bold; margin-top:20pt; margin-bottom:14pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
-                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-            </div>
-
-            <!-- Bagian Tengah: Lambang / Logo Kampus (Center) -->
-            <div style='margin-top:42pt; margin-bottom:38pt;'>
-                {$logoHtml}
-            </div>
-
-            <!-- Bagian Penulis: Oleh, Nama Mahasiswa, NIM -->
-            <div style='margin-top:0; margin-bottom:44pt;'>
-                <div style='font-size:11.5pt; line-height:1.5;'>
-                    <div>OLEH:</div>
-                    <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                    " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
-                </div>
-            </div>
-
-            <!-- Bagian Bawah: Lembaga, Kampus, dan Tahun -->
-            <div style='margin-top:0;'>
-                <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
-                    <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                    " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                    <div>" . strtoupper(e($kampus)) . "</div>
-                    <div style='margin-top:2pt;'>" . date('Y') . "</div>
-                </div>
-            </div>
+            <table style='width:100%; height:640pt; border-collapse:collapse; text-align:center;'>
+                <tr style='height:180pt; vertical-align:top;'>
+                    <td style='border:none; text-align:center; padding:0;'>
+                        <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+                        <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
+                        <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+                    </td>
+                </tr>
+                <tr style='height:160pt; vertical-align:middle;'>
+                    <td style='border:none; text-align:center; padding:0;'>
+                        {$logoHtml}
+                    </td>
+                </tr>
+                <tr style='height:140pt; vertical-align:middle;'>
+                    <td style='border:none; text-align:center; padding:0;'>
+                        <div style='font-size:11.5pt; line-height:1.5;'>
+                            <div>OLEH:</div>
+                            <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                            " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
+                        </div>
+                    </td>
+                </tr>
+                <tr style='height:160pt; vertical-align:bottom;'>
+                    <td style='border:none; text-align:center; padding:0;'>
+                        <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                            <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                            " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                            <div>" . strtoupper(e($kampus)) . "</div>
+                            <div style='margin-top:3pt;'>" . date('Y') . "</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>";
 
         // 2. LEMBAR PENGESAHAN
@@ -3663,10 +3665,11 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf->render();
         } catch (\Throwable $e) {
             Log::warning('Dompdf render fallback triggered: ' . $e->getMessage());
-            $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
+            // Fallback aman: jika ada crash pada elemen diagram, bersihkan flowchart namun tetap pertahankan logo sampul
+            $fallbackHtml = preg_replace('/<div class=[\'"]academic-flowchart[\'"].*?<\/div>/is', '', $html);
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
-            $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->set_option('isRemoteEnabled', true);
             $dompdf->loadHtml($fallbackHtml);
             $dompdf->setPaper('A4');
             $dompdf->render();

@@ -88,7 +88,16 @@ class AIManagerService
      */
     public function generateText(string $prompt, string $model = 'auto'): string
     {
-        if ($model === 'deepseek' || $model === 'groq') {
+        $hasGemini = !empty(config('services.gemini.key')) || !empty(env('GEMINI_API_KEY'));
+        if (!$hasGemini) {
+            try {
+                $hasGemini = \Illuminate\Support\Facades\DB::table('api_keys')->where('is_active', true)->where(function($q) {
+                    $q->where('key', 'like', 'AIza%')->orWhere('key', 'like', 'AQ.%');
+                })->exists();
+            } catch (\Throwable $e) {}
+        }
+
+        if (!$hasGemini || $model === 'deepseek' || $model === 'groq') {
             try {
                 return $this->groq->generateText($prompt);
             } catch (Exception $dsEx) {

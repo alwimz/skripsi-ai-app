@@ -49,8 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/project/{id}/refine-references', [GeneratorController::class, 'refineReferences'])->name('project.refine.references');
 
     // --- DOWNLOAD DOCX & PDF (DENGAN LOGO KAMPUS) ---
-    Route::post('/project/{id}/download/docx', [GeneratorController::class, 'downloadDocx'])->name('app.downloadDocx');
-    Route::post('/project/{id}/download/pdf', [GeneratorController::class, 'downloadPdf'])->name('project.download.pdf');
+    Route::match(['get', 'post'], '/project/{id}/download/docx', [GeneratorController::class, 'downloadDocx'])->name('app.downloadDocx');
+    Route::match(['get', 'post'], '/project/{id}/download/pdf', [GeneratorController::class, 'downloadPdf'])->name('project.download.pdf');
 
     // --- API KEY & REWARD ---
     Route::post('/api-key/add', [GeneratorController::class, 'addApiKey'])->name('api.key.add');
