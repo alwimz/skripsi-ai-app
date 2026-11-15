@@ -3484,22 +3484,41 @@ NASKAH:
                 $historyContext .= "\n";
             }
 
-            $prompt = "PERAN: Anda adalah Dosen Pembimbing Akademik & Asisten Riset AI yang cerdas, suportif, dan ramah.
-{$historyContext}PERTANYAAN / INSTRUKSI MAHASISWA SAAT INI:
+            $prompt = "PERAN: Anda adalah Dosen AI (Dosen Pembimbing Skripsi & Proposal Akademik untuk Mahasiswa S1). Anda menguasai seluruh dunia skripsi:
+- Komunikasi dan etika menghadapi dosen pembimbing (cara chat sopan, revisi berulang, dosen slow response/killer).
+- Penentuan fenomena empiris, perumusan masalah, novelitas, dan research gap.
+- Penyusunan Bab 1 hingga Bab 5 (Latar Belakang, Tinjauan Teori, Metodologi, Pembahasan Hasil, dan Penutup).
+- Olah data penelitian kuantitatif (SPSS, SEM-PLS, regresi, uji asumsi, confusion matrix) maupun kualitatif (wawancara, coding tema, triangulasi) dan R&D.
+- Teknik parafrase ilmiah dan tips lolos uji similarity Turnitin di bawah batas kampus.
+- Kesiapan mental dan strategi cerdas menjawab pertanyaan dosen penguji saat seminar proposal maupun sidang skripsi.
+
+{$historyContext}PERTANYAAN / KONSULTASI MAHASISWA:
 \"\"\"
 {$question}
 \"\"\"
 
-PANDUAN JAWABAN:
-1. Jawab secara jelas, solutif, ilmiah, dan mudah dipahami mahasiswa S1.
-2. Gunakan format yang rapi: poin-poin terstruktur, bold untuk istilah kunci, serta langkah-langkah konkret jika menyangkut metodologi, rumus, atau pengolahan data.
-3. Tetap bersahabat dan terbuka untuk pertanyaan lanjutan mahasiswa.";
+PANDUAN PENULISAN JAWABAN (ATURAN KETAT):
+1. Karakter: Berikan jawaban layaknya dosen pembimbing manusia yang cerdas, empatik, solutif, dan profesional.
+2. DILARANG KERAS MENGGUNAKAN SIMBOL ROBOTIK AI:
+   - DILARANG menggunakan tanda pagar heading markdown seperti '##', '###', '#'.
+   - DILARANG menggunakan garis pemisah horizontal seperti '---' atau '___'.
+   - DILARANG menggunakan tanda kutip/blockquote seperti '>'.
+   - DILARANG spam emoji (jangan gunakan emoji seperti 😊, 📚, 🔑, ✨, 💡, dll). Tulis dalam bahasa Indonesia ilmiah yang bersih dan elegan.
+3. Format: Susun dalam paragraf rapi dan terstruktur. Jika ada tahapan atau poin-poin penting, gunakan penomoran angka standar (1., 2., 3.) atau bullet sederhana.
+4. Hindari penebalan (bold) berlebihan di setiap kata. Buat kalimat mengalir alami dan nyaman dibaca.";
 
-            $answer = $this->ai->generateWithImage($prompt, $image, $model);
+            $rawAnswer = $this->ai->generateWithImage($prompt, $image, $model);
+
+            // Bersihkan sisa-sisa format simbol robotik AI jika model masih menyelipkannya
+            $cleanAnswer = preg_replace('/^#{1,6}\s*(.*)$/m', '$1', $rawAnswer);
+            $cleanAnswer = preg_replace('/^[-*_]{3,}\s*$/m', '', $cleanAnswer);
+            $cleanAnswer = preg_replace('/^>\s*(.*)$/m', '$1', $cleanAnswer);
+            $cleanAnswer = preg_replace('/[\x{1F300}-\x{1F64F}\x{1F680}-\x{1F6FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F900}-\x{1F9FF}\x{1F1E0}-\x{1F1FF}]/u', '', $cleanAnswer);
+            $cleanAnswer = preg_replace("/\n{3,}/", "\n\n", trim($cleanAnswer));
 
             return response()->json([
                 'status' => 'success',
-                'answer' => $answer,
+                'answer' => $cleanAnswer,
             ]);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);

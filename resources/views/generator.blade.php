@@ -2090,7 +2090,6 @@ function buildCoverAndFrontMatterHtml() {
             <div class="sheet-footer">ix</div>
         </div>
     `;
-    `;
 }
 
 function buildSubchapterOptions() {

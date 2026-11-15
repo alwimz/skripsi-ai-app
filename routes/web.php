@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     // --- DASHBOARD & PROJECT MANAGEMENT ---
     Route::get('/app/create', [GeneratorController::class, 'preGeneratorForm'])->name('app.create');
     Route::get('/app/pre-generator', [GeneratorController::class, 'preGeneratorForm'])->name('app.preGenerator');
+    Route::get('/project/start', function () { return redirect()->route('app.create'); });
     Route::post('/profile/update-name', [GeneratorController::class, 'updateUserName'])->name('profile.updateName');
     Route::post('/project/start', [GeneratorController::class, 'startProject'])->name('project.start');
     Route::delete('/project/{id}/delete', [GeneratorController::class, 'deleteProject'])->name('project.delete');
