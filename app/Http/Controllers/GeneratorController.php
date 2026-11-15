@@ -2965,7 +2965,7 @@ ATURAN REVISI (SANGAT KETAT):
         $section->addText("Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . $project->prodi, ['size' => 11], $center);
         $section->addTextBreak(1);
 
-        $defaultLogoFile = public_path('images/default_emblem.png');
+        $defaultLogoFile = public_path('images/default_emblem.jpg');
         $resolvedLogo = ($logoPath && file_exists($logoPath)) ? $logoPath : null;
         if (!$resolvedLogo) {
             $rawLogoB64 = $request->input('logo_base64') ?: ($meta['logo_base64'] ?? '');
@@ -3390,31 +3390,43 @@ ATURAN REVISI (SANGAT KETAT):
         $kampus = $request->input('kampus') ?: ($meta['kampus'] ?? 'UNIVERSITAS');
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
 
-        $defaultLogoFile = public_path('images/default_emblem.png');
-        $logoHtml = '';
+        $defaultLogoFile = public_path('images/default_emblem.jpg');
+        $hasGd = extension_loaded('gd') && function_exists('imagecreatefrompng');
+        $resolvedLogoB64 = '';
+
         if ($logoPath && file_exists($logoPath) && filesize($logoPath) > 50) {
-            $mime = function_exists('mime_content_type') ? (@mime_content_type($logoPath) ?: 'image/png') : 'image/png';
-            $b64 = base64_encode(file_get_contents($logoPath));
-            $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
-            $logoHtml = "<img src='data:{$mime};base64,{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
-            @unlink($logoPath);
-        } elseif (!empty($request->input('logo_base64')) || !empty($meta['logo_base64'])) {
-            $rawB64 = $request->input('logo_base64') ?: $meta['logo_base64'];
-            $b64 = trim($rawB64);
-            if (!str_starts_with($b64, 'data:image/')) {
-                $b64 = 'data:image/png;base64,' . $b64;
+            $rawBytes = file_get_contents($logoPath);
+            $mime = function_exists('mime_content_type') ? (@mime_content_type($logoPath) ?: 'image/jpeg') : 'image/jpeg';
+            $isJpeg = str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') || str_starts_with($rawBytes, "\xFF\xD8\xFF");
+            if ($isJpeg || $hasGd) {
+                $resolvedLogoB64 = 'data:' . $mime . ';base64,' . base64_encode($rawBytes);
             }
-            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
-            $logoHtml = "<img src='{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
-        } elseif (file_exists($defaultLogoFile)) {
-            $b64 = base64_encode(file_get_contents($defaultLogoFile));
-            $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
-            $logoHtml = "<img src='data:image/png;base64,{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
+            @unlink($logoPath);
+        }
+
+        if (empty($resolvedLogoB64) && (!empty($request->input('logo_base64')) || !empty($meta['logo_base64']))) {
+            $rawB64 = trim($request->input('logo_base64') ?: $meta['logo_base64']);
+            $isJpeg = str_starts_with($rawB64, 'data:image/jpeg') || str_starts_with($rawB64, 'data:image/jpg') || str_contains($rawB64, '/9j/');
+            if ($isJpeg || $hasGd) {
+                if (!str_starts_with($rawB64, 'data:image/')) {
+                    $rawB64 = ($isJpeg ? 'data:image/jpeg;base64,' : 'data:image/png;base64,') . $rawB64;
+                }
+                $resolvedLogoB64 = $rawB64;
+            }
+        }
+
+        if (empty($resolvedLogoB64)) {
+            if (file_exists($defaultLogoFile)) {
+                $resolvedLogoB64 = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($defaultLogoFile));
+            } else {
+                $resolvedLogoB64 = $this->getDefaultEmblemBase64();
+            }
+        }
+
+        if (!empty($resolvedLogoB64)) {
+            $logoHtml = "<img src='{$resolvedLogoB64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
         } else {
-            // Elegant embedded academic seal (100% Vercel & Dompdf safe)
-            $b64 = $this->getDefaultEmblemBase64();
-            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
-            $logoHtml = "<img src='{$b64}' width='120' height='120' style='width:120px; height:120px; display:block; margin:0 auto;'>";
+            $logoHtml = "<div style='margin: 18px auto; width:90px; height:90px; border:2px solid #000; border-radius:50%; text-align:center; line-height:86px; font-weight:bold; font-size:10pt; letter-spacing:1px; color:#000;'>UNIVERSITAS</div>";
         }
 
         $tocRowsHtml = '';
@@ -3440,36 +3452,6 @@ ATURAN REVISI (SANGAT KETAT):
         // Terbagi proporsional vertikal (Area cetak A4 ~640pt di antara margin 4cm dan 3cm)
         // Menggunakan 1 tabel layout vertikal Dompdf-safe untuk distribusi ruang proporsional sempurna
         $html .= "<div class='cover' style='width:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
-            <!-- Bagian Atas: Jenis Dokumen & Judul Skripsi -->
-            <div style='margin-top:0;'>
-                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-                <div style='font-size:13pt; font-weight:bold; margin-top:20pt; margin-bottom:14pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
-                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-            </div>
-
-            <!-- Bagian Tengah: Lambang / Logo Kampus (Center) -->
-            <div style='margin-top:42pt; margin-bottom:38pt;'>
-                {$logoHtml}
-            </div>
-
-            <!-- Bagian Penulis: Oleh, Nama Mahasiswa, NIM -->
-            <div style='margin-top:0; margin-bottom:44pt;'>
-                <div style='font-size:11.5pt; line-height:1.5;'>
-                    <div>OLEH:</div>
-                    <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                    " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
-                </div>
-            </div>
-
-            <!-- Bagian Bawah: Lembaga, Kampus, dan Tahun -->
-            <div style='margin-top:0;'>
-                <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
-                    <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                    " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                    <div>" . strtoupper(e($kampus)) . "</div>
-                    <div style='margin-top:2pt;'>" . date('Y') . "</div>
-                </div>
-            </div>
             <table style='width:100%; height:640pt; border-collapse:collapse; text-align:center;'>
                 <tr style='height:180pt; vertical-align:top;'>
                     <td style='border:none; text-align:center; padding:0;'>
@@ -3703,20 +3685,19 @@ ATURAN REVISI (SANGAT KETAT):
 
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->set_option('isRemoteEnabled', false);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         try {
             $dompdf->render();
         } catch (\Throwable $e) {
             Log::warning('Dompdf render fallback triggered: ' . $e->getMessage());
+            // Fallback aman bebas crash: bersihkan seluruh <img> dan flowchart divs jika terjadi kendala rendering
             $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
-            // Fallback aman: jika ada crash pada elemen diagram, bersihkan flowchart namun tetap pertahankan logo sampul
-            $fallbackHtml = preg_replace('/<div class=[\'"]academic-flowchart[\'"].*?<\/div>/is', '', $html);
+            $fallbackHtml = preg_replace('/<div class=[\'"]academic-flowchart[\'"].*?<\/div>/is', '', $fallbackHtml);
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
-            $dompdf->set_option('isRemoteEnabled', true);
             $dompdf->loadHtml($fallbackHtml);
             $dompdf->setPaper('A4');
             $dompdf->render();
@@ -4802,6 +4783,10 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Object murni dengan struktur berikut:
 
     private function getDefaultEmblemBase64(): string
     {
-        return 'data:image/png;base64,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';
+        $file = public_path('images/default_emblem.jpg');
+        if (file_exists($file)) {
+            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($file));
+        }
+        return 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
     }
 }
