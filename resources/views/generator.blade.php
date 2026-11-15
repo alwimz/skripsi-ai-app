@@ -547,13 +547,11 @@
 
         .a4-sheet {
             width: 100%;
-            min-height: 1123px;
-            /* Ukuran seragam standar kertas A4 layar */
+            min-height: 1123px; /* Ukuran seragam standar kertas A4 layar */
             background: #ffffff;
             border: 1px solid #dbe3ee;
             border-radius: 4px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            padding: 75px 60px 60px 75px;
             padding: 75px 60px 80px 75px;
             /* Rasio standar margin skripsi 4-4-3-3 cm */
             color: #111827;
@@ -564,7 +562,6 @@
             word-break: break-word;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             justify-content: flex-start;
             margin-bottom: 24px;
             position: relative;
@@ -577,9 +574,7 @@
             justify-content: space-between;
             min-height: 1123px;
             box-sizing: border-box;
-            padding: 70px 56px 60px 75px;
-            padding: 95px 72px 85px 95px;
-            /* Rasio presisi margin akademik 4-4-3-3 cm */
+            padding: 95px 72px 85px 95px; /* Rasio presisi margin akademik 4-4-3-3 cm */
         }
 
         .cover-top-block {
@@ -697,8 +692,6 @@
         }
 
         .sheet-footer {
-            margin-top: 38px;
-            padding-top: 14px;
             position: absolute;
             bottom: 25px;
             left: 60px;
@@ -777,14 +770,10 @@
 
         .paper-editor table {
             width: 100%;
-            min-width: 620px;
             border-collapse: collapse;
             font-size: 11pt;
             line-height: 1.45;
             font-family: "Times New Roman", Georgia, serif;
-            margin: 8px auto 16px;
-            word-break: normal !important;
-            overflow-wrap: break-word !important;
             margin: 10px 0 18px;
             table-layout: auto;
             background: #ffffff;
@@ -793,17 +782,11 @@
 
         .paper-editor th,
         .paper-editor td {
-            border: 1px solid #0f172a;
-            padding: 8px 10px;
-            vertical-align: top;
             border: 1px solid #000000;
             padding: 7px 12px;
             vertical-align: middle;
             text-align: left;
             text-indent: 0 !important;
-            word-break: normal !important;
-            overflow-wrap: break-word !important;
-            hyphens: none !important;
             word-break: normal;
             overflow-wrap: break-word;
             white-space: normal;
@@ -812,69 +795,19 @@
         }
 
         .paper-editor th {
-            background: #f1f5f9;
             background: #ffffff;
             font-weight: 700;
-            color: #0f172a;
             color: #000000;
             text-align: center;
-            vertical-align: middle;
             font-size: 11pt;
-            border-bottom: 2px solid #0f172a;
             border: 1px solid #000000;
             border-top: 2px solid #000000;
             border-bottom: 2px solid #000000;
         }
 
-        .paper-editor table th:first-child,
-        .paper-editor table td:first-child {
-            width: 44px !important;
-            min-width: 44px !important;
-            max-width: 50px !important;
-            text-align: center !important;
-            white-space: nowrap !important;
-        }
-
-        .paper-editor table th:nth-child(2),
-        .paper-editor table td:nth-child(2) {
-            min-width: 110px;
-            width: 120px;
-            white-space: normal;
-        }
-
-        .paper-editor table th:nth-child(3),
-        .paper-editor table td:nth-child(3) {
-            min-width: 140px;
-            white-space: normal;
-        }
-
-        .paper-editor table th:nth-child(4),
-        .paper-editor table td:nth-child(4) {
-            min-width: 110px;
-            width: 125px;
-            white-space: normal;
-        }
-
-        .paper-editor table th:nth-child(5),
-        .paper-editor table td:nth-child(5) {
-            min-width: 130px;
-            white-space: normal;
-        }
-
-        .paper-editor table th:nth-child(6),
-        .paper-editor table td:nth-child(6) {
-            min-width: 140px;
-            white-space: normal;
-        }
-
         .academic-diagram-box {
             margin: 18px 0;
             padding: 16px 20px;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-left: 4px solid #2563eb;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Courier New', monospace;
             background: #ffffff;
             border: 1.5px solid #000000;
             border-radius: 0;
@@ -1277,12 +1210,8 @@
             .a4-sheet {
                 width: 100%;
                 max-width: 100%;
-                min-height: 520px;
                 min-height: 1123px;
                 box-sizing: border-box;
-                padding: 24px 16px 20px 20px;
-                font-size: 13.5px;
-                line-height: 1.6;
                 padding: 40px 24px 60px 28px;
                 font-size: 14px;
                 line-height: 1.65;
@@ -1292,8 +1221,6 @@
                 overflow-x: hidden;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
-                margin-bottom: 20px;
                 justify-content: flex-start;
                 margin-bottom: 24px;
                 position: relative;
@@ -2133,12 +2060,10 @@
             };
             const flushTable = () => {
                 if (!inTable || tableRows.length === 0) { inTable = false; tableRows = []; return; }
-                html += '<div class="table-wrap"><table>';
                 html += '<div class="table-wrap"><table class="academic-table">';
                 tableRows.forEach((cols, idx) => {
                     if (idx === 1 && cols.every((c) => /^[:\-\s]+$/.test(c))) return;
                     const tag = idx === 0 ? 'th' : 'td';
-                    html += '<tr>' + cols.map((c) => `<${tag}>${formatInlineMarkdown(c)}</${tag}>`).join('') + '</tr>';
                     html += '<tr>' + cols.map((c, colIdx) => {
                         const trimmed = c.trim();
                         const isNum = /^[0-9\.,\s\(\)\%\-\/]+$/.test(trimmed) && trimmed.length < 20;
@@ -2279,17 +2204,11 @@
                 const tier4 = nodes[3] || 'Hasil & Luaran yang Diharapkan: Model Naive Bayes dengan akurasi, presisi, recall, dan F1-score optimal untuk analisis sentimen, serta kontribusi praktis rekomendasi.';
 
                 return `
-                    <div class="academic-figure-container" style="margin: 24px auto; max-width: 650px; background: #ffffff; border: 1.5px solid #000000; padding: 22px 24px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 18px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 2.1 Bagan Kerangka Pemikiran Penelitian</p>
                     <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
                         <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 2.1 Bagan Kerangka Pemikiran Penelitian</p>
 
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
                         <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
                             <!-- TAHAP 1 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px;">KONDISI EMPIRIS / MASALAH PENELITIAN</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0;">${escapeHtml(tier1)}</div>
                             <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
                                 <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">KONDISI EMPIRIS / MASALAH PENELITIAN</div>
                                 <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier1)}</div>
@@ -2301,9 +2220,6 @@
                             </div>
 
                             <!-- TAHAP 2 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px;">LANDASAN TEORI &amp; SINTESIS RISET TERDAHULU</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0;">${escapeHtml(tier2)}</div>
                             <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
                                 <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">LANDASAN TEORI &amp; SINTESIS RISET TERDAHULU</div>
                                 <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier2)}</div>
@@ -2315,9 +2231,6 @@
                             </div>
 
                             <!-- TAHAP 3 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px;">PENDEKATAN METODOLOGI &amp; PEMODELAN SISTEM</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0;">${escapeHtml(tier3)}</div>
                             <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
                                 <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">PENDEKATAN METODOLOGI &amp; PEMODELAN SISTEM</div>
                                 <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier3)}</div>
@@ -2329,9 +2242,6 @@
                             </div>
 
                             <!-- TAHAP 4 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px;">LUARAN HASIL PENELITIAN &amp; SOLUSI PRAKTIS</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0;">${escapeHtml(tier4)}</div>
                             <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
                                 <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">LUARAN HASIL PENELITIAN &amp; SOLUSI PRAKTIS</div>
                                 <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier4)}</div>
@@ -2359,18 +2269,14 @@
                     if (filtered.length >= 4) nodes = filtered;
                 }
 
-                // Default urutan prosedur lengkap riset komputasi/skripsi jika data teks terlalu singkat
                 if (nodes.length < 5) {
                     nodes = [
                         'Mulai',
-                        'Pengumpulan Dataset Komentar TikTok via Crawling / API',
                         'Pengumpulan Dataset Komentar TikTok via Scraping / API',
                         'Pra-Pemrosesan Teks (Case Folding, Cleaning, Tokenizing, Normalisasi Slang, Stopword Removal, Stemming)',
                         'Pelabelan Sentimen & Pembobotan Fitur TF-IDF',
                         'Pembagian Dataset (Data Latih 80% : Data Uji 20%)',
                         'Pelatihan Model Klasifikasi Menggunakan Algoritma Naive Bayes',
-                        'Pengujian Model & Klasifikasi Sentimen Data Uji',
-                        'Evaluasi Kinerja Sistem: Confusion Matrix (Akurasi, Presisi, Recall, F1)',
                         'Evaluasi Kinerja Model: Confusion Matrix (Akurasi, Presisi, Recall, F1)',
                         'Penyusunan Laporan Hasil & Rekomendasi',
                         'Selesai'
@@ -2384,48 +2290,32 @@
                     </div>
                 `;
 
-                const flowItems = nodes.map((nodeText, idx) => {
-                    let flowContent = '';
-                    const decIdx = nodes.findIndex(n => /evaluasi|confusion|akurasi|validasi|memenuhi|uji/i.test(n) && !/mulai|start/i.test(n));
+                let flowContent = '';
+                const decIdx = nodes.findIndex(n => /evaluasi|confusion|akurasi|validasi|memenuhi|uji/i.test(n) && !/mulai|start/i.test(n));
 
-                    nodes.forEach((nodeText, idx) => {
-                        const isFirst = idx === 0 || /mulai|start/i.test(nodeText);
-                        const isLast = idx === nodes.length - 1 || /selesai|finish|end/i.test(nodeText);
-                        const isData = /dataset|data|pengumpulan|input|korpus|kuesioner/i.test(nodeText) && !isFirst && !isLast;
-                        const isDecision = /evaluasi|confusion|akurasi|validasi|memenuhi|uji/i.test(nodeText) && !isLast && idx >= 4;
-                        const isDecision = idx === decIdx;
+                nodes.forEach((nodeText, idx) => {
+                    const isFirst = idx === 0 || /mulai|start/i.test(nodeText);
+                    const isLast = idx === nodes.length - 1 || /selesai|finish|end/i.test(nodeText);
+                    const isData = /dataset|data|pengumpulan|input|korpus|kuesioner/i.test(nodeText) && !isFirst && !isLast;
+                    const isDecision = idx === decIdx;
 
-                        let shape = '';
-                        if (isFirst || isLast) {
-                            // 1. TERMINATOR (ANSI OVAL CAPSULE)
-                            shape = `
-                            <div style="display: inline-block; min-width: 130px; padding: 7px 28px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase;">
+                    if (isFirst || isLast) {
                         flowContent += `
-                                < div style = "display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;" >
-                                    ${ escapeHtml(nodeText) }
-                            </div >
-                    `;
+                            <div style="display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
+                                ${escapeHtml(nodeText)}
+                            </div>
+                        `;
                     } else if (isData) {
-                        // 2. INPUT / OUTPUT (ANSI PARALLELOGRAM)
-                        shape = `
-                flowContent += `
+                        flowContent += `
                             <div style="position: relative; width: 340px; max-width: 90%; padding: 9px 18px; border: 1.5px solid #000000; transform: skewX(-14deg); background: #ffffff;">
                                 <div style="transform: skewX(14deg); font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: 600; text-align: center; color: #000000; line-height: 1.35;">
                                     ${escapeHtml(nodeText)}
                                 </div>
                             </div>
                         `;
-            } else if (isDecision) {
-                // 3. DECISION / VALIDASI (ANSI DIAMOND BELAH KETUPAT)
-                shape = `
-                            <div style="position: relative; width: 220px; height: 100px; margin: 2px auto; display: flex; align-items: center; justify-content: center;">
-                                <svg width="220" height="100" viewBox="0 0 220 100" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                                    <polygon points="110,2 218,50 110,98 2,50" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
-                                </svg>
-                                <div style="position: relative; z-index: 2; font-family: 'Times New Roman', serif; font-size: 10pt; font-weight: 700; text-align: center; line-height: 1.25; padding: 0 32px; color: #000000;">
-                                    ${escapeHtml(nodeText)}
+                    } else if (isDecision) {
                         flowContent += `
-                    < div style = "position: relative; width: 100%; max-width: 540px; margin: 4px auto; display: flex; justify-content: center; align-items: center;" >
+                            <div style="position: relative; width: 100%; max-width: 540px; margin: 4px auto; display: flex; justify-content: center; align-items: center;">
                                 <div style="position: relative; width: 220px; height: 95px; display: flex; align-items: center; justify-content: center;">
                                     <svg width="220" height="95" viewBox="0 0 220 95" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
                                         <polygon points="110,2 218,47 110,93 2,47" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
@@ -2435,39 +2325,31 @@
                                     </div>
                                 </div>
 
-                                <!--Cabang Loopback Revisi ke Kanan-- >
-                    <div style="position: absolute; right: 0; top: 18px; display: flex; align-items: center; gap: 4px;">
-                        <div style="font-size: 9.5pt; font-family: 'Times New Roman', serif; font-weight: 700; color: #000000; margin-right: 2px;">Tidak / Kurang</div>
-                        <div style="width: 140px; padding: 6px 8px; border: 1.2px solid #000000; background: #ffffff; font-size: 9.5pt; font-family: 'Times New Roman', serif; text-align: center; line-height: 1.2; transform: skewX(-10deg);">
-                            <div style="transform: skewX(10deg); color: #000000;">Optimasi Parameter / Pra-Pemrosesan Ulang</div>
-                        </div>
-                        <div style="width: 1.5px; height: 60px; background: #000000; margin-left: 4px;"></div>
-                    </div>
-                            </div >
-                    <div style="font-size: 10pt; font-weight: 700; font-family: 'Times New Roman', serif; margin-top: 4px; color: #000000;">↓ Ya / Memenuhi Target</div>
-                `;
+                                <!-- Cabang Loopback Revisi ke Kanan -->
+                                <div style="position: absolute; right: 0; top: 18px; display: flex; align-items: center; gap: 4px;">
+                                    <div style="font-size: 9.5pt; font-family: 'Times New Roman', serif; font-weight: 700; color: #000000; margin-right: 2px;">Tidak / Kurang</div>
+                                    <div style="width: 140px; padding: 6px 8px; border: 1.2px solid #000000; background: #ffffff; font-size: 9.5pt; font-family: 'Times New Roman', serif; text-align: center; line-height: 1.2; transform: skewX(-10deg);">
+                                        <div style="transform: skewX(10deg); color: #000000;">Optimasi Parameter / Pra-Pemrosesan Ulang</div>
+                                    </div>
+                                    <div style="width: 1.5px; height: 60px; background: #000000; margin-left: 4px;"></div>
+                                </div>
+                            </div>
+                            <div style="font-size: 10pt; font-weight: 700; font-family: 'Times New Roman', serif; margin-top: 4px; color: #000000;">↓ Ya / Memenuhi Target</div>
+                        `;
                     } else {
-                        // 4. PROSES (ANSI RECTANGLE)
-                        shape = `
-                flowContent += `
+                        flowContent += `
                             <div style="width: 360px; max-width: 92%; padding: 9px 16px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000;">
                                 ${escapeHtml(nodeText)}
                             </div>
                         `;
-            }
+                    }
 
-            return shape + (idx < nodes.length - 1 ? arrowHtml : '');
-        }).join('');
-        if (idx < nodes.length - 1 && !isDecision) {
-            flowContent += arrowHtml;
-        }
+                    if (idx < nodes.length - 1 && !isDecision) {
+                        flowContent += arrowHtml;
+                    }
                 });
 
-        return `
-                    <div class="academic-figure-container" style="margin: 24px auto; max-width: 650px; background: #ffffff; border: 1.5px solid #000000; padding: 22px 24px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 18px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
-                            ${flowItems}
+                return `
                     <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
                         <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
 
@@ -2478,8 +2360,7 @@
                 `;
             }
 
-        return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1px solid #000000; font-family: 'Courier New', monospace; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
-        return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
+            return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
         }
 
         function computeDocumentPagination() {
@@ -2538,11 +2419,6 @@
             const list = [];
             const pageMap = computeDocumentPagination();
             const chapters = [
-                { key: 'bab1', num: 1, basePage: 1 },
-                { key: 'bab2', num: 2, basePage: 6 },
-                { key: 'bab3', num: 3, basePage: 18 },
-                { key: 'bab4', num: 4, basePage: 32 },
-                { key: 'bab5', num: 5, basePage: 46 }
                 { key: 'bab1', num: 1 },
                 { key: 'bab2', num: 2 },
                 { key: 'bab3', num: 3 },
@@ -2553,18 +2429,14 @@
             chapters.forEach(ch => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text) return;
                 if (!text || !pageMap[ch.key]) return;
 
                 const basePage = pageMap[ch.key].startPage;
                 const lines = text.split('\n');
-                let tableIdx = 0;
-                let inTbl = false;
                 let inCode = false;
 
                 lines.forEach((line, lIdx) => {
                     const trimmed = line.trim();
-                    const capMatch = trimmed.match(/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i);
                     if (trimmed.startsWith('```')) {
                         inCode = !inCode;
                         return;
@@ -2575,42 +2447,15 @@
                     if (capMatch) {
                         const rawTitle = capMatch[2].replace(/^[:\-\s]+/, '').trim();
                         // Abaikan jika ini kalimat pembahasan/analisis teks di dalam paragraf
-                        if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada/i.test(rawTitle)) {
-                            if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i.test(rawTitle)) {
-                                return;
-                            }
-                            tableIdx++;
-                            const title = capMatch[2].replace(/^[:\-\s]+/, '').trim() || `Tabel ${capMatch[1]}`;
-                            const title = rawTitle || `Tabel ${capMatch[1]}`;
-                            const num = capMatch[1];
-                            const title = rawTitle || `Tabel ${num}`;
-                            const estPage = ch.basePage + Math.floor(lIdx / 45);
-                            const estPage = basePage + Math.floor(lIdx / 45);
-                            list.push({ num: capMatch[1], title: `Tabel ${capMatch[1]} ${title}`, page: estPage });
-                        } else if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-                            if (!inTbl) {
-                                inTbl = true;
-                                const prevLine = (lines[lIdx - 1] || '').trim();
-                                if (!/^Tabel\s+\d+\.\d+/i.test(prevLine)) {
-                                    tableIdx++;
-                                    const defaultTitles = {
-                                        1: ['Karakteristik Data Penelitian', 'Distribusi Responden'],
-                                        2: ['Matriks Komparasi Penelitian Terdahulu', 'Sintesis Kajian Teori'],
-                                        3: ['Operasionalisasi Variabel & Parameter', 'Matriks Kebingungan (Confusion Matrix)', 'Spesifikasi Pengujian'],
-                                        4: ['Statistik Dataset Penelitian', 'Evaluasi Metrik Kinerja (Confusion Matrix)', 'Hasil Analisis Komparasi'],
-                                        5: ['Rekapitulasi Capaian Tujuan Penelitian']
-                                    };
-                                    const fallbackTitle = (defaultTitles[ch.num] && defaultTitles[ch.num][tableIdx - 1]) || `Tabel Analisis Data ${ch.num}.${tableIdx}`;
-                                    const estPage = ch.basePage + Math.floor(lIdx / 45);
-                                    const estPage = basePage + Math.floor(lIdx / 45);
-                                    list.push({ num: `${ch.num}.${tableIdx}`, title: `Tabel ${ch.num}.${tableIdx} ${fallbackTitle}`, page: estPage });
-                                }
-                            }
-                        } else {
-                            inTbl = false;
-                            list.push({ num: num, title: `Tabel ${num} ${title}`, page: estPage });
+                        if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i.test(rawTitle)) {
+                            return;
                         }
-                    });
+                        const num = capMatch[1];
+                        const title = rawTitle || `Tabel ${num}`;
+                        const estPage = basePage + Math.floor(lIdx / 45);
+                        list.push({ num: num, title: `Tabel ${num} ${title}`, page: estPage });
+                    }
+                });
             });
 
             return list;
@@ -2620,11 +2465,6 @@
             const list = [];
             const pageMap = computeDocumentPagination();
             const chapters = [
-                { key: 'bab1', num: 1, basePage: 1 },
-                { key: 'bab2', num: 2, basePage: 6 },
-                { key: 'bab3', num: 3, basePage: 18 },
-                { key: 'bab4', num: 4, basePage: 32 },
-                { key: 'bab5', num: 5, basePage: 46 }
                 { key: 'bab1', num: 1 },
                 { key: 'bab2', num: 2 },
                 { key: 'bab3', num: 3 },
@@ -2635,17 +2475,14 @@
             chapters.forEach(ch => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text) return;
                 if (!text || !pageMap[ch.key]) return;
 
                 const basePage = pageMap[ch.key].startPage;
                 if (ch.key === 'bab2' && (text.includes('Kerangka') || text.includes('kerangka') || text.includes('-->') || text.includes('```'))) {
-                    list.push({ num: '2.1', title: 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', page: ch.basePage + 4 });
                     list.push({ num: '2.1', title: 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', page: basePage + 3 });
                 }
 
                 if (ch.key === 'bab3' && (text.includes('Flowchart') || text.includes('flowchart') || text.includes('Alur') || text.includes('-->') || text.includes('```'))) {
-                    list.push({ num: '3.1', title: 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', page: ch.basePage + 3 });
                     list.push({ num: '3.1', title: 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', page: basePage + 2 });
                 }
 
@@ -2656,7 +2493,6 @@
                         const num = m[1];
                         if (num !== '2.1' && num !== '3.1') {
                             const title = m[2].replace(/^[:\-\s]+/, '').trim() || `Gambar ${num}`;
-                            list.push({ num: num, title: `Gambar ${num} ${title}`, page: ch.basePage + Math.floor(lIdx / 45) });
                             list.push({ num: num, title: `Gambar ${num} ${title}`, page: basePage + Math.floor(lIdx / 45) });
                         }
                     }
@@ -2684,7 +2520,6 @@
                 { key: 'bab5', num: 'V', title: 'BAB V PENUTUP' }
             ];
 
-            let currentPage = 1;
             const tocRows = [];
 
             // Bagian Awal Standar Akademik Indonesia (Front Matter)
@@ -2702,10 +2537,8 @@
             chaptersDef.forEach((ch) => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text) return;
                 if (!text || !pageMap[ch.key]) return;
 
-                const chPage = currentPage;
                 const chPage = pageMap[ch.key].startPage;
                 tocRows.push({ title: ch.title, page: String(chPage), isMain: true, isSub: false });
 
@@ -2734,45 +2567,30 @@
                         }
                     });
                 }
-
-                const estimatedPages = Math.max(2, Math.ceil(text.length / 2200), Math.ceil(subCount / 2));
-                currentPage += estimatedPages;
             });
 
             const dpContent = (chapterContents.daftar_pustaka || '').trim();
-            if (dpContent) {
-                tocRows.push({ title: 'DAFTAR PUSTAKA', page: String(currentPage), isMain: true, isSub: false });
-                if (dpContent && pageMap.daftar_pustaka) {
-                    tocRows.push({ title: 'DAFTAR PUSTAKA', page: String(pageMap.daftar_pustaka.startPage), isMain: true, isSub: false });
-                }
+            if (dpContent && pageMap.daftar_pustaka) {
+                tocRows.push({ title: 'DAFTAR PUSTAKA', page: String(pageMap.daftar_pustaka.startPage), isMain: true, isSub: false });
+            }
 
-                const tocHtml = tocRows.map((r) => {
-                    const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
-                    const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
-                    return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
-                }).join('');
+            const tocHtml = tocRows.map((r) => {
+                const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
+                const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
+                return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
+            }).join('');
 
-                const daftarTabelList = extractTablesForDocument();
-                const daftarTabelHtml = daftarTabelList.length > 0
-                    ? daftarTabelList.map(t => `<div class="toc-row main"><span>${escapeHtml(t.title)}</span><span class="toc-dots"></span><span class="toc-page">${t.page}</span></div>`).join('')
-                    : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada tabel dalam naskah penelitian)</div>';
+            const daftarTabelList = extractTablesForDocument();
+            const daftarTabelHtml = daftarTabelList.length > 0 
+                ? daftarTabelList.map(t => `<div class="toc-row main"><span>${escapeHtml(t.title)}</span><span class="toc-dots"></span><span class="toc-page">${t.page}</span></div>`).join('')
+                : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada tabel dalam naskah penelitian)</div>';
 
-                const daftarGambarList = extractFiguresForDocument();
-                const daftarGambarHtml = daftarGambarList.length > 0
-                    ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
-                    : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada gambar dalam naskah penelitian)</div>';
+            const daftarGambarList = extractFiguresForDocument();
+            const daftarGambarHtml = daftarGambarList.length > 0
+                ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
+                : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada gambar dalam naskah penelitian)</div>';
 
-                const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="105" height="105" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
-      <circle cx="60" cy="60" r="56" stroke="#1e3a8a" stroke-width="3" fill="#f8fafc"/>
-      <circle cx="60" cy="60" r="50" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3 3"/>
-      <circle cx="60" cy="60" r="44" stroke="#1e3a8a" stroke-width="1.5" fill="#ffffff"/>
-      <polygon points="60,25 70,45 92,48 76,64 80,86 60,75 40,86 44,64 28,48 50,45" fill="#f59e0b" stroke="#d97706" stroke-width="1.2"/>
-      <path d="M42 66 L60 55 L78 66 L60 77 Z" fill="#1e3a8a"/>
-      <path d="M48 69.5 V80 C48 83.5 53.5 86 60 86 C66.5 86 72 83.5 72 80 V69.5" fill="none" stroke="#1e3a8a" stroke-width="2"/>
-      <path d="M78 66 V78" stroke="#d97706" stroke-width="2"/>
-      <circle cx="78" cy="80" r="2" fill="#d97706"/>
-    </svg>`;
-                const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
+            const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
               <circle cx="60" cy="60" r="56" stroke="#000000" stroke-width="2.5" fill="#ffffff"/>
               <circle cx="60" cy="60" r="50" stroke="#000000" stroke-width="1.2" stroke-dasharray="3 3"/>
               <circle cx="60" cy="60" r="44" stroke="#000000" stroke-width="1.5" fill="#ffffff"/>
@@ -2783,12 +2601,12 @@
               <circle cx="78" cy="80" r="2" fill="#000000"/>
             </svg>`;
 
-                const hasValidLogo = logo && logo.length > 50 && (logo.startsWith('data:image/') || logo.startsWith('http'));
-                const logoMarkup = hasValidLogo
-                    ? `<img src="${logo}" alt="Logo Kampus" class="cover-logo-img" onerror="this.outerHTML = DEFAULT_ACADEMIC_SEAL_SVG;">`
-                    : DEFAULT_ACADEMIC_SEAL_SVG;
+            const hasValidLogo = logo && logo.length > 50 && (logo.startsWith('data:image/') || logo.startsWith('http'));
+            const logoMarkup = hasValidLogo
+                ? `<img src="${logo}" alt="Logo Kampus" class="cover-logo-img" onerror="this.outerHTML = DEFAULT_ACADEMIC_SEAL_SVG;">`
+                : DEFAULT_ACADEMIC_SEAL_SVG;
 
-                return `
+            return `
         <!-- 1. HALAMAN JUDUL (COVER) -->
         <div class="a4-sheet cover-sheet" contenteditable="true" spellcheck="false">
             <div class="cover-top-block">
@@ -2813,7 +2631,6 @@
         </div>
 
         <!-- 2. LEMBAR PENGESAHAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">LEMBAR PENGESAHAN</div>
@@ -2854,7 +2671,6 @@
         </div>
 
         <!-- 3. SURAT PERNYATAAN KEASLIAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
@@ -2886,7 +2702,6 @@
         </div>
 
         <!-- 4. ABSTRAK (BAHASA INDONESIA) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">ABSTRAK</div>
@@ -2908,7 +2723,6 @@
         </div>
 
         <!-- 5. ABSTRACT (ENGLISH) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">ABSTRACT</div>
@@ -2930,7 +2744,6 @@
         </div>
 
         <!-- 6. KATA PENGANTAR -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">KATA PENGANTAR</div>
@@ -2959,9 +2772,6 @@
         </div>
 
         <!-- 7. DAFTAR ISI -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR ISI</div>
-            <div class="toc-list">${tocHtml}</div>
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR ISI</div>
@@ -2971,10 +2781,6 @@
         </div>
 
         <!-- 8. DAFTAR TABEL -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR TABEL</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                ${daftarTabelHtml}
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR TABEL</div>
@@ -2986,10 +2792,6 @@
         </div>
 
         <!-- 9. DAFTAR GAMBAR -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR GAMBAR</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                ${daftarGambarHtml}
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR GAMBAR</div>
@@ -3001,17 +2803,6 @@
         </div>
 
         <!-- 10. DAFTAR LAMPIRAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
-            <div class="front-heading">DAFTAR LAMPIRAN</div>
-            <div class="toc-list" style="margin-top: 20px;">
-                <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">62</span></div>
-                <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">64</span></div>
-                <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">68</span></div>
-                <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">72</span></div>
-                <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage}</span></div>
-                <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 2}</span></div>
-                <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 4}</span></div>
-                <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 6}</span></div>
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR LAMPIRAN</div>
@@ -3025,125 +2816,125 @@
             <div class="sheet-footer">ix</div>
         </div>
     `;
-            }
+        }
 
-            function buildSubchapterOptions() {
-                const allowedChapters = allowBab45
-                    ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5']
-                    : ['bab1', 'bab2', 'bab3'];
+        function buildSubchapterOptions() {
+            const allowedChapters = allowBab45
+                ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5']
+                : ['bab1', 'bab2', 'bab3'];
 
-                const options = [];
-                const seen = new Set();
+            const options = [];
+            const seen = new Set();
 
-                // Hanya tampilkan bab yang sudah memiliki isi naskah
-                const activeChapters = allowedChapters.filter((ch) => Boolean((chapterContents[ch] || '').trim()));
-                const targetChapters = activeChapters.length > 0 ? activeChapters : ['bab1'];
+            // Hanya tampilkan bab yang sudah memiliki isi naskah
+            const activeChapters = allowedChapters.filter((ch) => Boolean((chapterContents[ch] || '').trim()));
+            const targetChapters = activeChapters.length > 0 ? activeChapters : ['bab1'];
 
-                targetChapters.forEach((ch) => {
-                    const text = (chapterContents[ch] || '').trim();
-                    const foundSubs = [];
+            targetChapters.forEach((ch) => {
+                const text = (chapterContents[ch] || '').trim();
+                const foundSubs = [];
 
-                    if (text) {
-                        const lines = text.split('\n');
-                        lines.forEach((raw) => {
-                            const line = raw.trim();
-                            const m = line.match(/^(?:##\s+)?(\d+\.\d+\.?\s+[^\n]+)/) ||
-                                line.match(/^(?:##\s+)?([A-Z]\.\s+[A-Z][^\n]+)/);
-                            if (m && m[1]) {
-                                const clean = m[1].replace(/^##\s+/, '').trim();
-                                if (clean.length >= 4 && clean.length <= 80 && !seen.has(clean.toLowerCase())) {
-                                    seen.add(clean.toLowerCase());
-                                    foundSubs.push(clean);
-                                }
+                if (text) {
+                    const lines = text.split('\n');
+                    lines.forEach((raw) => {
+                        const line = raw.trim();
+                        const m = line.match(/^(?:##\s+)?(\d+\.\d+\.?\s+[^\n]+)/) ||
+                            line.match(/^(?:##\s+)?([A-Z]\.\s+[A-Z][^\n]+)/);
+                        if (m && m[1]) {
+                            const clean = m[1].replace(/^##\s+/, '').trim();
+                            if (clean.length >= 4 && clean.length <= 80 && !seen.has(clean.toLowerCase())) {
+                                seen.add(clean.toLowerCase());
+                                foundSubs.push(clean);
                             }
-                        });
-                    }
+                        }
+                    });
+                }
 
-                    if (foundSubs.length > 0) {
-                        foundSubs.forEach((lbl) => {
-                            options.push({ value: `${ch}|${lbl}`, label: lbl });
-                        });
-                    } else {
-                        defaultSubchapters.forEach((item) => {
-                            if (item.chapter === ch && item.code) {
-                                if (!seen.has(item.label.toLowerCase())) {
-                                    seen.add(item.label.toLowerCase());
-                                    options.push({ value: `${ch}|${item.label}`, label: item.label });
-                                }
+                if (foundSubs.length > 0) {
+                    foundSubs.forEach((lbl) => {
+                        options.push({ value: `${ch}|${lbl}`, label: lbl });
+                    });
+                } else {
+                    defaultSubchapters.forEach((item) => {
+                        if (item.chapter === ch && item.code) {
+                            if (!seen.has(item.label.toLowerCase())) {
+                                seen.add(item.label.toLowerCase());
+                                options.push({ value: `${ch}|${item.label}`, label: item.label });
                             }
-                        });
-                    }
+                        }
+                    });
+                }
 
-                    const chLabel = chapterLabels[ch] || ch.toUpperCase();
-                    options.push({ value: `${ch}|Semua ${chLabel} (Utuh)`, label: `Semua ${chLabel} (Utuh)` });
-                });
+                const chLabel = chapterLabels[ch] || ch.toUpperCase();
+                options.push({ value: `${ch}|Semua ${chLabel} (Utuh)`, label: `Semua ${chLabel} (Utuh)` });
+            });
 
-                return options;
+            return options;
+        }
+
+        function extractSubchapterPreview(chapterKey, subLabel) {
+            const content = (chapterContents[chapterKey] || '').trim();
+            if (!content) {
+                return 'Bab ini belum disusun. Kamu tetap bisa memproses atau membuat ulang isi sub-bab langsung dari instruksi di atas.';
+            }
+            if (subLabel.toLowerCase().includes('semua bab') || subLabel.toLowerCase().includes('utuh')) {
+                return content.slice(0, 900) + (content.length > 900 ? '\n...' : '');
             }
 
-            function extractSubchapterPreview(chapterKey, subLabel) {
-                const content = (chapterContents[chapterKey] || '').trim();
-                if (!content) {
-                    return 'Bab ini belum disusun. Kamu tetap bisa memproses atau membuat ulang isi sub-bab langsung dari instruksi di atas.';
-                }
-                if (subLabel.toLowerCase().includes('semua bab') || subLabel.toLowerCase().includes('utuh')) {
-                    return content.slice(0, 900) + (content.length > 900 ? '\n...' : '');
-                }
+            const codeMatch = subLabel.match(/^(\d+\.\d+|[A-Z]\.)/);
+            const code = codeMatch ? codeMatch[1].replace('.', '\\.') : '';
+            const titlePart = subLabel.replace(/^(\d+\.\d+|[A-Z]\.)\s*/, '').trim();
+            const escapedTitle = titlePart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-                const codeMatch = subLabel.match(/^(\d+\.\d+|[A-Z]\.)/);
-                const code = codeMatch ? codeMatch[1].replace('.', '\\.') : '';
-                const titlePart = subLabel.replace(/^(\d+\.\d+|[A-Z]\.)\s*/, '').trim();
-                const escapedTitle = titlePart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-                let regex = null;
-                if (code) {
-                    regex = new RegExp(`(?:##\\s*)?${code}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
-                } else if (escapedTitle) {
-                    regex = new RegExp(`(?:##\\s*)?[^\\n]*${escapedTitle}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
-                }
-
-                if (regex) {
-                    const m = content.match(regex);
-                    if (m && m[0]) {
-                        const slice = m[0].trim();
-                        return slice.slice(0, 900) + (slice.length > 900 ? '\n...' : '');
-                    }
-                }
-
-                return content.slice(0, 600) + (content.length > 600 ? '\n...' : '');
+            let regex = null;
+            if (code) {
+                regex = new RegExp(`(?:##\\s*)?${code}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
+            } else if (escapedTitle) {
+                regex = new RegExp(`(?:##\\s*)?[^\\n]*${escapedTitle}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n(?:##\\s*)?(?:\\d+\\.\\d+|[A-Z]\\.)\\s)|$)`, 'i');
             }
 
-            function updateRevisePreview() {
-                const sel = document.getElementById('revise-subchapter-select');
-                const box = document.getElementById('revise-preview-text');
-                if (!sel || !box) return;
-                if (!sel.value) {
-                    box.textContent = 'Pilih sub-bab di atas untuk melihat cuplikan teks yang akan direvisi.';
-                    return;
-                }
-                const [chapterKey, subLabel] = sel.value.split('|');
-                box.textContent = extractSubchapterPreview(chapterKey, subLabel);
-            }
-
-            function setReviseMode(mode) {
-                currentReviseMode = mode;
-                document.querySelectorAll('.revisi-mode-tab').forEach((btn) => {
-                    btn.classList.toggle('active', btn.dataset.mode === mode);
-                });
-                const ta = document.getElementById('revise-instruction');
-                if (ta) {
-                    ta.placeholder = mode === 'content'
-                        ? 'Contoh: Pertajam fenomena gap penelitian dengan data tahun 2024–2025, tambahkan sitasi terbaru, atau sesuaikan dengan catatan dosen pembimbing...'
-                        : 'Contoh: Rapikan gaya bahasa agar lebih baku sesuai EYD/PUEBI, perjelas transisi antarparagraf, dan hilangkan pengulangan kalimat...';
+            if (regex) {
+                const m = content.match(regex);
+                if (m && m[0]) {
+                    const slice = m[0].trim();
+                    return slice.slice(0, 900) + (slice.length > 900 ? '\n...' : '');
                 }
             }
 
-            function renderLabRevisi() {
-                const options = buildSubchapterOptions();
-                const optHtml = options.map((o) => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('');
-                const container = document.getElementById('sheets-container');
+            return content.slice(0, 600) + (content.length > 600 ? '\n...' : '');
+        }
 
-                container.innerHTML = `
+        function updateRevisePreview() {
+            const sel = document.getElementById('revise-subchapter-select');
+            const box = document.getElementById('revise-preview-text');
+            if (!sel || !box) return;
+            if (!sel.value) {
+                box.textContent = 'Pilih sub-bab di atas untuk melihat cuplikan teks yang akan direvisi.';
+                return;
+            }
+            const [chapterKey, subLabel] = sel.value.split('|');
+            box.textContent = extractSubchapterPreview(chapterKey, subLabel);
+        }
+
+        function setReviseMode(mode) {
+            currentReviseMode = mode;
+            document.querySelectorAll('.revisi-mode-tab').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            const ta = document.getElementById('revise-instruction');
+            if (ta) {
+                ta.placeholder = mode === 'content'
+                    ? 'Contoh: Pertajam fenomena gap penelitian dengan data tahun 2024–2025, tambahkan sitasi terbaru, atau sesuaikan dengan catatan dosen pembimbing...'
+                    : 'Contoh: Rapikan gaya bahasa agar lebih baku sesuai EYD/PUEBI, perjelas transisi antarparagraf, dan hilangkan pengulangan kalimat...';
+            }
+        }
+
+        function renderLabRevisi() {
+            const options = buildSubchapterOptions();
+            const optHtml = options.map((o) => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('');
+            const container = document.getElementById('sheets-container');
+
+            container.innerHTML = `
         <div class="revisi-card" id="view-revisi">
             <div class="revisi-header">
                 <div class="revisi-title" style="display: flex; align-items: center; gap: 8px;">
@@ -3187,187 +2978,159 @@
             </div>
         </div>
     `;
-            }
+        }
 
-            let researchDataRiil = projectMeta.data_riil || {};
+        let researchDataRiil = projectMeta.data_riil || {};
+        try {
+            const cached = localStorage.getItem(`skripsi_data_riil_${projectId}`);
+            if (cached) researchDataRiil = Object.assign({}, researchDataRiil, JSON.parse(cached));
+        } catch (e) { }
+
+        function applyOlahDataPreset(type) {
+            if (type === 'spss') {
+                document.getElementById('riil-metode').value = 'IBM SPSS Statistics 26 (Analisis Regresi Linier Berganda)';
+                document.getElementById('riil-sampel').value = '120 Responden Mahasiswa (Kuesioner Skala Likert 1-5)';
+                document.getElementById('riil-rumus').value = 'Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, Uji F';
+                document.getElementById('riil-lokasi').value = 'Universitas / Lingkup Objek Penelitian Mahasiswa';
+                document.getElementById('riil-metrik').value = 'R-Square = 0.684 (68.4%), F-hitung = 45.21 (Sig 0.000 < 0.05). Koefisien B: X1 = 0.382 (t-hitung 3.42, Sig 0.001); X2 = 0.451 (t-hitung 4.15, Sig 0.000). Uji Normalitas K-S Asymp. Sig = 0.200 > 0.05, Multikolinearitas Tolerance > 0.10 & VIF < 10.';
+                document.getElementById('riil-evaluasi').value = 'Uji Validitas Item (r-hitung > r-tabel), Uji Reliabilitas Cronbach Alpha > 0.70, Uji Asumsi Klasik, Uji t parsial, Uji F simultan, Koefisien Determinasi R2';
+            } else if (type === 'pls') {
+                document.getElementById('riil-metode').value = 'SmartPLS 4 (Structural Equation Modeling - Partial Least Squares)';
+                document.getElementById('riil-sampel').value = '150 Responden Karyawan / Konsumen';
+                document.getElementById('riil-rumus').value = 'Outer Model (Loading Factor > 0.70, AVE > 0.50, Composite Reliability > 0.70), Inner Model (R2, f2, Q2, Path Coefficients t-statistic > 1.96)';
+                document.getElementById('riil-lokasi').value = 'Objek Perusahaan / Organisasi';
+                document.getElementById('riil-metrik').value = 'AVE semua konstruk > 0.55, Cronbach Alpha > 0.80, Composite Reliability > 0.85. Path Coefficient: X1 -> Y = 0.345 (p-value 0.002), X2 -> Y = 0.420 (p-value 0.000). R2 = 0.612.';
+                document.getElementById('riil-evaluasi').value = 'Evaluasi Measurement Model (Convergent & Discriminant Validity HTMT) dan Structural Model (Bootstrapping 5000 subsamples)';
+            } else if (type === 'ml') {
+                document.getElementById('riil-metode').value = 'Python Scikit-Learn (Algoritma Naive Bayes / SVM / Random Forest)';
+                document.getElementById('riil-sampel').value = '1.500 Data Teks Ulasan / Komentar Media Sosial (Rasio Split 80:20)';
+                document.getElementById('riil-rumus').value = 'Teorema Bayes: P(C|X) = P(X|C)P(C)/P(X); Akurasi = (TP+TN)/(TP+TN+FP+FN); Presisi = TP/(TP+FP); Recall = TP/(TP+FN); F1-Score = 2*(Presisi*Recall)/(Presisi+Recall)';
+                document.getElementById('riil-lokasi').value = 'Platform Twitter (X) / TikTok / Google Play Review';
+                document.getElementById('riil-metrik').value = 'Akurasi Keseluruhan = 88.50%, Macro Average Precision = 87.20%, Recall = 88.10%, F1-Score = 87.65%. Confusion Matrix: TP = 120, TN = 135, FP = 18, FN = 17.';
+                document.getElementById('riil-evaluasi').value = 'K-Fold Cross Validation (10-Fold), Confusion Matrix (Akurasi, Precision, Recall, F1-Score)';
+            } else if (type === 'eksperimen') {
+                document.getElementById('riil-metode').value = 'Quasi-Experimental Design (Nonequivalent Pretest-Posttest Control Group)';
+                document.getElementById('riil-sampel').value = '64 Siswa (Kelas Eksperimen n=32, Kelas Kontrol n=32)';
+                document.getElementById('riil-rumus').value = 'Skor N-Gain = (Skor Posttest - Skor Pretest) / (Skor Maksimal - Skor Pretest), Independent Samples t-test';
+                document.getElementById('riil-lokasi').value = 'Sekolah / Lembaga Pendidikan';
+                document.getElementById('riil-metrik').value = 'Kelas Eksperimen: Rata-rata Pretest 54.20 -> Posttest 85.50 (N-Gain 0.683 kategori Sedang-Tinggi / Efektif). Kelas Kontrol: Pretest 53.80 -> Posttest 68.20 (N-Gain 0.311). Nilai t-hitung = 5.241 (Sig 0.000 < 0.05).';
+                document.getElementById('riil-evaluasi').value = 'Uji Normalitas Shapiro-Wilk, Uji Homogenitas Levene, Independent Sample t-test, Kategori Tafsiran N-Gain Hake';
+            }
+        }
+
+        function openDataRiilModal() {
+            const m = document.getElementById('modal-data-riil');
+            if (!m) return;
+            document.getElementById('riil-metode').value = researchDataRiil.metode || '';
+            document.getElementById('riil-sampel').value = researchDataRiil.sampel || '';
+            document.getElementById('riil-rumus').value = researchDataRiil.rumus || '';
+            document.getElementById('riil-lokasi').value = researchDataRiil.lokasi || '';
+            document.getElementById('riil-metrik').value = researchDataRiil.metrik || '';
+            document.getElementById('riil-evaluasi').value = researchDataRiil.evaluasi || '';
+            m.style.display = 'flex';
+        }
+
+        function closeDataRiilModal() {
+            const m = document.getElementById('modal-data-riil');
+            if (m) m.style.display = 'none';
+        }
+
+        function saveDataRiil() {
+            researchDataRiil = {
+                metode: (document.getElementById('riil-metode').value || '').trim(),
+                sampel: (document.getElementById('riil-sampel').value || '').trim(),
+                rumus: (document.getElementById('riil-rumus')?.value || '').trim(),
+                lokasi: (document.getElementById('riil-lokasi').value || '').trim(),
+                metrik: (document.getElementById('riil-metrik').value || '').trim(),
+                evaluasi: (document.getElementById('riil-evaluasi').value || '').trim()
+            };
             try {
-                const cached = localStorage.getItem(`skripsi_data_riil_${projectId}`);
-                if (cached) researchDataRiil = Object.assign({}, researchDataRiil, JSON.parse(cached));
+                localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil));
             } catch (e) { }
+            closeDataRiilModal();
+            showToast('Data olahan & rumus penelitian berhasil disimpan! Siap diterapkan ke Bab 3 & 4.', 'success');
+        }
 
-            function applyOlahDataPreset(type) {
-                if (type === 'spss') {
-                    document.getElementById('riil-metode').value = 'IBM SPSS Statistics 26 (Analisis Regresi Linier Berganda)';
-                    document.getElementById('riil-sampel').value = '120 Responden Mahasiswa (Kuesioner Skala Likert 1-5)';
-                    document.getElementById('riil-rumus').value = 'Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, Uji F';
-                    document.getElementById('riil-lokasi').value = 'Universitas / Lingkup Objek Penelitian Mahasiswa';
-                    document.getElementById('riil-metrik').value = 'R-Square = 0.684 (68.4%), F-hitung = 45.21 (Sig 0.000 < 0.05). Koefisien B: X1 = 0.382 (t-hitung 3.42, Sig 0.001); X2 = 0.451 (t-hitung 4.15, Sig 0.000). Uji Normalitas K-S Asymp. Sig = 0.200 > 0.05, Multikolinearitas Tolerance > 0.10 & VIF < 10.';
-                    document.getElementById('riil-evaluasi').value = 'Uji Validitas Item (r-hitung > r-tabel), Uji Reliabilitas Cronbach Alpha > 0.70, Uji Asumsi Klasik, Uji t parsial, Uji F simultan, Koefisien Determinasi R2';
-                } else if (type === 'pls') {
-                    document.getElementById('riil-metode').value = 'SmartPLS 4 (Structural Equation Modeling - Partial Least Squares)';
-                    document.getElementById('riil-sampel').value = '150 Responden Karyawan / Konsumen';
-                    document.getElementById('riil-rumus').value = 'Outer Model (Loading Factor > 0.70, AVE > 0.50, Composite Reliability > 0.70), Inner Model (R2, f2, Q2, Path Coefficients t-statistic > 1.96)';
-                    document.getElementById('riil-lokasi').value = 'Objek Perusahaan / Organisasi';
-                    document.getElementById('riil-metrik').value = 'AVE semua konstruk > 0.55, Cronbach Alpha > 0.80, Composite Reliability > 0.85. Path Coefficient: X1 -> Y = 0.345 (p-value 0.002), X2 -> Y = 0.420 (p-value 0.000). R2 = 0.612.';
-                    document.getElementById('riil-evaluasi').value = 'Evaluasi Measurement Model (Convergent & Discriminant Validity HTMT) dan Structural Model (Bootstrapping 5000 subsamples)';
-                } else if (type === 'ml') {
-                    document.getElementById('riil-metode').value = 'Python Scikit-Learn (Algoritma Naive Bayes / SVM / Random Forest)';
-                    document.getElementById('riil-sampel').value = '1.500 Data Teks Ulasan / Komentar Media Sosial (Rasio Split 80:20)';
-                    document.getElementById('riil-rumus').value = 'Teorema Bayes: P(C|X) = P(X|C)P(C)/P(X); Akurasi = (TP+TN)/(TP+TN+FP+FN); Presisi = TP/(TP+FP); Recall = TP/(TP+FN); F1-Score = 2*(Presisi*Recall)/(Presisi+Recall)';
-                    document.getElementById('riil-lokasi').value = 'Platform Twitter (X) / TikTok / Google Play Review';
-                    document.getElementById('riil-metrik').value = 'Akurasi Keseluruhan = 88.50%, Macro Average Precision = 87.20%, Recall = 88.10%, F1-Score = 87.65%. Confusion Matrix: TP = 120, TN = 135, FP = 18, FN = 17.';
-                    document.getElementById('riil-evaluasi').value = 'K-Fold Cross Validation (10-Fold), Confusion Matrix (Akurasi, Precision, Recall, F1-Score)';
-                } else if (type === 'eksperimen') {
-                    document.getElementById('riil-metode').value = 'Quasi-Experimental Design (Nonequivalent Pretest-Posttest Control Group)';
-                    document.getElementById('riil-sampel').value = '64 Siswa (Kelas Eksperimen n=32, Kelas Kontrol n=32)';
-                    document.getElementById('riil-rumus').value = 'Skor N-Gain = (Skor Posttest - Skor Pretest) / (Skor Maksimal - Skor Pretest), Independent Samples t-test';
-                    document.getElementById('riil-lokasi').value = 'Sekolah / Lembaga Pendidikan';
-                    document.getElementById('riil-metrik').value = 'Kelas Eksperimen: Rata-rata Pretest 54.20 -> Posttest 85.50 (N-Gain 0.683 kategori Sedang-Tinggi / Efektif). Kelas Kontrol: Pretest 53.80 -> Posttest 68.20 (N-Gain 0.311). Nilai t-hitung = 5.241 (Sig 0.000 < 0.05).';
-                    document.getElementById('riil-evaluasi').value = 'Uji Normalitas Shapiro-Wilk, Uji Homogenitas Levene, Independent Sample t-test, Kategori Tafsiran N-Gain Hake';
-                }
-            }
+        // =========================================================================
+        // PAGINASI PRESISI KERTAS A4 UNTUK NASKAH BAB & HALAMAN DEPAN
+        // =========================================================================
+        function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum) {
+            if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
 
-            function openDataRiilModal() {
-                const m = document.getElementById('modal-data-riil');
-                if (!m) return;
-                document.getElementById('riil-metode').value = researchDataRiil.metode || '';
-                document.getElementById('riil-sampel').value = researchDataRiil.sampel || '';
-                document.getElementById('riil-rumus').value = researchDataRiil.rumus || '';
-                document.getElementById('riil-lokasi').value = researchDataRiil.lokasi || '';
-                document.getElementById('riil-metrik').value = researchDataRiil.metrik || '';
-                document.getElementById('riil-evaluasi').value = researchDataRiil.evaluasi || '';
-                m.style.display = 'flex';
-            }
-
-            function closeDataRiilModal() {
-                const m = document.getElementById('modal-data-riil');
-                if (m) m.style.display = 'none';
-            }
-
-            function saveDataRiil() {
-                researchDataRiil = {
-                    metode: (document.getElementById('riil-metode').value || '').trim(),
-                    sampel: (document.getElementById('riil-sampel').value || '').trim(),
-                    rumus: (document.getElementById('riil-rumus')?.value || '').trim(),
-                    lokasi: (document.getElementById('riil-lokasi').value || '').trim(),
-                    metrik: (document.getElementById('riil-metrik').value || '').trim(),
-                    evaluasi: (document.getElementById('riil-evaluasi').value || '').trim()
-                };
-                try {
-                    localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil));
-                } catch (e) { }
-                closeDataRiilModal();
-                showToast('Data olahan & rumus penelitian berhasil disimpan! Siap diterapkan ke Bab 3 & 4.', 'success');
-            }
-
-            // =========================================================================
-            // PAGINASI PRESISI KERTAS A4 UNTUK NASKAH BAB & HALAMAN DEPAN
-            // =========================================================================
-            function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum) {
-                if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
-
-                const fallbackHtml = `
-                <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+            const fallbackHtml = `
                 <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
                     <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
                     <div class="sheet-footer">${startPageNum}</div>
                 </div>
             `;
 
-                try {
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = fullBodyHtml;
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = fullBodyHtml;
 
-                    const blocks = Array.from(tempDiv.children);
-                    if (!blocks.length) {
-                        return fallbackHtml;
+                const blocks = Array.from(tempDiv.children);
+                if (!blocks.length) {
+                    return fallbackHtml;
+                }
+
+                const pages = [];
+                let curPageBlocks = [];
+                let curPageWeight = 0;
+                // Kapasitas bobot teks standar kertas A4 akademik (~3800 karakter penuh)
+                const MAX_PAGE_WEIGHT = 3800;
+
+                blocks.forEach((block) => {
+                    const textLen = (block.innerText || '').length;
+                    const tagName = (block.tagName || '').toLowerCase();
+                    let blockWeight = textLen;
+
+                    // Bobot visual proporsional elemen tabel, bagan, list, dan heading
+                    if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
+                        blockWeight = Math.max(textLen, 900);
+                    } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
+                        blockWeight = Math.max(textLen, 120);
+                    } else if (tagName === 'ul' || tagName === 'ol') {
+                        blockWeight = Math.max(textLen, 250);
+                    } else {
+                        blockWeight = Math.max(textLen, 150);
                     }
 
-                    const pages = [];
-                    let curPageBlocks = [];
-                    let curPageWeight = 0;
-                    // Kapasitas bobot teks standar kertas A4 akademik (setara ~1800 - 2200 karakter atau ~850px tinggi area cetak)
-                    const MAX_PAGE_WEIGHT = 1950;
-                    const pages = [];
-                    let curPageBlocks = [];
-                    let curPageWeight = 0;
-                    // Kapasitas bobot teks standar kertas A4 akademik (~3800 karakter penuh)
-                    const MAX_PAGE_WEIGHT = 3800;
+                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi sedikit kapasitas
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 400) : MAX_PAGE_WEIGHT;
 
-                    blocks.forEach((block) => {
-                        const textLen = (block.innerText || '').length;
-                        const tagName = (block.tagName || '').toLowerCase();
-                        let blockWeight = textLen;
+                    // HANYA ganti halaman jika halaman saat ini memang sudah terisi penuh (minimal 2200 bobot) dan melebihi batas kapasitas
+                    // Mencegah kertas berganti prematur saat baru terisi 1 paragraf atau hanya judul
+                    if (curPageBlocks.length > 0 && curPageWeight >= 2200 && (curPageWeight + blockWeight > curLimit)) {
+                        // Hindari meletakkan heading sendirian di paling bawah halaman penuh (orphan heading)
+                        const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                        const lastTag = (lastBlock.tagName || '').toLowerCase();
 
-                        // Bobot visual proporsional elemen tabel, bagan, list, dan heading
-                        if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                            blockWeight = Math.max(textLen, 950);
-                        } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                            blockWeight = Math.max(textLen, 260);
-                        } else if (tagName === 'ul' || tagName === 'ol') {
-                            blockWeight = Math.max(textLen, 400);
+                        if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 2) {
+                            const orphanHeading = curPageBlocks.pop();
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [orphanHeading, block];
+                            curPageWeight = 120 + blockWeight;
                         } else {
-                            blockWeight = Math.max(textLen, 190);
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [block];
+                            curPageWeight = blockWeight;
                         }
-                        // Bobot visual proporsional elemen tabel, bagan, list, dan heading
-                        if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                            blockWeight = Math.max(textLen, 900);
-                        } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                            blockWeight = Math.max(textLen, 120);
-                        } else if (tagName === 'ul' || tagName === 'ol') {
-                            blockWeight = Math.max(textLen, 250);
-                        } else {
-                            blockWeight = Math.max(textLen, 150);
-                        }
-
-                        // Halaman pertama memiliki judul bab besar di bagian atas, kurangi batas kapasitas
-                        const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 360) : MAX_PAGE_WEIGHT;
-                        // Halaman pertama memiliki judul bab besar di bagian atas, kurangi sedikit kapasitas
-                        const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 400) : MAX_PAGE_WEIGHT;
-
-                        if (curPageBlocks.length > 0 && (curPageWeight + blockWeight > curLimit)) {
-                            // Hindari meletakkan heading sendirian di paling bawah halaman (orphan heading)
-                            const lastBlock = curPageBlocks[curPageBlocks.length - 1];
-                            const lastTag = (lastBlock.tagName || '').toLowerCase();
-                            if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 1) {
-                                const orphanHeading = curPageBlocks.pop();
-                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                curPageBlocks = [orphanHeading, block];
-                                curPageWeight = 260 + blockWeight;
-                            } else {
-                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                curPageBlocks = [block];
-                                curPageWeight = blockWeight;
-                            }
-                            // HANYA ganti halaman jika halaman saat ini memang sudah terisi penuh (minimal 2200 bobot) dan melebihi batas kapasitas
-                            // Mencegah kertas berganti prematur saat baru terisi 1 paragraf atau hanya judul
-                            if (curPageBlocks.length > 0 && curPageWeight >= 2200 && (curPageWeight + blockWeight > curLimit)) {
-                                // Hindari meletakkan heading sendirian di paling bawah halaman penuh (orphan heading)
-                                const lastBlock = curPageBlocks[curPageBlocks.length - 1];
-                                const lastTag = (lastBlock.tagName || '').toLowerCase();
-
-                                if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 2) {
-                                    const orphanHeading = curPageBlocks.pop();
-                                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                    curPageBlocks = [orphanHeading, block];
-                                    curPageWeight = 120 + blockWeight;
-                                } else {
-                                    curPageBlocks.push(block);
-                                    curPageWeight += blockWeight;
-                                }
-                            });
-
-                    if (curPageBlocks.length > 0) {
-                        pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                    } else {
+                        curPageBlocks.push(block);
+                        curPageWeight += blockWeight;
                     }
+                });
 
-                    if (!pages.length) return fallbackHtml;
+                if (curPageBlocks.length > 0) {
+                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                }
 
-                    let outputHtml = '';
-                    pages.forEach((pageContent, pIdx) => {
-                        const thisPageNum = startPageNum + pIdx;
-                        outputHtml += `
-                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                if (!pages.length) return fallbackHtml;
+
+                let outputHtml = '';
+                pages.forEach((pageContent, pIdx) => {
+                    const thisPageNum = startPageNum + pIdx;
+                    outputHtml += `
                         <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
                             <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
                                 ${pageContent}
@@ -3375,492 +3138,465 @@
                             <div class="sheet-footer">${thisPageNum}</div>
                         </div>
                     `;
-                    });
+                });
 
-                    return outputHtml || fallbackHtml;
-                } catch (e) {
-                    console.error('Error paginasi chapter:', e);
-                    return fallbackHtml;
-                }
+                return outputHtml || fallbackHtml;
+            } catch (e) {
+                console.error('Error paginasi chapter:', e);
+                return fallbackHtml;
             }
+        }
 
-            function renderAllSheets() {
-                const container = document.getElementById('sheets-container');
-                const frontHtml = buildCoverAndFrontMatterHtml();
-                const pageMap = computeDocumentPagination();
+        function renderAllSheets() {
+            const container = document.getElementById('sheets-container');
+            const frontHtml = buildCoverAndFrontMatterHtml();
+            const pageMap = computeDocumentPagination();
 
-                const chapterHeaders = {
-                    'bab1': { num: 'BAB I', title: 'PENDAHULUAN', page: '1' },
-                    'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA', page: '8' },
-                    'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN', page: '16' },
-                    'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN', page: '24' },
-                    'bab5': { num: 'BAB V', title: 'PENUTUP', page: '36' },
-                    'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA', page: '42' }
+            const chapterHeaders = {
                 'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
-                    'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
-                    'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
-                    'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
-                    'bab5': { num: 'BAB V', title: 'PENUTUP' },
-                    'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
-                };
+                'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
+                'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
+                'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
+                'bab5': { num: 'BAB V', title: 'PENUTUP' },
+                'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
+            };
 
-                const keys = allowBab45
-                    ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
-                    : ['bab1', 'bab2', 'bab3', 'daftar_pustaka'];
+            const keys = allowBab45
+                ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
+                : ['bab1', 'bab2', 'bab3', 'daftar_pustaka'];
 
-                let sheetsHtml = frontHtml;
+            let sheetsHtml = frontHtml;
 
-                keys.forEach((key) => {
-                    const raw = (chapterContents[key] || '').trim();
-                    const curH = chapterHeaders[key];
-                    if (!raw) {
-                        sheetsHtml += `
+            keys.forEach((key) => {
+                const raw = (chapterContents[key] || '').trim();
+                const curH = chapterHeaders[key];
+                if (!raw) {
+                    sheetsHtml += `
                 <div class="a4-sheet empty-sheet" style="margin-top: 28px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed #cbd5e1; background: #fafafa;">
                     <h3 style="font-size: 15px; font-weight: 700; color: #475569; margin-bottom: 6px;">${escapeHtml(chapterLabels[key] || curH.title)}</h3>
                     <p style="font-size: 12.5px; color: #94a3b8; margin-bottom: 12px;">Bagian ini belum ditulis.</p>
                     <button type="button" class="btn-top primary" onclick="selectChapterView('${key}')">Buka & Tulis ${escapeHtml(curH.num || curH.title)}</button>
                 </div>
             `;
-                        return;
-                    }
+                    return;
+                }
 
-                    let bodyHtml = markdownToAcademicHtml(raw, key === 'daftar_pustaka');
-                    const testUpper = bodyHtml.slice(0, 350).toUpperCase();
-                    const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
-                    if (!hasHeaderAlready) {
-                        const hHtml = `
+                let bodyHtml = markdownToAcademicHtml(raw, key === 'daftar_pustaka');
+                const testUpper = bodyHtml.slice(0, 350).toUpperCase();
+                const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
+                if (!hasHeaderAlready) {
+                    const hHtml = `
                 <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
                     ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
                     <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
                 </div>
             `;
-                        bodyHtml = hHtml + bodyHtml;
-                    }
+                    bodyHtml = hHtml + bodyHtml;
+                }
 
-                    const chStartPage = pageMap[key] ? pageMap[key].startPage : 1;
-                    sheetsHtml += paginateChapterToSheetsHtml(key, bodyHtml, chStartPage);
+                const chStartPage = pageMap[key] ? pageMap[key].startPage : 1;
+                sheetsHtml += paginateChapterToSheetsHtml(key, bodyHtml, chStartPage);
+            });
+
+            container.innerHTML = sheetsHtml;
+
+            container.querySelectorAll('.paper-editor[data-chapter]').forEach((editor) => {
+                editor.addEventListener('input', () => {
+                    const chKey = editor.getAttribute('data-chapter');
+                    const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
+                    chapterContents[chKey] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                    isDirty = true;
+                    document.getElementById('btn-save-edit').style.display = 'inline-flex';
                 });
+            });
+        }
 
-                container.innerHTML = sheetsHtml;
-
-                container.querySelectorAll('.paper-editor[data-chapter]').forEach((editor) => {
-                    editor.addEventListener('input', () => {
-                        const chKey = editor.getAttribute('data-chapter');
-                        const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
-                        chapterContents[chKey] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+        function renderActiveSheet() {
+            const container = document.getElementById('sheets-container');
+            if (activeView === 'all') {
+                renderAllSheets();
+                return;
+            }
+            if (activeView === 'front') {
+                const savedFront = projectMeta.front_matter_html;
+                container.innerHTML = savedFront || buildCoverAndFrontMatterHtml();
+                container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
+                    el.addEventListener('input', () => {
                         isDirty = true;
-                        document.getElementById('btn-save-edit').style.display = 'inline-flex';
+                        const saveBtn = document.getElementById('btn-save-edit');
+                        if (saveBtn) saveBtn.style.display = 'inline-flex';
                     });
                 });
+                return;
+            }
+            if (activeView === 'revisi') {
+                renderLabRevisi();
+                return;
             }
 
-            function renderActiveSheet() {
-                const container = document.getElementById('sheets-container');
-                if (activeView === 'all') {
-                    renderAllSheets();
-                    return;
-                }
-                if (activeView === 'front') {
-                    const savedFront = projectMeta.front_matter_html;
-                    container.innerHTML = savedFront || buildCoverAndFrontMatterHtml();
-                    container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
-                        el.addEventListener('input', () => {
-                            isDirty = true;
-                            document.getElementById('btn-save-edit').style.display = 'inline-flex';
-                        });
-                    });
-                }
-
-                function renderActiveSheet() {
-                    const container = document.getElementById('sheets-container');
-                    if (activeView === 'all') {
-                        renderAllSheets();
-                        return;
-                    }
-                    if (activeView === 'front') {
-                        const savedFront = projectMeta.front_matter_html;
-                        container.innerHTML = savedFront || buildCoverAndFrontMatterHtml();
-                        container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
-                            el.addEventListener('input', () => {
-                                isDirty = true;
-                                const saveBtn = document.getElementById('btn-save-edit');
-                                if (saveBtn) saveBtn.style.display = 'inline-flex';
-                            });
-                        });
-                        return;
-                    }
-                    if (activeView === 'revisi') {
-                        renderLabRevisi();
-                        return;
-                    }
-
-                    const raw = (chapterContents[activeView] || '').trim();
-                    if (!raw) {
-                        container.innerHTML = `
+            const raw = (chapterContents[activeView] || '').trim();
+            if (!raw) {
+                container.innerHTML = `
             <div class="a4-sheet empty-sheet">
                 <h3>${escapeHtml(chapterLabels[activeView] || 'Bagian Belum Disusun')}</h3>
                 <p>Bagian ini belum ditulis. Klik tombol di bawah untuk menyusun naskah lengkap berstandar skripsi S1 secara otomatis.</p>
                 <button type="button" class="btn-top primary" onclick="generateCurrentView()">Mulai Susun Bagian Ini</button>
             </div>
         `;
-                        return;
-                    }
+                return;
+            }
 
-                    // Bersih tanpa banner panduan
-                    const frontNoticeHtml = '';
-                    let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
+            // Bersih tanpa banner panduan
+            const frontNoticeHtml = '';
+            let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
 
-                    // Header Bab Standar Skripsi Indonesia (BAB I PENDAHULUAN, dll.)
-                    const chapterHeaders = {
-                        'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
-                        'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
-                        'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
-                        'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
-                        'bab5': { num: 'BAB V', title: 'PENUTUP' },
-                        'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
-                    };
-                    const curH = chapterHeaders[activeView];
-                    if (curH) {
-                        const testUpper = bodyHtml.slice(0, 350).toUpperCase();
-                        const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
-                        if (!hasHeaderAlready) {
-                            const hHtml = `
+            // Header Bab Standar Skripsi Indonesia (BAB I PENDAHULUAN, dll.)
+            const chapterHeaders = {
+                'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
+                'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
+                'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
+                'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
+                'bab5': { num: 'BAB V', title: 'PENUTUP' },
+                'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
+            };
+            const curH = chapterHeaders[activeView];
+            if (curH) {
+                const testUpper = bodyHtml.slice(0, 350).toUpperCase();
+                const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
+                if (!hasHeaderAlready) {
+                    const hHtml = `
                 <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
                     ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
                     <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
                 </div>
             `;
-                            bodyHtml = hHtml + bodyHtml;
-                        }
-                    }
+                    bodyHtml = hHtml + bodyHtml;
+                }
+            }
 
-                    const pageMap = computeDocumentPagination();
-                    const chStartPage = pageMap[activeView] ? pageMap[activeView].startPage : 1;
+            const pageMap = computeDocumentPagination();
+            const chStartPage = pageMap[activeView] ? pageMap[activeView].startPage : 1;
 
-                    container.innerHTML = frontNoticeHtml + paginateChapterToSheetsHtml(activeView, bodyHtml, chStartPage);
+            container.innerHTML = frontNoticeHtml + paginateChapterToSheetsHtml(activeView, bodyHtml, chStartPage);
 
-                    container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`).forEach(editor => {
-                        editor.addEventListener('input', () => {
-                            isDirty = true;
-                            const saveBtn = document.getElementById('btn-save-edit');
-                            if (saveBtn) saveBtn.style.display = 'inline-flex';
-                            const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
-                            chapterContents[activeView] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
-                        });
+            container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`).forEach(editor => {
+                editor.addEventListener('input', () => {
+                    isDirty = true;
+                    const saveBtn = document.getElementById('btn-save-edit');
+                    if (saveBtn) saveBtn.style.display = 'inline-flex';
+                    const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
+                    chapterContents[activeView] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                });
+            });
+        }
+
+        async function generateCurrentView() {
+            const model = document.getElementById('studio-model').value;
+            const dot = document.getElementById(`dot-${activeView}`);
+            if (dot) dot.classList.add('generating');
+
+            if (activeView === 'daftar_pustaka') {
+                renderLoadingSheet('Menyusun & Merapikan Daftar Pustaka...', 'AI sedang memformat referensi terverifikasi dalam gaya APA 7th Edition.');
+                try {
+                    const res = await fetch(`/project/${projectId}/refine-references`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ model })
                     });
-
-                    async function generateCurrentView() {
-                        const model = document.getElementById('studio-model').value;
-                        const dot = document.getElementById(`dot-${activeView}`);
-                        if (dot) dot.classList.add('generating');
-
-                        if (activeView === 'daftar_pustaka') {
-                            renderLoadingSheet('Menyusun & Merapikan Daftar Pustaka...', 'AI sedang memformat referensi terverifikasi dalam gaya APA 7th Edition.');
-                            try {
-                                const res = await fetch(`/project/${projectId}/refine-references`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                    body: JSON.stringify({ model })
-                                });
-                                const data = await res.json();
-                                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal merapikan daftar pustaka.');
-                                chapterContents.daftar_pustaka = data.daftar_pustaka || '';
-                                showToast('Daftar Pustaka berhasil diperbarui.', 'success');
-                            } catch (err) {
-                                showToast(err.message || 'Terjadi kesalahan.', 'error');
-                            } finally {
-                                finishLoadingSheet();
-                                if (dot) dot.classList.remove('generating');
-                                updateProgressUI();
-                                renderActiveSheet();
-                            }
-                            return;
-                        }
-
-                        renderLoadingSheet(`Menyusun ${chapterLabels[activeView]}...`, 'AI sedang menulis paragraf akademik mendalam beserta referensi ilmiah.');
-                        try {
-                            const res = await fetch(`/project/${projectId}/generate`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                body: JSON.stringify({ chapter: activeView, model, data_riil: researchDataRiil })
-                            });
-                            const data = await res.json();
-                            if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun bab.');
-                            chapterContents[activeView] = data.content || '';
-                            if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
-                            showToast(`${chapterLabels[activeView]} selesai disusun.`, 'success');
-                        } catch (err) {
-                            showToast(err.message || 'Gagal memproses AI.', 'error');
-                        } finally {
-                            finishLoadingSheet();
-                            if (dot) dot.classList.remove('generating');
-                            updateProgressUI();
-                            renderActiveSheet();
-                        }
-                    }
-
-                    async function generateSequential() {
-                        const btn = document.getElementById('btn-generate-all');
-                        const keys = allowBab45 ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'] : ['bab1', 'bab2', 'bab3'];
-                        const model = document.getElementById('studio-model').value;
-                        btn.disabled = true;
-
-                        for (const key of keys) {
-                            selectChapterView(key);
-                            const dot = document.getElementById(`dot-${key}`);
-                            if (dot) dot.classList.add('generating');
-                            renderLoadingSheet(`Menyusun Berurutan: ${chapterLabels[key]}...`, 'Mohon tunggu, AI sedang menulis setiap bab secara konsisten.');
-                            try {
-                                const res = await fetch(`/project/${projectId}/generate`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                    body: JSON.stringify({ chapter: key, model, data_riil: researchDataRiil })
-                                });
-                                const data = await res.json();
-                                if (!res.ok || data.status !== 'success') throw new Error(data.message || `Gagal menyusun ${key}`);
-                                chapterContents[key] = data.content || '';
-                                if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
-                                finishLoadingSheet();
-                                updateProgressUI();
-                            } catch (err) {
-                                finishLoadingSheet();
-                                showToast(err.message || `Berhenti di ${key}`, 'error');
-                                if (dot) dot.classList.remove('generating');
-                                break;
-                            }
-                            if (dot) dot.classList.remove('generating');
-                        }
-
-                        btn.disabled = false;
-                        renderActiveSheet();
-                        showToast('Penyusunan otomatis selesai!', 'success');
-                    }
-
-                    function upgradeToFullSkripsi() {
-                        allowBab45 = true;
-                        const nav = document.querySelector('.sidebar-nav');
-                        const dpBtn = document.getElementById('nav-item-daftar_pustaka');
-                        if (!document.getElementById('nav-item-bab4')) {
-                            ['bab4', 'bab5'].forEach((k, idx) => {
-                                const b = document.createElement('button');
-                                b.type = 'button';
-                                b.className = 'nav-item';
-                                b.id = `nav-item-${k}`;
-                                b.onclick = () => selectChapterView(k);
-                                b.innerHTML = `<span class="nav-item-left"><span class="nav-item-text">${idx === 0 ? 'Bab IV Hasil Penelitian' : 'Bab V Penutup'}</span></span><span class="status-dot" id="dot-${k}"></span>`;
-                                nav.insertBefore(b, dpBtn);
-                            });
-                        }
-                        const kindInput = document.querySelector('#quick-download-form input[name="jenis_dokumen"]');
-                        if (kindInput) kindInput.value = 'SKRIPSI';
-                        updateProgressUI();
-                        selectChapterView('bab4');
-                        showToast('Mode diperluas ke Full Skripsi (Bab I–V).', 'success');
-                    }
-
-                    async function submitLabRevisi() {
-                        const sel = document.getElementById('revise-subchapter-select');
-                        const instrEl = document.getElementById('revise-instruction');
-                        const fileEl = document.getElementById('revise-file');
-                        const model = document.getElementById('studio-model').value;
-
-                        if (!sel || !sel.value) {
-                            showToast('Pilih sub-bab yang ingin direvisi terlebih dahulu.', 'error');
-                            return;
-                        }
-                        const instruction = (instrEl?.value || '').trim();
-                        const hasFile = fileEl && fileEl.files && fileEl.files.length > 0;
-                        if (!instruction && !hasFile) {
-                            showToast('Masukkan catatan revisi atau unggah foto/dokumen catatan dosen.', 'error');
-                            return;
-                        }
-
-                        const [chapterKey, subLabel] = sel.value.split('|');
-                        const formData = new FormData();
-                        formData.append('chapter', chapterKey);
-                        formData.append('subchapter', subLabel);
-                        formData.append('revision_mode', currentReviseMode);
-                        formData.append('instruction', instruction || 'Revisi bagian ini sesuai lampiran catatan dosen.');
-                        formData.append('model', model);
-                        if (hasFile) {
-                            formData.append('revision_file', fileEl.files[0]);
-                        }
-
-                        renderLoadingSheet(`Memproses Revisi ${subLabel}...`, 'AI sedang menyempurnakan sub-bab target sesuai catatan & mode yang dipilih.');
-                        try {
-                            const res = await fetch(`/project/${projectId}/revise`, {
-                                method: 'POST',
-                                headers: { 'X-CSRF-TOKEN': csrfToken },
-                                body: formData
-                            });
-                            const data = await res.json();
-                            if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal memproses revisi.');
-                            chapterContents[chapterKey] = data.content || chapterContents[chapterKey];
-                            updateProgressUI();
-                            showToast(`Revisi ${subLabel} berhasil diterapkan!`, 'success');
-                            selectChapterView(chapterKey);
-                        } catch (err) {
-                            showToast(err.message || 'Terjadi kesalahan saat revisi.', 'error');
-                            renderLabRevisi();
-                        }
-                    }
-
-                    async function saveActiveEdit() {
-                        const container = document.getElementById('sheets-container');
-                        if (!container || activeView === 'revisi') return;
-                        const btn = document.getElementById('btn-save-edit');
-                        if (btn) btn.disabled = true;
-
-                        try {
-                            if (activeView === 'front') {
-                                const htmlContent = container.innerHTML;
-                                const res = await fetch(`/project/${projectId}/save-chapter`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                    body: JSON.stringify({ chapter: 'front', content: htmlContent })
-                                });
-                                const data = await res.json();
-                                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan.');
-                                projectMeta.front_matter_html = htmlContent;
-                                isDirty = false;
-                                if (btn) btn.style.display = 'none';
-                                showToast('Perubahan Halaman Sampul & Bagian Depan berhasil disimpan.', 'success');
-                                return;
-                            }
-
-                            const editor = document.getElementById('paper-editor');
-                            if (!editor) return;
-                            const htmlContent = editor.innerText.trim();
-                            const res = await fetch(`/project/${projectId}/save-chapter`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                body: JSON.stringify({ chapter: activeView, content: htmlContent })
-                            });
-                            const data = await res.json();
-                            if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan perubahan.');
-                            chapterContents[activeView] = data.content || htmlContent;
-                            isDirty = false;
-                            if (btn) btn.style.display = 'none';
-                            showToast('Perubahan naskah berhasil disimpan.', 'success');
-                        } catch (err) {
-                            showToast(err.message || 'Gagal menyimpan.', 'error');
-                        } finally {
-                            if (btn) btn.disabled = false;
-                        }
-                    }
-
-                    function updateDocFont(val) {
-                        const editor = document.getElementById('paper-editor');
-                        if (editor) {
-                            editor.style.fontFamily = val;
-                        }
-                        document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
-                            el.style.fontFamily = val;
-                        });
-                        showToast(`Font dokumen diubah ke ${val}`, 'info');
-                    }
-
-                    function updateMargins() {
-                        const top = document.getElementById('setting-margin-top')?.value || '4';
-                        const left = document.getElementById('setting-margin-left')?.value || '4';
-                        const bottom = document.getElementById('setting-margin-bottom')?.value || '3';
-                        const right = document.getElementById('setting-margin-right')?.value || '3';
-
-                        ['quick-download-form'].forEach(fId => {
-                            const f = document.getElementById(fId);
-                            if (f) {
-                                if (f.querySelector('input[name="margin_top"]')) f.querySelector('input[name="margin_top"]').value = top;
-                                if (f.querySelector('input[name="margin_left"]')) f.querySelector('input[name="margin_left"]').value = left;
-                                if (f.querySelector('input[name="margin_bottom"]')) f.querySelector('input[name="margin_bottom"]').value = bottom;
-                                if (f.querySelector('input[name="margin_right"]')) f.querySelector('input[name="margin_right"]').value = right;
-                            }
-                        });
-
-                        document.querySelectorAll('.a4-sheet').forEach(sheet => {
-                            sheet.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
-                        });
-                        showToast(`Margin diperbarui (${top}-${left}-${bottom}-${right} cm)`, 'info');
-                    }
-
-                    function handleSidebarLogoUpload(input) {
-                        if (!input.files || !input.files[0]) return;
-                        const file = input.files[0];
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const img = new Image();
-                            img.onload = function () {
-                                const canvas = document.createElement('canvas');
-                                const maxDim = 320;
-                                let w = img.width;
-                                let h = img.height;
-                                if (w > maxDim || h > maxDim) {
-                                    if (w > h) {
-                                        h = Math.round((h * maxDim) / w);
-                                        w = maxDim;
-                                    } else {
-                                        w = Math.round((w * maxDim) / h);
-                                        h = maxDim;
-                                    }
-                                }
-                                canvas.width = w;
-                                canvas.height = h;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, w, h);
-                                const dataUrl = canvas.toDataURL('image/png', 0.9);
-
-                                projectMeta.logo_base64 = dataUrl;
-                                const prev = document.getElementById('sidebar-logo-preview');
-                                if (prev) prev.src = dataUrl;
-
-                                const coverBox = document.querySelector('.cover-logo-box');
-                                if (coverBox) {
-                                    coverBox.innerHTML = `<img src="${dataUrl}" alt="Logo Kampus" class="cover-logo-img">`;
-                                } else {
-                                    const coverLogo = document.querySelector('.cover-logo-img');
-                                    if (coverLogo) coverLogo.src = dataUrl;
-                                }
-                                function submitQuickDownload(format) {
-                                    const form = document.getElementById('quick-download-form');
-                                    const coverImg = document.querySelector('.cover-logo-img');
-                                    const activeLogo = (projectMeta && projectMeta.logo_base64) || (coverImg && coverImg.src && coverImg.src.startsWith('data:image/') ? coverImg.src : '') || localStorage.getItem(`skripsi_logo_${projectId}`) || '';
-                                    if (activeLogo) {
-                                        const logoInp = form.querySelector('input[name="logo_base64"]');
-                                        if (logoInp) logoInp.value = activeLogo;
-                                    }
-                                    form.action = format === 'pdf'
-                                        ? @json(route('project.download.pdf', ['id' => $project->id]))
-                                        : @json(route('app.downloadDocx', ['id' => $project->id]));
-                                    form.submit();
-                                }
-
-                                const formLogo = document.querySelector('#quick-download-form input[name="logo_base64"]');
-                                if (formLogo) formLogo.value = dataUrl;
-
-                                fetch(`/project/${projectId}/save-chapter`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                                    body: JSON.stringify({ chapter: 'front_logo', content: dataUrl })
-                                }).then(() => {
-                                    showToast('Logo kampus berhasil diperbarui & disimpan!', 'success');
-                                }).catch(() => {
-                                    showToast('Logo diterapkan di pratinjau.', 'info');
-                                });
-                            };
-                            img.src = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    }
-
-                    function submitQuickDownload(format) {
-                        const form = document.getElementById('quick-download-form');
-                        form.action = format === 'pdf'
-                            ? @json(route('project.download.pdf', ['id' => $project->id]))
-                            : @json(route('app.downloadDocx', ['id' => $project->id]));
-                        form.submit();
-                    }
-
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal merapikan daftar pustaka.');
+                    chapterContents.daftar_pustaka = data.daftar_pustaka || '';
+                    showToast('Daftar Pustaka berhasil diperbarui.', 'success');
+                } catch (err) {
+                    showToast(err.message || 'Terjadi kesalahan.', 'error');
+                } finally {
+                    finishLoadingSheet();
+                    if (dot) dot.classList.remove('generating');
                     updateProgressUI();
-                    selectChapterView('bab1');
+                    renderActiveSheet();
+                }
+                return;
+            }
+
+            renderLoadingSheet(`Menyusun ${chapterLabels[activeView]}...`, 'AI sedang menulis paragraf akademik mendalam beserta referensi ilmiah.');
+            try {
+                const res = await fetch(`/project/${projectId}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ chapter: activeView, model, data_riil: researchDataRiil })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun bab.');
+                chapterContents[activeView] = data.content || '';
+                if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
+                showToast(`${chapterLabels[activeView]} selesai disusun.`, 'success');
+            } catch (err) {
+                showToast(err.message || 'Gagal memproses AI.', 'error');
+            } finally {
+                finishLoadingSheet();
+                if (dot) dot.classList.remove('generating');
+                updateProgressUI();
+                renderActiveSheet();
+            }
+        }
+
+        async function generateSequential() {
+            const btn = document.getElementById('btn-generate-all');
+            const keys = allowBab45 ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'] : ['bab1', 'bab2', 'bab3'];
+            const model = document.getElementById('studio-model').value;
+            btn.disabled = true;
+
+            for (const key of keys) {
+                selectChapterView(key);
+                const dot = document.getElementById(`dot-${key}`);
+                if (dot) dot.classList.add('generating');
+                renderLoadingSheet(`Menyusun Berurutan: ${chapterLabels[key]}...`, 'Mohon tunggu, AI sedang menulis setiap bab secara konsisten.');
+                try {
+                    const res = await fetch(`/project/${projectId}/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ chapter: key, model, data_riil: researchDataRiil })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'success') throw new Error(data.message || `Gagal menyusun ${key}`);
+                    chapterContents[key] = data.content || '';
+                    if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
+                    finishLoadingSheet();
+                    updateProgressUI();
+                } catch (err) {
+                    finishLoadingSheet();
+                    showToast(err.message || `Berhenti di ${key}`, 'error');
+                    if (dot) dot.classList.remove('generating');
+                    break;
+                }
+                if (dot) dot.classList.remove('generating');
+            }
+
+            btn.disabled = false;
+            renderActiveSheet();
+            showToast('Penyusunan otomatis selesai!', 'success');
+        }
+
+        function upgradeToFullSkripsi() {
+            allowBab45 = true;
+            const nav = document.querySelector('.sidebar-nav');
+            const dpBtn = document.getElementById('nav-item-daftar_pustaka');
+            if (!document.getElementById('nav-item-bab4')) {
+                ['bab4', 'bab5'].forEach((k, idx) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'nav-item';
+                    b.id = `nav-item-${k}`;
+                    b.onclick = () => selectChapterView(k);
+                    b.innerHTML = `<span class="nav-item-left"><span class="nav-item-text">${idx === 0 ? 'Bab IV Hasil Penelitian' : 'Bab V Penutup'}</span></span><span class="status-dot" id="dot-${k}"></span>`;
+                    nav.insertBefore(b, dpBtn);
+                });
+            }
+            const kindInput = document.querySelector('#quick-download-form input[name="jenis_dokumen"]');
+            if (kindInput) kindInput.value = 'SKRIPSI';
+            updateProgressUI();
+            selectChapterView('bab4');
+            showToast('Mode diperluas ke Full Skripsi (Bab I–V).', 'success');
+        }
+
+        async function submitLabRevisi() {
+            const sel = document.getElementById('revise-subchapter-select');
+            const instrEl = document.getElementById('revise-instruction');
+            const fileEl = document.getElementById('revise-file');
+            const model = document.getElementById('studio-model').value;
+
+            if (!sel || !sel.value) {
+                showToast('Pilih sub-bab yang ingin direvisi terlebih dahulu.', 'error');
+                return;
+            }
+            const instruction = (instrEl?.value || '').trim();
+            const hasFile = fileEl && fileEl.files && fileEl.files.length > 0;
+            if (!instruction && !hasFile) {
+                showToast('Masukkan catatan revisi atau unggah foto/dokumen catatan dosen.', 'error');
+                return;
+            }
+
+            const [chapterKey, subLabel] = sel.value.split('|');
+            const formData = new FormData();
+            formData.append('chapter', chapterKey);
+            formData.append('subchapter', subLabel);
+            formData.append('revision_mode', currentReviseMode);
+            formData.append('instruction', instruction || 'Revisi bagian ini sesuai lampiran catatan dosen.');
+            formData.append('model', model);
+            if (hasFile) {
+                formData.append('revision_file', fileEl.files[0]);
+            }
+
+            renderLoadingSheet(`Memproses Revisi ${subLabel}...`, 'AI sedang menyempurnakan sub-bab target sesuai catatan & mode yang dipilih.');
+            try {
+                const res = await fetch(`/project/${projectId}/revise`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal memproses revisi.');
+                chapterContents[chapterKey] = data.content || chapterContents[chapterKey];
+                updateProgressUI();
+                showToast(`Revisi ${subLabel} berhasil diterapkan!`, 'success');
+                selectChapterView(chapterKey);
+            } catch (err) {
+                showToast(err.message || 'Terjadi kesalahan saat revisi.', 'error');
+                renderLabRevisi();
+            }
+        }
+
+        async function saveActiveEdit() {
+            const container = document.getElementById('sheets-container');
+            if (!container || activeView === 'revisi') return;
+            const btn = document.getElementById('btn-save-edit');
+            if (btn) btn.disabled = true;
+
+            try {
+                if (activeView === 'front') {
+                    const htmlContent = container.innerHTML;
+                    const res = await fetch(`/project/${projectId}/save-chapter`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ chapter: 'front', content: htmlContent })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan.');
+                    projectMeta.front_matter_html = htmlContent;
+                    isDirty = false;
+                    if (btn) btn.style.display = 'none';
+                    showToast('Perubahan Halaman Sampul & Bagian Depan berhasil disimpan.', 'success');
+                    return;
+                }
+
+                const editor = document.getElementById('paper-editor');
+                if (!editor) return;
+                const htmlContent = editor.innerText.trim();
+                const res = await fetch(`/project/${projectId}/save-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ chapter: activeView, content: htmlContent })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan perubahan.');
+                chapterContents[activeView] = data.content || htmlContent;
+                isDirty = false;
+                if (btn) btn.style.display = 'none';
+                showToast('Perubahan naskah berhasil disimpan.', 'success');
+            } catch (err) {
+                showToast(err.message || 'Gagal menyimpan.', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function updateDocFont(val) {
+            const editor = document.getElementById('paper-editor');
+            if (editor) {
+                editor.style.fontFamily = val;
+            }
+            document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
+                el.style.fontFamily = val;
+            });
+            showToast(`Font dokumen diubah ke ${val}`, 'info');
+        }
+
+        function updateMargins() {
+            const top = document.getElementById('setting-margin-top')?.value || '4';
+            const left = document.getElementById('setting-margin-left')?.value || '4';
+            const bottom = document.getElementById('setting-margin-bottom')?.value || '3';
+            const right = document.getElementById('setting-margin-right')?.value || '3';
+
+            ['quick-download-form'].forEach(fId => {
+                const f = document.getElementById(fId);
+                if (f) {
+                    if (f.querySelector('input[name="margin_top"]')) f.querySelector('input[name="margin_top"]').value = top;
+                    if (f.querySelector('input[name="margin_left"]')) f.querySelector('input[name="margin_left"]').value = left;
+                    if (f.querySelector('input[name="margin_bottom"]')) f.querySelector('input[name="margin_bottom"]').value = bottom;
+                    if (f.querySelector('input[name="margin_right"]')) f.querySelector('input[name="margin_right"]').value = right;
+                }
+            });
+
+            document.querySelectorAll('.a4-sheet').forEach(sheet => {
+                sheet.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+            });
+            showToast(`Margin diperbarui (${top}-${left}-${bottom}-${right} cm)`, 'info');
+        }
+
+        function handleSidebarLogoUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 320;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+                    projectMeta.logo_base64 = dataUrl;
+                    const prev = document.getElementById('sidebar-logo-preview');
+                    if (prev) prev.src = dataUrl;
+
+                    const coverBox = document.querySelector('.cover-logo-box');
+                    if (coverBox) {
+                        coverBox.innerHTML = `<img src="${dataUrl}" alt="Logo Kampus" class="cover-logo-img">`;
+                    } else {
+                        const coverLogo = document.querySelector('.cover-logo-img');
+                        if (coverLogo) coverLogo.src = dataUrl;
+                    }
+
+                    const formLogo = document.querySelector('#quick-download-form input[name="logo_base64"]');
+                    if (formLogo) formLogo.value = dataUrl;
+
+                    fetch(`/project/${projectId}/save-chapter`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ chapter: 'front_logo', content: dataUrl })
+                    }).then(() => {
+                        showToast('Logo kampus berhasil diperbarui & disimpan!', 'success');
+                    }).catch(() => {
+                        showToast('Logo diterapkan di pratinjau.', 'info');
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function submitQuickDownload(format) {
+            const form = document.getElementById('quick-download-form');
+            const coverImg = document.querySelector('.cover-logo-img');
+            const activeLogo = (projectMeta && projectMeta.logo_base64) || (coverImg && coverImg.src && coverImg.src.startsWith('data:image/') ? coverImg.src : '') || localStorage.getItem(`skripsi_logo_${projectId}`) || '';
+            if (activeLogo) {
+                const logoInp = form.querySelector('input[name="logo_base64"]');
+                if (logoInp) logoInp.value = activeLogo;
+            }
+            form.action = format === 'pdf'
+                ? @json(route('project.download.pdf', ['id' => $project->id]))
+                : @json(route('app.downloadDocx', ['id' => $project->id]));
+            form.submit();
+        }
+
+        updateProgressUI();
+        selectChapterView('bab1');
     </script>
 </body>
 
