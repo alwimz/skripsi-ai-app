@@ -3435,38 +3435,37 @@ ATURAN REVISI (SANGAT KETAT):
             </div>";
         }
 
-        $bMarginPt = (int) round($marginBottom * 28.35);
-
         $html = "<html><head><style>
             @page { size: A4; margin: {$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; }
-            html, body { height: 100%; margin: 0; }
             body { font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt; }
             h1,h2 { text-align:center; font-weight:bold; font-size:14pt; }
             h3,h4 { font-weight:bold; font-size:12pt; }
             p { text-indent: 1.27cm; margin: 0 0 8px 0; }
             .cover p { text-indent:0; text-align:center; }
+            .cover { position:relative; height:100%; text-align:center; }
+            .cover-bottom { position:absolute; bottom:0; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35; }
         </style></head><body>";
 
         // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
-        // Distribusi vertikal proporsional dan terikat presisi pada margin bawah (position: absolute; bottom: {$bMarginPt}pt)
-        $html .= "<div class='cover' style='position:relative; width:100%; height:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
+        // Margin 4-4-3-3 cm presisi sesuai standar akademik perguruan tinggi Indonesia
+        $html .= "<div class='cover'>
             <div style='text-align:center;'>
                 <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
                 <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
                 <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
             </div>
 
-            <div style='text-align:center; margin-top:65pt;'>
+            <div style='text-align:center; margin-top:55pt;'>
                 {$logoHtml}
             </div>
 
-            <div style='text-align:center; margin-top:55pt; font-size:11.5pt; line-height:1.5;'>
+            <div style='text-align:center; margin-top:45pt; font-size:11.5pt; line-height:1.5;'>
                 <div>OLEH:</div>
                 <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
                 " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
             </div>
 
-            <div style='position:absolute; bottom:{$bMarginPt}pt; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+            <div class='cover-bottom'>
                 <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
                 " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
                 <div>" . strtoupper(e($kampus)) . "</div>
@@ -3475,7 +3474,7 @@ ATURAN REVISI (SANGAT KETAT):
         </div>";
 
         // 2. LEMBAR PENGESAHAN
-        $html .= "<div style='text-align:center;'>
+        $html .= "<div style='page-break-before:always; text-align:center;'>
             <h2>LEMBAR PENGESAHAN</h2>
             <div style='font-size:12pt; margin:16pt 0 10pt; font-weight:bold; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
             <div style='margin-bottom:16pt; font-size:11pt;'>Disusun Oleh: <u>" . strtoupper(e($nama)) . "</u> (" . e($npm) . ")</div>
@@ -3969,24 +3968,25 @@ ATURAN REVISI (SANGAT KETAT):
 
             $html = "<html><head><style>
                 @page { size: A4; margin: 4cm 3cm 3cm 4cm; }
-                html, body { height: 100%; margin: 0; }
                 body{font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt;}
                 h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
                 h3,h4{font-weight:bold; font-size:12pt;}
                 p{text-indent: 1.27cm; margin: 0 0 8px 0;}
                 .cover p{text-indent:0; text-align:center;}
+                .cover { position:relative; height:100%; text-align:center; }
+                .cover-bottom { position:absolute; bottom:0; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35; }
             </style></head><body>
-            <div class='cover' style='position:relative; width:100%; height:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
+            <div class='cover'>
                 <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
                 <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
                 <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-                <div style='text-align:center; margin-top:65pt;'>{$logoHtml}</div>
-                <div style='text-align:center; margin-top:55pt; font-size:11.5pt; line-height:1.5;'>
+                <div style='text-align:center; margin-top:55pt;'>{$logoHtml}</div>
+                <div style='text-align:center; margin-top:45pt; font-size:11.5pt; line-height:1.5;'>
                     <div>OLEH:</div>
                     <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
                     " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
                 </div>
-                <div style='position:absolute; bottom:85pt; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                <div class='cover-bottom'>
                     <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
                     " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
                     <div>" . strtoupper(e($kampus)) . "</div>

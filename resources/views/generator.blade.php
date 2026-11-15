@@ -3502,10 +3502,10 @@
         }
 
         function updateMargins() {
-            const top = document.getElementById('setting-margin-top')?.value || '4';
-            const left = document.getElementById('setting-margin-left')?.value || '4';
-            const bottom = document.getElementById('setting-margin-bottom')?.value || '3';
-            const right = document.getElementById('setting-margin-right')?.value || '3';
+            const top = document.getElementById('m-top')?.value || document.getElementById('setting-margin-top')?.value || '4';
+            const left = document.getElementById('m-left')?.value || document.getElementById('setting-margin-left')?.value || '4';
+            const bottom = document.getElementById('m-bottom')?.value || document.getElementById('setting-margin-bottom')?.value || '3';
+            const right = document.getElementById('m-right')?.value || document.getElementById('setting-margin-right')?.value || '3';
 
             ['quick-download-form'].forEach(fId => {
                 const f = document.getElementById(fId);
@@ -3520,7 +3520,6 @@
             document.querySelectorAll('.a4-sheet').forEach(sheet => {
                 sheet.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
             });
-            showToast(`Margin diperbarui (${top}-${left}-${bottom}-${right} cm)`, 'info');
         }
 
         function handleSidebarLogoUpload(input) {
@@ -3582,6 +3581,7 @@
         }
 
         function submitQuickDownload(format) {
+            updateMargins();
             const form = document.getElementById('quick-download-form');
             const coverImg = document.querySelector('.cover-logo-img');
             const activeLogo = (projectMeta && projectMeta.logo_base64) || (coverImg && coverImg.src && coverImg.src.startsWith('data:image/') ? coverImg.src : '') || localStorage.getItem(`skripsi_logo_${projectId}`) || '';
