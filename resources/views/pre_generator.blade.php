@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <style>
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -433,7 +436,9 @@
             color: var(--text-muted);
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
             font-family: inherit;
             font-size: 14px;
@@ -446,7 +451,9 @@
             transition: border-color 0.15s ease;
         }
 
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             border-color: var(--primary);
         }
 
@@ -712,11 +719,13 @@
             position: relative;
             overflow: hidden;
         }
+
         .ppt-theme-sidang_crimson .ppt-badge {
             background: rgba(255, 255, 255, 0.25);
             color: #ffffff;
             backdrop-filter: blur(4px);
         }
+
         .ppt-theme-sidang_crimson #slide-bullets-edit li {
             background: rgba(255, 255, 255, 0.18);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -731,6 +740,7 @@
             background: #1e1b4b;
             color: #ffffff;
         }
+
         .ppt-theme-basic_navy .ppt-badge {
             background: rgba(255, 255, 255, 0.14);
             color: #e0e7ff;
@@ -742,6 +752,7 @@
             color: #0f172a;
             border: 1.5px solid #cbd5e1;
         }
+
         .ppt-theme-basic_white .ppt-badge {
             background: #f1f5f9;
             color: #334155;
@@ -754,6 +765,7 @@
             padding-left: 60px;
             border: 1px solid #bfdbfe;
         }
+
         .ppt-theme-royal_academic::before {
             content: '';
             position: absolute;
@@ -763,10 +775,12 @@
             width: 18px;
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
         }
+
         .ppt-theme-royal_academic .ppt-badge {
             background: #dbeafe;
             color: #1d4ed8;
         }
+
         .ppt-theme-royal_academic #slide-bullets-edit li {
             background: rgba(255, 255, 255, 0.88);
             border-left: 3px solid #2563eb;
@@ -782,6 +796,7 @@
             border: 1px solid #e7e0d6;
             padding-top: 48px;
         }
+
         .ppt-theme-canva_editorial::before {
             content: '';
             position: absolute;
@@ -791,14 +806,17 @@
             height: 10px;
             background: linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);
         }
+
         .ppt-theme-canva_editorial .ppt-badge {
             background: #ffedd5;
             color: #9a3412;
         }
+
         .ppt-theme-canva_editorial #slide-title-edit {
             font-family: Georgia, 'Times New Roman', serif;
             color: #1c1917;
         }
+
         .ppt-theme-canva_editorial #slide-bullets-edit li {
             background: #ffffff;
             border: 1px solid #ede6dc;
@@ -814,6 +832,7 @@
             border: 1px solid #a7f3d0;
             padding-top: 50px;
         }
+
         .ppt-theme-emerald_executive::before {
             content: '';
             position: absolute;
@@ -823,10 +842,12 @@
             height: 14px;
             background: linear-gradient(90deg, #065f46 0%, #047857 75%, #d97706 100%);
         }
+
         .ppt-theme-emerald_executive .ppt-badge {
             background: #d1fae5;
             color: #065f46;
         }
+
         .ppt-theme-emerald_executive #slide-bullets-edit li {
             background: #ffffff;
             border-left: 3px solid #059669;
@@ -841,6 +862,7 @@
             color: #111827;
             border: 2px solid #111827;
         }
+
         .ppt-theme-swiss_minimal::before {
             content: '';
             position: absolute;
@@ -850,6 +872,7 @@
             height: 8px;
             background: #111827;
         }
+
         .ppt-theme-swiss_minimal .ppt-badge {
             background: #111827;
             color: #ffffff;
@@ -862,6 +885,7 @@
             border: 1px solid #fecaca;
             padding-top: 50px;
         }
+
         .ppt-theme-maroon_prestige::before {
             content: '';
             position: absolute;
@@ -871,10 +895,12 @@
             height: 12px;
             background: linear-gradient(90deg, #831843 0%, #991b1b 50%, #dc2626 100%);
         }
+
         .ppt-theme-maroon_prestige .ppt-badge {
             background: #fee2e2;
             color: #991b1b;
         }
+
         .ppt-theme-maroon_prestige #slide-bullets-edit li {
             background: #ffffff;
             border-left: 3px solid #991b1b;
@@ -890,6 +916,7 @@
             border: 1px solid #1e293b;
             padding-top: 50px;
         }
+
         .ppt-theme-tech_dark::before {
             content: '';
             position: absolute;
@@ -899,17 +926,21 @@
             height: 10px;
             background: linear-gradient(90deg, #0284c7 0%, #06b6d4 100%);
         }
+
         .ppt-theme-tech_dark .ppt-badge {
             background: rgba(6, 182, 212, 0.15);
             color: #38bdf8;
             border: 1px solid rgba(6, 182, 212, 0.3);
         }
+
         .ppt-theme-tech_dark #slide-title-edit {
             color: #ffffff;
         }
+
         .ppt-theme-tech_dark #slide-subtitle-edit {
             color: #94a3b8;
         }
+
         .ppt-theme-tech_dark #slide-bullets-edit li {
             background: #131b2e;
             border-left: 3px solid #06b6d4;
@@ -926,16 +957,22 @@
             border: 1px solid #ddd6fe;
             padding-top: 50px;
         }
+
         .ppt-theme-pastel_lavender::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
             background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
         }
+
         .ppt-theme-pastel_lavender .ppt-badge {
             background: #ede9fe;
             color: #6d28d9;
         }
+
         .ppt-theme-pastel_lavender #slide-bullets-edit li {
             background: #ffffff;
             border-left: 3px solid #8b5cf6;
@@ -951,16 +988,22 @@
             border: 1px solid #99f6e4;
             padding-top: 50px;
         }
+
         .ppt-theme-nordic_teal::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
             background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
         }
+
         .ppt-theme-nordic_teal .ppt-badge {
             background: #ccfbf1;
             color: #0f766e;
         }
+
         .ppt-theme-nordic_teal #slide-bullets-edit li {
             background: #ffffff;
             border-left: 3px solid #14b8a6;
@@ -976,16 +1019,22 @@
             border: 1px solid #fed7aa;
             padding-top: 50px;
         }
+
         .ppt-theme-warm_terracotta::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
             background: linear-gradient(90deg, #b45309 0%, #f97316 100%);
         }
+
         .ppt-theme-warm_terracotta .ppt-badge {
             background: #ffedd5;
             color: #c2410c;
         }
+
         .ppt-theme-warm_terracotta #slide-bullets-edit li {
             background: #ffffff;
             border-left: 3px solid #f97316;
@@ -1001,20 +1050,27 @@
             border: 1px solid #334155;
             padding-top: 50px;
         }
+
         .ppt-theme-classic_gold::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
             background: linear-gradient(90deg, #d97706 0%, #fbbf24 50%, #f59e0b 100%);
         }
+
         .ppt-theme-classic_gold .ppt-badge {
             background: rgba(251, 191, 36, 0.2);
             color: #fbbf24;
             border: 1px solid rgba(251, 191, 36, 0.4);
         }
+
         .ppt-theme-classic_gold #slide-title-edit {
             color: #ffffff;
         }
+
         .ppt-theme-classic_gold #slide-bullets-edit li {
             background: #1e293b;
             border-left: 3px solid #fbbf24;
@@ -1030,11 +1086,13 @@
                 opacity: 0;
                 transform: translateY(10px) scale(0.985);
             }
+
             100% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
         }
+
         .ppt-slide-anim {
             animation: pptSlideFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -1044,12 +1102,14 @@
                 opacity: 0;
                 transform: translateY(6px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        .ppt-canvas > div {
+
+        .ppt-canvas>div {
             animation: slideInFade 0.25s ease-out;
         }
 
@@ -1102,7 +1162,7 @@
             border-radius: 5px;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.08);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .theme-chip-name {
@@ -1228,12 +1288,21 @@
 
         /* Universal Loading Animation CSS */
         @keyframes aiSpin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         @keyframes aiShimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
+
         .ai-spinner {
             width: 16px;
             height: 16px;
@@ -1244,6 +1313,7 @@
             animation: aiSpin 0.7s linear infinite;
             flex-shrink: 0;
         }
+
         .ai-spinner-blue {
             width: 20px;
             height: 20px;
@@ -1254,6 +1324,7 @@
             animation: aiSpin 0.75s linear infinite;
             flex-shrink: 0;
         }
+
         .ai-loading-card {
             background: #ffffff;
             border: 1px solid #bfdbfe;
@@ -1262,22 +1333,26 @@
             margin-top: 16px;
             box-shadow: 0 4px 16px rgba(37, 99, 235, 0.06);
         }
+
         .ai-loading-head {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 14px;
         }
+
         .ai-loading-title {
             font-size: 14px;
             font-weight: 700;
             color: var(--text-main);
         }
+
         .ai-loading-sub {
             font-size: 12.5px;
             color: var(--text-muted);
             margin-top: 2px;
         }
+
         .ai-shimmer-line {
             height: 10px;
             border-radius: 999px;
@@ -1286,6 +1361,7 @@
             animation: aiShimmer 1.4s ease-in-out infinite;
             margin-bottom: 9px;
         }
+
         .scope-badge-id {
             display: inline-flex;
             align-items: center;
@@ -1298,6 +1374,7 @@
             color: #dc2626;
             border: 1px solid #fecaca;
         }
+
         .scope-badge-int {
             display: inline-flex;
             align-items: center;
@@ -1315,6 +1392,7 @@
             .sidebar-close-btn {
                 display: none !important;
             }
+
             .sidebar-toggle-btn {
                 display: none !important;
             }
@@ -1325,19 +1403,24 @@
                 transform: translateX(-100%);
                 box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
             }
+
             .sidebar.open {
                 transform: translateX(0);
             }
+
             .main-wrapper {
                 margin-left: 0 !important;
                 width: 100%;
             }
+
             .topbar {
                 padding: 0 14px;
             }
+
             .page-content {
                 padding: 22px 16px 64px;
             }
+
             .form-row,
             .dash-grid,
             .theme-card-grid,
@@ -1346,28 +1429,33 @@
             .responsive-grid-title-logo {
                 grid-template-columns: 1fr !important;
             }
+
             .ppt-canvas {
                 padding: 24px 20px;
                 min-height: 290px;
             }
+
             .ppt-nav-outside {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
                 gap: 8px !important;
                 padding: 10px 12px !important;
             }
+
             .ppt-nav-outside #btn-ppt-prev {
                 grid-column: 1 / 2 !important;
                 width: 100% !important;
                 justify-content: center !important;
                 order: 1 !important;
             }
+
             .ppt-nav-outside #btn-ppt-next {
                 grid-column: 2 / 3 !important;
                 width: 100% !important;
                 justify-content: center !important;
                 order: 2 !important;
             }
+
             .ppt-nav-outside #ppt-num-strip {
                 grid-column: 1 / -1 !important;
                 width: 100% !important;
@@ -1377,6 +1465,7 @@
                 padding-top: 4px !important;
                 gap: 4px !important;
             }
+
             #ppt-grid-preview-list {
                 grid-template-columns: 1fr !important;
             }
@@ -1386,6 +1475,7 @@
             body {
                 overflow-x: hidden;
             }
+
             .topbar {
                 height: 52px;
                 min-height: 52px;
@@ -1394,21 +1484,25 @@
                 justify-content: space-between;
                 gap: 6px;
             }
+
             .topbar-right {
                 width: auto;
                 justify-content: flex-end;
                 gap: 6px;
                 flex-shrink: 0;
             }
+
             .topbar-right .token-pill {
                 display: none !important;
             }
+
             .model-select {
                 max-width: 125px;
                 font-size: 11px;
                 padding: 4px 6px;
                 flex-shrink: 0;
             }
+
             .breadcrumb {
                 font-size: 12px;
                 gap: 5px;
@@ -1418,9 +1512,11 @@
                 min-width: 0;
                 flex: 1;
             }
-            .breadcrumb > span:not(.breadcrumb-current) {
+
+            .breadcrumb>span:not(.breadcrumb-current) {
                 display: none !important;
             }
+
             .breadcrumb-current {
                 max-width: 120px;
                 overflow: hidden;
@@ -1428,27 +1524,33 @@
                 white-space: nowrap;
                 font-weight: 700;
             }
+
             .page-title {
                 font-size: 21px;
             }
+
             .card {
                 padding: 16px;
             }
+
             .card-header-bar {
                 flex-wrap: wrap;
                 gap: 10px;
                 padding: 12px 14px;
             }
+
             .card-footer-bar {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 10px;
             }
+
             .card-footer-bar .btn-primary,
             .card-footer-bar .btn-outline {
                 width: 100%;
                 justify-content: center;
             }
+
             .project-row {
                 flex-direction: column;
                 align-items: stretch !important;
@@ -1459,6 +1561,7 @@
                 margin-bottom: 12px;
                 background: #ffffff;
             }
+
             .project-row-left {
                 width: 100%;
                 display: flex;
@@ -1466,16 +1569,19 @@
                 gap: 12px;
                 padding-right: 0 !important;
             }
+
             .project-row-title {
                 font-size: 13.5px;
                 font-weight: 700;
                 line-height: 1.45;
                 margin-bottom: 4px;
             }
+
             .project-row-meta {
                 font-size: 11.5px;
                 color: var(--text-muted);
             }
+
             .project-row-action {
                 align-self: stretch;
                 display: flex;
@@ -1486,16 +1592,19 @@
                 padding-top: 10px;
                 border-top: 1px solid #f1f5f9;
             }
+
             .stepper {
                 gap: 6px;
                 overflow-x: auto;
                 padding-bottom: 4px;
             }
+
             .step-pill {
                 padding: 6px 10px;
                 font-size: 12px;
                 white-space: nowrap;
             }
+
             .ppt-canvas {
                 width: 100% !important;
                 height: auto !important;
@@ -1503,6 +1612,7 @@
                 box-sizing: border-box !important;
                 overflow: visible !important;
             }
+
             #fs-slide-canvas {
                 padding: 16px 14px !important;
                 min-height: 260px !important;
@@ -1517,30 +1627,36 @@
             .ppt-theme-royal_academic::before {
                 width: 8px !important;
             }
+
             #fs-slide-title {
                 font-size: clamp(13px, 3.8vw, 22px) !important;
                 line-height: 1.25 !important;
                 margin-bottom: 6px !important;
             }
+
             #fs-slide-subtitle {
                 font-size: clamp(10px, 2.5vw, 14px) !important;
                 margin-bottom: 10px !important;
             }
+
             #fs-slide-bullets {
                 font-size: clamp(9.5px, 2.5vw, 13px) !important;
                 line-height: 1.45 !important;
                 gap: 4px !important;
             }
+
             #ppt-slideshow-modal {
                 padding: 12px 10px !important;
                 justify-content: flex-start !important;
                 overflow-y: auto !important;
             }
+
             #ppt-slideshow-modal .ppt-nav-btn {
                 font-size: 11.5px;
                 padding: 6px 10px;
             }
-            #ppt-slideshow-modal > div {
+
+            #ppt-slideshow-modal>div {
                 flex-wrap: wrap;
                 gap: 8px;
             }
@@ -1552,42 +1668,52 @@
                 border-radius: 14px !important;
                 margin-bottom: 12px !important;
             }
+
             #qa-chat-messages {
                 padding: 12px 10px !important;
                 gap: 12px !important;
             }
+
             #pane-qa .chat-msg.assistant {
                 max-width: 96% !important;
             }
+
             #pane-qa .chat-msg.user {
                 max-width: 90% !important;
             }
-            #pane-qa .chat-msg.assistant > div:last-child {
+
+            #pane-qa .chat-msg.assistant>div:last-child {
                 padding: 10px 13px !important;
                 font-size: 13px !important;
             }
-            #pane-qa .chat-msg.user > div {
+
+            #pane-qa .chat-msg.user>div {
                 padding: 10px 13px !important;
                 font-size: 13px !important;
             }
+
             .qa-chips-bar {
                 padding: 6px 10px !important;
                 gap: 6px !important;
             }
+
             .qa-input-bar {
                 padding: 8px 10px !important;
                 gap: 6px !important;
             }
+
             .qa-input-bar textarea {
                 font-size: 13px !important;
                 padding: 8px 10px !important;
                 min-height: 38px !important;
             }
+
             .qa-input-bar .btn-primary {
                 padding: 8px 12px !important;
                 font-size: 12.5px !important;
             }
         }
+
         .qa-prompt-chip {
             padding: 5px 10px;
             background: #f1f5f9;
@@ -1600,6 +1726,7 @@
             transition: all 0.15s;
             font-family: inherit;
         }
+
         .qa-prompt-chip:hover {
             background: #dbeafe;
             border-color: #93c5fd;
@@ -1607,8 +1734,9 @@
 
         #dosen-ai-fab:hover {
             transform: translateY(-2px);
-            box-shadow: 0 14px 28px -4px rgba(37,99,235,0.55), 0 10px 12px -5px rgba(37,99,235,0.35);
+            box-shadow: 0 14px 28px -4px rgba(37, 99, 235, 0.55), 0 10px 12px -5px rgba(37, 99, 235, 0.35);
         }
+
         @media (max-width: 768px) {
             #dosen-ai-fab {
                 bottom: 20px !important;
@@ -1618,6 +1746,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebarMobile()"></div>
@@ -1627,7 +1756,8 @@
         <div class="sidebar-header">
             <div class="sidebar-brand-left">
                 <a href="/" class="brand-avatar" style="padding: 0; background: none; border: none;">
-                    <img src="/images/logo.svg" alt="SkripsiAI" style="width: 32px; height: 32px; border-radius: 8px; display: block;">
+                    <img src="/images/logo.svg" alt="SkripsiAI"
+                        style="width: 32px; height: 32px; border-radius: 8px; display: block;">
                 </a>
                 <div class="brand-info">
                     <div class="brand-name">SkripsiAI</div>
@@ -1635,76 +1765,120 @@
                 </div>
             </div>
             <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" title="Tutup / Buka Sidebar">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
             </button>
         </div>
 
         <nav class="sidebar-nav">
             <div class="nav-group-title">Utama</div>
             <button type="button" class="nav-btn active" id="nav-dashboard" onclick="openTab('dashboard', 'Dashboard')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
                 <span>Dashboard</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-projects" onclick="openTab('projects', 'Proyek Saya')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
                 <span style="flex: 1;">Proyek Saya</span>
-                <span style="font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--primary-soft); color: var(--primary);">{{ $history->count() }}</span>
+                <span
+                    style="font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--primary-soft); color: var(--primary);">{{ $history->count() }}</span>
             </button>
 
             <div class="nav-group-title">Penulisan &amp; Riset</div>
             <button type="button" class="nav-btn" id="nav-titles" onclick="openTab('titles', 'Cari Judul')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
                 <span>Cari Judul</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-ppt" onclick="openTab('ppt', 'PPT Sidang')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
                 <span>PPT Sidang</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-defense" onclick="openTab('defense', 'Simulasi Sidang')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                </svg>
                 <span>Simulasi Sidang</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-journals" onclick="openTab('journals', 'Cari Jurnal')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
                 <span>Cari Jurnal</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-paraphrase" onclick="openTab('paraphrase', 'Parafrase')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
                 <span>Parafrase</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-qa" onclick="openTab('qa', 'Dosen AI')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                    <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
                 </svg>
                 <span>Dosen AI</span>
             </button>
 
             <div class="nav-group-title">Akun &amp; Bonus</div>
             <button type="button" class="nav-btn" id="nav-account" onclick="openTab('account', 'Akun Saya')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
                 <span>Akun Saya</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-referral" onclick="openTab('referral', 'Ajak Teman')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
                 <span>Ajak Teman (Referral)</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-apikeys" onclick="openTab('apikeys', 'Pengaturan API')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
                 <span>Pengaturan API</span>
             </button>
 
             <div class="nav-group-title">Bantuan &amp; Pengembang</div>
-            <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')" style="color: #0284c7;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')"
+                style="color: #0284c7;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path
+                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
                 <span>Saran &amp; Laporan</span>
             </button>
         </nav>
@@ -1713,7 +1887,12 @@
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-btn" title="Keluar">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
                     <span>Keluar</span>
                 </button>
             </form>
@@ -1725,11 +1904,19 @@
         <!-- Topbar -->
         <header class="topbar">
             <div class="breadcrumb">
-                <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Buka / Tutup Menu Sidebar">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()"
+                    title="Buka / Tutup Menu Sidebar">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
                 </button>
-                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')" title="Kembali ke Dashboard">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')"
+                    title="Kembali ke Dashboard">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
                 </button>
                 <span>Workspace</span>
                 <span>›</span>
@@ -1738,7 +1925,8 @@
 
             <div class="topbar-right">
                 <input type="hidden" id="global-model" value="auto">
-                <button type="button" class="token-pill" onclick="openTab('account', 'Akun Saya')" title="Status Langganan Mahasiswa">
+                <button type="button" class="token-pill" onclick="openTab('account', 'Akun Saya')"
+                    title="Status Langganan Mahasiswa">
                     <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
                     <span style="font-weight: 600; color: var(--text-main);">Paket Aktif</span>
                 </button>
@@ -1747,12 +1935,14 @@
 
         <main class="page-content">
             @if(session('success'))
-                <div style="padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-size: 13.5px; margin-bottom: 20px;">
+                <div
+                    style="padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-size: 13.5px; margin-bottom: 20px;">
                     {{ session('success') }}
                 </div>
             @endif
             @if(session('error'))
-                <div style="padding: 12px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: 13.5px; margin-bottom: 20px;">
+                <div
+                    style="padding: 12px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: 13.5px; margin-bottom: 20px;">
                     {{ session('error') }}
                 </div>
             @endif
@@ -1763,7 +1953,8 @@
             <section class="tab-pane active" id="pane-dashboard">
                 <div class="page-eyebrow">Workspace Akademik</div>
                 <h1 class="page-title">Halo, {{ explode(' ', trim($user->name))[0] }}</h1>
-                <p class="page-subtitle">Pilih tahapan skripsi yang ingin kamu kerjakan hari ini, mulai dari mencari ide judul, menulis proposal & skripsi Bab 1–5, hingga persiapan sidang.</p>
+                <p class="page-subtitle">Pilih tahapan skripsi yang ingin kamu kerjakan hari ini, mulai dari mencari ide
+                    judul, menulis proposal & skripsi Bab 1–5, hingga persiapan sidang.</p>
 
                 <!-- Proyek Terbaru (Cukup 1 Terbaru agar Dashboard Rapi) -->
                 @if($history->count() > 0)
@@ -1771,8 +1962,11 @@
                         <div class="card-header-bar">
                             <div>Proyek Skripsi Terbaru <span class="count-badge">{{ $history->count() }}</span></div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="openTab('projects', 'Proyek Saya'); showProjectListView();">Lihat Semua ({{ $history->count() }})</button>
-                                <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openCreateProjectForm()">+ Proyek Baru</button>
+                                <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12px;"
+                                    onclick="openTab('projects', 'Proyek Saya'); showProjectListView();">Lihat Semua
+                                    ({{ $history->count() }})</button>
+                                <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 12px;"
+                                    onclick="openCreateProjectForm()">+ Proyek Baru</button>
                             </div>
                         </div>
                         @foreach($history->take(1) as $proj)
@@ -1780,7 +1974,9 @@
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
-                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $proj->updated_at->diffForHumans() }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} ·
+                                            {{ $proj->updated_at->diffForHumans() }}
+                                        </div>
                                     </div>
                                 </div>
                                 <span class="project-row-action">Lanjutkan Workspace →</span>
@@ -1792,7 +1988,11 @@
                 <div class="dash-grid">
                     <div class="dash-card" onclick="openCreateProjectForm()">
                         <div class="dash-icon" style="background: var(--primary-soft); color: var(--primary);">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
                         </div>
                         <div>
                             <h3>Buat Proyek Baru (Proposal / Skripsi)</h3>
@@ -1802,7 +2002,11 @@
 
                     <div class="dash-card" onclick="openTab('titles', 'Cari Judul')">
                         <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
                         </div>
                         <div>
                             <h3>Cari Judul Skripsi</h3>
@@ -1812,7 +2016,11 @@
 
                     <div class="dash-card" onclick="openTab('ppt', 'PPT Sidang')">
                         <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <rect x="2" y="3" width="20" height="14" rx="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                            </svg>
                         </div>
                         <div>
                             <h3>PPT Sidang</h3>
@@ -1822,7 +2030,11 @@
 
                     <div class="dash-card" onclick="openTab('defense', 'Simulasi Sidang')">
                         <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                            </svg>
                         </div>
                         <div>
                             <h3>Simulasi Sidang</h3>
@@ -1832,7 +2044,11 @@
 
                     <div class="dash-card" onclick="openTab('journals', 'Cari Jurnal')">
                         <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                            </svg>
                         </div>
                         <div>
                             <h3>Cari Jurnal & Download PDF</h3>
@@ -1842,7 +2058,11 @@
 
                     <div class="dash-card" onclick="openTab('paraphrase', 'Parafrase')">
                         <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
                         </div>
                         <div>
                             <h3>Parafrase Akademik</h3>
@@ -1858,14 +2078,20 @@
             <section class="tab-pane" id="pane-projects">
                 <!-- VIEW A: DAFTAR PROYEK SAYA (DEFAULT SAAT KLIK MENU PROYEK SAYA) -->
                 <div id="projects-list-view">
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+                    <div
+                        style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
                         <div>
                             <div class="page-eyebrow">Manajemen Dokumen</div>
                             <h1 class="page-title">Proyek Saya</h1>
-                            <p class="page-subtitle" style="margin-bottom: 0;">Daftar proyek Proposal (Bab 1–3) dan Skripsi Lengkap (Bab 1–5) yang sedang kamu kerjakan.</p>
+                            <p class="page-subtitle" style="margin-bottom: 0;">Daftar proyek Proposal (Bab 1–3) dan
+                                Skripsi Lengkap (Bab 1–5) yang sedang kamu kerjakan.</p>
                         </div>
                         <button type="button" class="btn-primary" onclick="openCreateProjectForm()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
                             <span>Buat Proyek Baru</span>
                         </button>
                     </div>
@@ -1873,48 +2099,78 @@
                     <div class="card-flush">
                         <div class="card-header-bar">
                             <div>Daftar Proyek Tersimpan <span class="count-badge">{{ $history->count() }}</span></div>
-                            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik proyek untuk membuka Workspace Penulisan</span>
+                            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik proyek untuk
+                                membuka Workspace Penulisan</span>
                         </div>
                         @forelse($history as $proj)
                             @php
                                 $doneCount = 0;
-                                foreach(['bab1','bab2','bab3','bab4','bab5'] as $b) {
-                                    if (!empty($proj->{$b.'_content'})) $doneCount++;
+                                foreach (['bab1', 'bab2', 'bab3', 'bab4', 'bab5'] as $b) {
+                                    if (!empty($proj->{$b . '_content'}))
+                                        $doneCount++;
                                 }
                                 $projMeta = is_string($proj->citation_validation) ? json_decode($proj->citation_validation, true) : [];
                                 $projTahap = $projMeta['tahap_pengerjaan'] ?? 'Skripsi Lengkap (Bab I–V)';
                             @endphp
-                            <div class="project-row" style="cursor: default; align-items: center; justify-content: space-between; gap: 12px;">
-                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1; min-width: 0;">
+                            <div class="project-row"
+                                style="cursor: default; align-items: center; justify-content: space-between; gap: 12px;">
+                                <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left"
+                                    style="flex: 1; min-width: 0;">
                                     <div style="min-width: 0; width: 100%;">
-                                        <div class="project-row-title" style="white-space: normal; word-break: break-word; line-height: 1.45; margin-bottom: 4px;">{{ $proj->judul }}</div>
+                                        <div class="project-row-title"
+                                            style="white-space: normal; word-break: break-word; line-height: 1.45; margin-bottom: 4px;">
+                                            {{ $proj->judul }}
+                                        </div>
                                         <div class="project-row-meta">
-                                            <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab
+                                            <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> ·
+                                            {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab
                                         </div>
                                     </div>
                                 </a>
-                                <div class="project-row-action" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                                    <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                <div class="project-row-action"
+                                    style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary"
+                                        style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
                                         <span>Buka</span>
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.2">
+                                            <polyline points="9 18 15 12 9 6" />
+                                        </svg>
                                     </a>
-                                    <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST" onsubmit="return confirm('Hapus proyek ini?');" style="margin: 0;">
+                                    <form action="{{ route('project.delete', ['id' => $proj->id]) }}" method="POST"
+                                        onsubmit="return confirm('Hapus proyek ini?');" style="margin: 0;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-outline" style="padding: 6px 8px; font-size: 12px; color: #dc2626; border-color: #fecaca;" title="Hapus Proyek">
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        <button type="submit" class="btn-outline"
+                                            style="padding: 6px 8px; font-size: 12px; color: #dc2626; border-color: #fecaca;"
+                                            title="Hapus Proyek">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6" />
+                                                <path
+                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
                                         </button>
                                     </form>
                                 </div>
                             </div>
                         @empty
                             <div style="padding: 48px 24px; text-align: center;">
-                                <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <div
+                                    style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                    </svg>
                                 </div>
-                                <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Belum ada proyek skripsi</div>
-                                <div style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">Mulai susun Proposal (Bab 1–3) atau Skripsi Lengkap (Bab 1–5) sekarang.</div>
-                                <button type="button" class="btn-primary" onclick="openCreateProjectForm()">+ Buat Proyek Baru</button>
+                                <div
+                                    style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
+                                    Belum ada proyek skripsi</div>
+                                <div style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">Mulai susun
+                                    Proposal (Bab 1–3) atau Skripsi Lengkap (Bab 1–5) sekarang.</div>
+                                <button type="button" class="btn-primary" onclick="openCreateProjectForm()">+ Buat Proyek
+                                    Baru</button>
                             </div>
                         @endforelse
                     </div>
@@ -1922,11 +2178,13 @@
 
                 <!-- VIEW B: FORM BUAT PROYEK BARU (FOKUS PROPOSAL BAB 1-3 & FULL SKRIPSI BAB 1-5) -->
                 <div id="projects-create-view" style="display: none;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
                         <div>
                             <div class="page-eyebrow">Penulisan Terstruktur</div>
                             <h1 class="page-title">Buat Proyek Proposal / Skripsi</h1>
-                            <p class="page-subtitle" style="margin-bottom: 0;">Fokus penyusunan untuk Proposal Skripsi (Bab 1–3) atau Full Skripsi Lengkap (Bab 1–5).</p>
+                            <p class="page-subtitle" style="margin-bottom: 0;">Fokus penyusunan untuk Proposal Skripsi
+                                (Bab 1–3) atau Full Skripsi Lengkap (Bab 1–5).</p>
                         </div>
                         <button type="button" class="btn-outline" onclick="showProjectListView()">
                             ← Kembali ke Proyek Saya
@@ -1953,43 +2211,72 @@
                     ">
                         @csrf
                         <input type="hidden" name="jenis_penelitian" value="Skripsi (S1)">
-                        <input type="hidden" name="logo_base64" id="input-logo-base64" value="{{ $defaultIdentity['logo_base64'] ?? '' }}">
+                        <input type="hidden" name="logo_base64" id="input-logo-base64"
+                            value="{{ $defaultIdentity['logo_base64'] ?? '' }}">
 
                         <!-- Card 1: Fokus Tahap Penulisan (Proposal Bab 1-3 vs Full Skripsi Bab 1-5) -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Pilih Target Penulisan <span class="req">*</span></div>
-                            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <label id="label-target-proposal" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
+                            <div
+                                style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">
+                                Pilih Target Penulisan <span class="req">*</span></div>
+                            <div class="responsive-grid-2"
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <label id="label-target-proposal"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)" checked style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
-                                        <span id="title-target-proposal" style="font-size: 14px; font-weight: 700; color: var(--primary);">Proposal Skripsi (Bab 1–3)</span>
+                                        <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)"
+                                            checked style="accent-color: var(--primary);"
+                                            onchange="updateTargetStyle(this)">
+                                        <span id="title-target-proposal"
+                                            style="font-size: 14px; font-weight: 700; color: var(--primary);">Proposal
+                                            Skripsi (Bab 1–3)</span>
                                     </div>
-                                    <span id="badge-target-proposal" style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Seminar Proposal</span>
+                                    <span id="badge-target-proposal"
+                                        style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Seminar
+                                        Proposal</span>
                                 </label>
-                                <label id="label-target-full" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
+                                <label id="label-target-full"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)" style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
-                                        <span id="title-target-full" style="font-size: 14px; font-weight: 700; color: var(--text-main);">Full Skripsi Lengkap (Bab 1–5)</span>
+                                        <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)"
+                                            style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
+                                        <span id="title-target-full"
+                                            style="font-size: 14px; font-weight: 700; color: var(--text-main);">Full
+                                            Skripsi Lengkap (Bab 1–5)</span>
                                     </div>
-                                    <span id="badge-target-full" style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Sidang Akhir</span>
+                                    <span id="badge-target-full"
+                                        style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Sidang
+                                        Akhir</span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Card 2: Judul, Logo Kampus, & Identitas Mahasiswa -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div class="responsive-grid-title-logo" style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
+                            <div class="responsive-grid-title-logo"
+                                style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <label class="form-label">Judul Proposal / Skripsi <span class="req">*</span></label>
-                                    <textarea name="judul" id="input-project-judul" class="form-textarea" style="min-height: 92px;" placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)" required></textarea>
+                                    <label class="form-label">Judul Proposal / Skripsi <span
+                                            class="req">*</span></label>
+                                    <textarea name="judul" id="input-project-judul" class="form-textarea"
+                                        style="min-height: 92px;"
+                                        placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)"
+                                        required></textarea>
                                 </div>
                                 <div>
                                     <label class="form-label">Logo Kampus <span class="opt">(opsional)</span></label>
-                                    <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 92px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-subtle); cursor: pointer; text-align: center; padding: 8px; overflow: hidden;">
-                                        <img id="new-proj-logo-preview" src="{{ $defaultIdentity['logo_base64'] ?? '' }}" alt="" style="display:{{ !empty($defaultIdentity['logo_base64']) ? 'block' : 'none' }}; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
-                                        <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
-                                        <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
-                                        <input type="file" id="new-proj-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleNewProjectLogoSelect(this)">
+                                    <label
+                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 92px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-subtle); cursor: pointer; text-align: center; padding: 8px; overflow: hidden;">
+                                        <img id="new-proj-logo-preview"
+                                            src="{{ $defaultIdentity['logo_base64'] ?? '' }}" alt=""
+                                            style="display:{{ !empty($defaultIdentity['logo_base64']) ? 'block' : 'none' }}; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
+                                        <span id="new-proj-logo-label"
+                                            style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
+                                        <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2
+                                            MB</span>
+                                        <input type="file" id="new-proj-logo-file"
+                                            accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;"
+                                            onchange="handleNewProjectLogoSelect(this)">
                                     </label>
                                 </div>
                             </div>
@@ -1997,34 +2284,47 @@
                             <div class="form-row">
                                 <div>
                                     <label class="form-label">Nama lengkap mahasiswa</label>
-                                    <input type="text" name="nama" class="form-input" value="{{ strtoupper($defaultIdentity['nama'] ?? $user->name) }}" placeholder="Nama Lengkap Mahasiswa">
+                                    <input type="text" name="nama" class="form-input"
+                                        value="{{ strtoupper($defaultIdentity['nama'] ?? $user->name) }}"
+                                        placeholder="Nama Lengkap Mahasiswa">
                                 </div>
                                 <div>
                                     <label class="form-label">NIM / NPM</label>
-                                    <input type="text" name="nim" class="form-input" value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
+                                    <input type="text" name="nim" class="form-input"
+                                        value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
                                 </div>
                             </div>
 
-                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                            <div class="responsive-grid-3"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
                                 <div>
                                     <label class="form-label">Nama kampus / universitas</label>
-                                    <input type="text" name="kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: UNIVERSITAS INDONESIA">
+                                    <input type="text" name="kampus" class="form-input"
+                                        value="{{ $defaultIdentity['kampus'] ?? '' }}"
+                                        placeholder="Contoh: UNIVERSITAS INDONESIA">
                                 </div>
                                 <div>
                                     <label class="form-label">Jurusan / Program studi <span class="req">*</span></label>
-                                    <input type="text" name="prodi" id="input-project-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: MANAJEMEN" required>
+                                    <input type="text" name="prodi" id="input-project-prodi" class="form-input"
+                                        value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: MANAJEMEN"
+                                        required>
                                 </div>
                                 <div>
                                     <label class="form-label">Fakultas</label>
-                                    <input type="text" name="fakultas" class="form-input" value="{{ $defaultIdentity['fakultas'] ?? '' }}" placeholder="Contoh: FAKULTAS EKONOMI DAN BISNIS">
+                                    <input type="text" name="fakultas" class="form-input"
+                                        value="{{ $defaultIdentity['fakultas'] ?? '' }}"
+                                        placeholder="Contoh: FAKULTAS EKONOMI DAN BISNIS">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Card 3: Metode Penelitian -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <label class="form-label" style="font-size: 14px; color: var(--text-main); margin-bottom: 10px;">Metode penelitian <span class="req">*</span></label>
-                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <label class="form-label"
+                                style="font-size: 14px; color: var(--text-main); margin-bottom: 10px;">Metode penelitian
+                                <span class="req">*</span></label>
+                            <div class="responsive-grid-3"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                                 @php
                                     $metodeOptions = [
                                         ['val' => 'Kualitatif (Studi Kasus / Deskriptif)', 'title' => 'Kualitatif', 'sub' => 'Wawancara, observasi, studi kasus'],
@@ -2039,11 +2339,16 @@
                                     ];
                                 @endphp
                                 @foreach($metodeOptions as $mIdx => $mOpt)
-                                    <label style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; background: #fff;">
+                                    <label
+                                        style="display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; background: #fff;">
                                         <input type="radio" name="metode_penelitian" value="{{ $mOpt['val'] }}" {{ $mIdx === 1 ? 'checked' : '' }} style="margin-top: 3px; accent-color: var(--primary);">
                                         <div>
-                                            <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">{{ $mOpt['title'] }}</div>
-                                            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35;">{{ $mOpt['sub'] }}</div>
+                                            <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">
+                                                {{ $mOpt['title'] }}
+                                            </div>
+                                            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35;">
+                                                {{ $mOpt['sub'] }}
+                                            </div>
                                         </div>
                                     </label>
                                 @endforeach
@@ -2052,32 +2357,52 @@
 
                         <!-- Card 4: Pedoman Kampus (Opsional) -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pedoman kampus <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pedoman kampus
+                                    <span
+                                        style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                                </div>
                             </div>
-                            <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt" style="padding: 9px 12px; font-size: 13px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
+                            <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt"
+                                style="padding: 9px 12px; font-size: 13px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
+                                pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
                         </div>
 
                         <!-- Card 5: Struktur Bab Kustom (Accordion Builder) -->
                         <div class="card" style="margin-bottom: 16px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
                                 <div>
-                                    <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur bab kustom <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                                    <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur
+                                        bab kustom <span
+                                            style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                                    </div>
+                                    <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur
+                                        subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak
+                                        diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
                                 </div>
-                                <input type="checkbox" id="custom-structure-toggle" onchange="toggleCustomStructure(this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;">
+                                <input type="checkbox" id="custom-structure-toggle"
+                                    onchange="toggleCustomStructure(this.checked)"
+                                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;">
                             </div>
 
                             <div id="custom-structure-wrap" style="display: none; margin-top: 16px;">
-                                <textarea name="struktur_kustom" id="custom-structure-serialized" style="display: none;"></textarea>
+                                <textarea name="struktur_kustom" id="custom-structure-serialized"
+                                    style="display: none;"></textarea>
 
-                                <div id="custom-babs-accordion-container" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div id="custom-babs-accordion-container"
+                                    style="display: flex; flex-direction: column; gap: 10px;">
                                     <!-- Di-render oleh renderCustomChapterAccordion() -->
                                 </div>
 
-                                <button type="button" class="btn-outline" onclick="addCustomBab()" style="width: 100%; border-style: dashed; padding: 10px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; background: #f8fafc; border-color: #cbd5e1; border-radius: 8px; color: #334155; cursor: pointer; transition: all 0.15s;">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <button type="button" class="btn-outline" onclick="addCustomBab()"
+                                    style="width: 100%; border-style: dashed; padding: 10px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; background: #f8fafc; border-color: #cbd5e1; border-radius: 8px; color: #334155; cursor: pointer; transition: all 0.15s;">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.2">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
                                     <span>Tambah Bab (mis. Bab 6 / 7)</span>
                                 </button>
                             </div>
@@ -2085,15 +2410,23 @@
 
                         <!-- Card 6: Data Awal Penelitian (Opsional) -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Data awal penelitian <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
-                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 12px;">Tambahkan kondisi nyata, angka, atau hasil observasi awal untuk mendukung latar belakang penelitian.</div>
-                            <textarea name="data_awal" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Di SMAN 1 X, 62% siswa belum memanfaatkan e-library; rata-rata skor literasi digital 48/100 (survei 2024)."></textarea>
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Data awal
+                                penelitian <span
+                                    style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 12px;">Tambahkan
+                                kondisi nyata, angka, atau hasil observasi awal untuk mendukung latar belakang
+                                penelitian.</div>
+                            <textarea name="data_awal" class="form-textarea" style="min-height: 85px;"
+                                placeholder="Contoh: Di SMAN 1 X, 62% siswa belum memanfaatkan e-library; rata-rata skor literasi digital 48/100 (survei 2024)."></textarea>
                         </div>
 
                         <!-- Card 7: Pengaturan Sitasi -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pengaturan sitasi</div>
-                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px;">Sesuaikan referensi dan format penulisan dengan kebutuhan penelitianmu.</div>
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Pengaturan sitasi
+                            </div>
+                            <div style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 14px;">Sesuaikan
+                                referensi dan format penulisan dengan kebutuhan penelitianmu.</div>
 
                             <div class="form-row">
                                 <div>
@@ -2140,17 +2473,24 @@
                             </div>
 
                             <label class="form-label">Sumber referensi</label>
-                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" checked style="accent-color: var(--primary);">
+                            <div class="responsive-grid-3"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" checked
+                                        style="accent-color: var(--primary);">
                                     <span>Umum</span>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked style="accent-color: var(--primary);">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked
+                                        style="accent-color: var(--primary);">
                                     <span>Terindeks Sinta</span>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus" style="accent-color: var(--primary);">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus"
+                                        style="accent-color: var(--primary);">
                                     <span>Terindeks Scopus</span>
                                 </label>
                             </div>
@@ -2158,14 +2498,20 @@
 
                         <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
                         <div class="card" style="margin-bottom: 24px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel atau buku referensi wajib <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel
+                                    atau buku referensi wajib <span
+                                        style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                                </div>
                                 <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
                             </div>
                             <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
-                                Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus. Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
+                                Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus.
+                                Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
                             </div>
-                            <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt" class="form-input" style="padding: 9px 12px; font-size: 13px;">
+                            <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt"
+                                class="form-input" style="padding: 9px 12px; font-size: 13px;">
 
                             <div class="card-footer-bar">
                                 <button type="button" class="btn-outline" onclick="showProjectListView()">Batal</button>
@@ -2182,12 +2528,14 @@
             <section class="tab-pane" id="pane-titles">
                 <div class="page-eyebrow">Eksplorasi Topik · AI Akademik</div>
                 <h1 class="page-title">Cari Judul Skripsi</h1>
-                <p class="page-subtitle">Isi topik dan metodologi — sistem langsung sarankan judul terbaik sesuai bidangmu dalam hitungan detik.</p>
+                <p class="page-subtitle">Isi topik dan metodologi — sistem langsung sarankan judul terbaik sesuai
+                    bidangmu dalam hitungan detik.</p>
 
                 <div class="card">
                     <div class="form-group">
                         <label class="form-label">Topik atau Bidang Penelitian <span class="req">*</span></label>
-                        <input type="text" id="title-topik" class="form-input" placeholder="cth: machine learning, manajemen SDM, hukum perdata...">
+                        <input type="text" id="title-topik" class="form-input"
+                            placeholder="cth: machine learning, manajemen SDM, hukum perdata...">
                     </div>
 
                     <div class="form-row" style="margin-bottom: 0;">
@@ -2197,19 +2545,22 @@
                                 <option value="">Pilih Metodologi</option>
                                 <option value="Kuantitatif (Survei / Regresi)">Kuantitatif</option>
                                 <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif</option>
-                                <option value="R&D / Pengembangan Sistem (Waterfall / Prototype)">R&D / Pengembangan Sistem</option>
+                                <option value="R&D / Pengembangan Sistem (Waterfall / Prototype)">R&D / Pengembangan
+                                    Sistem</option>
                                 <option value="Yuridis Normatif / Empiris">Yuridis Normatif / Empiris</option>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">Program Studi <span class="opt">(opsional)</span></label>
-                            <input type="text" id="title-prodi" class="form-input" placeholder="cth: Informatika, Manajemen...">
+                            <input type="text" id="title-prodi" class="form-input"
+                                placeholder="cth: Informatika, Manajemen...">
                         </div>
                     </div>
 
                     <div class="card-footer-bar">
                         <span class="footer-meta">REKOMENDASI 10 JUDUL TERSTRUKTUR</span>
-                        <button type="button" id="btn-find-titles" class="btn-primary" onclick="handleFindTitles()">Temukan 10 Judul →</button>
+                        <button type="button" id="btn-find-titles" class="btn-primary"
+                            onclick="handleFindTitles()">Temukan 10 Judul →</button>
                     </div>
                 </div>
 
@@ -2220,7 +2571,8 @@
                 <div id="titles-result-box" style="display: none; margin-top: 20px;" class="card-flush">
                     <div class="card-header-bar">
                         <span>Rekomendasi 10 Judul Skripsi</span>
-                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Gunakan Judul" untuk langsung menulis</span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Gunakan Judul"
+                            untuk langsung menulis</span>
                     </div>
                     <div id="titles-list"></div>
                 </div>
@@ -2231,7 +2583,8 @@
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-ppt">
                 <h1 class="page-title">PPT Sidang</h1>
-                <p class="page-subtitle">Slide sidang dari isi skripsimu. Pilih desain template, rapikan isi slide, preview presentasi seperti PowerPoint, lalu unduh <code>.pptx</code>.</p>
+                <p class="page-subtitle">Slide sidang dari isi skripsimu. Pilih desain template, rapikan isi slide,
+                    preview presentasi seperti PowerPoint, lalu unduh <code>.pptx</code>.</p>
 
                 <!-- 4-Step Indicator -->
                 <div class="stepper">
@@ -2239,15 +2592,18 @@
                         <span class="step-num-circle">1</span>
                         <span>Pilih skripsi</span>
                     </button>
-                    <button type="button" class="step-pill" id="ppt-step-btn-2" onclick="if(selectedPptProject.title || document.getElementById('ppt-file-input').files.length) setPptStep(2)">
+                    <button type="button" class="step-pill" id="ppt-step-btn-2"
+                        onclick="if(selectedPptProject.title || document.getElementById('ppt-file-input').files.length) setPptStep(2)">
                         <span class="step-num-circle">2</span>
                         <span>Buat slide</span>
                     </button>
-                    <button type="button" class="step-pill" id="ppt-step-btn-3" onclick="if(pptSlides.length) setPptStep(3)">
+                    <button type="button" class="step-pill" id="ppt-step-btn-3"
+                        onclick="if(pptSlides.length) setPptStep(3)">
                         <span class="step-num-circle">3</span>
                         <span>Edit & desain tema</span>
                     </button>
-                    <button type="button" class="step-pill" id="ppt-step-btn-4" onclick="if(pptSlides.length) openPptGridPreviewStep()">
+                    <button type="button" class="step-pill" id="ppt-step-btn-4"
+                        onclick="if(pptSlides.length) openPptGridPreviewStep()">
                         <span class="step-num-circle">4</span>
                         <span>Preview & unduh</span>
                     </button>
@@ -2260,18 +2616,16 @@
                             <div>Pilih dari Proyek Saya <span class="count-badge">{{ $history->count() }}</span></div>
                         </div>
                         @forelse($history as $proj)
-                            <div class="project-row" 
-                                 data-id="{{ $proj->id }}"
-                                 data-title="{{ e($proj->judul) }}"
-                                 data-prodi="{{ e($proj->prodi ?? '') }}"
-                                 data-kampus="{{ e($proj->kampus ?? '') }}"
-                                 data-nim="{{ e($proj->nim ?? '') }}"
-                                 data-fakultas="{{ e($proj->fakultas ?? '') }}"
-                                 onclick="chooseProjectElementForPpt(this)">
+                            <div class="project-row" data-id="{{ $proj->id }}" data-title="{{ e($proj->judul) }}"
+                                data-prodi="{{ e($proj->prodi ?? '') }}" data-kampus="{{ e($proj->kampus ?? '') }}"
+                                data-nim="{{ e($proj->nim ?? '') }}" data-fakultas="{{ e($proj->fakultas ?? '') }}"
+                                onclick="chooseProjectElementForPpt(this)">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
-                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->updated_at->diffForHumans() }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} ·
+                                            {{ $proj->updated_at->diffForHumans() }}
+                                        </div>
                                     </div>
                                 </div>
                                 <span class="project-row-action">Pilih Skripsi →</span>
@@ -2285,10 +2639,14 @@
 
                     <!-- Opsi Upload File PDF/DOCX Langsung -->
                     <div class="card">
-                        <div class="form-label" style="margin-bottom: 8px;">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan merangkum isi file dokumenmu dan menyusun 9 slide presentasi sidang secara otomatis.</p>
+                        <div class="form-label" style="margin-bottom: 8px;">Atau unggah file skripsi / proposal (.pdf,
+                            .docx)</div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan merangkum isi
+                            file dokumenmu dan menyusun 9 slide presentasi sidang secara otomatis.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <input type="file" id="ppt-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; padding: 8px 12px; font-size: 13px;" onchange="onUploadFileForPpt(this)">
+                            <input type="file" id="ppt-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
+                                style="flex: 1; padding: 8px 12px; font-size: 13px;"
+                                onchange="onUploadFileForPpt(this)">
                         </div>
                     </div>
                 </div>
@@ -2298,77 +2656,113 @@
                     <div class="card">
                         <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
                             <div style="min-width: 0; width: 100%;">
-                                <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase;" id="ppt-selected-source">SKRIPSI</div>
-                                <div style="font-size: 15.5px; font-weight: 700; color: var(--text-main);" id="ppt-selected-title">-</div>
+                                <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase;"
+                                    id="ppt-selected-source">SKRIPSI</div>
+                                <div style="font-size: 15.5px; font-weight: 700; color: var(--text-main);"
+                                    id="ppt-selected-title">-</div>
                             </div>
                         </div>
 
                         <!-- Form Identitas Mahasiswa, Pembimbing, dan Penguji untuk Slide Cover Sidang -->
-                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
-                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Informasi Mahasiswa &amp; Sidang (Untuk Slide 1 / Cover)</div>
-                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Data ini akan dicantumkan otomatis pada slide judul dan penutup sidang secara resmi.</div>
+                        <div
+                            style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                            <div
+                                style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                                Informasi Mahasiswa &amp; Sidang (Untuk Slide 1 / Cover)</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Data ini akan
+                                dicantumkan otomatis pada slide judul dan penutup sidang secara resmi.</div>
 
                             <div class="form-row">
                                 <div>
                                     <label class="form-label">Nama Mahasiswa</label>
-                                    <input type="text" id="ppt-input-nama" class="form-input" value="{{ $user->name }}" placeholder="Nama Lengkap Mahasiswa">
+                                    <input type="text" id="ppt-input-nama" class="form-input" value="{{ $user->name }}"
+                                        placeholder="Nama Lengkap Mahasiswa">
                                 </div>
                                 <div>
                                     <label class="form-label">NIM / NPM</label>
-                                    <input type="text" id="ppt-input-nim" class="form-input" value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
+                                    <input type="text" id="ppt-input-nim" class="form-input"
+                                        value="{{ $defaultIdentity['nim'] ?? '' }}" placeholder="Nomor Induk Mahasiswa">
                                 </div>
                             </div>
 
-                            <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px;">
+                            <div class="responsive-grid-3"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px;">
                                 <div>
                                     <label class="form-label">Nama Kampus</label>
-                                    <input type="text" id="ppt-input-kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: UNIVERSITAS INDONESIA">
+                                    <input type="text" id="ppt-input-kampus" class="form-input"
+                                        value="{{ $defaultIdentity['kampus'] ?? '' }}"
+                                        placeholder="Contoh: UNIVERSITAS INDONESIA">
                                 </div>
                                 <div>
                                     <label class="form-label">Program Studi</label>
-                                    <input type="text" id="ppt-input-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: SISTEM INFORMASI">
+                                    <input type="text" id="ppt-input-prodi" class="form-input"
+                                        value="{{ $defaultIdentity['prodi'] ?? '' }}"
+                                        placeholder="Contoh: SISTEM INFORMASI">
                                 </div>
                                 <div>
                                     <label class="form-label">Fakultas</label>
-                                    <input type="text" id="ppt-input-fakultas" class="form-input" value="{{ $defaultIdentity['fakultas'] ?? '' }}" placeholder="Contoh: FASILKOM">
+                                    <input type="text" id="ppt-input-fakultas" class="form-input"
+                                        value="{{ $defaultIdentity['fakultas'] ?? '' }}" placeholder="Contoh: FASILKOM">
                                 </div>
                             </div>
 
                             <div style="margin-bottom: 14px;">
                                 <label class="form-label">Logo Kampus (Opsional - Tampil di Slide Cover Sidang)</label>
                                 <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="file" id="ppt-input-logo" class="form-input" accept="image/*" onchange="onUploadPptLogo(this)" style="padding: 6px 10px; font-size: 12.5px; flex: 1;">
-                                    <div id="ppt-logo-preview-box" style="display: none; width: 36px; height: 36px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; align-items: center; justify-content: center; overflow: hidden;">
-                                        <img id="ppt-logo-preview-img" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                                    <input type="file" id="ppt-input-logo" class="form-input" accept="image/*"
+                                        onchange="onUploadPptLogo(this)"
+                                        style="padding: 6px 10px; font-size: 12.5px; flex: 1;">
+                                    <div id="ppt-logo-preview-box"
+                                        style="display: none; width: 36px; height: 36px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; align-items: center; justify-content: center; overflow: hidden;">
+                                        <img id="ppt-logo-preview-img" src="" alt="Logo"
+                                            style="width: 100%; height: 100%; object-fit: contain;">
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0;">
-                                <div style="background: #ffffff; padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px;">
-                                    <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">Dosen Pembimbing</div>
+                            <div class="responsive-grid-2"
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0;">
+                                <div
+                                    style="background: #ffffff; padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px;">
+                                    <div
+                                        style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">
+                                        Dosen Pembimbing</div>
                                     <div style="display: flex; flex-direction: column; gap: 6px;">
-                                        <input type="text" id="ppt-input-pembimbing-1" class="form-input" placeholder="Pembimbing 1 (dengan gelar)">
-                                        <input type="text" id="ppt-input-pembimbing-2" class="form-input" placeholder="Pembimbing 2 (opsional)">
+                                        <input type="text" id="ppt-input-pembimbing-1" class="form-input"
+                                            placeholder="Pembimbing 1 (dengan gelar)">
+                                        <input type="text" id="ppt-input-pembimbing-2" class="form-input"
+                                            placeholder="Pembimbing 2 (opsional)">
                                     </div>
                                 </div>
-                                <div style="background: #ffffff; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;">
-                                    <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Dosen Penguji</div>
+                                <div
+                                    style="background: #ffffff; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;">
+                                    <div
+                                        style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+                                        Dosen Penguji</div>
                                     <div style="display: flex; flex-direction: column; gap: 6px;">
-                                        <input type="text" id="ppt-input-penguji-1" class="form-input" placeholder="Penguji 1 (dengan gelar)">
-                                        <input type="text" id="ppt-input-penguji-2" class="form-input" placeholder="Penguji 2 (opsional)">
+                                        <input type="text" id="ppt-input-penguji-1" class="form-input"
+                                            placeholder="Penguji 1 (dengan gelar)">
+                                        <input type="text" id="ppt-input-penguji-2" class="form-input"
+                                            placeholder="Penguji 2 (opsional)">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="button" id="btn-generate-ppt" class="btn-primary btn-full" onclick="handleGeneratePpt()">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        <button type="button" id="btn-generate-ppt" class="btn-primary btn-full"
+                            onclick="handleGeneratePpt()">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
+                            </svg>
                             <span>Buat slide sidang sekarang</span>
                         </button>
 
                         <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 12px;">
-                            Sekitar 10–30 detik. Slide disusun dari isi skripsimu, lengkap dengan catatan bicara, dan bisa kamu ubah setelahnya.
+                            Sekitar 10–30 detik. Slide disusun dari isi skripsimu, lengkap dengan catatan bicara, dan
+                            bisa kamu ubah setelahnya.
                         </p>
                     </div>
                     <div id="ppt-loading-box" style="display: none;"></div>
@@ -2378,41 +2772,59 @@
                 <div id="ppt-view-step-3" style="display: none;">
                     <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
                     <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div>
-                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.</div>
+                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain
+                                    Template Slide</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik
+                                    maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.
+                                </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
-                                <button type="button" class="btn-outline" style="border-color: var(--primary); color: var(--primary); font-weight: 600;" onclick="openFullscreenSlideshow()">
+                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah
+                                    Slide</button>
+                                <button type="button" class="btn-outline"
+                                    style="border-color: var(--primary); color: var(--primary); font-weight: 600;"
+                                    onclick="openFullscreenSlideshow()">
                                     ▶ Preview Slide Show
                                 </button>
-                                <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;" onclick="openPptGridPreviewStep()">
+                                <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;"
+                                    onclick="openPptGridPreviewStep()">
                                     Preview Semua & Unduh (.pptx) →
                                 </button>
                             </div>
                         </div>
 
-                        <div class="theme-card-grid" style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
+                        <div class="theme-card-grid"
+                            style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
                             <button type="button" class="theme-chip" onclick="setPptTheme('sidang_crimson', this)">
-                                <div class="theme-swatch" style="background: linear-gradient(135deg, #be123c 0%, #881337 100%); border-top: 5px solid #fda4af;"></div>
+                                <div class="theme-swatch"
+                                    style="background: linear-gradient(135deg, #be123c 0%, #881337 100%); border-top: 5px solid #fda4af;">
+                                </div>
                                 <span class="theme-chip-name">Sidang Crimson (Merah)</span>
                             </button>
-                            <button type="button" class="theme-chip active" onclick="setPptTheme('royal_academic', this)">
-                                <div class="theme-swatch" style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 6px solid #2563eb;"></div>
+                            <button type="button" class="theme-chip active"
+                                onclick="setPptTheme('royal_academic', this)">
+                                <div class="theme-swatch"
+                                    style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); border-left: 6px solid #2563eb;">
+                                </div>
                                 <span class="theme-chip-name">Royal Blue Kampus</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('canva_editorial', this)">
-                                <div class="theme-swatch" style="background: #fbf8f3; border-top: 5px solid #ea580c;"></div>
+                                <div class="theme-swatch" style="background: #fbf8f3; border-top: 5px solid #ea580c;">
+                                </div>
                                 <span class="theme-chip-name">Canva Cream Aesthetic</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('emerald_executive', this)">
-                                <div class="theme-swatch" style="background: #f4fbf7; border-top: 5px solid #047857;"></div>
+                                <div class="theme-swatch" style="background: #f4fbf7; border-top: 5px solid #047857;">
+                                </div>
                                 <span class="theme-chip-name">Emerald Botanical</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('swiss_minimal', this)">
-                                <div class="theme-swatch" style="background: #ffffff; border-top: 5px solid #111827; border-bottom: 2px solid #111827;"></div>
+                                <div class="theme-swatch"
+                                    style="background: #ffffff; border-top: 5px solid #111827; border-bottom: 2px solid #111827;">
+                                </div>
                                 <span class="theme-chip-name">Swiss Grid Minimal</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('basic_navy', this)">
@@ -2424,27 +2836,33 @@
                                 <span class="theme-chip-name">Basic Putih (Polos)</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('maroon_prestige', this)">
-                                <div class="theme-swatch" style="background: #fff5f5; border-top: 5px solid #991b1b;"></div>
+                                <div class="theme-swatch" style="background: #fff5f5; border-top: 5px solid #991b1b;">
+                                </div>
                                 <span class="theme-chip-name">Maroon Prestige</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('tech_dark', this)">
-                                <div class="theme-swatch" style="background: #0b0f19; border-top: 5px solid #06b6d4;"></div>
+                                <div class="theme-swatch" style="background: #0b0f19; border-top: 5px solid #06b6d4;">
+                                </div>
                                 <span class="theme-chip-name">Dark Tech Cyber</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('pastel_lavender', this)">
-                                <div class="theme-swatch" style="background: #f5f3ff; border-top: 5px solid #8b5cf6;"></div>
+                                <div class="theme-swatch" style="background: #f5f3ff; border-top: 5px solid #8b5cf6;">
+                                </div>
                                 <span class="theme-chip-name">Lavender Academic</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('nordic_teal', this)">
-                                <div class="theme-swatch" style="background: #f0fdfa; border-top: 5px solid #0d9488;"></div>
+                                <div class="theme-swatch" style="background: #f0fdfa; border-top: 5px solid #0d9488;">
+                                </div>
                                 <span class="theme-chip-name">Nordic Slate Teal</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('warm_terracotta', this)">
-                                <div class="theme-swatch" style="background: #fffbeb; border-top: 5px solid #ea580c;"></div>
+                                <div class="theme-swatch" style="background: #fffbeb; border-top: 5px solid #ea580c;">
+                                </div>
                                 <span class="theme-chip-name">Terracotta Modern</span>
                             </button>
                             <button type="button" class="theme-chip" onclick="setPptTheme('classic_gold', this)">
-                                <div class="theme-swatch" style="background: #0f172a; border-top: 5px solid #fbbf24;"></div>
+                                <div class="theme-swatch" style="background: #0f172a; border-top: 5px solid #fbbf24;">
+                                </div>
                                 <span class="theme-chip-name">Oxford Navy Gold</span>
                             </button>
                         </div>
@@ -2453,27 +2871,45 @@
                     <!-- 16:9 Editable PowerPoint Canvas (MURNI SLIDE TANPA TOMBOL DI DALAMNYA) -->
                     <div id="ppt-canvas-box" class="ppt-canvas ppt-theme-royal_academic">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span id="slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                                    <span id="slide-campus-badge" class="ppt-campus-pill"
+                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                            stroke-width="2.2">
+                                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                            <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
+                                        </svg>
                                         <span id="slide-campus-name">UNIVERSITAS</span>
                                     </span>
-                                    <span id="slide-section-label" class="ppt-badge" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
+                                    <span id="slide-section-label" class="ppt-badge" contenteditable="true"
+                                        onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
                                 </div>
-                                <span id="slide-counter-label" style="font-size: 12px; font-weight: 700; opacity: 0.75;">Slide 1 / 9</span>
+                                <span id="slide-counter-label"
+                                    style="font-size: 12px; font-weight: 700; opacity: 0.75;">Slide 1 / 9</span>
                             </div>
-                            <h2 id="slide-title-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; outline: none;">Judul Slide</h2>
-                            <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 14px; opacity: 0.85; margin-bottom: 20px; font-weight: 500; outline: none;">Subjudul</div>
-                            <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="padding-left: 18px; font-size: 14.5px; line-height: 1.7; outline: none; display: flex; flex-direction: column; gap: 8px;"></ul>
+                            <h2 id="slide-title-edit" contenteditable="true" onblur="syncCurrentSlideEdit()"
+                                style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; outline: none;">
+                                Judul Slide</h2>
+                            <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()"
+                                style="font-size: 14px; opacity: 0.85; margin-bottom: 20px; font-weight: 500; outline: none;">
+                                Subjudul</div>
+                            <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()"
+                                style="padding-left: 18px; font-size: 14.5px; line-height: 1.7; outline: none; display: flex; flex-direction: column; gap: 8px;">
+                            </ul>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center;">💡 Klik teks pada slide di atas untuk mengedit langsung judul, poin, atau subjudul.</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center;">💡 Klik
+                        teks pada slide di atas untuk mengedit langsung judul, poin, atau subjudul.</div>
 
                     <!-- TOMBOL NAVIGASI SLIDE DI LUAR EDITOR (JELAS & MUDAH DIKLIK) -->
                     <div class="ppt-nav-outside">
                         <button type="button" class="ppt-nav-btn" id="btn-ppt-prev" onclick="prevSlide()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
                             <span>Slide Sebelumnya</span>
                         </button>
 
@@ -2483,27 +2919,38 @@
 
                         <button type="button" class="ppt-nav-btn" id="btn-ppt-next" onclick="nextSlide()">
                             <span>Slide Selanjutnya</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
                         </button>
                     </div>
 
                     <!-- Catatan Bicara Presenter (Editable) -->
                     <div class="card" style="margin-top: 14px;">
                         <label class="form-label">Catatan Bicara Presenter (Speaker Notes) — bisa diedit</label>
-                        <textarea id="slide-notes-edit" class="form-textarea" style="min-height: 80px;" oninput="syncCurrentSlideEdit()"></textarea>
+                        <textarea id="slide-notes-edit" class="form-textarea" style="min-height: 80px;"
+                            oninput="syncCurrentSlideEdit()"></textarea>
                     </div>
                 </div>
 
                 <!-- STEP 4: PRATINJAU SEMUA SLIDE (SLIDE SORTER PREVIEW) SEBELUM UNDUH -->
                 <div id="ppt-view-step-4" style="display: none;">
-                    <div class="card" style="margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div class="card"
+                        style="margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                         <div>
-                            <div style="font-size: 15px; font-weight: 700; color: var(--text-main);">Pratinjau Seluruh Slide Presentasi</div>
-                            <div style="font-size: 13px; color: var(--text-muted);">Periksa tampilan seluruh slide di bawah ini atau putar mode layar penuh sebelum mengunduh file PowerPoint (<code>.pptx</code>).</div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--text-main);">Pratinjau Seluruh
+                                Slide Presentasi</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">Periksa tampilan seluruh slide di
+                                bawah ini atau putar mode layar penuh sebelum mengunduh file PowerPoint
+                                (<code>.pptx</code>).</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn-outline" onclick="setPptStep(3)">← Kembali Edit Slide</button>
-                            <button type="button" class="btn-outline" style="border-color: var(--primary); color: var(--primary); font-weight: 600;" onclick="openFullscreenSlideshow()">
+                            <button type="button" class="btn-outline" onclick="setPptStep(3)">← Kembali Edit
+                                Slide</button>
+                            <button type="button" class="btn-outline"
+                                style="border-color: var(--primary); color: var(--primary); font-weight: 600;"
+                                onclick="openFullscreenSlideshow()">
                                 ▶ Preview Layar Penuh
                             </button>
                             <button type="button" class="btn-primary" onclick="downloadPptxFile()">
@@ -2512,7 +2959,8 @@
                         </div>
                     </div>
 
-                    <div id="ppt-grid-preview-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <div id="ppt-grid-preview-list"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
                         <!-- Di-render oleh JS: semua slide tampil rapi sebelum download -->
                     </div>
                 </div>
@@ -2526,7 +2974,8 @@
 
                     <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #ffffff; flex-wrap: wrap; gap: 8px;">
                         <div style="font-size: 13.5px; font-weight: 600;">
-                            Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter" style="color: #93c5fd;">Slide 1 / 9</span>
+                            Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter"
+                                style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center; margin-right: 48px;">
                             <button type="button" class="btn-primary" style="padding: 7px 12px; font-size: 12px;" onclick="downloadPptxFile()">⬇ Unduh (.pptx)</button>
@@ -2567,7 +3016,8 @@
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-defense">
                 <h1 class="page-title">Simulasi Sidang</h1>
-                <p class="page-subtitle">Latihan tanya-jawab berdasarkan isi skripsimu, lengkap dengan skor per pertanyaan dan saran jawaban.</p>
+                <p class="page-subtitle">Latihan tanya-jawab berdasarkan isi skripsimu, lengkap dengan skor per
+                    pertanyaan dan saran jawaban.</p>
 
                 <div class="stepper">
                     <button type="button" class="step-pill active" id="def-step-btn-1" onclick="setDefenseStep(1)">
@@ -2589,11 +3039,15 @@
                     <div id="defense-loading-box" style="display: none; margin-bottom: 18px;"></div>
 
                     <!-- Pengaturan Parameter Simulasi Sidang -->
-                    <div class="card" style="margin-bottom: 18px; background: #f8fafc; border: 1px solid var(--border);">
-                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Pengaturan Karakter Penguji &amp; Parameter Sidang</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Atur tingkat kesulitan dosen penguji dan jumlah pertanyaan sebelum memulai ujian.</div>
+                    <div class="card"
+                        style="margin-bottom: 18px; background: #f8fafc; border: 1px solid var(--border);">
+                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                            Pengaturan Karakter Penguji &amp; Parameter Sidang</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Atur tingkat
+                            kesulitan dosen penguji dan jumlah pertanyaan sebelum memulai ujian.</div>
 
-                        <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div class="responsive-grid-3"
+                            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
                             <div>
                                 <label class="form-label">Karakter Dosen Penguji</label>
                                 <select id="def-mode-dosen" class="form-select">
@@ -2630,14 +3084,17 @@
 
                     <div class="card-flush" style="margin-bottom: 18px;">
                         <div class="card-header-bar">
-                            <div>Pilih skripsi untuk diujikan <span class="count-badge">{{ $history->count() }}</span></div>
+                            <div>Pilih skripsi untuk diujikan <span class="count-badge">{{ $history->count() }}</span>
+                            </div>
                         </div>
                         @forelse($history as $proj)
-                            <div class="project-row" onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
+                            <div class="project-row"
+                                onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
-                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }}</div>
+                                        <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }}
+                                        </div>
                                     </div>
                                 </div>
                                 <span class="project-row-action">Mulai Sidang →</span>
@@ -2651,10 +3108,13 @@
 
                     <div class="card">
                         <div class="form-label">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca dokumenmu dan menyusun 5 pertanyaan penguji sesuai isi naskah.</p>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca
+                            dokumenmu dan menyusun 5 pertanyaan penguji sesuai isi naskah.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt" style="flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px;">
-                            <button type="button" id="btn-start-def-file" class="btn-primary" onclick="startDefenseWithFile()">Mulai Simulasi →</button>
+                            <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
+                                style="flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px;">
+                            <button type="button" id="btn-start-def-file" class="btn-primary"
+                                onclick="startDefenseWithFile()">Mulai Simulasi →</button>
                         </div>
                     </div>
                 </div>
@@ -2662,23 +3122,32 @@
                 <!-- STEP 2: Jawab Pertanyaan Satu per Satu -->
                 <div id="def-view-step-2" style="display: none;">
                     <div class="card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                            <span style="font-size: 12.5px; font-weight: 600; color: var(--primary);" id="def-q-category">Bab I · Urgensi Penelitian</span>
-                            <span style="font-size: 12.5px; color: var(--text-muted);" id="def-q-counter">Pertanyaan 1 dari 5</span>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 12.5px; font-weight: 600; color: var(--primary);"
+                                id="def-q-category">Bab I · Urgensi Penelitian</span>
+                            <span style="font-size: 12.5px; color: var(--text-muted);" id="def-q-counter">Pertanyaan 1
+                                dari 5</span>
                         </div>
 
-                        <h3 id="def-q-text" style="font-size: 17px; font-weight: 600; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">-</h3>
+                        <h3 id="def-q-text"
+                            style="font-size: 17px; font-weight: 600; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                            -</h3>
 
-                        <div id="def-q-hint" style="padding: 10px 14px; background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: 9px; font-size: 13px; color: var(--text-secondary); margin-bottom: 18px;"></div>
+                        <div id="def-q-hint"
+                            style="padding: 10px 14px; background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: 9px; font-size: 13px; color: var(--text-secondary); margin-bottom: 18px;">
+                        </div>
 
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Jawabanmu</label>
-                            <textarea id="def-answer-input" class="form-textarea" placeholder="Ketik jawaban argumen sidangmu di sini..."></textarea>
+                            <textarea id="def-answer-input" class="form-textarea"
+                                placeholder="Ketik jawaban argumen sidangmu di sini..."></textarea>
                         </div>
 
                         <div class="card-footer-bar">
                             <span class="footer-meta" id="def-progress-label">JAWAB SATU PER SATU</span>
-                            <button type="button" id="btn-next-def-q" class="btn-primary" onclick="submitDefenseAnswer()">Simpan & Pertanyaan Berikutnya →</button>
+                            <button type="button" id="btn-next-def-q" class="btn-primary"
+                                onclick="submitDefenseAnswer()">Simpan & Pertanyaan Berikutnya →</button>
                         </div>
                     </div>
                     <div id="defense-eval-loading-box" style="display: none;"></div>
@@ -2687,30 +3156,54 @@
                 <!-- STEP 3: Hasil Evaluasi (Ringkasan | Detail Jawaban | Saran + Skor per Pertanyaan) -->
                 <div id="def-view-step-3" style="display: none;">
                     <div class="card" style="margin-bottom: 18px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
                             <div>
-                                <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">HASIL SIMULASI SIDANG</div>
-                                <h3 id="def-eval-verdict" style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 2px;">-</h3>
+                                <div
+                                    style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+                                    HASIL SIMULASI SIDANG</div>
+                                <h3 id="def-eval-verdict"
+                                    style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 2px;">
+                                    -</h3>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="def-eval-score">0.0/10</div>
+                                <div style="font-size: 28px; font-weight: 700; color: var(--primary);"
+                                    id="def-eval-score">0.0/10</div>
                                 <div style="font-size: 12px; color: var(--text-muted);">Rata-rata Skor Jawaban</div>
                             </div>
                         </div>
 
                         <!-- Sub-tabs: Ringkasan | Detail Jawaban | Saran -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin: 16px 0; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin: 16px 0; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" id="eval-tab-summary" style="background: var(--bg-muted); font-weight: 600;" onclick="switchEvalSubtab('summary')">Ringkasan</button>
-                                <button type="button" class="btn-outline" id="eval-tab-details" onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
+                                <button type="button" class="btn-outline" id="eval-tab-summary"
+                                    style="background: var(--bg-muted); font-weight: 600;"
+                                    onclick="switchEvalSubtab('summary')">Ringkasan</button>
+                                <button type="button" class="btn-outline" id="eval-tab-details"
+                                    onclick="switchEvalSubtab('details')">Detail Jawaban & Saran</button>
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="restartCurrentDefense()">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                <button type="button" class="btn-outline"
+                                    style="display:inline-flex; align-items:center; gap:6px;"
+                                    onclick="restartCurrentDefense()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M23 4v6h-6" />
+                                        <path d="M1 20v-6h6" />
+                                        <path
+                                            d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                    </svg>
                                     <span>Ulangi Simulasi Ini</span>
                                 </button>
-                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="setDefenseStep(1)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                <button type="button" class="btn-outline"
+                                    style="display:inline-flex; align-items:center; gap:6px;"
+                                    onclick="setDefenseStep(1)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                    </svg>
                                     <span>Pilih Skripsi Lain</span>
                                 </button>
                             </div>
@@ -2718,8 +3211,12 @@
 
                         <!-- Subtab 1: Ringkasan & Skor per Pertanyaan -->
                         <div id="eval-pane-summary">
-                            <p id="def-eval-summary" style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 20px;"></p>
-                            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">SKOR PER PERTANYAAN</div>
+                            <p id="def-eval-summary"
+                                style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 20px;">
+                            </p>
+                            <div
+                                style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">
+                                SKOR PER PERTANYAAN</div>
                             <div id="def-score-bars"></div>
                         </div>
 
@@ -2729,17 +3226,35 @@
                         </div>
 
                         <div class="card-footer-bar" style="margin-top: 20px;">
-                            <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="restartCurrentDefense()">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            <button type="button" class="btn-outline"
+                                style="display:inline-flex; align-items:center; gap:6px;"
+                                onclick="restartCurrentDefense()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M23 4v6h-6" />
+                                    <path d="M1 20v-6h6" />
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                </svg>
                                 <span>Ulangi Latihan Tanya-Jawab</span>
                             </button>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="setDefenseStep(1)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                <button type="button" class="btn-outline"
+                                    style="display:inline-flex; align-items:center; gap:6px;"
+                                    onclick="setDefenseStep(1)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                    </svg>
                                     <span>Pilih Skripsi Lain</span>
                                 </button>
-                                <button type="button" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px;" onclick="openTab('dashboard', 'Dashboard')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                <button type="button" class="btn-primary"
+                                    style="display:inline-flex; align-items:center; gap:6px;"
+                                    onclick="openTab('dashboard', 'Dashboard')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
                                     <span>Selesai &amp; Kembali ke Dashboard</span>
                                 </button>
                             </div>
@@ -2754,13 +3269,16 @@
             <section class="tab-pane" id="pane-journals">
                 <div class="page-eyebrow">Referensi Ilmiah Open-Access</div>
                 <h1 class="page-title">Cari Jurnal &amp; Unduh PDF Asli</h1>
-                <p class="page-subtitle">Temukan jurnal penelitian relevan dari Indonesia (Sinta/Garuda) maupun Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi APA.</p>
+                <p class="page-subtitle">Temukan jurnal penelitian relevan dari Indonesia (Sinta/Garuda) maupun
+                    Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi APA.</p>
 
                 <div class="card">
                     <div class="form-row" style="margin-bottom: 0;">
                         <div>
-                            <label class="form-label">Kata Kunci / Variabel Penelitian <span class="req">*</span></label>
-                            <input type="text" id="journal-keyword" class="form-input" placeholder="cth: naive bayes sentimen, beban kerja turnover intention...">
+                            <label class="form-label">Kata Kunci / Variabel Penelitian <span
+                                    class="req">*</span></label>
+                            <input type="text" id="journal-keyword" class="form-input"
+                                placeholder="cth: naive bayes sentimen, beban kerja turnover intention...">
                         </div>
                         <div>
                             <label class="form-label">Sumber Jurnal</label>
@@ -2774,7 +3292,8 @@
 
                     <div class="card-footer-bar">
                         <span class="footer-meta">DATABASE OPENALEX (INDONESIA &amp; INTERNASIONAL) + SCHOLAR PDF</span>
-                        <button type="button" id="btn-find-journals" class="btn-primary" onclick="handleFindJournals()">Cari Jurnal →</button>
+                        <button type="button" id="btn-find-journals" class="btn-primary"
+                            onclick="handleFindJournals()">Cari Jurnal →</button>
                     </div>
                 </div>
 
@@ -2783,9 +3302,11 @@
                 <div id="journals-result-box" style="display: none; margin-top: 20px;" class="card-flush">
                     <div class="card-header-bar">
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <span style="font-weight: 700; color: var(--text-main);">Daftar Artikel Jurnal Relevan</span>
+                            <span style="font-weight: 700; color: var(--text-main);">Daftar Artikel Jurnal
+                                Relevan</span>
                         </div>
-                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
+                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
+                            onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
                     </div>
                     <div id="journals-list"></div>
                 </div>
@@ -2797,7 +3318,8 @@
             <section class="tab-pane" id="pane-paraphrase">
                 <div class="page-eyebrow">Penulisan Akademik</div>
                 <h1 class="page-title">Parafrase Online</h1>
-                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah KBBI &amp; EYD V tanpa menghilangkan sitasi.</p>
+                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah
+                    KBBI &amp; EYD V tanpa menghilangkan sitasi.</p>
 
                 <div class="card">
                     <div class="form-group">
@@ -2812,23 +3334,30 @@
 
                     <div class="form-group" style="margin-bottom: 0;">
                         <label class="form-label">Teks Asli <span class="req">*</span></label>
-                        <textarea id="para-input" class="form-textarea" placeholder="Tempelkan paragraf yang ingin diparafrase di sini..."></textarea>
+                        <textarea id="para-input" class="form-textarea"
+                            placeholder="Tempelkan paragraf yang ingin diparafrase di sini..."></textarea>
                     </div>
 
                     <div class="card-footer-bar">
                         <span class="footer-meta">SITASI DALAM KURUNG TETAP DIPERTAHANKAN</span>
-                        <button type="button" id="btn-paraphrase" class="btn-primary" onclick="handleParaphrase()">Parafrase Sekarang →</button>
+                        <button type="button" id="btn-paraphrase" class="btn-primary"
+                            onclick="handleParaphrase()">Parafrase Sekarang →</button>
                     </div>
                 </div>
 
                 <div id="para-loading-box" style="display: none;"></div>
 
                 <div id="para-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                         <span class="form-label" style="margin-bottom: 0;">Hasil Parafrase</span>
-                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="navigator.clipboard.writeText(document.getElementById('para-output').innerText); alert('Hasil parafrase disalin!');">Salin Teks</button>
+                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
+                            onclick="navigator.clipboard.writeText(document.getElementById('para-output').innerText); alert('Hasil parafrase disalin!');">Salin
+                            Teks</button>
                     </div>
-                    <div id="para-output" style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;"></div>
+                    <div id="para-output"
+                        style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;">
+                    </div>
                 </div>
             </section>
 
@@ -2838,64 +3367,125 @@
             <section class="tab-pane" id="pane-qa">
                 <div class="page-eyebrow">Bimbingan &amp; Konsultasi 24 Jam</div>
                 <h1 class="page-title">Dosen AI</h1>
-                <p class="page-subtitle">Konsultasikan segala hal seputar skripsi dan proposal: cara menghadapi dosen pembimbing, perumusan fenomena &amp; gap riset, revisi bab naskah, olah data statistik/kualitatif, tips lolos Turnitin, hingga strategi menjawab ujian sidang.</p>
+                <p class="page-subtitle">Konsultasikan segala hal seputar skripsi dan proposal: cara menghadapi dosen
+                    pembimbing, perumusan fenomena &amp; gap riset, revisi bab naskah, olah data statistik/kualitatif,
+                    tips lolos Turnitin, hingga strategi menjawab ujian sidang.</p>
 
-                <div class="card dosen-ai-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 540px; max-height: 75vh; border: 1px solid var(--border);">
+                <div class="card dosen-ai-card"
+                    style="padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 540px; max-height: 75vh; border: 1px solid var(--border);">
                     <!-- Header Chat Status -->
-                    <div style="padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div
+                        style="padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);"></div>
-                            <span style="font-size: 13px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing AI (Aktif 24 Jam)</span>
+                            <div
+                                style="width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);">
+                            </div>
+                            <span style="font-size: 13px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing
+                                AI (Aktif 24 Jam)</span>
                         </div>
-                        <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;" onclick="resetQaChat()">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <button type="button" class="btn-outline"
+                            style="padding: 4px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;"
+                            onclick="resetQaChat()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                            </svg>
                             <span>Mulai Obrolan Baru</span>
                         </button>
                     </div>
 
                     <!-- Scrollable Messages Container -->
-                    <div id="qa-chat-messages" style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
+                    <div id="qa-chat-messages"
+                        style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
                         <!-- Initial Assistant Greeting -->
-                        <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
-                            <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                                    <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
+                        <div class="chat-msg assistant"
+                            style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
+                            <div
+                                style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8">
+                                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                    <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
                                 </svg>
                             </div>
-                            <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
-                                Halo! Saya adalah Dosen AI, asisten pembimbing skripsi dan proposal Anda. Anda bisa menanyakan apa saja: mulai dari cara menemukan gap penelitian, menyusun latar belakang masalah, olah data statistik (SPSS/PLS), tips menghadapi revisi dosen, cara menurunkan similarity Turnitin, hingga latihan tanya jawab sidang skripsi. Ada kendala yang sedang Anda hadapi saat ini?
+                            <div
+                                style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+                                Halo! Saya adalah Dosen AI, asisten pembimbing skripsi dan proposal Anda. Anda bisa
+                                menanyakan apa saja: mulai dari cara menemukan gap penelitian, menyusun latar belakang
+                                masalah, olah data statistik (SPSS/PLS), tips menghadapi revisi dosen, cara menurunkan
+                                similarity Turnitin, hingga latihan tanya jawab sidang skripsi. Ada kendala yang sedang
+                                Anda hadapi saat ini?
                             </div>
                         </div>
                     </div>
 
                     <!-- Suggestion Chips -->
-                    <div class="qa-chips-bar" style="padding: 8px 18px; background: #ffffff; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana cara sopan menghubungi dan menghadapi dosen pembimbing yang slow response atau sering menolak draft?')">Tips Hadapi Dosen Pembimbing</button>
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana langkah praktis menemukan fenomena masalah nyata dan research gap untuk judul proposal skripsi?')">Cari Fenomena &amp; Research Gap</button>
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana cara efektif menurunkan skor similarity Turnitin yang tinggi tanpa mengubah substansi ilmiah?')">Tips Lolos Turnitin</button>
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Bagaimana cara membaca output regresi linier, uji F, dan uji t pada SPSS beserta artinya?')">Interpretasi Regresi SPSS</button>
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Pertanyaan apa saja yang paling sering diajukan penguji saat ujian sidang skripsi dan bagaimana cara menjawabnya?')">Strategi Sidang Skripsi</button>
-                        <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;" onclick="sendQuickPrompt('Apa perbedaan mendasar antara penelitian Kuantitatif, Kualitatif, dan R&D?')">Kuantitatif vs Kualitatif vs R&amp;D</button>
+                    <div class="qa-chips-bar"
+                        style="padding: 8px 18px; background: #ffffff; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Bagaimana cara sopan menghubungi dan menghadapi dosen pembimbing yang slow response atau sering menolak draft?')">Tips
+                            Hadapi Dosen Pembimbing</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Bagaimana langkah praktis menemukan fenomena masalah nyata dan research gap untuk judul proposal skripsi?')">Cari
+                            Fenomena &amp; Research Gap</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Bagaimana cara efektif menurunkan skor similarity Turnitin yang tinggi tanpa mengubah substansi ilmiah?')">Tips
+                            Lolos Turnitin</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Bagaimana cara membaca output regresi linier, uji F, dan uji t pada SPSS beserta artinya?')">Interpretasi
+                            Regresi SPSS</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Pertanyaan apa saja yang paling sering diajukan penguji saat ujian sidang skripsi dan bagaimana cara menjawabnya?')">Strategi
+                            Sidang Skripsi</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                            onclick="sendQuickPrompt('Apa perbedaan mendasar antara penelitian Kuantitatif, Kualitatif, dan R&D?')">Kuantitatif
+                            vs Kualitatif vs R&amp;D</button>
                     </div>
 
                     <!-- Attached Image Preview Bar -->
-                    <div id="qa-image-preview-bar" style="display: none; padding: 8px 18px; background: #f8fafc; border-top: 1px solid var(--border); align-items: center; gap: 10px;">
-                        <img id="qa-image-preview-img" src="" alt="preview" style="height: 38px; width: 38px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);">
-                        <span id="qa-image-name" style="font-size: 12px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
-                        <button type="button" onclick="removeQaImage()" style="border: none; background: none; font-size: 16px; color: #ef4444; cursor: pointer;">&times;</button>
+                    <div id="qa-image-preview-bar"
+                        style="display: none; padding: 8px 18px; background: #f8fafc; border-top: 1px solid var(--border); align-items: center; gap: 10px;">
+                        <img id="qa-image-preview-img" src="" alt="preview"
+                            style="height: 38px; width: 38px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);">
+                        <span id="qa-image-name"
+                            style="font-size: 12px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
+                        <button type="button" onclick="removeQaImage()"
+                            style="border: none; background: none; font-size: 16px; color: #ef4444; cursor: pointer;">&times;</button>
                     </div>
 
                     <!-- Input Bar -->
-                    <div class="qa-input-bar" style="padding: 12px 18px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end;">
-                        <label title="Lampirkan foto/gambar soal, grafik, atau tabel" style="margin-bottom: 2px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #ffffff; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                            <input type="file" id="qa-image" accept="image/*" style="display: none;" onchange="handleQaImageSelect(this)">
+                    <div class="qa-input-bar"
+                        style="padding: 12px 18px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end;">
+                        <label title="Lampirkan foto/gambar soal, grafik, atau tabel"
+                            style="margin-bottom: 2px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #ffffff; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                            </svg>
+                            <input type="file" id="qa-image" accept="image/*" style="display: none;"
+                                onchange="handleQaImageSelect(this)">
                         </label>
-                        <textarea id="qa-question" class="form-textarea" rows="1" style="min-height: 40px; max-height: 120px; padding: 9px 12px; font-size: 13.5px; resize: none; flex: 1; border-radius: 10px;" placeholder="Tuliskan pertanyaan atau kendala skripsimu... (Shift+Enter untuk baris baru)" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSolveQa(); }"></textarea>
-                        <button type="button" id="btn-solve-qa" class="btn-primary" style="padding: 10px 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;" onclick="handleSolveQa()">
+                        <textarea id="qa-question" class="form-textarea" rows="1"
+                            style="min-height: 40px; max-height: 120px; padding: 9px 12px; font-size: 13.5px; resize: none; flex: 1; border-radius: 10px;"
+                            placeholder="Tuliskan pertanyaan atau kendala skripsimu... (Shift+Enter untuk baris baru)"
+                            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSolveQa(); }"></textarea>
+                        <button type="button" id="btn-solve-qa" class="btn-primary"
+                            style="padding: 10px 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;"
+                            onclick="handleSolveQa()">
                             <span>Kirim</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2">
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -2907,24 +3497,45 @@
             <section class="tab-pane" id="pane-apikeys">
                 <div class="page-eyebrow">Konfigurasi AI Multi-Key</div>
                 <h1 class="page-title">Pengaturan API Key</h1>
-                <p class="page-subtitle">Kelola kuota AI pribadi atau gunakan AI gratis bawaan yang aktif otomatis tanpa perlu konfigurasi.</p>
+                <p class="page-subtitle">Kelola kuota AI pribadi atau gunakan AI gratis bawaan yang aktif otomatis tanpa
+                    perlu konfigurasi.</p>
 
                 <!-- Banner Informasi AI Gratis & Cara Mendapatkan Kunci Resmi -->
-                <div class="card" style="margin-bottom: 20px; border-color: #bfdbfe; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);">
+                <div class="card"
+                    style="margin-bottom: 20px; border-color: #bfdbfe; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);">
                     <div style="display: flex; gap: 14px; align-items: flex-start;">
-                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <div
+                            style="width: 38px; height: 38px; border-radius: 10px; background: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
                         </div>
                         <div>
-                            <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif Otomatis (Tanpa Wajib API Key)</div>
+                            <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif
+                                Otomatis (Tanpa Wajib API Key)</div>
                             <div style="font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px;">
-                                SkripsiAI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi, membuat slide PPT, atau simulasi sidang.
+                                SkripsiAI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
+                                default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi,
+                                membuat slide PPT, atau simulasi sidang.
                             </div>
-                            <div style="margin-top: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px; color: #475569; line-height: 1.6;">
+                            <div
+                                style="margin-top: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px; color: #475569; line-height: 1.6;">
                                 <strong>💡 Ingin Kecepatan Maksimal dengan API Key Pribadi Gratis?</strong>
                                 <ul style="margin: 4px 0 0; padding-left: 18px;">
-                                    <li><strong>Google Gemini (Gratis):</strong> Dapatkan di <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Google AI Studio</a>. Kunci resmi wajib diawali <code>AIzaSy...</code>.</li>
-                                    <li><strong>DeepSeek / OpenRouter (Gratis):</strong> Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">OpenRouter</a> (diawali <code>sk-or-v1-...</code>) atau <a href="https://platform.deepseek.com/" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: underline; font-weight: 600;">DeepSeek Platform</a> (diawali <code>sk-...</code>).</li>
+                                    <li><strong>Google Gemini (Gratis):</strong> Dapatkan di <a
+                                            href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"
+                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">Google
+                                            AI Studio</a>. Kunci resmi wajib diawali <code>AIzaSy...</code>.</li>
+                                    <li><strong>DeepSeek / OpenRouter (Gratis):</strong> Dapatkan di <a
+                                            href="https://openrouter.ai/keys" target="_blank" rel="noopener"
+                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">OpenRouter</a>
+                                        (diawali <code>sk-or-v1-...</code>) atau <a
+                                            href="https://platform.deepseek.com/" target="_blank" rel="noopener"
+                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">DeepSeek
+                                            Platform</a> (diawali <code>sk-...</code>).</li>
                                 </ul>
                             </div>
                         </div>
@@ -2942,8 +3553,12 @@
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Daftar API Key (Bisa Tempel Banyak Sekaligus) <span class="req">*</span></label>
-                            <textarea name="key" class="form-textarea" style="min-height: 100px; font-family: monospace; font-size: 12.5px;" placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;sk-or-v1-...&#10;sk-..." required></textarea>
+                            <label class="form-label">Daftar API Key (Bisa Tempel Banyak Sekaligus) <span
+                                    class="req">*</span></label>
+                            <textarea name="key" class="form-textarea"
+                                style="min-height: 100px; font-family: monospace; font-size: 12.5px;"
+                                placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;sk-or-v1-...&#10;sk-..."
+                                required></textarea>
                         </div>
                         <div class="card-footer-bar">
                             <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY + FALLBACK DEEPSEEK REALTIME</span>
@@ -2955,15 +3570,22 @@
                 <div class="card-flush">
                     <div class="card-header-bar">
                         <span>Daftar API Key Tersimpan <span class="count-badge">{{ count($apiKeys) }}</span></span>
-                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Uji Kunci" untuk memastikan status aktif</span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Uji Kunci"
+                            untuk memastikan status aktif</span>
                     </div>
                     @forelse($apiKeys as $k)
-                        <div class="project-row" style="cursor: default; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px;">
+                        <div class="project-row"
+                            style="cursor: default; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px;">
                             <div class="project-row-left" style="min-width: 0; flex: 1;">
-                                <div class="project-initial" style="font-size: 11px; width: 36px; height: 36px;">{{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}</div>
+                                <div class="project-initial" style="font-size: 11px; width: 36px; height: 36px;">
+                                    {{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}
+                                </div>
                                 <div style="min-width: 0;">
-                                    <div class="project-row-title" style="font-family: monospace; font-size: 13px;">{{ substr($k->key, 0, 10) }}••••••••••••</div>
-                                    <div class="project-row-meta" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px;">
+                                    <div class="project-row-title" style="font-family: monospace; font-size: 13px;">
+                                        {{ substr($k->key, 0, 10) }}••••••••••••
+                                    </div>
+                                    <div class="project-row-meta"
+                                        style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px;">
                                         <span>{{ strtoupper($k->provider ?? 'GEMINI') }}</span>
                                         <span>·</span>
                                         <span>Digunakan {{ $k->usage_count ?? 0 }}x</span>
@@ -2972,13 +3594,18 @@
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                                <button type="button" class="btn-outline" style="padding: 5px 12px; font-size: 12px; font-weight: 600;" onclick="testApiKey({{ $k->id }}, this)">
+                                <button type="button" class="btn-outline"
+                                    style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
+                                    onclick="testApiKey({{ $k->id }}, this)">
                                     Uji Kunci
                                 </button>
-                                <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST" onsubmit="return confirm('Hapus API Key ini?');" style="margin: 0;">
+                                <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST"
+                                    onsubmit="return confirm('Hapus API Key ini?');" style="margin: 0;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-outline" style="color: #dc2626; border-color: #fecaca; padding: 5px 10px; font-size: 12px;" title="Hapus">
+                                    <button type="submit" class="btn-outline"
+                                        style="color: #dc2626; border-color: #fecaca; padding: 5px 10px; font-size: 12px;"
+                                        title="Hapus">
                                         Hapus
                                     </button>
                                 </form>
@@ -2986,7 +3613,8 @@
                         </div>
                     @empty
                         <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
-                            Belum ada API Key pribadi. Sistem otomatis menjalankan Gemini &amp; DeepSeek Realtime tanpa batas.
+                            Belum ada API Key pribadi. Sistem otomatis menjalankan Gemini &amp; DeepSeek Realtime tanpa
+                            batas.
                         </div>
                     @endforelse
                 </div>
@@ -3001,28 +3629,38 @@
                 <p class="page-subtitle">Informasi profil mahasiswa, status akses Workspace AI, dan paket aktif.</p>
 
                 <div class="card" style="margin-bottom: 18px;">
-                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
-                        <div style="width: 56px; height: 56px; border-radius: 14px; background: var(--primary); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center;">
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
+                        <div
+                            style="width: 56px; height: 56px; border-radius: 14px; background: var(--primary); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center;">
                             {{ strtoupper(substr($user->name ?? 'M', 0, 1)) }}
                         </div>
                         <div style="flex: 1; min-width: 180px;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-main);">{{ $user->name }}</div>
-                            <div style="font-size: 13.5px; color: var(--text-muted); margin-top: 2px;">{{ $user->email }}</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--text-main);">{{ $user->name }}
+                            </div>
+                            <div style="font-size: 13.5px; color: var(--text-muted); margin-top: 2px;">
+                                {{ $user->email }}
+                            </div>
                         </div>
-                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12.5px; font-weight: 600;">
+                        <span
+                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12.5px; font-weight: 600;">
                             <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
                             Langganan Aktif
                         </span>
                     </div>
 
                     <!-- Form Edit Nama Profil Mahasiswa -->
-                    <form action="{{ route('profile.updateName') }}" method="POST" style="margin-bottom: 22px; padding: 18px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                    <form action="{{ route('profile.updateName') }}" method="POST"
+                        style="margin-bottom: 22px; padding: 18px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
                         @csrf
-                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Ubah Nama Profil Mahasiswa</div>
+                        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+                            Ubah Nama Profil Mahasiswa</div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
                             <div style="flex: 1; min-width: 220px;">
-                                <label class="form-label" style="font-size: 12px; margin-bottom: 5px;">Nama Lengkap (untuk Halaman Sampul &amp; PPT)</label>
-                                <input type="text" name="name" class="form-input" value="{{ $user->name }}" required placeholder="Contoh: Muhammad Alwi Syahrir">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 5px;">Nama Lengkap
+                                    (untuk Halaman Sampul &amp; PPT)</label>
+                                <input type="text" name="name" class="form-input" value="{{ $user->name }}" required
+                                    placeholder="Contoh: Muhammad Alwi Syahrir">
                             </div>
                             <button type="submit" class="btn-primary" style="height: 40px; padding: 0 18px;">
                                 Simpan Perubahan
@@ -3031,16 +3669,29 @@
                     </form>
 
                     <div class="form-row" style="margin-bottom: 0;">
-                        <div style="padding: 16px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff;">
-                            <div style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">Paket Mahasiswa</div>
-                            <div style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 6px;">Akses Penuh (Tanpa Token)</div>
-                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">Seluruh model AI (Otomatis, DeepSeek AI, Google Gemini) aktif untuk penulisan Bab I–V, PPT Sidang, &amp; Simulasi Sidang.</div>
+                        <div
+                            style="padding: 16px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff;">
+                            <div
+                                style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">
+                                Paket Mahasiswa</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 6px;">
+                                Akses Penuh (Tanpa Token)</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">Seluruh model
+                                AI (Otomatis, DeepSeek AI, Google Gemini) aktif untuk penulisan Bab I–V, PPT Sidang,
+                                &amp; Simulasi Sidang.</div>
                         </div>
 
-                        <div style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc;">
-                            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Total Proyek Workspace</div>
-                            <div style="font-size: 24px; font-weight: 700; color: var(--text-main); margin-top: 4px;">{{ $history->count() }} <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Proyek</span></div>
-                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Proposal (Bab 1–3) &amp; Full Skripsi (Bab 1–5) tersimpan aman.</div>
+                        <div
+                            style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc;">
+                            <div
+                                style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">
+                                Total Proyek Workspace</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--text-main); margin-top: 4px;">
+                                {{ $history->count() }} <span
+                                    style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Proyek</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Proposal (Bab 1–3)
+                                &amp; Full Skripsi (Bab 1–5) tersimpan aman.</div>
                         </div>
                     </div>
                 </div>
@@ -3056,28 +3707,48 @@
                 @endphp
                 <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral)</h1>
-                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu.</p>
+                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu.
+                </p>
 
-                <div class="card" style="margin-bottom: 18px; border-color: #bfdbfe; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                <div class="card"
+                    style="margin-bottom: 18px; border-color: #bfdbfe; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
+                    <div
+                        style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
                         <div style="max-width: 540px;">
-                            <div style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">KOMISI AFILIASI MAHASISWA 10%</div>
-                            <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Dapatkan Komisi 10% dari Setiap Pembelian Paket</h3>
-                            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman seangkatan atau tim bimbinganmu. Anda otomatis mendapatkan <strong>komisi 10%</strong> dari setiap pembelian paket atau fitur berbayar SkripsiAI di masa depan.</p>
+                            <div
+                                style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">
+                                KOMISI AFILIASI MAHASISWA 10%</div>
+                            <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+                                Dapatkan Komisi 10% dari Setiap Pembelian Paket</h3>
+                            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
+                                seangkatan atau tim bimbinganmu. Anda otomatis mendapatkan <strong>komisi 10%</strong>
+                                dari setiap pembelian paket atau fitur berbayar SkripsiAI di masa depan.</p>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
-                            <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Kode Referral Kamu</div>
-                            <div id="referral-code-text" style="font-size: 19px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">{{ $refCode }}</div>
+                        <div
+                            style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
+                            <div
+                                style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+                                Kode Referral Kamu</div>
+                            <div id="referral-code-text"
+                                style="font-size: 19px; font-weight: 800; color: var(--primary); letter-spacing: 0.05em; margin-top: 4px;">
+                                {{ $refCode }}
+                            </div>
                         </div>
                     </div>
 
                     <div style="margin-top: 18px;">
                         <label class="form-label">Link Undangan Pribadi</label>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <input type="text" id="referral-link-input" class="form-input" value="{{ $refUrl }}" readonly style="flex: 1; min-width: 220px; background: #fff;">
+                            <input type="text" id="referral-link-input" class="form-input" value="{{ $refUrl }}"
+                                readonly style="flex: 1; min-width: 220px; background: #fff;">
                             <button type="button" class="btn-primary" onclick="copyReferralLink()">Salin Link</button>
-                            <button type="button" class="btn-outline" onclick="shareReferralWhatsapp()" style="display: inline-flex; align-items: center; gap: 6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            <button type="button" class="btn-outline" onclick="shareReferralWhatsapp()"
+                                style="display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                </svg>
                                 <span>Bagikan ke WhatsApp</span>
                             </button>
                         </div>
@@ -3085,19 +3756,28 @@
                 </div>
 
                 <div class="card">
-                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara Kerja Komisi Referral SkripsiAI</div>
-                    <div class="form-row responsive-grid-3" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara
+                        Kerja Komisi Referral SkripsiAI</div>
+                    <div class="form-row responsive-grid-3"
+                        style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
                         <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
-                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">1. Salin &amp; Bagikan</div>
-                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Kirim link undanganmu ke teman kuliah atau grup angkatan.</div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">
+                                1. Salin &amp; Bagikan</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Kirim link
+                                undanganmu ke teman kuliah atau grup angkatan.</div>
                         </div>
                         <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
-                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">2. Teman Bergabung</div>
-                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Teman mendaftar lewat link Anda dan mulai menyusun skripsi / proposal.</div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">
+                                2. Teman Bergabung</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Teman
+                                mendaftar lewat link Anda dan mulai menyusun skripsi / proposal.</div>
                         </div>
-                        <div style="padding: 14px; border: 1px solid #bbf7d0; border-radius: 10px; background: #f0fdf4;">
-                            <div style="font-size: 12px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">3. Komisi 10% Tiap Pembelian</div>
-                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Dapatkan komisi 10% dari setiap pembelian paket atau fitur di masa depan.</div>
+                        <div
+                            style="padding: 14px; border: 1px solid #bbf7d0; border-radius: 10px; background: #f0fdf4;">
+                            <div style="font-size: 12px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">3.
+                                Komisi 10% Tiap Pembelian</div>
+                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Dapatkan komisi 10% dari
+                                setiap pembelian paket atau fitur di masa depan.</div>
                         </div>
                     </div>
                 </div>
@@ -3109,16 +3789,26 @@
             <section class="tab-pane" id="pane-feedback">
                 <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiAI</div>
                 <h1 class="page-title">Saran &amp; Laporan Kendala</h1>
-                <p class="page-subtitle">Sampaikan saran fitur baru, kritik format penulisan kampusmu, atau laporkan kendala teknis langsung ke WhatsApp developer (Muh Alwi Syahrir).</p>
+                <p class="page-subtitle">Sampaikan saran fitur baru, kritik format penulisan kampusmu, atau laporkan
+                    kendala teknis langsung ke WhatsApp developer (Muh Alwi Syahrir).</p>
 
                 <div class="card" style="max-width: 720px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 14px; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;">
-                        <div style="width: 44px; height: 44px; border-radius: 50%; background: #22c55e; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <div
+                        style="display: flex; align-items: center; gap: 14px; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;">
+                        <div
+                            style="width: 44px; height: 44px; border-radius: 50%; background: #22c55e; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                            </svg>
                         </div>
                         <div>
-                            <div style="font-size: 14px; font-weight: 700; color: #166534;">WhatsApp Developer: Muh Alwi Syahrir</div>
-                            <div style="font-size: 13px; color: #15803d; margin-top: 2px;">Nomor WA: <strong>082195036971</strong> &bull; Respon cepat untuk bantuan mahasiswa.</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #166534;">WhatsApp Developer: Muh Alwi
+                                Syahrir</div>
+                            <div style="font-size: 13px; color: #15803d; margin-top: 2px;">Nomor WA:
+                                <strong>082195036971</strong> &bull; Respon cepat untuk bantuan mahasiswa.
+                            </div>
                         </div>
                     </div>
 
@@ -3129,40 +3819,57 @@
                                 <select id="fb-kategori" class="form-select" required>
                                     <option value="Saran Fitur Baru">Saran Fitur Baru</option>
                                     <option value="Laporan Kendala / Bug">Laporan Kendala / Bug</option>
-                                    <option value="Permintaan Format Kampus Khusus">Permintaan Format Kampus Khusus</option>
+                                    <option value="Permintaan Format Kampus Khusus">Permintaan Format Kampus Khusus
+                                    </option>
                                     <option value="Pertanyaan Bimbingan Skripsi">Pertanyaan Bimbingan Skripsi</option>
                                     <option value="Lainnya">Lainnya</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label">Nama Mahasiswa <span class="req">*</span></label>
-                                <input type="text" id="fb-nama" class="form-input" value="{{ $user->name ?? '' }}" placeholder="Nama Lengkapmu" required>
+                                <input type="text" id="fb-nama" class="form-input" value="{{ $user->name ?? '' }}"
+                                    placeholder="Nama Lengkapmu" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Nama Kampus / Universitas</label>
-                                <input type="text" id="fb-kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: Universitas Hasanuddin / UI">
+                                <input type="text" id="fb-kampus" class="form-input"
+                                    value="{{ $defaultIdentity['kampus'] ?? '' }}"
+                                    placeholder="Contoh: Universitas Hasanuddin / UI">
                             </div>
                             <div>
                                 <label class="form-label">Program Studi</label>
-                                <input type="text" id="fb-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: Teknik Informatika / Manajemen">
+                                <input type="text" id="fb-prodi" class="form-input"
+                                    value="{{ $defaultIdentity['prodi'] ?? '' }}"
+                                    placeholder="Contoh: Teknik Informatika / Manajemen">
                             </div>
                         </div>
 
                         <div style="margin-bottom: 16px;">
                             <label class="form-label">Judul Skripsi / Topik (Opsional)</label>
-                            <input type="text" id="fb-judul" class="form-input" placeholder="Tulis judul skripsi yang sedang kamu susun">
+                            <input type="text" id="fb-judul" class="form-input"
+                                placeholder="Tulis judul skripsi yang sedang kamu susun">
                         </div>
 
                         <div style="margin-bottom: 20px;">
-                            <label class="form-label">Rincian Saran atau Laporan Kendala <span class="req">*</span></label>
-                            <textarea id="fb-pesan" class="form-textarea" rows="4" placeholder="Ceritakan secara detail saran fitur yang kamu butuhkan atau kendala yang kamu temui saat menyusun naskah..." required></textarea>
+                            <label class="form-label">Rincian Saran atau Laporan Kendala <span
+                                    class="req">*</span></label>
+                            <textarea id="fb-pesan" class="form-textarea" rows="4"
+                                placeholder="Ceritakan secara detail saran fitur yang kamu butuhkan atau kendala yang kamu temui saat menyusun naskah..."
+                                required></textarea>
                         </div>
 
-                        <button type="submit" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 20px; border: none; border-radius: 10px; background: #16a34a; color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(22,163,74,0.3); transition: all 0.2s;" onmouseover="this.style.background='#15803d';" onmouseout="this.style.background='#16a34a';">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        <button type="submit"
+                            style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 20px; border: none; border-radius: 10px; background: #16a34a; color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(22,163,74,0.3); transition: all 0.2s;"
+                            onmouseover="this.style.background='#15803d';"
+                            onmouseout="this.style.background='#16a34a';">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2">
+                                <path
+                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                            </svg>
                             <span>Kirim ke WhatsApp Pengembang</span>
                         </button>
                     </form>
@@ -3173,11 +3880,13 @@
     </div>
 
     <!-- Floating Action Button: Dosen AI Konsultasi 24 Jam (Hanya Muncul di Dashboard) -->
-    <div id="dosen-ai-fab" onclick="openDosenAiFromFab()" title="Tanya Dosen AI (Bimbingan 24 Jam)" style="display: none !important; position: fixed; bottom: 24px; right: 24px; z-index: 999; align-items: center; gap: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 10px 18px 10px 14px; border-radius: 999px; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 8px 10px -6px rgba(37,99,235,0.3); cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;">
-        <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    <div id="dosen-ai-fab" onclick="openDosenAiFromFab()" title="Tanya Dosen AI (Bimbingan 24 Jam)"
+        style="display: none !important; position: fixed; bottom: 24px; right: 24px; z-index: 999; align-items: center; gap: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 10px 18px 10px 14px; border-radius: 999px; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 8px 10px -6px rgba(37,99,235,0.3); cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;">
+        <div
+            style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
             </svg>
         </div>
         <div style="display: flex; flex-direction: column; text-align: left;">
@@ -3244,27 +3953,27 @@
                     'Accept': 'application/json'
                 }
             })
-            .then(r => r.json().then(data => ({ ok: r.ok, data })))
-            .then(({ ok, data }) => {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                const statusBox = document.getElementById(`api-key-status-${id}`);
-                if (statusBox) {
-                    if (ok && data.status === 'success') {
-                        statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">✓ ${data.message}</span>`;
-                    } else {
-                        statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#dc2626; background:#fef2f2; border:1px solid #fecaca; padding:2px 8px; border-radius:999px;" title="${data.message || ''}">⚠ ${data.message || 'Kunci gagal diuji'}</span>`;
+                .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                .then(({ ok, data }) => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    const statusBox = document.getElementById(`api-key-status-${id}`);
+                    if (statusBox) {
+                        if (ok && data.status === 'success') {
+                            statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">✓ ${data.message}</span>`;
+                        } else {
+                            statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#dc2626; background:#fef2f2; border:1px solid #fecaca; padding:2px 8px; border-radius:999px;" title="${data.message || ''}">⚠ ${data.message || 'Kunci gagal diuji'}</span>`;
+                        }
                     }
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                const statusBox = document.getElementById(`api-key-status-${id}`);
-                if (statusBox) {
-                    statusBox.innerHTML = `<span style="font-size:11.5px; color:#dc2626;">⚠ Gagal menghubungi server</span>`;
-                }
-            });
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    const statusBox = document.getElementById(`api-key-status-${id}`);
+                    if (statusBox) {
+                        statusBox.innerHTML = `<span style="font-size:11.5px; color:#dc2626;">⚠ Gagal menghubungi server</span>`;
+                    }
+                });
         }
 
         function toggleSidebar() {
@@ -3348,7 +4057,7 @@
                     window.history.replaceState(null, '', cleanUrl.toString());
                 }
                 localStorage.setItem('skripsiai_active_tab', tabId);
-            } catch (e) {}
+            } catch (e) { }
 
             closeSidebarMobile();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3673,9 +4382,9 @@
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const img = new Image();
-                img.onload = function() {
+                img.onload = function () {
                     const canvas = document.createElement('canvas');
                     const maxDim = 320;
                     let w = img.width;
@@ -3724,9 +4433,9 @@
             }
 
             let text = `Halo Mas Alwi (Developer SkripsiAI),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
-                       `*Nama Mahasiswa:* ${nama || '-'}\n` +
-                       `*Kampus:* ${kampus || '-'}\n` +
-                       `*Program Studi:* ${prodi || '-'}\n`;
+                `*Nama Mahasiswa:* ${nama || '-'}\n` +
+                `*Kampus:* ${kampus || '-'}\n` +
+                `*Program Studi:* ${prodi || '-'}\n`;
             if (judul) {
                 text += `*Judul Skripsi:* ${judul}\n`;
             }
@@ -3812,7 +4521,7 @@
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 uploadedPptLogoBase64 = e.target.result;
                 const pBox = document.getElementById('ppt-logo-preview-box');
                 const pImg = document.getElementById('ppt-logo-preview-img');
@@ -4011,7 +4720,7 @@
                         'Saran 2: Integrasi dengan arsitektur teknologi lanjutan untuk implementasi skala besar'
                     ],
                     speaker_notes: 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan. Terima kasih.'
-                ]
+                }
             ];
 
             currentSlideIdx = 0;
@@ -5112,4 +5821,5 @@
         }
     </script>
 </body>
+
 </html>
