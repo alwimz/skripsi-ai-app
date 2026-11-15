@@ -712,28 +712,6 @@
             position: relative;
             overflow: hidden;
         }
-        .ppt-theme-sidang_crimson::before {
-            content: '';
-            position: absolute;
-            top: -35px;
-            left: -35px;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.16);
-            pointer-events: none;
-        }
-        .ppt-theme-sidang_crimson::after {
-            content: '';
-            position: absolute;
-            bottom: -35px;
-            right: -35px;
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.14);
-            pointer-events: none;
-        }
         .ppt-theme-sidang_crimson .ppt-badge {
             background: rgba(255, 255, 255, 0.25);
             color: #ffffff;
@@ -784,17 +762,6 @@
             left: 0;
             width: 18px;
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
-        }
-        .ppt-theme-royal_academic::after {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(37, 99, 235, 0.07);
-            pointer-events: none;
         }
         .ppt-theme-royal_academic .ppt-badge {
             background: #dbeafe;
@@ -1609,6 +1576,18 @@
             background: #dbeafe;
             border-color: #93c5fd;
         }
+
+        #dosen-ai-fab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px -4px rgba(37,99,235,0.55), 0 10px 12px -5px rgba(37,99,235,0.35);
+        }
+        @media (max-width: 768px) {
+            #dosen-ai-fab {
+                bottom: 20px !important;
+                right: 16px !important;
+                padding: 8px 14px 8px 12px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1857,7 +1836,7 @@
                             <h1 class="page-title">Proyek Saya</h1>
                             <p class="page-subtitle" style="margin-bottom: 0;">Daftar proyek Proposal (Bab 1–3) dan Skripsi Lengkap (Bab 1–5) yang sedang kamu kerjakan.</p>
                         </div>
-                        <button type="button" class="btn-primary" onclick="showProjectCreateForm()">
+                        <button type="button" class="btn-primary" onclick="openCreateProjectForm()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             <span>Buat Proyek Baru</span>
                         </button>
@@ -1907,7 +1886,7 @@
                                 </div>
                                 <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Belum ada proyek skripsi</div>
                                 <div style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">Mulai susun Proposal (Bab 1–3) atau Skripsi Lengkap (Bab 1–5) sekarang.</div>
-                                <button type="button" class="btn-primary" onclick="showProjectCreateForm()">+ Buat Proyek Baru</button>
+                                <button type="button" class="btn-primary" onclick="openCreateProjectForm()">+ Buat Proyek Baru</button>
                             </div>
                         @endforelse
                     </div>
@@ -2052,17 +2031,27 @@
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
                         </div>
 
-                        <!-- Card 5: Struktur Bab Kustom (Opsional) -->
+                        <!-- Card 5: Struktur Bab Kustom (Accordion Builder) -->
                         <div class="card" style="margin-bottom: 16px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
                                 <div>
                                     <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Struktur bab kustom <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span></div>
                                     <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">Atur subbab secara manual jika pedoman kampusmu memiliki urutan khusus. Jika tidak diaktifkan, sistem menggunakan struktur standar Bab I–V.</div>
                                 </div>
-                                <input type="checkbox" onchange="document.getElementById('custom-structure-wrap').style.display = this.checked ? 'block' : 'none';" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+                                <input type="checkbox" id="custom-structure-toggle" onchange="toggleCustomStructure(this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;">
                             </div>
-                            <div id="custom-structure-wrap" style="display: none; margin-top: 14px;">
-                                <textarea name="struktur_kustom" class="form-textarea" style="min-height: 85px;" placeholder="Contoh: Bab I terdiri dari 1.1 Konteks Penelitian, 1.2 Fokus Penelitian, 1.3 Tujuan Penelitian..."></textarea>
+
+                            <div id="custom-structure-wrap" style="display: none; margin-top: 16px;">
+                                <textarea name="struktur_kustom" id="custom-structure-serialized" style="display: none;"></textarea>
+
+                                <div id="custom-babs-accordion-container" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- Di-render oleh renderCustomChapterAccordion() -->
+                                </div>
+
+                                <button type="button" class="btn-outline" onclick="addCustomBab()" style="width: 100%; border-style: dashed; padding: 10px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; background: #f8fafc; border-color: #cbd5e1; border-radius: 8px; color: #334155; cursor: pointer; transition: all 0.15s;">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <span>Tambah Bab (mis. Bab 6 / 7)</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2437,7 +2426,13 @@
                     <div id="ppt-canvas-box" class="ppt-canvas ppt-theme-royal_academic">
                         <div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <span id="slide-section-label" class="ppt-badge" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                                        <span id="slide-campus-name">UNIVERSITAS</span>
+                                    </span>
+                                    <span id="slide-section-label" class="ppt-badge" contenteditable="true" onblur="syncCurrentSlideEdit()">BAGIAN SLIDE</span>
+                                </div>
                                 <span id="slide-counter-label" style="font-size: 12px; font-weight: 700; opacity: 0.75;">Slide 1 / 9</span>
                             </div>
                             <h2 id="slide-title-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; outline: none;">Judul Slide</h2>
@@ -2447,9 +2442,10 @@
 
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 20px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11.5px; opacity: 0.7;">
                             <span id="slide-footer-proj-title">Presentasi Sidang Skripsi</span>
-                            <span>💡 Klik teks pada slide di atas untuk mengedit isi secara langsung</span>
+                            <span>SkripsiAI Presentation</span>
                         </div>
                     </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center;">💡 Klik teks pada slide di atas untuk mengedit langsung judul, poin, atau subjudul.</div>
 
                     <!-- TOMBOL NAVIGASI SLIDE DI LUAR EDITOR (JELAS & MUDAH DIKLIK) -->
                     <div class="ppt-nav-outside">
@@ -2499,21 +2495,27 @@
                 </div>
 
                 <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
-                <div id="ppt-slideshow-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+                <div id="ppt-slideshow-modal" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
                     <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #ffffff;">
                         <div style="font-size: 14px; font-weight: 600;">
                             Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter" style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="downloadPptxFile()">⬇ Unduh PowerPoint (.pptx)</button>
-                            <button type="button" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px;" onclick="closeFullscreenSlideshow()">✕ Tutup Preview</button>
+                            <button type="button" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px; border-color: rgba(255,255,255,0.4); color: #ffffff;" onclick="closeFullscreenSlideshow()">✕ Tutup Preview</button>
                         </div>
                     </div>
 
                     <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: 500px; padding: 52px 60px;">
                         <div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                <span id="fs-slide-section" class="ppt-badge">BAGIAN SLIDE</span>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span id="fs-slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 12px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                                        <span id="fs-slide-campus-name">UNIVERSITAS</span>
+                                    </span>
+                                    <span id="fs-slide-section" class="ppt-badge">BAGIAN SLIDE</span>
+                                </div>
                                 <span id="fs-slide-num-tag" style="font-size: 13px; font-weight: 700; opacity: 0.7;">1 / 9</span>
                             </div>
                             <h2 id="fs-slide-title" style="font-size: 30px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;">-</h2>
@@ -2684,10 +2686,6 @@
                                 <button type="button" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;" onclick="setDefenseStep(1)">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                                     <span>Pilih Skripsi Lain</span>
-                                </button>
-                                <button type="button" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px;" onclick="openTab('dashboard', 'Dashboard')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                    <span>Selesai</span>
                                 </button>
                             </div>
                         </div>
@@ -3148,6 +3146,20 @@
         </main>
     </div>
 
+    <!-- Floating Action Button: Dosen AI Konsultasi 24 Jam -->
+    <div id="dosen-ai-fab" onclick="openDosenAiFromFab()" title="Tanya Dosen AI (Bimbingan 24 Jam)" style="position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 10px 18px 10px 14px; border-radius: 999px; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 8px 10px -6px rgba(37,99,235,0.3); cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;">
+        <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
+            </svg>
+        </div>
+        <div style="display: flex; flex-direction: column; text-align: left;">
+            <span style="font-size: 13px; font-weight: 700; line-height: 1.2;">Tanya Dosen AI</span>
+            <span style="font-size: 10.5px; opacity: 0.9; line-height: 1.1;">Aktif 24 Jam ✦</span>
+        </div>
+    </div>
+
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -3246,12 +3258,29 @@
         }
 
         function openCreateProjectForm() {
-            openTab('projects', 'Proyek Saya');
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            const pane = document.getElementById('pane-projects');
+            if (pane) pane.classList.add('active');
+
+            const navBtn = document.getElementById('nav-projects');
+            if (navBtn) navBtn.classList.add('active');
+
+            const bc = document.getElementById('breadcrumb-label');
+            if (bc) bc.innerText = 'Proyek Saya';
+
             const listView = document.getElementById('projects-list-view');
             const createView = document.getElementById('projects-create-view');
             if (listView) listView.style.display = 'none';
             if (createView) createView.style.display = 'block';
+
+            closeSidebarMobile();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showProjectCreateForm() {
+            openCreateProjectForm();
         }
 
         function openTab(tabId, label) {
@@ -3269,16 +3298,28 @@
             }
 
             if (label) {
-                document.getElementById('breadcrumb-label').innerText = label;
+                const bc = document.getElementById('breadcrumb-label');
+                if (bc) bc.innerText = label;
             }
+
+            // Sync URL hash & localStorage agar saat refresh halaman tetap di tab yang sedang dibuka
+            try {
+                if (window.history && window.history.replaceState) {
+                    const cleanUrl = new URL(window.location.href);
+                    cleanUrl.searchParams.delete('tab');
+                    cleanUrl.searchParams.delete('create');
+                    cleanUrl.hash = tabId;
+                    window.history.replaceState(null, '', cleanUrl.toString());
+                }
+                localStorage.setItem('skripsiai_active_tab', tabId);
+            } catch (e) {}
+
             closeSidebarMobile();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Buka tab sesuai parameter URL ?tab=...
+        // Buka tab sesuai URL hash / query param / localStorage (Refresh tetap konsisten)
         (function initTabFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            const tab = params.get('tab');
             const map = {
                 'dashboard': 'Dashboard',
                 'projects': 'Proyek Saya',
@@ -3295,14 +3336,287 @@
                 'apikeys': 'Pengaturan API',
                 'feedback': 'Saran & Laporan'
             };
-            if (tab && map[tab]) {
-                const target = (tab === 'skripsi' || tab === 'proposal') ? 'projects' : tab;
-                openTab(target, map[tab]);
+
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            const hashTab = (window.location.hash || '').replace('#', '').trim();
+            const storedTab = localStorage.getItem('skripsiai_active_tab');
+
+            let targetTab = null;
+            if (tabParam && map[tabParam]) {
+                targetTab = (tabParam === 'skripsi' || tabParam === 'proposal') ? 'projects' : tabParam;
+            } else if (hashTab && map[hashTab]) {
+                targetTab = hashTab;
+            } else if (storedTab && map[storedTab]) {
+                targetTab = storedTab;
+            }
+
+            if (targetTab && map[targetTab]) {
+                openTab(targetTab, map[targetTab]);
                 if (params.get('create') === '1') {
                     openCreateProjectForm();
                 }
+            } else {
+                openTab('dashboard', 'Dashboard');
             }
         })();
+
+        function openDosenAiFromFab() {
+            openTab('qa', 'Dosen AI');
+            setTimeout(() => {
+                const inp = document.getElementById('qa-question');
+                if (inp) {
+                    inp.focus();
+                    inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
+        }
+
+        // =====================================================================
+        // STRUKTUR BAB KUSTOM (ACCORDION BUILDER SEPERTI SKRIPSITA)
+        // =====================================================================
+        const defaultCustomBabs = [
+            {
+                roman: 'I',
+                title: 'Bab I Pendahuluan',
+                subbabs: [
+                    'Latar Belakang Masalah',
+                    'Identifikasi Masalah',
+                    'Batasan Masalah',
+                    'Rumusan Masalah',
+                    'Tujuan Penelitian',
+                    'Manfaat Penelitian',
+                    'Sistematika Penulisan'
+                ]
+            },
+            {
+                roman: 'II',
+                title: 'Bab II Tinjauan Pustaka',
+                subbabs: [
+                    'Landasan Teori',
+                    'Penelitian Terdahulu',
+                    'Kerangka Berpikir',
+                    'Hipotesis Penelitian'
+                ]
+            },
+            {
+                roman: 'III',
+                title: 'Bab III Metodologi',
+                subbabs: [
+                    'Jenis dan Pendekatan Penelitian',
+                    'Tempat dan Waktu Penelitian',
+                    'Populasi dan Sampel',
+                    'Variabel dan Definisi Operasional',
+                    'Teknik Pengumpulan Data',
+                    'Teknik Analisis Data'
+                ]
+            },
+            {
+                roman: 'IV',
+                title: 'Bab IV Hasil Penelitian dan Pembahasan',
+                subbabs: [
+                    'Gambaran Umum Objek Penelitian',
+                    'Deskripsi Data Penelitian',
+                    'Analisis Data dan Hasil Pengujian',
+                    'Pembahasan Temuan Penelitian'
+                ]
+            },
+            {
+                roman: 'V',
+                title: 'Bab V Penutup',
+                subbabs: [
+                    'Kesimpulan',
+                    'Saran'
+                ]
+            }
+        ];
+
+        let customBabsData = JSON.parse(JSON.stringify(defaultCustomBabs));
+        let openCustomBabIndex = 0; // Bab 1 default terbuka
+
+        function toggleCustomStructure(enabled) {
+            const wrap = document.getElementById('custom-structure-wrap');
+            if (wrap) wrap.style.display = enabled ? 'block' : 'none';
+            if (enabled) {
+                renderCustomChapterAccordion();
+            }
+            syncCustomStructureOutput();
+        }
+
+        function renderCustomChapterAccordion() {
+            const container = document.getElementById('custom-babs-accordion-container');
+            if (!container) return;
+
+            let html = '';
+            customBabsData.forEach((bab, bIdx) => {
+                const isOpen = (openCustomBabIndex === bIdx);
+                const subCount = bab.subbabs.length;
+
+                html += `
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.03);">
+                        <!-- Accordion Header -->
+                        <div style="padding: 10px 14px; background: ${isOpen ? '#f8fafc' : '#ffffff'}; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; user-select: none; border-bottom: ${isOpen ? '1px solid #e2e8f0' : 'none'};" onclick="toggleCustomBabOpen(${bIdx})">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 10px; color: #64748b; transition: transform 0.15s; ${isOpen ? 'transform: rotate(90deg);' : ''}">
+                                    ▶
+                                </span>
+                                <span style="font-size: 11px; font-weight: 700; color: #475569; letter-spacing: 0.05em; text-transform: uppercase; background: #e2e8f0; padding: 2px 7px; border-radius: 4px; white-space: nowrap;">BAB ${bIdx + 1}</span>
+                                <input type="text" value="${escapeHtml(bab.title)}" onclick="event.stopPropagation()" oninput="updateBabTitle(${bIdx}, this.value)" style="border: 1px solid transparent; background: transparent; font-size: 13.5px; font-weight: 600; color: var(--text-main); flex: 1; min-width: 120px; padding: 3px 6px; border-radius: 4px;" onfocus="this.style.border='1px solid #cbd5e1'; this.style.background='#fff';" onblur="this.style.border='1px solid transparent'; this.style.background='transparent';">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;" onclick="event.stopPropagation()">
+                                <span style="font-size: 11.5px; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 999px; font-weight: 500; white-space: nowrap;">${subCount} sub-bab</span>
+                                ${bIdx >= 5 ? `
+                                    <button type="button" onclick="deleteCustomBab(${bIdx})" title="Hapus Bab" style="border: none; background: none; color: #ef4444; cursor: pointer; padding: 3px 6px; font-size: 14px;">🗑</button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Accordion Body (Sub-bab List) -->
+                        <div style="display: ${isOpen ? 'block' : 'none'}; padding: 12px 14px; background: #fafafa;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${bab.subbabs.map((sub, sIdx) => `
+                                    <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                        <span style="font-size: 12px; font-weight: 700; color: #64748b; width: 30px; flex-shrink: 0;">${bIdx + 1}.${sIdx + 1}</span>
+                                        <input type="text" value="${escapeHtml(sub)}" oninput="updateSubbabTitle(${bIdx}, ${sIdx}, this.value)" style="flex: 1; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: var(--text-main); background: #ffffff; outline: none;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                                        <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke atas" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569;">▲</button>
+                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, 1)" ${sIdx === bab.subbabs.length - 1 ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke bawah" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569;">▼</button>
+                                            <button type="button" onclick="insertSubbabBelow(${bIdx}, ${sIdx})" title="Tambah sub-bab di bawah ini" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #2563eb; cursor: pointer;">+</button>
+                                            <button type="button" onclick="deleteSubbab(${bIdx}, ${sIdx})" title="Hapus sub-bab ini" style="border: 1px solid #fecaca; background: #fff5f5; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #dc2626; cursor: pointer;">🗑</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- Bottom Action Bar per Bab: Tambah sub-bab & Reset bab ini (NO "Sarankan AI") -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 8px;">
+                                <button type="button" onclick="addSubbabToEnd(${bIdx})" style="border: none; background: none; color: #2563eb; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 6px;">
+                                    <span style="font-size: 15px; font-weight: 700;">+</span>
+                                    <span>Tambah sub-bab</span>
+                                </button>
+                                <button type="button" onclick="resetSingleBab(${bIdx})" style="border: none; background: none; color: #64748b; font-size: 12px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 6px;">
+                                    <span>↺</span>
+                                    <span>Reset bab ini</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleCustomBabOpen(bIdx) {
+            openCustomBabIndex = (openCustomBabIndex === bIdx) ? -1 : bIdx;
+            renderCustomChapterAccordion();
+        }
+
+        function updateBabTitle(bIdx, val) {
+            if (customBabsData[bIdx]) {
+                customBabsData[bIdx].title = val;
+                syncCustomStructureOutput();
+            }
+        }
+
+        function updateSubbabTitle(bIdx, sIdx, val) {
+            if (customBabsData[bIdx] && customBabsData[bIdx].subbabs[sIdx] !== undefined) {
+                customBabsData[bIdx].subbabs[sIdx] = val;
+                syncCustomStructureOutput();
+            }
+        }
+
+        function moveSubbab(bIdx, sIdx, dir) {
+            const list = customBabsData[bIdx].subbabs;
+            const target = sIdx + dir;
+            if (target < 0 || target >= list.length) return;
+            const temp = list[sIdx];
+            list[sIdx] = list[target];
+            list[target] = temp;
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function insertSubbabBelow(bIdx, sIdx) {
+            const list = customBabsData[bIdx].subbabs;
+            list.splice(sIdx + 1, 0, 'Sub-bab Baru');
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function deleteSubbab(bIdx, sIdx) {
+            const list = customBabsData[bIdx].subbabs;
+            if (list.length <= 1) {
+                alert('Setiap bab minimal memiliki 1 sub-bab.');
+                return;
+            }
+            list.splice(sIdx, 1);
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function addSubbabToEnd(bIdx) {
+            customBabsData[bIdx].subbabs.push('Sub-bab Baru');
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function resetSingleBab(bIdx) {
+            if (defaultCustomBabs[bIdx]) {
+                customBabsData[bIdx] = JSON.parse(JSON.stringify(defaultCustomBabs[bIdx]));
+            } else {
+                customBabsData[bIdx].subbabs = ['Sub-bab 1', 'Sub-bab 2'];
+            }
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function addCustomBab() {
+            const nextNum = customBabsData.length + 1;
+            const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+            const rom = romans[nextNum - 1] || nextNum;
+            customBabsData.push({
+                roman: rom,
+                title: `Bab ${rom} Analisis Tambahan`,
+                subbabs: [`${nextNum}.1 Pendahuluan Analisis`, `${nextNum}.2 Pembahasan Khusus`]
+            });
+            openCustomBabIndex = customBabsData.length - 1;
+            renderCustomChapterAccordion();
+            syncCustomStructureOutput();
+        }
+
+        function deleteCustomBab(bIdx) {
+            if (confirm(`Hapus ${customBabsData[bIdx].title}?`)) {
+                customBabsData.splice(bIdx, 1);
+                if (openCustomBabIndex >= customBabsData.length) {
+                    openCustomBabIndex = customBabsData.length - 1;
+                }
+                renderCustomChapterAccordion();
+                syncCustomStructureOutput();
+            }
+        }
+
+        function syncCustomStructureOutput() {
+            const toggle = document.getElementById('custom-structure-toggle');
+            const output = document.getElementById('custom-structure-serialized');
+            if (!output) return;
+
+            if (!toggle || !toggle.checked) {
+                output.value = '';
+                return;
+            }
+
+            let text = '';
+            customBabsData.forEach((bab, bIdx) => {
+                text += `${bab.title.toUpperCase()}:\n`;
+                bab.subbabs.forEach((sub, sIdx) => {
+                    text += `${bIdx + 1}.${sIdx + 1} ${sub}\n`;
+                });
+                text += '\n';
+            });
+
+            output.value = text.trim();
+        }
 
         function copyReferralLink() {
             const inp = document.getElementById('referral-link-input');
@@ -3639,33 +3953,43 @@
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
 
+            const campusBadgeText = document.getElementById('slide-campus-name');
+            if (campusBadgeText) {
+                campusBadgeText.innerText = (pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase();
+            }
+
             if (currentSlideIdx === 0) {
-                secLabel.innerText = 'SLIDE 1 · JUDUL & COVER SIDANG';
+                secLabel.innerText = 'SLIDE 1 · COVER SIDANG';
+                titleEl.style.textAlign = 'center';
                 titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="margin-top: 8px; font-size: 13.5px; line-height: 1.6;">
-                        <div style="font-weight: 700; color: inherit; letter-spacing: 0.04em;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
-                        <div style="opacity: 0.85;">${pptCoverMeta.fakultas || ''} · ${pptCoverMeta.prodi || ''}</div>
-                        <div style="margin-top: 10px; font-weight: 600;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                    <div style="margin-top: 10px; font-size: 13.5px; line-height: 1.6; text-align: center;">
+                        <div style="font-weight: 700; font-size: 14.5px; color: inherit;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                        <div style="opacity: 0.85; font-size: 13px; margin-top: 3px;">Program Studi ${pptCoverMeta.prodi || '-'} · ${pptCoverMeta.fakultas || '-'}</div>
                     </div>
                 `;
+                ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 14px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: left; padding: 12px 14px; background: rgba(255,255,255,0.7); border-radius: 8px; border: 1px solid rgba(148,163,184,0.3); font-size: 11.5px; line-height: 1.5; color: inherit;">
-                            <div>
-                                <strong style="color: var(--primary);">Dosen Pembimbing:</strong><br>
-                                1. ${pptCoverMeta.pembimbing_1 || '-'}<br>
-                                2. ${pptCoverMeta.pembimbing_2 || '-'}
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 18px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left;">
+                            <div style="background: #ffffff; color: #1e293b; padding: 14px 18px; border-radius: 10px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                                <div style="font-size: 11px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;">Pembimbing 1</div>
+                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1'}</div>
+                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div>
-                                <strong style="color: var(--primary);">Dosen Penguji:</strong><br>
-                                1. ${pptCoverMeta.penguji_1 || '-'}<br>
-                                2. ${pptCoverMeta.penguji_2 || '-'}
+                            <div style="background: #ffffff; color: #1e293b; padding: 14px 18px; border-radius: 10px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                                <div style="font-size: 11px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;">Pembimbing 2</div>
+                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2'}</div>
+                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
                 `;
             } else {
+                titleEl.style.textAlign = 'left';
+                subEl.style.textAlign = 'left';
+                ul.style.textAlign = 'left';
                 secLabel.innerText = (s.section || ('Slide ' + (currentSlideIdx + 1))).replace(/\*\*/g, '');
                 titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
                 subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
@@ -3841,33 +4165,43 @@
             const subEl = document.getElementById('fs-slide-subtitle');
             const ul = document.getElementById('fs-slide-bullets');
 
+            const fsCampusText = document.getElementById('fs-slide-campus-name');
+            if (fsCampusText) {
+                fsCampusText.innerText = (pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase();
+            }
+
             if (currentSlideIdx === 0) {
-                secEl.innerText = 'SLIDE 1 · JUDUL & COVER SIDANG';
+                secEl.innerText = 'SLIDE 1 · COVER SIDANG';
+                titleEl.style.textAlign = 'center';
                 titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="font-size: 15px; line-height: 1.6; margin-top: 10px;">
-                        <div style="font-weight: 700; letter-spacing: 0.04em;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
-                        <div style="opacity: 0.85;">${pptCoverMeta.fakultas || ''} · ${pptCoverMeta.prodi || ''}</div>
-                        <div style="margin-top: 14px; font-weight: 600;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                    <div style="font-size: 15px; line-height: 1.6; margin-top: 10px; text-align: center;">
+                        <div style="margin-top: 8px; font-weight: 700; font-size: 16px; color: inherit;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
+                        <div style="opacity: 0.85; font-size: 14px; margin-top: 4px;">Program Studi ${pptCoverMeta.prodi || '-'} · ${pptCoverMeta.fakultas || '-'}</div>
                     </div>
                 `;
+                ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 20px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; padding: 16px 20px; background: rgba(255,255,255,0.75); border-radius: 10px; border: 1px solid rgba(148,163,184,0.3); font-size: 13.5px; line-height: 1.6; color: inherit;">
-                            <div>
-                                <strong style="color: var(--primary);">Dosen Pembimbing:</strong><br>
-                                1. ${pptCoverMeta.pembimbing_1 || '-'}<br>
-                                2. ${pptCoverMeta.pembimbing_2 || '-'}
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 24px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left;">
+                            <div style="background: #ffffff; color: #1e293b; padding: 18px 24px; border-radius: 12px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+                                <div style="font-size: 12px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px;">Pembimbing 1</div>
+                                <div style="font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1'}</div>
+                                <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div>
-                                <strong style="color: var(--primary);">Dosen Penguji:</strong><br>
-                                1. ${pptCoverMeta.penguji_1 || '-'}<br>
-                                2. ${pptCoverMeta.penguji_2 || '-'}
+                            <div style="background: #ffffff; color: #1e293b; padding: 18px 24px; border-radius: 12px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+                                <div style="font-size: 12px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px;">Pembimbing 2</div>
+                                <div style="font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2'}</div>
+                                <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
                 `;
             } else {
+                titleEl.style.textAlign = 'left';
+                subEl.style.textAlign = 'left';
+                ul.style.textAlign = 'left';
                 secEl.innerText = (s.section || `Slide ${currentSlideIdx + 1}`).replace(/\*\*/g, '');
                 titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
                 subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
@@ -4205,10 +4539,13 @@
         }
 
         function renderDefenseEvaluation(ev) {
+            const items = ev.items || [];
+            let itemScores = items.map(it => parseFloat(it.score)).filter(s => !isNaN(s));
+            let overall = (itemScores.length > 0)
+                ? (itemScores.reduce((a, b) => a + b, 0) / itemScores.length).toFixed(1)
+                : ((ev.overall_score !== undefined && ev.overall_score !== null) ? Number(ev.overall_score).toFixed(1) : '3.0');
+
             document.getElementById('def-eval-verdict').innerText = ev.verdict || 'Evaluasi Selesai';
-            const overall = (ev.overall_score !== undefined && ev.overall_score !== null)
-                ? Number(ev.overall_score).toFixed(1)
-                : '3.0';
             document.getElementById('def-eval-score').innerText = overall + '/10';
             document.getElementById('def-eval-summary').innerText = ev.summary || '';
 
@@ -4328,27 +4665,23 @@
             }
 
             items.forEach((j, idx) => {
-                let citationText = j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}.`;
-                // Autolink DOI or URL
-                const citationHtml = citationText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">$1</a>');
-
                 const row = document.createElement('div');
                 row.className = 'project-row';
                 row.style.cursor = 'default';
-                row.style.alignItems = 'flex-start';
+                row.style.alignItems = 'center';
                 row.innerHTML = `
-                    <div class="project-row-left" style="align-items:flex-start;">
-                        <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
+                    <div class="project-row-left" style="align-items:center;">
+                        <div class="project-initial">${idx + 1}</div>
                         <div style="min-width:0;">
-                            <div class="project-row-title">${j.title}</div>
-                            <div class="project-row-meta">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px; word-break:break-word;">
-                                Sitasi APA: ${citationHtml}
-                            </div>
+                            <div class="project-row-title" style="font-size:14px; line-height:1.45; font-weight:600; color:var(--text-main);">${j.title}</div>
+                            <div class="project-row-meta" style="margin-top:4px;">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
                         </div>
                     </div>
                     <div class="project-row-action">
-                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 14px; font-size:12.5px; white-space:nowrap;">Buka Jurnal &amp; PDF ↗</a>
+                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:8px 16px; font-size:12.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                            <span>Buka &amp; Unduh Jurnal</span>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
                     </div>
                 `;
                 list.appendChild(row);

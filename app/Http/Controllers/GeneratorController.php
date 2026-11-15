@@ -1118,6 +1118,7 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
         $tahunMin = $sitasi['tahun_min'] ?? '2021';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
+        $sumberArr = is_array($sitasi['sumber'] ?? null) ? implode(', ', $sitasi['sumber']) : 'Umum, Terindeks Sinta';
 
         $judulLower = strtolower($project->judul ?? '');
         $prodiLower = strtolower($project->prodi ?? '');
@@ -1242,7 +1243,10 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
         elseif ($bab == 'bab5') {
             $context = "HASIL PENELITIAN BAB 4: " . Str::limit(strip_tags($project->bab4_content), 1800);
             $allText = $project->bab1_content . " " . $project->bab2_content . " " . $project->bab3_content . " " . $project->bab4_content;
-            $context .= "\n\n=== TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 12000);
+            $citationsList = $this->extractInTextCitations($allText);
+            $citationsStr = !empty($citationsList) ? implode("\n- ", $citationsList) : "- Tidak ada sitasi terdeteksi";
+            $context .= "\n\n=== DAFTAR SITASI ASLI YANG MUNCUL DALAM NASKAH BAB 1 S/D 4 (WAJIB DIBUATKAN DAFTAR PUSTAKANYA) ===\n- " . $citationsStr;
+            $context .= "\n\n=== RINGKASAN ISI TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 10000);
         }
 
         // Bab II Sesuai Rumpun Ilmu & WAJIB KERANGKA BERPIKIR DISESUAIKAN DENGAN JUDUL & JURUSAN
@@ -1484,15 +1488,16 @@ Sub-bab:
 
 Setelah sub-bab 5.2 selesai, buat baris baru bertuliskan persis:
 ===DAFTAR PUSTAKA===
-Lalu tuliskan minimal 20 referensi ilmiah terverifikasi urut abjad A-Z (format {$gayaSitasi}) yang mencakup SELURUH nama penulis yang dikutip pada Bab 1 hingga Bab 4" . (!empty($meta['referensi_khusus']) ? " serta SELURUH ARTIKEL / BUKU UNGGAHAN MAHASISWA" : "") . ".
+Lalu tuliskan DAFTAR PUSTAKA LENGKAP URUT ABJAD A-Z (format {$gayaSitasi}) YANG WAJIB MENGAMBIL DARI SELURUH SITASI ASLI YANG MUNCUL DALAM NASKAH BAB 1 HINGGA BAB 4 (lihat daftar sitasi yang tertera di atas)" . (!empty($meta['referensi_khusus']) ? " serta SELURUH ARTIKEL / BUKU UNGGAHAN MAHASISWA" : "") . ".
 
-ATURAN KETAT SITASI & DAFTAR PUSTAKA (BEBAS DARI KEBUTUHAN MENDELEY MANUAL):
-1. Setiap entri DAFTAR PUSTAKA WAJIB memiliki format publikasi lengkap sesuai {$gayaSitasi}:
+ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
+1. DAFTAR PUSTAKA WAJIB DIBUAT DARI SITASI NYATA YANG BENAR-BENAR DIKUTIP DALAM BAB 1 S/D 4! Dilarang keras mengarang referensi fiktif yang tidak pernah disebut dalam naskah.
+2. Setiap entri DAFTAR PUSTAKA WAJIB memiliki format publikasi lengkap sesuai {$gayaSitasi}:
    Nama Penulis. (Tahun). Judul artikel penelitian secara spesifik. Nama Jurnal Bereputasi, Volume(Nomor), Halaman. https://doi.org/10.xxxx/...
-2. Referensi WAJIB ASLI dan NYATA (terindeks {$sumberArr} / SINTA/Garuda Kemdikbud untuk Indonesia, atau Scopus/IEEE/ACM/Elsevier/Springer untuk Internasional).
-3. Tahun terbit referensi WAJIB minimal tahun {$tahunMin} dan maksimal tahun 2024 (rentang {$tahunMin}–2024). DILARANG menggunakan tahun fiktif masa depan (> 2024).
-4. Konsistensi 100%: Setiap nama penulis dan tahun yang disitasi dalam teks (in-text citation) Bab I sampai Bab IV WAJIB ADA di dalam daftar pustaka ini, dan sebaliknya.
-5. Tanpa kalimat pengantar AI, langsung baris referensi pertama A-Z.";
+3. Referensi WAJIB ASLI dan NYATA (terindeks {$sumberArr} / SINTA/Garuda Kemdikbud untuk Indonesia, atau Scopus/IEEE/ACM/Elsevier/Springer untuk Internasional).
+4. Tahun terbit referensi WAJIB minimal tahun {$tahunMin} dan maksimal tahun 2026.
+5. Konsistensi 100%: Setiap nama penulis dan tahun yang disitasi dalam teks (in-text citation) Bab I sampai Bab IV WAJIB ADA di dalam daftar pustaka ini.
+6. Tanpa kalimat pengantar AI, langsung baris referensi pertama A-Z.";
 
         $customStructureNote = !empty($meta['struktur_kustom'])
             ? "PERHATIAN PENTING: MAHASISWA MEMILIKI STRUKTUR SUB-BAB KUSTOM DARI KAMPUSNYA (LIHAT DI ATAS). AI WAJIB MENGIKUTI STRUKTUR KUSTOM TERSEBUT SECARA PERSIS, BUKAN STRUKTUR STANDAR DEFAULT!\n"
@@ -1950,12 +1955,14 @@ ATURAN REVISI (SANGAT KETAT):
         };
 
         $flushTable = function () use (&$html, &$tableBuffer) {
-            if (empty($tableBuffer)) return;
+            if (empty($tableBuffer))
+                return;
             $rows = [];
             foreach ($tableBuffer as $tLine) {
                 $trimmed = trim($tLine, "| \t\n\r");
                 // Lewati baris separator markdown seperti |---|---|
-                if (preg_match('/^[\s\-:|]+$/', $trimmed)) continue;
+                if (preg_match('/^[\s\-:|]+$/', $trimmed))
+                    continue;
                 $cells = array_map('trim', explode('|', $trimmed));
                 if (!empty($cells)) {
                     $rows[] = $cells;
@@ -1989,7 +1996,8 @@ ATURAN REVISI (SANGAT KETAT):
         };
 
         $flushCodeOrFlowchart = function () use (&$html, &$codeLines) {
-            if (empty($codeLines)) return;
+            if (empty($codeLines))
+                return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
@@ -2001,7 +2009,8 @@ ATURAN REVISI (SANGAT KETAT):
                     $nodeCount = count($nodes);
                     foreach (array_values($nodes) as $nIdx => $node) {
                         $cleanNode = trim(strip_tags($node));
-                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode)) continue;
+                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
+                            continue;
                         $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
                         $boxBg = $isSE ? '#eff6ff' : '#f8fafc';
                         $boxBorder = $isSE ? '#2563eb' : '#475569';
@@ -2120,10 +2129,16 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // Paragraf ilmiah baku
+            // Paragraf ilmiah baku atau Rumus Matematika Standalone
             $closeLists();
             $cleanP = trim(preg_replace('/^(\*{1,2}|#+\s*)+|(\*{1,2})+$/', '', $trimmed));
-            $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 8pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
+            if ($cleanP !== '') {
+                if ($this->isStandaloneFormula($cleanP)) {
+                    $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:\"Times New Roman\", serif; font-style:normal; line-height:1.6;'>" . e($cleanP) . "</p>";
+                } else {
+                    $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 8pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
+                }
+            }
         }
 
         $closeLists();
@@ -2189,7 +2204,8 @@ ATURAN REVISI (SANGAT KETAT):
         $codeLines = [];
         $inCode = false;
         $flushCodeOrFlowchart = function () use (&$codeLines, $section) {
-            if (empty($codeLines)) return;
+            if (empty($codeLines))
+                return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
@@ -2200,7 +2216,8 @@ ATURAN REVISI (SANGAT KETAT):
                     $nodeCount = count($nodes);
                     foreach (array_values($nodes) as $nIdx => $node) {
                         $cleanNode = trim(strip_tags($node));
-                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode)) continue;
+                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
+                            continue;
                         $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
                         $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
                         $boxRow = $boxTable->addRow();
@@ -2299,6 +2316,11 @@ ATURAN REVISI (SANGAT KETAT):
                     ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['left' => 420, 'hanging' => 360], 'spaceAfter' => 60]
                 );
             }
+            // Rumus Matematika / Persamaan Standalone (Center-aligned tanpa indentasi)
+            elseif ($this->isStandaloneFormula($unmarked)) {
+                $pStyle = ['alignment' => Jc::CENTER, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 0], 'spaceBefore' => 140, 'spaceAfter' => 140];
+                $section->addText($unmarked, ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+            }
             // Paragraf biasa dengan standar indentasi skripsi 1.27 cm
             else {
                 $pStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 80];
@@ -2307,6 +2329,54 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $flushTable();
         $flushCodeOrFlowchart();
+    }
+
+    private function isStandaloneFormula(string $line): bool
+    {
+        $t = trim($line);
+        $len = strlen($t);
+        if ($len < 3 || $len > 180) {
+            return false;
+        }
+        // Jangan tangkap jika kalimat deskriptif diawali konjungsi
+        if (preg_match('/^(dengan|dimana|di mana|yaitu|karena|sehingga|adalah|untuk|pada)\b/i', $t)) {
+            return false;
+        }
+        if (str_ends_with($t, '.') && str_word_count($t) > 8) {
+            return false;
+        }
+        $hasRelation = preg_match('/[=≈≤≥]|:=|\b(adalah|sebesar)\s*=/i', $t);
+        if (!$hasRelation && !preg_match('/^\$\$.+\$\$$/', $t)) {
+            return false;
+        }
+        $hasMathTokens = preg_match('/[\+\*\/\^×÷√∑∏∫αβγδεληθμσλ\[\]\|]|\b(count|sqrt|sum|log|exp|sin|cos|tan|lim|max|min|Akurasi|Accuracy|Recall|Precision|F1|R-Square|R2|t-hitung|F-hitung|Uji\s*t|Uji\s*F|P\([a-zA-Z0-9_\|\s,\+\-\*\/\^]+\))\b/i', $t);
+        return (bool) ($hasRelation && $hasMathTokens);
+    }
+
+    private function extractInTextCitations(string $text): array
+    {
+        $citations = [];
+        // Format 1: Penulis (Tahun), cth: Indriyani et al. (2023), Mulya (2025), Azril & Chrisnawati (2026)
+        if (preg_match_all('/([A-Z][a-zA-Z]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-Z]+|&\s+[A-Z][a-zA-Z]+))?)\s*\(((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $author = trim($m[1]);
+                $year = $m[2];
+                if (!in_array(strtolower($author), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan'])) {
+                    $citations["{$author} ({$year})"] = true;
+                }
+            }
+        }
+        // Format 2: (Penulis, Tahun), cth: (Indriyani et al., 2023), (Azril & Chrisnawati, 2026)
+        if (preg_match_all('/\(([A-Z][a-zA-Z]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-Z]+|&\s+[A-Z][a-zA-Z]+))?),?\s*((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $author = trim($m[1]);
+                $year = $m[2];
+                if (!in_array(strtolower($author), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan'])) {
+                    $citations["{$author} ({$year})"] = true;
+                }
+            }
+        }
+        return array_keys($citations);
     }
 
     private function resolveLogoTempPath(Request $request, array $meta = []): ?string
@@ -2780,19 +2850,24 @@ ATURAN REVISI (SANGAT KETAT):
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
 
         $defaultLogoFile = public_path('images/default_emblem.png');
-        $hasGd = extension_loaded('gd');
         $logoHtml = '';
-        if ($hasGd && $logoPath && file_exists($logoPath)) {
-            $mime = mime_content_type($logoPath) ?: 'image/png';
+        if ($logoPath && file_exists($logoPath) && filesize($logoPath) > 50) {
+            $mime = function_exists('mime_content_type') ? (@mime_content_type($logoPath) ?: 'image/png') : 'image/png';
             $b64 = base64_encode(file_get_contents($logoPath));
-            $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='data:{$mime};base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
             @unlink($logoPath);
-        } elseif ($hasGd && file_exists($defaultLogoFile)) {
+        } elseif (!empty($meta['logo_base64'])) {
+            $b64 = trim($meta['logo_base64']);
+            if (!str_starts_with($b64, 'data:image/')) {
+                $b64 = 'data:image/png;base64,' . $b64;
+            }
+            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
+        } elseif (file_exists($defaultLogoFile)) {
             $b64 = base64_encode(file_get_contents($defaultLogoFile));
-            $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:95px; max-height:95px; height:auto; display:block; margin:0 auto;'>";
+            $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
         } else {
-            // Elegant typographic seal (Zero GD extension required, 100% Vercel safe)
-            $logoHtml = "<div style='margin:14pt auto; width:85px; height:85px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:80px; font-size:10pt; font-weight:bold; letter-spacing:1px; color:#0f172a; display:inline-block;'>UNIVERSITAS</div>";
+            // Elegant typographic seal (100% Vercel safe fallback)
+            $logoHtml = "<div style='margin:14pt auto; width:90px; height:90px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:86px; font-size:10.5pt; font-weight:bold; letter-spacing:1px; color:#0f172a; display:inline-block;'>UNIVERSITAS</div>";
         }
 
         $tocRowsHtml = '';
@@ -2814,25 +2889,41 @@ ATURAN REVISI (SANGAT KETAT):
             .cover p{text-indent:0; text-align:center;}
         </style></head><body>";
 
-        // 1. HALAMAN JUDUL (COVER)
-        $html .= "<div class='cover' style='text-align:center; height:22.5cm; max-height:22.7cm; overflow:hidden; page-break-after:always; page-break-inside:avoid;'>
-            <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-            <div style='font-size:13pt; font-weight:bold; margin-top:14pt; margin-bottom:10pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
-            <div style='font-size:11pt; line-height:1.35; max-width:440pt; margin:0 auto 12pt auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-            <div style='margin:10pt auto 12pt auto; text-align:center;'>
-                {$logoHtml}
-            </div>
-            <div style='margin-top:10pt; font-size:11.5pt; line-height:1.4;'>
-                <div>OLEH:</div>
-                <div style='margin-top:2pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                " . ($npm ? "<div style='margin-top:1pt;'>NIM: " . e($npm) . "</div>" : "") . "
-            </div>
-            <div style='margin-top:20pt; font-weight:bold; font-size:12.5pt; line-height:1.35;'>
-                <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                <div>" . strtoupper(e($kampus)) . "</div>
-                <div>" . date('Y') . "</div>
-            </div>
+        // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
+        $html .= "<div class='cover' style='width:100%; height:22.2cm; max-height:22.5cm; overflow:hidden; page-break-after:always; page-break-inside:avoid;'>
+            <table style='width:100%; height:22.2cm; border-collapse:collapse; text-align:center; margin:0 auto; padding:0; border:none;'>
+                <tr style='height:36%;'>
+                    <td style='vertical-align:top; text-align:center; border:none; padding:0;'>
+                        <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+                        <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
+                        <div style='font-size:11pt; line-height:1.35; max-width:440pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+                    </td>
+                </tr>
+                <tr style='height:28%;'>
+                    <td style='vertical-align:middle; text-align:center; border:none; padding:0;'>
+                        {$logoHtml}
+                    </td>
+                </tr>
+                <tr style='height:18%;'>
+                    <td style='vertical-align:middle; text-align:center; border:none; padding:0;'>
+                        <div style='font-size:11.5pt; line-height:1.45;'>
+                            <div>OLEH:</div>
+                            <div style='margin-top:3pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                            " . ($npm ? "<div style='margin-top:2pt;'>NIM: " . e($npm) . "</div>" : "") . "
+                        </div>
+                    </td>
+                </tr>
+                <tr style='height:18%;'>
+                    <td style='vertical-align:bottom; text-align:center; border:none; padding:0 0 4pt 0;'>
+                        <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                            <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                            " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                            <div>" . strtoupper(e($kampus)) . "</div>
+                            <div>" . date('Y') . "</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div style='page-break-after:always;'></div>";
 
@@ -3426,21 +3517,28 @@ ATURAN REVISI (SANGAT KETAT):
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
 
         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
+        $citationsList = $this->extractInTextCitations($allText);
+        $citationsBlock = !empty($citationsList)
+            ? "\nDAFTAR SITASI ASLI YANG MUNCUL DALAM NASKAH (WAJIB DIBUATKAN BIBLIOGRAFI LENGKAPNYA):\n- " . implode("\n- ", $citationsList) . "\n"
+            : "";
+
         $refUploadNote = !empty($meta['referensi_khusus'])
             ? "\nREFERENSI WAJIB DARI UNGGAHAN MAHASISWA (WAJIB MASUK KE DALAM DAFTAR PUSTAKA):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n"
             : "";
 
         $prompt = "Tulis DAFTAR PUSTAKA lengkap dengan format {$gayaSitasi} berdasarkan naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}) berikut ini.
 Asal Referensi: {$asalRef}.
-Tahun terbit referensi: minimal tahun {$tahunMin} dan maksimal tahun 2024 (rentang {$tahunMin}–2024).
+Tahun terbit referensi: minimal tahun {$tahunMin} dan maksimal tahun 2026.
+{$citationsBlock}
 {$refUploadNote}
-ATURAN WAJIB:
-1. LANGSUNG tulis baris daftar pustaka pertama (urut A-Z) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
-2. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap entri WAJIB memiliki nama penulis, tahun ({$tahunMin}-2024), judul artikel ilmiah yang spesifik dan lengkap, nama jurnal akademik nyata, volume, nomor, halaman spesifik, dan link DOI jika ada.
-3. Jangan gunakan tanda bintang markdown (*).
+ATURAN MUTLAK & TEGAS:
+1. DAFTAR PUSTAKA WAJIB DIAMBIL DARI SITASI ASLI YANG BENAR-BENAR MUNCUL DALAM NASKAH (lihat daftar di atas). DILARANG KERAS mengarang nama penulis/jurnal fiktif yang tidak pernah disitasi di dalam naskah!
+2. LANGSUNG tulis baris daftar pustaka pertama (urut abjad A-Z) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
+3. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap entri WAJIB memiliki nama penulis lengkap, tahun terbit, judul artikel ilmiah spesifik, nama jurnal akademik bereputasi, volume, nomor, halaman, dan link DOI/URL.
+4. Jangan gunakan tanda bintang markdown (*).
 
-NASKAH:
-" . substr($allText, 0, 8000);
+NASKAH BAB I - BAB V:
+" . substr($allText, 0, 10000);
 
         try {
             $daftarPustaka = $this->ai->generateText($prompt, $model);
@@ -4027,30 +4125,58 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Object murni dengan struktur berikut:
                 ];
             }
 
-            // Rubric Sanity Enforcer & Passing Grade Check:
-            $currentScore = (float) ($evalData['overall_score'] ?? 0);
-            $isFailingByGrade = ($currentScore < $minScore);
-
-            if ($isClearlyFailing || $isFailingByGrade || str_contains(strtolower($evalData['verdict'] ?? ''), 'tidak lulus')) {
-                if ($isClearlyFailing && $currentScore > 4.5) {
-                    $currentScore = round(min(3.8, max(2.0, 1.5 + ($avgWords * 0.2))), 1);
-                    $evalData['overall_score'] = $currentScore;
-                }
-                $evalData['verdict'] = 'Tidak Lulus Sidang';
-                if ($isFailingByGrade && !$isClearlyFailing) {
-                    $evalData['summary'] = ($evalData['summary'] ?? '') . " (Nilai rata-rata {$currentScore} belum mencapai batas minimal kelulusan yang ditentukan: {$minScore}).";
-                }
-                if (!in_array($evalData['grade'] ?? '', ['D', 'E'])) {
-                    $evalData['grade'] = $currentScore < 3.5 ? 'E' : ($currentScore < 5.5 ? 'D' : 'C');
-                }
+            // Sanity check item answers: jika jawaban hanya kata pendek/trivial tapi skor tinggi, sesuaikan skor itemnya
+            if (isset($evalData['items']) && is_array($evalData['items'])) {
                 foreach ($evalData['items'] as &$it) {
                     $itWords = str_word_count(trim($it['student_answer'] ?? ''));
                     if ($itWords < 4 && ($it['score'] ?? 0) > 4.0) {
                         $it['score'] = round(min(3.5, max(1.5, 1.0 + ($itWords * 0.4))), 1);
                     }
                 }
+                unset($it);
+
+                // Hitung overall_score secara matematis murni: rata-rata seluruh skor pertanyaan
+                $itemScores = array_map(function ($it) {
+                    return (float) ($it['score'] ?? 0);
+                }, $evalData['items']);
+
+                if (count($itemScores) > 0) {
+                    $evalData['overall_score'] = round(array_sum($itemScores) / count($itemScores), 1);
+                }
+            }
+
+            // Rubric Sanity Enforcer & Passing Grade Check:
+            $currentScore = (float) ($evalData['overall_score'] ?? 0);
+            $isFailingByGrade = ($currentScore < $minScore);
+
+            if ($currentScore >= 8.5) {
+                $evalData['grade'] = 'A';
+                $evalData['verdict'] = 'Lulus Sidang Memuaskan';
+            } elseif ($currentScore >= 7.5) {
+                $evalData['grade'] = 'B+';
+                $evalData['verdict'] = 'Lulus Sidang dengan Revisi Minor';
+            } elseif ($currentScore >= 6.5) {
+                $evalData['grade'] = 'B';
+                $evalData['verdict'] = 'Lulus Sidang dengan Revisi';
+            } elseif ($currentScore >= 5.5) {
+                $evalData['grade'] = 'C';
+                $evalData['verdict'] = 'Lulus Bersyarat / Uji Ulang';
+            } elseif ($currentScore >= 4.0) {
+                $evalData['grade'] = 'D';
+                $evalData['verdict'] = 'Tidak Lulus Sidang';
             } else {
-                $evalData['verdict'] = $currentScore >= 8.5 ? 'Lulus Sidang Memuaskan' : 'Lulus Sidang dengan Revisi Minor';
+                $evalData['grade'] = 'E';
+                $evalData['verdict'] = 'Tidak Lulus Sidang';
+            }
+
+            if ($isClearlyFailing || $isFailingByGrade || str_contains(strtolower($evalData['verdict'] ?? ''), 'tidak lulus')) {
+                $evalData['verdict'] = 'Tidak Lulus Sidang';
+                if (!in_array($evalData['grade'] ?? '', ['D', 'E'])) {
+                    $evalData['grade'] = $currentScore < 3.5 ? 'E' : ($currentScore < 5.5 ? 'D' : 'C');
+                }
+                if ($isFailingByGrade && !$isClearlyFailing && !str_contains($evalData['summary'] ?? '', 'belum mencapai batas minimal')) {
+                    $evalData['summary'] = ($evalData['summary'] ?? '') . " (Nilai rata-rata {$currentScore} belum mencapai batas minimal kelulusan yang ditentukan: {$minScore}).";
+                }
             }
             $evalData['min_score'] = $minScore;
 

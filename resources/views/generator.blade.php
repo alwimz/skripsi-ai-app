@@ -493,54 +493,67 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 1050px;
+            min-height: 980px;
             box-sizing: border-box;
-            padding: 75px 60px 60px 75px;
+            padding: 55px 50px 45px 55px;
+        }
+        .cover-top-block {
+            margin-bottom: 16px;
         }
         .cover-kind {
-            font-size: 15px;
+            font-size: 14pt;
             font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-        }
-        .cover-title {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 1.45;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .cover-title {
+            font-size: 14.5pt;
+            font-weight: 700;
+            line-height: 1.35;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            color: #0f172a;
         }
         .cover-sub {
-            font-size: 13.5px;
-            line-height: 1.5;
-            max-width: 520px;
-            margin: 0 auto 16px;
+            font-size: 11pt;
+            line-height: 1.45;
+            max-width: 540px;
+            margin: 0 auto;
+            color: #334155;
         }
         .cover-logo-box {
-            margin: 16px auto;
+            margin: 20px auto;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
         .cover-logo-img {
-            width: 110px;
-            height: 110px;
+            max-width: 110px;
+            max-height: 110px;
+            width: auto;
+            height: auto;
             object-fit: contain;
             display: block;
             margin: 0 auto;
         }
+        .cover-bottom-block {
+            margin-top: auto;
+            padding-top: 16px;
+        }
         .cover-author-block {
-            margin: 18px 0;
-            font-size: 14.5px;
+            margin-bottom: 20px;
+            font-size: 12pt;
             line-height: 1.6;
+            color: #0f172a;
         }
         .cover-campus-block {
-            font-size: 14.5px;
+            font-size: 12.5pt;
             font-weight: 700;
-            line-height: 1.5;
+            line-height: 1.4;
             text-transform: uppercase;
+            color: #0f172a;
         }
 
         .front-heading {
@@ -1033,7 +1046,7 @@
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
-                padding: 26px 16px 22px 20px;
+                padding: 24px 16px 20px 20px;
                 font-size: 13.5px;
                 line-height: 1.6;
                 border-radius: 6px;
@@ -1041,42 +1054,49 @@
                 word-break: break-word;
                 overflow-x: hidden;
             }
-                line-height: 1.65;
-                border-radius: 6px;
-                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
-                word-break: break-word;
-            }
             .cover-sheet {
-                min-height: 580px !important;
+                min-height: unset !important;
+                height: auto !important;
                 aspect-ratio: 210 / 297;
-                padding: 36px 20px 28px 24px !important;
+                padding: 28px 18px 24px 20px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
-                gap: 12px;
                 box-sizing: border-box;
             }
+            .cover-kind {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+            }
             .cover-title {
-                font-size: 14px;
-                line-height: 1.4;
+                font-size: 12.5px !important;
+                line-height: 1.35 !important;
+                margin-bottom: 6px !important;
             }
             .cover-sub {
-                font-size: 11.5px;
-                line-height: 1.4;
-                margin: 0 auto 10px;
+                font-size: 10px !important;
+                line-height: 1.35 !important;
+                margin: 0 auto 8px !important;
+            }
+            .cover-logo-box {
+                margin: 8px auto !important;
             }
             .cover-logo-img {
-                width: 80px;
-                height: 80px;
+                width: 60px !important;
+                height: 60px !important;
+            }
+            .cover-bottom-block {
+                margin-top: auto !important;
+                padding-top: 8px !important;
             }
             .cover-author-block {
-                margin: 12px 0;
-                font-size: 13px;
-                line-height: 1.5;
+                margin-bottom: 10px !important;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
             }
             .cover-campus-block {
-                font-size: 12.5px;
-                line-height: 1.4;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
             }
             .front-heading {
                 font-size: 15px;
@@ -1092,6 +1112,46 @@
             .revisi-card {
                 padding: 16px;
             }
+        }
+
+        /* Olah Data Modal Modern Styling */
+        .olah-chip {
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+        .olah-chip:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .olah-input {
+            width: 100%;
+            padding: 9px 13px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 13px;
+            color: #0f172a;
+            background: #ffffff;
+            box-sizing: border-box;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+        }
+        .olah-input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
     </style>
 </head>
@@ -1127,7 +1187,7 @@
 
     <aside class="studio-sidebar">
         <div class="sidebar-header">
-            <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="back-link">
+            <a href="{{ route('app.create') }}#projects" class="back-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 <span>Kembali ke Proyek</span>
             </a>
@@ -1227,11 +1287,9 @@
                     </button>
                 @endif
             </div>
-        </nav>
 
-        <div style="padding: 10px 12px; background: #ffffff; border-top: 1px solid var(--border);">
-            <!-- Format & Document Settings Card above Download Buttons -->
-            <div class="format-settings-card" style="padding: 9px 10px; margin-bottom: 8px; background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; font-size: 11.5px;">
+            <!-- Format & Document Settings Card (Tersimpan di scroll nav agar tombol download selalu terlihat) -->
+            <div class="format-settings-card" style="padding: 10px; margin-top: 14px; margin-bottom: 8px; background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; font-size: 11.5px;">
                 <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
                     <span>Format &amp; Margin</span>
                     <span style="font-size: 10px; color: var(--accent); font-weight: 700; background: #e0f2fe; padding: 1px 6px; border-radius: 4px;">4-4-3-3 cm</span>
@@ -1259,15 +1317,18 @@
                 <div>
                     <label style="display: block; font-size: 9.5px; color: var(--text-secondary); margin-bottom: 2px;">Logo Kampus (Cover)</label>
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <img id="sidebar-logo-preview" src="{{ !empty($meta['logo_base64']) ? $meta['logo_base64'] : '/images/academic_seal.svg' }}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff;" onerror="this.onerror=null;this.src='/images/academic_seal.svg';">
-                        <label for="sidebar-logo-upload" style="flex: 1; padding: 3px 6px; border: 1px dashed var(--accent-border); background: #ffffff; border-radius: 5px; font-size: 10px; color: var(--accent); font-weight: 600; text-align: center; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <img id="sidebar-logo-preview" src="{{ !empty($meta['logo_base64']) ? $meta['logo_base64'] : '/images/academic_seal.svg' }}" alt="Logo" style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer;" title="Klik untuk ganti logo kampus" onclick="document.getElementById('sidebar-logo-upload').click();" onerror="this.onerror=null;this.src='/images/academic_seal.svg';">
+                        <button type="button" onclick="document.getElementById('sidebar-logo-upload').click()" style="flex: 1; padding: 4px 8px; border: 1px dashed var(--accent-border); background: #ffffff; border-radius: 5px; font-size: 10.5px; color: var(--accent); font-weight: 600; text-align: center; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: inherit;">
                             <span>📷 Ganti Logo</span>
-                            <input type="file" id="sidebar-logo-upload" accept="image/png,image/jpeg,image/svg+xml" style="display: none;" onchange="handleSidebarLogoUpload(this)">
-                        </label>
+                        </button>
+                        <input type="file" id="sidebar-logo-upload" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none;" onchange="handleSidebarLogoUpload(this)">
                     </div>
                 </div>
             </div>
+        </nav>
 
+        <!-- Sticky Download Buttons (Selalu Tampak di Desktop & HP) -->
+        <div style="flex-shrink: 0; padding: 10px 12px; padding-bottom: max(14px, env(safe-area-inset-bottom, 14px)); background: #ffffff; border-top: 1px solid var(--border); box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.06); z-index: 10;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <button type="button" class="btn-dl-side primary" onclick="submitQuickDownload('docx')">⬇ Word (.docx)</button>
                 <button type="button" class="btn-dl-side" onclick="submitQuickDownload('pdf')">⬇ PDF (.pdf)</button>
@@ -1340,68 +1401,68 @@
 </form>
 
 <!-- Modal Menu Olah Data & Hasil Penelitian -->
-<div id="modal-data-riil" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
-    <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-                    </div>
-                    <h3 style="font-size: 16.5px; font-weight: 700; color: #0f172a; margin: 0;">Menu Olah Data &amp; Hasil Penelitian</h3>
+<div id="modal-data-riil" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+    <div style="background: #ffffff; border-radius: 18px; width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #bfdbfe;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                 </div>
-                <p style="font-size: 12.5px; color: #64748b; margin: 6px 0 0;">Masukkan output pengolahan data riil (seperti SPSS, SmartPLS, Confusion Matrix Machine Learning, atau Eksperimen) beserta rumus yang wajib dijabarkan langkah demi langkah di Bab III &amp; Bab IV.</p>
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0;">Menu Olah Data &amp; Hasil Penelitian</h3>
+                    <p style="font-size: 12.5px; color: #64748b; margin: 0; line-height: 1.5;">Masukkan output olah data riil &amp; rumus agar dijabarkan langkah demi langkah di Bab III &amp; IV.</p>
+                </div>
             </div>
-            <button type="button" onclick="closeDataRiilModal()" style="border: none; background: none; font-size: 22px; color: #94a3b8; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
+            <button type="button" onclick="closeDataRiilModal()" style="border: none; background: #f1f5f9; width: 28px; height: 28px; border-radius: 50%; font-size: 18px; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.15s;">&times;</button>
         </div>
 
         <!-- Preset Template Cepat -->
         <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Template Olah Data Siap Pakai</div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('spss')">📊 SPSS (Regresi &amp; Asumsi Klasik)</button>
-                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('pls')">📈 SmartPLS (SEM-PLS)</button>
-                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('ml')">🤖 Machine Learning (Akurasi/Confusion Matrix)</button>
-                <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 11.5px; background: #f8fafc; border-radius: 6px;" onclick="applyOlahDataPreset('eksperimen')">🧪 Eksperimen (N-Gain / T-Test)</button>
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Pilih Template Olah Data Siap Pakai:</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="olah-chip" onclick="applyOlahDataPreset('spss')">📊 SPSS (Regresi &amp; Asumsi)</button>
+                <button type="button" class="olah-chip" onclick="applyOlahDataPreset('pls')">📈 SmartPLS (SEM-PLS)</button>
+                <button type="button" class="olah-chip" onclick="applyOlahDataPreset('ml')">🤖 Machine Learning / AI</button>
+                <button type="button" class="olah-chip" onclick="applyOlahDataPreset('eksperimen')">🧪 Eksperimen (N-Gain / T-Test)</button>
             </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div class="responsive-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
                 <div>
-                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Software / Metode Olah Data</label>
-                    <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: IBM SPSS Statistics 26 (Regresi Linier Berganda)">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Software / Metode Olah Data</label>
+                    <input type="text" id="riil-metode" class="olah-input" placeholder="cth: IBM SPSS Statistics 26 (Regresi Linier)">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Populasi / Sampel / Dataset Riil</label>
-                    <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: 120 Responden Mahasiswa / 1.500 Data Transaksi">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Populasi / Sampel / Dataset Riil</label>
+                    <input type="text" id="riil-sampel" class="olah-input" placeholder="cth: 120 Responden Mahasiswa / 1.500 Data">
                 </div>
             </div>
 
             <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Rumus Matematika / Statistik yang Wajib Dijabarkan Langkah demi Langkah</label>
-                <input type="text" id="riil-rumus" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, atau Akurasi = (TP+TN)/Total">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Rumus Matematika / Statistik Wajib (Langkah demi Langkah)</label>
+                <input type="text" id="riil-rumus" class="olah-input" placeholder="cth: Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, atau Akurasi = (TP+TN)/Total">
             </div>
 
             <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Lokasi / Objek / Sumber Data Penelitian</label>
-                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Universitas / PT X / Rumah Sakit / Database Publik Kaggle">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Lokasi / Objek / Sumber Data Penelitian</label>
+                <input type="text" id="riil-lokasi" class="olah-input" placeholder="cth: Universitas Handayani / PT X / Kaggle Dataset">
             </div>
 
             <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Nilai Metrik / Angka Riil Hasil Pengujian (Untuk Tabel &amp; Narasi Bab IV)</label>
-                <textarea id="riil-metrik" rows="4" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="cth: Output SPSS: R-Square = 0.684, F-hitung = 45.21 (Sig 0.000 < 0.05). Koefisien: X1 t-hitung = 3.42 (Sig 0.001), X2 t-hitung = 4.15 (Sig 0.000). Semua lolos uji normalitas & multikolinearitas."></textarea>
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Nilai Metrik / Angka Riil Pengujian (Untuk Narasi &amp; Tabel Bab IV)</label>
+                <textarea id="riil-metrik" rows="3" class="olah-input" style="resize: vertical; min-height: 72px;" placeholder="cth: Output SPSS: R-Square = 0.684, F-hitung = 45.21 (Sig 0.000 < 0.05). X1 t-hitung = 3.42 (Sig 0.001), X2 t-hitung = 4.15 (Sig 0.000). Semua lolos uji asumsi klasik."></textarea>
             </div>
 
             <div>
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Teknik Pengujian &amp; Kriteria Uji Hipotesis</label>
-                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="cth: Uji Asumsi Klasik (Kolmogorov-Smirnov, VIF, Glejser), Uji t parsial, Uji F simultan, Koefisien Determinasi"></textarea>
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Teknik Pengujian &amp; Kriteria Uji Hipotesis</label>
+                <input type="text" id="riil-evaluasi" class="olah-input" placeholder="cth: Uji Asumsi Klasik (Kolmogorov-Smirnov, VIF, Glejser), Uji t parsial, Uji F simultan, R2">
             </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
-            <button type="button" onclick="closeDataRiilModal()" style="padding: 8px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer;">Batal</button>
-            <button type="button" onclick="saveDataRiil()" style="padding: 8px 18px; border: none; background: #2563eb; color: #ffffff; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Simpan Data Olahan</button>
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 14px; flex-wrap: wrap;">
+            <button type="button" onclick="closeDataRiilModal()" style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;">Batal</button>
+            <button type="button" onclick="saveDataRiil()" style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s;">Simpan Data Olahan</button>
         </div>
     </div>
 </div>
@@ -1669,6 +1730,18 @@ function formatInlineMarkdown(text) {
         .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
 
+function isStandaloneFormula(line) {
+    const t = line.trim();
+    const len = t.length;
+    if (len < 3 || len > 180) return false;
+    if (/^(dengan|dimana|di mana|yaitu|karena|sehingga|adalah|untuk|pada)\b/i.test(t)) return false;
+    if (t.endsWith('.') && t.split(/\s+/).length > 8) return false;
+    const hasRelation = /[=≈≤≥]|:=/.test(t);
+    if (!hasRelation && !/^\$\$.+\$\$$/.test(t)) return false;
+    const hasMathTokens = /[\+\*\/\^×÷√∑∏∫αβγδεληθμσλ\[\]\|]|\b(count|sqrt|sum|log|exp|sin|cos|tan|lim|max|min|Akurasi|Accuracy|Recall|Precision|F1|R-Square|R2|t-hitung|F-hitung|Uji\s*t|Uji\s*F|P\([a-zA-Z0-9_\|\s,\+\-\*\/\^]+\))\b/i.test(t);
+    return hasRelation && hasMathTokens;
+}
+
 function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
     if (!mdText || !mdText.trim()) return '';
     const lines = mdText.replace(/\r\n/g, '\n').split('\n');
@@ -1773,6 +1846,9 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
         } else if (/^(?:Tabel|Gambar|Bagan)\s+\d+\.\d+/i.test(normLine)) {
             flushLists();
             html += `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:left; margin:14px 0 6px; font-size:11pt; color:#0f172a;">${formatInlineMarkdown(normLine)}</p>`;
+        } else if (isStandaloneFormula(normLine)) {
+            flushLists();
+            html += `<p class="academic-formula" style="text-align:center !important; text-indent:0 !important; font-family:'Times New Roman', serif; font-size:12.5pt; margin:16px 0; padding:4px 8px; font-style:normal; line-height:1.6; color:#0f172a;">${formatInlineMarkdown(normLine)}</p>`;
         } else {
             flushLists();
             html += `<p>${formatInlineMarkdown(normLine)}</p>`;
@@ -1889,7 +1965,7 @@ function buildCoverAndFrontMatterHtml() {
                 <div class="cover-title">${escapeHtml(projectTitle)}</div>
                 <div class="cover-sub">Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}</div>
             </div>
-            <div class="cover-logo-box">
+            <div class="cover-logo-box" onclick="document.getElementById('sidebar-logo-upload').click()" title="Klik untuk ganti logo kampus" style="cursor: pointer;">
                 ${logoMarkup}
             </div>
             <div class="cover-bottom-block">
@@ -2741,8 +2817,13 @@ function handleSidebarLogoUpload(input) {
             const prev = document.getElementById('sidebar-logo-preview');
             if (prev) prev.src = dataUrl;
 
-            const coverLogo = document.querySelector('.cover-logo-img');
-            if (coverLogo) coverLogo.src = dataUrl;
+            const coverBox = document.querySelector('.cover-logo-box');
+            if (coverBox) {
+                coverBox.innerHTML = `<img src="${dataUrl}" alt="Logo Kampus" class="cover-logo-img">`;
+            } else {
+                const coverLogo = document.querySelector('.cover-logo-img');
+                if (coverLogo) coverLogo.src = dataUrl;
+            }
 
             const formLogo = document.querySelector('#quick-download-form input[name="logo_base64"]');
             if (formLogo) formLogo.value = dataUrl;
