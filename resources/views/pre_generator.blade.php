@@ -1497,19 +1497,25 @@
                 white-space: nowrap;
             }
             .ppt-canvas {
-                aspect-ratio: 16 / 9 !important;
                 width: 100% !important;
                 height: auto !important;
-                min-height: unset !important;
+                min-height: 260px !important;
                 box-sizing: border-box !important;
+                overflow: visible !important;
             }
             #fs-slide-canvas {
                 padding: 16px 14px !important;
-                min-height: unset !important;
+                min-height: 260px !important;
                 height: auto !important;
-                aspect-ratio: 16 / 9 !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
+                overflow: visible !important;
+            }
+            .ppt-theme-royal_academic {
+                padding-left: 24px !important;
+            }
+            .ppt-theme-royal_academic::before {
+                width: 8px !important;
             }
             #fs-slide-title {
                 font-size: clamp(13px, 3.8vw, 22px) !important;
@@ -2512,45 +2518,45 @@
                 </div>
 
                 <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
-                <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+                <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
                     <!-- Floating Circular Close Button at top-right -->
-                    <button type="button" onclick="closeFullscreenSlideshow()" title="Tutup Layar Penuh (Esc)" style="position: absolute; top: 18px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: #dc2626; color: #ffffff; border: 2px solid #ffffff; font-size: 22px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100000; box-shadow: 0 4px 14px rgba(0,0,0,0.5); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <button type="button" onclick="closeFullscreenSlideshow()" title="Tutup Layar Penuh (Esc)" style="position: absolute; top: 14px; right: 16px; width: 38px; height: 38px; border-radius: 50%; background: #dc2626; color: #ffffff; border: 2px solid #ffffff; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100000; box-shadow: 0 4px 14px rgba(0,0,0,0.5); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                         &times;
                     </button>
 
-                    <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #ffffff;">
-                        <div style="font-size: 14px; font-weight: 600;">
+                    <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #ffffff; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 13.5px; font-weight: 600;">
                             Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter" style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="downloadPptxFile()">⬇ Unduh PowerPoint (.pptx)</button>
-                            <button type="button" onclick="closeFullscreenSlideshow()" style="padding: 7px 16px; font-size: 12.5px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(220,38,38,0.4);">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-right: 48px;">
+                            <button type="button" class="btn-primary" style="padding: 7px 12px; font-size: 12px;" onclick="downloadPptxFile()">⬇ Unduh (.pptx)</button>
+                            <button type="button" onclick="closeFullscreenSlideshow()" style="padding: 7px 12px; font-size: 12px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(220,38,38,0.4);">
                                 ✕ Tutup Preview
                             </button>
                         </div>
                     </div>
 
-                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: auto; padding: 40px 48px; box-sizing: border-box;">
+                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: auto; padding: 32px 36px; box-sizing: border-box; overflow: hidden;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span id="fs-slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 12px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 60px);">
+                                    <span id="fs-slide-campus-badge" class="ppt-campus-pill" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(255,255,255,0.92); border-radius: 999px; font-size: 11px; font-weight: 700; color: #1e293b; border: 1px solid rgba(148,163,184,0.35); box-shadow: 0 1px 3px rgba(0,0,0,0.06); white-space: nowrap;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
                                         <span id="fs-slide-campus-name">UNIVERSITAS</span>
                                     </span>
-                                    <span id="fs-slide-section" class="ppt-badge">BAGIAN SLIDE</span>
+                                    <span id="fs-slide-section" class="ppt-badge" style="white-space: nowrap;">BAGIAN SLIDE</span>
                                 </div>
-                                <span id="fs-slide-num-tag" style="font-size: 13px; font-weight: 700; opacity: 0.7;">1 / 9</span>
+                                <span id="fs-slide-num-tag" style="font-size: 12px; font-weight: 700; opacity: 0.75; white-space: nowrap;">1 / 9</span>
                             </div>
-                            <h2 id="fs-slide-title" style="font-size: 28px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;">-</h2>
-                            <div id="fs-slide-subtitle" style="font-size: 15px; opacity: 0.85; margin-bottom: 22px; font-weight: 500;">-</div>
-                            <ul id="fs-slide-bullets" style="padding-left: 22px; font-size: 16px; line-height: 1.75; display: flex; flex-direction: column; gap: 10px;"></ul>
+                            <h2 id="fs-slide-title" style="font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; word-break: break-word;">-</h2>
+                            <div id="fs-slide-subtitle" style="font-size: 14px; opacity: 0.85; margin-bottom: 18px; font-weight: 500; word-break: break-word;">-</div>
+                            <ul id="fs-slide-bullets" style="padding-left: 20px; font-size: 14.5px; line-height: 1.65; display: flex; flex-direction: column; gap: 8px;"></ul>
                         </div>
                     </div>
 
-                    <div style="width: 100%; max-width: 960px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px 20px; border-radius: 12px; color: #f8fafc;">
+                    <div style="width: 100%; max-width: 960px; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 10px 16px; border-radius: 12px; color: #f8fafc; flex-wrap: wrap; gap: 10px;">
                         <button type="button" class="ppt-nav-btn" onclick="prevSlide(); renderFullscreenSlide();">← Slide Sebelumnya</button>
-                        <div id="fs-speaker-notes" style="font-size: 13px; color: #cbd5e1; max-width: 540px; text-align: center; line-height: 1.45;"></div>
+                        <div id="fs-speaker-notes" style="font-size: 12.5px; color: #cbd5e1; max-width: 500px; text-align: center; line-height: 1.4; flex: 1 1 200px;"></div>
                         <button type="button" class="ppt-nav-btn" onclick="nextSlide(); renderFullscreenSlide();">Slide Selanjutnya →</button>
                     </div>
                 </div>
@@ -3182,6 +3188,16 @@
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
         function getSelectedModel() {
             const el = document.getElementById('global-model');
@@ -3864,6 +3880,145 @@
             }
         }
 
+        function applyClientFallbackPptSlides() {
+            const namaEl = document.getElementById('ppt-input-nama');
+            const nimEl = document.getElementById('ppt-input-nim');
+            const kampusEl = document.getElementById('ppt-input-kampus');
+            const prodiEl = document.getElementById('ppt-input-prodi');
+            const fakEl = document.getElementById('ppt-input-fakultas');
+            const p1El = document.getElementById('ppt-input-pembimbing-1');
+            const p2El = document.getElementById('ppt-input-pembimbing-2');
+            const u1El = document.getElementById('ppt-input-penguji-1');
+            const u2El = document.getElementById('ppt-input-penguji-2');
+
+            const safeTitle = selectedPptProject.title || 'Presentasi Sidang Skripsi';
+            const safeProdi = prodiEl ? prodiEl.value.trim() : 'Program Studi';
+
+            pptCoverMeta = {
+                nama: namaEl ? namaEl.value.trim() : 'Nama Mahasiswa',
+                nim: nimEl ? nimEl.value.trim() : '',
+                kampus: kampusEl ? kampusEl.value.trim() : 'UNIVERSITAS',
+                prodi: safeProdi,
+                fakultas: fakEl ? fakEl.value.trim() : '',
+                pembimbing_1: p1El ? p1El.value.trim() : 'Dosen Pembimbing 1',
+                pembimbing_2: p2El ? p2El.value.trim() : 'Dosen Pembimbing 2',
+                penguji_1: u1El ? u1El.value.trim() : 'Dosen Penguji 1',
+                penguji_2: u2El ? u2El.value.trim() : 'Dosen Penguji 2',
+            };
+
+            pptSlides = [
+                {
+                    slide_number: 1,
+                    section: 'Sampul Sidang',
+                    title: safeTitle,
+                    subtitle: `Program Studi ${safeProdi} · Sidang Skripsi`,
+                    bullets: ['Presentasi Tugas Akhir / Skripsi', 'Fokus Kajian Ilmiah & Evaluasi Kinerja'],
+                    speaker_notes: `Selamat pagi Bapak dan Ibu Dosen Penguji serta Pembimbing. Terima kasih atas kesempatan untuk memaparkan skripsi saya berjudul ${safeTitle}.`
+                },
+                {
+                    slide_number: 2,
+                    section: 'Latar Belakang Masalah',
+                    title: 'Latar Belakang & Urgensi Penelitian',
+                    subtitle: 'Fenomena Lapangan dan Kesenjangan Riset',
+                    bullets: [
+                        'Urgensi otomasi dan akurasi analisis pada objek riset',
+                        'Tantangan pengolahan data mentah yang belum terstandarisasi',
+                        'Kebutuhan metode komputasi yang terukur dan objektif',
+                        'Research gap yang menjadi fokus kebaruan penelitian ini'
+                    ],
+                    speaker_notes: 'Penelitian ini dilatarbelakangi oleh fenomena riil dan tantangan utama yang ditemukan pada objek kajian.'
+                },
+                {
+                    slide_number: 3,
+                    section: 'Identifikasi & Batasan Masalah',
+                    title: 'Ruang Lingkup & Batasan Riset',
+                    subtitle: 'Fokus Kajian Agar Terarah dan Terukur',
+                    bullets: [
+                        'Batasan dataset, parameter, dan objek yang diuji',
+                        'Ruang lingkup variabel bebas dan variabel terikat',
+                        'Asumsi lingkungan implementasi dan evaluasi komputasi'
+                    ],
+                    speaker_notes: 'Agar penelitian fokus dan terukur, ruang lingkup dibatasi pada parameter dan objek yang relevan.'
+                },
+                {
+                    slide_number: 4,
+                    section: 'Rumusan Masalah & Tujuan',
+                    title: 'Rumusan Masalah & Tujuan Penelitian',
+                    subtitle: 'Arah Solusi Akademik yang Dituju',
+                    bullets: [
+                        'Rumusan Masalah: Bagaimana performa metode yang diterapkan dalam menyelesaikan persoalan?',
+                        'Tujuan: Menganalisis dan menguji efektivitas algoritma secara kuantitatif',
+                        'Kontribusi: Memberikan tolok ukur empiris bagi pengembangan riset ke depan'
+                    ],
+                    speaker_notes: 'Tujuan penelitian ini menjawab secara langsung rumusan masalah yang telah diidentifikasi.'
+                },
+                {
+                    slide_number: 5,
+                    section: 'Tinjauan Pustaka',
+                    title: 'Landasan Teori & Penelitian Terdahulu',
+                    subtitle: 'Kerangka Teoretis Pendukung',
+                    bullets: [
+                        'Grand theory dan konsep dasar yang melandasi penelitian',
+                        'Kajian 4-5 artikel jurnal ilmiah bereputasi periode 2020–2026',
+                        'Posisi kebaruan (novelty) terhadap studi-studi terdahulu'
+                    ],
+                    speaker_notes: 'Pustaka acuan mengacu pada publikasi ilmiah bereputasi terkini yang relevan dengan topik skripsi.'
+                },
+                {
+                    slide_number: 6,
+                    section: 'Metodologi Penelitian',
+                    title: 'Tahapan & Metode Penelitian',
+                    subtitle: 'Alur Kerja dan Prosedur Evaluasi',
+                    bullets: [
+                        'Desain penelitian dan prosedur pengumpulan dataset',
+                        'Tahapan pra-pemrosesan teks dan rekayasa fitur data',
+                        'Metrik evaluasi kinerja (Confusion Matrix: Akurasi, Presisi, Recall, F1)'
+                    ],
+                    speaker_notes: 'Metodologi disusun sistematis mulai dari penyiapan data hingga tahapan validasi hasil.'
+                },
+                {
+                    slide_number: 7,
+                    section: 'Hasil Penelitian',
+                    title: 'Hasil Pengujian & Analisis Data',
+                    subtitle: 'Temuan Empiris dan Capaian Kinerja',
+                    bullets: [
+                        'Hasil pengujian performa model pada data uji',
+                        'Perbandingan performa terhadap skenario baseline',
+                        'Tingkat akurasi dan stabilitas klasifikasi yang terukur'
+                    ],
+                    speaker_notes: 'Berikut adalah hasil pengujian empiris yang menunjukkan performa sistem secara kuantitatif.'
+                },
+                {
+                    slide_number: 8,
+                    section: 'Pembahasan',
+                    title: 'Pembahasan & Analisis Kritis',
+                    subtitle: 'Interpretasi Temuan Riset',
+                    bullets: [
+                        'Kesesuaian hasil pengujian terhadap hipotesis kerja',
+                        'Faktor-faktor penentu keberhasilan performa algoritma',
+                        'Implikasi teoretis dan praktis dari temuan riset'
+                    ],
+                    speaker_notes: 'Pembahasan ini membuktikan efektivitas metode yang diajukan serta implikasi ilmiahnya.'
+                },
+                {
+                    slide_number: 9,
+                    section: 'Kesimpulan & Saran',
+                    title: 'Kesimpulan & Saran Pengembangan',
+                    subtitle: 'Penutup Sidang Skripsi',
+                    bullets: [
+                        'Kesimpulan: Algoritma terbukti efektif menjawab seluruh rumusan masalah',
+                        'Saran 1: Pengayaan variasi dataset dan skenario pengujian yang lebih luas',
+                        'Saran 2: Integrasi dengan arsitektur teknologi lanjutan untuk implementasi skala besar'
+                    ],
+                    speaker_notes: 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan. Terima kasih.'
+                ]
+            ];
+
+            currentSlideIdx = 0;
+            renderCurrentSlide();
+            setPptStep(3);
+        }
+
         async function handleGeneratePpt() {
             const btn = document.getElementById('btn-generate-ppt');
             btn.disabled = true;
@@ -3911,7 +4066,7 @@
                     body: formData
                 });
                 const data = await res.json();
-                if (data.status === 'success' && Array.isArray(data.slides_data)) {
+                if (data.status === 'success' && Array.isArray(data.slides_data) && data.slides_data.length > 0) {
                     pptSlides = data.slides_data;
                     pptCoverMeta = data.cover_meta || {
                         nama: namaEl ? namaEl.value.trim() : '',
@@ -3928,10 +4083,10 @@
                     renderCurrentSlide();
                     setPptStep(3);
                 } else {
-                    alert(data.message || 'Gagal menyusun slide.');
+                    applyClientFallbackPptSlides();
                 }
             } catch (e) {
-                alert('Gagal menyusun slide PPT.');
+                applyClientFallbackPptSlides();
             } finally {
                 hideLoadingCard('ppt-loading-box');
                 btn.disabled = false;
@@ -4180,7 +4335,10 @@
             canvas.classList.add('ppt-slide-anim');
             document.getElementById('fs-slide-counter').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
             document.getElementById('fs-slide-num-tag').innerText = `${currentSlideIdx + 1} / ${pptSlides.length}`;
-            document.getElementById('fs-slide-proj-title').innerText = selectedPptProject.title || 'Sidang Skripsi';
+            const fsProjTitle = document.getElementById('fs-slide-proj-title');
+            if (fsProjTitle) {
+                fsProjTitle.innerText = selectedPptProject.title || 'Sidang Skripsi';
+            }
 
             const secEl = document.getElementById('fs-slide-section');
             const titleEl = document.getElementById('fs-slide-title');

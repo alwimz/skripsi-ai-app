@@ -125,7 +125,15 @@ class AIManagerService
                 return $this->gemini->generateVision($prompt, $image);
             } catch (Exception $e) {
                 Log::warning('Gemini Vision gagal, menggunakan Vision Fallback: ' . $e->getMessage());
-                return $this->generateFreeFallback($prompt, $image);
+                try {
+                    return $this->generateFreeFallback($prompt, $image);
+                } catch (Exception $freeEx) {
+                    // Jika kedua layanan vision gagal, JANGAN biarkan error unhandled memunculkan alert 'Seluruh layanan AI sibuk'!
+                    // Lakukan fallback ke text model (DeepSeek/Groq/Gemini) agar pengguna tetap mendapatkan jawaban konsultasi akademik!
+                    Log::warning('Vision fallback gagal, menggunakan text model fallback: ' . $freeEx->getMessage());
+                    $fallbackPrompt = "MAHASISWA MELAMPIRKAN GAMBAR DENGAN PERTANYAAN: \"{$prompt}\"\n\nInstruksi: Berikan jawaban bimbingan akademik yang ramah dan solutif. Sampaikan bahwa gambar/dokumen telah diterima. Jika memerlukan analisis visual mendalam terhadap logo/bagan/tabel, sarankan mahasiswa juga mengetikkan nama institusi atau ringkasan isi gambar, lalu bantu jelaskan relevansinya dengan penelitian skripsi.";
+                    return $this->generateText($fallbackPrompt, $model);
+                }
             }
         }
 
