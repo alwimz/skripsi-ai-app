@@ -1176,6 +1176,56 @@
             line-height: 1.2;
         }
 
+        /* Global PPT Slide 1 Cover Styles: Pembimbing & Penguji Side-by-Side */
+        #slide-bullets-edit li.ppt-cover-pembimbing-li,
+        #fs-slide-bullets li.ppt-cover-pembimbing-li,
+        .ppt-cover-pembimbing-li {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 6px 0 0 0 !important;
+            list-style: none !important;
+            list-style-type: none !important;
+            width: 100% !important;
+            box-shadow: none !important;
+        }
+        #slide-bullets-edit li.ppt-cover-pembimbing-li::marker,
+        #fs-slide-bullets li.ppt-cover-pembimbing-li::marker,
+        .ppt-cover-pembimbing-li::marker {
+            content: "" !important;
+            display: none !important;
+        }
+        .ppt-pembimbing-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .ppt-pembimbing-card {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            backdrop-filter: blur(4px) !important;
+            border-radius: 8px !important;
+            padding: 8px 12px !important;
+            box-sizing: border-box !important;
+            text-align: left !important;
+        }
+        .ppt-pembimbing-label {
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            opacity: 0.85 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            margin-bottom: 3px !important;
+        }
+        .ppt-pembimbing-name {
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            line-height: 1.25 !important;
+            word-break: break-word !important;
+        }
+
         /* External Slide Navigation Bar (Outside Editor) */
         .ppt-nav-outside {
             margin-top: 14px;
@@ -1719,8 +1769,13 @@
             }
             .ppt-cover-pembimbing-li {
                 margin-top: 4px !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
             }
             .ppt-pembimbing-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 6px !important;
             }
             .ppt-pembimbing-card {
@@ -4986,18 +5041,41 @@
                         ${pptCoverMeta.nim ? `<div class="ppt-cover-nim">${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
                     </div>
                 `;
+                const hasPenguji = !!((pptCoverMeta.penguji_1 && pptCoverMeta.penguji_1.trim() && pptCoverMeta.penguji_1 !== 'Dosen Penguji 1') || (pptCoverMeta.penguji_2 && pptCoverMeta.penguji_2.trim()));
+                let cardsHtml = '';
+                if (hasPenguji) {
+                    cardsHtml = `
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Dosen Pembimbing</div>
+                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                            ${pptCoverMeta.pembimbing_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.pembimbing_2)}</div>` : ''}
+                        </div>
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Dosen Penguji</div>
+                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.penguji_1 || 'Dosen Penguji 1')}</div>
+                            ${pptCoverMeta.penguji_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.penguji_2)}</div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    cardsHtml = `
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Pembimbing 1</div>
+                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                        </div>
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Pembimbing 2</div>
+                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                        </div>
+                    `;
+                }
                 ul.style.textAlign = 'left';
+                ul.style.listStyle = 'none';
+                ul.style.paddingLeft = '0';
+                ul.style.marginLeft = '0';
                 ul.innerHTML = `
                     <li class="ppt-cover-pembimbing-li">
                         <div class="ppt-pembimbing-grid">
-                            <div class="ppt-pembimbing-card">
-                                <div class="ppt-pembimbing-label">Pembimbing 1</div>
-                                <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                            </div>
-                            <div class="ppt-pembimbing-card">
-                                <div class="ppt-pembimbing-label">Pembimbing 2</div>
-                                <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                            </div>
+                            ${cardsHtml}
                         </div>
                     </li>
                 `;
@@ -5005,6 +5083,9 @@
                 titleEl.style.textAlign = 'left';
                 subEl.style.textAlign = 'left';
                 ul.style.textAlign = 'left';
+                ul.style.listStyle = '';
+                ul.style.paddingLeft = '';
+                ul.style.marginLeft = '';
                 secLabel.innerText = (s.section || ('Slide ' + (currentSlideIdx + 1))).replace(/\*\*/g, '');
                 titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
                 subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
@@ -5039,11 +5120,13 @@
             s.section = document.getElementById('slide-section-label').innerText.trim();
             s.title = document.getElementById('slide-title-edit').innerText.trim();
             s.subtitle = document.getElementById('slide-subtitle-edit').innerText.trim();
-            const bullets = [];
-            document.querySelectorAll('#slide-bullets-edit li').forEach(li => {
-                if (li.innerText.trim()) bullets.push(li.innerText.trim());
-            });
-            if (bullets.length) s.bullets = bullets;
+            if (currentSlideIdx > 0) {
+                const bullets = [];
+                document.querySelectorAll('#slide-bullets-edit li').forEach(li => {
+                    if (li.innerText.trim()) bullets.push(li.innerText.trim());
+                });
+                if (bullets.length) s.bullets = bullets;
+            }
             s.speaker_notes = document.getElementById('slide-notes-edit').value;
         }
 
@@ -5210,18 +5293,41 @@
                         ${pptCoverMeta.nim ? `<div class="ppt-cover-nim">${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
                     </div>
                 `;
+                const hasPenguji = !!((pptCoverMeta.penguji_1 && pptCoverMeta.penguji_1.trim() && pptCoverMeta.penguji_1 !== 'Dosen Penguji 1') || (pptCoverMeta.penguji_2 && pptCoverMeta.penguji_2.trim()));
+                let cardsHtml = '';
+                if (hasPenguji) {
+                    cardsHtml = `
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Dosen Pembimbing</div>
+                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                            ${pptCoverMeta.pembimbing_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.pembimbing_2)}</div>` : ''}
+                        </div>
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Dosen Penguji</div>
+                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.penguji_1 || 'Dosen Penguji 1')}</div>
+                            ${pptCoverMeta.penguji_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.penguji_2)}</div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    cardsHtml = `
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Pembimbing 1</div>
+                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                        </div>
+                        <div class="ppt-pembimbing-card">
+                            <div class="ppt-pembimbing-label">Pembimbing 2</div>
+                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                        </div>
+                    `;
+                }
                 ul.style.textAlign = 'left';
+                ul.style.listStyle = 'none';
+                ul.style.paddingLeft = '0';
+                ul.style.marginLeft = '0';
                 ul.innerHTML = `
                     <li class="ppt-cover-pembimbing-li">
                         <div class="ppt-pembimbing-grid">
-                            <div class="ppt-pembimbing-card">
-                                <div class="ppt-pembimbing-label">Pembimbing 1</div>
-                                <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                            </div>
-                            <div class="ppt-pembimbing-card">
-                                <div class="ppt-pembimbing-label">Pembimbing 2</div>
-                                <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                            </div>
+                            ${cardsHtml}
                         </div>
                     </li>
                 `;
@@ -5229,6 +5335,9 @@
                 titleEl.style.textAlign = 'left';
                 subEl.style.textAlign = 'left';
                 ul.style.textAlign = 'left';
+                ul.style.listStyle = '';
+                ul.style.paddingLeft = '';
+                ul.style.marginLeft = '';
                 secEl.innerText = (s.section || `Slide ${currentSlideIdx + 1}`).replace(/\*\*/g, '');
                 titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
                 subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
@@ -5351,28 +5460,55 @@
                         x: 1.0, y: 2.75, w: 8.0, h: 0.8, align: 'center'
                     });
 
-                    // 2 Rounded Cards untuk Pembimbing 1 & Pembimbing 2 (Sesuai Slide Sidang Asli)
+                    // 2 Rounded Cards untuk Pembimbing & Penguji (Side-by-Side Sesuai Slide Sidang Asli)
+                    const hasPenguji = !!((meta.penguji_1 && meta.penguji_1.trim() && meta.penguji_1 !== 'Dosen Penguji 1') || (meta.penguji_2 && meta.penguji_2.trim()));
+
                     slide.addShape(pptx.ShapeType.roundRect, {
                         x: 0.8, y: 3.8, w: 4.0, h: 1.3,
                         fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1.2 }, rectRadius: 0.12
                     });
-                    slide.addText([
-                        { text: 'Pembimbing 1\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
-                        { text: meta.pembimbing_1 || 'Dosen Pembimbing 1', options: { fontSize: 12, bold: true, color: pal.cardFg } }
-                    ], {
-                        x: 0.9, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
-                    });
-
                     slide.addShape(pptx.ShapeType.roundRect, {
                         x: 5.2, y: 3.8, w: 4.0, h: 1.3,
                         fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1.2 }, rectRadius: 0.12
                     });
-                    slide.addText([
-                        { text: 'Pembimbing 2\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
-                        { text: meta.pembimbing_2 || 'Dosen Pembimbing 2', options: { fontSize: 12, bold: true, color: pal.cardFg } }
-                    ], {
-                        x: 5.3, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
-                    });
+
+                    if (hasPenguji) {
+                        const pLines = [
+                            { text: 'Dosen Pembimbing\n', options: { fontSize: 10, bold: true, color: pal.cardSub } },
+                            { text: '1. ' + (meta.pembimbing_1 || 'Dosen Pembimbing 1'), options: { fontSize: 11, bold: true, color: pal.cardFg } }
+                        ];
+                        if (meta.pembimbing_2) {
+                            pLines.push({ text: '\n2. ' + meta.pembimbing_2, options: { fontSize: 11, bold: true, color: pal.cardFg } });
+                        }
+                        slide.addText(pLines, {
+                            x: 0.9, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
+                        });
+
+                        const uLines = [
+                            { text: 'Dosen Penguji\n', options: { fontSize: 10, bold: true, color: pal.cardSub } },
+                            { text: '1. ' + (meta.penguji_1 || 'Dosen Penguji 1'), options: { fontSize: 11, bold: true, color: pal.cardFg } }
+                        ];
+                        if (meta.penguji_2) {
+                            uLines.push({ text: '\n2. ' + meta.penguji_2, options: { fontSize: 11, bold: true, color: pal.cardFg } });
+                        }
+                        slide.addText(uLines, {
+                            x: 5.3, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
+                        });
+                    } else {
+                        slide.addText([
+                            { text: 'Pembimbing 1\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
+                            { text: meta.pembimbing_1 || 'Dosen Pembimbing 1', options: { fontSize: 12, bold: true, color: pal.cardFg } }
+                        ], {
+                            x: 0.9, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
+                        });
+
+                        slide.addText([
+                            { text: 'Pembimbing 2\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
+                            { text: meta.pembimbing_2 || 'Dosen Pembimbing 2', options: { fontSize: 12, bold: true, color: pal.cardFg } }
+                        ], {
+                            x: 5.3, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
+                        });
+                    }
                 } else {
                     const cleanSection = (s.section || `Slide ${idx + 1}`).replace(/\*\*/g, '');
                     slide.addText(cleanSection, {

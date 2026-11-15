@@ -358,50 +358,32 @@ class GeneratorController extends Controller
                 continue;
 
             $lines = explode("\n", $content);
-            $tblIdx = 0;
-            $inTbl = false;
+            $inCode = false;
 
             foreach ($lines as $lIdx => $line) {
                 $trimmed = trim(strip_tags($line));
-                if (preg_match('/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i', $trimmed, $m)) {
+                if (str_starts_with($trimmed, '```')) {
+                    $inCode = !$inCode;
+                    continue;
+                }
+                if ($inCode) {
+                    continue;
+                }
+                if (preg_match('/^(?:\*{1,2}|<strong[^>]*>)?Tabel\s+(\d+\.\d+[\w\.\-]*)\s*[:\-\s]*(.*?)(?:\*{1,2}|<\/strong>)?$/i', $trimmed, $m)) {
                     $rawTitle = trim(ltrim($m[2], ":- \t"));
                     // Abaikan jika baris ini adalah kalimat analisis/pembahasan dalam paragraf, bukan judul tabel
-                    if (mb_strlen($rawTitle) > 80 || preg_match('/memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada/i', $rawTitle)) {
+                    if (mb_strlen($rawTitle) > 80 || preg_match('/memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i', $rawTitle)) {
                         continue;
                     }
-                    $tblIdx++;
                     $num = $m[1];
                     $title = $rawTitle ?: "Tabel {$num}";
                     $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
                     $tables[] = ['label' => "Tabel {$num} {$title}", 'page' => $estPage];
-                } elseif (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|')) {
-                    if (!$inTbl) {
-                        $inTbl = true;
-                        $prevLine = isset($lines[$lIdx - 1]) ? trim(strip_tags($lines[$lIdx - 1])) : '';
-                        if (!preg_match('/^Tabel\s+\d+\.\d+/i', $prevLine)) {
-                            $tblIdx++;
-                            $defaultTitles = [
-                                1 => ['Karakteristik Data Penelitian', 'Distribusi Responden'],
-                                2 => ['Matriks Komparasi Penelitian Terdahulu', 'Sintesis Kajian Teori'],
-                                3 => ['Operasionalisasi Variabel & Parameter', 'Matriks Kebingungan (Confusion Matrix)', 'Spesifikasi Pengujian'],
-                                4 => ['Statistik Dataset Penelitian', 'Evaluasi Metrik Kinerja (Confusion Matrix)', 'Hasil Analisis Komparasi'],
-                                5 => ['Rekapitulasi Capaian Tujuan Penelitian']
-                            ];
-                            $fallbackTitle = $defaultTitles[$info['num']][$tblIdx - 1] ?? "Tabel Analisis Data {$info['num']}.{$tblIdx}";
-                            $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
-                            $tables[] = ['label' => "Tabel {$info['num']}.{$tblIdx} {$fallbackTitle}", 'page' => $estPage];
-                        }
-                    }
-                } else {
-                    $inTbl = false;
                 }
             }
         }
 
-        return !empty($tables) ? $tables : [
-            ['label' => 'Tabel 2.1 Matriks Komparasi Penelitian Terdahulu', 'page' => '14'],
-            ['label' => 'Tabel 3.1 Operasional Variabel & Parameter Penelitian', 'page' => '24'],
-        ];
+        return $tables;
     }
 
     private function extractFiguresForProject(Project $project, bool $isProposal = false): array
@@ -2371,7 +2353,8 @@ ATURAN REVISI (SANGAT KETAT):
                     $colWidths = ['35%', '65%'];
                 }
 
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; page-break-inside:auto; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
+                $avoidSplit = count($rows) <= 10 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; {$avoidSplit} border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
@@ -2410,26 +2393,35 @@ ATURAN REVISI (SANGAT KETAT):
                 $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
                 $renderedImg = $isFramework ? $this->renderKerangkaPemikiranPng($rawCode, $judul) : $this->renderFlowchartPng($rawCode, $judul);
                 $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
+                $alreadyHasCaption = preg_match('/Gambar\s+\d+\.\d+.*?<\/div>\s*$/i', trim($html));
 
                 if ($renderedImg && file_exists($renderedImg)) {
                     $b64 = base64_encode(file_get_contents($renderedImg));
                     @unlink($renderedImg);
-                    $html .= "<div style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>"
-                        . "<div style='font-size:11pt; font-weight:bold; margin-bottom:6pt; text-align:center; color:#000;'>" . e($caption) . "</div>"
-                        . "<img src='data:image/png;base64,{$b64}' style='width:450pt; max-width:100%; height:auto; display:block; margin:0 auto;'>"
+                    $html .= "<div style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                    if (!$alreadyHasCaption) {
+                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:6pt; text-align:center; color:#000;'>" . e($caption) . "</div>";
+                    }
+                    $html .= "<img src='data:image/png;base64,{$b64}' style='width:450pt; max-width:100%; height:auto; display:block; margin:0 auto;'>"
                         . "</div>";
                 } else {
                     // Fallback visual murni CSS standar akademik bebas kotak hitam di Dompdf
                     preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
-                    if (!empty($nodes)) {
+                    $rawNodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
+                    $validNodes = [];
+                    foreach ($rawNodes as $node) {
+                        $cn = trim(strip_tags($node));
+                        if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#={}()\\[\\]]+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
+                            $validNodes[] = $cn;
+                        }
+                    }
+                    if (!empty($validNodes)) {
                         $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
-                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
-                        $nodeCount = count($nodes);
-                        foreach (array_values($nodes) as $nIdx => $node) {
-                            $cleanNode = trim(strip_tags($node));
-                            if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|+~#=]+$/', $cleanNode))
-                                continue;
+                        if (!$alreadyHasCaption) {
+                            $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
+                        }
+                        $nodeCount = count($validNodes);
+                        foreach ($validNodes as $nIdx => $cleanNode) {
                             $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
                             $radius = $isSE ? '999px' : '0px';
                             $weight = $isSE ? 'bold' : 'normal';
@@ -2702,8 +2694,7 @@ ATURAN REVISI (SANGAT KETAT):
                             $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
                             foreach ($cleanNodes as $nIdx => $cleanNode) {
                                 $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                                $boxRow = $boxTable->addRow();
-                                $boxRow->getProperties()->setCantSplit(true);
+                                $boxRow = $boxTable->addRow(null, ['cantSplit' => true]);
                                 $boxCell = $boxRow->addCell(Converter::cmToTwip(10.5), [
                                     'bgColor' => 'FFFFFF',
                                     'borderColor' => '000000',
@@ -2722,8 +2713,7 @@ ATURAN REVISI (SANGAT KETAT):
                                 ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
 
                                 if ($nIdx < $nodeCount - 1) {
-                                    $arrRow = $boxTable->addRow();
-                                    $arrRow->getProperties()->setCantSplit(true);
+                                    $arrRow = $boxTable->addRow(null, ['cantSplit' => true]);
                                     $arrCell = $arrRow->addCell(Converter::cmToTwip(10.5), ['borderSize' => 0]);
                                     $arrCell->addText('↓', [
                                         'name' => 'Times New Roman',
@@ -3409,8 +3399,9 @@ ATURAN REVISI (SANGAT KETAT):
             $b64 = base64_encode(file_get_contents($defaultLogoFile));
             $logoHtml = "<img src='data:image/png;base64,{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
         } else {
-            // Elegant typographic seal (100% Vercel safe fallback)
-            $logoHtml = "<div style='margin:14pt auto; width:90px; height:90px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:86px; font-size:10.5pt; font-weight:bold; letter-spacing:1px; color:#0f172a; display:inline-block;'>UNIVERSITAS</div>";
+            // Elegant embedded academic seal (100% Vercel & Dompdf safe)
+            $b64 = $this->getDefaultEmblemBase64();
+            $logoHtml = "<img src='{$b64}' style='width:120px; max-height:120px; height:auto; display:block; margin:0 auto;'>";
         }
 
         $tocRowsHtml = '';
@@ -3570,45 +3561,39 @@ ATURAN REVISI (SANGAT KETAT):
         </div>";
 
         // 7. DAFTAR TABEL
+        $pdfTables = $this->extractTablesForProject($project, $isProposal);
         $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
             <h2>DAFTAR TABEL</h2>
-            <div style='margin-top:16px;'>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Tabel 2.1 Matriks Komparasi Penelitian Terdahulu</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>14</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Tabel 3.1 Operasional Variabel &amp; Parameter Penelitian</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>24</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Tabel 4.1 Statistik Karakteristik Dataset Penelitian</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>38</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Tabel 4.2 Evaluasi Metrik Kinerja &amp; Hasil Uji Model</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>45</span>
-                </div>
-            </div>
+            <div style='margin-top:16px;'>";
+        if (!empty($pdfTables)) {
+            foreach ($pdfTables as $tItem) {
+                $html .= "<div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
+                    <span style='display:table-cell;'>" . e($tItem['label']) . "</span>
+                    <span style='display:table-cell; text-align:right; width:50px;'>" . e($tItem['page']) . "</span>
+                </div>";
+            }
+        } else {
+            $html .= "<div style='text-align:center; color:#64748b; font-style:italic; padding:15px 0;'>(Tidak ada tabel dalam naskah penelitian)</div>";
+        }
+        $html .= "</div>
         </div>";
 
         // 8. DAFTAR GAMBAR
+        $pdfFigures = $this->extractFiguresForProject($project, $isProposal);
         $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
             <h2>DAFTAR GAMBAR</h2>
-            <div style='margin-top:16px;'>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Gambar 2.1 Kerangka Pemikiran &amp; Alur Logika Riset</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>18</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>28</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Gambar 4.1 Grafik Evaluasi Metrik &amp; Kurva Kinerja</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>49</span>
-                </div>
-            </div>
+            <div style='margin-top:16px;'>";
+        if (!empty($pdfFigures)) {
+            foreach ($pdfFigures as $fItem) {
+                $html .= "<div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
+                    <span style='display:table-cell;'>" . e($fItem['label']) . "</span>
+                    <span style='display:table-cell; text-align:right; width:50px;'>" . e($fItem['page']) . "</span>
+                </div>";
+            }
+        } else {
+            $html .= "<div style='text-align:center; color:#64748b; font-style:italic; padding:15px 0;'>(Tidak ada gambar dalam naskah penelitian)</div>";
+        }
+        $html .= "</div>
         </div>";
 
         // 9. DAFTAR LAMPIRAN
@@ -4763,5 +4748,10 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Object murni dengan struktur berikut:
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    private function getDefaultEmblemBase64(): string
+    {
+        return 'data:image/png;base64,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';
     }
 }

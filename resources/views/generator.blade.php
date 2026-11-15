@@ -574,7 +574,7 @@
             justify-content: space-between;
             min-height: 1123px;
             box-sizing: border-box;
-            padding: 70px 56px 60px 75px;
+            padding: 95px 72px 85px 95px; /* Rasio presisi margin akademik 4-4-3-3 cm */
         }
 
         .cover-top-block {
@@ -2433,42 +2433,27 @@
 
                 const basePage = pageMap[ch.key].startPage;
                 const lines = text.split('\n');
-                let tableIdx = 0;
-                let inTbl = false;
+                let inCode = false;
 
                 lines.forEach((line, lIdx) => {
                     const trimmed = line.trim();
-                    const capMatch = trimmed.match(/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i);
+                    if (trimmed.startsWith('```')) {
+                        inCode = !inCode;
+                        return;
+                    }
+                    if (inCode) return;
+
+                    const capMatch = trimmed.match(/^(?:\*{1,2}|<strong[^>]*>)?Tabel\s+(\d+\.\d+[\w\.\-]*)\s*[:\-\s]*(.*?)(?:\*{1,2}|<\/strong>)?$/i);
                     if (capMatch) {
                         const rawTitle = capMatch[2].replace(/^[:\-\s]+/, '').trim();
                         // Abaikan jika ini kalimat pembahasan/analisis teks di dalam paragraf
-                        if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada/i.test(rawTitle)) {
+                        if (rawTitle.length > 80 || /memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i.test(rawTitle)) {
                             return;
                         }
-                        tableIdx++;
-                        const title = rawTitle || `Tabel ${capMatch[1]}`;
+                        const num = capMatch[1];
+                        const title = rawTitle || `Tabel ${num}`;
                         const estPage = basePage + Math.floor(lIdx / 45);
-                        list.push({ num: capMatch[1], title: `Tabel ${capMatch[1]} ${title}`, page: estPage });
-                    } else if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-                        if (!inTbl) {
-                            inTbl = true;
-                            const prevLine = (lines[lIdx - 1] || '').trim();
-                            if (!/^Tabel\s+\d+\.\d+/i.test(prevLine)) {
-                                tableIdx++;
-                                const defaultTitles = {
-                                    1: ['Karakteristik Data Penelitian', 'Distribusi Responden'],
-                                    2: ['Matriks Komparasi Penelitian Terdahulu', 'Sintesis Kajian Teori'],
-                                    3: ['Operasionalisasi Variabel & Parameter', 'Matriks Kebingungan (Confusion Matrix)', 'Spesifikasi Pengujian'],
-                                    4: ['Statistik Dataset Penelitian', 'Evaluasi Metrik Kinerja (Confusion Matrix)', 'Hasil Analisis Komparasi'],
-                                    5: ['Rekapitulasi Capaian Tujuan Penelitian']
-                                };
-                                const fallbackTitle = (defaultTitles[ch.num] && defaultTitles[ch.num][tableIdx - 1]) || `Tabel Analisis Data ${ch.num}.${tableIdx}`;
-                                const estPage = basePage + Math.floor(lIdx / 45);
-                                list.push({ num: `${ch.num}.${tableIdx}`, title: `Tabel ${ch.num}.${tableIdx} ${fallbackTitle}`, page: estPage });
-                            }
-                        }
-                    } else {
-                        inTbl = false;
+                        list.push({ num: num, title: `Tabel ${num} ${title}`, page: estPage });
                     }
                 });
             });
