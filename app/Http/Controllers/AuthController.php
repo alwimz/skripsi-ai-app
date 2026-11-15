@@ -78,7 +78,7 @@ class AuthController extends Controller
     }
 
     public function redirectToGoogle() {
-        $clientId = env('GOOGLE_CLIENT_ID');
+        $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID');
         if (empty($clientId)) {
             // Demo Instant Google Sign-in Fallback jika Google OAuth credentials belum diset di server
             $demoGoogleEmail = 'mahasiswa.google@skripsi-ai.com';
@@ -89,11 +89,11 @@ class AuthController extends Controller
                     'password' => Hash::make(Str::random(16)),
                 ]
             );
-            Auth::login($user);
-            return redirect()->route('app.create')->with('info', 'Masuk berhasil via Akun Google Demo.');
+            Auth::login($user, true);
+            return redirect()->route('app.create')->with('info', 'Masuk berhasil via Akun Google Demo (Kredensial GOOGLE_CLIENT_ID belum disetel di server).');
         }
 
-        $redirectUri = route('auth.google.callback');
+        $redirectUri = config('services.google.redirect') ?: (env('GOOGLE_REDIRECT_URI') ?: route('auth.google.callback'));
         $url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
@@ -113,9 +113,9 @@ class AuthController extends Controller
         }
 
         try {
-            $clientId = env('GOOGLE_CLIENT_ID');
-            $clientSecret = env('GOOGLE_CLIENT_SECRET');
-            $redirectUri = route('auth.google.callback');
+            $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID');
+            $clientSecret = config('services.google.client_secret') ?: env('GOOGLE_CLIENT_SECRET');
+            $redirectUri = config('services.google.redirect') ?: (env('GOOGLE_REDIRECT_URI') ?: route('auth.google.callback'));
 
             $tokenResponse = Http::asForm()->post('https://oauth2.googleapis.com/token', [
                 'code' => $code,
@@ -126,7 +126,8 @@ class AuthController extends Controller
             ]);
 
             if (!$tokenResponse->successful()) {
-                return redirect()->route('login')->withErrors(['email' => 'Gagal verifikasi token dari Google.']);
+                $errDetail = $tokenResponse->json()['error_description'] ?? $tokenResponse->body();
+                return redirect()->route('login')->withErrors(['email' => 'Gagal verifikasi token dari Google: ' . $errDetail]);
             }
 
             $accessToken = $tokenResponse->json()['access_token'] ?? null;
@@ -151,8 +152,8 @@ class AuthController extends Controller
                 ]);
             }
 
-            Auth::login($user);
-            return redirect()->route('app.create');
+            Auth::login($user, true);
+            return redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Google berhasil.");
         } catch (\Throwable $e) {
             return redirect()->route('login')->withErrors(['email' => 'Gagal login via Google: ' . $e->getMessage()]);
         }
