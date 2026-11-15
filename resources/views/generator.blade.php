@@ -1860,6 +1860,102 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
     return html;
 }
 
+function extractTablesForDocument() {
+    const list = [];
+    const chapters = [
+        { key: 'bab1', num: 1, basePage: 1 },
+        { key: 'bab2', num: 2, basePage: 6 },
+        { key: 'bab3', num: 3, basePage: 18 },
+        { key: 'bab4', num: 4, basePage: 32 },
+        { key: 'bab5', num: 5, basePage: 46 }
+    ];
+
+    chapters.forEach(ch => {
+        if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
+        const text = (chapterContents[ch.key] || '').trim();
+        if (!text) return;
+
+        const lines = text.split('\n');
+        let tableIdx = 0;
+        let inTbl = false;
+
+        lines.forEach((line, lIdx) => {
+            const trimmed = line.trim();
+            const capMatch = trimmed.match(/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i);
+            if (capMatch) {
+                tableIdx++;
+                const title = capMatch[2].replace(/^[:\-\s]+/, '').trim() || `Tabel ${capMatch[1]}`;
+                const estPage = ch.basePage + Math.floor(lIdx / 45);
+                list.push({ num: capMatch[1], title: `Tabel ${capMatch[1]} ${title}`, page: estPage });
+            } else if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                if (!inTbl) {
+                    inTbl = true;
+                    const prevLine = (lines[lIdx - 1] || '').trim();
+                    if (!/^Tabel\s+\d+\.\d+/i.test(prevLine)) {
+                        tableIdx++;
+                        const defaultTitles = {
+                            1: ['Karakteristik Data Penelitian', 'Distribusi Responden'],
+                            2: ['Matriks Komparasi Penelitian Terdahulu', 'Sintesis Kajian Teori'],
+                            3: ['Operasionalisasi Variabel & Parameter', 'Matriks Kebingungan (Confusion Matrix)', 'Spesifikasi Pengujian'],
+                            4: ['Statistik Dataset Penelitian', 'Evaluasi Metrik Kinerja (Confusion Matrix)', 'Hasil Analisis Komparasi'],
+                            5: ['Rekapitulasi Capaian Tujuan Penelitian']
+                        };
+                        const fallbackTitle = (defaultTitles[ch.num] && defaultTitles[ch.num][tableIdx - 1]) || `Tabel Analisis Data ${ch.num}.${tableIdx}`;
+                        const estPage = ch.basePage + Math.floor(lIdx / 45);
+                        list.push({ num: `${ch.num}.${tableIdx}`, title: `Tabel ${ch.num}.${tableIdx} ${fallbackTitle}`, page: estPage });
+                    }
+                }
+            } else {
+                inTbl = false;
+            }
+        });
+    });
+
+    return list;
+}
+
+function extractFiguresForDocument() {
+    const list = [];
+    const chapters = [
+        { key: 'bab1', num: 1, basePage: 1 },
+        { key: 'bab2', num: 2, basePage: 6 },
+        { key: 'bab3', num: 3, basePage: 18 },
+        { key: 'bab4', num: 4, basePage: 32 },
+        { key: 'bab5', num: 5, basePage: 46 }
+    ];
+
+    chapters.forEach(ch => {
+        if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
+        const text = (chapterContents[ch.key] || '').trim();
+        if (!text) return;
+
+        // Gambar 2.1 Kerangka Berpikir jika ada di Bab 2
+        if (ch.key === 'bab2' && (text.includes('Kerangka') || text.includes('kerangka') || text.includes('-->') || text.includes('```'))) {
+            list.push({ num: '2.1', title: 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', page: ch.basePage + 4 });
+        }
+
+        // Gambar 3.1 Flowchart jika ada di Bab 3
+        if (ch.key === 'bab3' && (text.includes('Flowchart') || text.includes('flowchart') || text.includes('Alur') || text.includes('-->') || text.includes('```'))) {
+            list.push({ num: '3.1', title: 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', page: ch.basePage + 3 });
+        }
+
+        // Deteksi gambar eksplisit lainnya
+        const lines = text.split('\n');
+        lines.forEach((line, lIdx) => {
+            const m = line.trim().match(/^Gambar\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i);
+            if (m) {
+                const num = m[1];
+                if (num !== '2.1' && num !== '3.1') {
+                    const title = m[2].replace(/^[:\-\s]+/, '').trim() || `Gambar ${num}`;
+                    list.push({ num: num, title: `Gambar ${num} ${title}`, page: ch.basePage + Math.floor(lIdx / 45) });
+                }
+            }
+        });
+    });
+
+    return list;
+}
+
 function buildCoverAndFrontMatterHtml() {
     const nama = projectMeta.nama || defaultUserName;
     const nim = projectMeta.nim || '';
@@ -1940,6 +2036,16 @@ function buildCoverAndFrontMatterHtml() {
         const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
         return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
     }).join('');
+
+    const daftarTabelList = extractTablesForDocument();
+    const daftarTabelHtml = daftarTabelList.length > 0 
+        ? daftarTabelList.map(t => `<div class="toc-row main"><span>${escapeHtml(t.title)}</span><span class="toc-dots"></span><span class="toc-page">${t.page}</span></div>`).join('')
+        : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada tabel dalam naskah penelitian)</div>';
+
+    const daftarGambarList = extractFiguresForDocument();
+    const daftarGambarHtml = daftarGambarList.length > 0
+        ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
+        : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada gambar dalam naskah penelitian)</div>';
 
     const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="105" height="105" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
       <circle cx="60" cy="60" r="56" stroke="#1e3a8a" stroke-width="3" fill="#f8fafc"/>
@@ -2135,10 +2241,7 @@ function buildCoverAndFrontMatterHtml() {
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
             <div class="front-heading">DAFTAR TABEL</div>
             <div class="toc-list" style="margin-top: 20px;">
-                <div class="toc-row main"><span>Tabel 2.1 Matriks Komparasi Penelitian Terdahulu</span><span class="toc-dots"></span><span class="toc-page">14</span></div>
-                <div class="toc-row main"><span>Tabel 3.1 Operasional Variabel &amp; Parameter Penelitian</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
-                <div class="toc-row main"><span>Tabel 4.1 Statistik Karakteristik Dataset Penelitian</span><span class="toc-dots"></span><span class="toc-page">38</span></div>
-                <div class="toc-row main"><span>Tabel 4.2 Evaluasi Metrik Kinerja &amp; Hasil Uji Model</span><span class="toc-dots"></span><span class="toc-page">45</span></div>
+                ${daftarTabelHtml}
             </div>
             <div class="sheet-footer">vii</div>
         </div>
@@ -2147,9 +2250,7 @@ function buildCoverAndFrontMatterHtml() {
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
             <div class="front-heading">DAFTAR GAMBAR</div>
             <div class="toc-list" style="margin-top: 20px;">
-                <div class="toc-row main"><span>Gambar 2.1 Kerangka Pemikiran &amp; Alur Logika Riset</span><span class="toc-dots"></span><span class="toc-page">18</span></div>
-                <div class="toc-row main"><span>Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</span><span class="toc-dots"></span><span class="toc-page">28</span></div>
-                <div class="toc-row main"><span>Gambar 4.1 Grafik Evaluasi Metrik &amp; Kurva Kinerja</span><span class="toc-dots"></span><span class="toc-page">49</span></div>
+                ${daftarGambarHtml}
             </div>
             <div class="sheet-footer">viii</div>
         </div>

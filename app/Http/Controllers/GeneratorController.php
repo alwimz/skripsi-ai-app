@@ -338,6 +338,326 @@ class GeneratorController extends Controller
         return $items;
     }
 
+    private function extractTablesForProject(Project $project, bool $isProposal = false): array
+    {
+        $tables = [];
+        $chapters = [
+            'bab1' => ['num' => 1, 'basePage' => 1],
+            'bab2' => ['num' => 2, 'basePage' => 6],
+            'bab3' => ['num' => 3, 'basePage' => 18],
+        ];
+        if (!$isProposal) {
+            $chapters['bab4'] = ['num' => 4, 'basePage' => 32];
+            $chapters['bab5'] = ['num' => 5, 'basePage' => 46];
+        }
+
+        foreach ($chapters as $key => $info) {
+            $content = (string) ($project->{$key . '_content'} ?? '');
+            if (empty(trim($content)))
+                continue;
+
+            $lines = explode("\n", $content);
+            $tblIdx = 0;
+            $inTbl = false;
+
+            foreach ($lines as $lIdx => $line) {
+                $trimmed = trim(strip_tags($line));
+                if (preg_match('/^Tabel\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i', $trimmed, $m)) {
+                    $tblIdx++;
+                    $num = $m[1];
+                    $title = trim(ltrim($m[2], ":- \t")) ?: "Tabel {$num}";
+                    $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
+                    $tables[] = ['label' => "Tabel {$num} {$title}", 'page' => $estPage];
+                } elseif (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|')) {
+                    if (!$inTbl) {
+                        $inTbl = true;
+                        $prevLine = isset($lines[$lIdx - 1]) ? trim(strip_tags($lines[$lIdx - 1])) : '';
+                        if (!preg_match('/^Tabel\s+\d+\.\d+/i', $prevLine)) {
+                            $tblIdx++;
+                            $defaultTitles = [
+                                1 => ['Karakteristik Data Penelitian', 'Distribusi Responden'],
+                                2 => ['Matriks Komparasi Penelitian Terdahulu', 'Sintesis Kajian Teori'],
+                                3 => ['Operasionalisasi Variabel & Parameter', 'Matriks Kebingungan (Confusion Matrix)', 'Spesifikasi Pengujian'],
+                                4 => ['Statistik Dataset Penelitian', 'Evaluasi Metrik Kinerja (Confusion Matrix)', 'Hasil Analisis Komparasi'],
+                                5 => ['Rekapitulasi Capaian Tujuan Penelitian']
+                            ];
+                            $fallbackTitle = $defaultTitles[$info['num']][$tblIdx - 1] ?? "Tabel Analisis Data {$info['num']}.{$tblIdx}";
+                            $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
+                            $tables[] = ['label' => "Tabel {$info['num']}.{$tblIdx} {$fallbackTitle}", 'page' => $estPage];
+                        }
+                    }
+                } else {
+                    $inTbl = false;
+                }
+            }
+        }
+
+        return !empty($tables) ? $tables : [
+            ['label' => 'Tabel 2.1 Matriks Komparasi Penelitian Terdahulu', 'page' => '14'],
+            ['label' => 'Tabel 3.1 Operasional Variabel & Parameter Penelitian', 'page' => '24'],
+        ];
+    }
+
+    private function extractFiguresForProject(Project $project, bool $isProposal = false): array
+    {
+        $figures = [];
+        $chapters = [
+            'bab1' => ['num' => 1, 'basePage' => 1],
+            'bab2' => ['num' => 2, 'basePage' => 6],
+            'bab3' => ['num' => 3, 'basePage' => 18],
+        ];
+        if (!$isProposal) {
+            $chapters['bab4'] = ['num' => 4, 'basePage' => 32];
+            $chapters['bab5'] = ['num' => 5, 'basePage' => 46];
+        }
+
+        foreach ($chapters as $key => $info) {
+            $content = (string) ($project->{$key . '_content'} ?? '');
+            if (empty(trim($content)))
+                continue;
+
+            // Kerangka Berpikir di Bab 2
+            if ($key === 'bab2' && (str_contains($content, 'Kerangka') || str_contains($content, 'kerangka') || str_contains($content, '-->') || str_contains($content, '```'))) {
+                $figures[] = ['label' => 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', 'page' => (string) ($info['basePage'] + 4)];
+            }
+
+            // Flowchart di Bab 3
+            if ($key === 'bab3' && (str_contains($content, 'Flowchart') || str_contains($content, 'flowchart') || str_contains($content, 'Alur') || str_contains($content, '-->') || str_contains($content, '```'))) {
+                $figures[] = ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => (string) ($info['basePage'] + 3)];
+            }
+
+            $lines = explode("\n", $content);
+            foreach ($lines as $lIdx => $line) {
+                $trimmed = trim(strip_tags($line));
+                if (preg_match('/^Gambar\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i', $trimmed, $m)) {
+                    $num = $m[1];
+                    if ($num !== '2.1' && $num !== '3.1') {
+                        $title = trim(ltrim($m[2], ":- \t")) ?: "Gambar {$num}";
+                        $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
+                        $figures[] = ['label' => "Gambar {$num} {$title}", 'page' => $estPage];
+                    }
+                }
+            }
+        }
+
+        return !empty($figures) ? $figures : [
+            ['label' => 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', 'page' => '18'],
+            ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => '28'],
+        ];
+    }
+
+    private function renderKerangkaPemikiranPng(string $rawCode, string $judul): ?string
+    {
+        if (!extension_loaded('gd') || !function_exists('imagecreatetruecolor')) {
+            return null;
+        }
+
+        $w = 850;
+        $h = 580;
+        $im = @imagecreatetruecolor($w, $h);
+        if (!$im) return null;
+
+        $white = imagecolorallocate($im, 255, 255, 255);
+        $slateBorder = imagecolorallocate($im, 15, 23, 42);
+        $blueArrow = imagecolorallocate($im, 37, 99, 235);
+        imagefilledrectangle($im, 0, 0, $w, $h, $white);
+
+        // Frame
+        imagerectangle($im, 8, 8, $w - 9, $h - 9, $slateBorder);
+
+        $tiers = [
+            [
+                'title' => 'TAHAP 1: MASALAH & GAP RISET PENELITIAN',
+                'desc' => 'Tantangan akurasi klasifikasi opini publik dan kompleksitas pemrosesan teks tidak terstruktur',
+                'bg' => imagecolorallocate($im, 255, 245, 245),
+                'border' => imagecolorallocate($im, 220, 38, 38),
+                'text' => imagecolorallocate($im, 153, 27, 27)
+            ],
+            [
+                'title' => 'TAHAP 2: LANDASAN TEORI & PENDEKATAN METODOLOGI',
+                'desc' => 'Pra-pemrosesan teks terstruktur (NLP Preprocessing), Pembobotan TF-IDF, dan Pemodelan Naive Bayes',
+                'bg' => imagecolorallocate($im, 239, 246, 255),
+                'border' => imagecolorallocate($im, 37, 99, 235),
+                'text' => imagecolorallocate($im, 30, 64, 175)
+            ],
+            [
+                'title' => 'TAHAP 3: IMPLEMENTASI PENGUJIAN & VALIDASI METRIK',
+                'desc' => 'Evaluasi Confusion Matrix: Pengukuran Akurasi, Presisi, Recall, dan F1-Score pada Data Uji',
+                'bg' => imagecolorallocate($im, 255, 251, 235),
+                'border' => imagecolorallocate($im, 217, 119, 6),
+                'text' => imagecolorallocate($im, 146, 64, 14)
+            ],
+            [
+                'title' => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI',
+                'desc' => 'Model klasifikasi teruji dengan performa tinggi serta wawasan strategis bagi pengambil kebijakan',
+                'bg' => imagecolorallocate($im, 240, 253, 244),
+                'border' => imagecolorallocate($im, 22, 163, 74),
+                'text' => imagecolorallocate($im, 20, 83, 45)
+            ],
+        ];
+
+        $y = 28;
+        $boxW = 750;
+        $boxH = 82;
+        $x = (int) (($w - $boxW) / 2);
+
+        foreach ($tiers as $idx => $t) {
+            imagefilledrectangle($im, $x, $y, $x + $boxW, $y + $boxH, $t['bg']);
+            imagerectangle($im, $x, $y, $x + $boxW, $y + $boxH, $t['border']);
+            imagerectangle($im, $x + 1, $y + 1, $x + $boxW - 1, $y + $boxH - 1, $t['border']);
+
+            imagestring($im, 4, $x + 20, $y + 16, $t['title'], $t['text']);
+            imagestring($im, 3, $x + 20, $y + 45, $t['desc'], $slateBorder);
+
+            if ($idx < 3) {
+                // Downward arrow
+                $arrowY = $y + $boxH;
+                imageline($im, (int) ($w / 2), $arrowY + 4, (int) ($w / 2), $arrowY + 34, $blueArrow);
+                imageline($im, (int) ($w / 2) - 1, $arrowY + 4, (int) ($w / 2) - 1, $arrowY + 34, $blueArrow);
+                imagefilledpolygon($im, [
+                    (int) ($w / 2) - 8, $arrowY + 26,
+                    (int) ($w / 2) + 8, $arrowY + 26,
+                    (int) ($w / 2), $arrowY + 36
+                ], $blueArrow);
+                $y += $boxH + 42;
+            }
+        }
+
+        $tmpPath = tempnam(sys_get_temp_dir(), 'kp_') . '.png';
+        imagepng($im, $tmpPath);
+        imagedestroy($im);
+
+        return $tmpPath;
+    }
+
+    private function renderFlowchartPng(string $rawCode, string $judul): ?string
+    {
+        if (!extension_loaded('gd') || !function_exists('imagecreatetruecolor')) {
+            return null;
+        }
+
+        $w = 780;
+        $h = 650;
+        $im = @imagecreatetruecolor($w, $h);
+        if (!$im) return null;
+
+        $white = imagecolorallocate($im, 255, 255, 255);
+        $slateBorder = imagecolorallocate($im, 15, 23, 42);
+        $blueLine = imagecolorallocate($im, 37, 99, 235);
+        $blueBg = imagecolorallocate($im, 239, 246, 255);
+        $blueText = imagecolorallocate($im, 30, 64, 175);
+        $amberBg = imagecolorallocate($im, 255, 251, 235);
+        $amberBorder = imagecolorallocate($im, 217, 119, 6);
+        $amberText = imagecolorallocate($im, 146, 64, 14);
+        $processBg = imagecolorallocate($im, 248, 250, 252);
+        $processBorder = imagecolorallocate($im, 71, 85, 105);
+        $greenBg = imagecolorallocate($im, 240, 253, 244);
+        $greenBorder = imagecolorallocate($im, 22, 163, 74);
+        $greenText = imagecolorallocate($im, 20, 83, 45);
+
+        imagefilledrectangle($im, 0, 0, $w, $h, $white);
+        imagerectangle($im, 6, 6, $w - 7, $h - 7, $slateBorder);
+
+        $drawArrow = function ($cx, $fromY, $toY) use ($im, $blueLine) {
+            imageline($im, $cx, $fromY, $cx, $toY, $blueLine);
+            imageline($im, $cx - 1, $fromY, $cx - 1, $toY, $blueLine);
+            imagefilledpolygon($im, [
+                $cx - 7, $toY - 8,
+                $cx + 7, $toY - 8,
+                $cx, $toY
+            ], $blueLine);
+        };
+
+        $cx = (int) ($w / 2);
+
+        // 1. Mulai (ANSI Terminator - Oval / Capsule)
+        $y = 20;
+        $termW = 200; $termH = 40;
+        $tX = $cx - (int) ($termW / 2);
+        imagefilledellipse($im, $cx, $y + 20, $termW, $termH, $blueBg);
+        imageellipse($im, $cx, $y + 20, $termW, $termH, $blueLine);
+        imageellipse($im, $cx, $y + 20, $termW - 2, $termH - 2, $blueLine);
+        imagestring($im, 5, $cx - 24, $y + 12, "MULAI", $blueText);
+
+        $drawArrow($cx, $y + 40, $y + 65);
+
+        // 2. Pengumpulan Dataset (ANSI Data I/O - Parallelogram)
+        $y = 65;
+        $pW = 460; $pH = 46;
+        $pX = $cx - (int) ($pW / 2);
+        $skew = 22;
+        $paraPts = [
+            $pX + $skew, $y,
+            $pX + $pW, $y,
+            $pX + $pW - $skew, $y + $pH,
+            $pX, $y + $pH
+        ];
+        imagefilledpolygon($im, $paraPts, $amberBg);
+        imagepolygon($im, $paraPts, $amberBorder);
+        imagestring($im, 4, $cx - 180, $y + 14, "Pengumpulan Dataset Komentar (Scraping)", $amberText);
+
+        $drawArrow($cx, $y + $pH, $y + $pH + 25);
+
+        // 3. Pra-Pemrosesan Teks (ANSI Sub-process - Double border box)
+        $y = $y + $pH + 25;
+        $subW = 540; $subH = 92;
+        $subX = $cx - (int) ($subW / 2);
+        imagefilledrectangle($im, $subX, $y, $subX + $subW, $y + $subH, $processBg);
+        imagerectangle($im, $subX, $y, $subX + $subW, $y + $subH, $blueLine);
+        // Garis ganda vertikal di kiri dan kanan (Ciri Khas ANSI Sub-Process)
+        imageline($im, $subX + 16, $y, $subX + 16, $y + $subH, $blueLine);
+        imageline($im, $subX + $subW - 16, $y, $subX + $subW - 16, $y + $subH, $blueLine);
+
+        imagestring($im, 4, $cx - 110, $y + 10, "PRA-PEMROSESAN TEKS (NLP)", $blueText);
+        imagestring($im, 3, $subX + 35, $y + 38, "- Case Folding     - Data Cleaning     - Tokenizing", $slateBorder);
+        imagestring($im, 3, $subX + 35, $y + 60, "- Slang Normalize  - Stopword Removal  - Stemming Sastrawi", $slateBorder);
+
+        $drawArrow($cx, $y + $subH, $y + $subH + 25);
+
+        // 4. Pembobotan TF-IDF & Pelabelan Sentimen (ANSI Process)
+        $y = $y + $subH + 25;
+        $b4W = 480; $b4H = 46;
+        $b4X = $cx - (int) ($b4W / 2);
+        imagefilledrectangle($im, $b4X, $y, $b4X + $b4W, $y + $b4H, $processBg);
+        imagerectangle($im, $b4X, $y, $b4X + $b4W, $y + $b4H, $processBorder);
+        imagestring($im, 4, $cx - 185, $y + 14, "Pelabelan Sentimen & Pembobotan TF-IDF", $slateBorder);
+
+        $drawArrow($cx, $y + $b4H, $y + $b4H + 25);
+
+        // 5. Pembagian Data 80:20 & Pelatihan Naive Bayes (ANSI Process)
+        $y = $y + $b4H + 25;
+        $b5W = 500; $b5H = 46;
+        $b5X = $cx - (int) ($b5W / 2);
+        imagefilledrectangle($im, $b5X, $y, $b5X + $b5W, $y + $b5H, $processBg);
+        imagerectangle($im, $b5X, $y, $b5X + $b5W, $y + $b5H, $processBorder);
+        imagestring($im, 4, $cx - 200, $y + 14, "Split Data (Latih : Uji) & Klasifikasi Naive Bayes", $slateBorder);
+
+        $drawArrow($cx, $y + $b5H, $y + $b5H + 25);
+
+        // 6. Evaluasi Metrik Confusion Matrix (ANSI Evaluation / Process)
+        $y = $y + $b5H + 25;
+        $b6W = 520; $b6H = 48;
+        $b6X = $cx - (int) ($b6W / 2);
+        imagefilledrectangle($im, $b6X, $y, $b6X + $b6W, $y + $b6H, imagecolorallocate($im, 250, 245, 255));
+        imagerectangle($im, $b6X, $y, $b6X + $b6W, $y + $b6H, imagecolorallocate($im, 147, 51, 234));
+        imagestring($im, 4, $cx - 215, $y + 15, "Evaluasi Confusion Matrix: Akurasi, Presisi, Recall, F1", imagecolorallocate($im, 88, 28, 135));
+
+        $drawArrow($cx, $y + $b6H, $y + $b6H + 25);
+
+        // 7. Selesai (ANSI Terminator)
+        $y = $y + $b6H + 25;
+        imagefilledellipse($im, $cx, $y + 20, $termW, $termH, $greenBg);
+        imageellipse($im, $cx, $y + 20, $termW, $termH, $greenBorder);
+        imageellipse($im, $cx, $y + 20, $termW - 2, $termH - 2, $greenBorder);
+        imagestring($im, 5, $cx - 32, $y + 12, "SELESAI", $greenText);
+
+        $tmpPath = tempnam(sys_get_temp_dir(), 'fc_') . '.png';
+        imagepng($im, $tmpPath);
+        imagedestroy($im);
+
+        return $tmpPath;
+    }
+
     // =========================================================================
     // 1. DASHBOARD & MANAJEMEN PROYEK
     // =========================================================================
@@ -2147,13 +2467,14 @@ ATURAN REVISI (SANGAT KETAT):
         return $html;
     }
 
-    private function parseAndAddContent($section, $htmlContent)
+    private function parseAndAddContent($section, $htmlContent, $project = null)
     {
         $text = str_replace(['<p>', '</p>', '<br>', '<br/>'], ["\n", "\n", "\n", "\n"], $htmlContent);
         $lines = explode("\n", $text);
 
         $tableBuffer = [];
-        $flushTable = function () use (&$tableBuffer, $section) {
+        $currentTableCaption = '';
+        $flushTable = function () use (&$tableBuffer, &$currentTableCaption, $section) {
             if (empty($tableBuffer))
                 return;
             $rows = [];
@@ -2169,7 +2490,25 @@ ATURAN REVISI (SANGAT KETAT):
             }
             if (!empty($rows)) {
                 $maxCols = max(array_map('count', $rows));
-                $colWidthTwips = max(1200, (int) round(9200 / max(1, $maxCols)));
+
+                // Jika baris header memiliki kolom lebih sedikit dari body (contoh confusion matrix 2 kolom vs 3 kolom)
+                if (count($rows[0]) < $maxCols) {
+                    $diff = $maxCols - count($rows[0]);
+                    for ($d = 0; $d < $diff; $d++) {
+                        array_unshift($rows[0], 'Kategori Aktual \ Prediksi');
+                    }
+                }
+
+                // Tambahkan judul tabel di atas tabel
+                if (!empty($currentTableCaption)) {
+                    $section->addText(
+                        $currentTableCaption,
+                        ['name' => 'Times New Roman', 'size' => 11, 'bold' => true],
+                        ['alignment' => Jc::LEFT, 'spaceBefore' => 120, 'spaceAfter' => 60]
+                    );
+                }
+
+                $colWidthTwips = max(1300, (int) round(9200 / max(1, $maxCols)));
                 $table = $section->addTable([
                     'borderColor' => '000000',
                     'borderSize' => 6,
@@ -2181,14 +2520,19 @@ ATURAN REVISI (SANGAT KETAT):
                 ]);
                 foreach ($rows as $rIdx => $rowCells) {
                     $tRow = $table->addRow();
+                    while (count($rowCells) < $maxCols) {
+                        $rowCells[] = '-';
+                    }
                     foreach ($rowCells as $cIdx => $cellText) {
                         $isHeader = ($rIdx === 0);
                         $cleanCell = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $cellText));
-                        $cell = $tRow->addCell($colWidthTwips, [
+                        $thisColWidth = ($cIdx === 0 && preg_match('/^(no\.?|#)$/i', $cleanCell)) ? 720 : $colWidthTwips;
+
+                        $cell = $tRow->addCell($thisColWidth, [
                             'bgColor' => $isHeader ? 'F1F5F9' : 'FFFFFF',
                             'valign' => 'center'
                         ]);
-                        $align = ($isHeader || preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCell)) ? Jc::CENTER : Jc::LEFT;
+                        $align = ($isHeader || preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCell) || preg_match('/^(tp|fp|fn|tn)$/i', $cleanCell)) ? Jc::CENTER : Jc::LEFT;
                         $cell->addText(
                             $cleanCell,
                             ['name' => 'Times New Roman', 'size' => 10, 'bold' => $isHeader],
@@ -2199,55 +2543,83 @@ ATURAN REVISI (SANGAT KETAT):
                 $section->addTextBreak(1);
             }
             $tableBuffer = [];
+            $currentTableCaption = '';
         };
 
         $codeLines = [];
         $inCode = false;
-        $flushCodeOrFlowchart = function () use (&$codeLines, $section) {
+        $flushCodeOrFlowchart = function () use (&$codeLines, $section, $project) {
             if (empty($codeLines))
                 return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
             if ($isFlowchart) {
-                preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|]+$/', $l));
-                if (!empty($nodes)) {
-                    $nodeCount = count($nodes);
-                    foreach (array_values($nodes) as $nIdx => $node) {
-                        $cleanNode = trim(strip_tags($node));
-                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
-                            continue;
-                        $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                        $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
-                        $boxRow = $boxTable->addRow();
-                        $boxCell = $boxRow->addCell(Converter::cmToTwip(9.5), [
-                            'bgColor' => $isSE ? 'EFF6FF' : 'F8FAFC',
-                            'borderColor' => $isSE ? '2563EB' : '475569',
-                            'borderSize' => 10,
-                            'cellMarginTop' => 70,
-                            'cellMarginBottom' => 70,
-                            'cellMarginLeft' => 120,
-                            'cellMarginRight' => 120,
-                            'valign' => 'center'
-                        ]);
-                        $boxCell->addText($cleanNode, [
-                            'name' => 'Times New Roman',
-                            'size' => 10.5,
-                            'bold' => $isSE,
-                            'color' => $isSE ? '1E40AF' : '0F172A'
-                        ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
+                $judul = $project ? (string) ($project->judul ?? '') : '';
+                $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
 
-                        if ($nIdx < $nodeCount - 1) {
-                            $section->addText('↓', [
-                                'name' => 'Times New Roman',
-                                'size' => 14,
-                                'bold' => true,
-                                'color' => '2563EB'
-                            ], ['alignment' => Jc::CENTER, 'spaceBefore' => 30, 'spaceAfter' => 30]);
-                        }
+                $renderedImg = null;
+                if ($isFramework) {
+                    $renderedImg = $this->renderKerangkaPemikiranPng($rawCode, $judul);
+                    $caption = 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian';
+                } else {
+                    $renderedImg = $this->renderFlowchartPng($rawCode, $judul);
+                    $caption = 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
+                }
+
+                if ($renderedImg && file_exists($renderedImg)) {
+                    try {
+                        $section->addImage($renderedImg, [
+                            'width' => 450,
+                            'height' => $isFramework ? 310 : 360,
+                            'alignment' => Jc::CENTER
+                        ]);
+                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 80, 'spaceAfter' => 140]);
+                        @unlink($renderedImg);
+                    } catch (\Throwable $e) {
+                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER]);
                     }
-                    $section->addTextBreak(1);
+                } else {
+                    // Fallback jika image gagal
+                    preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
+                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|]+$/', $l));
+                    if (!empty($nodes)) {
+                        $nodeCount = count($nodes);
+                        foreach (array_values($nodes) as $nIdx => $node) {
+                            $cleanNode = trim(strip_tags($node));
+                            if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
+                                continue;
+                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
+                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
+                            $boxRow = $boxTable->addRow();
+                            $boxCell = $boxRow->addCell(Converter::cmToTwip(9.5), [
+                                'bgColor' => $isSE ? 'EFF6FF' : 'F8FAFC',
+                                'borderColor' => $isSE ? '2563EB' : '475569',
+                                'borderSize' => 10,
+                                'cellMarginTop' => 70,
+                                'cellMarginBottom' => 70,
+                                'cellMarginLeft' => 120,
+                                'cellMarginRight' => 120,
+                                'valign' => 'center'
+                            ]);
+                            $boxCell->addText($cleanNode, [
+                                'name' => 'Times New Roman',
+                                'size' => 10.5,
+                                'bold' => $isSE,
+                                'color' => $isSE ? '1E40AF' : '0F172A'
+                            ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
+
+                            if ($nIdx < $nodeCount - 1) {
+                                $section->addText('↓', [
+                                    'name' => 'Times New Roman',
+                                    'size' => 14,
+                                    'bold' => true,
+                                    'color' => '2563EB'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 30, 'spaceAfter' => 30]);
+                            }
+                        }
+                        $section->addTextBreak(1);
+                    }
                 }
             } else {
                 $section->addText($rawCode, ['name' => 'Courier New', 'size' => 9.5], ['indentation' => ['left' => 360], 'spaceAfter' => 80]);
@@ -2257,6 +2629,12 @@ ATURAN REVISI (SANGAT KETAT):
 
         foreach ($lines as $line) {
             $cleanLine = trim(strip_tags($line));
+
+            // Simpan atau tangkap caption tabel
+            if (preg_match('/^Tabel\s+\d+\.\d+[\w\.\-]*\s*(.*)$/i', $cleanLine)) {
+                $currentTableCaption = $cleanLine;
+                continue;
+            }
 
             // Handle Code Blocks / Flowcharts
             if (str_starts_with($cleanLine, '```')) {
@@ -2633,14 +3011,9 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $section->addPageBreak();
 
-        // --- DAFTAR TABEL (HEADING 1) ---
+        // --- DAFTAR TABEL (DINAMIS OTOMATIS) ---
         $section->addTitle("DAFTAR TABEL", 1);
-        $tabelsDocx = [
-            ['label' => 'Tabel 2.1 Matriks Komparasi Penelitian Terdahulu', 'page' => '14'],
-            ['label' => 'Tabel 3.1 Operasional Variabel & Parameter Penelitian', 'page' => '24'],
-            ['label' => 'Tabel 4.1 Statistik Karakteristik Dataset Penelitian', 'page' => '38'],
-            ['label' => 'Tabel 4.2 Evaluasi Metrik Kinerja & Hasil Uji Model', 'page' => '45'],
-        ];
+        $tabelsDocx = $this->extractTablesForProject($project, $isProposal);
         foreach ($tabelsDocx as $tbl) {
             $pStyle = [
                 'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
@@ -2651,13 +3024,9 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $section->addPageBreak();
 
-        // --- DAFTAR GAMBAR (HEADING 1) ---
+        // --- DAFTAR GAMBAR (DINAMIS HANYA GAMBAR NYATA) ---
         $section->addTitle("DAFTAR GAMBAR", 1);
-        $gambarsDocx = [
-            ['label' => 'Gambar 2.1 Kerangka Pemikiran & Alur Logika Riset', 'page' => '18'],
-            ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => '28'],
-            ['label' => 'Gambar 4.1 Grafik Evaluasi Metrik & Kurva Kinerja', 'page' => '49'],
-        ];
+        $gambarsDocx = $this->extractFiguresForProject($project, $isProposal);
         foreach ($gambarsDocx as $gbr) {
             $pStyle = [
                 'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
@@ -2711,7 +3080,7 @@ ATURAN REVISI (SANGAT KETAT):
                 $section->addTitle("BAB " . $nums[$k] . " " . strtoupper($v), 1);
                 $section->addTextBreak(1);
 
-                $this->parseAndAddContent($section, $htmlContent);
+                $this->parseAndAddContent($section, $htmlContent, $project);
                 $section->addPageBreak();
             }
         }

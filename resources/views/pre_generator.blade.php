@@ -1351,9 +1351,31 @@
                 min-height: 290px;
             }
             .ppt-nav-outside {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 8px;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                padding: 10px 12px !important;
+            }
+            .ppt-nav-outside #btn-ppt-prev {
+                grid-column: 1 / 2 !important;
+                width: 100% !important;
+                justify-content: center !important;
+                order: 1 !important;
+            }
+            .ppt-nav-outside #btn-ppt-next {
+                grid-column: 2 / 3 !important;
+                width: 100% !important;
+                justify-content: center !important;
+                order: 2 !important;
+            }
+            .ppt-nav-outside #ppt-num-strip {
+                grid-column: 1 / -1 !important;
+                width: 100% !important;
+                justify-content: center !important;
+                overflow-x: auto !important;
+                order: 3 !important;
+                padding-top: 4px !important;
+                gap: 4px !important;
             }
             #ppt-grid-preview-list {
                 grid-template-columns: 1fr !important;
@@ -2439,11 +2461,6 @@
                             <div id="slide-subtitle-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="font-size: 14px; opacity: 0.85; margin-bottom: 20px; font-weight: 500; outline: none;">Subjudul</div>
                             <ul id="slide-bullets-edit" contenteditable="true" onblur="syncCurrentSlideEdit()" style="padding-left: 18px; font-size: 14.5px; line-height: 1.7; outline: none; display: flex; flex-direction: column; gap: 8px;"></ul>
                         </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 20px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 11.5px; opacity: 0.7;">
-                            <span id="slide-footer-proj-title">Presentasi Sidang Skripsi</span>
-                            <span>SkripsiAI Presentation</span>
-                        </div>
                     </div>
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center;">💡 Klik teks pada slide di atas untuk mengedit langsung judul, poin, atau subjudul.</div>
 
@@ -2495,18 +2512,25 @@
                 </div>
 
                 <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
-                <div id="ppt-slideshow-modal" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+                <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 24px;">
+                    <!-- Floating Circular Close Button at top-right -->
+                    <button type="button" onclick="closeFullscreenSlideshow()" title="Tutup Layar Penuh (Esc)" style="position: absolute; top: 18px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: #dc2626; color: #ffffff; border: 2px solid #ffffff; font-size: 22px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100000; box-shadow: 0 4px 14px rgba(0,0,0,0.5); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        &times;
+                    </button>
+
                     <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #ffffff;">
                         <div style="font-size: 14px; font-weight: 600;">
                             Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter" style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="downloadPptxFile()">⬇ Unduh PowerPoint (.pptx)</button>
-                            <button type="button" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px; border-color: rgba(255,255,255,0.4); color: #ffffff;" onclick="closeFullscreenSlideshow()">✕ Tutup Preview</button>
+                            <button type="button" onclick="closeFullscreenSlideshow()" style="padding: 7px 16px; font-size: 12.5px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(220,38,38,0.4);">
+                                ✕ Tutup Preview
+                            </button>
                         </div>
                     </div>
 
-                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: 500px; padding: 52px 60px;">
+                    <div id="fs-slide-canvas" class="ppt-canvas ppt-theme-royal_academic" style="width: 100%; max-width: 960px; min-height: auto; padding: 40px 48px; box-sizing: border-box;">
                         <div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -2518,13 +2542,9 @@
                                 </div>
                                 <span id="fs-slide-num-tag" style="font-size: 13px; font-weight: 700; opacity: 0.7;">1 / 9</span>
                             </div>
-                            <h2 id="fs-slide-title" style="font-size: 30px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;">-</h2>
-                            <div id="fs-slide-subtitle" style="font-size: 16px; opacity: 0.85; margin-bottom: 24px; font-weight: 500;">-</div>
-                            <ul id="fs-slide-bullets" style="padding-left: 22px; font-size: 17px; line-height: 1.8; display: flex; flex-direction: column; gap: 10px;"></ul>
-                        </div>
-                        <div style="padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 12px; opacity: 0.75; display: flex; justify-content: space-between;">
-                            <span id="fs-slide-proj-title">Sidang Skripsi</span>
-                            <span>Gunakan tombol di bawah atau panah keyboard (← / →) untuk berpindah slide</span>
+                            <h2 id="fs-slide-title" style="font-size: 28px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;">-</h2>
+                            <div id="fs-slide-subtitle" style="font-size: 15px; opacity: 0.85; margin-bottom: 22px; font-weight: 500;">-</div>
+                            <ul id="fs-slide-bullets" style="padding-left: 22px; font-size: 16px; line-height: 1.75; display: flex; flex-direction: column; gap: 10px;"></ul>
                         </div>
                     </div>
 
@@ -3146,8 +3166,8 @@
         </main>
     </div>
 
-    <!-- Floating Action Button: Dosen AI Konsultasi 24 Jam -->
-    <div id="dosen-ai-fab" onclick="openDosenAiFromFab()" title="Tanya Dosen AI (Bimbingan 24 Jam)" style="position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 10px 18px 10px 14px; border-radius: 999px; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 8px 10px -6px rgba(37,99,235,0.3); cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;">
+    <!-- Floating Action Button: Dosen AI Konsultasi 24 Jam (Hanya Muncul di Dashboard) -->
+    <div id="dosen-ai-fab" onclick="openDosenAiFromFab()" title="Tanya Dosen AI (Bimbingan 24 Jam)" style="display: none !important; position: fixed; bottom: 24px; right: 24px; z-index: 999; align-items: center; gap: 10px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 10px 18px 10px 14px; border-radius: 999px; box-shadow: 0 10px 25px -5px rgba(37,99,235,0.45), 0 8px 10px -6px rgba(37,99,235,0.3); cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;">
         <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -3964,24 +3984,26 @@
                 titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="margin-top: 10px; font-size: 13.5px; line-height: 1.6; text-align: center;">
-                        <div style="font-weight: 700; font-size: 14.5px; color: inherit;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
-                        <div style="opacity: 0.85; font-size: 13px; margin-top: 3px;">Program Studi ${pptCoverMeta.prodi || '-'} · ${pptCoverMeta.fakultas || '-'}</div>
+                    <div style="margin-top: 12px; font-size: 13.5px; line-height: 1.6; text-align: center; color: inherit;">
+                        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
+                        <div style="font-weight: 700; font-size: 15px; margin-top: 2px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
+                        ${pptCoverMeta.nim ? `<div style="font-size: 12.5px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
+                        <div style="opacity: 0.85; font-size: 12.5px; margin-top: 4px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
                     </div>
                 `;
                 ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 18px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left;">
-                            <div style="background: #ffffff; color: #1e293b; padding: 14px 18px; border-radius: 10px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                                <div style="font-size: 11px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;">Pembimbing 1</div>
-                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1'}</div>
-                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Dosen Pembimbing Utama</div>
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 16px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; text-align: left;">
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; opacity: 0.85;">Pembimbing 1</div>
+                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.35;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                                <div style="font-size: 11px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div style="background: #ffffff; color: #1e293b; padding: 14px 18px; border-radius: 10px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-                                <div style="font-size: 11px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;">Pembimbing 2</div>
-                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2'}</div>
-                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Dosen Pembimbing Pendamping</div>
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; opacity: 0.85;">Pembimbing 2</div>
+                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.35;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                                <div style="font-size: 11px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
@@ -4176,24 +4198,26 @@
                 titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="font-size: 15px; line-height: 1.6; margin-top: 10px; text-align: center;">
-                        <div style="margin-top: 8px; font-weight: 700; font-size: 16px; color: inherit;">Oleh: <u>${pptCoverMeta.nama || 'Nama Mahasiswa'}</u> (NIM: ${pptCoverMeta.nim || '-'})</div>
-                        <div style="opacity: 0.85; font-size: 14px; margin-top: 4px;">Program Studi ${pptCoverMeta.prodi || '-'} · ${pptCoverMeta.fakultas || '-'}</div>
+                    <div style="font-size: 14.5px; line-height: 1.6; margin-top: 14px; text-align: center; color: inherit;">
+                        <div style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
+                        <div style="margin-top: 2px; font-weight: 700; font-size: 17px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
+                        ${pptCoverMeta.nim ? `<div style="font-size: 13.5px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
+                        <div style="opacity: 0.85; font-size: 13px; margin-top: 4px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
                     </div>
                 `;
                 ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 24px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left;">
-                            <div style="background: #ffffff; color: #1e293b; padding: 18px 24px; border-radius: 12px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
-                                <div style="font-size: 12px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px;">Pembimbing 1</div>
-                                <div style="font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1'}</div>
-                                <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Dosen Pembimbing Utama</div>
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; text-align: left;">
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; opacity: 0.85;">Pembimbing 1</div>
+                                <div style="font-size: 15px; font-weight: 700; line-height: 1.4;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                                <div style="font-size: 12px; opacity: 0.75; margin-top: 3px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div style="background: #ffffff; color: #1e293b; padding: 18px 24px; border-radius: 12px; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
-                                <div style="font-size: 12px; font-weight: 700; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 5px;">Pembimbing 2</div>
-                                <div style="font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">${pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2'}</div>
-                                <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Dosen Pembimbing Pendamping</div>
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; opacity: 0.85;">Pembimbing 2</div>
+                                <div style="font-size: 15px; font-weight: 700; line-height: 1.4;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                                <div style="font-size: 12px; opacity: 0.75; margin-top: 3px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
