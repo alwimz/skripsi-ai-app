@@ -2342,38 +2342,30 @@ ATURAN REVISI (SANGAT KETAT):
                 // Distribusi lebar kolom proporsional standar tabel skripsi APA 7th Edition
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = ['6%', '18%', '22%', '16%', '16%', '22%'];
                     $colWidths = ['4%', '15%', '18%', '14%', '17%', '32%'];
                 } elseif ($colCount === 5) {
-                    $colWidths = ['7%', '22%', '24%', '22%', '25%'];
                     $colWidths = ['5%', '18%', '22%', '20%', '35%'];
                 } elseif ($colCount === 4) {
-                    $colWidths = ['8%', '28%', '32%', '32%'];
                     $colWidths = ['6%', '28%', '32%', '34%'];
                 } elseif ($colCount === 3) {
-                    $colWidths = ['10%', '45%', '45%'];
                     $colWidths = ['8%', '46%', '46%'];
                 } elseif ($colCount === 2) {
                     $colWidths = ['35%', '65%'];
                 }
 
                 $avoidSplit = count($rows) <= 10 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; {$avoidSplit} border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:9pt; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; page-break-inside:auto;'>";
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:9pt; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
                         $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:6pt 8pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.35;'>" . e($cleanCol) . "</th>";
                             $html .= "<th style='{$wStyle} padding:5pt 6pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.25; font-size:9.5pt;'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0; page-break-inside:avoid;'>";
                         $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
@@ -2381,7 +2373,6 @@ ATURAN REVISI (SANGAT KETAT):
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:6pt 8pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.45;'>" . e($cleanCol) . "</td>";
                             $html .= "<td style='{$wStyle} padding:5pt 6pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.3; font-size:9pt;'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
