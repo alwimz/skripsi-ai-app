@@ -1632,6 +1632,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span>Pengaturan API</span>
             </button>
+
+            <div class="nav-group-title">Bantuan &amp; Pengembang</div>
+            <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')" style="color: #0284c7;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span>Saran &amp; Laporan</span>
+            </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -1703,8 +1709,7 @@
                         @foreach($history->take(1) as $proj)
                             <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row">
                                 <div class="project-row-left">
-                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div style="min-width: 0;">
+                                    <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $proj->updated_at->diffForHumans() }}</div>
                                     </div>
@@ -1812,15 +1817,14 @@
                             @endphp
                             <div class="project-row" style="cursor: default; align-items: center; justify-content: space-between; gap: 12px;">
                                 <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="project-row-left" style="flex: 1; min-width: 0;">
-                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div style="min-width: 0;">
+                                    <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title" style="white-space: normal; word-break: break-word; line-height: 1.45; margin-bottom: 4px;">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">
                                             <span style="color: var(--primary); font-weight: 600;">{{ $projTahap }}</span> · {{ $proj->prodi }} · {{ $proj->metode_penelitian }} · {{ $doneCount }}/5 Bab
                                         </div>
                                     </div>
                                 </a>
-                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                <div class="project-row-action" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                                     <a href="{{ route('app.index', ['id' => $proj->id]) }}" class="btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
                                         <span>Buka</span>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1899,7 +1903,7 @@
                                         <img id="new-proj-logo-preview" src="{{ $defaultIdentity['logo_base64'] ?? '' }}" alt="" style="display:{{ !empty($defaultIdentity['logo_base64']) ? 'block' : 'none' }}; max-height:46px; max-width:90px; object-fit:contain; margin-bottom:4px;">
                                         <span id="new-proj-logo-label" style="font-size: 12px; font-weight: 600; color: var(--primary);">{{ !empty($defaultIdentity['logo_base64']) ? 'Ganti Logo Kampus' : '+ Unggah Logo' }}</span>
                                         <span style="font-size: 11px; color: var(--text-muted);">PNG/JPG, maks 2 MB</span>
-                                        <input type="file" name="logo_kampus" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="if(this.files[0]){ const r=new FileReader(); r.onload=e=>{ const img=document.getElementById('new-proj-logo-preview'); img.src=e.target.result; img.style.display='block'; document.getElementById('new-proj-logo-label').innerText=this.files[0].name.substring(0,16); document.getElementById('input-logo-base64').value=''; }; r.readAsDataURL(this.files[0]); }">
+                                        <input type="file" id="new-proj-logo-file" name="logo_kampus" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleNewProjectLogoSelect(this)">
                                     </label>
                                 </div>
                             </div>
@@ -2162,8 +2166,7 @@
                         @forelse($history as $proj)
                             <div class="project-row" onclick="chooseProjectForPpt({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
                                 <div class="project-row-left">
-                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div style="min-width: 0;">
+                                    <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->updated_at->diffForHumans() }}</div>
                                     </div>
@@ -2191,8 +2194,7 @@
                 <div id="ppt-view-step-2" style="display: none;">
                     <div class="card">
                         <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
-                            <div class="project-initial" id="ppt-selected-initial">S</div>
-                            <div style="min-width: 0;">
+                            <div style="min-width: 0; width: 100%;">
                                 <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); text-transform: uppercase;" id="ppt-selected-source">SKRIPSI</div>
                                 <div style="font-size: 15.5px; font-weight: 700; color: var(--text-main);" id="ppt-selected-title">-</div>
                             </div>
@@ -2479,8 +2481,7 @@
                         @forelse($history as $proj)
                             <div class="project-row" onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
                                 <div class="project-row-left">
-                                    <div class="project-initial">{{ strtoupper(substr($proj->judul, 0, 1)) }}</div>
-                                    <div style="min-width: 0;">
+                                    <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
                                         <div class="project-row-meta">{{ $proj->prodi }} · {{ $proj->metode_penelitian }}</div>
                                     </div>
@@ -2899,6 +2900,72 @@
                 </div>
             </section>
 
+            <!-- ========================================================= -->
+            <!-- 12. TAB SARAN & LAPORAN KE WHATSAPP PENGEMBANG -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-feedback">
+                <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiAI</div>
+                <h1 class="page-title">Saran &amp; Laporan Kendala</h1>
+                <p class="page-subtitle">Sampaikan saran fitur baru, kritik format penulisan kampusmu, atau laporkan kendala teknis langsung ke WhatsApp developer (Muh Alwi Syahrir).</p>
+
+                <div class="card" style="max-width: 720px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 14px; padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: #22c55e; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700; color: #166534;">WhatsApp Developer: Muh Alwi Syahrir</div>
+                            <div style="font-size: 13px; color: #15803d; margin-top: 2px;">Nomor WA: <strong>082195036971</strong> &bull; Respon cepat untuk bantuan mahasiswa.</div>
+                        </div>
+                    </div>
+
+                    <form id="form-feedback-wa" onsubmit="event.preventDefault(); sendFeedbackToWhatsapp();">
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Kategori Pesan <span class="req">*</span></label>
+                                <select id="fb-kategori" class="form-select" required>
+                                    <option value="Saran Fitur Baru">💡 Saran Fitur Baru</option>
+                                    <option value="Laporan Kendala / Bug">⚠️ Laporan Kendala / Bug</option>
+                                    <option value="Permintaan Format Kampus Khusus">🎓 Permintaan Format Kampus Khusus</option>
+                                    <option value="Pertanyaan Bimbingan Skripsi">❓ Pertanyaan Bimbingan Skripsi</option>
+                                    <option value="Lainnya">💬 Lainnya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Nama Mahasiswa <span class="req">*</span></label>
+                                <input type="text" id="fb-nama" class="form-input" value="{{ $user->name ?? '' }}" placeholder="Nama Lengkapmu" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Nama Kampus / Universitas</label>
+                                <input type="text" id="fb-kampus" class="form-input" value="{{ $defaultIdentity['kampus'] ?? '' }}" placeholder="Contoh: Universitas Hasanuddin / UI">
+                            </div>
+                            <div>
+                                <label class="form-label">Program Studi</label>
+                                <input type="text" id="fb-prodi" class="form-input" value="{{ $defaultIdentity['prodi'] ?? '' }}" placeholder="Contoh: Teknik Informatika / Manajemen">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label class="form-label">Judul Skripsi / Topik (Opsional)</label>
+                            <input type="text" id="fb-judul" class="form-input" placeholder="Tulis judul skripsi yang sedang kamu susun">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label class="form-label">Rincian Saran atau Laporan Kendala <span class="req">*</span></label>
+                            <textarea id="fb-pesan" class="form-textarea" rows="4" placeholder="Ceritakan secara detail saran fitur yang kamu butuhkan atau kendala yang kamu temui saat menyusun naskah..." required></textarea>
+                        </div>
+
+                        <button type="submit" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 20px; border: none; border-radius: 10px; background: #16a34a; color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(22,163,74,0.3); transition: all 0.2s;" onmouseover="this.style.background='#15803d';" onmouseout="this.style.background='#16a34a';">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            <span>Kirim ke WhatsApp Pengembang (082195036971)</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -3046,7 +3113,8 @@
                 'qa': 'Diskusi & Tugas',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
-                'apikeys': 'Pengaturan API'
+                'apikeys': 'Pengaturan API',
+                'feedback': 'Saran & Laporan'
             };
             if (tab && map[tab]) {
                 const target = (tab === 'skripsi' || tab === 'proposal') ? 'projects' : tab;
@@ -3070,6 +3138,74 @@
             const refUrl = urlEl ? urlEl.value : window.location.origin;
             const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiAI untuk susun Bab 1-5, cari jurnal, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function handleNewProjectLogoSelect(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 320;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/png', 0.9);
+
+                    const prev = document.getElementById('new-proj-logo-preview');
+                    if (prev) {
+                        prev.src = dataUrl;
+                        prev.style.display = 'block';
+                    }
+                    const lbl = document.getElementById('new-proj-logo-label');
+                    if (lbl) lbl.innerText = file.name.substring(0, 16);
+                    const hidden = document.getElementById('input-logo-base64');
+                    if (hidden) hidden.value = dataUrl;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function sendFeedbackToWhatsapp() {
+            const kategori = document.getElementById('fb-kategori').value;
+            const nama = (document.getElementById('fb-nama').value || '').trim();
+            const kampus = (document.getElementById('fb-kampus').value || '').trim();
+            const prodi = (document.getElementById('fb-prodi').value || '').trim();
+            const judul = (document.getElementById('fb-judul').value || '').trim();
+            const pesan = (document.getElementById('fb-pesan').value || '').trim();
+
+            if (!pesan) {
+                alert('Mohon tuliskan rincian saran atau kendala kamu.');
+                return;
+            }
+
+            let text = `Halo Mas Alwi (Developer SkripsiAI),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
+                       `*Nama Mahasiswa:* ${nama || '-'}\n` +
+                       `*Kampus:* ${kampus || '-'}\n` +
+                       `*Program Studi:* ${prodi || '-'}\n`;
+            if (judul) {
+                text += `*Judul Skripsi:* ${judul}\n`;
+            }
+            text += `\n*Pesan / Kendala:*\n${pesan}\n\n_Terkirim dari aplikasi SkripsiAI_`;
+
+            const encoded = encodeURIComponent(text);
+            const waUrl = `https://wa.me/6282195036971?text=${encoded}`;
+            window.open(waUrl, '_blank');
         }
 
         // =====================================================================

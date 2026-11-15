@@ -638,19 +638,92 @@
         .paper-editor .table-wrap {
             width: 100%;
             overflow-x: auto;
-            margin: 14px 0;
+            margin: 18px 0;
+            -webkit-overflow-scrolling: touch;
         }
         .paper-editor table {
             width: 100%;
+            min-width: 620px;
             border-collapse: collapse;
-            font-size: 13.5px;
+            font-size: 11pt;
+            line-height: 1.45;
+            font-family: "Times New Roman", Georgia, serif;
+            margin: 8px auto 16px;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            table-layout: auto;
+            background: #ffffff;
         }
         .paper-editor th, .paper-editor td {
-            border: 1px solid #334155;
-            padding: 7px 9px;
+            border: 1px solid #0f172a;
+            padding: 8px 10px;
+            vertical-align: top;
             text-align: left;
+            text-indent: 0 !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: none !important;
+            box-sizing: border-box;
         }
-        .paper-editor th { background: #f1f5f9; font-weight: 700; }
+        .paper-editor th {
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 11pt;
+            border-bottom: 2px solid #0f172a;
+        }
+        .paper-editor table th:first-child,
+        .paper-editor table td:first-child {
+            width: 44px !important;
+            min-width: 44px !important;
+            max-width: 50px !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+        }
+        .paper-editor table th:nth-child(2),
+        .paper-editor table td:nth-child(2) {
+            min-width: 110px;
+            width: 120px;
+            white-space: normal;
+        }
+        .paper-editor table th:nth-child(3),
+        .paper-editor table td:nth-child(3) {
+            min-width: 140px;
+            white-space: normal;
+        }
+        .paper-editor table th:nth-child(4),
+        .paper-editor table td:nth-child(4) {
+            min-width: 110px;
+            width: 125px;
+            white-space: normal;
+        }
+        .paper-editor table th:nth-child(5),
+        .paper-editor table td:nth-child(5) {
+            min-width: 130px;
+            white-space: normal;
+        }
+        .paper-editor table th:nth-child(6),
+        .paper-editor table td:nth-child(6) {
+            min-width: 140px;
+            white-space: normal;
+        }
+        .academic-diagram-box {
+            margin: 18px 0;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 10.5pt;
+            line-height: 1.5;
+            white-space: pre;
+            overflow-x: auto;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
 
         /* Empty state & AI Loading */
         .empty-sheet {
@@ -1058,8 +1131,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 <span>Kembali ke Proyek</span>
             </a>
-            <div class="project-title-side" title="{{ $project->judul }}">{{ $project->judul }}</div>
-            <span class="project-mode-badge">
+            <span class="project-mode-badge" style="margin-top: 6px;">
                 {{ $isProposal ? 'Proposal (Bab I–III)' : 'Skripsi Penuh (Bab I–V)' }}
             </span>
         </div>
@@ -1091,12 +1163,15 @@
                     class="nav-item"
                     id="nav-item-front"
                     onclick="selectChapterView('front')"
-                    style="margin-bottom: 8px;">
-                <span class="nav-item-left">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    <span class="nav-item-text">Sampul &amp; Bagian Depan</span>
+                    style="margin-bottom: 8px; padding: 7px 10px; height: auto;">
+                <span class="nav-item-left" style="align-items: flex-start;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.25;">
+                        <span style="font-weight: 700; font-size: 12.5px;">Sampul &amp;</span>
+                        <span style="font-size: 11.5px; opacity: 0.9;">Bagian Depan</span>
+                    </div>
                 </span>
-                <span style="font-size: 10px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 999px;">Lengkap</span>
+                <span style="font-size: 10px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 999px; align-self: center;">Lengkap</span>
             </button>
             @foreach ($chapterTitles as $key => $label)
                 <button type="button"
@@ -1126,7 +1201,7 @@
                     onclick="selectChapterView('revisi')">
                 <span class="nav-item-left">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/><line x1="14" y1="9" x2="10" y2="9"/></svg>
-                    <span class="nav-item-text">Lab Revisi</span>
+                    <span class="nav-item-text">Revisi</span>
                 </span>
                 <span style="font-size: 11px; font-weight: 700;">Sub-bab</span>
             </button>
@@ -1154,9 +1229,49 @@
             </div>
         </nav>
 
-        <div class="sidebar-footer">
-            <button type="button" class="btn-dl-side primary" onclick="submitQuickDownload('docx')">⬇ Word (.docx)</button>
-            <button type="button" class="btn-dl-side" onclick="submitQuickDownload('pdf')">⬇ PDF (.pdf)</button>
+        <div style="padding: 10px 12px; background: #ffffff; border-top: 1px solid var(--border);">
+            <!-- Format & Document Settings Card above Download Buttons -->
+            <div class="format-settings-card" style="padding: 9px 10px; margin-bottom: 8px; background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; font-size: 11.5px;">
+                <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Format &amp; Margin</span>
+                    <span style="font-size: 10px; color: var(--accent); font-weight: 700; background: #e0f2fe; padding: 1px 6px; border-radius: 4px;">4-4-3-3 cm</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                    <div>
+                        <label style="display: block; font-size: 9.5px; color: var(--text-secondary); margin-bottom: 2px;">Font Naskah</label>
+                        <select id="doc-font-select" onchange="updateDocFont(this.value)" style="width: 100%; font-size: 10.5px; padding: 3px 4px; border: 1px solid var(--border-strong); border-radius: 5px; background: #fff;">
+                            <option value="times" selected>Times New Roman 12pt</option>
+                            <option value="arial">Arial 11pt</option>
+                            <option value="georgia">Georgia 11pt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 9.5px; color: var(--text-secondary); margin-bottom: 2px;">Margin K-A-K-B (cm)</label>
+                        <div style="display: flex; gap: 2px;">
+                            <input type="number" id="m-left" value="4" min="2" max="5" style="width: 25%; font-size: 10.5px; padding: 2px 1px; text-align: center; border: 1px solid var(--border-strong); border-radius: 4px;" title="Kiri (cm)" onchange="updateMargins()">
+                            <input type="number" id="m-top" value="4" min="2" max="5" style="width: 25%; font-size: 10.5px; padding: 2px 1px; text-align: center; border: 1px solid var(--border-strong); border-radius: 4px;" title="Atas (cm)" onchange="updateMargins()">
+                            <input type="number" id="m-right" value="3" min="2" max="5" style="width: 25%; font-size: 10.5px; padding: 2px 1px; text-align: center; border: 1px solid var(--border-strong); border-radius: 4px;" title="Kanan (cm)" onchange="updateMargins()">
+                            <input type="number" id="m-bottom" value="3" min="2" max="5" style="width: 25%; font-size: 10.5px; padding: 2px 1px; text-align: center; border: 1px solid var(--border-strong); border-radius: 4px;" title="Bawah (cm)" onchange="updateMargins()">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 9.5px; color: var(--text-secondary); margin-bottom: 2px;">Logo Kampus (Cover)</label>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <img id="sidebar-logo-preview" src="{{ !empty($meta['logo_base64']) ? $meta['logo_base64'] : '/images/academic_seal.svg' }}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff;" onerror="this.onerror=null;this.src='/images/academic_seal.svg';">
+                        <label for="sidebar-logo-upload" style="flex: 1; padding: 3px 6px; border: 1px dashed var(--accent-border); background: #ffffff; border-radius: 5px; font-size: 10px; color: var(--accent); font-weight: 600; text-align: center; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span>📷 Ganti Logo</span>
+                            <input type="file" id="sidebar-logo-upload" accept="image/png,image/jpeg,image/svg+xml" style="display: none;" onchange="handleSidebarLogoUpload(this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button type="button" class="btn-dl-side primary" onclick="submitQuickDownload('docx')">⬇ Word (.docx)</button>
+                <button type="button" class="btn-dl-side" onclick="submitQuickDownload('pdf')">⬇ PDF (.pdf)</button>
+            </div>
         </div>
     </aside>
 
@@ -1165,7 +1280,9 @@
             <div class="topbar-left">
                 <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar" title="Buka/Tutup Sidebar">☰</button>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <img src="/images/logo.svg" alt="SkripsiAI" style="width: 24px; height: 24px; border-radius: 6px;">
+                    <div style="width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                    </div>
                     <span class="topbar-brand-label" style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em;">Workspace Penulisan</span>
                 </div>
             </div>
@@ -1187,7 +1304,7 @@
             <div class="chapter-bar" id="chapter-bar">
                 <div style="flex: 1; min-width: 220px;">
                     <div class="chapter-bar-title" id="active-chapter-title">BAB I · PENDAHULUAN</div>
-                    <div class="chapter-bar-sub" id="active-chapter-sub">Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm) — Klik teks untuk mengedit langsung</div>
+                    <div class="chapter-bar-sub" id="active-chapter-sub" style="display: none;"></div>
                 </div>
                 <div class="chapter-bar-actions" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                     <button type="button" class="btn-top" onclick="selectChapterView('all')" title="Lihat naskah lengkap bersambung dari sampul sampai daftar pustaka">
@@ -1200,7 +1317,7 @@
                     </button>
                     <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
-                        <span>Buka Lab Revisi</span>
+                        <span>Buka Revisi</span>
                     </button>
                 </div>
             </div>
@@ -1239,28 +1356,29 @@
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Metode / Algoritma Spesifik</label>
-                <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Algoritma Naive Bayes dengan Pembobotan TF-IDF dan Laplace Smoothing">
+                <input type="text" id="riil-metode" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Kuantitatif Asosiatif / Regresi Linier / Algoritma Komputasi / Eksperimen / Studi Kasus">
             </div>
 
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Populasi / Sampel / Dataset Riil</label>
-                <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: 1.500 komentar TikTok diunduh via API scraping periode Jan-Mar 2024">
+                <input type="text" id="riil-sampel" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: 150 Responden Mahasiswa / 1.000 Sampel Data / 5 Tahun Laporan Keuangan">
             </div>
 
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Lokasi / Sumber Data Penelitian</label>
-                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Akun Resmi TikTok @kemkominfo / PT XYZ Cabang Surabaya">
+                <input type="text" id="riil-lokasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Instansi / Perusahaan / Sekolah / Rumah Sakit / Database Publik">
             </div>
 
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Nilai Metrik / Hasil Temuan Kunci (Untuk Bab IV)</label>
-                <textarea id="riil-metrik" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="Contoh: Akurasi = 88.5%, Precision = 86.2%, Recall = 89.1%, F1-Score = 87.6%. Data uji 300 komentar (200 positif, 70 negatif, 30 netral)."></textarea>
+                <textarea id="riil-metrik" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; resize: vertical;" placeholder="Contoh: R-Square = 0.72, Nilai Sig. = 0.002 < 0.05, Akurasi = 88.5%, atau Peningkatan Skor N-Gain = 0.71"></textarea>
             </div>
 
             <div>
                 <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Teknik Pengujian / Evaluasi</label>
-                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Confusion Matrix, 10-Fold Cross Validation, Uji Validitas Ahli">
+                <input type="text" id="riil-evaluasi" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Contoh: Uji Asumsi Klasik &amp; Uji Hipotesis / Confusion Matrix / Uji Validitas &amp; Reliabilitas / Triangulasi">
             </div>
+        </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
@@ -1392,24 +1510,22 @@ function selectChapterView(viewKey) {
     const subEl = document.getElementById('active-chapter-sub');
     const genBtn = document.getElementById('btn-generate-current');
 
+    if (subEl) subEl.textContent = '';
+
     if (viewKey === 'all') {
         titleEl.textContent = 'NASKAH LENGKAP SKRIPSI (FULL DOCUMENT)';
-        subEl.textContent = 'Mode Scroll Berkelanjutan: Dari Sampul sampai Daftar Pustaka';
         genBtn.style.display = 'none';
         document.getElementById('btn-save-edit').style.display = 'none';
     } else if (viewKey === 'front') {
-        titleEl.textContent = 'SAMPUL & HALAMAN DEPAN';
-        subEl.textContent = 'Sampul, Lembar Pengesahan, Orisinalitas, Abstrak (ID/EN), Kata Pengantar, & Daftar Isi';
+        titleEl.textContent = 'SAMPUL & BAGIAN DEPAN';
         genBtn.style.display = 'none';
         document.getElementById('btn-save-edit').style.display = 'none';
     } else if (viewKey === 'revisi') {
-        titleEl.textContent = chapterLabels[viewKey] || 'LAB REVISI';
-        subEl.textContent = 'Revisi spesifik per sub-bab sesuai catatan dosen pembimbing atau perbaikan format penulisan';
+        titleEl.textContent = 'REVISI';
         genBtn.style.display = 'none';
         document.getElementById('btn-save-edit').style.display = 'none';
     } else {
         titleEl.textContent = chapterLabels[viewKey] || 'WORKSPACE';
-        subEl.textContent = 'Pratinjau Kertas A4 (Times New Roman 12pt · Margin 4-4-3-3 cm) — Klik teks untuk mengedit langsung';
         genBtn.style.display = 'inline-flex';
         genBtn.textContent = viewKey === 'daftar_pustaka'
             ? 'Rapikan / Susun Daftar Pustaka'
@@ -1419,6 +1535,13 @@ function selectChapterView(viewKey) {
     if (window.innerWidth <= 900) {
         document.getElementById('studio-shell').classList.remove('mobile-sidebar-open');
     }
+
+    // Auto-scroll ke paling atas halaman saat navigasi bab diklik
+    const canvasScroll = document.querySelector('.canvas-scroll');
+    if (canvasScroll) {
+        canvasScroll.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     renderActiveSheet();
 }
 
@@ -1611,6 +1734,9 @@ function markdownToAcademicHtml(mdText, isDaftarPustaka = false) {
             if (inUl) { html += '</ul>'; inUl = false; }
             if (!inOl) { html += '<ol>'; inOl = true; }
             html += `<li>${formatInlineMarkdown(normLine.replace(/^\d+\.\s+/, ''))}</li>`;
+        } else if (/^(?:Tabel|Gambar|Bagan)\s+\d+\.\d+/i.test(normLine)) {
+            flushLists();
+            html += `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:left; margin:14px 0 6px; font-size:11pt; color:#0f172a;">${formatInlineMarkdown(normLine)}</p>`;
         } else {
             flushLists();
             html += `<p>${formatInlineMarkdown(normLine)}</p>`;
@@ -1650,6 +1776,9 @@ function buildCoverAndFrontMatterHtml() {
     tocRows.push({ title: 'ABSTRACT (ENGLISH)', page: 'iv', isMain: true, isSub: false });
     tocRows.push({ title: 'KATA PENGANTAR', page: 'v', isMain: true, isSub: false });
     tocRows.push({ title: 'DAFTAR ISI', page: 'vi', isMain: true, isSub: false });
+    tocRows.push({ title: 'DAFTAR TABEL', page: 'vii', isMain: true, isSub: false });
+    tocRows.push({ title: 'DAFTAR GAMBAR', page: 'viii', isMain: true, isSub: false });
+    tocRows.push({ title: 'DAFTAR LAMPIRAN', page: 'ix', isMain: true, isSub: false });
 
     chaptersDef.forEach((ch) => {
         if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
@@ -1700,18 +1829,32 @@ function buildCoverAndFrontMatterHtml() {
         return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
     }).join('');
 
-    const logoSrc = (logo && logo.length > 50) ? logo : '/images/academic_seal.svg';
+    const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="105" height="105" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
+      <circle cx="60" cy="60" r="56" stroke="#1e3a8a" stroke-width="3" fill="#f8fafc"/>
+      <circle cx="60" cy="60" r="50" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <circle cx="60" cy="60" r="44" stroke="#1e3a8a" stroke-width="1.5" fill="#ffffff"/>
+      <polygon points="60,25 70,45 92,48 76,64 80,86 60,75 40,86 44,64 28,48 50,45" fill="#f59e0b" stroke="#d97706" stroke-width="1.2"/>
+      <path d="M42 66 L60 55 L78 66 L60 77 Z" fill="#1e3a8a"/>
+      <path d="M48 69.5 V80 C48 83.5 53.5 86 60 86 C66.5 86 72 83.5 72 80 V69.5" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+      <path d="M78 66 V78" stroke="#d97706" stroke-width="2"/>
+      <circle cx="78" cy="80" r="2" fill="#d97706"/>
+    </svg>`;
+
+    const hasValidLogo = logo && logo.length > 50 && (logo.startsWith('data:image/') || logo.startsWith('http'));
+    const logoMarkup = hasValidLogo
+        ? `<img src="${logo}" alt="Logo Kampus" class="cover-logo-img" onerror="this.outerHTML = DEFAULT_ACADEMIC_SEAL_SVG;">`
+        : DEFAULT_ACADEMIC_SEAL_SVG;
 
     return `
         <!-- 1. HALAMAN JUDUL (COVER) -->
-        <div class="a4-sheet cover-sheet">
+        <div class="a4-sheet cover-sheet" contenteditable="true" spellcheck="false">
             <div class="cover-top-block">
                 <div class="cover-kind">${docKind}</div>
                 <div class="cover-title">${escapeHtml(projectTitle)}</div>
                 <div class="cover-sub">Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}</div>
             </div>
             <div class="cover-logo-box">
-                <img src="${logoSrc}" alt="Logo Kampus" class="cover-logo-img" onerror="this.onerror=null;this.src='/images/academic_seal.svg';">
+                ${logoMarkup}
             </div>
             <div class="cover-bottom-block">
                 <div class="cover-author-block">
@@ -1729,7 +1872,7 @@ function buildCoverAndFrontMatterHtml() {
         </div>
 
         <!-- 2. LEMBAR PENGESAHAN -->
-        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div class="front-heading">LEMBAR PENGESAHAN</div>
                 <div style="text-align: center; margin: 18px 0; font-weight: 700; font-size: 13pt; line-height: 1.4; text-transform: uppercase;">
@@ -1769,7 +1912,7 @@ function buildCoverAndFrontMatterHtml() {
         </div>
 
         <!-- 3. SURAT PERNYATAAN KEASLIAN -->
-        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
                 <p style="text-indent: 0; margin-top: 24px; font-size: 11.5pt;">Saya yang bertanda tangan di bawah ini:</p>
@@ -1799,42 +1942,50 @@ function buildCoverAndFrontMatterHtml() {
             <div class="sheet-footer">ii</div>
         </div>
 
-        <!-- 4. ABSTRAK & ABSTRACT -->
-        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <!-- 4. ABSTRAK (BAHASA INDONESIA) -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div class="front-heading">ABSTRAK</div>
-                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11pt; line-height: 1.35; text-transform: uppercase;">
+                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; text-transform: uppercase;">
                     ${escapeHtml(projectTitle)}
                 </div>
-                <div style="text-align: center; font-size: 10pt; color: #475569; margin-bottom: 14px;">
+                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px;">
                     Oleh: ${escapeHtml(nama)} (NIM: ${escapeHtml(nim || '-')})<br>
                     Program Studi ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
                 </div>
                 <p style="text-align: justify; line-height: 1.5; font-size: 11pt; text-indent: 1.27cm;">
                     Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan memecahkan permasalahan pada topik <em>"${escapeHtml(projectTitle)}"</em>. Menggunakan metode penelitian ${escapeHtml(projectMeta.metode || 'kuantitatif dan komputasi')} yang terstruktur, penelitian ini mengumpulkan dan memproses data empiris lapangan secara sistematis. Hasil pengujian menunjukkan bahwa implementasi metode mampu menjawab rumusan masalah secara komprehensif, memberikan akurasi atau tolok ukur terukur, serta berkontribusi nyata bagi pengembangan keilmuan dan kebutuhan praktis pada bidang ${escapeHtml(projectProdi)}.
                 </p>
-                <div style="font-size: 11pt; margin-top: 12px;">
+                <div style="font-size: 11pt; margin-top: 14px;">
                     <strong>Kata Kunci:</strong> ${escapeHtml(projectProdi)}, ${escapeHtml(projectMeta.metode || 'Analisis Empiris')}, Evaluasi Kinerja, Standar Skripsi S1.
-                </div>
-
-                <div style="border-top: 1px dashed #cbd5e1; margin: 24px 0 18px;"></div>
-
-                <div class="front-heading" style="font-size: 13pt;">ABSTRACT</div>
-                <div style="text-align: center; margin: 10px 0 14px; font-weight: 700; font-size: 10.5pt; line-height: 1.35; font-style: italic; text-transform: uppercase;">
-                    ${escapeHtml(projectTitle)}
-                </div>
-                <p style="text-align: justify; line-height: 1.5; font-size: 10.5pt; text-indent: 1.27cm; font-style: italic;">
-                    This research aims to investigate, analyze, and resolve the academic and empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes field data. The experimental results demonstrate that the proposed method effectively addresses the research questions, yields verifiable benchmark performance, and delivers valuable empirical contributions to both theoretical frameworks and practical implementations.
-                </p>
-                <div style="font-size: 10.5pt; margin-top: 10px; font-style: italic;">
-                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
                 </div>
             </div>
             <div class="sheet-footer">iii</div>
         </div>
 
-        <!-- 5. KATA PENGANTAR -->
-        <div class="a4-sheet front-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <!-- 5. ABSTRACT (ENGLISH) -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="front-heading">ABSTRACT</div>
+                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; font-style: italic; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px; font-style: italic;">
+                    By: ${escapeHtml(nama)} (Student ID: ${escapeHtml(nim || '-')})<br>
+                    Department of ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
+                </div>
+                <p style="text-align: justify; line-height: 1.5; font-size: 11pt; text-indent: 1.27cm; font-style: italic;">
+                    This research aims to investigate, analyze, and resolve the academic and empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes field data. The experimental results demonstrate that the proposed method effectively addresses the research questions, yields verifiable benchmark performance, and delivers valuable empirical contributions to both theoretical frameworks and practical implementations.
+                </p>
+                <div style="font-size: 11pt; margin-top: 14px; font-style: italic;">
+                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
+                </div>
+            </div>
+            <div class="sheet-footer">iv</div>
+        </div>
+
+        <!-- 6. KATA PENGANTAR -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div class="front-heading">KATA PENGANTAR</div>
                 <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 18px;">
@@ -1858,15 +2009,51 @@ function buildCoverAndFrontMatterHtml() {
                 </div>
                 <div style="clear: both;"></div>
             </div>
-            <div class="sheet-footer">iv</div>
-        </div>
-
-        <!-- 6. DAFTAR ISI -->
-        <div class="a4-sheet front-body">
-            <div class="front-heading">DAFTAR ISI</div>
-            <div class="toc-list">${tocHtml}</div>
             <div class="sheet-footer">v</div>
         </div>
+
+        <!-- 7. DAFTAR ISI -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
+            <div class="front-heading">DAFTAR ISI</div>
+            <div class="toc-list">${tocHtml}</div>
+            <div class="sheet-footer">vi</div>
+        </div>
+
+        <!-- 8. DAFTAR TABEL -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
+            <div class="front-heading">DAFTAR TABEL</div>
+            <div class="toc-list" style="margin-top: 20px;">
+                <div class="toc-row main"><span>Tabel 2.1 Matriks Komparasi Penelitian Terdahulu</span><span class="toc-dots"></span><span class="toc-page">14</span></div>
+                <div class="toc-row main"><span>Tabel 3.1 Operasional Variabel &amp; Parameter Penelitian</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
+                <div class="toc-row main"><span>Tabel 4.1 Statistik Karakteristik Dataset Penelitian</span><span class="toc-dots"></span><span class="toc-page">38</span></div>
+                <div class="toc-row main"><span>Tabel 4.2 Evaluasi Metrik Kinerja &amp; Hasil Uji Model</span><span class="toc-dots"></span><span class="toc-page">45</span></div>
+            </div>
+            <div class="sheet-footer">vii</div>
+        </div>
+
+        <!-- 9. DAFTAR GAMBAR -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
+            <div class="front-heading">DAFTAR GAMBAR</div>
+            <div class="toc-list" style="margin-top: 20px;">
+                <div class="toc-row main"><span>Gambar 2.1 Kerangka Pemikiran &amp; Alur Logika Riset</span><span class="toc-dots"></span><span class="toc-page">18</span></div>
+                <div class="toc-row main"><span>Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</span><span class="toc-dots"></span><span class="toc-page">28</span></div>
+                <div class="toc-row main"><span>Gambar 4.1 Grafik Evaluasi Metrik &amp; Kurva Kinerja</span><span class="toc-dots"></span><span class="toc-page">49</span></div>
+            </div>
+            <div class="sheet-footer">viii</div>
+        </div>
+
+        <!-- 10. DAFTAR LAMPIRAN -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false">
+            <div class="front-heading">DAFTAR LAMPIRAN</div>
+            <div class="toc-list" style="margin-top: 20px;">
+                <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">62</span></div>
+                <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">64</span></div>
+                <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">68</span></div>
+                <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">72</span></div>
+            </div>
+            <div class="sheet-footer">ix</div>
+        </div>
+    `;
     `;
 }
 
@@ -2142,7 +2329,15 @@ function renderActiveSheet() {
         return;
     }
     if (activeView === 'front') {
-        container.innerHTML = buildCoverAndFrontMatterHtml();
+        const savedFront = projectMeta.front_matter_html;
+        container.innerHTML = savedFront || buildCoverAndFrontMatterHtml();
+        container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
+            el.addEventListener('input', () => {
+                isDirty = true;
+                const saveBtn = document.getElementById('btn-save-edit');
+                if (saveBtn) saveBtn.style.display = 'inline-flex';
+            });
+        });
         return;
     }
     if (activeView === 'revisi') {
@@ -2162,16 +2357,8 @@ function renderActiveSheet() {
         return;
     }
 
-    // Banner panduan Halaman Depan saat membuka Bab I
-    const frontNoticeHtml = (activeView === 'bab1') ? `
-        <div style="margin: 0 auto 16px; max-width: 820px; font-size: 12.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 16px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); box-sizing: border-box;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
-                <span>Halaman Depan (Sampul, Lembar Pengesahan, Pernyataan Keaslian, Abstrak ID/EN, Kata Pengantar, Daftar Isi) sudah terangkai lengkap.</span>
-            </div>
-            <button type="button" onclick="selectChapterView('front')" style="border: none; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11.5px; white-space: nowrap;">Lihat Halaman Depan &rarr;</button>
-        </div>
-    ` : '';
+    // Bersih tanpa banner panduan
+    const frontNoticeHtml = '';
     let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
 
     // Header Bab Standar Skripsi Indonesia (BAB I PENDAHULUAN, dll.)
@@ -2379,13 +2566,31 @@ async function submitLabRevisi() {
 }
 
 async function saveActiveEdit() {
-    const editor = document.getElementById('paper-editor');
-    if (!editor || activeView === 'revisi') return;
-    const htmlContent = editor.innerText.trim();
+    const container = document.getElementById('sheets-container');
+    if (!container || activeView === 'revisi') return;
     const btn = document.getElementById('btn-save-edit');
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
 
     try {
+        if (activeView === 'front') {
+            const htmlContent = container.innerHTML;
+            const res = await fetch(`/project/${projectId}/save-chapter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ chapter: 'front', content: htmlContent })
+            });
+            const data = await res.json();
+            if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan.');
+            projectMeta.front_matter_html = htmlContent;
+            isDirty = false;
+            if (btn) btn.style.display = 'none';
+            showToast('Perubahan Halaman Sampul & Bagian Depan berhasil disimpan.', 'success');
+            return;
+        }
+
+        const editor = document.getElementById('paper-editor');
+        if (!editor) return;
+        const htmlContent = editor.innerText.trim();
         const res = await fetch(`/project/${projectId}/save-chapter`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
@@ -2395,13 +2600,97 @@ async function saveActiveEdit() {
         if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan perubahan.');
         chapterContents[activeView] = data.content || htmlContent;
         isDirty = false;
-        btn.style.display = 'none';
+        if (btn) btn.style.display = 'none';
         showToast('Perubahan naskah berhasil disimpan.', 'success');
     } catch (err) {
         showToast(err.message || 'Gagal menyimpan.', 'error');
     } finally {
-        btn.disabled = false;
+        if (btn) btn.disabled = false;
     }
+}
+
+function updateDocFont(val) {
+    const editor = document.getElementById('paper-editor');
+    if (editor) {
+        editor.style.fontFamily = val;
+    }
+    document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
+        el.style.fontFamily = val;
+    });
+    showToast(`Font dokumen diubah ke ${val}`, 'info');
+}
+
+function updateMargins() {
+    const top = document.getElementById('setting-margin-top')?.value || '4';
+    const left = document.getElementById('setting-margin-left')?.value || '4';
+    const bottom = document.getElementById('setting-margin-bottom')?.value || '3';
+    const right = document.getElementById('setting-margin-right')?.value || '3';
+
+    ['quick-download-form'].forEach(fId => {
+        const f = document.getElementById(fId);
+        if (f) {
+            if (f.querySelector('input[name="margin_top"]')) f.querySelector('input[name="margin_top"]').value = top;
+            if (f.querySelector('input[name="margin_left"]')) f.querySelector('input[name="margin_left"]').value = left;
+            if (f.querySelector('input[name="margin_bottom"]')) f.querySelector('input[name="margin_bottom"]').value = bottom;
+            if (f.querySelector('input[name="margin_right"]')) f.querySelector('input[name="margin_right"]').value = right;
+        }
+    });
+
+    document.querySelectorAll('.a4-sheet').forEach(sheet => {
+        sheet.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+    });
+    showToast(`Margin diperbarui (${top}-${left}-${bottom}-${right} cm)`, 'info');
+}
+
+function handleSidebarLogoUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxDim = 320;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                } else {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/png', 0.9);
+
+            projectMeta.logo_base64 = dataUrl;
+            const prev = document.getElementById('sidebar-logo-preview');
+            if (prev) prev.src = dataUrl;
+
+            const coverLogo = document.querySelector('.cover-logo-img');
+            if (coverLogo) coverLogo.src = dataUrl;
+
+            const formLogo = document.querySelector('#quick-download-form input[name="logo_base64"]');
+            if (formLogo) formLogo.value = dataUrl;
+
+            fetch(`/project/${projectId}/save-chapter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ chapter: 'front_logo', content: dataUrl })
+            }).then(() => {
+                showToast('Logo kampus berhasil diperbarui & disimpan!', 'success');
+            }).catch(() => {
+                showToast('Logo diterapkan di pratinjau.', 'info');
+            });
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function submitQuickDownload(format) {

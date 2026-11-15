@@ -1,5 +1,27 @@
 <?php
 
+// 0. Serve Static Files directly on Vercel
+$uri = urldecode(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH));
+$publicFile = __DIR__ . '/../public' . $uri;
+if ($uri !== '/' && file_exists($publicFile) && !is_dir($publicFile)) {
+    $ext = strtolower(pathinfo($publicFile, PATHINFO_EXTENSION));
+    $mime = match($ext) {
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'ico' => 'image/x-icon',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        default => 'application/octet-stream'
+    };
+    header('Content-Type: ' . $mime);
+    header('Cache-Control: public, max-age=86400');
+    readfile($publicFile);
+    exit;
+}
+
 // 1. Load Composer
 require __DIR__ . '/../vendor/autoload.php';
 

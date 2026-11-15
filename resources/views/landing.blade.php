@@ -1103,7 +1103,7 @@
                 </span>
                 SkripsiAI
             </div>
-            <div>&copy; {{ date('Y') }} SkripsiAI. Workspace penulisan akademik mahasiswa Indonesia.</div>
+            <div>&copy; {{ date('Y') }} SkripsiAI &bull; Demo by Muh Alwi Syahrir &bull; Workspace penulisan akademik mahasiswa Indonesia.</div>
         </div>
     </footer>
 

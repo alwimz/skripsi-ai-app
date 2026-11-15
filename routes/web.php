@@ -21,6 +21,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'authenticate']);
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
