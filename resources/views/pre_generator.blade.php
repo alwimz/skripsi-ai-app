@@ -1127,8 +1127,8 @@
         /* Template Card Selector */
         .theme-card-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+            gap: 10px;
         }
 
         .theme-chip {
@@ -1423,11 +1423,48 @@
 
             .form-row,
             .dash-grid,
-            .theme-card-grid,
             .responsive-grid-2,
             .responsive-grid-3,
             .responsive-grid-title-logo {
                 grid-template-columns: 1fr !important;
+            }
+
+            .theme-card-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            @media (max-width: 440px) {
+                .theme-card-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 6px !important;
+                }
+            }
+
+            .theme-chip {
+                padding: 8px 6px !important;
+                border-radius: 8px !important;
+                align-items: center !important;
+                text-align: center !important;
+                box-sizing: border-box !important;
+                min-width: 0 !important;
+            }
+
+            .theme-swatch {
+                width: 100% !important;
+                height: 24px !important;
+                border-radius: 4px !important;
+            }
+
+            .theme-chip-name {
+                font-size: 10px !important;
+                font-weight: 600 !important;
+                text-align: center !important;
+                width: 100% !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                line-height: 1.2 !important;
             }
 
             .ppt-canvas {
@@ -1608,18 +1645,23 @@
             .ppt-canvas {
                 width: 100% !important;
                 height: auto !important;
-                min-height: 260px !important;
+                min-height: 220px !important;
+                max-height: calc(100vh - 200px) !important;
+                aspect-ratio: 16 / 9;
                 box-sizing: border-box !important;
-                overflow: visible !important;
+                overflow-y: auto !important;
+                padding: 16px 16px !important;
             }
 
             #fs-slide-canvas {
                 padding: 16px 14px !important;
-                min-height: 260px !important;
+                min-height: 220px !important;
+                max-height: calc(100vh - 160px) !important;
                 height: auto !important;
                 width: 100% !important;
+                aspect-ratio: 16 / 9;
                 box-sizing: border-box !important;
-                overflow: visible !important;
+                overflow-y: auto !important;
             }
             .ppt-theme-royal_academic {
                 padding-left: 24px !important;
@@ -1628,21 +1670,25 @@
                 width: 8px !important;
             }
 
+            #slide-title-edit,
             #fs-slide-title {
                 font-size: clamp(13px, 3.8vw, 22px) !important;
                 line-height: 1.25 !important;
                 margin-bottom: 6px !important;
             }
 
+            #slide-subtitle-edit,
             #fs-slide-subtitle {
-                font-size: clamp(10px, 2.5vw, 14px) !important;
-                margin-bottom: 10px !important;
+                font-size: clamp(10px, 2.5vw, 13px) !important;
+                margin-bottom: 8px !important;
             }
 
+            #slide-bullets-edit,
             #fs-slide-bullets {
                 font-size: clamp(9.5px, 2.5vw, 13px) !important;
-                line-height: 1.45 !important;
+                line-height: 1.4 !important;
                 gap: 4px !important;
+                padding-left: 16px !important;
             }
 
             #ppt-slideshow-modal {
@@ -2619,6 +2665,7 @@
                             <div class="project-row" data-id="{{ $proj->id }}" data-title="{{ e($proj->judul) }}"
                                 data-prodi="{{ e($proj->prodi ?? '') }}" data-kampus="{{ e($proj->kampus ?? '') }}"
                                 data-nim="{{ e($proj->nim ?? '') }}" data-fakultas="{{ e($proj->fakultas ?? '') }}"
+                                data-logo="{{ e($proj->cover_meta['logo_base64'] ?? $defaultIdentity['logo_base64'] ?? '') }}"
                                 onclick="chooseProjectElementForPpt(this)">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
@@ -2796,8 +2843,7 @@
                             </div>
                         </div>
 
-                        <div class="theme-card-grid"
-                            style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
+                        <div class="theme-card-grid">
                             <button type="button" class="theme-chip" onclick="setPptTheme('sidang_crimson', this)">
                                 <div class="theme-swatch"
                                     style="background: linear-gradient(135deg, #be123c 0%, #881337 100%); border-top: 5px solid #fda4af;">
@@ -2967,17 +3013,12 @@
 
                 <!-- MODAL PREVIEW PRESENTASI LAYAR PENUH (POWERPOINT SLIDE SHOW MODE) -->
                 <div id="ppt-slideshow-modal" onclick="if(event.target === this) closeFullscreenSlideshow()" style="display: none; position: fixed; inset: 0; background: #0b1120 !important; z-index: 99999 !important; flex-direction: column; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
-                    <!-- Floating Circular Close Button at top-right -->
-                    <button type="button" onclick="closeFullscreenSlideshow()" title="Tutup Layar Penuh (Esc)" style="position: absolute; top: 14px; right: 16px; width: 38px; height: 38px; border-radius: 50%; background: #dc2626; color: #ffffff; border: 2px solid #ffffff; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100000; box-shadow: 0 4px 14px rgba(0,0,0,0.5); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                        &times;
-                    </button>
-
                     <div style="width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #ffffff; flex-wrap: wrap; gap: 8px;">
                         <div style="font-size: 13.5px; font-weight: 600;">
                             Mode Preview Presentasi PowerPoint · <span id="fs-slide-counter"
                                 style="color: #93c5fd;">Slide 1 / 9</span>
                         </div>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-right: 48px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
                             <button type="button" class="btn-primary" style="padding: 7px 12px; font-size: 12px;" onclick="downloadPptxFile()">⬇ Unduh (.pptx)</button>
                             <button type="button" onclick="closeFullscreenSlideshow()" style="padding: 7px 12px; font-size: 12px; background: #dc2626 !important; color: #ffffff !important; border: 1px solid #b91c1c; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(220,38,38,0.4);">
                                 ✕ Tutup Preview
@@ -3003,10 +3044,10 @@
                         </div>
                     </div>
 
-                    <div style="width: 100%; max-width: 960px; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 10px 16px; border-radius: 12px; color: #f8fafc; flex-wrap: wrap; gap: 10px;">
-                        <button type="button" class="ppt-nav-btn" onclick="prevSlide(); renderFullscreenSlide();">← Slide Sebelumnya</button>
-                        <div id="fs-speaker-notes" style="font-size: 12.5px; color: #cbd5e1; max-width: 500px; text-align: center; line-height: 1.4; flex: 1 1 200px;"></div>
-                        <button type="button" class="ppt-nav-btn" onclick="nextSlide(); renderFullscreenSlide();">Slide Selanjutnya →</button>
+                    <div style="width: 100%; max-width: 960px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 8px 14px; border-radius: 10px; color: #f8fafc; gap: 8px;">
+                        <button type="button" class="ppt-nav-btn" style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;" onclick="prevSlide(); renderFullscreenSlide();">← Sebelumnya</button>
+                        <div id="fs-speaker-notes" style="font-size: 11.5px; color: #cbd5e1; text-align: center; line-height: 1.35; flex: 2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"></div>
+                        <button type="button" class="ppt-nav-btn" style="flex: 1; max-width: 160px; justify-content: center; padding: 7px 10px; font-size: 12px; white-space: nowrap;" onclick="nextSlide(); renderFullscreenSlide();">Selanjutnya →</button>
                     </div>
                 </div>
             </section>
@@ -4220,14 +4261,14 @@
                         <div style="display: ${isOpen ? 'block' : 'none'}; padding: 12px 14px; background: #fafafa;">
                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                 ${bab.subbabs.map((sub, sIdx) => `
-                                    <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                        <span style="font-size: 12px; font-weight: 700; color: #64748b; width: 30px; flex-shrink: 0;">${bIdx + 1}.${sIdx + 1}</span>
-                                        <input type="text" value="${escapeHtml(sub)}" oninput="updateSubbabTitle(${bIdx}, ${sIdx}, this.value)" style="flex: 1; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: var(--text-main); background: #ffffff; outline: none;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                                    <div style="display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 6px 8px; border-radius: 6px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;">
+                                        <span style="font-size: 11.5px; font-weight: 700; color: #64748b; width: 26px; flex-shrink: 0; text-align: center;">${bIdx + 1}.${sIdx + 1}</span>
+                                        <input type="text" value="${escapeHtml(sub)}" oninput="updateSubbabTitle(${bIdx}, ${sIdx}, this.value)" style="flex: 1; min-width: 0; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; font-size: 12.5px; color: var(--text-main); background: #ffffff; outline: none; box-sizing: border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
                                         <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
-                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke atas" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569;">▲</button>
-                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, 1)" ${sIdx === bab.subbabs.length - 1 ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke bawah" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569;">▼</button>
-                                            <button type="button" onclick="insertSubbabBelow(${bIdx}, ${sIdx})" title="Tambah sub-bab di bawah ini" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #2563eb; cursor: pointer;">+</button>
-                                            <button type="button" onclick="deleteSubbab(${bIdx}, ${sIdx})" title="Hapus sub-bab ini" style="border: 1px solid #fecaca; background: #fff5f5; border-radius: 5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #dc2626; cursor: pointer;">🗑</button>
+                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke atas" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 25px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; color: #475569; padding: 0;">▲</button>
+                                            <button type="button" onclick="moveSubbab(${bIdx}, ${sIdx}, 1)" ${sIdx === bab.subbabs.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'} title="Pindah ke bawah" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 25px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; color: #475569; padding: 0;">▼</button>
+                                            <button type="button" onclick="insertSubbabBelow(${bIdx}, ${sIdx})" title="Tambah sub-bab di bawah ini" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 5px; width: 25px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #2563eb; cursor: pointer; padding: 0;">+</button>
+                                            <button type="button" onclick="deleteSubbab(${bIdx}, ${sIdx})" title="Hapus sub-bab ini" style="border: 1px solid #fecaca; background: #fff5f5; border-radius: 5px; width: 25px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #dc2626; cursor: pointer; padding: 0;">🗑</button>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -4551,6 +4592,7 @@
             const kampus = el.getAttribute('data-kampus') || '';
             const nim = el.getAttribute('data-nim') || '';
             const fakultas = el.getAttribute('data-fakultas') || '';
+            const logo = el.getAttribute('data-logo') || '';
 
             const nimEl = document.getElementById('ppt-input-nim');
             const kampusEl = document.getElementById('ppt-input-kampus');
@@ -4560,6 +4602,16 @@
             if (kampus && kampusEl) kampusEl.value = kampus;
             if (prodi && prodiEl) prodiEl.value = prodi;
             if (fakultas && fakEl) fakEl.value = fakultas;
+
+            if (logo) {
+                uploadedPptLogoBase64 = logo;
+                const pBox = document.getElementById('ppt-logo-preview-box');
+                const pImg = document.getElementById('ppt-logo-preview-img');
+                if (pBox && pImg) {
+                    pImg.src = uploadedPptLogoBase64;
+                    pBox.style.display = 'inline-flex';
+                }
+            }
 
             chooseProjectForPpt(id, title);
         }
@@ -4837,37 +4889,45 @@
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
 
-            const campusBadgeText = document.getElementById('slide-campus-name');
-            if (campusBadgeText) {
-                campusBadgeText.innerText = (pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase();
+            const activeLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || '';
+            const campusBadge = document.getElementById('slide-campus-badge');
+            if (campusBadge) {
+                if (activeLogo) {
+                    campusBadge.innerHTML = `<img src="${activeLogo}" alt="Logo" style="width: 17px; height: 17px; object-fit: contain; border-radius: 2px;"><span id="slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
+                } else {
+                    campusBadge.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" /></svg><span id="slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
+                }
             }
 
             if (currentSlideIdx === 0) {
                 secLabel.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
-                titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                const logoHtml = activeLogo
+                    ? `<div style="display: flex; justify-content: center; margin-bottom: 8px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 48px; max-width: 80px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
+                    : '';
+                titleEl.innerHTML = logoHtml + `<div>${escapeHtml((s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, ''))}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="margin-top: 12px; font-size: 13.5px; line-height: 1.6; text-align: center; color: inherit;">
-                        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
-                        <div style="font-weight: 700; font-size: 15px; margin-top: 2px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
-                        ${pptCoverMeta.nim ? `<div style="font-size: 12.5px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
-                        <div style="opacity: 0.85; font-size: 12.5px; margin-top: 4px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
+                    <div style="margin-top: 10px; font-size: 13px; line-height: 1.5; text-align: center; color: inherit;">
+                        <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
+                        <div style="font-weight: 700; font-size: 14.5px; margin-top: 2px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
+                        ${pptCoverMeta.nim ? `<div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
+                        <div style="opacity: 0.85; font-size: 12px; margin-top: 3px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
                     </div>
                 `;
                 ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 16px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; text-align: left;">
-                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
-                                <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; opacity: 0.85;">Pembimbing 1</div>
-                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.35;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                                <div style="font-size: 11px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Utama</div>
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: left;">
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; opacity: 0.85;">Pembimbing 1</div>
+                                <div style="font-size: 12px; font-weight: 700; line-height: 1.3;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                                <div style="font-size: 9.5px; opacity: 0.75; margin-top: 1px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
-                                <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; opacity: 0.85;">Pembimbing 2</div>
-                                <div style="font-size: 13.5px; font-weight: 700; line-height: 1.35;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                                <div style="font-size: 11px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Pendamping</div>
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; opacity: 0.85;">Pembimbing 2</div>
+                                <div style="font-size: 12px; font-weight: 700; line-height: 1.3;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                                <div style="font-size: 9.5px; opacity: 0.75; margin-top: 1px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
@@ -5054,37 +5114,45 @@
             const subEl = document.getElementById('fs-slide-subtitle');
             const ul = document.getElementById('fs-slide-bullets');
 
-            const fsCampusText = document.getElementById('fs-slide-campus-name');
-            if (fsCampusText) {
-                fsCampusText.innerText = (pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase();
+            const activeLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || '';
+            const fsCampusBadge = document.getElementById('fs-slide-campus-badge');
+            if (fsCampusBadge) {
+                if (activeLogo) {
+                    fsCampusBadge.innerHTML = `<img src="${activeLogo}" alt="Logo" style="width: 17px; height: 17px; object-fit: contain; border-radius: 2px;"><span id="fs-slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
+                } else {
+                    fsCampusBadge.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg><span id="fs-slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
+                }
             }
 
             if (currentSlideIdx === 0) {
                 secEl.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
-                titleEl.innerText = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                const logoHtml = activeLogo
+                    ? `<div style="display: flex; justify-content: center; margin-bottom: 8px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 48px; max-width: 80px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
+                    : '';
+                titleEl.innerHTML = logoHtml + `<div>${escapeHtml((s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, ''))}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
-                    <div style="font-size: 14.5px; line-height: 1.6; margin-top: 14px; text-align: center; color: inherit;">
-                        <div style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
-                        <div style="margin-top: 2px; font-weight: 700; font-size: 17px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
-                        ${pptCoverMeta.nim ? `<div style="font-size: 13.5px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
-                        <div style="opacity: 0.85; font-size: 13px; margin-top: 4px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
+                    <div style="font-size: 13.5px; line-height: 1.5; margin-top: 10px; text-align: center; color: inherit;">
+                        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; text-transform: uppercase;">OLEH:</div>
+                        <div style="margin-top: 2px; font-weight: 700; font-size: 15px;"><u>${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</u></div>
+                        ${pptCoverMeta.nim ? `<div style="font-size: 12.5px; opacity: 0.9; margin-top: 2px;">NIM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
+                        <div style="opacity: 0.85; font-size: 12.5px; margin-top: 3px;">Program Studi ${escapeHtml(pptCoverMeta.prodi || '-')} · ${escapeHtml(pptCoverMeta.fakultas || '-')}</div>
                     </div>
                 `;
                 ul.style.textAlign = 'left';
                 ul.innerHTML = `
-                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 20px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; text-align: left;">
-                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
-                                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; opacity: 0.85;">Pembimbing 1</div>
-                                <div style="font-size: 15px; font-weight: 700; line-height: 1.4;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                                <div style="font-size: 12px; opacity: 0.75; margin-top: 3px;">Dosen Pembimbing Utama</div>
+                    <li style="list-style: none; padding: 0; background: none; border: none; margin-top: 14px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: left;">
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; opacity: 0.85;">Pembimbing 1</div>
+                                <div style="font-size: 13px; font-weight: 700; line-height: 1.3;">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
+                                <div style="font-size: 10px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Utama</div>
                             </div>
-                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
-                                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; opacity: 0.85;">Pembimbing 2</div>
-                                <div style="font-size: 15px; font-weight: 700; line-height: 1.4;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                                <div style="font-size: 12px; opacity: 0.75; margin-top: 3px;">Dosen Pembimbing Pendamping</div>
+                            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 8px; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0,0,0,0.06); color: inherit;">
+                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; opacity: 0.85;">Pembimbing 2</div>
+                                <div style="font-size: 13px; font-weight: 700; line-height: 1.3;">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
+                                <div style="font-size: 10px; opacity: 0.75; margin-top: 2px;">Dosen Pembimbing Pendamping</div>
                             </div>
                         </div>
                     </li>
@@ -5153,9 +5221,15 @@
                     });
 
                     const cleanTitle = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                    const logoData = uploadedPptLogoBase64 || meta.logo_base64 || '';
+                    if (logoData) {
+                        try {
+                            slide.addImage({ data: logoData, x: 4.4, y: 0.85, w: 1.2, h: 1.2 });
+                        } catch (e) { }
+                    }
                     slide.addText(cleanTitle, {
-                        x: 0.8, y: 1.1, w: 8.4, h: 1.5,
-                        fontSize: 21, bold: true, color: pal.fg, align: 'center', valign: 'middle'
+                        x: 0.8, y: logoData ? 2.15 : 1.1, w: 8.4, h: logoData ? 1.0 : 1.5,
+                        fontSize: logoData ? 18 : 21, bold: true, color: pal.fg, align: 'center', valign: 'middle'
                     });
 
                     slide.addText(`Oleh:\n${meta.nama || 'Nama Mahasiswa'} (NIM: ${meta.nim || '-'})`, {

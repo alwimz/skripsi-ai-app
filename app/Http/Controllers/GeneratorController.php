@@ -28,6 +28,7 @@ use ZipArchive;
 class GeneratorController extends Controller
 {
     protected AIManagerService $ai;
+    private array $docxTempFiles = [];
 
     public function __construct(AIManagerService $ai)
     {
@@ -462,8 +463,7 @@ class GeneratorController extends Controller
         $black = imagecolorallocate($im, 0, 0, 0);
         imagefilledrectangle($im, 0, 0, $w, $h, $white);
 
-        // Frame
-        imagerectangle($im, 8, 8, $w - 9, $h - 9, $black);
+        // Frame dihilangkan sesuai standar skripsi (cukup simbol diagram murni)
 
         $tiers = [
             [
@@ -549,7 +549,7 @@ class GeneratorController extends Controller
         $black = imagecolorallocate($im, 0, 0, 0);
 
         imagefilledrectangle($im, 0, 0, $w, $h, $white);
-        imagerectangle($im, 6, 6, $w - 7, $h - 7, $black);
+        // Garis border kotak luar dihilangkan sesuai standar skripsi (cukup simbol diagram murni)
 
         $drawArrow = function ($cx, $fromY, $toY) use ($im, $black) {
             imageline($im, $cx, $fromY, $cx, $toY, $black);
@@ -2314,7 +2314,7 @@ ATURAN REVISI (SANGAT KETAT):
     // 5. DOWNLOAD DOCX & PDF (TERMASUK CONTOH PUBLIK LANDING PAGE)
     // =========================================================================
 
-    private function formatAcademicContentForPdf(string $content): string
+    private function formatAcademicContentForPdf(string $content, string $judul = ''): string
     {
         $content = str_replace(["\r\n", "\r"], "\n", $content);
         $lines = explode("\n", $content);
@@ -2351,23 +2351,41 @@ ATURAN REVISI (SANGAT KETAT):
                 }
             }
             if (!empty($rows)) {
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; page-break-inside:avoid;'>";
+                $colCount = count($rows[0]);
+                // Distribusi lebar kolom proporsional standar tabel skripsi APA 7th Edition
+                $colWidths = [];
+                if ($colCount === 6) {
+                    $colWidths = ['6%', '18%', '22%', '16%', '16%', '22%'];
+                } elseif ($colCount === 5) {
+                    $colWidths = ['7%', '22%', '24%', '22%', '25%'];
+                } elseif ($colCount === 4) {
+                    $colWidths = ['8%', '28%', '32%', '32%'];
+                } elseif ($colCount === 3) {
+                    $colWidths = ['10%', '45%', '45%'];
+                } elseif ($colCount === 2) {
+                    $colWidths = ['35%', '65%'];
+                }
+
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:12pt 0 16pt 0; font-size:10pt; font-family:\"Times New Roman\", serif; page-break-inside:avoid; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000;'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead><tr style='background:#f8fafc; border-top:1.5pt solid #000; border-bottom:1pt solid #000;'>";
-                        foreach ($cols as $col) {
+                        $html .= "<thead><tr style='border-bottom:1pt solid #000; background:#ffffff;'>";
+                        foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
-                            $html .= "<th style='padding:5pt 7pt; font-weight:bold; text-align:center; border-left:none; border-right:none;'>" . e($cleanCol) . "</th>";
+                            $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
+                            $html .= "<th style='{$wStyle} padding:6pt 8pt; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:1.35;'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $borderStyle = ($rIdx === count($rows) - 1) ? 'border-bottom:1.5pt solid #000;' : 'border-bottom:0.5pt solid #cbd5e1;';
-                        $html .= "<tr style='{$borderStyle}'>";
+                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
-                            $align = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol) ? 'center' : 'left';
-                            $html .= "<td style='padding:4pt 7pt; text-align:{$align}; border-left:none; border-right:none;'>" . e($cleanCol) . "</td>";
+                            $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
+                            $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
+                            $align = ($isNum || $isMetric) ? 'center' : 'left';
+                            $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
+                            $html .= "<td style='{$wStyle} padding:6pt 8pt; text-align:{$align}; vertical-align:top; border:none; line-height:1.45;'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -2377,31 +2395,49 @@ ATURAN REVISI (SANGAT KETAT):
             $tableBuffer = [];
         };
 
-        $flushCodeOrFlowchart = function () use (&$html, &$codeLines) {
+        $flushCodeOrFlowchart = function () use (&$html, &$codeLines, $judul) {
             if (empty($codeLines))
                 return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
             if ($isFlowchart) {
-                preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|]+$/', $l));
-                if (!empty($nodes)) {
-                    $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
-                    $nodeCount = count($nodes);
-                    foreach (array_values($nodes) as $nIdx => $node) {
-                        $cleanNode = trim(strip_tags($node));
-                        if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
-                            continue;
-                        $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                        $radius = $isSE ? '999px' : '0px';
-                        $weight = $isSE ? 'bold' : 'normal';
-                        $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; border-radius:{$radius}; background:#ffffff; font-size:11pt; color:#000000; font-weight:{$weight}; font-family:Times New Roman, Georgia, serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
-                        if ($nIdx < $nodeCount - 1) {
-                            $html .= "<div style='font-size:15pt; color:#000000; line-height:1.2; margin:3pt 0; text-align:center;'>↓</div>";
+                $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
+                $renderedImg = $isFramework ? $this->renderKerangkaPemikiranPng($rawCode, $judul) : $this->renderFlowchartPng($rawCode, $judul);
+
+                if ($renderedImg && file_exists($renderedImg)) {
+                    $b64 = base64_encode(file_get_contents($renderedImg));
+                    @unlink($renderedImg);
+                    $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
+                    $html .= "<div style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>"
+                        . "<div style='font-size:11pt; font-weight:bold; margin-bottom:6pt; text-align:center; color:#000;'>" . e($caption) . "</div>"
+                        . "<img src='data:image/png;base64,{$b64}' style='width:450pt; max-width:100%; height:auto; display:block; margin:0 auto;'>"
+                        . "</div>";
+                } else {
+                    // Fallback visual murni CSS (Bebas dari karakter unicode panah ↓ yang menjadi ? di Dompdf)
+                    preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
+                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
+                    if (!empty($nodes)) {
+                        $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                        $nodeCount = count($nodes);
+                        foreach (array_values($nodes) as $nIdx => $node) {
+                            $cleanNode = trim(strip_tags($node));
+                            if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|+~#=]+$/', $cleanNode))
+                                continue;
+                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
+                            $radius = $isSE ? '999px' : '0px';
+                            $weight = $isSE ? 'bold' : 'normal';
+                            $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; border-radius:{$radius}; background:#ffffff; font-size:11pt; color:#000000; font-weight:{$weight}; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
+                            if ($nIdx < $nodeCount - 1) {
+                                // Panah geometris murni CSS border triangle (tidak akan pernah berubah jadi tanda tanya ?)
+                                $html .= "<table align='center' cellpadding='0' cellspacing='0' style='margin:2pt auto 2pt auto; border-collapse:collapse;'>"
+                                    . "<tr><td style='width:1.5pt; height:12pt; background:#000000; padding:0; margin:0 auto;'></td></tr>"
+                                    . "<tr><td style='width:0; height:0; border-left:4pt solid transparent; border-right:4pt solid transparent; border-top:5pt solid #000000; padding:0;'></td></tr>"
+                                    . "</table>";
+                            }
                         }
+                        $html .= "</div>";
                     }
-                    $html .= "</div>";
                 }
             } else {
                 $html .= "<pre style='background:#f8fafc; border:1pt solid #cbd5e1; border-radius:4pt; padding:8pt 12pt; font-size:10pt; font-family:monospace; line-height:1.45; white-space:pre-wrap; word-break:break-all; margin:10pt 0;'>" . e($rawCode) . "</pre>";
@@ -2634,47 +2670,56 @@ ATURAN REVISI (SANGAT KETAT):
                             'alignment' => Jc::CENTER
                         ]);
                         $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 80, 'spaceAfter' => 140]);
-                        @unlink($renderedImg);
+                        // Jangan langsung di-unlink di sini agar file gambar terbaca sempurna saat $writer->save()
+                        $this->docxTempFiles[] = $renderedImg;
                     } catch (\Throwable $e) {
                         $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER]);
                     }
                 } else {
-                    // Fallback jika image gagal
+                    // Fallback jika image gagal - buat tabel terpadu agar tidak terpotong ke 2 halaman
                     preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|]+$/', $l));
+                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l) && !preg_match('/^\+[-+]+\+$/', $l));
                     if (!empty($nodes)) {
-                        $nodeCount = count($nodes);
-                        foreach (array_values($nodes) as $nIdx => $node) {
-                            $cleanNode = trim(strip_tags($node));
-                            if (empty($cleanNode) || preg_match('/^[↓V\-\->\s|]+$/', $cleanNode))
-                                continue;
-                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
-                            $boxRow = $boxTable->addRow();
-                            $boxCell = $boxRow->addCell(Converter::cmToTwip(9.5), [
-                                'bgColor' => 'FFFFFF',
-                                'borderColor' => '000000',
-                                'borderSize' => 12,
-                                'cellMarginTop' => 70,
-                                'cellMarginBottom' => 70,
-                                'cellMarginLeft' => 120,
-                                'cellMarginRight' => 120,
-                                'valign' => 'center'
-                            ]);
-                            $boxCell->addText($cleanNode, [
-                                'name' => 'Times New Roman',
-                                'size' => 11,
-                                'bold' => $isSE,
-                                'color' => '000000'
-                            ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
-
-                            if ($nIdx < $nodeCount - 1) {
-                                $section->addText('↓', [
+                        $cleanNodes = [];
+                        foreach ($nodes as $node) {
+                            $cn = trim(strip_tags($node));
+                            if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $cn) && !preg_match('/^\+[-+]+\+$/', $cn)) {
+                                $cleanNodes[] = $cn;
+                            }
+                        }
+                        if (!empty($cleanNodes)) {
+                            $boxTable = $section->addTable(['alignment' => Jc::CENTER, 'cantSplit' => true]);
+                            $nodeCount = count($cleanNodes);
+                            foreach ($cleanNodes as $nIdx => $cleanNode) {
+                                $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
+                                $boxRow = $boxTable->addRow();
+                                $boxCell = $boxRow->addCell(Converter::cmToTwip(10.5), [
+                                    'bgColor' => 'FFFFFF',
+                                    'borderColor' => '000000',
+                                    'borderSize' => $isSE ? 16 : 10,
+                                    'cellMarginTop' => 60,
+                                    'cellMarginBottom' => 60,
+                                    'cellMarginLeft' => 120,
+                                    'cellMarginRight' => 120,
+                                    'valign' => 'center'
+                                ]);
+                                $boxCell->addText($cleanNode, [
                                     'name' => 'Times New Roman',
-                                    'size' => 14,
-                                    'bold' => true,
+                                    'size' => 10.5,
+                                    'bold' => $isSE,
                                     'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 20, 'spaceAfter' => 20]);
+                                ], ['alignment' => Jc::CENTER, 'spaceAfter' => 0]);
+
+                                if ($nIdx < $nodeCount - 1) {
+                                    $arrRow = $boxTable->addRow();
+                                    $arrCell = $arrRow->addCell(Converter::cmToTwip(10.5), ['borderSize' => 0]);
+                                    $arrCell->addText('↓', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 13,
+                                        'bold' => true,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 10, 'spaceAfter' => 10]);
+                                }
                             }
                         }
                         $section->addTextBreak(1);
@@ -3200,6 +3245,13 @@ ATURAN REVISI (SANGAT KETAT):
         $writer->save($path);
         $this->postProcessDocxOutline($path);
 
+        foreach ($this->docxTempFiles as $tmp) {
+            if ($tmp && file_exists($tmp)) {
+                @unlink($tmp);
+            }
+        }
+        $this->docxTempFiles = [];
+
         if ($logoPath && file_exists($logoPath)) {
             @unlink($logoPath);
         }
@@ -3351,40 +3403,38 @@ ATURAN REVISI (SANGAT KETAT):
         </style></head><body>";
 
         // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
-        $html .= "<div class='cover' style='width:100%; height:22.2cm; max-height:22.5cm; overflow:hidden; page-break-after:always; page-break-inside:avoid;'>
-            <table style='width:100%; height:22.2cm; border-collapse:collapse; text-align:center; margin:0 auto; padding:0; border:none;'>
-                <tr style='height:36%;'>
-                    <td style='vertical-align:top; text-align:center; border:none; padding:0;'>
-                        <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-                        <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
-                        <div style='font-size:11pt; line-height:1.35; max-width:440pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-                    </td>
-                </tr>
-                <tr style='height:28%;'>
-                    <td style='vertical-align:middle; text-align:center; border:none; padding:0;'>
-                        {$logoHtml}
-                    </td>
-                </tr>
-                <tr style='height:18%;'>
-                    <td style='vertical-align:middle; text-align:center; border:none; padding:0;'>
-                        <div style='font-size:11.5pt; line-height:1.45;'>
-                            <div>OLEH:</div>
-                            <div style='margin-top:3pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                            " . ($npm ? "<div style='margin-top:2pt;'>NIM: " . e($npm) . "</div>" : "") . "
-                        </div>
-                    </td>
-                </tr>
-                <tr style='height:18%;'>
-                    <td style='vertical-align:bottom; text-align:center; border:none; padding:0 0 4pt 0;'>
-                        <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
-                            <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                            " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                            <div>" . strtoupper(e($kampus)) . "</div>
-                            <div>" . date('Y') . "</div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+        // Terbagi proporsional vertikal (Area cetak A4 ~640pt di antara margin 4cm dan 3cm)
+        $html .= "<div class='cover' style='width:100%; text-align:center; page-break-after:always; page-break-inside:avoid;'>
+            <!-- Bagian Atas: Jenis Dokumen & Judul Skripsi -->
+            <div style='margin-top:0;'>
+                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
+                <div style='font-size:13pt; font-weight:bold; margin-top:20pt; margin-bottom:14pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
+                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+            </div>
+
+            <!-- Bagian Tengah: Lambang / Logo Kampus (Center) -->
+            <div style='margin-top:42pt; margin-bottom:38pt;'>
+                {$logoHtml}
+            </div>
+
+            <!-- Bagian Penulis: Oleh, Nama Mahasiswa, NIM -->
+            <div style='margin-top:0; margin-bottom:44pt;'>
+                <div style='font-size:11.5pt; line-height:1.5;'>
+                    <div>OLEH:</div>
+                    <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                    " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
+                </div>
+            </div>
+
+            <!-- Bagian Bawah: Lembaga, Kampus, dan Tahun -->
+            <div style='margin-top:0;'>
+                <div style='font-weight:bold; font-size:12.5pt; line-height:1.35;'>
+                    <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
+                    " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
+                    <div>" . strtoupper(e($kampus)) . "</div>
+                    <div style='margin-top:2pt;'>" . date('Y') . "</div>
+                </div>
+            </div>
         </div>
         <div style='page-break-after:always;'></div>";
 
@@ -3575,7 +3625,7 @@ ATURAN REVISI (SANGAT KETAT):
         foreach ($chapters as $k => $v) {
             if ($c = $project->{$k . '_content'}) {
                 $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
-                $html .= $this->formatAcademicContentForPdf($c);
+                $html .= $this->formatAcademicContentForPdf($c, (string) ($project->judul ?? ''));
                 $html .= "<div style='page-break-after:always;'></div>";
             }
         }
@@ -3592,7 +3642,7 @@ ATURAN REVISI (SANGAT KETAT):
 
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('isRemoteEnabled', false);
+        $dompdf->set_option('isRemoteEnabled', true);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         try {
@@ -3803,6 +3853,17 @@ ATURAN REVISI (SANGAT KETAT):
         $path = '/tmp/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
+
+        foreach ($this->docxTempFiles as $tmp) {
+            if ($tmp && file_exists($tmp)) {
+                @unlink($tmp);
+            }
+        }
+        $this->docxTempFiles = [];
+
+        if ($logoPath && file_exists($logoPath)) {
+            @unlink($logoPath);
+        }
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
@@ -3965,6 +4026,17 @@ ATURAN REVISI (SANGAT KETAT):
         $path = '/tmp/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
+
+        foreach ($this->docxTempFiles as $tmp) {
+            if ($tmp && file_exists($tmp)) {
+                @unlink($tmp);
+            }
+        }
+        $this->docxTempFiles = [];
+
+        if ($logoPath && file_exists($logoPath)) {
+            @unlink($logoPath);
+        }
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
@@ -4170,7 +4242,7 @@ TEKS ASLI:
             'kampus' => $request->input('kampus') ?: ($projMeta['kampus'] ?? $defaultId['kampus'] ?? 'Universitas'),
             'fakultas' => $projMeta['fakultas'] ?? $defaultId['fakultas'] ?? '',
             'prodi' => $projProdi,
-            'logo_base64' => $projMeta['logo_base64'] ?? $defaultId['logo_base64'] ?? '',
+            'logo_base64' => $request->input('logo_base64') ?: ($projMeta['logo_base64'] ?? $defaultId['logo_base64'] ?? ''),
             'pembimbing_1' => $request->input('pembimbing_1') ?: 'Dosen Pembimbing 1',
             'pembimbing_2' => $request->input('pembimbing_2') ?: 'Dosen Pembimbing 2',
             'penguji_1' => $request->input('penguji_1') ?: 'Dosen Penguji 1',

@@ -547,6 +547,7 @@
 
         .a4-sheet {
             width: 100%;
+            min-height: 1123px; /* Ukuran seragam standar kertas A4 layar */
             background: #ffffff;
             border: 1px solid #dbe3ee;
             border-radius: 4px;
@@ -559,6 +560,11 @@
             line-height: 1.75;
             box-sizing: border-box;
             word-break: break-word;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
         }
 
         .cover-sheet {
@@ -1201,6 +1207,7 @@
             .a4-sheet {
                 width: 100%;
                 max-width: 100%;
+                min-height: 520px;
                 box-sizing: border-box;
                 padding: 24px 16px 20px 20px;
                 font-size: 13.5px;
@@ -1209,6 +1216,10 @@
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
                 overflow-x: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                margin-bottom: 20px;
             }
 
             .cover-sheet {
@@ -2176,21 +2187,11 @@
             const isFlowchart = clean.includes('-->') || clean.includes('->') || clean.includes('↓') || clean.includes('V') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing/i.test(clean);
             const isFramework = clean.includes('Permasalahan') || clean.includes('Landasan Teori') || clean.includes('Kerangka') || clean.includes('Fenomena') || clean.includes('Bagan') || clean.includes('Masalah') || /kerangka\s*pemikiran/i.test(clean);
 
-            const toolbarHtml = `
-                <div class="diagram-toolbar" contenteditable="false" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #475569;">
-                    <span style="font-weight: 600;">Ukuran Bagan:</span>
-                    <button type="button" onclick="adjustDiagramScale(this, -10)" style="padding: 3px 9px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; cursor: pointer; font-weight: 700; color: #0f172a;" title="Perkecil Bagan">− Perkecil</button>
-                    <span class="scale-label" style="font-weight: 700; color: #0f172a; min-width: 44px; text-align: center;">100%</span>
-                    <button type="button" onclick="adjustDiagramScale(this, 10)" style="padding: 3px 9px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; cursor: pointer; font-weight: 700; color: #0f172a;" title="Perbesar Bagan">+ Perbesar</button>
-                    <button type="button" onclick="adjustDiagramScale(this, 0)" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 6px; cursor: pointer; font-size: 11px; color: #475569;" title="Kembalikan ke 100%">Reset</button>
-                </div>
-            `;
-
             if (isFramework) {
                 let nodes = [];
                 const matches = [...clean.matchAll(/\[(.*?)\]/g)];
                 if (matches.length >= 3) {
-                    nodes = matches.map(m => m[1].trim());
+                    nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
                 }
 
                 const tier1 = nodes[0] || 'Kondisi Empiris & Gap Riset: Kompleksitas data teks tidak terstruktur di media sosial, tingginya noise singkatan/slang, dan perlunya otomasi klasifikasi sentimen yang akurat.';
@@ -2199,11 +2200,10 @@
                 const tier4 = nodes[3] || 'Hasil & Luaran yang Diharapkan: Model Naive Bayes dengan akurasi, presisi, recall, dan F1-score optimal untuk analisis sentimen, serta kontribusi praktis rekomendasi.';
 
                 return `
-                    <div class="academic-figure-container" style="margin: 24px auto; max-width: 680px; background: #ffffff; border: 1.5px solid #000000; padding: 22px 24px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 12px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 2.1 Bagan Kerangka Pemikiran Penelitian</p>
-                        ${toolbarHtml}
+                    <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
+                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 2.1 Bagan Kerangka Pemikiran Penelitian</p>
 
-                        <div class="academic-diagram-scalable" data-scale="100" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
+                        <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
                             <!-- TAHAP 1 -->
                             <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
                                 <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">KONDISI EMPIRIS / MASALAH PENELITIAN</div>
@@ -2251,10 +2251,18 @@
                 let nodes = [];
                 const matches = [...clean.matchAll(/\[(.*?)\]/g)];
                 if (matches.length >= 4) {
-                    nodes = matches.map(m => m[1].trim());
-                } else {
-                    const lines = clean.split('\n').map(l => l.replace(/^[-*•\d\.\s\>Vv↓]+/, '').trim()).filter(l => l.length >= 3 && !l.startsWith('|'));
-                    if (lines.length >= 4) nodes = lines;
+                    nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
+                }
+                if (nodes.length < 4) {
+                    const rawLines = clean.split('\n');
+                    const filtered = [];
+                    for (let l of rawLines) {
+                        let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').trim();
+                        if (t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t) && !/^\+[-+]+\+$/.test(t) && !t.startsWith('graph') && !t.startsWith('flowchart')) {
+                            filtered.push(t);
+                        }
+                    }
+                    if (filtered.length >= 4) nodes = filtered;
                 }
 
                 if (nodes.length < 5) {
@@ -2289,7 +2297,7 @@
 
                     if (isFirst || isLast) {
                         flowContent += `
-                            <div style="display: inline-block; min-width: 130px; padding: 7px 28px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
+                            <div style="display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
                                 ${escapeHtml(nodeText)}
                             </div>
                         `;
@@ -2338,15 +2346,18 @@
                 });
 
                 return `
-                    <div class="academic-figure-container" style="margin: 24px auto; max-width: 680px; background: #ffffff; border: 1.5px solid #000000; padding: 22px 24px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 12px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
-                        ${toolbarHtml}
+                    <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
+                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
 
-                        <div class="academic-diagram-scalable" data-scale="100" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
+                        <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
                             ${flowContent}
                         </div>
                     </div>
                 `;
+            }
+
+            return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
+        }
             }
 
             return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
@@ -3042,6 +3053,90 @@
             showToast('Data olahan & rumus penelitian berhasil disimpan! Siap diterapkan ke Bab 3 & 4.', 'success');
         }
 
+        // =========================================================================
+        // PAGINASI PRESISI KERTAS A4 UNTUK NASKAH BAB & HALAMAN DEPAN
+        // =========================================================================
+        function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum) {
+            if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullBodyHtml;
+
+            const blocks = Array.from(tempDiv.children);
+            if (!blocks.length) {
+                return `
+                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                        <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
+                        <div class="sheet-footer">${startPageNum}</div>
+                    </div>
+                `;
+            }
+
+            const pages = [];
+            let curPageBlocks = [];
+            let curPageWeight = 0;
+            // Kapasitas bobot teks standar kertas A4 akademik (setara ~1800 - 2200 karakter atau ~850px tinggi area cetak)
+            const MAX_PAGE_WEIGHT = 1950;
+
+            blocks.forEach((block) => {
+                const textLen = (block.innerText || '').length;
+                const tagName = block.tagName.toLowerCase();
+                let blockWeight = textLen;
+
+                // Bobot visual proporsional elemen tabel, bagan, list, dan heading
+                if (tagName === 'table' || block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap') || block.querySelector('table')) {
+                    blockWeight = Math.max(textLen, 950);
+                } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || block.classList.contains('academic-chapter-header')) {
+                    blockWeight = Math.max(textLen, 260);
+                } else if (tagName === 'ul' || tagName === 'ol') {
+                    blockWeight = Math.max(textLen, 400);
+                } else {
+                    blockWeight = Math.max(textLen, 190);
+                }
+
+                // Halaman pertama memiliki judul bab besar di bagian atas, kurangi batas kapasitas
+                const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 360) : MAX_PAGE_WEIGHT;
+
+                if (curPageBlocks.length > 0 && (curPageWeight + blockWeight > curLimit)) {
+                    // Hindari meletakkan heading sendirian di paling bawah halaman (orphan heading)
+                    const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                    const lastTag = lastBlock.tagName.toLowerCase();
+                    if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 1) {
+                        const orphanHeading = curPageBlocks.pop();
+                        pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                        curPageBlocks = [orphanHeading, block];
+                        curPageWeight = 260 + blockWeight;
+                    } else {
+                        pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                        curPageBlocks = [block];
+                        curPageWeight = blockWeight;
+                    }
+                } else {
+                    curPageBlocks.push(block);
+                    curPageWeight += blockWeight;
+                }
+            });
+
+            if (curPageBlocks.length > 0) {
+                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+            }
+
+            let outputHtml = '';
+            pages.forEach((pageContent, pIdx) => {
+                const thisPageNum = startPageNum + pIdx;
+                outputHtml += `
+                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px;">
+                        <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
+                            ${pageContent}
+                        </div>
+                        <div class="sheet-footer">${thisPageNum}</div>
+                    </div>
+                `;
+            });
+
+            return outputHtml;
+        }
+
         function renderAllSheets() {
             const container = document.getElementById('sheets-container');
             const frontHtml = buildCoverAndFrontMatterHtml();
@@ -3089,14 +3184,8 @@
                     bodyHtml = hHtml + bodyHtml;
                 }
 
-                const pageNum = pageMap[key] ? String(pageMap[key].startPage) : '1';
-
-                sheetsHtml += `
-            <div class="a4-sheet" style="margin-top: 28px;">
-                <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${key}">${bodyHtml}</div>
-                <div class="sheet-footer">${pageNum}</div>
-            </div>
-        `;
+                const chStartPage = pageMap[key] ? pageMap[key].startPage : 1;
+                sheetsHtml += paginateChapterToSheetsHtml(key, bodyHtml, chStartPage);
             });
 
             container.innerHTML = sheetsHtml;
@@ -3104,7 +3193,8 @@
             container.querySelectorAll('.paper-editor[data-chapter]').forEach((editor) => {
                 editor.addEventListener('input', () => {
                     const chKey = editor.getAttribute('data-chapter');
-                    chapterContents[chKey] = editor.innerText;
+                    const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
+                    chapterContents[chKey] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
                     isDirty = true;
                     document.getElementById('btn-save-edit').style.display = 'inline-flex';
                 });
@@ -3175,23 +3265,19 @@
             }
 
             const pageMap = computeDocumentPagination();
-            const pageNumLabel = pageMap[activeView] ? String(pageMap[activeView].startPage) : '1';
+            const chStartPage = pageMap[activeView] ? pageMap[activeView].startPage : 1;
 
-            container.innerHTML = `
-        ${frontNoticeHtml}
-        <div class="a4-sheet">
-            <div class="paper-editor" id="paper-editor" contenteditable="true" spellcheck="false">${bodyHtml}</div>
-            <div class="sheet-footer">${pageNumLabel}</div>
-        </div>
-    `;
+            container.innerHTML = frontNoticeHtml + paginateChapterToSheetsHtml(activeView, bodyHtml, chStartPage);
 
-            const editor = document.getElementById('paper-editor');
-            if (editor) {
+            container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`).forEach(editor => {
                 editor.addEventListener('input', () => {
                     isDirty = true;
-                    document.getElementById('btn-save-edit').style.display = 'inline-flex';
+                    const saveBtn = document.getElementById('btn-save-edit');
+                    if (saveBtn) saveBtn.style.display = 'inline-flex';
+                    const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
+                    chapterContents[activeView] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
                 });
-            }
+            });
         }
 
         async function generateCurrentView() {
