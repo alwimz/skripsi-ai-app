@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,3 +79,10 @@ Route::get('/masuk', function () {
     }
     return 'Akun alwi@gmail.com tidak ditemukan';
 });
+
+// 4. DEDICATED OWNER / ADMIN PANEL (MONITORING DATA & JUMLAH PENGGUNA)
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users');
+Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+
