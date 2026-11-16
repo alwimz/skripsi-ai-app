@@ -1731,9 +1731,9 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG INFORMATIK
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
 2.1 Landasan Teori (Uraikan konsep dasar topik judul, Text Preprocessing [Case Folding, Cleaning, Tokenizing, Slang Normalization, Stopwords Removal, Stemming Sastrawi], Pembobotan Kata [TF-IDF], Teori dan Rumus Matematis Algoritma Naive Bayes/SVM/Machine Learning yang dipakai, serta Teori Confusion Matrix).
-2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan minimal 4-5 penelitian jurnal bereputasi 2020-2024 terkait dalam format Markdown Table dengan kolom:
+2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 penelitian terdahulu dari jurnal bereputasi 5 tahun terakhir 2020-2024 yang paling relevan dengan '{$project->judul}'. Sajikan dalam narasi ringkas diikuti TABEL sintesis perbandingan tepat 3 baris:
 | No | Peneliti & Tahun | Judul Penelitian | Metode / Algoritma | Hasil / Akurasi | Persamaan, Perbedaan & Celah Penelitian |
-Lalu berikan 2 paragraf sintesis posisi riset dan kebaruan (novelty) penelitian ini dibandingkan riset terdahulu).
+Batasi default tepat 3 penelitian agar padat, proporsional, dan tidak memenuhi lembar kertas; mahasiswa dapat menambah penelitian lebih lanjut melalui menu Revisi Sub-Bab jika dibutuhkan). Lalu berikan 1-2 paragraf sintesis posisi riset dan kebaruan (novelty) penelitian ini dibandingkan riset terdahulu.
 2.3 Kerangka Pemikiran (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur logika pemecahan masalah komputasi dari fenomena gap/data mentah di lapangan, landasan teori pendukung, proses preprocessing, pemodelan algoritma, hingga evaluasi akurasi.
 Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN di bawah narasi dalam blok kode:
 Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
@@ -1756,9 +1756,9 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG EKONOMI / 
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
 2.1 Landasan Teori (Uraikan Grand Theory [misal Agency Theory / TAM / RBV / Signaling Theory], Middle Theory, dan Applied Theory, serta definisi konseptual dan indikator variabel penelitian secara komprehensif).
-2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan 5-7 jurnal bereputasi SINTA/Scopus dalam format Markdown Table:
+2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal bereputasi SINTA/Scopus 5 tahun terakhir dalam format narasi ringkas dan TABEL sintesis perbandingan tepat 3 baris:
 | No | Peneliti & Tahun | Judul Penelitian | Variabel / Metode | Hasil Penelitian | Perbedaan dengan Penelitian Ini |
-Diikuti 2 paragraf perbandingan dan gap penelitian).
+Batasi default tepat 3 penelitian agar terstruktur dan proporsional). Diikuti 1-2 paragraf perbandingan dan gap penelitian.
 2.3 Kerangka Konseptual (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan hubungan keterkaitan logis antarvariabel independen terhadap variabel dependen berdasarkan landasan teori.
 Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL di bawah narasi dalam blok kode:
 Gambar 2.1 Diagram Jalur Kerangka Konseptual Penelitian
@@ -1775,7 +1775,7 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
 2.1 Landasan Teori (Hakikat pembelajaran, model/metode pembelajaran yang diuji, karakteristik hasil belajar/keterampilan siswa, materi ajar).
-2.2 Penelitian Terdahulu (WAJIB sajikan TABEL komparasi 4-6 jurnal pendidikan bereputasi SINTA).
+2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal pendidikan bereputasi SINTA 5 tahun terakhir dalam format narasi ringkas dan TABEL komparasi tepat 3 baris: No | Peneliti & Tahun | Judul | Model / Metode | Temuan / Peningkatan | Posisi Penelitian Ini. Batasi default tepat 3 penelitian terdahulu agar padat dan terstruktur).
 2.3 Kerangka Berpikir Tindakan (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur pemikiran dari kondisi awal rendahnya hasil belajar/keaktifan siswa, penerapan tindakan inovasi pembelajaran, hingga kondisi akhir peningkatan hasil belajar.
 Lalu WAJIB sajikan DIAGRAM KERANGKA BERPIKIR dalam blok kode:
 Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran
@@ -1796,7 +1796,7 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG KESEHATAN 
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
 2.1 Landasan Teori (Patofisiologi, senyawa aktif/intervensi medis, mekanisme biologis, tolok ukur klinis).
-2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan 4-6 jurnal bereputasi terkait).
+2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal bereputasi terkait 5 tahun terakhir dalam format narasi ringkas dan TABEL perbandingan tepat 3 baris. Batasi default tepat 3 penelitian agar terstruktur dan proporsional).
 2.3 Kerangka Konseptual (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur keterkaitan antara agen/faktor intervensi, mekanisme respon seluler/klinis, hingga efek terapi/luaran kesehatan pasien.
 Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL dalam blok kode:
 Gambar 2.1 Diagram Kerangka Konseptual Penelitian
@@ -1815,8 +1815,8 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) secara komprehens
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
 2.1 Landasan Teori (Grand theory, teori pendukung, definisi ahli, dan dimensi/indikator operasional).
-2.2 Penelitian Terdahulu (WAJIB sajikan TABEL perbandingan minimal 4-5 penelitian jurnal bereputasi 2020-2024 terkait dalam format Markdown Table:
-| No | Peneliti & Tahun | Judul Penelitian | Metode yang Digunakan | Hasil / Temuan | Celah Penelitian |).
+2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 penelitian jurnal bereputasi 2020-2024 terkait dalam format narasi ringkas dan TABEL perbandingan tepat 3 baris:
+| No | Peneliti & Tahun | Judul Penelitian | Metode yang Digunakan | Hasil / Temuan | Celah Penelitian |. Batasi default tepat 3 penelitian agar padat dan proporsional).
 2.3 Kerangka Pemikiran (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur pemikiran ilmiah dari gejala fenomena, landasan konsep teori, analisis kritis, hingga perumusan solusi teruji.
 Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN dalam blok kode:
 Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
@@ -1982,7 +1982,7 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
             'bab1' => $master . "\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n" . "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara komprehensif berstandar skripsi S1 nasional Indonesia.
 {$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH 7 SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
-1.1 Latar Belakang Masalah (Uraikan 3-4 paragraf ilmiah berbobot: fenomena makro/empiris, fakta lapangan terkini, tinjauan penelitian terdahulu yang relevan, research gap yang nyata, serta urgensi pemilihan judul. JANGAN gunakan kalimat pembuka klise seperti 'Kondisi ideal dalam...').
+1.1 Latar Belakang Masalah (Uraikan 3-4 paragraf ilmiah berbobot. ATURAN WAJIB SITASI ILMIAH: Paragraf pertama (pembuka) WAJIB langsung mencantumkan sitasi ilmiah resmi/jurnal bereputasi/laporan otoritas kredibel (contoh: Kemendikbudristek/BSKAP, BPS, UNESCO, atau pakar utama bidang ilmu terkait). DILARANG menulis paragraf pembuka yang hampa tanpa rujukan atau diawali klise AI seperti 'Kondisi ideal dalam...'. Setiap paragraf berikutnya wajib memuat 1-3 sitasi jurnal bereputasi terkait fenomena gap, data empiris, dan penelitian pendukung).
 1.2 Identifikasi Masalah (Tuliskan 3-5 poin permasalahan konkret yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.).
 1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara tegas dalam 2-4 poin: batasan variabel/algoritma, objek/sampel, periode data, dan lingkungan implementasi).
 1.4 Rumusan Masalah (Tuliskan 2-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras dengan batasan masalah).
@@ -2503,26 +2503,28 @@ ATURAN REVISI (SANGAT KETAT):
                 $lineHeight = '1.35';
                 $cellPadding = ($colCount >= 5) ? '5pt 6pt' : '6pt 8pt';
 
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
+                    $isLastRow = ($rIdx === count($rows) - 1);
                     if ($isHeader) {
-                        $html .= "<thead style='display:table-header-group;'><tr style='border-bottom:1.2pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
+                        $html .= "<thead style='display:table-header-group;'><tr style='background:#ffffff; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:{$lineHeight}; font-size:{$headerSize};'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1.2pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize};'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0; page-break-inside:avoid;'>";
+                        $rowBorderBottom = $isLastRow ? "border-bottom:1.5pt solid #000000;" : "border-bottom:0.75pt solid #cbd5e1;";
+                        $html .= "<tr style='page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border:none; line-height:{$lineHeight}; font-size:{$fontSize};'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; {$rowBorderBottom} border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize};'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -2560,6 +2562,11 @@ ATURAN REVISI (SANGAT KETAT):
                     $validNodes = [];
                     foreach ($rawNodes as $node) {
                         $cn = trim(strip_tags($node));
+                        // Filter label meta penjelasan simbol diagram
+                        if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
+                            continue;
+                        }
+                        $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
                         if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#={}()\\[\\]]+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
                             $validNodes[] = $cn;
                         }
@@ -2577,13 +2584,13 @@ ATURAN REVISI (SANGAT KETAT):
                             $isDecision = preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji/i', $cleanNode) && !$isSE && !$isData && !$isSubProcess;
 
                             if ($isSE) {
-                                $html .= "<div style='display:inline-block; padding:7pt 28pt; border:1.8pt solid #000000; border-radius:999px; background:#f1f5f9; font-size:10.5pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>(&nbsp;───&nbsp;&nbsp;" . e(strtoupper($cleanNode)) . "&nbsp;&nbsp;───&nbsp;)</div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 28pt; border:1.8pt solid #000000; border-radius:999px; background:#f1f5f9; font-size:10.5pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e(strtoupper($cleanNode)) . "</div>";
                             } elseif ($isSubProcess) {
                                 $html .= "<div style='display:inline-block; padding:7pt 18pt; border-top:1.2pt solid #000000; border-bottom:1.2pt solid #000000; border-left:4.5pt double #000000; border-right:4.5pt double #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
                             } elseif ($isData) {
                                 $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
                             } elseif ($isDecision) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>◇&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;◇</span></div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
                             } else {
                                 $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.2pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
                             }
@@ -2905,7 +2912,7 @@ ATURAN REVISI (SANGAT KETAT):
                                 $boxCell = $boxRow->addCell($boxWidth, $cellStyle);
 
                                 if ($isSE) {
-                                    $boxCell->addText('( ───  ' . strtoupper($cleanNode) . '  ─── )', [
+                                    $boxCell->addText(strtoupper($cleanNode), [
                                         'name' => 'Times New Roman',
                                         'size' => 10.5,
                                         'bold' => true,
@@ -2931,7 +2938,7 @@ ATURAN REVISI (SANGAT KETAT):
                                         'color' => '000000'
                                     ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
                                 } elseif ($isDecision) {
-                                    $boxCell->addText('◇  ' . $this->formatAcademicMathText($cleanNode) . '  ◇', [
+                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
                                         'name' => 'Times New Roman',
                                         'size' => 10,
                                         'bold' => true,

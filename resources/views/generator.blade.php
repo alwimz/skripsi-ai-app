@@ -805,6 +805,46 @@
             border-bottom: 2px solid #000000;
         }
 
+        /* Badge Sitasi Biru Interaktif Akademik */
+        .academic-cite-badge {
+            color: #1d4ed8 !important;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.28);
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin: 0 1px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-block;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            user-select: text;
+            vertical-align: baseline;
+            line-height: normal;
+        }
+        .academic-cite-badge:hover {
+            background: rgba(37, 99, 235, 0.18);
+            border-color: #2563eb;
+            color: #1e40af !important;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.18);
+            transform: translateY(-0.5px);
+        }
+        .academic-cite-badge::after {
+            content: " ↗";
+            font-size: 9.5px;
+            font-weight: 700;
+            opacity: 0.75;
+            margin-left: 2px;
+        }
+
+        .citation-popover-card {
+            animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes popoverFadeIn {
+            from { opacity: 0; transform: translateY(6px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .academic-diagram-box {
             margin: 18px 0;
             padding: 16px 20px;
@@ -1819,6 +1859,43 @@
         </div>
     </div>
 
+    <!-- Floating Popover Kartu Informasi Sitasi & Jurnal Asli -->
+    <div id="citation-popover" class="citation-popover-card" style="display: none; position: fixed; z-index: 9999; max-width: 440px; width: 92vw; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.22), 0 6px 16px -2px rgba(15, 23, 42, 0.08); padding: 18px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2);"></span>
+                <span style="font-size: 11px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.06em;">Sitasi Terverifikasi</span>
+                <span id="popover-cite-format" style="font-size: 10.5px; background: #eff6ff; color: #2563eb; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid #bfdbfe;">APA 7th</span>
+            </div>
+            <button type="button" onclick="closeCitationPopover()" style="border: none; background: transparent; font-size: 20px; line-height: 1; color: #94a3b8; cursor: pointer; padding: 0 4px;">&times;</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <div id="popover-cite-label" style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"></div>
+            <div id="popover-pub-title" style="font-size: 12.5px; line-height: 1.5; color: #334155; font-style: normal; margin-bottom: 6px;"></div>
+            <div id="popover-pub-meta" style="font-size: 11.5px; color: #64748b; line-height: 1.4;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+            <a id="popover-btn-doi" href="#" target="_blank" rel="noopener noreferrer" style="display: none; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 8px; background: #2563eb; color: #ffffff; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span>Buka Link Jurnal Asli (DOI) ↗</span>
+            </a>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <a id="popover-btn-scholar" href="#" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 10px; border-radius: 8px; background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; text-decoration: none;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Google Scholar ↗</span>
+                </a>
+                <a id="popover-btn-garuda" href="#" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 10px; border-radius: 8px; background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; text-decoration: none;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span>Garuda / SINTA ↗</span>
+                </a>
+            </div>
+            <button type="button" id="popover-btn-dp" onclick="jumpToDaftarPustakaFromPopover()" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 600; cursor: pointer;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>Lihat Referensi di Daftar Pustaka</span>
+            </button>
+        </div>
+    </div>
+
     <div class="toast-wrap" id="toast-wrap"></div>
 
     <script>
@@ -2081,26 +2158,255 @@
             let s = String(text);
 
             // 1. Bersihkan notasi matematika LaTeX agar tidak bocor kode mentah di naskah skripsi
+            s = s.replace(/\\(left|right)\b/g, '');
+            s = s.replace(/\\(text|mathrm|mathbf|mathit)\{([^{}]+)\}/g, '$1');
+            s = s.replace(/\\sqrt\{([^{}]+)\}/g, '√($1)');
+            s = s.replace(/\\sqrt/g, '√');
             s = s.replace(/\\hat\{([a-zA-Z])\}/g, '$1̂');
-            s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1 / ($2)');
+            s = s.replace(/\\hat\s*([a-zA-Z])/g, '$1̂');
+            s = s.replace(/\\widehat\{([^{}]+)\}/g, '$1̂');
+            while (/\\frac\{([^{}]+)\}\{([^{}]+)\}/.test(s)) {
+                s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1 / ($2)');
+            }
             s = s.replace(/\{,\}/g, ',');
             s = s.replace(/\^2|\^\{2\}/g, '²');
             s = s.replace(/\^3|\^\{3\}/g, '³');
+            s = s.replace(/\^t|\^\{t\}|\^T|\^\{T\}/g, 'ᵗ');
             s = s.replace(/\\times|\\cdot/g, '×');
             s = s.replace(/\\approx/g, '≈');
             s = s.replace(/\\le(?:q)?/g, '≤');
             s = s.replace(/\\ge(?:q)?/g, '≥');
+            s = s.replace(/\\pm/g, '±');
+            s = s.replace(/\\ne(?:q)?/g, '≠');
             s = s.replace(/\\alpha/g, 'α');
             s = s.replace(/\\beta/g, 'β');
             s = s.replace(/\\epsilon/g, 'ε');
             s = s.replace(/\\sigma/g, 'σ');
+            s = s.replace(/\\mu/g, 'μ');
+            s = s.replace(/\\theta/g, 'θ');
+            s = s.replace(/\\lambda/g, 'λ');
+            s = s.replace(/\\delta/g, 'δ');
+            s = s.replace(/\\Delta/g, 'Δ');
+            s = s.replace(/\\pi/g, 'π');
+            s = s.replace(/\\infty/g, '∞');
             s = s.replace(/\\sum/g, '∑');
+            s = s.replace(/\$\$([^$]+)\$\$/g, '$1');
             s = s.replace(/\$([^$]+)\$/g, '$1');
+            s = s.replace(/\\([a-zA-Z]+)/g, '$1');
 
-            return escapeHtml(s)
+            let out = escapeHtml(s)
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+            // 2. Format Sitasi Akademik Menjadi Badge Biru Interaktif yang Dapat Diklik
+            // A. Sitasi Naratif: "Muflih dan Santosa (2023)", "Zuhdy (2024)", "Nambut et al. (2023)"
+            out = out.replace(/\b([A-Z][a-zA-ZÀ-ÿ]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-ZÀ-ÿ]+|&amp;\s+[A-Z][a-zA-ZÀ-ÿ]+))?)\s*\(((?:19\d{2}|20\d{2})(?:[a-z])?)\)/gu, (match, author, year) => {
+                const authorClean = author.replace(/&amp;/g, '&').trim();
+                const authorLower = authorClean.toLowerCase();
+                if (['tabel', 'gambar', 'bagan', 'lampiran', 'bab', 'pasal', 'halaman', 'nomor'].includes(authorLower)) {
+                    return match;
+                }
+                const labelSafe = escapeHtml(match.replace(/&amp;/g, '&'));
+                const authorAttr = escapeHtml(authorClean);
+                const yearAttr = escapeHtml(year);
+                return `<span class="academic-cite-badge" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationPopover(this, event)" title="Klik untuk cek detail publikasi & link asli jurnal">${labelSafe}</span>`;
+            });
+
+            // B. Sitasi dalam Kurung: "(Muflih & Santosa, 2023)", "(Nambut et al., 2023)", "(Zuhdy, 2024)"
+            out = out.replace(/\(([A-Z][a-zA-ZÀ-ÿ\s\.\-&;]+(?:et\s+al\.?)?),?\s*((?:19\d{2}|20\d{2})(?:[a-z])?(?::\s*\d+|,?\s*(?:hlm|hal|p)\.?\s*\d+)?)\)/gu, (match, author, yearInfo) => {
+                const authorClean = author.replace(/&amp;/g, '&').trim();
+                const authorLower = authorClean.toLowerCase();
+                if (['tabel', 'gambar', 'bagan', 'lampiran', 'bab', 'pasal', 'halaman', 'nomor'].includes(authorLower)) {
+                    return match;
+                }
+                const year = (yearInfo.match(/\b(19\d{2}|20\d{2})\b/) || [])[1] || '';
+                const labelSafe = escapeHtml(match.replace(/&amp;/g, '&'));
+                const authorAttr = escapeHtml(authorClean);
+                const yearAttr = escapeHtml(year);
+                return `<span class="academic-cite-badge" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationPopover(this, event)" title="Klik untuk cek detail publikasi & link asli jurnal">${labelSafe}</span>`;
+            });
+
+            return out;
         }
+
+        let activeCitationContext = null;
+
+        function openCitationPopover(el, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const citeText = el.getAttribute('data-cite') || el.innerText.trim();
+            const author = el.getAttribute('data-author') || '';
+            const year = el.getAttribute('data-year') || '';
+
+            activeCitationContext = { citeText, author, year };
+
+            const popover = document.getElementById('citation-popover');
+            if (!popover) return;
+
+            const labelEl = document.getElementById('popover-cite-label');
+            const titleEl = document.getElementById('popover-pub-title');
+            const metaEl = document.getElementById('popover-pub-meta');
+            const btnDoi = document.getElementById('popover-btn-doi');
+            const btnScholar = document.getElementById('popover-btn-scholar');
+            const btnGaruda = document.getElementById('popover-btn-garuda');
+
+            labelEl.textContent = citeText;
+
+            // Cari di daftar pustaka apakah ada entri yang cocok
+            const dpText = chapterContents.daftar_pustaka || '';
+            const lines = dpText.split(/\n+/);
+
+            // Cari kata kunci nama belakang penulis pertama
+            const primaryAuthor = author.split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
+            let matchedEntry = '';
+            if (primaryAuthor && primaryAuthor.length >= 2) {
+                const regex = new RegExp('\\b' + primaryAuthor + '\\b.*?' + (year ? '\\b' + year + '\\b' : ''), 'i');
+                matchedEntry = lines.find(line => regex.test(line)) || '';
+                if (!matchedEntry && year) {
+                    matchedEntry = lines.find(line => line.toLowerCase().includes(primaryAuthor.toLowerCase()) && line.includes(year)) || '';
+                }
+            }
+
+            let directUrl = '';
+            let pubTitle = '';
+            let pubMeta = '';
+            let cleanEntry = '';
+
+            if (matchedEntry) {
+                // Ekstrak URL/DOI jika ada
+                const urlMatch = matchedEntry.match(/(https?:\/\/[^\s]+)/i);
+                if (urlMatch) {
+                    directUrl = urlMatch[1].replace(/[.,;)]+$/, '');
+                }
+
+                cleanEntry = matchedEntry.replace(/^[\s\d\.\-\*\[\]]+/, '').trim();
+
+                // Cari judul publikasi (biasanya setelah tahun di dalam kurung)
+                const afterYear = cleanEntry.replace(/^.*?\((?:19|20)\d{2}[a-z]?\)\.\s*/i, '');
+                if (afterYear && afterYear !== cleanEntry) {
+                    const parts = afterYear.split(/\.\s+/);
+                    pubTitle = parts[0] ? parts[0] + '.' : '';
+                    pubMeta = parts.slice(1).join('. ').replace(/(https?:\/\/[^\s]+)/gi, '').trim();
+                } else {
+                    pubTitle = cleanEntry;
+                }
+            }
+
+            if (!pubTitle) {
+                pubTitle = `Publikasi ilmiah oleh ${author}${year ? ' (' + year + ')' : ''} yang dirujuk dalam penelitian terkait ${projectTitle || 'topik ini'}.`;
+            }
+            if (!pubMeta && matchedEntry) {
+                pubMeta = matchedEntry;
+            }
+
+            titleEl.textContent = pubTitle;
+            metaEl.textContent = pubMeta ? pubMeta : `Rujukan akademik terindeks nasional / internasional (SINTA / Scopus / Kemdikbud).`;
+
+            if (directUrl) {
+                btnDoi.href = directUrl;
+                btnDoi.style.display = 'inline-flex';
+            } else {
+                btnDoi.href = '#';
+                btnDoi.style.display = 'none';
+            }
+
+            // Google Scholar Link
+            const scholarQuery = encodeURIComponent(`${author} ${year} ${(pubTitle && pubTitle !== cleanEntry) ? pubTitle : (projectTitle || '')}`.trim());
+            btnScholar.href = `https://scholar.google.com/scholar?q=${scholarQuery}`;
+
+            // Garuda Kemdikbud / SINTA query Link
+            const garudaQuery = encodeURIComponent(`${author} ${year}`.trim());
+            btnGaruda.href = `https://garuda.kemdikbud.go.id/documents?q=${garudaQuery}`;
+
+            // Tampilkan popover dan atur posisi presisi terhadap badge yang diklik
+            popover.style.display = 'block';
+
+            const rect = el.getBoundingClientRect();
+            const popRect = popover.getBoundingClientRect();
+
+            let left = rect.left;
+            let top = rect.bottom + 8;
+
+            // Pastikan popover tidak terpotong tepi layar kanan
+            if (left + popRect.width > window.innerWidth - 20) {
+                left = Math.max(16, window.innerWidth - popRect.width - 24);
+            }
+
+            // Jika ruang bawah sempit, letakkan di atas badge
+            if (top + popRect.height > window.innerHeight - 20 && rect.top - popRect.height - 10 > 0) {
+                top = rect.top - popRect.height - 8;
+            }
+
+            popover.style.left = `${left}px`;
+            popover.style.top = `${top}px`;
+        }
+
+        function closeCitationPopover() {
+            const popover = document.getElementById('citation-popover');
+            if (popover) {
+                popover.style.display = 'none';
+            }
+            activeCitationContext = null;
+        }
+
+        function jumpToDaftarPustakaFromPopover() {
+            const ctx = activeCitationContext;
+            closeCitationPopover();
+
+            selectChapterView('daftar_pustaka');
+
+            // Scroll ke referensi dan beri efek highlight
+            setTimeout(() => {
+                if (!ctx) return;
+                const container = document.getElementById('sheets-container');
+                if (!container) return;
+
+                const primaryAuthor = (ctx.author || '').split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
+                const year = ctx.year || '';
+
+                const pElements = container.querySelectorAll('.dp-entry, p, li');
+                let targetP = null;
+                for (const p of pElements) {
+                    const text = p.innerText || '';
+                    if (primaryAuthor && text.toLowerCase().includes(primaryAuthor.toLowerCase()) && (!year || text.includes(year))) {
+                        targetP = p;
+                        break;
+                    }
+                }
+
+                if (targetP) {
+                    targetP.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const prevBg = targetP.style.backgroundColor;
+                    const prevTransition = targetP.style.transition;
+                    targetP.style.transition = 'all 0.4s ease';
+                    targetP.style.backgroundColor = 'rgba(254, 240, 138, 0.7)';
+                    targetP.style.borderRadius = '6px';
+                    targetP.style.padding = '4px 8px';
+                    setTimeout(() => {
+                        targetP.style.backgroundColor = prevBg || '';
+                        targetP.style.padding = '';
+                    }, 3500);
+                } else {
+                    showToast('Beralih ke Daftar Pustaka.', 'info');
+                }
+            }, 300);
+        }
+
+        // Listener klik di luar popover dan Escape key
+        document.addEventListener('click', (e) => {
+            const popover = document.getElementById('citation-popover');
+            if (popover && popover.style.display !== 'none') {
+                if (!popover.contains(e.target) && !e.target.closest('.academic-cite-badge')) {
+                    closeCitationPopover();
+                }
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCitationPopover();
+            }
+        });
 
         function isStandaloneFormula(line) {
             const t = line.trim();
@@ -2341,13 +2647,18 @@
             }
 
             if (isFlowchart) {
+                // Pra-bersihkan kode dari label meta penjelasan simbol agar tidak diekstrak menjadi node kotak terpisah
+                const sanitizedClean = clean
+                    .replace(/\[\s*(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)[^\]]*\]/gi, '')
+                    .replace(/\[\/\s*|\s*\/\]/g, '');
+
                 let nodes = [];
-                const matches = [...clean.matchAll(/\[(.*?)\]/g)];
-                if (matches.length >= 4) {
+                const matches = [...sanitizedClean.matchAll(/\[(.*?)\]/g)];
+                if (matches.length >= 3) {
                     nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
                 }
-                if (nodes.length < 4) {
-                    const rawLines = clean.split('\n');
+                if (nodes.length < 3) {
+                    const rawLines = sanitizedClean.split('\n');
                     const filtered = [];
                     for (let l of rawLines) {
                         let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').trim();
@@ -2355,8 +2666,15 @@
                             filtered.push(t);
                         }
                     }
-                    if (filtered.length >= 4) nodes = filtered;
+                    if (filtered.length >= 3) nodes = filtered;
                 }
+
+                // Filter final: buang node yang hanya berisikan nama tipe simbol flowchart
+                nodes = nodes.filter(n => {
+                    const lower = n.toLowerCase().trim();
+                    if (/^(?:simbol\s+data|data\s*\/\s*input|sub-proses|predefined\s+process|proses\s+sistem|proses|keputusan|decision|terminator)$/i.test(lower)) return false;
+                    return lower.length >= 3;
+                });
 
                 if (nodes.length < 5) {
                     nodes = [
@@ -2385,64 +2703,36 @@
                 nodes.forEach((nodeText, idx) => {
                     const isFirst = idx === 0 || /mulai|start/i.test(nodeText);
                     const isLast = idx === nodes.length - 1 || /selesai|finish|end/i.test(nodeText);
-                    const isData = /dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i.test(nodeText) && !isFirst && !isLast;
-                    const isSubProcess = /pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i.test(nodeText) && !isFirst && !isLast && !isData;
                     const isDecision = idx === decIdx;
+
+                    let cleanLabel = nodeText.replace(/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/g, '').trim();
+                    cleanLabel = cleanLabel.replace(/\[\s*(PROSES SISTEM|SIMBOL DATA|SUB-PROSES|EVALUASI|PREDEFINED PROCESS)[^\]]*\]/gi, '').trim();
+                    cleanLabel = cleanLabel.replace(/^(\s*───\s*|\s*—\s*)+|(\s*───\s*|\s*—\s*)+$/g, '').trim();
 
                     if (isFirst || isLast) {
                         flowContent += `
-                            <div style="display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #f1f5f9; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
-                                (&nbsp;───&nbsp;&nbsp;${escapeHtml(nodeText)}&nbsp;&nbsp;───&nbsp;)
-                            </div>
-                        `;
-                    } else if (isSubProcess) {
-                        flowContent += `
-                            <div style="width: 360px; max-width: 92%; padding: 8px 16px; border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; border-left: 4.5px double #000000; border-right: 4.5px double #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000;">
-                                <div style="font-size: 8pt; font-weight: 700; color: #475569; letter-spacing: 0.05em; margin-bottom: 2px;">[ SUB-PROSES / PREDEFINED PROCESS ]</div>
-                                <strong>${escapeHtml(nodeText)}</strong>
-                            </div>
-                        `;
-                    } else if (isData) {
-                        flowContent += `
-                            <div style="position: relative; width: 340px; max-width: 90%; padding: 9px 18px; border: 1.5px solid #000000; transform: skewX(-14deg); background: #ffffff;">
-                                <div style="transform: skewX(14deg); font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: 600; text-align: center; color: #000000; line-height: 1.35;">
-                                    <div style="font-size: 8pt; font-style: italic; color: #475569; margin-bottom: 2px;">[ SIMBOL DATA / INPUT ]</div>
-                                    [/&nbsp;&nbsp;${escapeHtml(nodeText)}&nbsp;&nbsp;/]
-                                </div>
+                            <div style="display: inline-block; min-width: 140px; padding: 7px 32px; border: 1.8px solid #000000; border-radius: 999px; background: #f8fafc; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
+                                ${escapeHtml(cleanLabel || (isFirst ? 'MULAI' : 'SELESAI'))}
                             </div>
                         `;
                     } else if (isDecision) {
                         flowContent += `
-                            <div style="position: relative; width: 100%; max-width: 540px; margin: 4px auto; display: flex; justify-content: center; align-items: center;">
-                                <div style="position: relative; width: 220px; height: 95px; display: flex; align-items: center; justify-content: center;">
-                                    <svg width="220" height="95" viewBox="0 0 220 95" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                                        <polygon points="110,2 218,47 110,93 2,47" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
-                                    </svg>
-                                    <div style="position: relative; z-index: 2; font-family: 'Times New Roman', serif; font-size: 10pt; font-weight: 700; text-align: center; line-height: 1.25; padding: 0 28px; color: #000000;">
-                                        <div style="font-size: 7.5pt; font-style: italic; color: #475569; margin-bottom: 2px;">[ EVALUASI & VALIDASI ]</div>
-                                        ${escapeHtml(nodeText)}
-                                    </div>
-                                </div>
-
-                                <!-- Cabang Loopback Revisi ke Kanan -->
-                                <div style="position: absolute; right: 0; top: 18px; display: flex; align-items: center; gap: 4px;">
-                                    <div style="font-size: 9.5pt; font-family: 'Times New Roman', serif; font-weight: 700; color: #000000; margin-right: 2px;">Tidak / Kurang</div>
-                                    <div style="width: 140px; padding: 6px 8px; border: 1.2px solid #000000; background: #ffffff; font-size: 9.5pt; font-family: 'Times New Roman', serif; text-align: center; line-height: 1.2; transform: skewX(-10deg);">
-                                        <div style="transform: skewX(10deg); color: #000000;">Optimasi Parameter / Pra-Pemrosesan Ulang</div>
-                                    </div>
-                                    <div style="width: 1.5px; height: 60px; background: #000000; margin-left: 4px;"></div>
-                                </div>
+                            <div style="width: 360px; max-width: 92%; padding: 10px 18px; border: 1.8px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: 700; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
+                                ${escapeHtml(cleanLabel)}
                             </div>
-                            <div style="font-size: 10pt; font-weight: 700; font-family: 'Times New Roman', serif; margin-top: 4px; color: #000000;">↓ Ya / Memenuhi Target</div>
                         `;
                     } else {
                         flowContent += `
-                            <div style="width: 360px; max-width: 92%; padding: 9px 16px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000;">
-                                <div style="font-size: 8pt; font-style: italic; color: #64748b; margin-bottom: 2px;">[ PROSES SISTEM ]</div>
-                                ${escapeHtml(nodeText)}
+                            <div style="width: 360px; max-width: 92%; padding: 9px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
+                                ${escapeHtml(cleanLabel)}
                             </div>
                         `;
                     }
+
+                    if (idx < nodes.length - 1) {
+                        flowContent += arrowHtml;
+                    }
+                });
 
                     if (idx < nodes.length - 1 && !isDecision) {
                         flowContent += arrowHtml;
@@ -2474,7 +2764,7 @@
                 const text = (chapterContents[k] || '').trim();
                 let pages = 0;
                 if (text.length > 0) {
-                    pages = Math.max(1, Math.ceil(text.length / 2200));
+                    pages = Math.max(1, Math.ceil(text.length / 1300));
                     pageMap[k] = {
                         startPage: curPage,
                         pageCount: pages,
@@ -3231,8 +3521,8 @@
                 const pages = [];
                 let curPageBlocks = [];
                 let curPageWeight = 0;
-                // Kapasitas bobot teks standar kertas A4 akademik (~3800 karakter penuh)
-                const MAX_PAGE_WEIGHT = 3800;
+                // Kapasitas bobot teks standar kertas A4 akademik (~1450 karakter per halaman Times New Roman 12pt 1.5 spasi)
+                const MAX_PAGE_WEIGHT = 1450;
 
                 blocks.forEach((block) => {
                     const textLen = (block.innerText || '').length;
@@ -3241,30 +3531,32 @@
 
                     // Bobot visual proporsional elemen tabel, bagan, list, dan heading
                     if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                        blockWeight = Math.max(textLen, 900);
+                        blockWeight = Math.max(textLen, 750);
                     } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
                         blockWeight = Math.max(textLen, 120);
                     } else if (tagName === 'ul' || tagName === 'ol') {
-                        blockWeight = Math.max(textLen, 250);
+                        blockWeight = Math.max(textLen, 200);
                     } else {
                         blockWeight = Math.max(textLen, 150);
                     }
 
                     // Halaman pertama memiliki judul bab besar di bagian atas, kurangi sedikit kapasitas
-                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 400) : MAX_PAGE_WEIGHT;
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 350) : MAX_PAGE_WEIGHT;
 
-                    // HANYA ganti halaman jika halaman saat ini memang sudah terisi penuh (minimal 2200 bobot) dan melebihi batas kapasitas
-                    // Mencegah kertas berganti prematur saat baru terisi 1 paragraf atau hanya judul
-                    if (curPageBlocks.length > 0 && curPageWeight >= 2200 && (curPageWeight + blockWeight > curLimit)) {
-                        // Hindari meletakkan heading sendirian di paling bawah halaman penuh (orphan heading)
+                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 850 bobot) dan melebihi batas kapasitas
+                    if (curPageBlocks.length > 0 && curPageWeight >= 850 && (curPageWeight + blockWeight > curLimit)) {
+                        // Hindari meletakkan heading atau caption tabel/gambar sendirian di paling bawah halaman penuh (orphan heading/caption)
                         const lastBlock = curPageBlocks[curPageBlocks.length - 1];
                         const lastTag = (lastBlock.tagName || '').toLowerCase();
+                        const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
+                        const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
 
-                        if ((lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') && curPageBlocks.length > 2) {
-                            const orphanHeading = curPageBlocks.pop();
+                        if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
+                            const orphanEl = curPageBlocks.pop();
+                            const orphanWeight = (orphanEl.innerText || '').length || 100;
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                            curPageBlocks = [orphanHeading, block];
-                            curPageWeight = 120 + blockWeight;
+                            curPageBlocks = [orphanEl, block];
+                            curPageWeight = orphanWeight + blockWeight;
                         } else {
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                             curPageBlocks = [block];
@@ -3362,6 +3654,12 @@
                     chapterContents[chKey] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
                     isDirty = true;
                     document.getElementById('btn-save-edit').style.display = 'inline-flex';
+                });
+                editor.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                        e.preventDefault();
+                        saveActiveEdit();
+                    }
                 });
             });
         }
@@ -3473,6 +3771,12 @@
                     if (saveBtn) saveBtn.style.display = 'inline-flex';
                     const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
                     chapterContents[activeView] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                });
+                editor.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                        e.preventDefault();
+                        saveActiveEdit();
+                    }
                 });
             });
         }
@@ -3656,9 +3960,9 @@
                     return;
                 }
 
-                const editor = document.getElementById('paper-editor');
-                if (!editor) return;
-                const htmlContent = editor.innerText.trim();
+                const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
+                if (!allPages.length) return;
+                const htmlContent = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
                 const res = await fetch(`/project/${projectId}/save-chapter`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
@@ -3669,7 +3973,8 @@
                 chapterContents[activeView] = data.content || htmlContent;
                 isDirty = false;
                 if (btn) btn.style.display = 'none';
-                showToast('Perubahan naskah berhasil disimpan.', 'success');
+                renderActiveSheet();
+                showToast('Perubahan naskah disimpan & halaman otomatis dirapikan.', 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal menyimpan.', 'error');
             } finally {
