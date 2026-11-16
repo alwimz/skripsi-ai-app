@@ -249,8 +249,8 @@ class GeneratorController extends Controller
                 return [];
 
             $meta = $this->getProjectMeta($project);
-            $tahunMin = $meta['sitasi']['tahun_min'] ?? '2020';
-            $filterDate = "from_publication_date:{$tahunMin}-01-01,to_publication_date:2024-12-31";
+            $tahunMin = !empty($meta['sitasi']['tahun_min']) ? (string)$meta['sitasi']['tahun_min'] : '2023';
+            $filterDate = "from_publication_date:{$tahunMin}-01-01,to_publication_date:2026-12-31";
 
             $res = Http::timeout(8)->get('https://api.openalex.org/works', [
                 'search' => $query,
@@ -965,7 +965,7 @@ class GeneratorController extends Controller
             'pedoman_text' => Str::limit($guidelineText, 8000, ''),
             'referensi_khusus' => Str::limit($refFilesText, 5000, ''),
             'sitasi' => [
-                'tahun_min' => $request->input('tahun_min', '2021'),
+                'tahun_min' => $request->input('tahun_min', '2023'),
                 'asal' => $request->input('asal_referensi', 'Indonesia + Internasional'),
                 'gaya' => $request->input('gaya_sitasi', 'APA 7th'),
                 'bahasa' => $request->input('bahasa_penulisan', 'Indonesia'),
@@ -1426,7 +1426,7 @@ Pertanyaan Mahasiswa:
     {
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
-        $tahunMin = $sitasi['tahun_min'] ?? '2021';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
@@ -1471,7 +1471,11 @@ PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 1. Gaya Bahasa: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan bebas klise AI (DILARANG membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era globalisasi saat ini...\", atau \"Pada era modern...\").
 2. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
-3. Sitasi & Bebas Mendeley: WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)) dengan tahun terbit minimal {$tahunMin} dan maksimal 2024. DILARANG menggunakan tahun fiktif masa depan (> 2024). Setiap kutipan harus sesuai dengan literatur nyata agar mahasiswa tidak perlu lagi repot mengatur Mendeley.
+3. Sitasi & Bebas Mendeley (ATURAN KETAT):
+   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)).
+   - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
+   - DILARANG KERAS menyitasi atau mencantumkan referensi dengan tahun terbit di bawah {$tahunMin} (DILARANG mencantumkan referensi sebelum {$tahunMin}).
+   - Sumber referensi: Mengutamakan artikel jurnal ilmiah bereputasi ({$sumberArr}) yang terindeks dan mutakhir. Setiap kutipan harus sesuai dengan literatur nyata agar mahasiswa tidak perlu lagi repot mengatur Mendeley.
 4. Kepatuhan Pedoman Kampus: Jika terdapat Pedoman Kampus Mahasiswa di atas, terapkan seluruh konvensi penamaan, pembagian sub-bab, dan kaidah yang diminta kampus sebagai aturan tertinggi.
 5. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
 6. Tanpa Simbol Markdown: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
@@ -1487,7 +1491,7 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 
         $sitasi = $meta['sitasi'] ?? [];
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
-        $tahunMin = $sitasi['tahun_min'] ?? '2021';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
         $sumberArr = is_array($sitasi['sumber'] ?? null) ? implode(', ', $sitasi['sumber']) : 'Umum, Terindeks Sinta';
@@ -2260,11 +2264,39 @@ ATURAN REVISI (SANGAT KETAT):
     public function saveChapterManual(Request $request, $id)
     {
         $request->validate([
-            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo',
-            'content' => 'required|string',
+            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo,identity',
+            'content' => 'required_unless:chapter,identity|string',
         ]);
 
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($request->chapter === 'identity') {
+            $meta = $this->getProjectMeta($project);
+            if ($request->filled('nama')) $meta['nama'] = trim($request->input('nama'));
+            if ($request->filled('nim')) $meta['nim'] = trim($request->input('nim'));
+            if ($request->filled('kampus')) $meta['kampus'] = trim($request->input('kampus'));
+            if ($request->filled('fakultas')) $meta['fakultas'] = trim($request->input('fakultas'));
+            if ($request->filled('prodi')) {
+                $meta['prodi'] = trim($request->input('prodi'));
+                $project->prodi = trim($request->input('prodi'));
+            }
+            // Hapus cache front_matter_html agar halaman sampul ter-render otomatis dengan data identitas terbaru
+            unset($meta['front_matter_html']);
+
+            $user = Auth::user();
+            if ($user && $request->filled('nim')) {
+                $user->nim = trim($request->input('nim'));
+                $user->save();
+            }
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+            $project->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Identitas mahasiswa berhasil diperbarui & disimpan.',
+                'meta' => $meta
+            ]);
+        }
 
         if ($request->chapter === 'front_logo') {
             $meta = $this->getProjectMeta($project);
@@ -2435,10 +2467,22 @@ ATURAN REVISI (SANGAT KETAT):
                         $nodeCount = count($validNodes);
                         foreach ($validNodes as $nIdx => $cleanNode) {
                             $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                            $radius = $isSE ? '999px' : '0px';
-                            $weight = $isSE ? 'bold' : 'normal';
-                            $borderStyle = $isSE ? 'border:1.5pt solid #000000;' : (preg_match('/^(pengumpulan|input|output|pembagian|pengujian)/i', $cleanNode) ? 'border:2pt double #000000;' : 'border:1.5pt solid #000000;');
-                            $html .= "<div style='display:inline-block; padding:6pt 16pt; {$borderStyle} border-radius:{$radius}; background:#ffffff; font-size:10.5pt; color:#000000; font-weight:{$weight}; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
+                            $isData = preg_match('/dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i', $cleanNode) && !$isSE;
+                            $isSubProcess = preg_match('/pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i', $cleanNode) && !$isSE && !$isData;
+                            $isDecision = preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji/i', $cleanNode) && !$isSE && !$isData && !$isSubProcess;
+
+                            if ($isSE) {
+                                $html .= "<div style='display:inline-block; padding:7pt 28pt; border:1.8pt solid #000000; border-radius:999px; background:#f1f5f9; font-size:10.5pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>(&nbsp;───&nbsp;&nbsp;" . e(strtoupper($cleanNode)) . "&nbsp;&nbsp;───&nbsp;)</div>";
+                            } elseif ($isSubProcess) {
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border-top:1.2pt solid #000000; border-bottom:1.2pt solid #000000; border-left:4.5pt double #000000; border-right:4.5pt double #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-weight:bold; color:#475569; letter-spacing:0.04em; margin-bottom:2pt;'>[ SUB-PROSES / PREDEFINED PROCESS ]</div><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
+                            } elseif ($isData) {
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#475569; margin-bottom:2pt;'>[ SIMBOL DATA / INPUT ]</div><span style='font-weight:bold;'>[/&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;/]</span></div>";
+                            } elseif ($isDecision) {
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#475569; margin-bottom:2pt;'>[ EVALUASI & VALIDASI ]</div><span style='font-weight:bold;'>◇&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;◇</span></div>";
+                            } else {
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.2pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#64748b; margin-bottom:2pt;'>[ PROSES SISTEM ]</div>" . e($cleanNode) . "</div>";
+                            }
+
                             if ($nIdx < $nodeCount - 1) {
                                 // Panah presisi DejaVu Sans (bawaan resmi Dompdf, tajam & tidak berubah jadi kotak hitam)
                                 $html .= "<div style='font-family:DejaVu Sans, sans-serif; font-size:14pt; line-height:1; color:#000000; text-align:center; margin:2.5pt auto 3.5pt;'>&#8595;</div>";
@@ -2705,9 +2749,15 @@ ATURAN REVISI (SANGAT KETAT):
 
                             foreach ($cleanNodes as $nIdx => $cleanNode) {
                                 $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
+                                $isData = preg_match('/dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i', $cleanNode) && !$isSE;
+                                $isSubProcess = preg_match('/pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i', $cleanNode) && !$isSE && !$isData;
+                                $isDecision = preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji/i', $cleanNode) && !$isSE && !$isData && !$isSubProcess;
+
                                 $len = mb_strlen($cleanNode);
                                 if ($isSE) {
                                     $boxWidth = Converter::cmToTwip(5.5);
+                                } elseif ($isData || $isSubProcess || $isDecision) {
+                                    $boxWidth = Converter::cmToTwip(11.2);
                                 } elseif ($len <= 25) {
                                     $boxWidth = Converter::cmToTwip(8.5);
                                 } elseif ($len <= 50) {
@@ -2716,25 +2766,94 @@ ATURAN REVISI (SANGAT KETAT):
                                     $boxWidth = Converter::cmToTwip(12.5);
                                 }
 
-                                // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
-                                $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
-                                $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
-                                $boxCell = $boxRow->addCell($boxWidth, [
-                                    'bgColor' => $isSE ? 'F8FAFC' : 'FFFFFF',
+                                // Konfigurasi border sesuai standar simbol flowchart ANSI
+                                $cellStyle = [
+                                    'bgColor' => $isSE ? 'F1F5F9' : 'FFFFFF',
                                     'borderColor' => '000000',
-                                    'borderSize' => $isSE ? 14 : 9,
-                                    'cellMarginTop' => 70,
-                                    'cellMarginBottom' => 70,
+                                    'borderSize' => $isSE ? 16 : 9,
+                                    'cellMarginTop' => 60,
+                                    'cellMarginBottom' => 60,
                                     'cellMarginLeft' => 140,
                                     'cellMarginRight' => 140,
                                     'valign' => 'center'
-                                ]);
-                                $boxCell->addText($cleanNode, [
-                                    'name' => 'Times New Roman',
-                                    'size' => 10,
-                                    'bold' => $isSE,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                ];
+
+                                if ($isSubProcess) {
+                                    // Garis ganda vertikal di sisi kiri & kanan untuk Sub-proses (ANSI Predefined Process)
+                                    $cellStyle['borderLeftStyle'] = 'double';
+                                    $cellStyle['borderLeftSize'] = 18;
+                                    $cellStyle['borderRightStyle'] = 'double';
+                                    $cellStyle['borderRightSize'] = 18;
+                                    $cellStyle['borderTopStyle'] = 'single';
+                                    $cellStyle['borderTopSize'] = 9;
+                                    $cellStyle['borderBottomStyle'] = 'single';
+                                    $cellStyle['borderBottomSize'] = 9;
+                                }
+
+                                // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
+                                $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
+                                $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
+                                $boxCell = $boxRow->addCell($boxWidth, $cellStyle);
+
+                                if ($isSE) {
+                                    $boxCell->addText('( ───  ' . strtoupper($cleanNode) . '  ─── )', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 10.5,
+                                        'bold' => true,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                } elseif ($isSubProcess) {
+                                    $boxCell->addText('[ SUB-PROSES / PREDEFINED PROCESS ]', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 8,
+                                        'italic' => true,
+                                        'color' => '475569'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
+                                    $boxCell->addText($cleanNode, [
+                                        'name' => 'Times New Roman',
+                                        'size' => 10,
+                                        'bold' => true,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                } elseif ($isData) {
+                                    $boxCell->addText('[ SIMBOL DATA / INPUT ]', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 8,
+                                        'italic' => true,
+                                        'color' => '475569'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
+                                    $boxCell->addText('[/  ' . $cleanNode . '  /]', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 10,
+                                        'bold' => true,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                } elseif ($isDecision) {
+                                    $boxCell->addText('[ EVALUASI & VALIDASI ]', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 8,
+                                        'italic' => true,
+                                        'color' => '475569'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
+                                    $boxCell->addText('◇  ' . $cleanNode . '  ◇', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 10,
+                                        'bold' => true,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                } else {
+                                    $boxCell->addText('[ PROSES SISTEM ]', [
+                                        'name' => 'Times New Roman',
+                                        'size' => 8,
+                                        'italic' => true,
+                                        'color' => '64748B'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
+                                    $boxCell->addText($cleanNode, [
+                                        'name' => 'Times New Roman',
+                                        'size' => 10,
+                                        'color' => '000000'
+                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                                }
 
                                 if ($nIdx < $nodeCount - 1) {
                                     // Paragraf tanda panah independen di antara kotak yang memisahkan masing-masing box
@@ -3931,12 +4050,13 @@ ATURAN REVISI (SANGAT KETAT):
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
-    private function cleanDaftarPustaka(string $raw): string
+    private function cleanDaftarPustaka(string $raw, string $tahunMin = '2023'): string
     {
         $text = strip_tags($raw);
         $text = str_replace(['*', '#', '_', '`'], '', $text);
         $lines = explode("\n", $text);
         $cleaned = [];
+        $minYr = (int) $tahunMin;
         foreach ($lines as $line) {
             $l = trim($line);
             if (strlen($l) < 12)
@@ -3945,6 +4065,13 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
             $l = preg_replace('/^[\d\-\•]+\.?\s*/', '', $l);
+            // Saring jika tahun terbit di bawah batas minimum (misal tahun 2021 padahal batas min 2023)
+            if ($minYr > 2000 && preg_match('/\b(19\d{2}|20\d{2})\b/', $l, $m)) {
+                $yr = (int) $m[1];
+                if ($yr < $minYr) {
+                    continue;
+                }
+            }
             $cleaned[] = trim($l);
         }
         return implode("\n", $cleaned);
@@ -4118,7 +4245,7 @@ ATURAN REVISI (SANGAT KETAT):
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
-        $tahunMin = $sitasi['tahun_min'] ?? '2021';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
 
         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
@@ -4147,7 +4274,7 @@ NASKAH BAB I - BAB V:
 
         try {
             $daftarPustaka = $this->ai->generateText($prompt, $model);
-            $project->daftar_pustaka = $this->cleanDaftarPustaka($daftarPustaka);
+            $project->daftar_pustaka = $this->cleanDaftarPustaka($daftarPustaka, $tahunMin);
             $project->save();
 
             if ($request->wantsJson()) {
@@ -4277,6 +4404,8 @@ TEKS ASLI:
         $model = $request->input('model', 'auto');
         $docText = '';
         $docTitle = trim($request->input('judul', ''));
+        $slideCount = (int) $request->input('slide_count', 8);
+        $slideCount = max(6, min(12, $slideCount));
 
         if ($request->hasFile('file_skripsi')) {
             $file = $request->file('file_skripsi');
@@ -4300,6 +4429,19 @@ TEKS ASLI:
                     "Judul: {$proj->judul}\nProdi: {$proj->prodi}\nMetode: {$proj->metode_penelitian}\n" .
                     "BAB 1:\n{$proj->bab1_content}\nBAB 2:\n{$proj->bab2_content}\nBAB 3:\n{$proj->bab3_content}\nBAB 4:\n{$proj->bab4_content}\nBAB 5:\n{$proj->bab5_content}"
                 );
+
+                // Sinkronkan update metadata identitas jika diubah oleh mahasiswa di formulir PPT
+                $updatedMeta = $projMeta;
+                foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $f) {
+                    if ($request->filled($f)) {
+                        $updatedMeta[$f] = trim($request->input($f));
+                    }
+                }
+                if ($updatedMeta !== $projMeta) {
+                    $proj->citation_validation = json_encode($updatedMeta, JSON_UNESCAPED_UNICODE);
+                    $proj->save();
+                    $projMeta = $updatedMeta;
+                }
             }
         }
 
@@ -4321,7 +4463,7 @@ TEKS ASLI:
         ];
 
         $prompt = "PERAN: Anda adalah Konsultan Presentasi Sidang Skripsi Akademik Indonesia.
-TUGAS: Rangkum dokumen skripsi/proposal berikut menjadi 9 SLIDE PRESENTASI SIDANG dalam format JSON Array murni.
+TUGAS: Rangkum dokumen skripsi/proposal berikut menjadi PERSIS {$slideCount} SLIDE PRESENTASI SIDANG dalam format JSON Array murni.
 
 JUDUL / TOPIK: {$docTitle}
 ISI DOKUMEN SKRIPSI MAHASISWA:
@@ -4331,18 +4473,12 @@ ISI DOKUMEN SKRIPSI MAHASISWA:
 
 ATURAN WAJIB FORMAT & KONTEN:
 1. DILARANG KERAS menggunakan simbol markdown bintang ganda (** atau *) di dalam title, subtitle, maupun bullets. Semua teks harus teks biasa yang bersih, rapi, dan mudah dibaca.
-2. Slide 1: Sampul Sidang (Cover). Title adalah judul lengkap skripsi, subtitle adalah Program Studi & Metode Penelitian, bullets berisi poin ringkas fokus penelitian.
-3. Slide 2 s/d 9: Isi presentasi akademik berurutan:
-   - Slide 2: Latar Belakang Masalah
-   - Slide 3: Identifikasi & Batasan Masalah
-   - Slide 4: Rumusan Masalah & Tujuan Penelitian
-   - Slide 5: Tinjauan Pustaka & Kerangka Teori
-   - Slide 6: Metodologi Penelitian
-   - Slide 7: Hasil Penelitian & Temuan Data
-   - Slide 8: Pembahasan & Analisis Kritis
-   - Slide 9: Kesimpulan & Saran
+2. Buat PERSIS {$slideCount} slide terstruktur berurutan:
+   - Slide 1: Sampul Sidang (Cover). Title adalah judul lengkap skripsi, subtitle adalah Program Studi & Metode Penelitian, bullets berisi poin ringkas fokus penelitian.
+   - Slide 2 s/d " . ($slideCount - 1) . ": Inti materi presentasi (Latar Belakang, Masalah & Tujuan, Teori & Kerangka, Metodologi, Hasil Penelitian, Pembahasan).
+   - Slide {$slideCount}: Kesimpulan & Saran.
 
-Kembalikan HANYA JSON Array valid (tanpa teks pengantar, tanpa markdown ```json) dengan struktur 9 objek slide:
+Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
 [
   {
     \"slide_number\": 1,
@@ -4375,122 +4511,165 @@ Kembalikan HANYA JSON Array valid (tanpa teks pengantar, tanpa markdown ```json)
                 $slidesArray = json_decode($cleanRaw, true);
             }
 
-        $buildDefaultSlides = function ($title, $prodi) {
-            $safeTitle = $title ?: 'Presentasi Sidang Skripsi';
-            $safeProdi = $prodi ?: 'Program Studi';
-            return [
-                [
-                    'slide_number' => 1,
-                    'section' => 'Sampul Sidang',
-                    'title' => $safeTitle,
-                    'subtitle' => 'Program Studi ' . $safeProdi . ' · Sidang Skripsi',
-                    'bullets' => ['Presentasi Tugas Akhir / Skripsi', 'Fokus Kajian Ilmiah & Evaluasi Kinerja'],
-                    'speaker_notes' => 'Selamat pagi Bapak dan Ibu Dosen Penguji serta Pembimbing. Terima kasih atas kesempatan untuk memaparkan skripsi saya berjudul ' . $safeTitle . '.'
-                ],
-                [
-                    'slide_number' => 2,
-                    'section' => 'Latar Belakang Masalah',
-                    'title' => 'Latar Belakang & Urgensi Penelitian',
-                    'subtitle' => 'Fenomena Lapangan dan Kesenjangan Riset',
-                    'bullets' => [
-                        'Urgensi otomasi dan akurasi analisis pada objek riset',
-                        'Tantangan pengolahan data mentah yang belum terstandarisasi',
-                        'Kebutuhan metode komputasi yang terukur dan objektif',
-                        'Research gap yang menjadi fokus kebaruan penelitian ini'
+            $buildDefaultSlides = function ($title, $prodi, $count) {
+                $safeTitle = $title ?: 'Presentasi Sidang Skripsi';
+                $safeProdi = $prodi ?: 'Program Studi';
+                $allTemplates = [
+                    [
+                        'section' => 'Sampul Sidang',
+                        'title' => $safeTitle,
+                        'subtitle' => 'Program Studi ' . $safeProdi . ' · Sidang Skripsi',
+                        'bullets' => ['Presentasi Tugas Akhir / Skripsi', 'Fokus Kajian Ilmiah & Evaluasi Kinerja'],
+                        'speaker_notes' => 'Selamat pagi Bapak dan Ibu Dosen Penguji serta Pembimbing. Terima kasih atas kesempatan untuk memaparkan skripsi saya berjudul ' . $safeTitle . '.'
                     ],
-                    'speaker_notes' => 'Penelitian ini dilatarbelakangi oleh fenomena riil dan tantangan utama yang ditemukan pada objek kajian.'
-                ],
-                [
-                    'slide_number' => 3,
-                    'section' => 'Identifikasi & Batasan Masalah',
-                    'title' => 'Ruang Lingkup & Batasan Riset',
-                    'subtitle' => 'Fokus Kajian Agar Terarah dan Terukur',
-                    'bullets' => [
-                        'Batasan dataset, parameter, dan objek yang diuji',
-                        'Ruang lingkup variabel bebas dan variabel terikat',
-                        'Asumsi lingkungan implementasi dan evaluasi komputasi'
+                    [
+                        'section' => 'Latar Belakang Masalah',
+                        'title' => 'Latar Belakang & Urgensi Penelitian',
+                        'subtitle' => 'Fenomena Lapangan dan Kesenjangan Riset',
+                        'bullets' => [
+                            'Urgensi otomasi dan akurasi analisis pada objek riset',
+                            'Tantangan pengolahan data mentah yang belum terstandarisasi',
+                            'Research gap yang menjadi fokus kebaruan penelitian ini'
+                        ],
+                        'speaker_notes' => 'Penelitian ini dilatarbelakangi oleh fenomena riil dan urgensi permasalahan di lapangan.'
                     ],
-                    'speaker_notes' => 'Agar penelitian fokus dan terukur, ruang lingkup dibatasi pada parameter dan objek yang relevan.'
-                ],
-                [
-                    'slide_number' => 4,
-                    'section' => 'Rumusan Masalah & Tujuan',
-                    'title' => 'Rumusan Masalah & Tujuan Penelitian',
-                    'subtitle' => 'Arah Solusi Akademik yang Dituju',
-                    'bullets' => [
-                        'Rumusan Masalah: Bagaimana performa metode yang diterapkan dalam menyelesaikan persoalan?',
-                        'Tujuan: Menganalisis dan menguji efektivitas algoritma secara kuantitatif',
-                        'Kontribusi: Memberikan tolok ukur empiris bagi pengembangan riset ke depan'
+                    [
+                        'section' => 'Rumusan Masalah & Batasan',
+                        'title' => 'Rumusan Masalah & Ruang Lingkup',
+                        'subtitle' => 'Fokus Kajian Agar Terarah dan Terukur',
+                        'bullets' => [
+                            'Rumusan Masalah: Bagaimana efektivitas metode yang diterapkan?',
+                            'Tujuan: Menguji performa sistem secara kuantitatif dan objektif',
+                            'Batasan Riset: Ruang lingkup objek dan parameter pengujian'
+                        ],
+                        'speaker_notes' => 'Agar penelitian fokus dan terarah, rumusan masalah dan batasan riset telah ditetapkan secara tegas.'
                     ],
-                    'speaker_notes' => 'Tujuan penelitian ini menjawab secara langsung rumusan masalah yang telah diidentifikasi.'
-                ],
-                [
-                    'slide_number' => 5,
-                    'section' => 'Tinjauan Pustaka',
-                    'title' => 'Landasan Teori & Penelitian Terdahulu',
-                    'subtitle' => 'Kerangka Teoretis Pendukung',
-                    'bullets' => [
-                        'Grand theory dan konsep dasar yang melandasi penelitian',
-                        'Kajian 4-5 artikel jurnal ilmiah bereputasi periode 2020–2026',
-                        'Posisi kebaruan (novelty) terhadap studi-studi terdahulu'
+                    [
+                        'section' => 'Tinjauan Pustaka',
+                        'title' => 'Landasan Teori & Kajian Terdahulu',
+                        'subtitle' => 'Kerangka Teoretis Pendukung',
+                        'bullets' => [
+                            'Konsep dasar dan teori utama yang melandasi penelitian',
+                            'Sintesis 4-5 artikel jurnal ilmiah terkini periode 2023–2026',
+                            'Posisi kebaruan (novelty) terhadap studi-studi terdahulu'
+                        ],
+                        'speaker_notes' => 'Pustaka acuan mengacu pada teori baku dan publikasi ilmiah bereputasi terkini.'
                     ],
-                    'speaker_notes' => 'Pustaka acuan mengacu pada publikasi ilmiah bereputasi terkini yang relevan dengan topik skripsi.'
-                ],
-                [
-                    'slide_number' => 6,
-                    'section' => 'Metodologi Penelitian',
-                    'title' => 'Tahapan & Metode Penelitian',
-                    'subtitle' => 'Alur Kerja dan Prosedur Evaluasi',
-                    'bullets' => [
-                        'Desain penelitian dan prosedur pengumpulan dataset',
-                        'Tahapan pra-pemrosesan teks dan rekayasa fitur data',
-                        'Metrik evaluasi kinerja (Confusion Matrix: Akurasi, Presisi, Recall, F1)'
+                    [
+                        'section' => 'Metodologi Penelitian',
+                        'title' => 'Tahapan & Metode Penelitian',
+                        'subtitle' => 'Alur Kerja dan Prosedur Evaluasi',
+                        'bullets' => [
+                            'Desain penelitian dan prosedur pengumpulan dataset',
+                            'Tahapan pra-pemrosesan data dan rekayasa fitur',
+                            'Metrik evaluasi kinerja (Akurasi, Presisi, Recall, F1-Score)'
+                        ],
+                        'speaker_notes' => 'Metodologi disusun sistematis mulai dari penyiapan data hingga validasi hasil.'
                     ],
-                    'speaker_notes' => 'Metodologi disusun sistematis mulai dari penyiapan data hingga tahapan validasi hasil.'
-                ],
-                [
-                    'slide_number' => 7,
-                    'section' => 'Hasil Penelitian',
-                    'title' => 'Hasil Pengujian & Analisis Data',
-                    'subtitle' => 'Temuan Empiris dan Capaian Kinerja',
-                    'bullets' => [
-                        'Hasil pengujian performa model pada data uji',
-                        'Perbandingan performa terhadap skenario baseline',
-                        'Tingkat akurasi dan stabilitas klasifikasi yang terukur'
+                    [
+                        'section' => 'Hasil Penelitian',
+                        'title' => 'Hasil Pengujian & Analisis Data',
+                        'subtitle' => 'Temuan Empiris dan Capaian Kinerja',
+                        'bullets' => [
+                            'Hasil pengujian performa model pada data uji empiris',
+                            'Perbandingan performa terhadap skenario baseline',
+                            'Tingkat akurasi dan stabilitas pengujian yang terukur'
+                        ],
+                        'speaker_notes' => 'Berikut adalah hasil pengujian empiris yang menunjukkan performa sistem secara kuantitatif.'
                     ],
-                    'speaker_notes' => 'Berikut adalah hasil pengujian empiris yang menunjukkan performa sistem secara kuantitatif.'
-                ],
-                [
-                    'slide_number' => 8,
-                    'section' => 'Pembahasan',
-                    'title' => 'Pembahasan & Analisis Kritis',
-                    'subtitle' => 'Interpretasi Temuan Riset',
-                    'bullets' => [
-                        'Kesesuaian hasil pengujian terhadap hipotesis kerja',
-                        'Faktor-faktor penentu keberhasilan performa algoritma',
-                        'Implikasi teoretis dan praktis dari temuan riset'
+                    [
+                        'section' => 'Pembahasan',
+                        'title' => 'Pembahasan & Analisis Kritis',
+                        'subtitle' => 'Interpretasi Temuan Riset',
+                        'bullets' => [
+                            'Kesesuaian hasil pengujian terhadap hipotesis kerja',
+                            'Faktor-faktor penentu keberhasilan performa sistem',
+                            'Implikasi teoretis dan praktis dari temuan riset'
+                        ],
+                        'speaker_notes' => 'Pembahasan ini membuktikan efektivitas metode yang diajukan serta implikasi ilmiahnya.'
                     ],
-                    'speaker_notes' => 'Pembahasan ini membuktikan efektivitas metode yang diajukan serta implikasi ilmiahnya.'
-                ],
-                [
-                    'slide_number' => 9,
-                    'section' => 'Kesimpulan & Saran',
-                    'title' => 'Kesimpulan & Saran Pengembangan',
-                    'subtitle' => 'Penutup Sidang Skripsi',
-                    'bullets' => [
-                        'Kesimpulan: Algoritma terbukti efektif menjawab seluruh rumusan masalah',
-                        'Saran 1: Pengayaan variasi dataset dan skenario pengujian yang lebih luas',
-                        'Saran 2: Integrasi dengan arsitektur teknologi lanjutan untuk implementasi skala besar'
+                    [
+                        'section' => 'Evaluasi & Implikasi',
+                        'title' => 'Evaluasi Kinerja & Dampak Praktis',
+                        'subtitle' => 'Analisis Manfaat Bagi Pengguna',
+                        'bullets' => [
+                            'Evaluasi kelebihan dan keterbatasan sistem',
+                            'Manfaat langsung bagi praktisi dan institusi',
+                            'Validitas metode dalam skala implementasi nyata'
+                        ],
+                        'speaker_notes' => 'Evaluasi menyeluruh memastikan temuan memiliki manfaat aplikatif yang nyata.'
                     ],
-                    'speaker_notes' => 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan. Terima kasih.'
-                ]
-            ];
-        };
+                    [
+                        'section' => 'Kerangka Konseptual',
+                        'title' => 'Kerangka Konseptual & Alur Prosedur',
+                        'subtitle' => 'Diagram Alur Integrasi Sistem',
+                        'bullets' => [
+                            'Visualisasi alur input, proses, dan output sistem',
+                            'Keterkaitan antar-komponen dalam model penelitian',
+                            'Standarisasi operasional prosedur pengujian'
+                        ],
+                        'speaker_notes' => 'Kerangka alur menjelaskan keterkaitan setiap fase penelitian secara holistik.'
+                    ],
+                    [
+                        'section' => 'Pengujian Validasi',
+                        'title' => 'Validasi Sistem & Pengujian Lanjutan',
+                        'subtitle' => 'Ketahanan Performa dan Robustness',
+                        'bullets' => [
+                            'Uji ketahanan terhadap variasi data ekstrem',
+                            'Analisis distribusi galat (error analysis)',
+                            'Hasil validasi silang (cross-validation)'
+                        ],
+                        'speaker_notes' => 'Uji validasi lanjutan membuktikan konsistensi hasil dalam berbagai kondisi.'
+                    ],
+                    [
+                        'section' => 'Rekomendasi Kebijakan',
+                        'title' => 'Rekomendasi Implementasi',
+                        'subtitle' => 'Strategi Pemanfaatan Hasil Riset',
+                        'bullets' => [
+                            'Panduan praktis penerapan hasil penelitian',
+                            'Mitigasi risiko dan kendala implementasi',
+                            'Roadmap integrasi teknologi ke depan'
+                        ],
+                        'speaker_notes' => 'Rekomendasi disajikan sebagai panduan aplikatif bagi para pemangku kepentingan.'
+                    ],
+                    [
+                        'section' => 'Kesimpulan & Saran',
+                        'title' => 'Kesimpulan & Saran Pengembangan',
+                        'subtitle' => 'Penutup Sidang Skripsi',
+                        'bullets' => [
+                            'Kesimpulan: Metode terbukti efektif menjawab seluruh rumusan masalah',
+                            'Saran 1: Pengayaan variasi dataset dan skenario pengujian lebih luas',
+                            'Saran 2: Integrasi teknologi lanjutan untuk implementasi skala besar'
+                        ],
+                        'speaker_notes' => 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan. Terima kasih.'
+                    ]
+                ];
 
-        // Jika JSON parsing gagal, buat 9 slide terstruktur akademik yang nyata (DILARANG dump raw JSON)
-        if (!is_array($slidesArray) || count($slidesArray) < 3) {
-            $slidesArray = $buildDefaultSlides($docTitle, $projProdi);
-        }
+                $sliced = array_slice($allTemplates, 0, $count - 1);
+                $sliced[] = end($allTemplates); // Pastikan slide terakhir selalu Kesimpulan & Saran
+                $res = [];
+                foreach ($sliced as $idx => $item) {
+                    $item['slide_number'] = $idx + 1;
+                    $res[] = $item;
+                }
+                return $res;
+            };
+
+            // Jika JSON parsing gagal, buat slide terstruktur sesuai jumlah yang diminta
+            if (!is_array($slidesArray) || count($slidesArray) < 3) {
+                $slidesArray = $buildDefaultSlides($docTitle, $projProdi, $slideCount);
+            }
+
+            // Batasi persis sesuai $slideCount
+            if (count($slidesArray) > $slideCount) {
+                $lastSlide = end($slidesArray);
+                $slidesArray = array_slice($slidesArray, 0, $slideCount - 1);
+                $slidesArray[] = $lastSlide;
+            }
+            foreach ($slidesArray as $idx => &$s) {
+                $s['slide_number'] = $idx + 1;
+            }
+            unset($s);
 
         foreach ($slidesArray as &$s) {
             if (isset($s['title']))

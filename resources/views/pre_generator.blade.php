@@ -2939,6 +2939,41 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Pilihan Jumlah Slide Sidang (6 - 12 Slide) -->
+                            <div style="margin-top: 14px; background: #ffffff; padding: 14px 16px; border: 1.5px solid #bfdbfe; border-radius: 12px; box-shadow: 0 1px 3px rgba(37,99,235,0.06);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <label for="ppt-input-slide-count" style="font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                                            <rect x="2" y="3" width="20" height="14" rx="2" />
+                                            <line x1="8" y1="21" x2="16" y2="21" />
+                                            <line x1="12" y1="17" x2="12" y2="21" />
+                                        </svg>
+                                        Jumlah Slide Presentasi Sidang
+                                    </label>
+                                    <span id="ppt-slide-count-badge" style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">
+                                        8 Slide (Ringkas & Padat)
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="range" id="ppt-input-slide-count" min="6" max="12" value="8" step="1"
+                                        style="flex: 1; accent-color: var(--primary); cursor: pointer;"
+                                        oninput="updateSlideCountUI(this.value)">
+                                    <select id="ppt-select-slide-count" class="form-select" style="width: 135px; font-size: 12.5px; font-weight: 600;"
+                                        onchange="updateSlideCountUI(this.value)">
+                                        <option value="6">6 Slide</option>
+                                        <option value="7">7 Slide</option>
+                                        <option value="8" selected>8 Slide</option>
+                                        <option value="9">9 Slide</option>
+                                        <option value="10">10 Slide</option>
+                                        <option value="11">11 Slide</option>
+                                        <option value="12">12 Slide</option>
+                                    </select>
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">
+                                    Pilih 6–8 slide untuk presentasi kilat (10–15 menit), atau 9–12 slide untuk pembahasan skripsi lengkap & komprehensif.
+                                </div>
+                            </div>
                         </div>
 
                         <button type="button" id="btn-generate-ppt" class="btn-primary btn-full"
@@ -4962,11 +4997,15 @@
 
         async function handleGeneratePpt() {
             const btn = document.getElementById('btn-generate-ppt');
+            const slideCountEl = document.getElementById('ppt-select-slide-count') || document.getElementById('ppt-input-slide-count');
+            const slideCount = slideCountEl ? parseInt(slideCountEl.value) || 8 : 8;
+
             btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyusun 9 Slide Presentasi...</span>';
-            renderLoadingCard('ppt-loading-box', 'AI sedang merangkum naskah menjadi 9 slide sidang...', 'Menyusun poin presentasi Bab I–V dan catatan bicara (speaker notes)...');
+            btn.innerHTML = `<span class="ai-spinner"></span><span>Menyusun ${slideCount} Slide Presentasi...</span>`;
+            renderLoadingCard('ppt-loading-box', `AI sedang merangkum naskah menjadi ${slideCount} slide sidang...`, 'Menyusun poin presentasi Bab I–V dan catatan bicara (speaker notes)...');
 
             const formData = new FormData();
+            formData.append('slide_count', slideCount);
             formData.append('model', getSelectedModel());
             if (selectedPptProject.id) {
                 formData.append('project_id', selectedPptProject.id);
@@ -5035,6 +5074,24 @@
             }
         }
 
+        function updateSlideCountUI(val) {
+            const num = parseInt(val) || 8;
+            const range = document.getElementById('ppt-input-slide-count');
+            const select = document.getElementById('ppt-select-slide-count');
+            const badge = document.getElementById('ppt-slide-count-badge');
+            if (range) range.value = num;
+            if (select) select.value = String(num);
+            if (badge) {
+                if (num <= 7) {
+                    badge.innerText = `${num} Slide (Presentasi Kilat 10 Menit)`;
+                } else if (num <= 9) {
+                    badge.innerText = `${num} Slide (Standar Sidang Skripsi)`;
+                } else {
+                    badge.innerText = `${num} Slide (Lengkap & Mendalam)`;
+                }
+            }
+        }
+
         function renderSlideNumberStrip() {
             const strip = document.getElementById('ppt-num-strip');
             if (!strip) return;
@@ -5082,12 +5139,9 @@
             if (currentSlideIdx === 0) {
                 secLabel.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
-                const logoHtml = activeLogo
-                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
-                    : '';
                 const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
+                titleEl.innerHTML = `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
                     <div class="ppt-cover-oleh-box">
@@ -5334,12 +5388,9 @@
             if (currentSlideIdx === 0) {
                 secEl.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
-                const logoHtml = activeLogo
-                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
-                    : '';
                 const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
+                titleEl.innerHTML = `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
                     <div class="ppt-cover-oleh-box">

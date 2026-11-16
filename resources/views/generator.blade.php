@@ -1553,6 +1553,11 @@
                                 accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none;"
                                 onchange="handleSidebarLogoUpload(this)">
                         </div>
+                        <button type="button" onclick="openEditIdentityModal()"
+                            style="width: 100%; margin-top: 6px; padding: 5px 8px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 5px; font-size: 10.5px; color: #2563eb; font-weight: 600; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <span>✏️ Edit Identitas (Nama &amp; NIM)</span>
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -1764,6 +1769,52 @@
                 <button type="button" onclick="saveDataRiil()"
                     style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s;">Simpan
                     Data Olahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Identitas Mahasiswa (Nama, NIM, Fakultas, Kampus) -->
+    <div class="modal-overlay" id="identity-modal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Edit Identitas Mahasiswa</h3>
+                        <p style="font-size: 12px; color: #64748b; margin: 0;">Data otomatis diterapkan ke Sampul, Pengesahan &amp; Pernyataan.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEditIdentityModal()" style="border: none; background: transparent; font-size: 20px; color: #94a3b8; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Nama Lengkap Mahasiswa</label>
+                    <input type="text" id="id-modal-nama" class="form-input" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="cth: MUH ALWI SYAHRIR">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">NIM / NPM</label>
+                    <input type="text" id="id-modal-nim" class="form-input" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="cth: 210299">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Fakultas</label>
+                        <input type="text" id="id-modal-fakultas" class="form-input" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="cth: Fakultas Ilmu Komputer">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Program Studi</label>
+                        <input type="text" id="id-modal-prodi" class="form-input" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="cth: Teknik Informatika">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Nama Perguruan Tinggi / Kampus</label>
+                    <input type="text" id="id-modal-kampus" class="form-input" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="cth: UNIVERSITAS INDONESIA">
+                </div>
+            </div>
+            <div style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" onclick="closeEditIdentityModal()" class="btn-top" style="padding: 0 16px; height: 36px;">Batal</button>
+                <button type="button" onclick="saveStudentIdentityModal()" class="btn-top primary" id="btn-save-identity" style="padding: 0 18px; height: 36px; font-weight: 700;">Simpan Identitas</button>
             </div>
         </div>
     </div>
@@ -2296,20 +2347,29 @@
                 nodes.forEach((nodeText, idx) => {
                     const isFirst = idx === 0 || /mulai|start/i.test(nodeText);
                     const isLast = idx === nodes.length - 1 || /selesai|finish|end/i.test(nodeText);
-                    const isData = /dataset|data|pengumpulan|input|korpus|kuesioner/i.test(nodeText) && !isFirst && !isLast;
+                    const isData = /dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i.test(nodeText) && !isFirst && !isLast;
+                    const isSubProcess = /pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i.test(nodeText) && !isFirst && !isLast && !isData;
                     const isDecision = idx === decIdx;
 
                     if (isFirst || isLast) {
                         flowContent += `
-                            <div style="display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
-                                ${escapeHtml(nodeText)}
+                            <div style="display: inline-block; min-width: 140px; padding: 7px 30px; border: 1.8px solid #000000; border-radius: 999px; background: #f1f5f9; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
+                                (&nbsp;───&nbsp;&nbsp;${escapeHtml(nodeText)}&nbsp;&nbsp;───&nbsp;)
+                            </div>
+                        `;
+                    } else if (isSubProcess) {
+                        flowContent += `
+                            <div style="width: 360px; max-width: 92%; padding: 8px 16px; border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; border-left: 4.5px double #000000; border-right: 4.5px double #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000;">
+                                <div style="font-size: 8pt; font-weight: 700; color: #475569; letter-spacing: 0.05em; margin-bottom: 2px;">[ SUB-PROSES / PREDEFINED PROCESS ]</div>
+                                <strong>${escapeHtml(nodeText)}</strong>
                             </div>
                         `;
                     } else if (isData) {
                         flowContent += `
                             <div style="position: relative; width: 340px; max-width: 90%; padding: 9px 18px; border: 1.5px solid #000000; transform: skewX(-14deg); background: #ffffff;">
                                 <div style="transform: skewX(14deg); font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: 600; text-align: center; color: #000000; line-height: 1.35;">
-                                    ${escapeHtml(nodeText)}
+                                    <div style="font-size: 8pt; font-style: italic; color: #475569; margin-bottom: 2px;">[ SIMBOL DATA / INPUT ]</div>
+                                    [/&nbsp;&nbsp;${escapeHtml(nodeText)}&nbsp;&nbsp;/]
                                 </div>
                             </div>
                         `;
@@ -2321,6 +2381,7 @@
                                         <polygon points="110,2 218,47 110,93 2,47" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
                                     </svg>
                                     <div style="position: relative; z-index: 2; font-family: 'Times New Roman', serif; font-size: 10pt; font-weight: 700; text-align: center; line-height: 1.25; padding: 0 28px; color: #000000;">
+                                        <div style="font-size: 7.5pt; font-style: italic; color: #475569; margin-bottom: 2px;">[ EVALUASI & VALIDASI ]</div>
                                         ${escapeHtml(nodeText)}
                                     </div>
                                 </div>
@@ -2339,6 +2400,7 @@
                     } else {
                         flowContent += `
                             <div style="width: 360px; max-width: 92%; padding: 9px 16px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000;">
+                                <div style="font-size: 8pt; font-style: italic; color: #64748b; margin-bottom: 2px;">[ PROSES SISTEM ]</div>
                                 ${escapeHtml(nodeText)}
                             </div>
                         `;
@@ -2368,36 +2430,31 @@
             let curPage = 1;
 
             const chapterKeys = ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
-            const minPages = {
-                bab1: 5,
-                bab2: 12,
-                bab3: 14,
-                bab4: 14,
-                bab5: 3,
-                daftar_pustaka: 4
-            };
 
             chapterKeys.forEach(k => {
                 if (!allowBab45 && (k === 'bab4' || k === 'bab5')) return;
                 const text = (chapterContents[k] || '').trim();
-                let pages = minPages[k];
+                let pages = 0;
                 if (text.length > 0) {
-                    pages = Math.max(minPages[k], Math.ceil(text.length / 2800));
+                    pages = Math.max(1, Math.ceil(text.length / 2200));
+                    pageMap[k] = {
+                        startPage: curPage,
+                        pageCount: pages,
+                        endPage: curPage + pages - 1
+                    };
+                    curPage += pages;
+                } else {
+                    pageMap[k] = {
+                        startPage: curPage,
+                        pageCount: 0,
+                        endPage: curPage
+                    };
                 }
-                pageMap[k] = {
-                    startPage: curPage,
-                    pageCount: pages,
-                    endPage: curPage + pages - 1
-                };
-                curPage += pages;
             });
 
-            // Daftar Pustaka
+            // Daftar Pustaka dihitung dinamis setelah bab terakhir yang telah disusun
             const dpText = (chapterContents.daftar_pustaka || '').trim();
-            let dpPages = minPages.daftar_pustaka;
-            if (dpText.length > 0) {
-                dpPages = Math.max(minPages.daftar_pustaka, Math.ceil(dpText.length / 2400));
-            }
+            const dpPages = dpText.length > 0 ? Math.max(1, Math.ceil(dpText.length / 2000)) : 1;
             pageMap.daftar_pustaka = {
                 startPage: curPage,
                 pageCount: dpPages,
@@ -2408,8 +2465,8 @@
             // Lampiran
             pageMap.lampiran = {
                 startPage: curPage,
-                pageCount: 8,
-                endPage: curPage + 7
+                pageCount: 4,
+                endPage: curPage + 3
             };
 
             return pageMap;
@@ -3035,6 +3092,66 @@
             if (m) m.style.display = 'none';
         }
 
+        function openEditIdentityModal() {
+            const modal = document.getElementById('identity-modal');
+            if (!modal) return;
+            document.getElementById('id-modal-nama').value = projectMeta.nama || defaultUserName || '';
+            document.getElementById('id-modal-nim').value = projectMeta.nim || '';
+            document.getElementById('id-modal-fakultas').value = projectMeta.fakultas || '';
+            document.getElementById('id-modal-prodi').value = projectProdi || '';
+            document.getElementById('id-modal-kampus').value = projectMeta.kampus || '';
+            modal.style.display = 'flex';
+        }
+
+        function closeEditIdentityModal() {
+            const modal = document.getElementById('identity-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function saveStudentIdentityModal() {
+            const btn = document.getElementById('btn-save-identity');
+            const nama = (document.getElementById('id-modal-nama').value || '').trim();
+            const nim = (document.getElementById('id-modal-nim').value || '').trim();
+            const fakultas = (document.getElementById('id-modal-fakultas').value || '').trim();
+            const prodi = (document.getElementById('id-modal-prodi').value || '').trim();
+            const kampus = (document.getElementById('id-modal-kampus').value || '').trim();
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Menyimpan...';
+            }
+
+            try {
+                const res = await fetch(`/project/${projectId}/save-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        chapter: 'identity',
+                        nama, nim, fakultas, prodi, kampus
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan.');
+
+                projectMeta.nama = nama;
+                projectMeta.nim = nim;
+                projectMeta.fakultas = fakultas;
+                projectMeta.kampus = kampus;
+                delete projectMeta.front_matter_html;
+
+                closeEditIdentityModal();
+                showToast('Identitas mahasiswa berhasil diperbarui.', 'success');
+                renderActiveSheet();
+            } catch (e) {
+                showToast('Gagal menyimpan identitas: ' + e.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Simpan Identitas';
+                }
+            }
+        }
+
         function saveDataRiil() {
             researchDataRiil = {
                 metode: (document.getElementById('riil-metode').value || '').trim(),
@@ -3219,7 +3336,25 @@
             }
             if (activeView === 'front') {
                 const savedFront = projectMeta.front_matter_html;
-                container.innerHTML = savedFront || buildCoverAndFrontMatterHtml();
+                const topBar = `
+                    <div style="max-width: 794px; margin: 0 auto 16px auto; display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 18px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); flex-wrap: wrap; gap: 10px;">
+                        <div style="font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 700; color: #0f172a;">Identitas Mahasiswa:</span>
+                            <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-weight: 600; color: #1e293b;">${escapeHtml(projectMeta.nama || defaultUserName)} (${escapeHtml(projectMeta.nim || '-')})</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-top" onclick="openEditIdentityModal()" style="font-size: 12.5px; height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                Edit Identitas Mahasiswa
+                            </button>
+                            <button type="button" class="btn-top" onclick="document.getElementById('sidebar-logo-upload').click()" style="font-size: 12.5px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                Ganti Logo
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = topBar + (savedFront || buildCoverAndFrontMatterHtml());
                 container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
                     el.addEventListener('input', () => {
                         isDirty = true;
@@ -3234,22 +3369,6 @@
                 return;
             }
 
-            const raw = (chapterContents[activeView] || '').trim();
-            if (!raw) {
-                container.innerHTML = `
-            <div class="a4-sheet empty-sheet">
-                <h3>${escapeHtml(chapterLabels[activeView] || 'Bagian Belum Disusun')}</h3>
-                <p>Bagian ini belum ditulis. Klik tombol di bawah untuk menyusun naskah lengkap berstandar skripsi S1 secara otomatis.</p>
-                <button type="button" class="btn-top primary" onclick="generateCurrentView()">Mulai Susun Bagian Ini</button>
-            </div>
-        `;
-                return;
-            }
-
-            // Bersih tanpa banner panduan
-            const frontNoticeHtml = '';
-            let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
-
             // Header Bab Standar Skripsi Indonesia (BAB I PENDAHULUAN, dll.)
             const chapterHeaders = {
                 'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
@@ -3259,7 +3378,55 @@
                 'bab5': { num: 'BAB V', title: 'PENUTUP' },
                 'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
             };
-            const curH = chapterHeaders[activeView];
+            const curH = chapterHeaders[activeView] || { num: '', title: chapterLabels[activeView] || 'DOKUMEN' };
+
+            const raw = (chapterContents[activeView] || '').trim();
+            if (!raw) {
+                container.innerHTML = `
+            <div class="a4-sheet empty-sheet-premium" style="min-height: 520px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 48px 32px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05); margin-bottom: 24px;">
+                <div style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #2563eb; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2);">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                </div>
+                <div style="display: inline-block; padding: 4px 14px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">
+                    ${escapeHtml(curH.num ? (curH.num + ' · ' + curH.title) : curH.title)}
+                </div>
+                <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.01em;">
+                    Bagian Ini Belum Disusun
+                </h3>
+                <p style="font-size: 13.5px; color: #64748b; max-width: 480px; margin: 0 auto 24px; line-height: 1.6;">
+                    Klik tombol di bawah agar asisten AI menyusun seluruh sub-bab secara komprehensif, terstruktur, dan siap uji sidang sesuai kaidah akademik Indonesia.
+                </p>
+                <button type="button" class="btn-primary" onclick="generateCurrentView()"
+                    style="height: 46px; padding: 0 28px; font-size: 14px; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); transition: all 0.15s;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span>Mulai Susun ${escapeHtml(curH.num ? curH.num : curH.title)}</span>
+                </button>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; flex-wrap: wrap; font-size: 12px; color: #94a3b8;">
+                    <span style="display: inline-flex; align-items: center; gap: 5px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Sitasi Otomatis (APA 7th)
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 5px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Sesuai EYD V / KBBI
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 5px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Format Standar Skripsi S1
+                    </span>
+                </div>
+            </div>
+        `;
+                return;
+            }
+
+            // Bersih tanpa banner panduan
+            const frontNoticeHtml = '';
+            let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
             if (curH) {
                 const testUpper = bodyHtml.slice(0, 350).toUpperCase();
                 const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
