@@ -2734,11 +2734,6 @@
                     }
                 });
 
-                    if (idx < nodes.length - 1 && !isDecision) {
-                        flowContent += arrowHtml;
-                    }
-                });
-
                 return `
                     <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
                         <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
