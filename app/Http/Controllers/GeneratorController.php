@@ -457,33 +457,64 @@ class GeneratorController extends Controller
         $black = imagecolorallocate($im, 0, 0, 0);
         imagefilledrectangle($im, 0, 0, $w, $h, $white);
 
-        // Frame dihilangkan sesuai standar skripsi (cukup simbol diagram murni)
+        // Ekstraksi node kerangka pemikiran secara dinamis dari rawCode
+        preg_match_all('/\[([\s\S]*?)\]/', $rawCode, $m);
+        $extractedNodes = [];
+        if (!empty($m[1])) {
+            foreach ($m[1] as $node) {
+                $clean = trim(preg_replace('/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/', '', $node));
+                $clean = preg_replace('/\s+/', ' ', $clean);
+                if (mb_strlen($clean) >= 3 && !preg_match('/^[+\-=_|~#\s]+$/', $clean)) {
+                    $extractedNodes[] = $clean;
+                }
+            }
+        }
+        if (count($extractedNodes) < 3) {
+            $rawLines = preg_split('/[\n↓]|-->|->/', $rawCode);
+            foreach ($rawLines as $l) {
+                $clean = trim(preg_replace('/^[-*•\d\.\s\>Vv↓|]+/', '', $l));
+                $clean = trim(preg_replace('/[|]+$/', '', $clean));
+                $clean = trim(str_replace(['[', ']'], '', $clean));
+                $clean = preg_replace('/\s+/', ' ', $clean);
+                if (mb_strlen($clean) >= 6 && !preg_match('/^[+\-=_|~#\s]+$/', $clean) && !str_starts_with(strtolower($clean), 'gambar') && !str_starts_with(strtolower($clean), 'bagan')) {
+                    $extractedNodes[] = $clean;
+                }
+            }
+        }
+
+        $jClean = trim($judul) ?: 'Topik Penelitian';
+        $defaultTiers = [
+            'Kondisi Empiris: Kesenjangan fenomena nyata di lapangan dan urgensi masalah terkait ' . $jClean,
+            'Landasan Teori: Grand/Middle Theory pendukung dan sintesis penelitian terdahulu sebagai rujukan konseptual',
+            'Pendekatan Metodologi: Pengumpulan data empiris, pengujian instrumen, dan analisis variabel secara terstruktur',
+            'Luaran Penelitian: Pembuktian hipotesis, temuan ilmiah teruji, dan rekomendasi praktis implementatif'
+        ];
 
         $tiers = [
             [
-                'title' => 'TAHAP 1: MASALAH & GAP RISET PENELITIAN',
-                'desc' => 'Tantangan akurasi klasifikasi opini publik dan kompleksitas pemrosesan teks tidak terstruktur',
+                'title' => 'TAHAP 1: KONDISI EMPIRIS / MASALAH PENELITIAN',
+                'desc' => $this->formatAcademicMathText($extractedNodes[0] ?? $defaultTiers[0]),
                 'bg' => $white,
                 'border' => $black,
                 'text' => $black
             ],
             [
-                'title' => 'TAHAP 2: LANDASAN TEORI & PENDEKATAN METODOLOGI',
-                'desc' => 'Pra-pemrosesan teks terstruktur (NLP Preprocessing), Pembobotan TF-IDF, dan Pemodelan Naive Bayes',
+                'title' => 'TAHAP 2: LANDASAN TEORI & SINTESIS PUSTAKA',
+                'desc' => $this->formatAcademicMathText($extractedNodes[1] ?? $defaultTiers[1]),
                 'bg' => $white,
                 'border' => $black,
                 'text' => $black
             ],
             [
-                'title' => 'TAHAP 3: IMPLEMENTASI PENGUJIAN & VALIDASI METRIK',
-                'desc' => 'Evaluasi Confusion Matrix: Pengukuran Akurasi, Presisi, Recall, dan F1-Score pada Data Uji',
+                'title' => 'TAHAP 3: PENDEKATAN METODOLOGI & ANALISIS DATA',
+                'desc' => $this->formatAcademicMathText($extractedNodes[2] ?? $defaultTiers[2]),
                 'bg' => $white,
                 'border' => $black,
                 'text' => $black
             ],
             [
                 'title' => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI',
-                'desc' => 'Model klasifikasi teruji dengan performa tinggi serta wawasan strategis bagi pengambil kebijakan',
+                'desc' => $this->formatAcademicMathText($extractedNodes[3] ?? ($extractedNodes[2] ?? $defaultTiers[3])),
                 'bg' => $white,
                 'border' => $black,
                 'text' => $black
@@ -500,8 +531,15 @@ class GeneratorController extends Controller
             imagerectangle($im, $x, $y, $x + $boxW, $y + $boxH, $t['border']);
             imagerectangle($im, $x + 1, $y + 1, $x + $boxW - 1, $y + $boxH - 1, $t['border']);
 
-            imagestring($im, 4, $x + 20, $y + 16, $t['title'], $t['text']);
-            imagestring($im, 3, $x + 20, $y + 45, $t['desc'], $black);
+            imagestring($im, 4, $x + 20, $y + 14, $t['title'], $t['text']);
+
+            // Bungkus teks ke dalam 2 baris agar rapi dan tidak meluap keluar kotak
+            $wrappedLines = explode("\n", wordwrap($t['desc'], 88, "\n"));
+            $lineY = $y + 38;
+            foreach (array_slice($wrappedLines, 0, 2) as $wl) {
+                imagestring($im, 3, $x + 20, $lineY, $wl, $black);
+                $lineY += 18;
+            }
 
             if ($idx < 3) {
                 // Downward arrow
@@ -543,7 +581,6 @@ class GeneratorController extends Controller
         $black = imagecolorallocate($im, 0, 0, 0);
 
         imagefilledrectangle($im, 0, 0, $w, $h, $white);
-        // Garis border kotak luar dihilangkan sesuai standar skripsi (cukup simbol diagram murni)
 
         $drawArrow = function ($cx, $fromY, $toY) use ($im, $black) {
             imageline($im, $cx, $fromY, $cx, $toY, $black);
@@ -564,7 +601,6 @@ class GeneratorController extends Controller
         $y = 20;
         $termW = 200;
         $termH = 40;
-        $tX = $cx - (int) ($termW / 2);
         imagefilledellipse($im, $cx, $y + 20, $termW, $termH, $white);
         imageellipse($im, $cx, $y + 20, $termW, $termH, $black);
         imageellipse($im, $cx, $y + 20, $termW - 2, $termH - 2, $black);
@@ -572,75 +608,69 @@ class GeneratorController extends Controller
 
         $drawArrow($cx, $y + 40, $y + 65);
 
-        // 2. Pengumpulan Dataset (ANSI Data I/O - Parallelogram)
+        // 2. Identifikasi Masalah & Studi Literatur (ANSI Process)
         $y = 65;
-        $pW = 460;
+        $pW = 500;
         $pH = 46;
         $pX = $cx - (int) ($pW / 2);
-        $skew = 22;
-        $paraPts = [
-            $pX + $skew,
-            $y,
-            $pX + $pW,
-            $y,
-            $pX + $pW - $skew,
-            $y + $pH,
-            $pX,
-            $y + $pH
-        ];
-        imagefilledpolygon($im, $paraPts, $white);
-        imagepolygon($im, $paraPts, $black);
-        imagestring($im, 4, $cx - 180, $y + 14, "Pengumpulan Dataset Komentar (Scraping)", $black);
+        imagefilledrectangle($im, $pX, $y, $pX + $pW, $y + $pH, $white);
+        imagerectangle($im, $pX, $y, $pX + $pW, $y + $pH, $black);
+        imagestring($im, 4, $cx - 180, $y + 14, "Identifikasi Masalah & Studi Kepustakaan", $black);
 
         $drawArrow($cx, $y + $pH, $y + $pH + 25);
 
-        // 3. Pra-Pemrosesan Teks (ANSI Sub-process - Double border box)
+        // 3. Pengumpulan Data Penelitian (ANSI Data I/O - Parallelogram)
         $y = $y + $pH + 25;
-        $subW = 540;
-        $subH = 92;
+        $subW = 520;
+        $subH = 46;
         $subX = $cx - (int) ($subW / 2);
-        imagefilledrectangle($im, $subX, $y, $subX + $subW, $y + $subH, $white);
-        imagerectangle($im, $subX, $y, $subX + $subW, $y + $subH, $black);
-        // Garis ganda vertikal di kiri dan kanan (Ciri Khas ANSI Sub-Process)
-        imageline($im, $subX + 16, $y, $subX + 16, $y + $subH, $black);
-        imageline($im, $subX + $subW - 16, $y, $subX + $subW - 16, $y + $subH, $black);
-
-        imagestring($im, 4, $cx - 110, $y + 10, "PRA-PEMROSESAN TEKS (NLP)", $black);
-        imagestring($im, 3, $subX + 35, $y + 38, "- Case Folding     - Data Cleaning     - Tokenizing", $black);
-        imagestring($im, 3, $subX + 35, $y + 60, "- Slang Normalize  - Stopword Removal  - Stemming Sastrawi", $black);
+        $skew = 22;
+        $paraPts = [
+            $subX + $skew,
+            $y,
+            $subX + $subW,
+            $y,
+            $subX + $subW - $skew,
+            $y + $subH,
+            $subX,
+            $y + $subH
+        ];
+        imagefilledpolygon($im, $paraPts, $white);
+        imagepolygon($im, $paraPts, $black);
+        imagestring($im, 4, $cx - 195, $y + 14, "Pengumpulan Data Empiris & Sampel Riset", $black);
 
         $drawArrow($cx, $y + $subH, $y + $subH + 25);
 
-        // 4. Pembobotan TF-IDF & Pelabelan Sentimen (ANSI Process)
+        // 4. Uji Validitas & Reliabilitas Instrumen (ANSI Process)
         $y = $y + $subH + 25;
-        $b4W = 480;
+        $b4W = 500;
         $b4H = 46;
         $b4X = $cx - (int) ($b4W / 2);
         imagefilledrectangle($im, $b4X, $y, $b4X + $b4W, $y + $b4H, $white);
         imagerectangle($im, $b4X, $y, $b4X + $b4W, $y + $b4H, $black);
-        imagestring($im, 4, $cx - 185, $y + 14, "Pelabelan Sentimen & Pembobotan TF-IDF", $black);
+        imagestring($im, 4, $cx - 180, $y + 14, "Uji Validitas & Reliabilitas Instrumen Data", $black);
 
         $drawArrow($cx, $y + $b4H, $y + $b4H + 25);
 
-        // 5. Pembagian Data 80:20 & Pelatihan Naive Bayes (ANSI Process)
+        // 5. Analisis Data & Pengujian Hipotesis (ANSI Process)
         $y = $y + $b4H + 25;
-        $b5W = 500;
+        $b5W = 520;
         $b5H = 46;
         $b5X = $cx - (int) ($b5W / 2);
         imagefilledrectangle($im, $b5X, $y, $b5X + $b5W, $y + $b5H, $white);
         imagerectangle($im, $b5X, $y, $b5X + $b5W, $y + $b5H, $black);
-        imagestring($im, 4, $cx - 200, $y + 14, "Split Data (Latih : Uji) & Klasifikasi Naive Bayes", $black);
+        imagestring($im, 4, $cx - 190, $y + 14, "Analisis Data Statistik & Uji Hipotesis Penelitian", $black);
 
         $drawArrow($cx, $y + $b5H, $y + $b5H + 25);
 
-        // 6. Evaluasi Metrik Confusion Matrix (ANSI Evaluation / Process)
+        // 6. Pembahasan Temuan & Rekomendasi (ANSI Process)
         $y = $y + $b5H + 25;
-        $b6W = 520;
-        $b6H = 48;
+        $b6W = 500;
+        $b6H = 46;
         $b6X = $cx - (int) ($b6W / 2);
         imagefilledrectangle($im, $b6X, $y, $b6X + $b6W, $y + $b6H, $white);
         imagerectangle($im, $b6X, $y, $b6X + $b6W, $y + $b6H, $black);
-        imagestring($im, 4, $cx - 215, $y + 15, "Evaluasi Confusion Matrix: Akurasi, Presisi, Recall, F1", $black);
+        imagestring($im, 4, $cx - 175, $y + 14, "Pembahasan Temuan & Penarikan Simpulan", $black);
 
         $drawArrow($cx, $y + $b6H, $y + $b6H + 25);
 
@@ -1029,18 +1059,18 @@ class GeneratorController extends Controller
         }
 
         if (!empty($project->bab4_content) && (empty($project->bab5_content) || strlen(trim(strip_tags($project->bab5_content))) < 120)) {
-            $judul = $project->judul ?? 'Penelitian';
-            $prodi = $project->prodi ?? 'Informatika';
-            $metode = $project->metode_penelitian ?? 'Kuantitatif Eksperimental';
-            $project->bab5_content = "5.1 Kesimpulan\n" .
-                "Berdasarkan hasil penelitian, pengujian sistem, dan analisis pembahasan yang telah diuraikan pada bab-bab sebelumnya mengenai {$judul}, maka dapat ditarik beberapa kesimpulan utama sebagai berikut:\n" .
-                "1. Implementasi metode {$metode} pada Program Studi {$prodi} telah berhasil dirancang, dibangun, dan diuji secara komprehensif sesuai dengan rumusan masalah yang ditetapkan pada Bab I.\n" .
-                "2. Berdasarkan hasil pengujian data empiris pada Bab IV, model penelitian terbukti mampu mengklasifikasikan data uji dengan tingkat kinerja yang tinggi, menghasilkan nilai akurasi terukur sebesar 88,01%, presisi makro 87,12%, recall 86,37%, dan F1-score sebesar 86,75%.\n" .
-                "3. Tahapan pra-pemrosesan data teks yang sistematis terbukti secara signifikan mereduksi derau (noise) dan meningkatkan reliabilitas hasil pengujian dibandingkan pengujian tanpa normalisasi.\n\n" .
-                "5.2 Saran\n" .
-                "Berdasarkan kesimpulan dan keterbatasan yang ditemukan selama pelaksanaan penelitian, maka diajukan beberapa saran konstruktif sebagai berikut:\n" .
-                "1. Bagi Peneliti Selanjutnya: Disarankan untuk memperluas cakupan dataset dengan variasi korpus yang lebih beragam serta mengeksplorasi integrasi algoritma ensemble guna mengoptimalkan klasifikasi pada kelas minoritas.\n" .
-                "2. Bagi Praktisi dan Akademisi: Disarankan untuk menerapkan arsitektur sistem ini ke dalam lingkungan produksi nyata (real-time streaming) agar manfaat analitis dapat diakses oleh pemangku kepentingan secara langsung.";
+            $project->bab5_content = $this->buildDefaultBab5Content($project);
+            $project->save();
+        }
+
+        $hasMathUpdate = false;
+        foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
+            if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
+                $project->$col = $this->formatAcademicMathText($project->$col);
+                $hasMathUpdate = true;
+            }
+        }
+        if ($hasMathUpdate) {
             $project->save();
         }
 
@@ -1434,7 +1464,7 @@ Pertanyaan Mahasiswa:
 
         $skillPath = resource_path('skills/skripsi_indonesia_skill.md');
         $skillRules = file_exists($skillPath)
-            ? Str::limit(trim(file_get_contents($skillPath)), 3200, '')
+            ? Str::limit(trim(file_get_contents($skillPath)), 16000, '')
             : '';
 
         $verifiedRefs = $this->fetchVerifiedReferencesForProject($project);
@@ -1469,16 +1499,27 @@ PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 {$skillRules}
 
 ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
-1. Gaya Bahasa: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan bebas klise AI (DILARANG membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era globalisasi saat ini...\", atau \"Pada era modern...\").
-2. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
-3. Sitasi & Bebas Mendeley (ATURAN KETAT):
+1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era digital / era globalisasi saat ini...\", \"Perkembangan teknologi yang pesat...\", \"Tidak dapat dipungkiri bahwa...\", \"Memegang peranan krusial...\", atau \"Merupakan tonggak penting...\").
+2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: \"Data dikumpulkan melalui kuesioner...\", \"Analisis regresi linier dilakukan untuk...\"), hindari suara orang pertama (saya, penulis, kami).
+3. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
+4. Sitasi & Bebas Mendeley (ATURAN KETAT):
    - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)).
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
-   - DILARANG KERAS menyitasi atau mencantumkan referensi dengan tahun terbit di bawah {$tahunMin} (DILARANG mencantumkan referensi sebelum {$tahunMin}).
+   - DILARANG KERAS menyitasi atau mencantumkan referensi dengan tahun terbit di bawah {$tahunMin}.
    - Sumber referensi: Mengutamakan artikel jurnal ilmiah bereputasi ({$sumberArr}) yang terindeks dan mutakhir. Setiap kutipan harus sesuai dengan literatur nyata agar mahasiswa tidak perlu lagi repot mengatur Mendeley.
-4. Kepatuhan Pedoman Kampus: Jika terdapat Pedoman Kampus Mahasiswa di atas, terapkan seluruh konvensi penamaan, pembagian sub-bab, dan kaidah yang diminta kampus sebagai aturan tertinggi.
-5. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
-6. Tanpa Simbol Markdown: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
+5. Standar Rumus & Notasi Statistik (DILARANG KODE LATEX MENTAH):
+   - DILARANG KERAS menghasilkan sintaks LaTeX mentah seperti \\frac{}{}, \\hat{}, {,}, \\approx, atau tanda dollar \$ ... \$.
+   - Tuliskan rumus dalam teks akademik bersih:
+     * Pecahan: n = N / (1 + N(e)²) = 288 / (1 + 288(0,05)²) = 167,44 ≈ 168 responden
+     * Estimasi Regresi: Ŷ = a + bX atau Ŷ = 96,482 - 0,253X
+     * Koefisien Determinasi: R² = 0,154
+     * Gunakan superskrip Unicode: ², ³, ᵗ dan tanda koma desimal Indonesia: 0,05, 96,482 (bukan {,}).
+6. Format Tabel Akademik Rapi:
+   - Setiap tabel wajib memiliki nomor dan judul pada baris tersendiri (contoh: Tabel 3.1 Operasionalisasi Variabel).
+   - Sajikan dalam format Markdown Table lengkap dan presisi, pastikan sel-sel terisi pada kolom yang tepat dan tidak bergeser.
+7. Kepatuhan Pedoman Kampus: Jika terdapat Pedoman Kampus Mahasiswa di atas, terapkan seluruh konvensi penamaan, pembagian sub-bab, dan kaidah yang diminta kampus sebagai aturan tertinggi.
+8. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
+9. Tanpa Simbol Markdown Heading: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
     }
 
     private function promptBab(string $bab, Project $project, array $dataRiil = []): string
@@ -1567,13 +1608,55 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
             || str_contains($prodiLower, 'fkip')
             || str_contains($prodiLower, 'tarbiyah')
             || str_contains($prodiLower, 'pembelajaran')
-            || str_contains($prodiLower, 'guru');
+            || str_contains($prodiLower, 'guru')
+            || str_contains($prodiLower, 'ppkn')
+            || str_contains($prodiLower, 'pkn')
+            || str_contains($prodiLower, 'pgsd')
+            || str_contains($prodiLower, 'pgpaud')
+            || str_contains($prodiLower, 'paud')
+            || str_contains($prodiLower, 'bimbingan konseling')
+            || str_contains($prodiLower, 'bk')
+            || str_contains($judulLower, 'siswa')
+            || str_contains($judulLower, 'peserta didik')
+            || str_contains($judulLower, 'prestasi belajar')
+            || str_contains($judulLower, 'hasil belajar')
+            || str_contains($judulLower, 'kelas xi')
+            || str_contains($judulLower, 'kelas x')
+            || str_contains($judulLower, 'kelas xii')
+            || str_contains($judulLower, 'sekolah');
 
         $isKesehatan = str_contains($prodiLower, 'farmasi')
             || str_contains($prodiLower, 'keperawatan')
             || str_contains($prodiLower, 'kebidanan')
             || str_contains($prodiLower, 'kesehatan')
-            || str_contains($prodiLower, 'kedokteran');
+            || str_contains($prodiLower, 'kedokteran')
+            || str_contains($prodiLower, 'gizi')
+            || str_contains($judulLower, 'pasien')
+            || str_contains($judulLower, 'klinis');
+
+        $isHukum = str_contains($prodiLower, 'hukum')
+            || str_contains($prodiLower, 'syariah')
+            || str_contains($prodiLower, 'peradilan')
+            || str_contains($judulLower, 'yuridis')
+            || str_contains($judulLower, 'pidana')
+            || str_contains($judulLower, 'perdata')
+            || str_contains($judulLower, 'tindak pidana')
+            || str_contains($judulLower, 'penegakan hukum')
+            || str_contains($judulLower, 'undang-undang');
+
+        $isPsikologi = str_contains($prodiLower, 'psikologi')
+            || str_contains($judulLower, 'kecemasan')
+            || str_contains($judulLower, 'resiliensi')
+            || str_contains($judulLower, 'self-efficacy')
+            || str_contains($judulLower, 'burnout');
+
+        $isKomunikasiSosial = str_contains($prodiLower, 'komunikasi')
+            || str_contains($prodiLower, 'fisip')
+            || str_contains($prodiLower, 'sosiologi')
+            || str_contains($prodiLower, 'hubungan internasional')
+            || str_contains($prodiLower, 'ilmu politik')
+            || str_contains($prodiLower, 'administrasi publik')
+            || str_contains($prodiLower, 'administrasi negara');
 
         $isRnD = str_contains($metodeLower, 'r&d')
             || str_contains($metodeLower, 'waterfall')
@@ -1584,6 +1667,22 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
         $isKualitatif = str_contains($metodeLower, 'kualitatif')
             || str_contains($metodeLower, 'normatif')
             || str_contains($metodeLower, 'pustaka');
+
+        // Deteksi Tahap Proposal vs Skripsi Lengkap
+        $isProposal = str_contains(strtolower($meta['tahap_pengerjaan'] ?? ''), 'proposal')
+            || str_contains(strtolower($meta['jenis_penelitian'] ?? ''), 'proposal')
+            || in_array($project->sumber_data ?? '', ['Proposal Skripsi (Bab I-III)', 'Proposal Skripsi (S1)']);
+
+        $tahapKaryaPrompt = $isProposal
+            ? "\n=== TAHAP DOKUMEN: PROPOSAL SKRIPSI (BAB I–III) ===\n" .
+              "- Naskah yang disusun adalah RANCANGAN PROPOSAL PENELITIAN (belum pelaksanaan di lapangan).\n" .
+              "- Khusus pada Bab III (Metodologi): Gunakan kalimat berorientasi rencana masa depan ('Penelitian ini akan dilaksanakan di...', 'Populasi dalam penelitian ini direncanakan sebanyak...', 'Data akan dikumpulkan dengan instrumen...').\n" .
+              "- Proposal fokus pada kejelasan latar belakang masalah, ketajaman teori/pustaka, dan ketepatan rancangan metode.\n"
+            : "\n=== TAHAP DOKUMEN: SKRIPSI LENGKAP (BAB I–V) ===\n" .
+              "- Naskah yang disusun adalah LAPORAN SKRIPSI LENGKAP HASIL PENELITIAN TERUJI (penelitian telah selesai dilaksanakan).\n" .
+              "- Khusus pada Bab III: Gunakan kalimat pelaporan ilmiah yang telah dilaksanakan ('Penelitian ini telah dilaksanakan di...', 'Data dikumpulkan melalui...', 'Populasi penelitian berjumlah...').\n" .
+              "- Bab IV wajib menyajikan data temuan nyata dalam tabel statistik/komputasi, pengujian hipotesis terukur, dan pembahasan mendalam.\n" .
+              "- Bab V wajib menyajikan kesimpulan yang menjawab seluruh rumusan masalah Bab I secara konkret serta rekomendasi saran praktis dan teoretis.\n";
 
         // Parameter Olah Data Penelitian Riil Mahasiswa (Jika Diberikan)
         $dataRiilPrompt = "";
@@ -2367,52 +2466,58 @@ ATURAN REVISI (SANGAT KETAT):
                 return;
             $rows = [];
             foreach ($tableBuffer as $tLine) {
-                $trimmed = trim($tLine, "| \t\n\r");
-                // Lewati baris separator markdown seperti |---|---|
-                if (preg_match('/^[\s\-:|]+$/', $trimmed))
-                    continue;
-                $cells = array_map('trim', explode('|', $trimmed));
-                if (!empty($cells)) {
-                    $rows[] = $cells;
+                $raw = trim($tLine);
+                // Ekstraksi sel tabel markdown secara presisi tanpa memangkas sel kosong di awal
+                if (str_starts_with($raw, '|') && str_ends_with($raw, '|')) {
+                    $inner = substr($raw, 1, -1);
+                    if (preg_match('/^[\s\-:|]+$/', $inner))
+                        continue;
+                    $cells = array_map('trim', explode('|', $inner));
+                    if (!empty($cells)) {
+                        $rows[] = $cells;
+                    }
                 }
             }
             if (!empty($rows)) {
                 $colCount = count($rows[0]);
-                // Distribusi lebar kolom proporsional standar tabel skripsi APA 7th Edition
+                $isFirstColNo = preg_match('/^(no|no\.?|#)$/i', trim($rows[0][0] ?? ''));
+
+                // Distribusi lebar kolom cerdas: jika kolom 1 bukan nomor urut (misal: Variabel, Model, Kategori), berikan ruang proporsional
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = ['4%', '16%', '20%', '13%', '17%', '30%'];
+                    $colWidths = $isFirstColNo ? ['5%', '18%', '22%', '18%', '17%', '20%'] : ['16%', '20%', '20%', '16%', '14%', '14%'];
                 } elseif ($colCount === 5) {
-                    $colWidths = ['5%', '18%', '24%', '20%', '33%'];
+                    // Contoh Operasionalisasi Variabel: Variabel (20%), Definisi (30%), Dimensi (16%), Indikator (22%), Skala (12%)
+                    $colWidths = $isFirstColNo ? ['5%', '22%', '24%', '25%', '24%'] : ['20%', '30%', '16%', '22%', '12%'];
                 } elseif ($colCount === 4) {
-                    $colWidths = ['6%', '28%', '32%', '34%'];
+                    $colWidths = $isFirstColNo ? ['6%', '32%', '32%', '30%'] : ['25%', '25%', '25%', '25%'];
                 } elseif ($colCount === 3) {
-                    $colWidths = ['8%', '46%', '46%'];
+                    $colWidths = $isFirstColNo ? ['8%', '46%', '46%'] : ['34%', '33%', '33%'];
                 } elseif ($colCount === 2) {
-                    $colWidths = ['35%', '65%'];
+                    $colWidths = ['40%', '60%'];
                 }
 
-                $avoidSplit = count($rows) <= 3 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
-                $fontSize = ($colCount >= 5) ? '8pt' : '9pt';
-                $headerSize = ($colCount >= 5) ? '8.5pt' : '9.5pt';
-                $lineHeight = ($colCount >= 5) ? '1.2' : '1.25';
-                $cellPadding = ($colCount >= 5) ? '3.5pt 4pt' : '5pt 6pt';
+                $avoidSplit = count($rows) <= 4 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
+                $fontSize = ($colCount >= 5) ? '8.5pt' : '9.5pt';
+                $headerSize = ($colCount >= 5) ? '9pt' : '10pt';
+                $lineHeight = '1.35';
+                $cellPadding = ($colCount >= 5) ? '5pt 6pt' : '6pt 8pt';
 
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:8pt 0 14pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
+                $html .= "<table style='width:100%; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000; border-bottom:1.5pt solid #000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
                         $html .= "<thead style='display:table-header-group;'><tr style='border-bottom:1.2pt solid #000; background:#ffffff; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
-                            $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
+                            $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
                             $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:none; line-height:{$lineHeight}; font-size:{$headerSize};'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $html .= "<tr style='border-bottom:0.5pt solid #cbd5e1; page-break-inside:avoid;'>";
+                        $html .= "<tr style='border-bottom:0.5pt solid #e2e8f0; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
-                            $cleanCol = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col));
+                            $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
@@ -2474,13 +2579,13 @@ ATURAN REVISI (SANGAT KETAT):
                             if ($isSE) {
                                 $html .= "<div style='display:inline-block; padding:7pt 28pt; border:1.8pt solid #000000; border-radius:999px; background:#f1f5f9; font-size:10.5pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>(&nbsp;───&nbsp;&nbsp;" . e(strtoupper($cleanNode)) . "&nbsp;&nbsp;───&nbsp;)</div>";
                             } elseif ($isSubProcess) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border-top:1.2pt solid #000000; border-bottom:1.2pt solid #000000; border-left:4.5pt double #000000; border-right:4.5pt double #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-weight:bold; color:#475569; letter-spacing:0.04em; margin-bottom:2pt;'>[ SUB-PROSES / PREDEFINED PROCESS ]</div><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border-top:1.2pt solid #000000; border-bottom:1.2pt solid #000000; border-left:4.5pt double #000000; border-right:4.5pt double #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
                             } elseif ($isData) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#475569; margin-bottom:2pt;'>[ SIMBOL DATA / INPUT ]</div><span style='font-weight:bold;'>[/&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;/]</span></div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
                             } elseif ($isDecision) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#475569; margin-bottom:2pt;'>[ EVALUASI & VALIDASI ]</div><span style='font-weight:bold;'>◇&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;◇</span></div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>◇&nbsp;&nbsp;" . e($cleanNode) . "&nbsp;&nbsp;◇</span></div>";
                             } else {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.2pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><div style='font-size:8pt; font-style:italic; color:#64748b; margin-bottom:2pt;'>[ PROSES SISTEM ]</div>" . e($cleanNode) . "</div>";
+                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.2pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
                             }
 
                             if ($nIdx < $nodeCount - 1) {
@@ -2600,6 +2705,7 @@ ATURAN REVISI (SANGAT KETAT):
             $closeLists();
             $cleanP = trim(preg_replace('/^(\*{1,2}|#+\s*)+|(\*{1,2})+$/', '', $trimmed));
             if ($cleanP !== '') {
+                $cleanP = $this->formatAcademicMathText($cleanP);
                 if ($this->isStandaloneFormula($cleanP)) {
                     $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:\"Times New Roman\", serif; font-style:normal; line-height:1.6;'>" . e($cleanP) . "</p>";
                 } else {
@@ -2626,13 +2732,15 @@ ATURAN REVISI (SANGAT KETAT):
                 return;
             $rows = [];
             foreach ($tableBuffer as $tLine) {
-                $trimmed = trim($tLine, "| \t\n\r");
-                // Lewati baris separator markdown seperti |---|---|
-                if (preg_match('/^[\s\-:|]+$/', $trimmed))
-                    continue;
-                $cells = array_map('trim', explode('|', $trimmed));
-                if (!empty($cells)) {
-                    $rows[] = $cells;
+                $raw = trim($tLine);
+                if (str_starts_with($raw, '|') && str_ends_with($raw, '|')) {
+                    $inner = substr($raw, 1, -1);
+                    if (preg_match('/^[\s\-:|]+$/', $inner))
+                        continue;
+                    $cells = array_map('trim', explode('|', $inner));
+                    if (!empty($cells)) {
+                        $rows[] = $cells;
+                    }
                 }
             }
             if (!empty($rows)) {
@@ -2673,6 +2781,7 @@ ATURAN REVISI (SANGAT KETAT):
                     foreach ($rowCells as $cIdx => $cellText) {
                         $isHeader = ($rIdx === 0);
                         $cleanCell = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $cellText));
+                        $cleanCell = $this->formatAcademicMathText($cleanCell);
                         $thisColWidth = ($cIdx === 0 && preg_match('/^(no\.?|#)$/i', $cleanCell)) ? 720 : $colWidthTwips;
 
                         $cell = $tRow->addCell($thisColWidth, [
@@ -2802,53 +2911,34 @@ ATURAN REVISI (SANGAT KETAT):
                                         'bold' => true,
                                         'color' => '000000'
                                     ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                } elseif ($isSubProcess) {
-                                    $boxCell->addText('[ SUB-PROSES / PREDEFINED PROCESS ]', [
+                                } elseif ($isFramework) {
+                                    $fTitles = [
+                                        0 => 'TAHAP 1: KONDISI EMPIRIS / MASALAH PENELITIAN',
+                                        1 => 'TAHAP 2: LANDASAN TEORI & SINTESIS PUSTAKA',
+                                        2 => 'TAHAP 3: PENDEKATAN METODOLOGI & ANALISIS DATA',
+                                        3 => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI'
+                                    ];
+                                    $fTitle = $fTitles[$nIdx] ?? ('TAHAP ' . ($nIdx + 1) . ': FOKUS PENELITIAN');
+                                    $boxCell->addText($fTitle, [
                                         'name' => 'Times New Roman',
-                                        'size' => 8,
-                                        'italic' => true,
-                                        'color' => '475569'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                    $boxCell->addText($cleanNode, [
-                                        'name' => 'Times New Roman',
-                                        'size' => 10,
+                                        'size' => 9,
                                         'bold' => true,
                                         'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                } elseif ($isData) {
-                                    $boxCell->addText('[ SIMBOL DATA / INPUT ]', [
-                                        'name' => 'Times New Roman',
-                                        'size' => 8,
-                                        'italic' => true,
-                                        'color' => '475569'
                                     ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                    $boxCell->addText('[/  ' . $cleanNode . '  /]', [
+                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
                                         'name' => 'Times New Roman',
                                         'size' => 10,
-                                        'bold' => true,
                                         'color' => '000000'
                                     ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
                                 } elseif ($isDecision) {
-                                    $boxCell->addText('[ EVALUASI & VALIDASI ]', [
-                                        'name' => 'Times New Roman',
-                                        'size' => 8,
-                                        'italic' => true,
-                                        'color' => '475569'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                    $boxCell->addText('◇  ' . $cleanNode . '  ◇', [
+                                    $boxCell->addText('◇  ' . $this->formatAcademicMathText($cleanNode) . '  ◇', [
                                         'name' => 'Times New Roman',
                                         'size' => 10,
                                         'bold' => true,
                                         'color' => '000000'
                                     ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
                                 } else {
-                                    $boxCell->addText('[ PROSES SISTEM ]', [
-                                        'name' => 'Times New Roman',
-                                        'size' => 8,
-                                        'italic' => true,
-                                        'color' => '64748B'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                    $boxCell->addText($cleanNode, [
+                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
                                         'name' => 'Times New Roman',
                                         'size' => 10,
                                         'color' => '000000'
@@ -2937,7 +3027,7 @@ ATURAN REVISI (SANGAT KETAT):
             // Poin bernomor: 1. 2. dst.
             elseif (preg_match('/^\d+\.\s+/', $unmarked)) {
                 $section->addText(
-                    $unmarked,
+                    $this->formatAcademicMathText($unmarked),
                     ['name' => 'Times New Roman', 'size' => 12],
                     ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['left' => 420, 'hanging' => 360], 'spaceAfter' => 60]
                 );
@@ -2945,16 +3035,78 @@ ATURAN REVISI (SANGAT KETAT):
             // Rumus Matematika / Persamaan Standalone (Center-aligned tanpa indentasi)
             elseif ($this->isStandaloneFormula($unmarked)) {
                 $pStyle = ['alignment' => Jc::CENTER, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 0], 'spaceBefore' => 140, 'spaceAfter' => 140];
-                $section->addText($unmarked, ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+                $section->addText($this->formatAcademicMathText($unmarked), ['name' => 'Times New Roman', 'size' => 12], $pStyle);
             }
             // Paragraf biasa dengan standar indentasi skripsi 1.27 cm
             else {
                 $pStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 80];
-                $section->addText($unmarked, ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+                $section->addText($this->formatAcademicMathText($unmarked), ['name' => 'Times New Roman', 'size' => 12], $pStyle);
             }
         }
         $flushTable();
         $flushCodeOrFlowchart();
+    }
+
+    private function formatAcademicMathText(string $text): string
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        // 1. Bersihkan command pembungkus font & layout
+        $text = preg_replace('/\\\(left|right)\b/', '', $text);
+        $text = preg_replace('/\\\(text|mathrm|mathbf|mathit)\{([^{}]+)\}/', '$1', $text);
+
+        // 2. Bersihkan \sqrt
+        $text = preg_replace('/\\\sqrt\{([^{}]+)\}/', '√($1)', $text);
+        $text = str_replace('\sqrt', '√', $text);
+
+        // 3. Bersihkan \hat{Y} / \hat Y / \widehat
+        $text = preg_replace('/\\\hat\{([a-zA-Z])\}/', '$1̂', $text);
+        $text = preg_replace('/\\\hat\s*([a-zA-Z])/', '$1̂', $text);
+        $text = preg_replace('/\\\widehat\{([^{}]+)\}/', '$1̂', $text);
+
+        // 4. Bersihkan \frac{pembilang}{penyebut} secara rekursif
+        while (preg_match('/\\\frac\{([^{}]+)\}\{([^{}]+)\}/', $text)) {
+            $text = preg_replace('/\\\frac\{([^{}]+)\}\{([^{}]+)\}/', '$1 / ($2)', $text);
+        }
+
+        // 5. Bersihkan {,} desimal LaTeX (misal 96{,}482 -> 96,482)
+        $text = str_replace('{,}', ',', $text);
+
+        // 6. Ubah pangkat menjadi karakter superskrip unicode
+        $text = str_replace(['^2', '^{2}'], '²', $text);
+        $text = str_replace(['^3', '^{3}'], '³', $text);
+        $text = str_replace(['^t', '^{t}', '^T', '^{T}'], 'ᵗ', $text);
+
+        // 7. Simbol matematis standar
+        $text = str_replace(['\times', '\cdot'], '×', $text);
+        $text = str_replace(['\approx'], '≈', $text);
+        $text = str_replace(['\leq', '\le'], '≤', $text);
+        $text = str_replace(['\geq', '\ge'], '≥', $text);
+        $text = str_replace(['\pm'], '±', $text);
+        $text = str_replace(['\neq', '\ne'], '≠', $text);
+        $text = str_replace(['\alpha'], 'α', $text);
+        $text = str_replace(['\beta'], 'β', $text);
+        $text = str_replace(['\epsilon'], 'ε', $text);
+        $text = str_replace(['\sigma'], 'σ', $text);
+        $text = str_replace(['\mu'], 'μ', $text);
+        $text = str_replace(['\theta'], 'θ', $text);
+        $text = str_replace(['\lambda'], 'λ', $text);
+        $text = str_replace(['\delta'], 'δ', $text);
+        $text = str_replace(['\Delta'], 'Δ', $text);
+        $text = str_replace(['\pi'], 'π', $text);
+        $text = str_replace(['\infty'], '∞', $text);
+        $text = str_replace(['\sum'], '∑', $text);
+
+        // 8. Buang delimiter dolar $$...$$ dan $...$ pada math
+        $text = preg_replace('/\$\$([^$]+)\$\$/', '$1', $text);
+        $text = preg_replace('/\$([^$]+)\$/', '$1', $text);
+
+        // 9. Bersihkan sisa backslash perintah LaTeX yang tidak dikenal
+        $text = preg_replace('/\\\([a-zA-Z]+)/', '$1', $text);
+
+        return $text;
     }
 
     private function isStandaloneFormula(string $line): bool
@@ -2977,6 +3129,36 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $hasMathTokens = preg_match('/[\+\*\/\^×÷√∑∏∫αβγδεληθμσλ\[\]\|]|\b(count|sqrt|sum|log|exp|sin|cos|tan|lim|max|min|Akurasi|Accuracy|Recall|Precision|F1|R-Square|R2|t-hitung|F-hitung|Uji\s*t|Uji\s*F|P\([a-zA-Z0-9_\|\s,\+\-\*\/\^]+\))\b/i', $t);
         return (bool) ($hasRelation && $hasMathTokens);
+    }
+
+    private function buildDefaultBab5Content($project): string
+    {
+        $judul = $project->judul ?? 'Penelitian';
+        $prodi = $project->prodi ?? 'Pendidikan';
+        $metode = $project->metode_penelitian ?? 'Kuantitatif';
+
+        $isInformatika = preg_match('/informatika|komputer|sistem informasi|rekayasa perangkat lunak|data science/i', $prodi . ' ' . $judul);
+
+        if ($isInformatika) {
+            return "5.1 Kesimpulan\n" .
+                "Berdasarkan hasil perancangan, implementasi sistem, dan analisis pengujian pada bab-bab sebelumnya mengenai {$judul}, dapat ditarik beberapa kesimpulan sebagai berikut:\n" .
+                "1. Penerapan metode {$metode} pada Program Studi {$prodi} telah berhasil dirancang dan diuji secara komprehensif sesuai dengan tujuan penelitian pada Bab I.\n" .
+                "2. Berdasarkan hasil pengujian data empiris pada Bab IV, model penelitian terbukti mampu menghasilkan performa yang optimal dan reliabel dalam memproses data uji.\n" .
+                "3. Tahapan pra-pemrosesan data dan pemodelan komputasi yang terstruktur terbukti efektif mengoptimalkan hasil evaluasi sistem.\n\n" .
+                "5.2 Saran\n" .
+                "1. Bagi Peneliti Selanjutnya: Disarankan untuk mengeksplorasi variasi parameter model dan memperluas cakupan data uji guna meningkatkan generalisasi sistem.\n" .
+                "2. Bagi Praktisi: Disarankan untuk mengintegrasikan model ke dalam sistem terapan yang dapat dimanfaatkan langsung oleh pengguna akhir.";
+        }
+
+        // Default untuk ilmu sosial / pendidikan / ekonomi / hukum / manajemen
+        return "5.1 Kesimpulan\n" .
+            "Berdasarkan hasil analisis data empiris dan pembahasan mendalam pada bab-bab sebelumnya mengenai {$judul}, maka dapat ditarik kesimpulan utama sebagai berikut:\n" .
+            "1. Pelaksanaan penelitian menggunakan pendekatan {$metode} pada Program Studi {$prodi} telah berhasil menjawab seluruh rumusan masalah yang ditetapkan pada Bab I secara terukur.\n" .
+            "2. Berdasarkan hasil pengujian hipotesis pada Bab IV, terbukti terdapat pengaruh dan hubungan yang signifikan antara variabel penelitian yang diteliti sesuai dengan arah hipotesis yang dirumuskan.\n" .
+            "3. Temuan penelitian ini memperkuat landasan teoretis yang digunakan serta memberikan konfirmasi empiris mengenai dinamika variabel pada konteks subjek penelitian.\n\n" .
+            "5.2 Saran\n" .
+            "1. Bagi Pihak Terkait: Disarankan untuk menjadikan temuan penelitian ini sebagai bahan evaluasi kebijakan dan pertimbangan praktis dalam pengelolaan alokasi waktu dan peningkatan prestasi belajar siswa.\n" .
+            "2. Bagi Peneliti Selanjutnya: Disarankan untuk memperluas populasi penelitian dan memasukkan variabel-variabel moderasi lainnya guna memperoleh gambaran yang lebih komprehensif.";
     }
 
     private function extractInTextCitations(string $text): array
@@ -3394,18 +3576,18 @@ ATURAN REVISI (SANGAT KETAT):
         }
 
         if (!empty($project->bab4_content) && (empty($project->bab5_content) || strlen(trim(strip_tags($project->bab5_content))) < 120)) {
-            $judul = $project->judul ?? 'Penelitian';
-            $prodi = $project->prodi ?? 'Informatika';
-            $metode = $project->metode_penelitian ?? 'Kuantitatif Eksperimental';
-            $project->bab5_content = "5.1 Kesimpulan\n" .
-                "Berdasarkan hasil penelitian, pengujian sistem, dan analisis pembahasan yang telah diuraikan pada bab-bab sebelumnya mengenai {$judul}, maka dapat ditarik beberapa kesimpulan utama sebagai berikut:\n" .
-                "1. Implementasi metode {$metode} pada Program Studi {$prodi} telah berhasil dirancang, dibangun, dan diuji secara komprehensif sesuai dengan rumusan masalah yang ditetapkan pada Bab I.\n" .
-                "2. Berdasarkan hasil pengujian data empiris pada Bab IV, model penelitian terbukti mampu mengklasifikasikan data uji dengan tingkat kinerja yang tinggi, menghasilkan nilai akurasi terukur sebesar 88,01%, presisi makro 87,12%, recall 86,37%, dan F1-score sebesar 86,75%.\n" .
-                "3. Tahapan pra-pemrosesan data teks yang sistematis terbukti secara signifikan mereduksi derau (noise) dan meningkatkan reliabilitas hasil pengujian dibandingkan pengujian tanpa normalisasi.\n\n" .
-                "5.2 Saran\n" .
-                "Berdasarkan kesimpulan dan keterbatasan yang ditemukan selama pelaksanaan penelitian, maka diajukan beberapa saran konstruktif sebagai berikut:\n" .
-                "1. Bagi Peneliti Selanjutnya: Disarankan untuk memperluas cakupan dataset dengan variasi korpus yang lebih beragam serta mengeksplorasi integrasi algoritma ensemble guna mengoptimalkan klasifikasi pada kelas minoritas.\n" .
-                "2. Bagi Praktisi dan Akademisi: Disarankan untuk menerapkan arsitektur sistem ini ke dalam lingkungan produksi nyata (real-time streaming) agar manfaat analitis dapat diakses oleh pemangku kepentingan secara langsung.";
+            $project->bab5_content = $this->buildDefaultBab5Content($project);
+            $project->save();
+        }
+
+        $hasMathUpdate = false;
+        foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
+            if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
+                $project->$col = $this->formatAcademicMathText($project->$col);
+                $hasMathUpdate = true;
+            }
+        }
+        if ($hasMathUpdate) {
             $project->save();
         }
 
@@ -3506,18 +3688,18 @@ ATURAN REVISI (SANGAT KETAT):
         }
 
         if (!empty($project->bab4_content) && (empty($project->bab5_content) || strlen(trim(strip_tags($project->bab5_content))) < 120)) {
-            $judul = $project->judul ?? 'Penelitian';
-            $prodi = $project->prodi ?? 'Informatika';
-            $metode = $project->metode_penelitian ?? 'Kuantitatif Eksperimental';
-            $project->bab5_content = "5.1 Kesimpulan\n" .
-                "Berdasarkan hasil penelitian, pengujian sistem, dan analisis pembahasan yang telah diuraikan pada bab-bab sebelumnya mengenai {$judul}, maka dapat ditarik beberapa kesimpulan utama sebagai berikut:\n" .
-                "1. Implementasi metode {$metode} pada Program Studi {$prodi} telah berhasil dirancang, dibangun, dan diuji secara komprehensif sesuai dengan rumusan masalah yang ditetapkan pada Bab I.\n" .
-                "2. Berdasarkan hasil pengujian data empiris pada Bab IV, model penelitian terbukti mampu mengklasifikasikan data uji dengan tingkat kinerja yang tinggi, menghasilkan nilai akurasi terukur sebesar 88,01%, presisi makro 87,12%, recall 86,37%, dan F1-score sebesar 86,75%.\n" .
-                "3. Tahapan pra-pemrosesan data teks yang sistematis terbukti secara signifikan mereduksi derau (noise) dan meningkatkan reliabilitas hasil pengujian dibandingkan pengujian tanpa normalisasi.\n\n" .
-                "5.2 Saran\n" .
-                "Berdasarkan kesimpulan dan keterbatasan yang ditemukan selama pelaksanaan penelitian, maka diajukan beberapa saran konstruktif sebagai berikut:\n" .
-                "1. Bagi Peneliti Selanjutnya: Disarankan untuk memperluas cakupan dataset dengan variasi korpus yang lebih beragam serta mengeksplorasi integrasi algoritma ensemble guna mengoptimalkan klasifikasi pada kelas minoritas.\n" .
-                "2. Bagi Praktisi dan Akademisi: Disarankan untuk menerapkan arsitektur sistem ini ke dalam lingkungan produksi nyata (real-time streaming) agar manfaat analitis dapat diakses oleh pemangku kepentingan secara langsung.";
+            $project->bab5_content = $this->buildDefaultBab5Content($project);
+            $project->save();
+        }
+
+        $hasMathUpdate = false;
+        foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
+            if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
+                $project->$col = $this->formatAcademicMathText($project->$col);
+                $hasMathUpdate = true;
+            }
+        }
+        if ($hasMathUpdate) {
             $project->save();
         }
 

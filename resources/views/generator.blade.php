@@ -2077,7 +2077,27 @@
         }
 
         function formatInlineMarkdown(text) {
-            return escapeHtml(text)
+            if (!text) return '';
+            let s = String(text);
+
+            // 1. Bersihkan notasi matematika LaTeX agar tidak bocor kode mentah di naskah skripsi
+            s = s.replace(/\\hat\{([a-zA-Z])\}/g, '$1̂');
+            s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1 / ($2)');
+            s = s.replace(/\{,\}/g, ',');
+            s = s.replace(/\^2|\^\{2\}/g, '²');
+            s = s.replace(/\^3|\^\{3\}/g, '³');
+            s = s.replace(/\\times|\\cdot/g, '×');
+            s = s.replace(/\\approx/g, '≈');
+            s = s.replace(/\\le(?:q)?/g, '≤');
+            s = s.replace(/\\ge(?:q)?/g, '≥');
+            s = s.replace(/\\alpha/g, 'α');
+            s = s.replace(/\\beta/g, 'β');
+            s = s.replace(/\\epsilon/g, 'ε');
+            s = s.replace(/\\sigma/g, 'σ');
+            s = s.replace(/\\sum/g, '∑');
+            s = s.replace(/\$([^$]+)\$/g, '$1');
+
+            return escapeHtml(s)
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
         }
@@ -2242,17 +2262,35 @@
             const isFlowchart = clean.includes('-->') || clean.includes('->') || clean.includes('↓') || clean.includes('V') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing/i.test(clean);
             const isFramework = clean.includes('Permasalahan') || clean.includes('Landasan Teori') || clean.includes('Kerangka') || clean.includes('Fenomena') || clean.includes('Bagan') || clean.includes('Masalah') || /kerangka\s*pemikiran/i.test(clean);
 
+            const projJudul = (typeof projectMeta !== 'undefined' && projectMeta && projectMeta.judul) ? projectMeta.judul.trim() : 'Topik Penelitian';
+
             if (isFramework) {
                 let nodes = [];
-                const matches = [...clean.matchAll(/\[(.*?)\]/g)];
+                // Tangkap kurung siku termasuk multi-line
+                const matches = [...clean.matchAll(/\[([\s\S]*?)\]/g)];
                 if (matches.length >= 3) {
                     nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
                 }
+                if (nodes.length < 3) {
+                    const rawLines = clean.split(/\n|↓|-->|->/);
+                    for (let l of rawLines) {
+                        let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').replace(/\[|\]/g, '').trim();
+                        if (t.length >= 6 && !/^[+\-=_|~#\s]+$/.test(t) && !/^\+[-+]+\+$/.test(t) && !t.toLowerCase().startsWith('gambar') && !t.toLowerCase().startsWith('bagan')) {
+                            nodes.push(t);
+                        }
+                    }
+                }
 
-                const tier1 = nodes[0] || 'Kondisi Empiris & Gap Riset: Kompleksitas data teks tidak terstruktur di media sosial, tingginya noise singkatan/slang, dan perlunya otomasi klasifikasi sentimen yang akurat.';
-                const tier2 = nodes[1] || 'Landasan Teori & Kajian Pustaka: Konsep Natural Language Processing (NLP), formulasi probabilitas Teorema Naive Bayes, ekstraksi fitur TF-IDF, dan sintesis penelitian terdahulu.';
-                const tier3 = nodes[2] || 'Metodologi Penelitian & Pemodelan: Text Preprocessing (Case Folding, Cleaning, Tokenizing, Normalisasi Slang, Stopword Removal, Stemming Sastrawi), pembagian data latih-uji 80:20, dan pemodelan klasifikasi.';
-                const tier4 = nodes[3] || 'Hasil & Luaran yang Diharapkan: Model Naive Bayes dengan akurasi, presisi, recall, dan F1-score optimal untuk analisis sentimen, serta kontribusi praktis rekomendasi.';
+                // Fallback dinamis otomatis sesuai judul skripsi mahasiswa, BUKAN teks hardcode Naive Bayes
+                const def1 = 'Kondisi Empiris & Gap Masalah: Kesenjangan nyata di lapangan dan urgensi penelitian terkait ' + projJudul + ' yang membutuhkan kajian ilmiah terstruktur.';
+                const def2 = 'Landasan Teori & Kajian Pustaka: Grand theory, konsep operasional variabel, dan sintesis temuan penelitian terdahulu yang relevan sebagai landasan teoretis.';
+                const def3 = 'Pendekatan Metodologi & Analisis Data: Pengumpulan data empiris melalui instrumen teruji, uji instrumen, dan pengujian hipotesis secara sistematis.';
+                const def4 = 'Hasil & Luaran yang Diharapkan: Pembuktian hipotesis secara empiris, kesimpulan ilmiah yang valid, serta rekomendasi solutif bagi pihak terkait.';
+
+                const tier1 = nodes[0] || def1;
+                const tier2 = nodes[1] || def2;
+                const tier3 = nodes[2] || def3;
+                const tier4 = nodes[3] || def4;
 
                 return `
                     <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
@@ -3336,25 +3374,7 @@
             }
             if (activeView === 'front') {
                 const savedFront = projectMeta.front_matter_html;
-                const topBar = `
-                    <div style="max-width: 794px; margin: 0 auto 16px auto; display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 18px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); flex-wrap: wrap; gap: 10px;">
-                        <div style="font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px;">
-                            <span style="font-weight: 700; color: #0f172a;">Identitas Mahasiswa:</span>
-                            <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-weight: 600; color: #1e293b;">${escapeHtml(projectMeta.nama || defaultUserName)} (${escapeHtml(projectMeta.nim || '-')})</span>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button type="button" class="btn-top" onclick="openEditIdentityModal()" style="font-size: 12.5px; height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; font-weight: 700; cursor: pointer;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                                Edit Identitas Mahasiswa
-                            </button>
-                            <button type="button" class="btn-top" onclick="document.getElementById('sidebar-logo-upload').click()" style="font-size: 12.5px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                                Ganti Logo
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML = topBar + (savedFront || buildCoverAndFrontMatterHtml());
+                container.innerHTML = (savedFront || buildCoverAndFrontMatterHtml());
                 container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
                     el.addEventListener('input', () => {
                         isDirty = true;

@@ -1994,13 +1994,13 @@
                 <span>Cari Judul</span>
             </button>
 
-            <button type="button" class="nav-btn" id="nav-ppt" onclick="openTab('ppt', 'PPT Sidang')">
+            <button type="button" class="nav-btn" id="nav-ppt" onclick="openTab('ppt', 'Generate PPT Sidang')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <rect x="2" y="3" width="20" height="14" rx="2" />
                     <line x1="8" y1="21" x2="16" y2="21" />
                     <line x1="12" y1="17" x2="12" y2="21" />
                 </svg>
-                <span>PPT Sidang</span>
+                <span>Generate PPT Sidang</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-defense" onclick="openTab('defense', 'Simulasi Sidang')">
@@ -2205,7 +2205,7 @@
                         </div>
                     </div>
 
-                    <div class="dash-card" onclick="openTab('ppt', 'PPT Sidang')">
+                    <div class="dash-card" onclick="openTab('ppt', 'Generate PPT Sidang')">
                         <div class="dash-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="1.8">
@@ -2214,7 +2214,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3>PPT Sidang</h3>
+                            <h3>Generate PPT Sidang</h3>
                             <p>Buat slide sidang otomatis dari proyek skripsimu, edit tema, lalu unduh .pptx.</p>
                         </div>
                     </div>
@@ -2773,7 +2773,7 @@
             <!-- 4. TAB PPT SIDANG (EXACT 4-STEP FLOW + DESIGNER TEMPLATES + PREVIEW) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-ppt">
-                <h1 class="page-title">PPT Sidang</h1>
+                <h1 class="page-title">Generate PPT Sidang</h1>
                 <p class="page-subtitle">Slide sidang dari isi skripsimu. Pilih desain template, rapikan isi slide,
                     preview presentasi seperti PowerPoint, lalu unduh <code>.pptx</code>.</p>
 
@@ -4322,7 +4322,7 @@
                 'skripsi': 'Proyek Saya',
                 'proposal': 'Proyek Saya',
                 'titles': 'Cari Judul',
-                'ppt': 'PPT Sidang',
+                'ppt': 'Generate PPT Sidang',
                 'defense': 'Simulasi Sidang',
                 'journals': 'Cari Jurnal',
                 'paraphrase': 'Parafrase',
@@ -5139,9 +5139,12 @@
             if (currentSlideIdx === 0) {
                 secLabel.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
+                const logoHtml = activeLogo
+                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
+                    : '';
                 const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
+                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
                     <div class="ppt-cover-oleh-box">
@@ -5388,9 +5391,12 @@
             if (currentSlideIdx === 0) {
                 secEl.innerText = 'SLIDE 1 · COVER SIDANG';
                 titleEl.style.textAlign = 'center';
+                const logoHtml = activeLogo
+                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
+                    : '';
                 const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
                 const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
+                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
                 subEl.style.textAlign = 'center';
                 subEl.innerHTML = `
                     <div class="ppt-cover-oleh-box">
