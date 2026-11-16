@@ -90,3 +90,4 @@ Terkurasi komprehensif mengacu pada buku pedoman skripsi perguruan tinggi nasion
 - **BAB III METODOLOGI PENELITIAN**: 3.1 Jenis dan Desain Penelitian, 3.2 Lokasi dan Waktu Penelitian, 3.3 Populasi dan Sampel (Objek/Bahan), 3.4 Definisi Operasional & Pengukuran Variabel (dengan tabel indikator), 3.5 Metode Pengumpulan Data, 3.6 Uji Instrumen / Validasi, 3.7 Metode Analisis Data.
 - **BAB IV HASIL PENELITIAN DAN PEMBAHASAN**: 4.1 Gambaran Umum Objek Penelitian, 4.2 Hasil Penelitian / Olah Data Empiris (dengan tabel data dan alur flowchart), 4.3 Pengujian Hipotesis, 4.4 Pembahasan Kritis & Komparasi Teoretis.
 - **BAB V PENUTUP**: 5.1 Kesimpulan (menjawab rumusan masalah Bab I secara tegas dengan angka terukur), 5.2 Saran (rekomendasi terapan praktis dan akademis untuk riset lanjutan).
+

@@ -805,44 +805,48 @@
             border-bottom: 2px solid #000000;
         }
 
-        /* Badge Sitasi Biru Interaktif Akademik */
-        .academic-cite-badge {
-            color: #1d4ed8 !important;
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.28);
-            border-radius: 4px;
-            padding: 1px 6px;
-            margin: 0 1px;
+        /* Sitasi Biru Hyperlink Alami Akademik (Sesuai Standar Naskah Digital) */
+        .academic-cite-badge, .cite-blue {
+            color: #2563eb !important;
+            text-decoration: underline !important;
+            text-underline-offset: 2.5px;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-weight: inherit !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
             cursor: pointer;
-            font-weight: 600;
-            display: inline-block;
-            text-decoration: none;
-            transition: all 0.15s ease;
-            user-select: text;
-            vertical-align: baseline;
-            line-height: normal;
+            display: inline !important;
+            box-shadow: none !important;
+            transition: color 0.15s ease;
         }
-        .academic-cite-badge:hover {
-            background: rgba(37, 99, 235, 0.18);
-            border-color: #2563eb;
-            color: #1e40af !important;
-            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.18);
-            transform: translateY(-0.5px);
+        .academic-cite-badge:hover, .cite-blue:hover {
+            color: #1d4ed8 !important;
+            text-decoration-thickness: 1.5px;
         }
         .academic-cite-badge::after {
-            content: " ↗";
-            font-size: 9.5px;
-            font-weight: 700;
-            opacity: 0.75;
-            margin-left: 2px;
+            display: none !important;
+            content: none !important;
         }
 
-        .citation-popover-card {
-            animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Di dalam tabel, teks sitasi bersih tanpa background & tombol kotak */
+        .table-cite-text, table .academic-cite-badge, table .cite-blue {
+            color: #0f172a !important;
+            text-decoration: none !important;
+            cursor: pointer;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-weight: inherit !important;
+            display: inline !important;
         }
-        @keyframes popoverFadeIn {
-            from { opacity: 0; transform: translateY(6px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        .table-cite-text:hover, table .academic-cite-badge:hover, table .cite-blue:hover {
+            color: #2563eb !important;
+            text-decoration: underline !important;
         }
 
         .academic-diagram-box {
@@ -1859,42 +1863,7 @@
         </div>
     </div>
 
-    <!-- Floating Popover Kartu Informasi Sitasi & Jurnal Asli -->
-    <div id="citation-popover" class="citation-popover-card" style="display: none; position: fixed; z-index: 9999; max-width: 440px; width: 92vw; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.22), 0 6px 16px -2px rgba(15, 23, 42, 0.08); padding: 18px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2);"></span>
-                <span style="font-size: 11px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.06em;">Sitasi Terverifikasi</span>
-                <span id="popover-cite-format" style="font-size: 10.5px; background: #eff6ff; color: #2563eb; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid #bfdbfe;">APA 7th</span>
-            </div>
-            <button type="button" onclick="closeCitationPopover()" style="border: none; background: transparent; font-size: 20px; line-height: 1; color: #94a3b8; cursor: pointer; padding: 0 4px;">&times;</button>
-        </div>
-        <div style="margin-bottom: 10px;">
-            <div id="popover-cite-label" style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"></div>
-            <div id="popover-pub-title" style="font-size: 12.5px; line-height: 1.5; color: #334155; font-style: normal; margin-bottom: 6px;"></div>
-            <div id="popover-pub-meta" style="font-size: 11.5px; color: #64748b; line-height: 1.4;"></div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
-            <a id="popover-btn-doi" href="#" target="_blank" rel="noopener noreferrer" style="display: none; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 8px; background: #2563eb; color: #ffffff; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                <span>Buka Link Jurnal Asli (DOI) ↗</span>
-            </a>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <a id="popover-btn-scholar" href="#" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 10px; border-radius: 8px; background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; text-decoration: none;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span>Google Scholar ↗</span>
-                </a>
-                <a id="popover-btn-garuda" href="#" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 34px; padding: 0 10px; border-radius: 8px; background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; text-decoration: none;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    <span>Garuda / SINTA ↗</span>
-                </a>
-            </div>
-            <button type="button" id="popover-btn-dp" onclick="jumpToDaftarPustakaFromPopover()" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 600; cursor: pointer;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                <span>Lihat Referensi di Daftar Pustaka</span>
-            </button>
-        </div>
-    </div>
+
 
     <div class="toast-wrap" id="toast-wrap"></div>
 
@@ -2153,7 +2122,7 @@
             if (stepLabel && stepLabel.lastElementChild) stepLabel.lastElementChild.textContent = 'Selesai! Menampilkan naskah...';
         }
 
-        function formatInlineMarkdown(text) {
+        function formatInlineMarkdown(text, isTable = false) {
             if (!text) return '';
             let s = String(text);
 
@@ -2198,7 +2167,7 @@
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-            // 2. Format Sitasi Akademik Menjadi Badge Biru Interaktif yang Dapat Diklik
+            // 2. Format Sitasi Akademik Menjadi Hyperlink Alami yang Dapat Diklik Langsung
             // A. Sitasi Naratif: "Muflih dan Santosa (2023)", "Zuhdy (2024)", "Nambut et al. (2023)"
             out = out.replace(/\b([A-Z][a-zA-ZÀ-ÿ]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-ZÀ-ÿ]+|&amp;\s+[A-Z][a-zA-ZÀ-ÿ]+))?)\s*\(((?:19\d{2}|20\d{2})(?:[a-z])?)\)/gu, (match, author, year) => {
                 const authorClean = author.replace(/&amp;/g, '&').trim();
@@ -2209,7 +2178,8 @@
                 const labelSafe = escapeHtml(match.replace(/&amp;/g, '&'));
                 const authorAttr = escapeHtml(authorClean);
                 const yearAttr = escapeHtml(year);
-                return `<span class="academic-cite-badge" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationPopover(this, event)" title="Klik untuk cek detail publikasi & link asli jurnal">${labelSafe}</span>`;
+                const cls = isTable ? 'table-cite-text' : 'academic-cite-badge cite-blue';
+                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Buka publikasi ilmiah asli">${labelSafe}</span>`;
             });
 
             // B. Sitasi dalam Kurung: "(Muflih & Santosa, 2023)", "(Nambut et al., 2023)", "(Zuhdy, 2024)"
@@ -2223,15 +2193,14 @@
                 const labelSafe = escapeHtml(match.replace(/&amp;/g, '&'));
                 const authorAttr = escapeHtml(authorClean);
                 const yearAttr = escapeHtml(year);
-                return `<span class="academic-cite-badge" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationPopover(this, event)" title="Klik untuk cek detail publikasi & link asli jurnal">${labelSafe}</span>`;
+                const cls = isTable ? 'table-cite-text' : 'academic-cite-badge cite-blue';
+                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Buka publikasi ilmiah asli">${labelSafe}</span>`;
             });
 
             return out;
         }
 
-        let activeCitationContext = null;
-
-        function openCitationPopover(el, event) {
+        function openCitationLink(el, event) {
             if (event) {
                 event.stopPropagation();
             }
@@ -2239,25 +2208,10 @@
             const author = el.getAttribute('data-author') || '';
             const year = el.getAttribute('data-year') || '';
 
-            activeCitationContext = { citeText, author, year };
-
-            const popover = document.getElementById('citation-popover');
-            if (!popover) return;
-
-            const labelEl = document.getElementById('popover-cite-label');
-            const titleEl = document.getElementById('popover-pub-title');
-            const metaEl = document.getElementById('popover-pub-meta');
-            const btnDoi = document.getElementById('popover-btn-doi');
-            const btnScholar = document.getElementById('popover-btn-scholar');
-            const btnGaruda = document.getElementById('popover-btn-garuda');
-
-            labelEl.textContent = citeText;
-
             // Cari di daftar pustaka apakah ada entri yang cocok
             const dpText = chapterContents.daftar_pustaka || '';
             const lines = dpText.split(/\n+/);
 
-            // Cari kata kunci nama belakang penulis pertama
             const primaryAuthor = author.split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
             let matchedEntry = '';
             if (primaryAuthor && primaryAuthor.length >= 2) {
@@ -2270,143 +2224,41 @@
 
             let directUrl = '';
             let pubTitle = '';
-            let pubMeta = '';
-            let cleanEntry = '';
 
             if (matchedEntry) {
-                // Ekstrak URL/DOI jika ada
+                // Ekstrak URL / DOI asli
                 const urlMatch = matchedEntry.match(/(https?:\/\/[^\s]+)/i);
                 if (urlMatch) {
                     directUrl = urlMatch[1].replace(/[.,;)]+$/, '');
                 }
 
-                cleanEntry = matchedEntry.replace(/^[\s\d\.\-\*\[\]]+/, '').trim();
-
-                // Cari judul publikasi (biasanya setelah tahun di dalam kurung)
+                // Ekstrak judul artikel ilmiah bersih
+                const cleanEntry = matchedEntry.replace(/^[\s\d\.\-\*\[\]]+/, '').trim();
                 const afterYear = cleanEntry.replace(/^.*?\((?:19|20)\d{2}[a-z]?\)\.\s*/i, '');
                 if (afterYear && afterYear !== cleanEntry) {
                     const parts = afterYear.split(/\.\s+/);
-                    pubTitle = parts[0] ? parts[0] + '.' : '';
-                    pubMeta = parts.slice(1).join('. ').replace(/(https?:\/\/[^\s]+)/gi, '').trim();
-                } else {
-                    pubTitle = cleanEntry;
+                    pubTitle = parts[0] ? parts[0].trim().replace(/^["']|["']$/g, '') : '';
                 }
             }
 
-            if (!pubTitle) {
-                pubTitle = `Publikasi ilmiah oleh ${author}${year ? ' (' + year + ')' : ''} yang dirujuk dalam penelitian terkait ${projectTitle || 'topik ini'}.`;
-            }
-            if (!pubMeta && matchedEntry) {
-                pubMeta = matchedEntry;
-            }
-
-            titleEl.textContent = pubTitle;
-            metaEl.textContent = pubMeta ? pubMeta : `Rujukan akademik terindeks nasional / internasional (SINTA / Scopus / Kemdikbud).`;
-
-            if (directUrl) {
-                btnDoi.href = directUrl;
-                btnDoi.style.display = 'inline-flex';
-            } else {
-                btnDoi.href = '#';
-                btnDoi.style.display = 'none';
+            // A. Jika ada URL / DOI langsung dari daftar pustaka, buka langsung di tab baru
+            if (directUrl && directUrl.startsWith('http')) {
+                window.open(directUrl, '_blank', 'noopener,noreferrer');
+                return;
             }
 
-            // Google Scholar Link
-            const scholarQuery = encodeURIComponent(`${author} ${year} ${(pubTitle && pubTitle !== cleanEntry) ? pubTitle : (projectTitle || '')}`.trim());
-            btnScholar.href = `https://scholar.google.com/scholar?q=${scholarQuery}`;
-
-            // Garuda Kemdikbud / SINTA query Link
-            const garudaQuery = encodeURIComponent(`${author} ${year}`.trim());
-            btnGaruda.href = `https://garuda.kemdikbud.go.id/documents?q=${garudaQuery}`;
-
-            // Tampilkan popover dan atur posisi presisi terhadap badge yang diklik
-            popover.style.display = 'block';
-
-            const rect = el.getBoundingClientRect();
-            const popRect = popover.getBoundingClientRect();
-
-            let left = rect.left;
-            let top = rect.bottom + 8;
-
-            // Pastikan popover tidak terpotong tepi layar kanan
-            if (left + popRect.width > window.innerWidth - 20) {
-                left = Math.max(16, window.innerWidth - popRect.width - 24);
+            // B. Jika ada judul artikel spesifik, cari langsung dengan tanda kutip di Google Scholar
+            if (pubTitle && pubTitle.length >= 10) {
+                const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent('"' + pubTitle + '"')}`;
+                window.open(scholarUrl, '_blank', 'noopener,noreferrer');
+                return;
             }
 
-            // Jika ruang bawah sempit, letakkan di atas badge
-            if (top + popRect.height > window.innerHeight - 20 && rect.top - popRect.height - 10 > 0) {
-                top = rect.top - popRect.height - 8;
-            }
-
-            popover.style.left = `${left}px`;
-            popover.style.top = `${top}px`;
+            // C. Fallback: pencarian bersih nama peneliti + tahun di Google Scholar
+            const cleanQuery = `"${author || primaryAuthor}" ${year || ''}`.trim();
+            const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(cleanQuery)}`;
+            window.open(scholarUrl, '_blank', 'noopener,noreferrer');
         }
-
-        function closeCitationPopover() {
-            const popover = document.getElementById('citation-popover');
-            if (popover) {
-                popover.style.display = 'none';
-            }
-            activeCitationContext = null;
-        }
-
-        function jumpToDaftarPustakaFromPopover() {
-            const ctx = activeCitationContext;
-            closeCitationPopover();
-
-            selectChapterView('daftar_pustaka');
-
-            // Scroll ke referensi dan beri efek highlight
-            setTimeout(() => {
-                if (!ctx) return;
-                const container = document.getElementById('sheets-container');
-                if (!container) return;
-
-                const primaryAuthor = (ctx.author || '').split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
-                const year = ctx.year || '';
-
-                const pElements = container.querySelectorAll('.dp-entry, p, li');
-                let targetP = null;
-                for (const p of pElements) {
-                    const text = p.innerText || '';
-                    if (primaryAuthor && text.toLowerCase().includes(primaryAuthor.toLowerCase()) && (!year || text.includes(year))) {
-                        targetP = p;
-                        break;
-                    }
-                }
-
-                if (targetP) {
-                    targetP.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    const prevBg = targetP.style.backgroundColor;
-                    const prevTransition = targetP.style.transition;
-                    targetP.style.transition = 'all 0.4s ease';
-                    targetP.style.backgroundColor = 'rgba(254, 240, 138, 0.7)';
-                    targetP.style.borderRadius = '6px';
-                    targetP.style.padding = '4px 8px';
-                    setTimeout(() => {
-                        targetP.style.backgroundColor = prevBg || '';
-                        targetP.style.padding = '';
-                    }, 3500);
-                } else {
-                    showToast('Beralih ke Daftar Pustaka.', 'info');
-                }
-            }, 300);
-        }
-
-        // Listener klik di luar popover dan Escape key
-        document.addEventListener('click', (e) => {
-            const popover = document.getElementById('citation-popover');
-            if (popover && popover.style.display !== 'none') {
-                if (!popover.contains(e.target) && !e.target.closest('.academic-cite-badge')) {
-                    closeCitationPopover();
-                }
-            }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeCitationPopover();
-            }
-        });
 
         function isStandaloneFormula(line) {
             const t = line.trim();
@@ -2445,7 +2297,7 @@
                         const trimmed = c.trim();
                         const isNum = /^[0-9\.,\s\(\)\%\-\/]+$/.test(trimmed) && trimmed.length < 20;
                         const align = idx === 0 ? 'center' : (colIdx === 0 && !isNum ? 'left' : (isNum ? 'center' : 'left'));
-                        return `<${tag} style="text-align:${align};">${formatInlineMarkdown(c)}</${tag}>`;
+                        return `<${tag} style="text-align:${align};">${formatInlineMarkdown(c, true)}</${tag}>`;
                     }).join('') + '</tr>';
                 });
                 html += '</table></div>';
@@ -2759,7 +2611,7 @@
                 const text = (chapterContents[k] || '').trim();
                 let pages = 0;
                 if (text.length > 0) {
-                    pages = Math.max(1, Math.ceil(text.length / 1300));
+                    pages = Math.max(1, Math.ceil(text.length / 2500));
                     pageMap[k] = {
                         startPage: curPage,
                         pageCount: pages,
@@ -3516,8 +3368,8 @@
                 const pages = [];
                 let curPageBlocks = [];
                 let curPageWeight = 0;
-                // Kapasitas bobot teks standar kertas A4 akademik (~1450 karakter per halaman Times New Roman 12pt 1.5 spasi)
-                const MAX_PAGE_WEIGHT = 1450;
+                // Kapasitas bobot teks standar kertas A4 akademik (~2600 karakter per halaman Times New Roman 12pt 1.5 spasi)
+                const MAX_PAGE_WEIGHT = 2600;
 
                 blocks.forEach((block) => {
                     const textLen = (block.innerText || '').length;
@@ -3526,20 +3378,20 @@
 
                     // Bobot visual proporsional elemen tabel, bagan, list, dan heading
                     if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                        blockWeight = Math.max(textLen, 750);
+                        blockWeight = Math.max(textLen, 1100);
                     } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                        blockWeight = Math.max(textLen, 120);
+                        blockWeight = Math.max(textLen, 160);
                     } else if (tagName === 'ul' || tagName === 'ol') {
-                        blockWeight = Math.max(textLen, 200);
+                        blockWeight = Math.max(textLen, 300);
                     } else {
-                        blockWeight = Math.max(textLen, 150);
+                        blockWeight = Math.max(textLen, 250);
                     }
 
-                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi sedikit kapasitas
-                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 350) : MAX_PAGE_WEIGHT;
+                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi proporsional
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 450) : MAX_PAGE_WEIGHT;
 
-                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 850 bobot) dan melebihi batas kapasitas
-                    if (curPageBlocks.length > 0 && curPageWeight >= 850 && (curPageWeight + blockWeight > curLimit)) {
+                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 1900 bobot) dan melebihi batas kapasitas
+                    if (curPageBlocks.length > 0 && curPageWeight >= 1900 && (curPageWeight + blockWeight > curLimit)) {
                         // Hindari meletakkan heading atau caption tabel/gambar sendirian di paling bawah halaman penuh (orphan heading/caption)
                         const lastBlock = curPageBlocks[curPageBlocks.length - 1];
                         const lastTag = (lastBlock.tagName || '').toLowerCase();

@@ -1502,10 +1502,12 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era digital / era globalisasi saat ini...\", \"Perkembangan teknologi yang pesat...\", \"Tidak dapat dipungkiri bahwa...\", \"Memegang peranan krusial...\", atau \"Merupakan tonggak penting...\").
 2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: \"Data dikumpulkan melalui kuesioner...\", \"Analisis regresi linier dilakukan untuk...\"), hindari suara orang pertama (saya, penulis, kami).
 3. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
-4. Sitasi & Bebas Mendeley (ATURAN KETAT):
+4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR NYATA):
    - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)).
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
-   - DILARANG KERAS menyitasi atau mencantumkan referensi dengan tahun terbit di bawah {$tahunMin}.
+   - DILARANG KERAS MENGARANG ATAU MEMBUAT SUMBER/PENULIS/JURNAL FIKTIF! Setiap nama peneliti, tahun, judul publikasi, dan nama jurnal ilmiah yang dikutip WAJIB berasal dari literatur ilmiah asli yang benar-benar terbit di jurnal nasional (SINTA/Garuda/Kemdikbud) atau internasional (Scopus/IEEE/Elsevier/Springer/OpenAlex).
+   - Pada Tabel Penelitian Terdahulu (Bab II): Cantumkan tepat 3 penelitian terdahulu yang ASLI dan RELEVAN dengan topik penelitian ini, mencakup nama peneliti riil, tahun publikasi riil ({$tahunMin}-2026), judul artikel riil, metode/algoritma, metrik hasil/akurasi terukur, dan celah penelitian (research gap).
+   - Di Bab I (1.1 Latar Belakang Paragraf 1): Wajib mencantumkan minimal 1 sitasi jurnal ilmiah riil mutakhir ({$tahunMin}-2026) yang memperkuat urgensi fenomena atau objek yang diteliti.
    - Sumber referensi: Mengutamakan artikel jurnal ilmiah bereputasi ({$sumberArr}) yang terindeks dan mutakhir. Setiap kutipan harus sesuai dengan literatur nyata agar mahasiswa tidak perlu lagi repot mengatur Mendeley.
 5. Standar Rumus & Notasi Statistik (DILARANG KODE LATEX MENTAH):
    - DILARANG KERAS menghasilkan sintaks LaTeX mentah seperti \\frac{}{}, \\hat{}, {,}, \\approx, atau tanda dollar \$ ... \$.
@@ -2503,7 +2505,7 @@ ATURAN REVISI (SANGAT KETAT):
                 $lineHeight = '1.35';
                 $cellPadding = ($colCount >= 5) ? '5pt 6pt' : '6pt 8pt';
 
-                $html .= "<table style='width:100%; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; {$avoidSplit}'>";
+                $html .= "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     $isLastRow = ($rIdx === count($rows) - 1);
@@ -2512,11 +2514,11 @@ ATURAN REVISI (SANGAT KETAT):
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1.2pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize};'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1.2pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $rowBorderBottom = $isLastRow ? "border-bottom:1.5pt solid #000000;" : "border-bottom:0.75pt solid #cbd5e1;";
+                        $rowBorderBottom = $isLastRow ? "border-bottom:1.5pt solid #000000;" : "border-bottom:0.75pt solid #000000;";
                         $html .= "<tr style='page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
@@ -2524,7 +2526,7 @@ ATURAN REVISI (SANGAT KETAT):
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; {$rowBorderBottom} border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize};'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; {$rowBorderBottom} border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -2542,66 +2544,46 @@ ATURAN REVISI (SANGAT KETAT):
 
             if ($isFlowchart) {
                 $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
-                $renderedImg = $isFramework ? $this->renderKerangkaPemikiranPng($rawCode, $judul) : $this->renderFlowchartPng($rawCode, $judul);
                 $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
                 $alreadyHasCaption = preg_match('/Gambar\s+\d+\.\d+.*?<\/div>\s*$/i', trim($html));
 
-                if ($renderedImg && file_exists($renderedImg)) {
-                    $b64 = base64_encode(file_get_contents($renderedImg));
-                    @unlink($renderedImg);
-                    $html .= "<div style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                // Ekstraksi node dinamis akademik
+                preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
+                $rawNodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
+                $validNodes = [];
+                foreach ($rawNodes as $node) {
+                    $cn = trim(strip_tags($node));
+                    if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
+                        continue;
+                    }
+                    $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
+                    if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#={}()\\[\\]]+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
+                        $validNodes[] = $cn;
+                    }
+                }
+                if (!empty($validNodes)) {
+                    $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
                     if (!$alreadyHasCaption) {
-                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:6pt; text-align:center; color:#000;'>" . e($caption) . "</div>";
+                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
                     }
-                    $html .= "<img src='data:image/png;base64,{$b64}' style='width:450pt; max-width:100%; height:auto; display:block; margin:0 auto;'>"
-                        . "</div>";
-                } else {
-                    // Fallback visual murni CSS standar akademik bebas kotak hitam di Dompdf
-                    preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                    $rawNodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l));
-                    $validNodes = [];
-                    foreach ($rawNodes as $node) {
-                        $cn = trim(strip_tags($node));
-                        // Filter label meta penjelasan simbol diagram
-                        if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
-                            continue;
-                        }
-                        $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
-                        if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#={}()\\[\\]]+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
-                            $validNodes[] = $cn;
-                        }
-                    }
-                    if (!empty($validNodes)) {
-                        $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
-                        if (!$alreadyHasCaption) {
-                            $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
-                        }
-                        $nodeCount = count($validNodes);
-                        foreach ($validNodes as $nIdx => $cleanNode) {
-                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                            $isData = preg_match('/dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i', $cleanNode) && !$isSE;
-                            $isSubProcess = preg_match('/pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i', $cleanNode) && !$isSE && !$isData;
-                            $isDecision = preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji/i', $cleanNode) && !$isSE && !$isData && !$isSubProcess;
+                    $nodeCount = count($validNodes);
+                    foreach ($validNodes as $nIdx => $cleanNode) {
+                        $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
 
-                            if ($isSE) {
-                                $html .= "<div style='display:inline-block; padding:7pt 28pt; border:1.8pt solid #000000; border-radius:999px; background:#f1f5f9; font-size:10.5pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e(strtoupper($cleanNode)) . "</div>";
-                            } elseif ($isSubProcess) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border-top:1.2pt solid #000000; border-bottom:1.2pt solid #000000; border-left:4.5pt double #000000; border-right:4.5pt double #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
-                            } elseif ($isData) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
-                            } elseif ($isDecision) {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.5pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
-                            } else {
-                                $html .= "<div style='display:inline-block; padding:7pt 18pt; border:1.2pt solid #000000; background:#ffffff; font-size:10.5pt; color:#000000; font-family:\"Times New Roman\", serif; max-width:420pt; text-align:center; margin:0 auto;'>" . e($cleanNode) . "</div>";
-                            }
-
-                            if ($nIdx < $nodeCount - 1) {
-                                // Panah presisi DejaVu Sans (bawaan resmi Dompdf, tajam & tidak berubah jadi kotak hitam)
-                                $html .= "<div style='font-family:DejaVu Sans, sans-serif; font-size:14pt; line-height:1; color:#000000; text-align:center; margin:2.5pt auto 3.5pt;'>&#8595;</div>";
-                            }
+                        if ($isSE) {
+                            $html .= "<div style='width:140pt; padding:6pt 16pt; border:1.5pt solid #000000; border-radius:999px; background:#f8fafc; font-size:10pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto;'>" . e(strtoupper($cleanNode)) . "</div>";
+                        } elseif ($isFramework) {
+                            $html .= "<div style='width:360pt; max-width:95%; padding:8pt 14pt; border:1.2pt solid #000000; background:#ffffff; font-size:10pt; color:#000000; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto; box-sizing:border-box;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
+                        } else {
+                            $html .= "<div style='width:340pt; max-width:92%; padding:8pt 14pt; border:1.2pt solid #000000; background:#ffffff; font-size:10pt; color:#000000; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto; box-sizing:border-box;'>" . e($cleanNode) . "</div>";
                         }
-                        $html .= "</div>";
+
+                        if ($nIdx < $nodeCount - 1) {
+                            // Panah presisi DejaVu Sans (bawaan resmi Dompdf, tajam & tidak berubah jadi kotak hitam)
+                            $html .= "<div style='font-family:DejaVu Sans, sans-serif; font-size:14pt; line-height:1; color:#000000; text-align:center; margin:2.5pt auto 3.5pt;'>&#8595;</div>";
+                        }
                     }
+                    $html .= "</div>";
                 }
             } else {
                 $html .= "<pre style='background:#f8fafc; border:1pt solid #cbd5e1; border-radius:4pt; padding:8pt 12pt; font-size:10pt; font-family:monospace; line-height:1.45; white-space:pre-wrap; word-break:break-all; margin:10pt 0;'>" . e($rawCode) . "</pre>";
@@ -2820,151 +2802,111 @@ ATURAN REVISI (SANGAT KETAT):
             if ($isFlowchart) {
                 $judul = $project ? (string) ($project->judul ?? '') : '';
                 $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
+                $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
 
-                $renderedImg = null;
-                if ($isFramework) {
-                    $renderedImg = $this->renderKerangkaPemikiranPng($rawCode, $judul);
-                    $caption = 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian';
-                } else {
-                    $renderedImg = $this->renderFlowchartPng($rawCode, $judul);
-                    $caption = 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
-                }
-
-                if ($renderedImg && file_exists($renderedImg)) {
-                    try {
-                        $section->addImage($renderedImg, [
-                            'width' => 450,
-                            'height' => $isFramework ? 310 : 360,
-                            'alignment' => Jc::CENTER
-                        ]);
-                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 80, 'spaceAfter' => 140]);
-                        // Jangan langsung di-unlink di sini agar file gambar terbaca sempurna saat $writer->save()
-                        $this->docxTempFiles[] = $renderedImg;
-                    } catch (\Throwable $e) {
-                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER]);
-                    }
-                } else {
-                    // Fallback jika image gagal - buat tabel terpadu agar tidak terpotong ke 2 halaman
-                    preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
-                    $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l) && !preg_match('/^\+[-+]+\+$/', $l));
-                    if (!empty($nodes)) {
-                        $cleanNodes = [];
-                        foreach ($nodes as $node) {
-                            $cn = trim(strip_tags($node));
-                            if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $cn) && !preg_match('/^\+[-+]+\+$/', $cn)) {
-                                $cleanNodes[] = $cn;
-                            }
+                // Ekstraksi node dinamis akademik untuk tabel Word terpadu editable
+                preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
+                $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l) && !preg_match('/^\+[-+]+\+$/', $l));
+                if (!empty($nodes)) {
+                    $cleanNodes = [];
+                    foreach ($nodes as $node) {
+                        $cn = trim(strip_tags($node));
+                        if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
+                            continue;
                         }
-                        if (!empty($cleanNodes)) {
-                            $nodeCount = count($cleanNodes);
-                            // Mulai di halaman baru jika diagram memiliki banyak node agar utuh 1 halaman & tidak terpotong
-                            if ($nodeCount >= 7) {
-                                $section->addPageBreak();
+                        $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
+                        if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $cn) && !preg_match('/^\+[-+]+\+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
+                            $cleanNodes[] = $cn;
+                        }
+                    }
+                    if (!empty($cleanNodes)) {
+                        $nodeCount = count($cleanNodes);
+                        // Mulai di halaman baru jika diagram memiliki banyak node agar utuh 1 halaman & tidak terpotong
+                        if ($nodeCount >= 7) {
+                            $section->addPageBreak();
+                        }
+                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 120]);
+
+                        foreach ($cleanNodes as $nIdx => $cleanNode) {
+                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
+
+                            // Lebar seragam (tidak berundak seperti tangga)
+                            if ($isSE) {
+                                $boxWidth = Converter::cmToTwip(6.0);
+                            } elseif ($isFramework) {
+                                $boxWidth = Converter::cmToTwip(12.5);
+                            } else {
+                                $boxWidth = Converter::cmToTwip(11.5);
                             }
-                            $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 120]);
 
-                            foreach ($cleanNodes as $nIdx => $cleanNode) {
-                                $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-                                $isData = preg_match('/dataset|data|pengumpulan|input|output|korpus|kuesioner|scraping/i', $cleanNode) && !$isSE;
-                                $isSubProcess = preg_match('/pra-pemrosesan|preprocessing|sub-proses|ekstraksi fitur|tokeniz|stemming|filtering/i', $cleanNode) && !$isSE && !$isData;
-                                $isDecision = preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji/i', $cleanNode) && !$isSE && !$isData && !$isSubProcess;
+                            // Konfigurasi border tunggal bersih sesuai standar skripsi akademik (tanpa border ganda)
+                            $cellStyle = [
+                                'bgColor' => $isSE ? 'F8FAFC' : 'FFFFFF',
+                                'borderColor' => '000000',
+                                'borderSize' => 8,
+                                'borderStyle' => 'single',
+                                'borderTopStyle' => 'single',
+                                'borderBottomStyle' => 'single',
+                                'borderLeftStyle' => 'single',
+                                'borderRightStyle' => 'single',
+                                'cellMarginTop' => 70,
+                                'cellMarginBottom' => 70,
+                                'cellMarginLeft' => 140,
+                                'cellMarginRight' => 140,
+                                'valign' => 'center'
+                            ];
 
-                                $len = mb_strlen($cleanNode);
-                                if ($isSE) {
-                                    $boxWidth = Converter::cmToTwip(5.5);
-                                } elseif ($isData || $isSubProcess || $isDecision) {
-                                    $boxWidth = Converter::cmToTwip(11.2);
-                                } elseif ($len <= 25) {
-                                    $boxWidth = Converter::cmToTwip(8.5);
-                                } elseif ($len <= 50) {
-                                    $boxWidth = Converter::cmToTwip(10.5);
-                                } else {
-                                    $boxWidth = Converter::cmToTwip(12.5);
-                                }
+                            // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
+                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
+                            $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
+                            $boxCell = $boxRow->addCell($boxWidth, $cellStyle);
 
-                                // Konfigurasi border sesuai standar simbol flowchart ANSI
-                                $cellStyle = [
-                                    'bgColor' => $isSE ? 'F1F5F9' : 'FFFFFF',
-                                    'borderColor' => '000000',
-                                    'borderSize' => $isSE ? 16 : 9,
-                                    'cellMarginTop' => 60,
-                                    'cellMarginBottom' => 60,
-                                    'cellMarginLeft' => 140,
-                                    'cellMarginRight' => 140,
-                                    'valign' => 'center'
+                            if ($isSE) {
+                                $boxCell->addText(strtoupper($cleanNode), [
+                                    'name' => 'Times New Roman',
+                                    'size' => 10.5,
+                                    'bold' => true,
+                                    'color' => '000000'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                            } elseif ($isFramework) {
+                                $fTitles = [
+                                    0 => 'TAHAP 1: KONDISI EMPIRIS / MASALAH PENELITIAN',
+                                    1 => 'TAHAP 2: LANDASAN TEORI & SINTESIS PUSTAKA',
+                                    2 => 'TAHAP 3: PENDEKATAN METODOLOGI & ANALISIS DATA',
+                                    3 => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI'
                                 ];
+                                $fTitle = $fTitles[$nIdx] ?? ('TAHAP ' . ($nIdx + 1) . ': FOKUS PENELITIAN');
+                                $boxCell->addText($fTitle, [
+                                    'name' => 'Times New Roman',
+                                    'size' => 9,
+                                    'bold' => true,
+                                    'color' => '000000'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
+                                $boxCell->addText($this->formatAcademicMathText($cleanNode), [
+                                    'name' => 'Times New Roman',
+                                    'size' => 10,
+                                    'color' => '000000'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                            } else {
+                                $boxCell->addText($this->formatAcademicMathText($cleanNode), [
+                                    'name' => 'Times New Roman',
+                                    'size' => 10,
+                                    'color' => '000000'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
+                            }
 
-                                if ($isSubProcess) {
-                                    // Garis ganda vertikal di sisi kiri & kanan untuk Sub-proses (ANSI Predefined Process)
-                                    $cellStyle['borderLeftStyle'] = 'double';
-                                    $cellStyle['borderLeftSize'] = 18;
-                                    $cellStyle['borderRightStyle'] = 'double';
-                                    $cellStyle['borderRightSize'] = 18;
-                                    $cellStyle['borderTopStyle'] = 'single';
-                                    $cellStyle['borderTopSize'] = 9;
-                                    $cellStyle['borderBottomStyle'] = 'single';
-                                    $cellStyle['borderBottomSize'] = 9;
-                                }
-
-                                // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
-                                $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
-                                $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
-                                $boxCell = $boxRow->addCell($boxWidth, $cellStyle);
-
-                                if ($isSE) {
-                                    $boxCell->addText(strtoupper($cleanNode), [
-                                        'name' => 'Times New Roman',
-                                        'size' => 10.5,
-                                        'bold' => true,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                } elseif ($isFramework) {
-                                    $fTitles = [
-                                        0 => 'TAHAP 1: KONDISI EMPIRIS / MASALAH PENELITIAN',
-                                        1 => 'TAHAP 2: LANDASAN TEORI & SINTESIS PUSTAKA',
-                                        2 => 'TAHAP 3: PENDEKATAN METODOLOGI & ANALISIS DATA',
-                                        3 => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI'
-                                    ];
-                                    $fTitle = $fTitles[$nIdx] ?? ('TAHAP ' . ($nIdx + 1) . ': FOKUS PENELITIAN');
-                                    $boxCell->addText($fTitle, [
-                                        'name' => 'Times New Roman',
-                                        'size' => 9,
-                                        'bold' => true,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
-                                        'name' => 'Times New Roman',
-                                        'size' => 10,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                } elseif ($isDecision) {
-                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
-                                        'name' => 'Times New Roman',
-                                        'size' => 10,
-                                        'bold' => true,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                } else {
-                                    $boxCell->addText($this->formatAcademicMathText($cleanNode), [
-                                        'name' => 'Times New Roman',
-                                        'size' => 10,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                                }
-
-                                if ($nIdx < $nodeCount - 1) {
-                                    // Paragraf tanda panah independen di antara kotak yang memisahkan masing-masing box
-                                    $section->addText('↓', [
-                                        'name' => 'Times New Roman',
-                                        'size' => 12,
-                                        'bold' => true,
-                                        'color' => '000000'
-                                    ], ['alignment' => Jc::CENTER, 'spaceBefore' => 25, 'spaceAfter' => 25]);
-                                }
+                            if ($nIdx < $nodeCount - 1) {
+                                // Paragraf tanda panah independen di antara kotak yang memisahkan masing-masing box
+                                $section->addText('↓', [
+                                    'name' => 'Times New Roman',
+                                    'size' => 12,
+                                    'bold' => true,
+                                    'color' => '000000'
+                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 25, 'spaceAfter' => 25]);
                             }
                         }
-                        $section->addTextBreak(1);
                     }
+                    $section->addTextBreak(1);
                 }
             } else {
                 $section->addText($rawCode, ['name' => 'Courier New', 'size' => 9.5], ['indentation' => ['left' => 360], 'spaceAfter' => 80]);
