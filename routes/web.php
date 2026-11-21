@@ -11,8 +11,38 @@ use App\Http\Controllers\AdminController;
 |--------------------------------------------------------------------------
 */
 
-// 1. HALAMAN PUBLIK, ARSIP PROYEK MAHASISWA & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
+// 1. HALAMAN PUBLIK, SEO SITEMAP, ARSIP PROYEK MAHASISWA & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
 Route::get('/', [GeneratorController::class, 'landingPage'])->name('home');
+Route::get('/sitemap.xml', function () {
+    $baseUrl = rtrim(url('/'), '/');
+    $today = now()->toDateString();
+    $urls = [
+        ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
+        ['loc' => $baseUrl . '/register', 'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['loc' => $baseUrl . '/login', 'priority' => '0.7', 'changefreq' => 'monthly'],
+    ];
+    foreach (['manajemen', 'it', 'hukum', 'kedokteran', 'pendidikan', 'teknik'] as $major) {
+        $urls[] = [
+            'loc' => $baseUrl . '/sample/download/' . $major . '/pdf',
+            'priority' => '0.6',
+            'changefreq' => 'monthly',
+        ];
+    }
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    foreach ($urls as $u) {
+        $xml .= "  <url>\n";
+        $xml .= '    <loc>' . htmlspecialchars($u['loc'], ENT_XML1, 'UTF-8') . "</loc>\n";
+        $xml .= "    <lastmod>{$today}</lastmod>\n";
+        $xml .= "    <changefreq>{$u['changefreq']}</changefreq>\n";
+        $xml .= "    <priority>{$u['priority']}</priority>\n";
+        $xml .= "  </url>\n";
+    }
+    $xml .= "</urlset>\n";
+
+    return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('sitemap');
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
 Route::get('/public/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
 

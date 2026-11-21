@@ -29,12 +29,18 @@
             --red: #dc2626;
             --sidebar-w: 276px;
             --topbar-h: 60px;
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -14px rgba(15, 23, 42, 0.08);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        html {
+            accent-color: var(--accent);
         }
 
         html,
@@ -47,10 +53,25 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         .studio-shell {
             display: flex;
             height: 100vh;
+            height: 100dvh;
             max-height: 100vh;
+            max-height: 100dvh;
             width: 100%;
             overflow: hidden;
         }
@@ -64,11 +85,13 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
             max-height: 100vh;
+            max-height: 100dvh;
             overflow: hidden;
             position: relative;
             z-index: 40;
-            transition: margin-left 0.22s ease, transform 0.22s ease;
+            transition: margin-left 0.24s var(--ease-out), transform 0.24s var(--ease-out);
         }
 
         .studio-shell.sidebar-collapsed .studio-sidebar {
@@ -162,6 +185,8 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
         }
 
         .nav-section-label {
@@ -175,12 +200,13 @@
 
         .nav-item {
             width: 100%;
+            min-height: 38px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
             padding: 9px 11px;
-            border-radius: 9px;
+            border-radius: 10px;
             border: 1px solid transparent;
             background: transparent;
             color: var(--text-secondary);
@@ -189,7 +215,7 @@
             font-weight: 600;
             cursor: pointer;
             text-align: left;
-            transition: all 0.15s ease;
+            transition: background 0.16s var(--ease-out), color 0.16s var(--ease-out), border-color 0.16s ease, box-shadow 0.16s ease;
         }
 
         .nav-item:hover {
@@ -201,6 +227,7 @@
             background: var(--accent-soft);
             color: var(--accent-hover);
             border-color: var(--accent-border);
+            box-shadow: inset 3px 0 0 var(--accent);
         }
 
         .nav-item-left {
@@ -364,7 +391,9 @@
             flex: 1;
             min-width: 0;
             height: 100vh;
+            height: 100dvh;
             max-height: 100vh;
+            max-height: 100dvh;
             display: flex;
             flex-direction: column;
             background: var(--bg-canvas);
@@ -372,13 +401,12 @@
         }
 
         .studio-topbar {
-            height: var(--topbar-h);
             min-height: var(--topbar-h);
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
-            padding: 8px 18px;
+            padding: 8px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -445,12 +473,12 @@
         }
 
         .btn-top {
-            height: 34px;
-            padding: 0 13px;
-            border-radius: 8px;
+            min-height: 36px;
+            padding: 6px 14px;
+            border-radius: 10px;
             font-family: inherit;
             font-size: 12.5px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
             border: 1px solid var(--border-strong);
             background: #ffffff;
@@ -459,30 +487,38 @@
             align-items: center;
             gap: 6px;
             white-space: nowrap;
-            transition: all 0.15s;
+            transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
 
-        .btn-top:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .btn-top:hover:not(:disabled) {
+            border-color: #93c5fd;
+            color: var(--accent-hover);
             background: var(--accent-soft);
+            transform: translateY(-1px);
+        }
+
+        .btn-top:active:not(:disabled) {
+            transform: translateY(0) scale(0.985);
         }
 
         .btn-top.primary {
-            background: var(--accent);
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             border-color: var(--accent);
             color: #ffffff;
+            box-shadow: 0 6px 14px -6px rgba(37, 99, 235, 0.45);
         }
 
-        .btn-top.primary:hover {
-            background: var(--accent-hover);
+        .btn-top.primary:hover:not(:disabled) {
+            background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
             color: #ffffff;
+            box-shadow: 0 9px 18px -6px rgba(37, 99, 235, 0.5);
         }
 
         .btn-top.success {
-            background: var(--green);
+            background: linear-gradient(180deg, #059669 0%, #047857 100%);
             border-color: var(--green);
             color: #ffffff;
+            box-shadow: 0 6px 14px -6px rgba(5, 150, 105, 0.4);
         }
 
         .btn-top:disabled {
@@ -509,13 +545,14 @@
             max-width: 820px;
             background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
+            border-radius: 14px;
+            padding: 13px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
+            box-shadow: var(--shadow-card);
         }
 
         .chapter-bar-title {
@@ -550,8 +587,8 @@
             min-height: 1123px; /* Ukuran seragam standar kertas A4 layar */
             background: #ffffff;
             border: 1px solid #dbe3ee;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            border-radius: 6px;
+            box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
             padding: 75px 60px 80px 75px;
             /* Rasio standar margin skripsi 4-4-3-3 cm */
             color: #111827;
@@ -1130,15 +1167,27 @@
             gap: 8px;
         }
 
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         .toast {
             background: #0f172a;
             color: #ffffff;
-            padding: 11px 16px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+            box-shadow: 0 14px 30px -8px rgba(15, 23, 42, 0.28);
             max-width: 360px;
+            animation: toastSlideIn 0.22s var(--ease-out);
         }
 
         .toast.success {
@@ -1374,6 +1423,13 @@
 
             .revisi-card {
                 padding: 16px;
+                border-radius: 14px;
+            }
+
+            .olah-input,
+            .revisi-select,
+            .revisi-textarea {
+                font-size: 16px;
             }
         }
 

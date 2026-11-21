@@ -3,7 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiAI — Workspace Penulisan Skripsi & Proposal</title>
+    <title>SkripsiAI — AI Pembuat Proposal, Skripsi Bab 1–5, PPT Sidang &amp; Simulasi Sidang Mahasiswa Indonesia</title>
+    <meta name="description" content="Workspace AI akademik untuk mahasiswa Indonesia: susun proposal skripsi Bab 1–3 &amp; skripsi lengkap Bab 1–5 sesuai pedoman kampus, cari judul &amp; jurnal DOI APA 7th, buat PPT sidang 13 tema, simulasi sidang, hingga ekspor Word (.docx) &amp; PDF rapi.">
+    <meta name="keywords" content="skripsi ai, buat proposal skripsi ai, generator skripsi otomatis, contoh proposal skripsi, cari judul skripsi, cari jurnal doi, daftar pustaka apa 7th, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
+    <meta name="author" content="SkripsiAI">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="canonical" href="{{ url('/') }}">
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+
+    <!-- Open Graph / WhatsApp / LinkedIn / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="SkripsiAI">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="SkripsiAI — Workspace AI Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
+    <meta property="og:description" content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 sesuai pedoman kampus, referensi DOI aktif, Lampiran otomatis, PPT Sidang 13 tema, dan Simulasi Sidang berbasis naskah.">
+    <meta property="og:image" content="{{ url('/images/logo.svg') }}">
+    <meta property="og:image:alt" content="Logo SkripsiAI — Workspace Penulisan Akademik Mahasiswa Indonesia">
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SkripsiAI — Workspace AI Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
+    <meta name="twitter:description" content="Pendamping lengkap mahasiswa Indonesia dari cari judul, susun Bab I–V margin 4-4-3-3, daftar pustaka DOI, PPT Sidang, hingga Simulasi Sidang.">
+    <meta name="twitter:image" content="{{ url('/images/logo.svg') }}">
+
+    <!-- Structured Data (JSON-LD) untuk Google Rich Results -->
+    @php
+        $seoSchema = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebSite',
+                    '@id' => url('/') . '#website',
+                    'url' => url('/'),
+                    'name' => 'SkripsiAI',
+                    'description' => 'Workspace penulisan akademik berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi, skripsi Bab 1–5, referensi jurnal DOI, PPT sidang, dan simulasi sidang.',
+                    'inLanguage' => 'id-ID',
+                ],
+                [
+                    '@type' => 'SoftwareApplication',
+                    '@id' => url('/') . '#app',
+                    'name' => 'SkripsiAI',
+                    'applicationCategory' => 'EducationalApplication',
+                    'operatingSystem' => 'Web Browser',
+                    'url' => url('/'),
+                    'inLanguage' => 'id-ID',
+                    'description' => 'Aplikasi workspace penulisan proposal skripsi Bab 1–3 dan skripsi penuh Bab 1–5, cari judul, cari jurnal DOI, parafrase akademik, Dosen AI, PPT sidang 13 tema, simulasi sidang, lampiran otomatis, serta ekspor Word (.docx) dan PDF (.pdf).',
+                    'offers' => [
+                        '@type' => 'Offer',
+                        'price' => '0',
+                        'priceCurrency' => 'IDR',
+                    ],
+                    'featureList' => [
+                        'Workspace Proposal (Bab I–III) dan Skripsi Lengkap (Bab I–V)',
+                        'Format Kertas A4 Margin 4-4-3-3, Daftar Isi, Daftar Tabel, Daftar Gambar & Daftar Lampiran Otomatis',
+                        'Daftar Pustaka APA 7th dengan Tautan DOI Aktif',
+                        'Ekspor Dokumen Word (.docx) dan PDF (.pdf) Siap Cetak',
+                        'Cari Judul Penelitian untuk 9 Metode (Kuantitatif, Kualitatif, R&D, PTK, Hukum Normatif, Mixed Method, dll.)',
+                        'Cari Jurnal Nasional & Internasional Terverifikasi Crossref/OpenAlex',
+                        'Generator PPT Sidang 13 Tema Akademik & Ekspor PowerPoint (.pptx)',
+                        'Simulasi Sidang Skripsi Berbasis Naskah Bab I–V',
+                        'Parafrase Akademik & Konsultasi Dosen AI 24 Jam',
+                    ],
+                ],
+                [
+                    '@type' => 'FAQPage',
+                    '@id' => url('/') . '#faq',
+                    'mainEntity' => [
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah SkripsiAI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Ya. Mahasiswa dapat memilih tahap Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V), mengatur pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm sejak awal proyek.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar skripsi Indonesia?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Ya. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab, tabel bergaris penuh, flowchart, serta daftar pustaka berlink DOI aktif.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Jurusan dan metode penelitian apa saja yang didukung SkripsiAI?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'SkripsiAI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah mahasiswa bisa mengunggah lampiran dan membuat PPT sidang otomatis?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Bisa. Fitur Lampiran mendukung unggah gambar maupun dokumen Word/PDF yang otomatis masuk ke Daftar Isi, Daftar Lampiran, Word, dan PDF. Selain itu tersedia PPT Sidang Otomatis dengan 13 tema akademik dan ekspor PowerPoint (.pptx) serta Simulasi Sidang.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($seoSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,6 +133,13 @@
             --primary-hover: #1d4ed8;
             --primary-soft: #eff6ff;
             --primary-border: #bfdbfe;
+            --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -14px rgba(15, 23, 42, 0.08);
+            --shadow-hover: 0 14px 30px -14px rgba(37, 99, 235, 0.18), 0 2px 6px rgba(15, 23, 42, 0.04);
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        html {
+            accent-color: var(--primary);
         }
 
         body {
@@ -36,6 +149,20 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
 
         a {
@@ -205,15 +332,20 @@
             align-items: center;
             justify-content: center;
             gap: 7px;
+            min-height: 42px;
             font-size: 13.5px;
             font-weight: 600;
-            padding: 9px 16px;
-            border-radius: 9px;
+            padding: 9px 18px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
             font-family: inherit;
             white-space: nowrap;
             border: 1px solid transparent;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
         }
 
         .btn-ghost {
@@ -227,65 +359,129 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
             border-color: var(--primary);
+            box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.45);
         }
 
         .btn-primary:hover {
-            background: var(--primary-hover);
+            background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
             border-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px -6px rgba(37, 99, 235, 0.52);
         }
 
         .btn-outline {
             background: #ffffff;
             color: var(--text-primary);
-            border-color: var(--border-color);
+            border-color: #cbd5e1;
         }
 
         .btn-outline:hover {
             background: var(--primary-soft);
+            border-color: #93c5fd;
+            color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Nav Toggle & Drawer */
+        .nav-mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-primary);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .nav-mobile-toggle:hover {
+            background: var(--primary-soft);
             border-color: var(--primary-border);
+            color: var(--primary);
+        }
+        .mobile-nav-drawer {
+            display: none;
+            position: sticky;
+            top: 66px;
+            z-index: 95;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 14px 30px -15px rgba(15, 23, 42, 0.15);
+            padding: 12px 16px 16px;
+        }
+        .mobile-nav-drawer.open {
+            display: block;
+        }
+        .mobile-nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .mobile-nav-link:hover {
+            background: var(--primary-soft);
             color: var(--primary-hover);
         }
 
         /* Hero Section */
         .hero {
-            padding: 68px 0 56px;
+            padding: clamp(3.2rem, 2.4rem + 3vw, 4.8rem) 0 clamp(2.8rem, 2rem + 2.5vw, 4rem);
             text-align: center;
             border-bottom: 1px solid var(--border-color);
-            background: radial-gradient(circle at top, #eff6ff 0%, #ffffff 65%);
+            background: radial-gradient(ellipse 80% 70% at 50% 0%, #eff6ff 0%, #ffffff 72%);
         }
 
         .hero-eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             font-size: 12.5px;
             font-weight: 700;
             color: var(--primary);
-            background: var(--primary-soft);
+            background: #ffffff;
             border: 1px solid var(--primary-border);
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 999px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px -4px rgba(37, 99, 235, 0.22);
         }
 
         .hero h1 {
-            font-size: clamp(1.95rem, 3.8vw + 0.5rem, 3.1rem);
+            font-size: clamp(1.9rem, 1.35rem + 2.5vw, 3.05rem);
             font-weight: 800;
             letter-spacing: -0.03em;
-            line-height: 1.18;
+            line-height: 1.16;
             color: var(--text-primary);
-            max-width: 740px;
+            max-width: 760px;
             margin: 0 auto 16px;
+            text-wrap: balance;
         }
 
         .hero p {
-            font-size: 16px;
+            font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
             color: var(--text-secondary);
-            max-width: 600px;
+            max-width: 640px;
             margin: 0 auto 28px;
+            line-height: 1.65;
+            text-wrap: pretty;
         }
 
         .hero-cta {
@@ -296,9 +492,37 @@
             flex-wrap: wrap;
         }
 
+        .hero-trust-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 26px;
+        }
+
+        .hero-trust-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 6px 13px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+        }
+
+        .hero-trust-pill svg {
+            color: #059669;
+            flex-shrink: 0;
+        }
+
         /* Section Generic */
         .section {
-            padding: 68px 0;
+            padding: clamp(3.2rem, 2.5rem + 2vw, 4.5rem) 0;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -307,8 +531,8 @@
         }
 
         .section-header {
-            max-width: 660px;
-            margin: 0 auto 32px;
+            max-width: 680px;
+            margin: 0 auto 36px;
             text-align: center;
         }
 
@@ -318,21 +542,25 @@
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--primary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: block;
         }
 
         .section-title {
-            font-size: clamp(1.4rem, 2.4vw, 2rem);
+            font-size: clamp(1.38rem, 1.1rem + 1.4vw, 2.05rem);
             font-weight: 800;
             letter-spacing: -0.025em;
+            line-height: 1.24;
             color: var(--text-primary);
             margin-bottom: 10px;
+            text-wrap: balance;
         }
 
         .section-desc {
             font-size: 14.5px;
             color: var(--text-secondary);
+            line-height: 1.65;
+            text-wrap: pretty;
         }
 
         /* Workspace Preview */
@@ -607,48 +835,165 @@
         .feature-card {
             background: #ffffff;
             border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 22px;
+            border-radius: 16px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: border-color 0.16s, box-shadow 0.16s, transform 0.16s;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out);
         }
 
         .feature-card:hover {
-            border-color: #bfdbfe;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
-            transform: translateY(-2px);
+            border-color: #93c5fd;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-3px);
         }
 
         .feature-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
             background: var(--primary-soft);
             color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 14px;
+            transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out);
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--primary);
+            color: #ffffff;
         }
 
         .feature-card h3 {
             font-size: 15.5px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
+            text-wrap: balance;
         }
 
         .feature-card p {
             font-size: 13.5px;
             color: var(--text-secondary);
-            margin-bottom: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            text-wrap: pretty;
         }
 
         .feature-link {
             font-size: 13px;
             font-weight: 700;
             color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 0.15s ease, color 0.15s ease;
+        }
+
+        .feature-card:hover .feature-link {
+            gap: 7px;
+            color: var(--primary-hover);
+        }
+
+        /* FAQ Accordion (SEO + UX) */
+        .faq-grid {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+            overflow: hidden;
+        }
+
+        .faq-item[open] {
+            border-color: #93c5fd;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .faq-item summary {
+            list-style: none;
+            padding: 18px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-item summary::after {
+            content: '+';
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 17px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s var(--ease-out), background 0.16s ease, color 0.16s ease;
+        }
+
+        .faq-item[open] summary::after {
+            content: '−';
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .faq-answer {
+            padding: 0 20px 18px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.68;
+            text-wrap: pretty;
+        }
+
+        /* Final CTA Banner */
+        .cta-banner {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 55%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 20px;
+            padding: clamp(2rem, 1.5rem + 2vw, 3rem) clamp(1.25rem, 1rem + 2vw, 2.5rem);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+        }
+
+        .cta-banner h2 {
+            font-size: clamp(1.35rem, 1.05rem + 1.3vw, 1.95rem);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-wrap: balance;
+        }
+
+        .cta-banner p {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            max-width: 580px;
+            margin: 0 auto 22px;
+            text-wrap: pretty;
         }
 
         /* Native PDF Modal Dialog */
@@ -712,6 +1057,7 @@
             .sample-grid { grid-template-columns: repeat(2, 1fr); }
             .features-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-links { display: none; }
+            .nav-mobile-toggle { display: inline-flex; }
         }
 
         @media (max-width: 640px) {
@@ -817,6 +1163,7 @@
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
                 <li><a href="#fitur-lengkap" class="nav-link">Semua Modul</a></li>
+                <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -826,16 +1173,29 @@
                     <a href="{{ route('login') }}" class="btn btn-ghost">Masuk</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Mulai Sekarang</a>
                 @endauth
+                <button type="button" class="nav-mobile-toggle" id="landing-mobile-toggle" aria-expanded="false" aria-controls="landing-mobile-drawer" aria-label="Buka menu navigasi" onclick="toggleLandingMobileNav()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
             </div>
         </div>
     </header>
 
+    <nav class="mobile-nav-drawer" id="landing-mobile-drawer" aria-label="Navigasi Seluler">
+        <div class="mobile-nav-list">
+            <a href="#workspace-preview" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pratinjau Workspace A4 <span>→</span></a>
+            <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp; Skripsi <span>→</span></a>
+            <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiAI <span>→</span></a>
+            <a href="#faq" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pertanyaan Umum (FAQ) <span>→</span></a>
+        </div>
+    </nav>
+
+    <main>
     <!-- Hero -->
     <section class="hero">
         <div class="container">
-            <div class="hero-eyebrow">Workspace Penulisan Akademik Mahasiswa</div>
-            <h1>Susun Proposal & Skripsi Lebih Terstruktur</h1>
-            <p>Mulai dari mencari judul, menyusun proposal Bab 1–3 dan skripsi Bab 1–5 sesuai pedoman kampus, revisi per sub-bab di Lab Revisi, hingga membuat slide PPT dan simulasi sidang.</p>
+            <div class="hero-eyebrow">Workspace Penulisan Akademik Mahasiswa Indonesia</div>
+            <h1>Susun Proposal &amp; Skripsi Lebih Terstruktur</h1>
+            <p>Mulai dari mencari judul, menyusun proposal Bab 1–3 dan skripsi Bab 1–5 sesuai pedoman kampus, revisi per sub-bab di Lab Revisi, hingga membuat slide PPT 13 tema dan simulasi sidang.</p>
 
             <div class="hero-cta">
                 @auth
@@ -843,7 +1203,26 @@
                 @else
                     <a href="{{ route('register') }}" class="btn btn-primary">Masuk ke Workspace →</a>
                 @endauth
-                <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal & Skripsi</a>
+                <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal &amp; Skripsi</a>
+            </div>
+
+            <div class="hero-trust-strip" aria-label="Keunggulan utama SkripsiAI">
+                <span class="hero-trust-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    Margin 4-4-3-3 &amp; Penomoran Otomatis
+                </span>
+                <span class="hero-trust-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    Daftar Pustaka DOI APA 7th
+                </span>
+                <span class="hero-trust-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    Ekspor Word (.docx) &amp; PDF
+                </span>
+                <span class="hero-trust-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    9 Metode &amp; Semua Jurusan
+                </span>
             </div>
         </div>
     </section>
@@ -1177,6 +1556,61 @@
         </div>
     </section>
 
+    <!-- Section 4: FAQ Mahasiswa (SEO Rich Results + Bantuan Cepat) -->
+    <section id="faq" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Pertanyaan Umum</span>
+                <h2 class="section-title">Hal yang Sering Ditanyakan Mahasiswa</h2>
+                <p class="section-desc">Informasi singkat mengenai penyusunan proposal, skripsi Bab I–V, format ekspor Word/PDF, referensi DOI, hingga persiapan sidang di SkripsiAI.</p>
+            </div>
+
+            <div class="faq-grid">
+                <details class="faq-item" open>
+                    <summary>Apakah SkripsiAI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?</summary>
+                    <div class="faq-answer">
+                        Ya. Mahasiswa dapat memilih tahap <strong>Proposal Skripsi (Bab I–III)</strong> maupun <strong>Skripsi Penuh (Bab I–V)</strong> sejak awal pembuatan proyek, lengkap dengan pengaturan pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar kampus Indonesia?</summary>
+                    <div class="faq-answer">
+                        Sudah. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan/persetujuan, surat pernyataan, abstrak &amp; abstract, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman Romawi &amp; Arab yang rapi, tabel bergaris penuh, diagram alur (flowchart), serta daftar pustaka dengan tautan DOI aktif.
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiAI?</summary>
+                    <div class="faq-answer">
+                        SkripsiAI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan/PGSD, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Bagaimana cara menambahkan Lampiran, membuat PPT Sidang, dan latihan Simulasi Sidang?</summary>
+                    <div class="faq-answer">
+                        Di dalam Workspace Penulisan tersedia menu <strong>Lampiran</strong> untuk mengunggah gambar atau dokumen Word/PDF yang langsung tersinkron ke Daftar Isi, Word, dan PDF. Di Dashboard juga tersedia <strong>PPT Sidang Otomatis</strong> (13 tema akademik + ekspor <code>.pptx</code>) serta <strong>Simulasi Sidang</strong> dengan 5 pertanyaan penguji yang disusun langsung dari isi Bab I–V naskahmu.
+                    </div>
+                </details>
+            </div>
+
+            <div class="cta-banner" style="margin-top: 44px;">
+                <h2>Siap Menyusun Proposal &amp; Skripsimu Lebih Rapi?</h2>
+                <p>Buka Workspace SkripsiAI sekarang dan nikmati seluruh 9 modul akademik dalam satu tempat yang bersih, cepat, dan mudah digunakan di laptop maupun HP.</p>
+                <div class="hero-cta">
+                    @auth
+                        <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka Workspace Saya →</a>
+                    @else
+                        <a href="{{ route('register') }}" class="btn btn-primary">Mulai Gratis Sekarang →</a>
+                        <a href="{{ route('login') }}" class="btn btn-outline">Sudah Punya Akun? Masuk</a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </section>
+    </main>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container footer-inner">
@@ -1198,6 +1632,20 @@
     </dialog>
 
     <script>
+        function toggleLandingMobileNav() {
+            const drawer = document.getElementById('landing-mobile-drawer');
+            const btn = document.getElementById('landing-mobile-toggle');
+            if (!drawer || !btn) return;
+            const isOpen = drawer.classList.toggle('open');
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+        function closeLandingMobileNav() {
+            const drawer = document.getElementById('landing-mobile-drawer');
+            const btn = document.getElementById('landing-mobile-toggle');
+            if (drawer) drawer.classList.remove('open');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+
         const studioSamples = {
             manajemen: {
                 title: 'PENGARUH LITERASI DIGITAL, REGULASI DIRI, DAN DUKUNGAN INSTITUSI TERHADAP KESIAPAN KERJA MAHASISWA',

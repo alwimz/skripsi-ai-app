@@ -33,15 +33,37 @@
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --primary-soft: #dbeafe;
+            --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -14px rgba(15, 23, 42, 0.08);
+            --shadow-hover: 0 12px 28px -12px rgba(37, 99, 235, 0.16), 0 2px 6px rgba(15, 23, 42, 0.04);
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        html {
+            accent-color: var(--primary);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-page);
             color: var(--text-main);
+            line-height: 1.55;
             -webkit-font-smoothing: antialiased;
             display: flex;
             min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         a {
@@ -158,38 +180,42 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
         }
 
         .nav-btn {
             width: 100%;
+            min-height: 40px;
             display: flex;
             align-items: center;
             gap: 11px;
             padding: 9px 12px;
-            border-radius: 9px;
+            border-radius: 10px;
             border: none;
             background: transparent;
-            color: #374151;
+            color: #334155;
             font-size: 13.5px;
             font-weight: 500;
             font-family: inherit;
             cursor: pointer;
             text-align: left;
             white-space: nowrap;
-            transition: background 0.12s ease, color 0.12s ease;
+            transition: background 0.16s var(--ease-out), color 0.16s var(--ease-out), transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out);
         }
 
         .nav-btn:hover {
-            background: var(--bg-subtle);
+            background: #f1f5f9;
             color: var(--text-main);
         }
 
         .nav-btn.active {
             background: var(--bg-muted);
-            color: var(--primary);
+            color: var(--primary-hover);
             font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--primary);
         }
 
         .nav-btn svg {
@@ -252,13 +278,14 @@
 
         /* Top Bar / Breadcrumb */
         .topbar {
-            height: 54px;
-            border-bottom: 1px solid var(--border-light);
+            min-height: 58px;
+            border-bottom: 1px solid var(--border);
             padding: 0 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
             z-index: 20;
@@ -339,46 +366,65 @@
             display: none;
         }
 
+        @keyframes tabFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .tab-pane.active {
             display: block;
+            animation: tabFadeIn 0.22s var(--ease-out);
         }
 
         .page-eyebrow {
-            font-size: 12.5px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
             color: var(--primary);
             margin-bottom: 6px;
         }
 
         .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.025em;
+            font-size: clamp(1.45rem, 1.15rem + 1.2vw, 1.85rem);
+            font-weight: 800;
+            letter-spacing: -0.028em;
             color: var(--text-main);
-            line-height: 1.2;
+            line-height: 1.22;
+            text-wrap: balance;
         }
 
         .page-subtitle {
             font-size: 14.5px;
             color: var(--text-muted);
-            margin-top: 6px;
-            margin-bottom: 28px;
-            line-height: 1.55;
+            margin-top: 8px;
+            margin-bottom: 26px;
+            line-height: 1.6;
+            max-width: 72ch;
+            text-wrap: pretty;
         }
 
         /* Clean Card */
         .card {
             background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 24px;
+            box-shadow: var(--shadow-card);
         }
 
         .card-flush {
             background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: var(--shadow-card);
         }
 
         .card-header-bar {
@@ -440,21 +486,35 @@
         .form-select,
         .form-textarea {
             width: 100%;
+            min-height: 44px;
             font-family: inherit;
             font-size: 14px;
             color: var(--text-main);
             background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 11px 14px;
-            outline: none;
-            transition: border-color 0.15s ease;
+            border: 1px solid #cbd5e1;
+            border-radius: 11px;
+            padding: 10px 14px;
+            transition: border-color 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), background 0.16s ease;
+        }
+
+        .form-input:hover,
+        .form-select:hover,
+        .form-textarea:hover {
+            border-color: #94a3b8;
         }
 
         .form-input:focus,
         .form-select:focus,
         .form-textarea:focus {
+            outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.13);
+        }
+
+        .form-input:user-invalid,
+        .form-select:user-invalid,
+        .form-textarea:user-invalid {
+            border-color: #dc2626;
         }
 
         .form-textarea {
@@ -488,20 +548,28 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: var(--primary);
+            min-height: 42px;
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
             border: none;
-            border-radius: 10px;
-            padding: 11px 22px;
+            border-radius: 11px;
+            padding: 10px 20px;
             font-size: 14px;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
-            transition: background 0.15s ease;
+            box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.45);
+            transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), filter 0.16s ease;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-hover);
+        .btn-primary:hover:not(:disabled) {
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px -6px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0) scale(0.985);
         }
 
         .btn-primary:disabled {
@@ -519,19 +587,27 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            min-height: 38px;
             background: #ffffff;
             color: var(--text-main);
-            border: 1px solid var(--border);
-            border-radius: 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             padding: 8px 14px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             font-family: inherit;
             cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s var(--ease-out);
         }
 
         .btn-outline:hover {
-            background: var(--bg-subtle);
+            background: var(--bg-muted);
+            border-color: #93c5fd;
+            color: var(--primary-hover);
+        }
+
+        .btn-outline:active {
+            transform: scale(0.985);
         }
 
         /* Stepper Pills (1 Pilih skripsi  2 Buat slide  3 Rapikan & latihan  4 Unduh) */
@@ -651,50 +727,64 @@
         .dash-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            gap: 16px;
             margin-top: 20px;
         }
 
         .dash-card {
             background: #ffffff;
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 20px 22px;
             cursor: pointer;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out);
             display: flex;
             align-items: flex-start;
-            gap: 14px;
+            gap: 15px;
         }
 
         .dash-card:hover {
-            border-color: #d1d5db;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border-color: #93c5fd;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .dash-card:active {
+            transform: translateY(0) scale(0.99);
         }
 
         .dash-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 9px;
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
             background: var(--bg-muted);
-            color: var(--text-main);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out);
+        }
+
+        .dash-card:hover .dash-icon {
+            background: var(--primary);
+            color: #ffffff;
         }
 
         .dash-card h3 {
-            font-size: 14.5px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            letter-spacing: -0.01em;
         }
 
         .dash-card p {
             font-size: 13px;
             color: var(--text-muted);
-            line-height: 1.45;
+            line-height: 1.5;
+            text-wrap: pretty;
         }
 
         /* Interactive PPT Studio (16:9 Slide Canvas & 13 Premium Designer Templates) */
@@ -1785,6 +1875,13 @@
                 overflow-x: hidden;
             }
 
+            .form-input,
+            .form-select,
+            .form-textarea {
+                font-size: 16px;
+                min-height: 46px;
+            }
+
             .topbar {
                 height: 52px;
                 min-height: 52px;
@@ -2471,6 +2568,35 @@
                         <div>
                             <h3>Parafrase Akademik</h3>
                             <p>Ubah kalimat kutipan menjadi bahasa ilmiah baku tanpa mengubah makna.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('qa', 'Dosen AI')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Dosen AI (Konsultasi 24 Jam)</h3>
+                            <p>Diskusi metodologi, olah data statistik, revisi dosen, hingga unggah foto soal atau tabel.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('projects', 'Proyek Saya'); showProjectListView();">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Proyek Saya ({{ $history->count() }})</h3>
+                            <p>Kelola seluruh naskah Proposal &amp; Skripsi, unggah Lampiran, dan ekspor Word/PDF.</p>
                         </div>
                     </div>
                 </div>
