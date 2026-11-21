@@ -772,25 +772,19 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 10.5pt;
-            line-height: 1.25;
-            font-family: "Times New Roman", Georgia, serif;
+            line-height: 1.3;
+            font-family: inherit;
             margin: 6px 0 16px;
             table-layout: auto;
             background: #ffffff;
             color: #000000;
-            border-top: 1.8px solid #000000;
-            border-bottom: 1.8px solid #000000;
-            border-left: none;
-            border-right: none;
+            border: 1.25px solid #000000;
         }
 
         .paper-editor th,
         .paper-editor td {
-            border-top: none;
-            border-left: none;
-            border-right: none;
-            border-bottom: 0.6px solid #cbd5e1;
-            padding: 6px 10px;
+            border: 1px solid #1e293b;
+            padding: 7px 10px;
             vertical-align: top;
             text-align: left;
             text-indent: 0 !important;
@@ -801,21 +795,19 @@
             box-sizing: border-box;
         }
 
-        .paper-editor tr:last-child td {
-            border-bottom: 1.8px solid #000000;
+        .paper-editor tr:nth-child(even) td {
+            background: #fafbfc;
         }
 
         .paper-editor th {
-            background: #ffffff;
+            background: #f1f5f9;
             font-weight: 700;
             color: #000000;
             text-align: center;
             vertical-align: middle;
             font-size: 10.5pt;
-            border-top: 1.8px solid #000000;
-            border-bottom: 1.2px solid #000000;
-            border-left: none;
-            border-right: none;
+            border: 1px solid #000000;
+            border-bottom: 1.5px solid #000000;
         }
 
         /* Sitasi Biru Hyperlink Alami Akademik (Sesuai Standar Naskah Digital) */
@@ -1508,6 +1500,24 @@
                         id="dot-daftar_pustaka"></span>
                 </button>
 
+                @php $initLampiranCount = is_array($meta['lampiran'] ?? null) ? count($meta['lampiran']) : 0; @endphp
+                <button type="button" class="nav-item" id="nav-item-lampiran"
+                    onclick="selectChapterView('lampiran')">
+                    <span class="nav-item-left">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                        </svg>
+                        <span class="nav-item-text">Lampiran</span>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span id="lampiran-count-badge"
+                            style="font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: {{ $initLampiranCount > 0 ? '#dbeafe' : '#f1f5f9' }}; color: {{ $initLampiranCount > 0 ? '#1d4ed8' : '#64748b' }};">{{ $initLampiranCount }}</span>
+                        <span class="status-dot {{ $initLampiranCount > 0 ? 'done' : '' }}"
+                            id="dot-lampiran"></span>
+                    </span>
+                </button>
+
                 <button type="button" class="nav-item nav-item-revisi" id="nav-item-revisi"
                     onclick="selectChapterView('revisi')">
                     <span class="nav-item-left">
@@ -1553,7 +1563,7 @@
                     <div
                         style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
                         <span>Format &amp; Margin</span>
-                        <span
+                        <span id="margin-badge-label"
                             style="font-size: 10px; color: var(--accent); font-weight: 700; background: #e0f2fe; padding: 1px 6px; border-radius: 4px;">4-4-3-3
                             cm</span>
                     </div>
@@ -1717,6 +1727,7 @@
         <input type="hidden" name="fakultas" value="{{ $meta['fakultas'] ?? '' }}">
         <input type="hidden" name="logo_base64" value="{{ $meta['logo_base64'] ?? '' }}">
         <input type="hidden" name="jenis_dokumen" value="{{ $isProposal ? 'PROPOSAL SKRIPSI' : 'SKRIPSI' }}">
+        <input type="hidden" name="font_family" value="times">
         <input type="hidden" name="margin_top" value="4">
         <input type="hidden" name="margin_left" value="4">
         <input type="hidden" name="margin_bottom" value="3">
@@ -2010,6 +2021,10 @@
                 titleEl.textContent = 'SAMPUL & BAGIAN DEPAN';
                 genBtn.style.display = 'none';
                 document.getElementById('btn-save-edit').style.display = 'none';
+            } else if (viewKey === 'lampiran') {
+                titleEl.textContent = 'LAMPIRAN PENELITIAN (OTOMATIS MASUK DAFTAR ISI, WORD & PDF)';
+                genBtn.style.display = 'none';
+                document.getElementById('btn-save-edit').style.display = 'none';
             } else if (viewKey === 'revisi') {
                 titleEl.textContent = 'REVISI';
                 genBtn.style.display = 'none';
@@ -2133,6 +2148,39 @@
             if (bar) bar.style.width = '100%';
             if (pctLabel) pctLabel.textContent = '100%';
             if (stepLabel && stepLabel.lastElementChild) stepLabel.lastElementChild.textContent = 'Selesai! Menampilkan naskah...';
+        }
+
+        function formatDaftarPustakaEntryHtml(rawLine) {
+            if (!rawLine) return '';
+            let s = escapeHtml(String(rawLine).trim());
+            s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+            // Ubah URL penuh (https://doi.org/... atau https://...) menjadi link biru bisa diklik langsung di dalam editor
+            s = s.replace(/(https?:\/\/[^\s<>"]+)/gi, (match) => {
+                let url = match;
+                let trailing = '';
+                while (/[\.,;\)\]]$/.test(url)) {
+                    trailing = url.slice(-1) + trailing;
+                    url = url.slice(0, -1);
+                }
+                const cleanHref = url.replace(/&amp;/g, '&');
+                return `<a href="${cleanHref}" target="_blank" rel="noopener noreferrer" contenteditable="false" class="academic-cite-badge dp-doi-link" title="Klik untuk membuka tautan DOI / Jurnal di tab baru" onclick="event.preventDefault(); event.stopPropagation(); window.open('${cleanHref.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer');">${url}</a>${trailing}`;
+            });
+
+            // Ubah format "doi: 10.xxxx/..." yang belum memakai https:// menjadi link DOI klik
+            s = s.replace(/(^|[\s(])doi:\s*(10\.\d{4,9}\/[^\s<>"]+)/gi, (match, pre, doiCode) => {
+                let code = doiCode;
+                let trailing = '';
+                while (/[\.,;\)\]]$/.test(code)) {
+                    trailing = code.slice(-1) + trailing;
+                    code = code.slice(0, -1);
+                }
+                const href = 'https://doi.org/' + code.replace(/&amp;/g, '&');
+                return `${pre}<a href="${href}" target="_blank" rel="noopener noreferrer" contenteditable="false" class="academic-cite-badge dp-doi-link" title="Klik untuk membuka DOI di tab baru" onclick="event.preventDefault(); event.stopPropagation(); window.open('${href.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer');">doi:${code}</a>${trailing}`;
+            });
+
+            return s;
         }
 
         function formatInlineMarkdown(text, isTable = false) {
@@ -2336,6 +2384,7 @@
             let inCode = false;
             let codeBuffer = '';
             let tableRows = [];
+            let tableRawLines = [];
             let pendingTableCaption = '';
             let pendingFigureCaption = '';
 
@@ -2351,12 +2400,23 @@
                     }
                     inTable = false;
                     tableRows = [];
+                    tableRawLines = [];
                     return;
                 }
                 const cleanRows = tableRows.filter((cols, idx) => !(idx === 1 && cols.every((c) => /^[:\-\s]+$/.test(c))));
-                if (cleanRows.length === 0) {
+                // Tabel valid WAJIB memiliki minimal 2 baris nyata (header + minimal 1 baris data);
+                // baris tunggal yang kebetulan mengandung simbol matematika |V| atau P(x|c) dikembalikan sebagai paragraf biasa!
+                if (cleanRows.length < 2) {
+                    if (pendingTableCaption) {
+                        html += pendingTableCaption;
+                        pendingTableCaption = '';
+                    }
+                    tableRawLines.forEach((rawL) => {
+                        html += `<p>${formatInlineMarkdown(rawL)}</p>`;
+                    });
                     inTable = false;
                     tableRows = [];
+                    tableRawLines = [];
                     return;
                 }
                 const maxCols = Math.max(...cleanRows.map(r => r.length));
@@ -2388,6 +2448,7 @@
                 }
                 inTable = false;
                 tableRows = [];
+                tableRawLines = [];
             };
 
             lines.forEach((raw) => {
@@ -2422,10 +2483,15 @@
                     flushTable();
                     return;
                 }
-                const isMdTableRow = (line.startsWith('|') && line.endsWith('|')) || ((line.match(/\|/g) || []).length >= 2 && !/^P\(/i.test(line));
+                // Hindari salah deteksi paragraf yang berisi notasi kardinalitas |V|, |D|, atau probabilitas bersyarat P(t|c)
+                const strippedMathPipes = line.replace(/\|[A-Za-z0-9_,\s+\-]{1,8}\|/g, ' ').replace(/[A-Za-z]\([^)]*\|[^)]*\)/g, ' ');
+                const isMdTableRow = (line.startsWith('|') && line.endsWith('|') && (line.match(/\|/g) || []).length >= 3)
+                    || (line.startsWith('|') && (strippedMathPipes.match(/\|/g) || []).length >= 2)
+                    || ((strippedMathPipes.match(/\s\|\s/g) || []).length >= 2);
                 if (isMdTableRow) {
                     flushLists();
                     inTable = true;
+                    tableRawLines.push(line);
                     const inner = line.replace(/^\|/, '').replace(/\|$/, '');
                     const cells = inner.split('|').map((c) => c.trim());
                     tableRows.push(cells);
@@ -2444,7 +2510,7 @@
                     if (/^#+\s*/.test(line)) {
                         html += `<h2>${formatInlineMarkdown(line.replace(/^#+\s*/, ''))}</h2>`;
                     } else {
-                        html += `<p class="dp-entry">${formatInlineMarkdown(line)}</p>`;
+                        html += `<p class="dp-entry">${formatDaftarPustakaEntryHtml(line)}</p>`;
                     }
                     return;
                 }
@@ -2641,9 +2707,9 @@
                         </div>
                     `;
                 } else if (isSubProcess) {
-                    // PREDEFINED PROCESS / SUB-PROSES: Garis ganda vertikal kiri & kanan
+                    // PROSES / SUB-PROSES: Kotak tunggal bersih tanpa garis ganda vertikal agar rapi & seragam dengan Word
                     flowContent += `
-                        <div style="width: 360px; max-width: 92%; padding: 8px 22px; border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; border-left: 5px double #000000; border-right: 5px double #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
+                        <div style="width: 360px; max-width: 92%; padding: 8px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
                             ${escapeHtml(cleanLabel)}
                         </div>
                     `;
@@ -2885,6 +2951,13 @@
                 tocRows.push({ title: 'DAFTAR GAMBAR', page: pgDaftarGambar, isMain: true, isSub: false });
             }
 
+            const lampiranList = getLampiranWithPages(pageMap);
+            let pgDaftarLampiran = '';
+            if (lampiranList.length > 0) {
+                pgDaftarLampiran = toRoman(romanCur++);
+                tocRows.push({ title: 'DAFTAR LAMPIRAN', page: pgDaftarLampiran, isMain: true, isSub: false });
+            }
+
             chaptersDef.forEach((ch) => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
@@ -2925,6 +2998,10 @@
                 tocRows.push({ title: 'DAFTAR PUSTAKA', page: String(pageMap.daftar_pustaka.startPage), isMain: true, isSub: false });
             }
 
+            if (lampiranList.length > 0) {
+                tocRows.push({ title: 'LAMPIRAN', page: String(lampiranList[0].page), isMain: true, isSub: false });
+            }
+
             const tocHtml = tocRows.map((r) => {
                 const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
                 const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
@@ -2937,6 +3014,10 @@
 
             const daftarGambarHtml = daftarGambarList.length > 0
                 ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
+                : '';
+
+            const daftarLampiranHtml = lampiranList.length > 0
+                ? lampiranList.map(l => `<div class="toc-row main"><span>${escapeHtml(l.label)}</span><span class="toc-dots"></span><span class="toc-page">${l.page}</span></div>`).join('')
                 : '';
 
             const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
@@ -3151,6 +3232,16 @@
                 <div class="toc-list" style="margin-top: 20px;">${daftarGambarHtml}</div>
             </div>
             <div class="sheet-footer">${pgDaftarGambar}</div>
+        </div>` : ''}
+
+        ${lampiranList.length > 0 ? `
+        <!-- DAFTAR LAMPIRAN (OTOMATIS MUNCUL JIKA MAHASISWA MENGUNGGAH LAMPIRAN) -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">DAFTAR LAMPIRAN</div>
+                <div class="toc-list" style="margin-top: 20px;">${daftarLampiranHtml}</div>
+            </div>
+            <div class="sheet-footer">${pgDaftarLampiran}</div>
         </div>` : ''}
     `;
         }
@@ -3417,7 +3508,21 @@
                 projectMeta.nim = nim;
                 projectMeta.fakultas = fakultas;
                 projectMeta.kampus = kampus;
+                if (prodi) {
+                    projectMeta.prodi = prodi;
+                    projectProdi = prodi;
+                }
                 delete projectMeta.front_matter_html;
+
+                // Sinkronkan hidden inputs form download agar Word/PDF langsung memakai identitas terbaru tanpa reload
+                const dlForm = document.getElementById('quick-download-form');
+                if (dlForm) {
+                    const setField = (n, v) => { const el = dlForm.querySelector(`input[name="${n}"]`); if (el) el.value = v; };
+                    setField('nama', nama);
+                    setField('npm', nim);
+                    setField('kampus', kampus);
+                    setField('fakultas', fakultas);
+                }
 
                 closeEditIdentityModal();
                 showToast('Identitas mahasiswa berhasil diperbarui.', 'success');
@@ -3432,7 +3537,16 @@
             }
         }
 
-        function saveDataRiil() {
+        function updateOlahDataIndicator() {
+            const btn = document.getElementById('btn-menu-olah-data');
+            if (!btn) return;
+            const hasData = Object.values(researchDataRiil || {}).some(v => String(v || '').trim().length > 0);
+            btn.style.borderColor = hasData ? '#2563eb' : '#cbd5e1';
+            btn.style.background = hasData ? '#eff6ff' : '';
+            btn.style.color = hasData ? '#1d4ed8' : '';
+        }
+
+        async function saveDataRiil() {
             researchDataRiil = {
                 metode: (document.getElementById('riil-metode').value || '').trim(),
                 sampel: (document.getElementById('riil-sampel').value || '').trim(),
@@ -3441,11 +3555,28 @@
                 metrik: (document.getElementById('riil-metrik').value || '').trim(),
                 evaluasi: (document.getElementById('riil-evaluasi').value || '').trim()
             };
+            projectMeta.data_riil = researchDataRiil;
             try {
                 localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil));
             } catch (e) { }
-            closeDataRiilModal();
-            showToast('Data olahan & rumus penelitian berhasil disimpan! Siap diterapkan ke Bab 3 & 4.', 'success');
+            updateOlahDataIndicator();
+
+            try {
+                const res = await fetch(`/project/${projectId}/save-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ chapter: 'data_riil', data_riil: researchDataRiil })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal sinkronisasi server.');
+                }
+                closeDataRiilModal();
+                showToast('Data olahan & rumus penelitian tersimpan permanen di proyek! Siap diterapkan ke Bab III & IV.', 'success');
+            } catch (e) {
+                closeDataRiilModal();
+                showToast('Data olahan tersimpan lokal (sinkronisasi server tertunda).', 'info');
+            }
         }
 
         // =========================================================================
@@ -3597,7 +3728,14 @@
                 sheetsHtml += paginateChapterToSheetsHtml(key, bodyHtml, chStartPage);
             });
 
+            // Lampiran A4 Sheets di akhir tampilan Lihat Semua Bab (Full) jika sudah ada lampiran
+            const allLampiran = getLampiranWithPages(pageMap);
+            if (allLampiran.length > 0) {
+                sheetsHtml += buildLampiranSheetsHtml(allLampiran);
+            }
+
             container.innerHTML = sheetsHtml;
+            applyCurrentDocFormatting();
 
             container.querySelectorAll('.paper-editor[data-chapter]').forEach((editor) => {
                 editor.addEventListener('input', () => {
@@ -3624,7 +3762,17 @@
             }
             if (activeView === 'front') {
                 const savedFront = projectMeta.front_matter_html;
-                container.innerHTML = (savedFront || buildCoverAndFrontMatterHtml());
+                const frontToolbar = `
+                    <div id="front-action-bar" style="max-width: 794px; margin: 0 auto 14px; padding: 10px 14px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
+                        <span style="font-size: 12.5px; color: #475569; font-weight: 500;">Klik teks pada lembar A4 di bawah untuk mengedit langsung, atau perbarui identitas sampul:</span>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn-top" onclick="openEditIdentityModal()">✏️ Edit Identitas Mahasiswa</button>
+                            <button type="button" class="btn-top" onclick="document.getElementById('sidebar-logo-upload').click()">📷 Ganti Logo Kampus</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = frontToolbar + `<div id="front-sheets-wrap">${savedFront || buildCoverAndFrontMatterHtml()}</div>`;
+                applyCurrentDocFormatting();
                 container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
                     el.addEventListener('input', () => {
                         isDirty = true;
@@ -3632,6 +3780,10 @@
                         if (saveBtn) saveBtn.style.display = 'inline-flex';
                     });
                 });
+                return;
+            }
+            if (activeView === 'lampiran') {
+                renderLampiranView();
                 return;
             }
             if (activeView === 'revisi') {
@@ -3715,6 +3867,7 @@
             const chStartPage = pageMap[activeView] ? pageMap[activeView].startPage : 1;
 
             container.innerHTML = frontNoticeHtml + paginateChapterToSheetsHtml(activeView, bodyHtml, chStartPage);
+            applyCurrentDocFormatting();
 
             container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`).forEach(editor => {
                 editor.addEventListener('input', () => {
@@ -3820,8 +3973,11 @@
             showToast('Penyusunan otomatis selesai!', 'success');
         }
 
-        function upgradeToFullSkripsi() {
+        async function upgradeToFullSkripsi() {
             allowBab45 = true;
+            projectMeta.tahap_pengerjaan = 'Skripsi Lengkap (Bab I–V)';
+            delete projectMeta.front_matter_html;
+
             const nav = document.querySelector('.sidebar-nav');
             const dpBtn = document.getElementById('nav-item-daftar_pustaka');
             if (!document.getElementById('nav-item-bab4')) {
@@ -3837,9 +3993,25 @@
             }
             const kindInput = document.querySelector('#quick-download-form input[name="jenis_dokumen"]');
             if (kindInput) kindInput.value = 'SKRIPSI';
+
+            const modeBadge = document.querySelector('.sidebar-header .project-mode-badge');
+            if (modeBadge) modeBadge.textContent = 'Skripsi Penuh (Bab I–V)';
+            const genAllBtn = document.getElementById('btn-generate-all');
+            if (genAllBtn) genAllBtn.textContent = 'Generate Skripsi (Bab I–V)';
+            const upgradeBtn = document.querySelector('.btn-auto-secondary');
+            if (upgradeBtn) upgradeBtn.style.display = 'none';
+
+            try {
+                await fetch(`/project/${projectId}/guideline`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ tahap_pengerjaan: 'Skripsi Lengkap (Bab I–V)' })
+                });
+            } catch (e) { }
+
             updateProgressUI();
             selectChapterView('bab4');
-            showToast('Mode diperluas ke Full Skripsi (Bab I–V).', 'success');
+            showToast('Mode diperluas & disimpan ke Full Skripsi (Bab I–V).', 'success');
         }
 
         async function submitLabRevisi() {
@@ -3878,12 +4050,16 @@
                     body: formData
                 });
                 const data = await res.json();
-                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal memproses revisi.');
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || data.error || 'Gagal memproses revisi.');
+                }
                 chapterContents[chapterKey] = data.content || chapterContents[chapterKey];
+                finishLoadingSheet();
                 updateProgressUI();
                 showToast(`Revisi ${subLabel} berhasil diterapkan!`, 'success');
                 selectChapterView(chapterKey);
             } catch (err) {
+                finishLoadingSheet();
                 showToast(err.message || 'Terjadi kesalahan saat revisi.', 'error');
                 renderLabRevisi();
             }
@@ -3897,7 +4073,8 @@
 
             try {
                 if (activeView === 'front') {
-                    const htmlContent = container.innerHTML;
+                    const frontWrap = document.getElementById('front-sheets-wrap');
+                    const htmlContent = frontWrap ? frontWrap.innerHTML : container.innerHTML;
                     const res = await fetch(`/project/${projectId}/save-chapter`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
@@ -3909,6 +4086,33 @@
                     isDirty = false;
                     if (btn) btn.style.display = 'none';
                     showToast('Perubahan Halaman Sampul & Bagian Depan berhasil disimpan.', 'success');
+                    return;
+                }
+
+                if (activeView === 'all') {
+                    const keys = allowBab45
+                        ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
+                        : ['bab1', 'bab2', 'bab3', 'daftar_pustaka'];
+                    let savedCount = 0;
+                    for (const chKey of keys) {
+                        const pages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
+                        if (!pages.length) continue;
+                        const textVal = Array.from(pages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                        if (!textVal) continue;
+                        const res = await fetch(`/project/${projectId}/save-chapter`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                            body: JSON.stringify({ chapter: chKey, content: textVal })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.status === 'success') {
+                            chapterContents[chKey] = data.content || textVal;
+                            savedCount++;
+                        }
+                    }
+                    isDirty = false;
+                    if (btn) btn.style.display = 'none';
+                    showToast(`Berhasil menyimpan perubahan pada ${savedCount} bagian naskah.`, 'success');
                     return;
                 }
 
@@ -3934,15 +4138,44 @@
             }
         }
 
-        function updateDocFont(val) {
-            const editor = document.getElementById('paper-editor');
-            if (editor) {
-                editor.style.fontFamily = val;
-            }
+        const DOC_FONT_MAP = {
+            times: { css: "'Times New Roman', Times, serif", size: '12pt', label: 'Times New Roman 12pt' },
+            arial: { css: "Arial, Helvetica, sans-serif", size: '11pt', label: 'Arial 11pt' },
+            georgia: { css: "Georgia, 'Times New Roman', serif", size: '11pt', label: 'Georgia 11pt' }
+        };
+        let activeDocFontKey = 'times';
+
+        function applyCurrentDocFormatting() {
+            const cfg = DOC_FONT_MAP[activeDocFontKey] || DOC_FONT_MAP.times;
+            const top = document.getElementById('m-top')?.value || '4';
+            const left = document.getElementById('m-left')?.value || '4';
+            const bottom = document.getElementById('m-bottom')?.value || '3';
+            const right = document.getElementById('m-right')?.value || '3';
+
             document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
-                el.style.fontFamily = val;
+                el.style.fontFamily = cfg.css;
+                if (el.classList.contains('paper-editor')) {
+                    el.style.fontSize = cfg.size;
+                }
+                if (el.classList.contains('a4-sheet') && !el.classList.contains('empty-sheet') && !el.classList.contains('empty-sheet-premium') && window.innerWidth > 768) {
+                    el.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+                }
             });
-            showToast(`Font dokumen diubah ke ${val}`, 'info');
+        }
+
+        function updateDocFont(val, silent = false) {
+            const cfg = DOC_FONT_MAP[val] || DOC_FONT_MAP.times;
+            activeDocFontKey = DOC_FONT_MAP[val] ? val : 'times';
+            try { localStorage.setItem(`skripsi_font_${projectId}`, activeDocFontKey); } catch (e) { }
+
+            const dlForm = document.getElementById('quick-download-form');
+            const fontInp = dlForm ? dlForm.querySelector('input[name="font_family"]') : null;
+            if (fontInp) fontInp.value = activeDocFontKey;
+
+            applyCurrentDocFormatting();
+            if (!silent) {
+                showToast(`Font naskah & ekspor Word/PDF diubah ke ${cfg.label}`, 'info');
+            }
         }
 
         function updateMargins() {
@@ -3950,6 +4183,9 @@
             const left = document.getElementById('m-left')?.value || document.getElementById('setting-margin-left')?.value || '4';
             const bottom = document.getElementById('m-bottom')?.value || document.getElementById('setting-margin-bottom')?.value || '3';
             const right = document.getElementById('m-right')?.value || document.getElementById('setting-margin-right')?.value || '3';
+
+            const badge = document.getElementById('margin-badge-label');
+            if (badge) badge.textContent = `${left}-${top}-${right}-${bottom} cm`;
 
             ['quick-download-form'].forEach(fId => {
                 const f = document.getElementById(fId);
@@ -3961,9 +4197,7 @@
                 }
             });
 
-            document.querySelectorAll('.a4-sheet').forEach(sheet => {
-                sheet.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
-            });
+            applyCurrentDocFormatting();
         }
 
         function handleSidebarLogoUpload(input) {
@@ -4039,6 +4273,299 @@
             form.submit();
         }
 
+        // =========================================================================
+        // FITUR LAMPIRAN (UPLOAD GAMBAR / DOKUMEN / TEKS -> OTOMATIS DAFTAR ISI, WORD & PDF)
+        // =========================================================================
+        let projectLampiran = Array.isArray(projectMeta.lampiran) ? [...projectMeta.lampiran] : [];
+        let pendingLampiranImage = '';
+        let pendingLampiranFileName = '';
+
+        function updateLampiranSidebarBadge() {
+            const badge = document.getElementById('lampiran-count-badge');
+            const dot = document.getElementById('dot-lampiran');
+            const count = projectLampiran.length;
+            if (badge) {
+                badge.textContent = String(count);
+                badge.style.background = count > 0 ? '#dbeafe' : '#f1f5f9';
+                badge.style.color = count > 0 ? '#1d4ed8' : '#64748b';
+            }
+            if (dot) {
+                dot.classList.toggle('done', count > 0);
+            }
+        }
+
+        function getLampiranWithPages(pageMap) {
+            if (!Array.isArray(projectLampiran) || projectLampiran.length === 0) return [];
+            let nextPage = 1;
+            Object.values(pageMap || {}).forEach(pm => {
+                if (pm && pm.endPage && pm.endPage >= nextPage) {
+                    nextPage = pm.endPage + 1;
+                }
+            });
+            return projectLampiran.map((item, idx) => {
+                const rawTitle = (item.title || '').trim() || `Dokumen Lampiran ${idx + 1}`;
+                const label = /^lampiran\s+\d+/i.test(rawTitle) ? rawTitle : `Lampiran ${idx + 1} ${rawTitle}`;
+                const pg = nextPage;
+                const extra = Math.max(1, Math.ceil(((item.content || '').length) / 2600));
+                nextPage += extra;
+                return Object.assign({}, item, { index: idx + 1, label, page: pg });
+            });
+        }
+
+        function buildLampiranSheetsHtml(lampiranItems) {
+            if (!lampiranItems || !lampiranItems.length) return '';
+            return lampiranItems.map((lmp, idx) => {
+                const imgHtml = lmp.image_base64
+                    ? `<div style="text-align: center; margin: 12px 0 18px;"><img src="${lmp.image_base64}" alt="${escapeHtml(lmp.label)}" style="max-width: 100%; max-height: 760px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 4px;"></div>`
+                    : '';
+                const textHtml = lmp.content ? markdownToAcademicHtml(lmp.content, false) : '';
+                return `
+                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
+                        <div class="paper-editor">
+                            ${idx === 0 ? `<div class="academic-chapter-header" style="text-align: center; margin-bottom: 22px;"><div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em;">LAMPIRAN</div></div>` : ''}
+                            <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 12pt; font-weight: 700;">${escapeHtml(lmp.label)}</h3>
+                            ${imgHtml}
+                            ${textHtml}
+                        </div>
+                        <div class="sheet-footer">${lmp.page}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleLampiranFileSelect(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (file.size > 3.5 * 1024 * 1024) {
+                showToast('Ukuran file lampiran maksimal 3,5 MB agar aman untuk ekspor Word & PDF.', 'error');
+                input.value = '';
+                return;
+            }
+
+            pendingLampiranFileName = file.name;
+            const titleEl = document.getElementById('lampiran-title-input');
+            if (titleEl && !titleEl.value.trim()) {
+                titleEl.value = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ');
+            }
+
+            const statusEl = document.getElementById('lampiran-file-status');
+            if (file.type && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const maxDim = 1000;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                            else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        pendingLampiranImage = canvas.toDataURL('image/jpeg', 0.85);
+                        if (statusEl) {
+                            statusEl.innerHTML = `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;"><img src="${pendingLampiranImage}" style="height:44px; width:44px; object-fit:cover; border-radius:5px; border:1px solid #cbd5e1;"><span style="font-size:12px; color:#166534; font-weight:600;">✓ Gambar siap dilampirkan: ${escapeHtml(file.name)}</span></div>`;
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                pendingLampiranImage = '';
+                if (statusEl) {
+                    statusEl.innerHTML = `<div style="padding:8px 10px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; font-size:12px; color:#1d4ed8;">⏳ Membaca isi dokumen ${escapeHtml(file.name)}...</div>`;
+                }
+                try {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const res = await fetch(`/project/${projectId}/lampiran/extract`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        body: fd
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membaca dokumen.');
+                    const contentEl = document.getElementById('lampiran-content-input');
+                    if (contentEl) contentEl.value = data.content || '';
+                    if (statusEl) {
+                        statusEl.innerHTML = `<div style="padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; font-size:12px; color:#166534; font-weight:600;">✓ Dokumen ${escapeHtml(file.name)} berhasil dibaca dan dimuat ke teks lampiran!</div>`;
+                    }
+                } catch (err) {
+                    if (statusEl) {
+                        statusEl.innerHTML = `<div style="padding:8px 10px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:12px; color:#dc2626;">⚠ ${escapeHtml(err.message || 'Gagal membaca dokumen.')}</div>`;
+                    }
+                }
+            }
+        }
+
+        async function persistLampiranList(successMsg) {
+            const res = await fetch(`/project/${projectId}/save-chapter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ chapter: 'lampiran', lampiran: projectLampiran })
+            });
+            const data = await res.json();
+            if (!res.ok || data.status !== 'success') {
+                throw new Error(data.message || 'Gagal menyimpan lampiran.');
+            }
+            projectLampiran = Array.isArray(data.lampiran) ? data.lampiran : projectLampiran;
+            projectMeta.lampiran = projectLampiran;
+            delete projectMeta.front_matter_html;
+            updateLampiranSidebarBadge();
+            if (successMsg) showToast(successMsg, 'success');
+        }
+
+        async function addLampiranItem() {
+            const titleEl = document.getElementById('lampiran-title-input');
+            const contentEl = document.getElementById('lampiran-content-input');
+            const btn = document.getElementById('btn-add-lampiran');
+
+            const title = (titleEl?.value || '').trim();
+            const content = (contentEl?.value || '').trim();
+            if (!title) {
+                showToast('Masukkan judul lampiran terlebih dahulu (mis. Kuesioner Penelitian).', 'error');
+                return;
+            }
+            if (!pendingLampiranImage && !content) {
+                showToast('Unggah file gambar/dokumen lampiran atau isi teks lampiran terlebih dahulu.', 'error');
+                return;
+            }
+
+            if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+            try {
+                projectLampiran.push({
+                    id: 'lmp_' + Date.now(),
+                    title,
+                    image_base64: pendingLampiranImage,
+                    content,
+                    file_name: pendingLampiranFileName
+                });
+                await persistLampiranList('Lampiran disimpan! Daftar Isi, Daftar Lampiran, Word & PDF otomatis diperbarui.');
+                pendingLampiranImage = '';
+                pendingLampiranFileName = '';
+                renderLampiranView();
+            } catch (err) {
+                projectLampiran.pop();
+                showToast(err.message || 'Gagal menyimpan lampiran.', 'error');
+                if (btn) { btn.disabled = false; btn.textContent = '+ Simpan & Tambahkan Lampiran'; }
+            }
+        }
+
+        async function moveLampiranItem(idx, dir) {
+            const target = idx + dir;
+            if (target < 0 || target >= projectLampiran.length) return;
+            const tmp = projectLampiran[idx];
+            projectLampiran[idx] = projectLampiran[target];
+            projectLampiran[target] = tmp;
+            try {
+                await persistLampiranList('Urutan lampiran diperbarui.');
+                renderLampiranView();
+            } catch (err) {
+                showToast(err.message || 'Gagal memperbarui urutan.', 'error');
+            }
+        }
+
+        async function deleteLampiranItem(idx) {
+            if (!confirm('Hapus lampiran ini dari naskah?')) return;
+            const removed = projectLampiran.splice(idx, 1);
+            try {
+                await persistLampiranList('Lampiran dihapus & Daftar Isi diperbarui.');
+                renderLampiranView();
+            } catch (err) {
+                projectLampiran.splice(idx, 0, ...removed);
+                showToast(err.message || 'Gagal menghapus lampiran.', 'error');
+            }
+        }
+
+        function renderLampiranView() {
+            const container = document.getElementById('sheets-container');
+            const pageMap = computeDocumentPagination();
+            const itemsWithPages = getLampiranWithPages(pageMap);
+
+            const listHtml = itemsWithPages.length > 0
+                ? itemsWithPages.map((item, idx) => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                            ${item.image_base64
+                                ? `<img src="${item.image_base64}" style="width:42px; height:42px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; flex-shrink:0;">`
+                                : `<div style="width:42px; height:42px; border-radius:6px; background:#dbeafe; color:#1d4ed8; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">L${idx + 1}</div>`}
+                            <div style="min-width:0;">
+                                <div style="font-size:13.5px; font-weight:700; color:#0f172a;">${escapeHtml(item.label)}</div>
+                                <div style="font-size:11.5px; color:#64748b; margin-top:2px;">
+                                    ${item.image_base64 ? 'Gambar / Dokumen Visual' : 'Teks / Tabel Lampiran'}
+                                    ${item.file_name ? ' · ' + escapeHtml(item.file_name) : ''}
+                                    · Est. Hal. ${item.page}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-shrink:0;">
+                            <button type="button" class="btn-top" style="height:30px; padding:0 8px;" onclick="moveLampiranItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Naikkan urutan">▲</button>
+                            <button type="button" class="btn-top" style="height:30px; padding:0 8px;" onclick="moveLampiranItem(${idx}, 1)" ${idx === itemsWithPages.length - 1 ? 'disabled' : ''} title="Turunkan urutan">▼</button>
+                            <button type="button" class="btn-top" style="height:30px; padding:0 10px; color:#dc2626; border-color:#fecaca;" onclick="deleteLampiranItem(${idx})">Hapus</button>
+                        </div>
+                    </div>
+                `).join('')
+                : `<div style="padding:18px; text-align:center; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px; font-size:13px; color:#64748b;">
+                        Belum ada lampiran yang diunggah. Jika kamu mengunggah lampiran di atas, <strong>Daftar Lampiran</strong> otomatis muncul di Daftar Isi, Preview A4, Word (<code>.docx</code>), dan PDF (<code>.pdf</code>).
+                   </div>`;
+
+            container.innerHTML = `
+                <div class="revisi-card" style="max-width: 794px; margin: 0 auto 24px;">
+                    <div class="revisi-header">
+                        <div class="revisi-title" style="display:flex; align-items:center; gap:8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                            <span>Lampiran Penelitian (${itemsWithPages.length})</span>
+                        </div>
+                        <span class="project-mode-badge">Auto-Sync Daftar Isi, Word &amp; PDF</span>
+                    </div>
+
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:18px;">
+                        <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px;">+ Tambah Lampiran Baru</div>
+
+                        <label class="form-label" for="lampiran-title-input">Judul Lampiran <span style="color:#dc2626;">*</span></label>
+                        <input type="text" id="lampiran-title-input" class="olah-input" style="margin-bottom:12px;"
+                            placeholder="cth: Kuesioner Penelitian / Output Uji SPSS / Surat Izin Penelitian / Dokumentasi Sistem">
+
+                        <label class="form-label" for="lampiran-file-input">Unggah Berkas Lampiran (Gambar PNG/JPG/WEBP atau Dokumen Word/PDF/TXT — maks 3,5 MB)</label>
+                        <input type="file" id="lampiran-file-input" class="revisi-file" accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.doc,.txt,.csv" onchange="handleLampiranFileSelect(this)" style="margin-bottom:8px;">
+                        <div id="lampiran-file-status" style="margin-bottom:10px;"></div>
+
+                        <label class="form-label" for="lampiran-content-input">Isi Teks / Tabel Lampiran (Opsional — terisi otomatis jika mengunggah dokumen Word/PDF/TXT)</label>
+                        <textarea id="lampiran-content-input" class="revisi-textarea" style="min-height:95px; margin-bottom:12px;"
+                            placeholder="Bisa ketik atau tempel daftar pertanyaan kuesioner, transkrip wawancara, tabel data mentah, atau kode program di sini..."></textarea>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span style="font-size:11.5px; color:#64748b;">Lampiran akan otomatis tercatat di <strong>Daftar Isi</strong> &amp; <strong>Daftar Lampiran</strong>, serta ikut tercetak saat unduh Word &amp; PDF.</span>
+                            <button type="button" id="btn-add-lampiran" class="btn-top primary" onclick="addLampiranItem()">+ Simpan &amp; Tambahkan Lampiran</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Daftar Lampiran Tersimpan</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        ${listHtml}
+                    </div>
+                </div>
+                ${itemsWithPages.length > 0 ? buildLampiranSheetsHtml(itemsWithPages) : ''}
+            `;
+            applyCurrentDocFormatting();
+        }
+
+        try {
+            const savedFont = localStorage.getItem(`skripsi_font_${projectId}`);
+            if (savedFont && DOC_FONT_MAP[savedFont]) {
+                const fontSel = document.getElementById('doc-font-select');
+                if (fontSel) fontSel.value = savedFont;
+                updateDocFont(savedFont, true);
+            }
+        } catch (e) { }
+        updateLampiranSidebarBadge();
+        updateOlahDataIndicator();
         updateProgressUI();
         selectChapterView('bab1');
     </script>

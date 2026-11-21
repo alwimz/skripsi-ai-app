@@ -697,10 +697,24 @@
             line-height: 1.45;
         }
 
-        /* Interactive PPT Studio (16:9 Slide Canvas & Designer Templates) */
+        /* Interactive PPT Studio (16:9 Slide Canvas & 13 Premium Designer Templates) */
         .ppt-canvas {
-            border-radius: 14px;
-            padding: clamp(16px, 3.5vw, 40px) clamp(18px, 4vw, 44px);
+            --ppt-accent: #2563eb;
+            --ppt-accent-2: #1d4ed8;
+            --ppt-text: #0f172a;
+            --ppt-muted: #475569;
+            --ppt-badge-bg: #dbeafe;
+            --ppt-badge-fg: #1d4ed8;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #cbd5e1;
+            --ppt-card-text: #0f172a;
+            --ppt-card-label: #2563eb;
+            --ppt-bullet-bg: rgba(255, 255, 255, 0.94);
+            --ppt-bullet-border: #dbeafe;
+            --ppt-divider: rgba(37, 99, 235, 0.25);
+
+            border-radius: 16px;
+            padding: clamp(18px, 2.8vw, 32px) clamp(20px, 3.2vw, 38px);
             width: 100%;
             max-width: 920px;
             aspect-ratio: 16 / 9;
@@ -712,376 +726,568 @@
             border: 1px solid var(--border);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
-            transition: all 0.2s ease;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
+            transition: all 0.22s ease;
+            color: var(--ppt-text);
         }
 
-        /* Sidang Crimson / Magenta (Desain Modern Sesuai Pedoman Sidang Resmi) */
-        .ppt-theme-sidang_crimson {
-            background: linear-gradient(135deg, #be185d 0%, #db2777 50%, #e11d48 100%);
-            color: #ffffff;
+        .ppt-canvas > div {
             position: relative;
-            overflow: hidden;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 0;
         }
 
-        .ppt-theme-sidang_crimson .ppt-badge {
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            backdrop-filter: blur(4px);
+        .ppt-canvas::after {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            right: -85px;
+            bottom: -95px;
+            background: radial-gradient(circle, var(--ppt-accent) 0%, transparent 72%);
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        .ppt-theme-sidang_crimson #slide-bullets-edit li {
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            padding: 7px 12px;
-            border-radius: 8px;
-            list-style-position: inside;
+        /* 1. Sidang Crimson Pro (Deep Burgundy Editorial) */
+        .ppt-theme-sidang_crimson {
+            --ppt-accent: #fb7185;
+            --ppt-accent-2: #fda4af;
+            --ppt-text: #ffffff;
+            --ppt-muted: #ffe4e6;
+            --ppt-badge-bg: rgba(255, 255, 255, 0.20);
+            --ppt-badge-fg: #ffffff;
+            --ppt-card-bg: rgba(255, 255, 255, 0.14);
+            --ppt-card-border: rgba(255, 255, 255, 0.32);
+            --ppt-card-text: #ffffff;
+            --ppt-card-label: #fecdd3;
+            --ppt-bullet-bg: rgba(255, 255, 255, 0.14);
+            --ppt-bullet-border: rgba(255, 255, 255, 0.28);
+            --ppt-divider: rgba(255, 255, 255, 0.35);
+            background: linear-gradient(135deg, #881337 0%, #be123c 52%, #e11d48 100%);
+            border: 1px solid #9f1239;
+            padding-top: 28px;
+        }
+        .ppt-theme-sidang_crimson::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #fda4af 0%, #ffffff 50%, #fb7185 100%);
+            z-index: 3;
         }
 
-        /* 1. Basic Navy (Klasik) */
-        .ppt-theme-basic_navy {
-            background: #1e1b4b;
-            color: #ffffff;
-        }
-
-        .ppt-theme-basic_navy .ppt-badge {
-            background: rgba(255, 255, 255, 0.14);
-            color: #e0e7ff;
-        }
-
-        /* 2. Basic White (Polos Kampus) */
-        .ppt-theme-basic_white {
-            background: #ffffff;
-            color: #0f172a;
-            border: 1.5px solid #cbd5e1;
-        }
-
-        .ppt-theme-basic_white .ppt-badge {
-            background: #f1f5f9;
-            color: #334155;
-        }
-
-        /* 3. Royal Blue Academic (Modern Kampus dengan Sidebar Biru & Ornamen) */
+        /* 2. Royal Blue Kampus (Executive Academic Blue) */
         .ppt-theme-royal_academic {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-            color: #0f172a;
-            padding-left: 60px;
+            --ppt-accent: #2563eb;
+            --ppt-accent-2: #1e40af;
+            --ppt-text: #0f172a;
+            --ppt-muted: #475569;
+            --ppt-badge-bg: #dbeafe;
+            --ppt-badge-fg: #1d4ed8;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #bfdbfe;
+            --ppt-card-text: #0f172a;
+            --ppt-card-label: #1d4ed8;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #bfdbfe;
+            --ppt-divider: #93c5fd;
+            background: linear-gradient(145deg, #ffffff 0%, #f1f7ff 58%, #e6f0ff 100%);
+            padding-left: clamp(30px, 4.5vw, 52px);
             border: 1px solid #bfdbfe;
         }
-
         .ppt-theme-royal_academic::before {
             content: '';
             position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 18px;
-            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            top: 0; bottom: 0; left: 0;
+            width: 16px;
+            background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 55%, #38bdf8 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-royal_academic .ppt-badge {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .ppt-theme-royal_academic #slide-bullets-edit li {
-            background: rgba(255, 255, 255, 0.88);
-            border-left: 3px solid #2563eb;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 4. Canva Warm Editorial (Cream & Terracotta Cantik) */
+        /* 3. Canva Cream Editorial (Warm Ivory & Terracotta Serif) */
         .ppt-theme-canva_editorial {
-            background: #fbf8f3;
-            color: #292524;
-            border: 1px solid #e7e0d6;
-            padding-top: 48px;
+            --ppt-accent: #c2410c;
+            --ppt-accent-2: #ea580c;
+            --ppt-text: #1c1917;
+            --ppt-muted: #57534e;
+            --ppt-badge-bg: #ffedd5;
+            --ppt-badge-fg: #9a3412;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #fed7aa;
+            --ppt-card-text: #292524;
+            --ppt-card-label: #c2410c;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #f5d0a9;
+            --ppt-divider: #fdba74;
+            background: linear-gradient(140deg, #fdfaf5 0%, #faf3e8 100%);
+            border: 1px solid #e7d8c5;
+            padding-top: 28px;
         }
-
         .ppt-theme-canva_editorial::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(90deg, #9a3412 0%, #ea580c 55%, #f59e0b 100%);
+            z-index: 3;
         }
-
-        .ppt-theme-canva_editorial .ppt-badge {
-            background: #ffedd5;
-            color: #9a3412;
-        }
-
-        .ppt-theme-canva_editorial #slide-title-edit {
+        .ppt-theme-canva_editorial #slide-title-edit,
+        .ppt-theme-canva_editorial #fs-slide-title {
             font-family: Georgia, 'Times New Roman', serif;
-            color: #1c1917;
         }
 
-        .ppt-theme-canva_editorial #slide-bullets-edit li {
-            background: #ffffff;
-            border: 1px solid #ede6dc;
-            padding: 7px 12px;
-            border-radius: 8px;
-            list-style-position: inside;
-        }
-
-        /* 5. Emerald Botanical (Hijau Kampus & Aksen Emas) */
+        /* 4. Emerald Botanical (Forest Green & Gold Trim) */
         .ppt-theme-emerald_executive {
-            background: #f4fbf7;
-            color: #064e3b;
+            --ppt-accent: #047857;
+            --ppt-accent-2: #d97706;
+            --ppt-text: #064e3b;
+            --ppt-muted: #3f6258;
+            --ppt-badge-bg: #d1fae5;
+            --ppt-badge-fg: #065f46;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #a7f3d0;
+            --ppt-card-text: #064e3b;
+            --ppt-card-label: #047857;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #a7f3d0;
+            --ppt-divider: #6ee7b7;
+            background: linear-gradient(145deg, #ffffff 0%, #ecfdf5 65%, #d1fae5 100%);
             border: 1px solid #a7f3d0;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-emerald_executive::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 14px;
-            background: linear-gradient(90deg, #065f46 0%, #047857 75%, #d97706 100%);
+            top: 0; left: 0; right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #065f46 0%, #059669 72%, #d97706 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-emerald_executive .ppt-badge {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .ppt-theme-emerald_executive #slide-bullets-edit li {
-            background: #ffffff;
-            border-left: 3px solid #059669;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 6. Swiss Minimal Grid (Editorial Monokrom) */
+        /* 5. Swiss Grid Minimal (Architectural Monochrome Editorial) */
         .ppt-theme-swiss_minimal {
+            --ppt-accent: #111827;
+            --ppt-accent-2: #374151;
+            --ppt-text: #111827;
+            --ppt-muted: #4b5563;
+            --ppt-badge-bg: #111827;
+            --ppt-badge-fg: #ffffff;
+            --ppt-card-bg: #f9fafb;
+            --ppt-card-border: #d1d5db;
+            --ppt-card-text: #111827;
+            --ppt-card-label: #111827;
+            --ppt-bullet-bg: #f9fafb;
+            --ppt-bullet-border: #d1d5db;
+            --ppt-divider: #111827;
             background: #ffffff;
-            color: #111827;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 22px 22px;
             border: 2px solid #111827;
+            padding-top: 28px;
         }
-
         .ppt-theme-swiss_minimal::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: #111827;
+            z-index: 3;
+        }
+
+        /* 6. Basic Navy (Executive Midnight Indigo) */
+        .ppt-theme-basic_navy {
+            --ppt-accent: #818cf8;
+            --ppt-accent-2: #38bdf8;
+            --ppt-text: #ffffff;
+            --ppt-muted: #c7d2fe;
+            --ppt-badge-bg: rgba(129, 140, 248, 0.24);
+            --ppt-badge-fg: #e0e7ff;
+            --ppt-card-bg: rgba(255, 255, 255, 0.09);
+            --ppt-card-border: rgba(165, 180, 252, 0.34);
+            --ppt-card-text: #f8fafc;
+            --ppt-card-label: #a5b4fc;
+            --ppt-bullet-bg: rgba(255, 255, 255, 0.09);
+            --ppt-bullet-border: rgba(165, 180, 252, 0.28);
+            --ppt-divider: rgba(165, 180, 252, 0.35);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 58%, #312e81 100%);
+            border: 1px solid #3730a3;
+            padding-top: 28px;
+        }
+        .ppt-theme-basic_navy::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
             height: 8px;
-            background: #111827;
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 55%, #38bdf8 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-swiss_minimal .ppt-badge {
-            background: #111827;
-            color: #ffffff;
+        /* 7. Basic Putih (Ultra-Clean Academic Projector) */
+        .ppt-theme-basic_white {
+            --ppt-accent: #334155;
+            --ppt-accent-2: #2563eb;
+            --ppt-text: #0f172a;
+            --ppt-muted: #475569;
+            --ppt-badge-bg: #f1f5f9;
+            --ppt-badge-fg: #1e293b;
+            --ppt-card-bg: #f8fafc;
+            --ppt-card-border: #cbd5e1;
+            --ppt-card-text: #0f172a;
+            --ppt-card-label: #334155;
+            --ppt-bullet-bg: #f8fafc;
+            --ppt-bullet-border: #cbd5e1;
+            --ppt-divider: #cbd5e1;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            padding-top: 26px;
+        }
+        .ppt-theme-basic_white::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #334155 0%, #64748b 100%);
+            z-index: 3;
         }
 
-        /* 7. Maroon Prestige (Burgundy Elegan Sidang) */
+        /* 8. Maroon Prestige (Burgundy Academic Heritage) */
         .ppt-theme-maroon_prestige {
-            background: #fff5f5;
-            color: #450a0a;
+            --ppt-accent: #991b1b;
+            --ppt-accent-2: #b45309;
+            --ppt-text: #450a0a;
+            --ppt-muted: #7f1d1d;
+            --ppt-badge-bg: #fee2e2;
+            --ppt-badge-fg: #991b1b;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #fecaca;
+            --ppt-card-text: #450a0a;
+            --ppt-card-label: #991b1b;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #fecaca;
+            --ppt-divider: #fca5a5;
+            background: linear-gradient(145deg, #ffffff 0%, #fff5f5 62%, #ffe4e6 100%);
             border: 1px solid #fecaca;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-maroon_prestige::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 12px;
-            background: linear-gradient(90deg, #831843 0%, #991b1b 50%, #dc2626 100%);
+            top: 0; left: 0; right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #7f1d1d 0%, #991b1b 65%, #d97706 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-maroon_prestige .ppt-badge {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .ppt-theme-maroon_prestige #slide-bullets-edit li {
-            background: #ffffff;
-            border-left: 3px solid #991b1b;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 8. Tech Dark (Modern Cyber Blue) */
+        /* 9. Dark Tech Cyber (Modern AI / Informatika) */
         .ppt-theme-tech_dark {
-            background: #0b0f19;
-            color: #f8fafc;
+            --ppt-accent: #06b6d4;
+            --ppt-accent-2: #3b82f6;
+            --ppt-text: #f8fafc;
+            --ppt-muted: #94a3b8;
+            --ppt-badge-bg: rgba(6, 182, 212, 0.18);
+            --ppt-badge-fg: #38bdf8;
+            --ppt-card-bg: rgba(30, 41, 59, 0.85);
+            --ppt-card-border: rgba(56, 189, 248, 0.35);
+            --ppt-card-text: #f8fafc;
+            --ppt-card-label: #38bdf8;
+            --ppt-bullet-bg: rgba(15, 23, 42, 0.82);
+            --ppt-bullet-border: rgba(56, 189, 248, 0.30);
+            --ppt-divider: rgba(56, 189, 248, 0.35);
+            background: linear-gradient(135deg, #070b14 0%, #0f172a 60%, #111c33 100%);
             border: 1px solid #1e293b;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-tech_dark::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #0284c7 0%, #06b6d4 100%);
+            top: 0; left: 0; right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #0284c7 0%, #06b6d4 50%, #818cf8 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-tech_dark .ppt-badge {
-            background: rgba(6, 182, 212, 0.15);
-            color: #38bdf8;
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .ppt-theme-tech_dark #slide-title-edit {
-            color: #ffffff;
-        }
-
-        .ppt-theme-tech_dark #slide-subtitle-edit {
-            color: #94a3b8;
-        }
-
-        .ppt-theme-tech_dark #slide-bullets-edit li {
-            background: #131b2e;
-            border-left: 3px solid #06b6d4;
-            color: #f1f5f9;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 9. Soft Lavender Academic */
+        /* 10. Lavender Academic (Modern Soft Violet) */
         .ppt-theme-pastel_lavender {
-            background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
-            color: #2e1065;
+            --ppt-accent: #7c3aed;
+            --ppt-accent-2: #a855f7;
+            --ppt-text: #2e1065;
+            --ppt-muted: #5b21b6;
+            --ppt-badge-bg: #ede9fe;
+            --ppt-badge-fg: #6d28d9;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #ddd6fe;
+            --ppt-card-text: #2e1065;
+            --ppt-card-label: #6d28d9;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #ddd6fe;
+            --ppt-divider: #c4b5fd;
+            background: linear-gradient(145deg, #ffffff 0%, #f5f3ff 62%, #ede9fe 100%);
             border: 1px solid #ddd6fe;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-pastel_lavender::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(90deg, #6d28d9 0%, #8b5cf6 55%, #c084fc 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-pastel_lavender .ppt-badge {
-            background: #ede9fe;
-            color: #6d28d9;
-        }
-
-        .ppt-theme-pastel_lavender #slide-bullets-edit li {
-            background: #ffffff;
-            border-left: 3px solid #8b5cf6;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 10. Nordic Teal Slate */
+        /* 11. Nordic Slate Teal (Scandinavian Clean Teal) */
         .ppt-theme-nordic_teal {
-            background: #f0fdfa;
-            color: #134e4a;
+            --ppt-accent: #0f766e;
+            --ppt-accent-2: #14b8a6;
+            --ppt-text: #134e4a;
+            --ppt-muted: #3b6966;
+            --ppt-badge-bg: #ccfbf1;
+            --ppt-badge-fg: #0f766e;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #99f6e4;
+            --ppt-card-text: #134e4a;
+            --ppt-card-label: #0f766e;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #99f6e4;
+            --ppt-divider: #5eead4;
+            background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 60%, #ccfbf1 100%);
             border: 1px solid #99f6e4;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-nordic_teal::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(90deg, #115e59 0%, #0d9488 55%, #2dd4bf 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-nordic_teal .ppt-badge {
-            background: #ccfbf1;
-            color: #0f766e;
-        }
-
-        .ppt-theme-nordic_teal #slide-bullets-edit li {
-            background: #ffffff;
-            border-left: 3px solid #14b8a6;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 11. Warm Terracotta Sand */
+        /* 12. Warm Terracotta Sand (Amber Academic Modern) */
         .ppt-theme-warm_terracotta {
-            background: #fffbeb;
-            color: #451a03;
-            border: 1px solid #fed7aa;
-            padding-top: 50px;
+            --ppt-accent: #b45309;
+            --ppt-accent-2: #ea580c;
+            --ppt-text: #451a03;
+            --ppt-muted: #78350f;
+            --ppt-badge-bg: #fef3c7;
+            --ppt-badge-fg: #b45309;
+            --ppt-card-bg: #ffffff;
+            --ppt-card-border: #fde68a;
+            --ppt-card-text: #451a03;
+            --ppt-card-label: #b45309;
+            --ppt-bullet-bg: #ffffff;
+            --ppt-bullet-border: #fed7aa;
+            --ppt-divider: #fcd34d;
+            background: linear-gradient(145deg, #fffdf7 0%, #fffbeb 62%, #fef3c7 100%);
+            border: 1px solid #fde68a;
+            padding-top: 28px;
         }
-
         .ppt-theme-warm_terracotta::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #b45309 0%, #f97316 100%);
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(90deg, #92400e 0%, #d97706 55%, #f97316 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-warm_terracotta .ppt-badge {
-            background: #ffedd5;
-            color: #c2410c;
-        }
-
-        .ppt-theme-warm_terracotta #slide-bullets-edit li {
-            background: #ffffff;
-            border-left: 3px solid #f97316;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
-        }
-
-        /* 12. Classic Oxford Navy & Gold */
+        /* 13. Oxford Navy & Gold (Luxury Academic Prestige) */
         .ppt-theme-classic_gold {
-            background: #0f172a;
-            color: #f8fafc;
+            --ppt-accent: #fbbf24;
+            --ppt-accent-2: #d97706;
+            --ppt-text: #f8fafc;
+            --ppt-muted: #cbd5e1;
+            --ppt-badge-bg: rgba(251, 191, 36, 0.18);
+            --ppt-badge-fg: #fbbf24;
+            --ppt-card-bg: rgba(30, 41, 59, 0.86);
+            --ppt-card-border: rgba(251, 191, 36, 0.42);
+            --ppt-card-text: #f8fafc;
+            --ppt-card-label: #fbbf24;
+            --ppt-bullet-bg: rgba(30, 41, 59, 0.85);
+            --ppt-bullet-border: rgba(251, 191, 36, 0.34);
+            --ppt-divider: rgba(251, 191, 36, 0.42);
+            background: linear-gradient(135deg, #091124 0%, #0f172a 58%, #1e293b 100%);
             border: 1px solid #334155;
-            padding-top: 50px;
+            padding-top: 28px;
         }
-
         .ppt-theme-classic_gold::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(90deg, #d97706 0%, #fbbf24 50%, #f59e0b 100%);
+            top: 0; left: 0; right: 0;
+            height: 9px;
+            background: linear-gradient(90deg, #b45309 0%, #fbbf24 50%, #f59e0b 100%);
+            z-index: 3;
         }
 
-        .ppt-theme-classic_gold .ppt-badge {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.4);
+        /* Unified Theme-Driven Typography, Badges & Adaptive Bullet Cards */
+        .ppt-canvas .ppt-badge {
+            background: var(--ppt-badge-bg);
+            color: var(--ppt-badge-fg);
+            border: 1px solid var(--ppt-divider);
         }
 
-        .ppt-theme-classic_gold #slide-title-edit {
-            color: #ffffff;
+        .ppt-canvas #slide-title-edit,
+        .ppt-canvas #fs-slide-title {
+            color: var(--ppt-text);
+            margin-bottom: 4px !important;
         }
 
-        .ppt-theme-classic_gold #slide-bullets-edit li {
-            background: #1e293b;
-            border-left: 3px solid #fbbf24;
-            color: #f8fafc;
-            padding: 7px 12px;
-            border-radius: 0 8px 8px 0;
-            list-style-position: inside;
+        .ppt-canvas #slide-subtitle-edit,
+        .ppt-canvas #fs-slide-subtitle {
+            color: var(--ppt-muted);
+            margin-bottom: 12px !important;
+        }
+
+        .ppt-canvas #slide-bullets-edit,
+        .ppt-canvas #fs-slide-bullets {
+            list-style: none !important;
+            padding-left: 0 !important;
+            margin: 0 !important;
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            flex: 1;
+            align-content: start;
+        }
+
+        .ppt-canvas #slide-bullets-edit.ppt-bullets-two-col,
+        .ppt-canvas #fs-slide-bullets.ppt-bullets-two-col {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 9px !important;
+        }
+
+        .ppt-canvas #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
+        .ppt-canvas #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
+            background: var(--ppt-bullet-bg);
+            border: 1px solid var(--ppt-bullet-border);
+            border-left: 3.5px solid var(--ppt-accent);
+            color: var(--ppt-card-text);
+            padding: 8px 12px;
+            border-radius: 9px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+            line-height: 1.42;
+            font-size: 13px;
+            word-break: break-word;
+            box-sizing: border-box;
+        }
+
+        .ppt-canvas.ppt-density-compact #slide-title-edit,
+        .ppt-canvas.ppt-density-compact #fs-slide-title {
+            font-size: 19px !important;
+            line-height: 1.24 !important;
+        }
+        .ppt-canvas.ppt-density-compact #slide-subtitle-edit,
+        .ppt-canvas.ppt-density-compact #fs-slide-subtitle {
+            font-size: 12.5px !important;
+            margin-bottom: 8px !important;
+        }
+        .ppt-canvas.ppt-density-compact #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
+        .ppt-canvas.ppt-density-compact #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
+            font-size: 11.5px !important;
+            line-height: 1.32 !important;
+            padding: 6px 10px !important;
+        }
+
+        .ppt-canvas.ppt-density-dense #slide-title-edit,
+        .ppt-canvas.ppt-density-dense #fs-slide-title {
+            font-size: 16.5px !important;
+            line-height: 1.2 !important;
+        }
+        .ppt-canvas.ppt-density-dense #slide-subtitle-edit,
+        .ppt-canvas.ppt-density-dense #fs-slide-subtitle {
+            font-size: 11px !important;
+            margin-bottom: 6px !important;
+        }
+        .ppt-canvas.ppt-density-dense #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
+        .ppt-canvas.ppt-density-dense #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
+            font-size: 10.2px !important;
+            line-height: 1.25 !important;
+            padding: 5px 8px !important;
+        }
+
+        .ppt-canvas.ppt-density-micro #slide-title-edit,
+        .ppt-canvas.ppt-density-micro #fs-slide-title {
+            font-size: 14.5px !important;
+            line-height: 1.18 !important;
+        }
+        .ppt-canvas.ppt-density-micro #slide-subtitle-edit,
+        .ppt-canvas.ppt-density-micro #fs-slide-subtitle {
+            font-size: 10px !important;
+            margin-bottom: 5px !important;
+        }
+        .ppt-canvas.ppt-density-micro #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
+        .ppt-canvas.ppt-density-micro #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
+            font-size: 9.2px !important;
+            line-height: 1.2 !important;
+            padding: 4px 7px !important;
+        }
+
+        /* Cover Slide 1 Typography & Symmetrical Cards */
+        .ppt-cover-title-text {
+            font-size: clamp(16px, 2.25vw, 22px);
+            font-weight: 800;
+            line-height: 1.3;
+            max-width: 92%;
+            margin: 6px auto 0;
+            color: var(--ppt-text);
+            letter-spacing: -0.01em;
+        }
+        .ppt-cover-title-text.ppt-title-long {
+            font-size: clamp(14px, 1.9vw, 18.5px);
+            line-height: 1.28;
+        }
+        .ppt-cover-divider {
+            width: 72px;
+            height: 3.5px;
+            border-radius: 999px;
+            background: var(--ppt-accent);
+            margin: 10px auto 6px;
+        }
+        .ppt-cover-oleh-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 20px;
+            border-radius: 10px;
+            background: var(--ppt-card-bg);
+            border: 1px solid var(--ppt-card-border);
+            margin: 4px auto 8px;
+        }
+        .ppt-cover-oleh-tag {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--ppt-card-label);
+            text-transform: uppercase;
+        }
+        .ppt-cover-author-name {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--ppt-card-text);
+            margin-top: 2px;
+        }
+        .ppt-cover-nim {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ppt-muted);
+            margin-top: 1px;
+        }
+        .ppt-cover-footer-inst {
+            text-align: center;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ppt-muted);
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--ppt-divider);
         }
 
         /* PPT Slide Smooth Animation */
@@ -1200,34 +1406,41 @@
         .ppt-pembimbing-grid {
             display: grid !important;
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 12px !important;
-            width: 100% !important;
+            gap: 14px !important;
+            width: 92% !important;
+            margin: 2px auto 0 !important;
             box-sizing: border-box !important;
         }
 
         .ppt-pembimbing-card {
-            background: rgba(255, 255, 255, 0.16) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            backdrop-filter: blur(4px) !important;
-            border-radius: 8px !important;
-            padding: 8px 12px !important;
+            background: var(--ppt-card-bg) !important;
+            border: 1px solid var(--ppt-card-border) !important;
+            border-top: 3px solid var(--ppt-accent) !important;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06) !important;
+            border-radius: 10px !important;
+            padding: 10px 14px !important;
             box-sizing: border-box !important;
             text-align: left !important;
+            color: var(--ppt-card-text) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
         }
 
         .ppt-pembimbing-label {
-            font-size: 10px !important;
-            font-weight: 700 !important;
-            opacity: 0.85 !important;
+            font-size: 9.5px !important;
+            font-weight: 800 !important;
+            color: var(--ppt-card-label) !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            margin-bottom: 3px !important;
+            letter-spacing: 0.08em !important;
+            margin-bottom: 5px !important;
         }
 
         .ppt-pembimbing-name {
-            font-size: 11.5px !important;
+            font-size: 12px !important;
             font-weight: 600 !important;
-            line-height: 1.25 !important;
+            color: var(--ppt-card-text) !important;
+            line-height: 1.35 !important;
             word-break: break-word !important;
         }
 
@@ -2383,6 +2596,7 @@
                     </div>
 
                     <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="
+                        if (typeof syncCustomStructureOutput === 'function') syncCustomStructureOutput();
                         const pedomanFile = this.querySelector('input[name=pedoman_file]');
                         const refFiles = this.querySelector('input[name=\'referensi_files[]\']');
                         let totalBytes = 0;
@@ -2558,7 +2772,7 @@
                             <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt"
                                 style="padding: 9px 12px; font-size: 13px;">
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
-                                pedoman penulisan kampus (.pdf / .docx, maks 15MB).</div>
+                                pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB total berkas).</div>
                         </div>
 
                         <!-- Card 5: Struktur Bab Kustom (Accordion Builder) -->
@@ -2623,7 +2837,7 @@
                                 <div>
                                     <label class="form-label">Tahun terbit minimum</label>
                                     <select name="tahun_min" class="form-select">
-                                        <option value="2020">Semua tahun (2018–2026)</option>
+                                        <option value="2018">Semua tahun (2018–2026)</option>
                                         <option value="2025">2025</option>
                                         <option value="2024">2024</option>
                                         <option value="2023" selected>2023</option>
@@ -2661,6 +2875,14 @@
                                         <option value="Inggris">Inggris (English)</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 14px;">
+                                <label class="form-label">Format Penomoran Sub-Bab</label>
+                                <select name="format_nomor" class="form-select">
+                                    <option value="1.1" selected>Desimal (1.1, 1.2, 2.1, 2.2 — Standar Umum)</option>
+                                    <option value="A.">Huruf Kapital (A., B., C., 1., 2. — Format Kampus Tertentu)</option>
+                                </select>
                             </div>
 
                             <label class="form-label">Sumber referensi</label>
@@ -2734,11 +2956,15 @@
                             <label class="form-label">Metodologi <span class="req">*</span></label>
                             <select id="title-metode" class="form-select">
                                 <option value="">Pilih Metodologi</option>
-                                <option value="Kuantitatif (Survei / Regresi)">Kuantitatif</option>
-                                <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif</option>
-                                <option value="R&D / Pengembangan Sistem (Waterfall / Prototype)">R&D / Pengembangan
-                                    Sistem</option>
-                                <option value="Yuridis Normatif / Empiris">Yuridis Normatif / Empiris</option>
+                                <option value="Kuantitatif (Survei / Regresi)">Kuantitatif (Survei / Regresi / SEM)</option>
+                                <option value="Kuantitatif — Data Sekunder">Kuantitatif — Data Sekunder (BPS / BEI / Panel)</option>
+                                <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif (Studi Kasus / Deskriptif)</option>
+                                <option value="R&D / Pengembangan Sistem">R&D / Pengembangan Sistem IT / AI</option>
+                                <option value="PTK (Penelitian Tindakan Kelas)">PTK (Penelitian Tindakan Kelas)</option>
+                                <option value="Studi Pustaka (Library Research)">Studi Pustaka (Library Research)</option>
+                                <option value="Mixed Method">Mixed Method (Kombinasi)</option>
+                                <option value="Hukum Normatif">Hukum Normatif (Perundang-Undangan)</option>
+                                <option value="Hukum Empiris">Hukum Empiris (Sosiologi Hukum)</option>
                             </select>
                         </div>
                         <div>
@@ -2833,8 +3059,8 @@
                     <div class="card">
                         <div class="form-label" style="margin-bottom: 8px;">Atau unggah file skripsi / proposal (.pdf,
                             .docx)</div>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan merangkum isi
-                            file dokumenmu dan menyusun 9 slide presentasi sidang secara otomatis.</p>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca isi
+                            utuh Bab I–V dari file Word (<code>.docx</code>) atau PDF skripsimu (maks 3,5 MB) lalu menyusun 6–12 slide presentasi sidang secara riil sesuai isi naskah.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="file" id="ppt-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
                                 style="flex: 1; padding: 8px 12px; font-size: 13px;"
@@ -3275,11 +3501,11 @@
                         <span class="step-num-circle">1</span>
                         <span>Pilih skripsi</span>
                     </button>
-                    <button type="button" class="step-pill" id="def-step-btn-2">
+                    <button type="button" class="step-pill" id="def-step-btn-2" onclick="if(defenseQuestions.length) setDefenseStep(2)">
                         <span class="step-num-circle">2</span>
                         <span>Latihan tanya-jawab</span>
                     </button>
-                    <button type="button" class="step-pill" id="def-step-btn-3">
+                    <button type="button" class="step-pill" id="def-step-btn-3" onclick="if(document.getElementById('def-score-bars').children.length) setDefenseStep(3)">
                         <span class="step-num-circle">3</span>
                         <span>Evaluasi & skor</span>
                     </button>
@@ -3340,7 +3566,9 @@
                         </div>
                         @forelse($history as $proj)
                             <div class="project-row"
-                                onclick="startDefenseWithProject({{ $proj->id }}, '{{ addslashes($proj->judul) }}')">
+                                data-id="{{ $proj->id }}"
+                                data-title="{{ e($proj->judul) }}"
+                                onclick="startDefenseWithProject(this.dataset.id, this.dataset.title)">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
                                         <div class="project-row-title">{{ $proj->judul }}</div>
@@ -3359,8 +3587,8 @@
 
                     <div class="card">
                         <div class="form-label">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca
-                            dokumenmu dan menyusun 5 pertanyaan penguji sesuai isi naskah.</p>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca isi
+                            utuh Bab I–V dari file Word/PDF (maks 3,5 MB), menyusun pertanyaan penguji riil sesuai naskahmu, dan menilai jawaban berdasarkan data aslimu.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
                                 style="flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px;">
@@ -3372,6 +3600,7 @@
 
                 <!-- STEP 2: Jawab Pertanyaan Satu per Satu -->
                 <div id="def-view-step-2" style="display: none;">
+                    <div id="def-doc-status-pill" style="display: none; margin-bottom: 12px; padding: 9px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 12.5px; font-weight: 600;"></div>
                     <div class="card">
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
@@ -3417,10 +3646,13 @@
                                     style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 2px;">
                                     -</h3>
                             </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 28px; font-weight: 700; color: var(--primary);"
-                                    id="def-eval-score">0.0/10</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Rata-rata Skor Jawaban</div>
+                            <div style="text-align: right; display: flex; align-items: center; gap: 12px;">
+                                <span id="def-eval-grade-badge" style="display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 44px; padding: 0 12px; border-radius: 12px; background: #dbeafe; color: #1d4ed8; font-size: 18px; font-weight: 800;">-</span>
+                                <div>
+                                    <div style="font-size: 28px; font-weight: 700; color: var(--primary);"
+                                        id="def-eval-score">0.0/10</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);" id="def-eval-min-label">Rata-rata Skor Jawaban</div>
+                                </div>
                             </div>
                         </div>
 
@@ -3555,6 +3787,11 @@
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             <span style="font-weight: 700; color: var(--text-main);">Daftar Artikel Jurnal
                                 Relevan</span>
+                            <div style="display: inline-flex; gap: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px; background: var(--primary-soft); color: var(--primary); border-color: #bfdbfe;" onclick="filterJournalResults('all', this)">Semua</button>
+                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px;" onclick="filterJournalResults('Indonesia', this)">Indonesia</button>
+                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px;" onclick="filterJournalResults('Internasional', this)">Internasional</button>
+                            </div>
                         </div>
                         <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
                             onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
@@ -3797,10 +4034,11 @@
                     <form action="{{ route('api.key.add') }}" method="POST">
                         @csrf
                         <div class="form-group">
-                            <label class="form-label">Provider Default (opsional, sistem deteksi otomatis)</label>
+                            <label class="form-label">Provider Default (opsional, sistem deteksi otomatis dari awalan kunci)</label>
                             <select name="provider" class="form-select">
-                                <option value="gemini">Google Gemini (AI Studio · AIza / AQ.)</option>
-                                <option value="deepseek">DeepSeek AI (Official / OpenRouter / Groq)</option>
+                                <option value="" selected>Deteksi Otomatis (Disarankan — Gemini / DeepSeek)</option>
+                                <option value="deepseek">DeepSeek AI (Official sk-... / OpenRouter sk-or-... / Groq gsk_...)</option>
+                                <option value="gemini">Google Gemini (AI Studio · AIzaSy... / AQ.)</option>
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
@@ -4617,9 +4855,18 @@
         function copyReferralLink() {
             const inp = document.getElementById('referral-link-input');
             if (!inp) return;
-            navigator.clipboard.writeText(inp.value).then(() => {
-                alert('Link referral berhasil disalin! Bagikan ke teman kampusmu.');
-            });
+            const onCopied = () => alert('Link referral berhasil disalin! Bagikan ke teman kampusmu.');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(inp.value).then(onCopied).catch(() => {
+                    inp.select();
+                    document.execCommand('copy');
+                    onCopied();
+                });
+            } else {
+                inp.select();
+                document.execCommand('copy');
+                onCopied();
+            }
         }
 
         function shareReferralWhatsapp() {
@@ -4735,13 +4982,21 @@
                         const row = document.createElement('div');
                         row.className = 'project-row';
                         row.style.cursor = 'default';
-                        row.innerHTML = `
-                            <div class="project-row-left">
-                                <div class="project-initial">${i + 1}</div>
-                                <div class="project-row-title">${t}</div>
-                            </div>
-                            <button type="button" class="btn-outline" style="white-space: nowrap; flex-shrink: 0;" onclick="useTitleForProject('${t.replace(/'/g, "\\'")}', '${prodi.replace(/'/g, "\\'")}')">Gunakan Judul →</button>
-                        `;
+
+                        const left = document.createElement('div');
+                        left.className = 'project-row-left';
+                        left.innerHTML = `<div class="project-initial">${i + 1}</div><div class="project-row-title">${escapeHtml(t)}</div>`;
+
+                        const useBtn = document.createElement('button');
+                        useBtn.type = 'button';
+                        useBtn.className = 'btn-outline';
+                        useBtn.style.whiteSpace = 'nowrap';
+                        useBtn.style.flexShrink = '0';
+                        useBtn.textContent = 'Gunakan Judul →';
+                        useBtn.addEventListener('click', () => useTitleForProject(t, prodi, metode));
+
+                        row.appendChild(left);
+                        row.appendChild(useBtn);
                         list.appendChild(row);
                     });
                     document.getElementById('titles-result-box').style.display = 'block';
@@ -4757,10 +5012,22 @@
             }
         }
 
-        function useTitleForProject(judul, prodi) {
+        function useTitleForProject(judul, prodi, metode) {
             openCreateProjectForm();
-            document.getElementById('input-project-judul').value = judul;
-            if (prodi) document.getElementById('input-project-prodi').value = prodi;
+            const judulEl = document.getElementById('input-project-judul');
+            if (judulEl) judulEl.value = judul || '';
+            const prodiEl = document.getElementById('input-project-prodi');
+            if (prodi && prodiEl) prodiEl.value = prodi;
+            if (metode) {
+                const radios = document.querySelectorAll('input[name="metode_penelitian"]');
+                const mLow = metode.toLowerCase();
+                radios.forEach(r => {
+                    const rLow = (r.value || '').toLowerCase();
+                    if (rLow === mLow || (mLow.includes('data sekunder') && rLow.includes('data sekunder')) || (mLow.includes('kualitatif') && rLow.includes('kualitatif')) || (mLow.includes('r&d') && rLow.includes('r&d')) || (mLow.includes('ptk') && rLow.includes('ptk')) || (mLow.includes('pustaka') && rLow.includes('pustaka')) || (mLow.includes('mixed') && rLow.includes('mixed')) || (mLow.includes('normatif') && rLow.includes('normatif')) || (mLow.includes('empiris') && rLow.includes('empiris')) || (mLow.includes('kuantitatif') && !mLow.includes('sekunder') && rLow === 'kuantitatif (survei / regresi)')) {
+                        r.checked = true;
+                    }
+                });
+            }
         }
 
         // =====================================================================
@@ -4844,12 +5111,18 @@
 
         function onUploadFileForPpt(input) {
             if (input.files && input.files[0]) {
-                const fname = input.files[0].name;
-                selectedPptProject = { id: null, title: fname.replace(/\.[^/.]+$/, '') };
+                const file = input.files[0];
+                if (file.size > 3.5 * 1024 * 1024) {
+                    alert('Ukuran file skripsi melebihi batas 3,5 MB serverless. Kompres gambar di dalam Word/PDF atau pilih file yang lebih ringkas.');
+                    input.value = '';
+                    return;
+                }
+                const fname = file.name;
+                selectedPptProject = { id: null, title: fname.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ') };
                 const initEl = document.getElementById('ppt-selected-initial');
                 if (initEl) initEl.innerText = 'F';
                 const srcEl = document.getElementById('ppt-selected-source');
-                if (srcEl) srcEl.innerText = 'DOKUMEN UNGGAHAN';
+                if (srcEl) srcEl.innerText = 'DOKUMEN UNGGAHAN (.DOCX / .PDF)';
                 const titleEl = document.getElementById('ppt-selected-title');
                 if (titleEl) titleEl.innerText = fname;
                 setPptStep(2);
@@ -4866,25 +5139,26 @@
             const p2El = document.getElementById('ppt-input-pembimbing-2');
             const u1El = document.getElementById('ppt-input-penguji-1');
             const u2El = document.getElementById('ppt-input-penguji-2');
+            const slideCountEl = document.getElementById('ppt-select-slide-count') || document.getElementById('ppt-input-slide-count');
+            const reqCount = Math.max(6, Math.min(12, parseInt(slideCountEl?.value || '8', 10) || 8));
 
             const safeTitle = selectedPptProject.title || 'Presentasi Sidang Skripsi';
-            const safeProdi = prodiEl ? prodiEl.value.trim() : 'Program Studi';
+            const safeProdi = (prodiEl && prodiEl.value.trim()) ? prodiEl.value.trim() : 'Program Studi';
 
             pptCoverMeta = {
-                nama: namaEl ? namaEl.value.trim() : 'Nama Mahasiswa',
+                nama: (namaEl && namaEl.value.trim()) ? namaEl.value.trim() : 'Nama Mahasiswa',
                 nim: nimEl ? nimEl.value.trim() : '',
-                kampus: kampusEl ? kampusEl.value.trim() : 'UNIVERSITAS',
+                kampus: (kampusEl && kampusEl.value.trim()) ? kampusEl.value.trim() : 'UNIVERSITAS',
                 prodi: safeProdi,
                 fakultas: fakEl ? fakEl.value.trim() : '',
-                pembimbing_1: p1El ? p1El.value.trim() : 'Dosen Pembimbing 1',
-                pembimbing_2: p2El ? p2El.value.trim() : 'Dosen Pembimbing 2',
-                penguji_1: u1El ? u1El.value.trim() : 'Dosen Penguji 1',
-                penguji_2: u2El ? u2El.value.trim() : 'Dosen Penguji 2',
+                pembimbing_1: p1El ? p1El.value.trim() : '',
+                pembimbing_2: p2El ? p2El.value.trim() : '',
+                penguji_1: u1El ? u1El.value.trim() : '',
+                penguji_2: u2El ? u2El.value.trim() : '',
             };
 
-            pptSlides = [
+            const pool = [
                 {
-                    slide_number: 1,
                     section: 'Sampul Sidang',
                     title: safeTitle,
                     subtitle: `Program Studi ${safeProdi} · Sidang Skripsi`,
@@ -4892,103 +5166,133 @@
                     speaker_notes: `Selamat pagi Bapak dan Ibu Dosen Penguji serta Pembimbing. Terima kasih atas kesempatan untuk memaparkan skripsi saya berjudul ${safeTitle}.`
                 },
                 {
-                    slide_number: 2,
                     section: 'Latar Belakang Masalah',
                     title: 'Latar Belakang & Urgensi Penelitian',
                     subtitle: 'Fenomena Lapangan dan Kesenjangan Riset',
                     bullets: [
-                        'Urgensi otomasi dan akurasi analisis pada objek riset',
-                        'Tantangan pengolahan data mentah yang belum terstandarisasi',
-                        'Kebutuhan metode komputasi yang terukur dan objektif',
-                        'Research gap yang menjadi fokus kebaruan penelitian ini'
+                        'Urgensi pemecahan masalah nyata pada objek penelitian',
+                        'Keterbatasan pendekatan terdahulu dalam menjawab fenomena aktual',
+                        'Kebutuhan metode analisis yang terukur, valid, dan objektif',
+                        'Kebaruan (research gap) yang menjadi kontribusi utama studi ini'
                     ],
-                    speaker_notes: 'Penelitian ini dilatarbelakangi oleh fenomena riil dan tantangan utama yang ditemukan pada objek kajian.'
+                    speaker_notes: 'Penelitian ini dilatarbelakangi oleh fenomena riil dan kesenjangan riset yang ditemukan pada objek kajian.'
                 },
                 {
-                    slide_number: 3,
-                    section: 'Identifikasi & Batasan Masalah',
-                    title: 'Ruang Lingkup & Batasan Riset',
-                    subtitle: 'Fokus Kajian Agar Terarah dan Terukur',
-                    bullets: [
-                        'Batasan dataset, parameter, dan objek yang diuji',
-                        'Ruang lingkup variabel bebas dan variabel terikat',
-                        'Asumsi lingkungan implementasi dan evaluasi komputasi'
-                    ],
-                    speaker_notes: 'Agar penelitian fokus dan terukur, ruang lingkup dibatasi pada parameter dan objek yang relevan.'
-                },
-                {
-                    slide_number: 4,
-                    section: 'Rumusan Masalah & Tujuan',
+                    section: 'Rumusan & Tujuan',
                     title: 'Rumusan Masalah & Tujuan Penelitian',
-                    subtitle: 'Arah Solusi Akademik yang Dituju',
+                    subtitle: 'Fokus Kajian yang Terarah dan Terukur',
                     bullets: [
-                        'Rumusan Masalah: Bagaimana performa metode yang diterapkan dalam menyelesaikan persoalan?',
-                        'Tujuan: Menganalisis dan menguji efektivitas algoritma secara kuantitatif',
-                        'Kontribusi: Memberikan tolok ukur empiris bagi pengembangan riset ke depan'
+                        'Rumusan Masalah: Bagaimana efektivitas metode terhadap objek penelitian?',
+                        'Batasan Riset: Fokus pada variabel, populasi, dan periode pengamatan',
+                        'Tujuan: Menganalisis dan membuktikan hasil secara empiris & terukur',
+                        'Manfaat: Memberikan kontribusi teoretis dan solusi praktis'
                     ],
-                    speaker_notes: 'Tujuan penelitian ini menjawab secara langsung rumusan masalah yang telah diidentifikasi.'
+                    speaker_notes: 'Tujuan penelitian ini disusun langsung untuk menjawab seluruh rumusan masalah secara sistematis.'
                 },
                 {
-                    slide_number: 5,
                     section: 'Tinjauan Pustaka',
-                    title: 'Landasan Teori & Penelitian Terdahulu',
-                    subtitle: 'Kerangka Teoretis Pendukung',
+                    title: 'Landasan Teori & Kajian Terdahulu',
+                    subtitle: 'Kerangka Teoretis & Posisi Kebaruan',
                     bullets: [
-                        'Grand theory dan konsep dasar yang melandasi penelitian',
-                        'Kajian 4-5 artikel jurnal ilmiah bereputasi periode 2020–2026',
-                        'Posisi kebaruan (novelty) terhadap studi-studi terdahulu'
+                        'Grand theory dan konsep utama yang melandasi variabel penelitian',
+                        'Sintesis 4–5 penelitian jurnal bereputasi periode 2021–2026',
+                        'Kerangka berpikir yang menghubungkan masalah, teori, dan luaran'
                     ],
-                    speaker_notes: 'Pustaka acuan mengacu pada publikasi ilmiah bereputasi terkini yang relevan dengan topik skripsi.'
+                    speaker_notes: 'Pustaka acuan mengacu pada teori baku dan publikasi jurnal ilmiah bereputasi terkini.'
                 },
                 {
-                    slide_number: 6,
                     section: 'Metodologi Penelitian',
                     title: 'Tahapan & Metode Penelitian',
-                    subtitle: 'Alur Kerja dan Prosedur Evaluasi',
+                    subtitle: 'Alur Kerja dan Prosedur Pengujian',
                     bullets: [
-                        'Desain penelitian dan prosedur pengumpulan dataset',
-                        'Tahapan pra-pemrosesan teks dan rekayasa fitur data',
-                        'Metrik evaluasi kinerja (Confusion Matrix: Akurasi, Presisi, Recall, F1)'
+                        'Desain penelitian, populasi/sampel, dan teknik pengumpulan data',
+                        'Tahapan pengolahan data serta uji validitas/reliabilitas instrumen',
+                        'Teknik analisis data dan metrik evaluasi kinerja yang digunakan'
                     ],
-                    speaker_notes: 'Metodologi disusun sistematis mulai dari penyiapan data hingga tahapan validasi hasil.'
+                    speaker_notes: 'Metodologi disusun sistematis mulai dari pengumpulan data hingga tahapan validasi dan analisis hasil.'
                 },
                 {
-                    slide_number: 7,
                     section: 'Hasil Penelitian',
                     title: 'Hasil Pengujian & Analisis Data',
-                    subtitle: 'Temuan Empiris dan Capaian Kinerja',
+                    subtitle: 'Temuan Empiris dan Capaian Utama',
                     bullets: [
-                        'Hasil pengujian performa model pada data uji',
-                        'Perbandingan performa terhadap skenario baseline',
-                        'Tingkat akurasi dan stabilitas klasifikasi yang terukur'
+                        'Hasil analisis data utama yang menjawab rumusan masalah',
+                        'Ringkasan capaian metrik kinerja / pengujian hipotesis penelitian',
+                        'Temuan kunci lapangan berdasarkan pengolahan data empiris'
                     ],
-                    speaker_notes: 'Berikut adalah hasil pengujian empiris yang menunjukkan performa sistem secara kuantitatif.'
+                    speaker_notes: 'Berikut adalah hasil pengujian empiris yang menunjukkan capaian kinerja penelitian secara objektif.'
                 },
                 {
-                    slide_number: 8,
                     section: 'Pembahasan',
-                    title: 'Pembahasan & Analisis Kritis',
-                    subtitle: 'Interpretasi Temuan Riset',
+                    title: 'Pembahasan & Interpretasi Temuan',
+                    subtitle: 'Komparasi Teori & Implikasi Ilmiah',
                     bullets: [
-                        'Kesesuaian hasil pengujian terhadap hipotesis kerja',
-                        'Faktor-faktor penentu keberhasilan performa algoritma',
-                        'Implikasi teoretis dan praktis dari temuan riset'
+                        'Kesesuaian temuan empiris dengan hipotesis dan teori utama',
+                        'Perbandingan hasil penelitian dengan studi terdahulu yang relevan',
+                        'Implikasi praktis bagi objek penelitian dan pengembangan ilmu'
                     ],
-                    speaker_notes: 'Pembahasan ini membuktikan efektivitas metode yang diajukan serta implikasi ilmiahnya.'
+                    speaker_notes: 'Pembahasan ini menguraikan makna ilmiah dari temuan serta relevansinya terhadap literatur sebelumnya.'
                 },
                 {
-                    slide_number: 9,
+                    section: 'Evaluasi & Keterbatasan',
+                    title: 'Evaluasi Kinerja & Keterbatasan Riset',
+                    subtitle: 'Refleksi Kritis Pelaksanaan Penelitian',
+                    bullets: [
+                        'Keunggulan metode yang diterapkan pada skenario uji nyata',
+                        'Keterbatasan ruang lingkup sampel, data, dan kondisi lapangan',
+                        'Peluang penyempurnaan untuk penelitian lanjutan'
+                    ],
+                    speaker_notes: 'Evaluasi kritis menyajikan kelebihan sekaligus keterbatasan riset secara objektif dan transparan.'
+                },
+                {
+                    section: 'Kerangka & Implementasi',
+                    title: 'Kerangka Konseptual & Implementasi',
+                    subtitle: 'Integrasi Alur Sistem dan Operasional',
+                    bullets: [
+                        'Keterkaitan input, proses analisis, dan output yang dihasilkan',
+                        'Standarisasi prosedur pengujian agar hasil dapat direplikasi',
+                        'Kelayakan penerapan pada lingkungan operasional nyata'
+                    ],
+                    speaker_notes: 'Kerangka implementasi memastikan seluruh prosedur berjalan konsisten dan terukur.'
+                },
+                {
+                    section: 'Validasi Lanjutan',
+                    title: 'Validasi Hasil & Analisis Kesalahan',
+                    subtitle: 'Ketahanan dan Keandalan Pengujian',
+                    bullets: [
+                        'Uji konsistensi hasil pada variasi skenario pengujian',
+                        'Identifikasi sumber kesalahan utama dan strategi mitigasinya',
+                        'Bukti keandalan model/instrumen terhadap data uji'
+                    ],
+                    speaker_notes: 'Validasi lanjutan membuktikan bahwa hasil penelitian stabil dan dapat dipertanggungjawabkan.'
+                },
+                {
+                    section: 'Rekomendasi Praktis',
+                    title: 'Rekomendasi Implementasi & Kebijakan',
+                    subtitle: 'Langkah Aplikatif bagi Pemangku Kepentingan',
+                    bullets: [
+                        'Panduan praktis penerapan temuan bagi instansi atau pengguna',
+                        'Langkah peningkatan kualitas data dan proses berkelanjutan',
+                        'Roadmap pengembangan sistem atau kebijakan jangka panjang'
+                    ],
+                    speaker_notes: 'Rekomendasi dirumuskan agar hasil skripsi memberi manfaat langsung secara aplikatif.'
+                },
+                {
                     section: 'Kesimpulan & Saran',
                     title: 'Kesimpulan & Saran Pengembangan',
-                    subtitle: 'Penutup Sidang Skripsi',
+                    subtitle: 'Penutup Presentasi Sidang Skripsi',
                     bullets: [
-                        'Kesimpulan: Algoritma terbukti efektif menjawab seluruh rumusan masalah',
-                        'Saran 1: Pengayaan variasi dataset dan skenario pengujian yang lebih luas',
-                        'Saran 2: Integrasi dengan arsitektur teknologi lanjutan untuk implementasi skala besar'
+                        'Kesimpulan utama menjawab seluruh rumusan masalah secara tegas',
+                        'Saran praktis bagi objek penelitian dan pengguna terkait',
+                        'Saran akademis untuk pengembangan riset di masa mendatang'
                     ],
-                    speaker_notes: 'Sebagai penutup, seluruh tujuan penelitian telah tercapai dan saran disajikan untuk riset masa depan. Terima kasih.'
+                    speaker_notes: 'Sebagai penutup, seluruh tujuan penelitian telah terjawab dan saran disajikan untuk riset berikutnya. Terima kasih.'
                 }
             ];
+
+            const selected = pool.slice(0, reqCount - 1);
+            selected.push(pool[pool.length - 1]);
+            pptSlides = selected.map((item, idx) => Object.assign({}, item, { slide_number: idx + 1 }));
 
             currentSlideIdx = 0;
             renderCurrentSlide();
@@ -5110,105 +5414,181 @@
             });
         }
 
+        function resolvePptPanelData(meta) {
+            const m = meta || {};
+            const p1 = (m.pembimbing_1 || '').trim();
+            const p2 = (m.pembimbing_2 || '').trim();
+            const u1 = (m.penguji_1 || '').trim();
+            const u2 = (m.penguji_2 || '').trim();
+            const isDefaultPlaceholder = (val) => /^dosen\s+(pembimbing|penguji)\s*[12]$/i.test(val);
+            const hasRealPenguji = (u1 && !isDefaultPlaceholder(u1)) || (u2 && !isDefaultPlaceholder(u2));
+
+            if (hasRealPenguji) {
+                const leftLines = [];
+                leftLines.push('1. ' + (p1 || 'Dosen Pembimbing 1'));
+                if (p2) leftLines.push('2. ' + p2);
+
+                const rightLines = [];
+                rightLines.push('1. ' + (u1 || 'Dosen Penguji 1'));
+                if (u2) rightLines.push('2. ' + u2);
+
+                return {
+                    leftTitle: 'Dosen Pembimbing',
+                    leftLines,
+                    rightTitle: 'Dosen Penguji',
+                    rightLines
+                };
+            }
+
+            // Jika penguji tidak diisi, tampilkan Pembimbing I & Pembimbing II (atau Pembimbing & Penguji rapi)
+            if (p1 && p2 && !isDefaultPlaceholder(p2)) {
+                return {
+                    leftTitle: 'Dosen Pembimbing I',
+                    leftLines: [p1],
+                    rightTitle: 'Dosen Pembimbing II',
+                    rightLines: [p2]
+                };
+            }
+
+            return {
+                leftTitle: 'Dosen Pembimbing',
+                leftLines: ['1. ' + (p1 || 'Dosen Pembimbing 1'), ...(p2 ? ['2. ' + p2] : [])],
+                rightTitle: 'Dosen Penguji',
+                rightLines: ['1. ' + (u1 || 'Dosen Penguji 1'), ...(u2 ? ['2. ' + u2] : [])]
+            };
+        }
+
+        function buildPptInstitutionLine(meta) {
+            const m = meta || {};
+            const parts = [];
+            if (m.prodi) parts.push('PROGRAM STUDI ' + String(m.prodi).trim().toUpperCase());
+            if (m.fakultas) parts.push(String(m.fakultas).trim().toUpperCase());
+            if (m.kampus) parts.push(String(m.kampus).trim().toUpperCase());
+            parts.push(String(new Date().getFullYear()));
+            return parts.filter(Boolean).join(' · ');
+        }
+
+        function fitPptCanvasToFrame(canvasEl) {
+            if (!canvasEl) return;
+            canvasEl.classList.remove('ppt-density-compact', 'ppt-density-dense', 'ppt-density-micro');
+            const steps = ['ppt-density-compact', 'ppt-density-dense', 'ppt-density-micro'];
+            for (let i = 0; i < steps.length; i++) {
+                if (canvasEl.scrollHeight <= canvasEl.clientHeight + 3) break;
+                canvasEl.classList.remove('ppt-density-compact', 'ppt-density-dense', 'ppt-density-micro');
+                canvasEl.classList.add(steps[i]);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            const box = document.getElementById('ppt-canvas-box');
+            if (box && box.offsetParent !== null) fitPptCanvasToFrame(box);
+            const fsBox = document.getElementById('fs-slide-canvas');
+            if (fsBox && fsBox.offsetParent !== null) fitPptCanvasToFrame(fsBox);
+        });
+
+        function renderPptSlideIntoDom({ canvasEl, secEl, countEl, campusBadgeEl, titleEl, subEl, ulEl, s, idx, total }) {
+            const activeLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || '';
+            if (countEl) countEl.innerText = `Slide ${idx + 1} / ${total}`;
+
+            if (campusBadgeEl) {
+                const campusName = escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase());
+                if (activeLogo) {
+                    campusBadgeEl.innerHTML = `<img src="${activeLogo}" alt="Logo" style="width: 20px; height: 20px; object-fit: contain; border-radius: 3px;"><span>${campusName}</span>`;
+                } else {
+                    campusBadgeEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg><span>${campusName}</span>`;
+                }
+            }
+
+            if (idx === 0) {
+                if (secEl) secEl.innerText = 'SLIDE 1 · COVER SIDANG';
+                if (titleEl) {
+                    titleEl.style.textAlign = 'center';
+                    const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
+                    const isLong = titleRaw.length > 68;
+                    // TANPA logo dobel di atas judul karena logo resmi sudah tampil tajam di badge kampus kiri atas
+                    titleEl.innerHTML = `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div><div class="ppt-cover-divider"></div>`;
+                }
+                if (subEl) {
+                    subEl.style.textAlign = 'center';
+                    subEl.innerHTML = `
+                        <div class="ppt-cover-oleh-box">
+                            <div class="ppt-cover-oleh-tag">DISUSUN OLEH</div>
+                            <div class="ppt-cover-author-name">${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</div>
+                            ${pptCoverMeta.nim ? `<div class="ppt-cover-nim">NIM / NPM: ${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
+                        </div>
+                    `;
+                }
+                if (ulEl) {
+                    ulEl.classList.remove('ppt-bullets-two-col');
+                    ulEl.style.textAlign = 'left';
+                    ulEl.style.listStyle = 'none';
+                    ulEl.style.paddingLeft = '0';
+                    ulEl.style.marginLeft = '0';
+                    const panel = resolvePptPanelData(pptCoverMeta);
+                    const instLine = buildPptInstitutionLine(pptCoverMeta);
+                    ulEl.innerHTML = `
+                        <li class="ppt-cover-pembimbing-li">
+                            <div class="ppt-pembimbing-grid">
+                                <div class="ppt-pembimbing-card">
+                                    <div class="ppt-pembimbing-label">${escapeHtml(panel.leftTitle)}</div>
+                                    ${panel.leftLines.map(l => `<div class="ppt-pembimbing-name">${escapeHtml(l)}</div>`).join('')}
+                                </div>
+                                <div class="ppt-pembimbing-card">
+                                    <div class="ppt-pembimbing-label">${escapeHtml(panel.rightTitle)}</div>
+                                    ${panel.rightLines.map(l => `<div class="ppt-pembimbing-name">${escapeHtml(l)}</div>`).join('')}
+                                </div>
+                            </div>
+                            <div class="ppt-cover-footer-inst">${escapeHtml(instLine)}</div>
+                        </li>
+                    `;
+                }
+            } else {
+                if (titleEl) {
+                    titleEl.style.textAlign = 'left';
+                    titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
+                }
+                if (subEl) {
+                    subEl.style.textAlign = 'left';
+                    subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
+                }
+                if (secEl) secEl.innerText = (s.section || ('Slide ' + (idx + 1))).replace(/\*\*/g, '');
+
+                if (ulEl) {
+                    const cleanBullets = (s.bullets || []).map(b => String(b).replace(/\*\*/g, '').trim()).filter(Boolean);
+                    const totalChars = cleanBullets.reduce((sum, b) => sum + b.length, 0);
+                    // Otomatis gunakan grid 2 kolom saat poin >= 4 atau teks padat agar 100% muat di canvas 16:9 tanpa terpotong!
+                    ulEl.classList.toggle('ppt-bullets-two-col', cleanBullets.length >= 4 || totalChars > 260);
+                    ulEl.innerHTML = '';
+                    cleanBullets.forEach((b) => {
+                        const li = document.createElement('li');
+                        li.innerText = b;
+                        ulEl.appendChild(li);
+                    });
+                }
+            }
+
+            requestAnimationFrame(() => fitPptCanvasToFrame(canvasEl));
+        }
+
         function renderCurrentSlide() {
             if (!pptSlides.length) return;
             const s = pptSlides[currentSlideIdx];
-
-            const secLabel = document.getElementById('slide-section-label');
-            const countLabel = document.getElementById('slide-counter-label');
-            const titleEl = document.getElementById('slide-title-edit');
-            const subEl = document.getElementById('slide-subtitle-edit');
-            const ul = document.getElementById('slide-bullets-edit');
+            const box = document.getElementById('ppt-canvas-box');
             const foot = document.getElementById('slide-footer-proj-title');
-
-            countLabel.innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
             if (foot) foot.innerText = selectedPptProject.title || 'Presentasi Sidang Skripsi';
-            document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
-            renderSlideNumberStrip();
 
-            const activeLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || '';
-            const campusBadge = document.getElementById('slide-campus-badge');
-            if (campusBadge) {
-                if (activeLogo) {
-                    campusBadge.innerHTML = `<img src="${activeLogo}" alt="Logo" style="width: 17px; height: 17px; object-fit: contain; border-radius: 2px;"><span id="slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
-                } else {
-                    campusBadge.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" /></svg><span id="slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
-                }
-            }
-
-            if (currentSlideIdx === 0) {
-                secLabel.innerText = 'SLIDE 1 · COVER SIDANG';
-                titleEl.style.textAlign = 'center';
-                const logoHtml = activeLogo
-                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
-                    : '';
-                const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
-                const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
-                subEl.style.textAlign = 'center';
-                subEl.innerHTML = `
-                    <div class="ppt-cover-oleh-box">
-                        <div class="ppt-cover-oleh-tag">OLEH :</div>
-                        <div class="ppt-cover-author-name">${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</div>
-                        ${pptCoverMeta.nim ? `<div class="ppt-cover-nim">${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
-                    </div>
-                `;
-                const hasPenguji = !!((pptCoverMeta.penguji_1 && pptCoverMeta.penguji_1.trim() && pptCoverMeta.penguji_1 !== 'Dosen Penguji 1') || (pptCoverMeta.penguji_2 && pptCoverMeta.penguji_2.trim()));
-                let cardsHtml = '';
-                if (hasPenguji) {
-                    cardsHtml = `
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Dosen Pembimbing</div>
-                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                            ${pptCoverMeta.pembimbing_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.pembimbing_2)}</div>` : ''}
-                        </div>
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Dosen Penguji</div>
-                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.penguji_1 || 'Dosen Penguji 1')}</div>
-                            ${pptCoverMeta.penguji_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.penguji_2)}</div>` : ''}
-                        </div>
-                    `;
-                } else {
-                    cardsHtml = `
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Pembimbing 1</div>
-                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                        </div>
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Pembimbing 2</div>
-                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                        </div>
-                    `;
-                }
-                ul.style.textAlign = 'left';
-                ul.style.listStyle = 'none';
-                ul.style.paddingLeft = '0';
-                ul.style.marginLeft = '0';
-                ul.innerHTML = `
-                    <li class="ppt-cover-pembimbing-li">
-                        <div class="ppt-pembimbing-grid">
-                            ${cardsHtml}
-                        </div>
-                    </li>
-                `;
-            } else {
-                titleEl.style.textAlign = 'left';
-                subEl.style.textAlign = 'left';
-                ul.style.textAlign = 'left';
-                ul.style.listStyle = '';
-                ul.style.paddingLeft = '';
-                ul.style.marginLeft = '';
-                secLabel.innerText = (s.section || ('Slide ' + (currentSlideIdx + 1))).replace(/\*\*/g, '');
-                titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
-                subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
-
-                ul.innerHTML = '';
-                (s.bullets || []).forEach(b => {
-                    const li = document.createElement('li');
-                    li.innerText = b.replace(/\*\*/g, '');
-                    ul.appendChild(li);
-                });
-            }
+            renderPptSlideIntoDom({
+                canvasEl: box,
+                secEl: document.getElementById('slide-section-label'),
+                countEl: document.getElementById('slide-counter-label'),
+                campusBadgeEl: document.getElementById('slide-campus-badge'),
+                titleEl: document.getElementById('slide-title-edit'),
+                subEl: document.getElementById('slide-subtitle-edit'),
+                ulEl: document.getElementById('slide-bullets-edit'),
+                s,
+                idx: currentSlideIdx,
+                total: pptSlides.length
+            });
 
             document.getElementById('slide-notes-edit').value = s.speaker_notes || '';
             renderSlideNumberStrip();
@@ -5218,7 +5598,6 @@
             if (prevBtn) prevBtn.disabled = currentSlideIdx === 0;
             if (nextBtn) nextBtn.disabled = currentSlideIdx >= pptSlides.length - 1;
 
-            const box = document.getElementById('ppt-canvas-box');
             if (box) {
                 box.classList.remove('ppt-slide-anim');
                 void box.offsetWidth;
@@ -5229,10 +5608,16 @@
         function syncCurrentSlideEdit() {
             if (!pptSlides.length) return;
             const s = pptSlides[currentSlideIdx];
-            s.section = document.getElementById('slide-section-label').innerText.trim();
-            s.title = document.getElementById('slide-title-edit').innerText.trim();
-            s.subtitle = document.getElementById('slide-subtitle-edit').innerText.trim();
-            if (currentSlideIdx > 0) {
+            if (currentSlideIdx === 0) {
+                const titleTxt = document.querySelector('#slide-title-edit .ppt-cover-title-text')?.innerText.trim()
+                    || document.getElementById('slide-title-edit').innerText.trim();
+                if (titleTxt) s.title = titleTxt;
+                const authorEl = document.querySelector('#slide-subtitle-edit .ppt-cover-author-name');
+                if (authorEl && authorEl.innerText.trim()) pptCoverMeta.nama = authorEl.innerText.trim();
+            } else {
+                s.section = document.getElementById('slide-section-label').innerText.trim();
+                s.title = document.getElementById('slide-title-edit').innerText.trim();
+                s.subtitle = document.getElementById('slide-subtitle-edit').innerText.trim();
                 const bullets = [];
                 document.querySelectorAll('#slide-bullets-edit li').forEach(li => {
                     if (li.innerText.trim()) bullets.push(li.innerText.trim());
@@ -5275,7 +5660,10 @@
         function setPptTheme(theme, btn) {
             currentPptTheme = theme;
             const box = document.getElementById('ppt-canvas-box');
-            if (box) box.className = 'ppt-canvas ppt-theme-' + theme;
+            if (box) {
+                box.className = 'ppt-canvas ppt-theme-' + theme;
+                requestAnimationFrame(() => fitPptCanvasToFrame(box));
+            }
             document.querySelectorAll('.theme-chip').forEach(d => d.classList.remove('active'));
             if (btn) btn.classList.add('active');
             const gridView = document.getElementById('ppt-view-step-4');
@@ -5294,11 +5682,15 @@
             const container = document.getElementById('ppt-grid-preview-list');
             if (!container) return;
             container.innerHTML = '';
+            const panel = resolvePptPanelData(pptCoverMeta);
+            const instLine = buildPptInstitutionLine(pptCoverMeta);
+
             pptSlides.forEach((s, idx) => {
                 const card = document.createElement('div');
                 card.className = `ppt-canvas ppt-theme-${currentPptTheme}`;
-                card.style.minHeight = '230px';
-                card.style.padding = '20px';
+                card.style.aspectRatio = '16 / 9';
+                card.style.minHeight = '210px';
+                card.style.padding = '16px 18px';
                 card.style.cursor = 'pointer';
                 card.onclick = () => {
                     currentSlideIdx = idx;
@@ -5308,36 +5700,44 @@
 
                 if (idx === 0) {
                     card.innerHTML = `
-                        <div style="text-align: center;">
-                            <span class="ppt-badge" style="font-size:10px; padding:3px 9px; margin-bottom: 8px;">COVER SIDANG</span>
-                            <div style="font-size: 11px; font-weight: 700; opacity: 0.8; margin-bottom: 6px;">${(pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase()}</div>
-                            <div style="font-size:15px; font-weight:800; line-height:1.3; margin-bottom:8px;">${(s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '')}</div>
-                            <div style="font-size:11.5px; margin-bottom: 10px;">Oleh: ${pptCoverMeta.nama || 'Nama Mahasiswa'}</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; text-align: left; padding: 6px 10px; background: rgba(255,255,255,0.7); border-radius: 6px; border: 1px solid rgba(148,163,184,0.3);">
-                                <div><strong>Pembimbing:</strong><br>1. ${pptCoverMeta.pembimbing_1 || '-'}<br>2. ${pptCoverMeta.pembimbing_2 || '-'}</div>
-                                <div><strong>Penguji:</strong><br>1. ${pptCoverMeta.penguji_1 || '-'}<br>2. ${pptCoverMeta.penguji_2 || '-'}</div>
+                        <div style="text-align: center; justify-content: space-between; gap: 6px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size: 9.5px; font-weight: 700; opacity: 0.85;">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>
+                                <span class="ppt-badge" style="font-size:9px; padding:2px 8px;">COVER SIDANG</span>
                             </div>
-                        </div>
-                        <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
-                            <span>Slide 1 / ${pptSlides.length}</span>
-                            <span>Edit Slide →</span>
+                            <div style="font-size:12.5px; font-weight:800; line-height:1.25;">${escapeHtml((s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, ''))}</div>
+                            <div style="font-size:10.5px; font-weight:600; opacity:0.9;">Oleh: ${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}${pptCoverMeta.nim ? ' · ' + escapeHtml(pptCoverMeta.nim) : ''}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 9px; text-align: left;">
+                                <div style="padding: 5px 7px; border-radius: 6px; background: var(--ppt-card-bg); border: 1px solid var(--ppt-card-border); border-top: 2px solid var(--ppt-accent); color: var(--ppt-card-text);">
+                                    <div style="font-weight:800; color: var(--ppt-card-label); text-transform:uppercase; font-size:8px;">${escapeHtml(panel.leftTitle)}</div>
+                                    ${panel.leftLines.map(l => `<div>${escapeHtml(l)}</div>`).join('')}
+                                </div>
+                                <div style="padding: 5px 7px; border-radius: 6px; background: var(--ppt-card-bg); border: 1px solid var(--ppt-card-border); border-top: 2px solid var(--ppt-accent); color: var(--ppt-card-text);">
+                                    <div style="font-weight:800; color: var(--ppt-card-label); text-transform:uppercase; font-size:8px;">${escapeHtml(panel.rightTitle)}</div>
+                                    ${panel.rightLines.map(l => `<div>${escapeHtml(l)}</div>`).join('')}
+                                </div>
+                            </div>
+                            <div style="font-size:8.5px; opacity:0.75; display:flex; justify-content:space-between; padding-top:4px; border-top:1px solid var(--ppt-divider);">
+                                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;">${escapeHtml(instLine)}</span>
+                                <span>1 / ${pptSlides.length}</span>
+                            </div>
                         </div>
                     `;
                 } else {
-                    const bulletsHtml = (s.bullets || []).map(b => `<li style="margin-bottom:4px;">${b.replace(/\*\*/g, '')}</li>`).join('');
+                    const cleanBullets = (s.bullets || []).map(b => String(b).replace(/\*\*/g, '').trim()).filter(Boolean);
+                    const bulletsHtml = cleanBullets.slice(0, 4).map(b => `<div style="background: var(--ppt-bullet-bg); border: 1px solid var(--ppt-bullet-border); border-left: 2.5px solid var(--ppt-accent); padding: 3px 6px; border-radius: 4px; font-size: 9.5px; line-height: 1.25; color: var(--ppt-card-text); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${escapeHtml(b)}</div>`).join('');
                     card.innerHTML = `
-                        <div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <span class="ppt-badge" style="font-size:10px; padding:3px 9px;">${(s.section || 'Slide ' + (idx + 1)).replace(/\*\*/g, '')}</span>
-                                <span style="font-size:11px; font-weight:700; opacity:0.7;">#${idx + 1}</span>
+                        <div style="gap: 6px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="ppt-badge" style="font-size:9px; padding:2px 8px;">${escapeHtml((s.section || 'Slide ' + (idx + 1)).replace(/\*\*/g, ''))}</span>
+                                <span style="font-size:10px; font-weight:700; opacity:0.75;">#${idx + 1}</span>
                             </div>
-                            <div style="font-size:16px; font-weight:700; line-height:1.3; margin-bottom:5px;">${(s.title || '').replace(/\*\*/g, '')}</div>
-                            <div style="font-size:12px; opacity:0.8; margin-bottom:10px;">${(s.subtitle || '').replace(/\*\*/g, '')}</div>
-                            <ul style="padding-left:16px; font-size:12px; line-height:1.5;">${bulletsHtml}</ul>
-                        </div>
-                        <div style="margin-top:12px; padding-top:8px; border-top:1px solid rgba(148,163,184,0.2); font-size:10.5px; opacity:0.75; display:flex; justify-content:space-between;">
-                            <span>Klik untuk edit slide ini</span>
-                            <span>${idx + 1} / ${pptSlides.length}</span>
+                            <div style="font-size:13px; font-weight:800; line-height:1.25;">${escapeHtml((s.title || '').replace(/\*\*/g, ''))}</div>
+                            <div style="display:grid; grid-template-columns: ${cleanBullets.length >= 4 ? '1fr 1fr' : '1fr'}; gap: 4px; flex:1; align-content:start;">${bulletsHtml}</div>
+                            <div style="padding-top:4px; border-top:1px solid var(--ppt-divider); font-size:9.5px; opacity:0.75; display:flex; justify-content:space-between;">
+                                <span>Klik untuk edit</span>
+                                <span>${idx + 1} / ${pptSlides.length}</span>
+                            </div>
                         </div>
                     `;
                 }
@@ -5366,101 +5766,25 @@
             canvas.classList.remove('ppt-slide-anim');
             void canvas.offsetWidth;
             canvas.classList.add('ppt-slide-anim');
+
             document.getElementById('fs-slide-counter').innerText = `Slide ${currentSlideIdx + 1} / ${pptSlides.length}`;
-            document.getElementById('fs-slide-num-tag').innerText = `${currentSlideIdx + 1} / ${pptSlides.length}`;
-            const fsProjTitle = document.getElementById('fs-slide-proj-title');
-            if (fsProjTitle) {
-                fsProjTitle.innerText = selectedPptProject.title || 'Sidang Skripsi';
+            const notesEl = document.getElementById('fs-speaker-notes');
+            if (notesEl) {
+                notesEl.innerText = s.speaker_notes ? ('Catatan: ' + s.speaker_notes) : 'Gunakan tombol panah ← / → untuk berpindah slide.';
             }
 
-            const secEl = document.getElementById('fs-slide-section');
-            const titleEl = document.getElementById('fs-slide-title');
-            const subEl = document.getElementById('fs-slide-subtitle');
-            const ul = document.getElementById('fs-slide-bullets');
-
-            const activeLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || '';
-            const fsCampusBadge = document.getElementById('fs-slide-campus-badge');
-            if (fsCampusBadge) {
-                if (activeLogo) {
-                    fsCampusBadge.innerHTML = `<img src="${activeLogo}" alt="Logo" style="width: 17px; height: 17px; object-fit: contain; border-radius: 2px;"><span id="fs-slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
-                } else {
-                    fsCampusBadge.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg><span id="fs-slide-campus-name">${escapeHtml((pptCoverMeta.kampus || 'UNIVERSITAS').toUpperCase())}</span>`;
-                }
-            }
-
-            if (currentSlideIdx === 0) {
-                secEl.innerText = 'SLIDE 1 · COVER SIDANG';
-                titleEl.style.textAlign = 'center';
-                const logoHtml = activeLogo
-                    ? `<div style="display: flex; justify-content: center; margin-bottom: 6px;"><img src="${activeLogo}" alt="Logo Kampus" style="max-height: 44px; max-width: 75px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></div>`
-                    : '';
-                const titleRaw = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '');
-                const isLong = titleRaw.length > 65;
-                titleEl.innerHTML = logoHtml + `<div class="ppt-cover-title-text ${isLong ? 'ppt-title-long' : ''}">${escapeHtml(titleRaw)}</div>`;
-                subEl.style.textAlign = 'center';
-                subEl.innerHTML = `
-                    <div class="ppt-cover-oleh-box">
-                        <div class="ppt-cover-oleh-tag">OLEH :</div>
-                        <div class="ppt-cover-author-name">${escapeHtml(pptCoverMeta.nama || 'Nama Mahasiswa')}</div>
-                        ${pptCoverMeta.nim ? `<div class="ppt-cover-nim">${escapeHtml(pptCoverMeta.nim)}</div>` : ''}
-                    </div>
-                `;
-                const hasPenguji = !!((pptCoverMeta.penguji_1 && pptCoverMeta.penguji_1.trim() && pptCoverMeta.penguji_1 !== 'Dosen Penguji 1') || (pptCoverMeta.penguji_2 && pptCoverMeta.penguji_2.trim()));
-                let cardsHtml = '';
-                if (hasPenguji) {
-                    cardsHtml = `
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Dosen Pembimbing</div>
-                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                            ${pptCoverMeta.pembimbing_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.pembimbing_2)}</div>` : ''}
-                        </div>
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Dosen Penguji</div>
-                            <div class="ppt-pembimbing-name">1. ${escapeHtml(pptCoverMeta.penguji_1 || 'Dosen Penguji 1')}</div>
-                            ${pptCoverMeta.penguji_2 ? `<div class="ppt-pembimbing-name" style="margin-top:2px;">2. ${escapeHtml(pptCoverMeta.penguji_2)}</div>` : ''}
-                        </div>
-                    `;
-                } else {
-                    cardsHtml = `
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Pembimbing 1</div>
-                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_1 || 'Dosen Pembimbing 1')}</div>
-                        </div>
-                        <div class="ppt-pembimbing-card">
-                            <div class="ppt-pembimbing-label">Pembimbing 2</div>
-                            <div class="ppt-pembimbing-name">${escapeHtml(pptCoverMeta.pembimbing_2 || 'Dosen Pembimbing 2')}</div>
-                        </div>
-                    `;
-                }
-                ul.style.textAlign = 'left';
-                ul.style.listStyle = 'none';
-                ul.style.paddingLeft = '0';
-                ul.style.marginLeft = '0';
-                ul.innerHTML = `
-                    <li class="ppt-cover-pembimbing-li">
-                        <div class="ppt-pembimbing-grid">
-                            ${cardsHtml}
-                        </div>
-                    </li>
-                `;
-            } else {
-                titleEl.style.textAlign = 'left';
-                subEl.style.textAlign = 'left';
-                ul.style.textAlign = 'left';
-                ul.style.listStyle = '';
-                ul.style.paddingLeft = '';
-                ul.style.marginLeft = '';
-                secEl.innerText = (s.section || `Slide ${currentSlideIdx + 1}`).replace(/\*\*/g, '');
-                titleEl.innerText = (s.title || '').replace(/\*\*/g, '');
-                subEl.innerText = (s.subtitle || '').replace(/\*\*/g, '');
-
-                ul.innerHTML = '';
-                (s.bullets || []).forEach(b => {
-                    const li = document.createElement('li');
-                    li.innerText = b.replace(/\*\*/g, '');
-                    ul.appendChild(li);
-                });
-            }
+            renderPptSlideIntoDom({
+                canvasEl: canvas,
+                secEl: document.getElementById('fs-slide-section'),
+                countEl: document.getElementById('fs-slide-num-tag'),
+                campusBadgeEl: document.getElementById('fs-slide-campus-badge'),
+                titleEl: document.getElementById('fs-slide-title'),
+                subEl: document.getElementById('fs-slide-subtitle'),
+                ulEl: document.getElementById('fs-slide-bullets'),
+                s,
+                idx: currentSlideIdx,
+                total: pptSlides.length
+            });
         }
 
         document.addEventListener('keydown', function (e) {
@@ -5480,21 +5804,23 @@
             pptx.layout = 'LAYOUT_16x9';
 
             const palettes = {
-                sidang_crimson: { bg: 'DB2777', fg: 'FFFFFF', sub: 'FFE4E6', bar: 'BE185D', cardBg: 'FFFFFF', cardSub: 'BE185D', cardFg: '1E293B', cardBorder: 'F43F5E' },
-                royal_academic: { bg: 'FFFFFF', fg: '0F172A', sub: '2563EB', bar: '2563EB', cardBg: 'F8FAFC', cardSub: '2563EB', cardFg: '0F172A', cardBorder: 'CBD5E1' },
-                canva_editorial: { bg: 'FBF8F3', fg: '292524', sub: 'C2410C', bar: 'EA580C', cardBg: 'FFFFFF', cardSub: 'C2410C', cardFg: '292524', cardBorder: 'FED7AA' },
-                emerald_executive: { bg: 'F4FBF7', fg: '064E3B', sub: '047857', bar: '059669', cardBg: 'FFFFFF', cardSub: '047857', cardFg: '064E3B', cardBorder: 'A7F3D0' },
-                maroon_prestige: { bg: 'FFF5F5', fg: '450A0A', sub: '991B1B', bar: '991B1B', cardBg: 'FFFFFF', cardSub: '991B1B', cardFg: '450A0A', cardBorder: 'FECACA' },
-                tech_dark: { bg: '0B0F19', fg: 'FFFFFF', sub: '38BDF8', bar: '06B6D4', cardBg: '1E293B', cardSub: '38BDF8', cardFg: 'FFFFFF', cardBorder: '334155' },
-                swiss_minimal: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: '111827', cardBg: 'F9FAFB', cardSub: '111827', cardFg: '111827', cardBorder: 'E5E7EB' },
-                basic_navy: { bg: '1E1B4B', fg: 'FFFFFF', sub: 'C7D2FE', bar: '6366F1', cardBg: '312E81', cardSub: 'A5B4FC', cardFg: 'FFFFFF', cardBorder: '4338CA' },
-                basic_white: { bg: 'FFFFFF', fg: '111827', sub: '4B5563', bar: 'CBD5E1', cardBg: 'F8FAFC', cardSub: '2563EB', cardFg: '111827', cardBorder: 'CBD5E1' },
-                pastel_lavender: { bg: 'F5F3FF', fg: '2E1065', sub: '7C3AED', bar: '8B5CF6', cardBg: 'FFFFFF', cardSub: '7C3AED', cardFg: '2E1065', cardBorder: 'DDD6FE' },
-                nordic_teal: { bg: 'F0FDFA', fg: '134E4A', sub: '0F766E', bar: '14B8A6', cardBg: 'FFFFFF', cardSub: '0F766E', cardFg: '134E4A', cardBorder: '99F6E4' },
-                warm_terracotta: { bg: 'FFFBEB', fg: '451A03', sub: 'B45309', bar: 'F97316', cardBg: 'FFFFFF', cardSub: 'B45309', cardFg: '451A03', cardBorder: 'FED7AA' },
-                classic_gold: { bg: '0F172A', fg: 'FFFFFF', sub: 'FBBF24', bar: 'D97706', cardBg: '1E293B', cardSub: 'FBBF24', cardFg: 'FFFFFF', cardBorder: '334155' }
+                sidang_crimson: { bg: '9F1239', fg: 'FFFFFF', sub: 'FFE4E6', muted: 'FECDD3', bar: 'FB7185', accent2: 'BE123C', pillBg: '881337', pillFg: 'FFFFFF', cardBg: 'B91C4A', cardSub: 'FECDD3', cardFg: 'FFFFFF', cardBorder: 'FDA4AF', footerFg: 'FECDD3', style: 'topbar', fontTitle: 'Calibri' },
+                royal_academic: { bg: 'F4F8FF', fg: '0F172A', sub: '1D4ED8', muted: '475569', bar: '2563EB', accent2: 'DBEAFE', pillBg: 'DBEAFE', pillFg: '1D4ED8', cardBg: 'FFFFFF', cardSub: '1D4ED8', cardFg: '0F172A', cardBorder: 'BFDBFE', footerFg: '64748B', style: 'sidebar', fontTitle: 'Calibri' },
+                canva_editorial: { bg: 'FBF8F3', fg: '1C1917', sub: 'C2410C', muted: '57534E', bar: 'EA580C', accent2: 'FFEDD5', pillBg: 'FFEDD5', pillFg: '9A3412', cardBg: 'FFFFFF', cardSub: 'C2410C', cardFg: '292524', cardBorder: 'FED7AA', footerFg: '78716C', style: 'topbar', fontTitle: 'Georgia' },
+                emerald_executive: { bg: 'F1FBF6', fg: '064E3B', sub: '047857', muted: '3F6258', bar: '059669', accent2: 'D1FAE5', pillBg: 'D1FAE5', pillFg: '065F46', cardBg: 'FFFFFF', cardSub: '047857', cardFg: '064E3B', cardBorder: 'A7F3D0', footerFg: '4B766A', style: 'topbar', fontTitle: 'Calibri' },
+                maroon_prestige: { bg: 'FFF6F6', fg: '450A0A', sub: '991B1B', muted: '7F1D1D', bar: '991B1B', accent2: 'FEE2E2', pillBg: 'FEE2E2', pillFg: '991B1B', cardBg: 'FFFFFF', cardSub: '991B1B', cardFg: '450A0A', cardBorder: 'FECACA', footerFg: '991B1B', style: 'topbar', fontTitle: 'Georgia' },
+                tech_dark: { bg: '0B1120', fg: 'F8FAFC', sub: '38BDF8', muted: '94A3B8', bar: '06B6D4', accent2: '172554', pillBg: '164E63', pillFg: '38BDF8', cardBg: '1E293B', cardSub: '38BDF8', cardFg: 'F8FAFC', cardBorder: '334155', footerFg: '94A3B8', style: 'topbar', fontTitle: 'Calibri' },
+                swiss_minimal: { bg: 'FFFFFF', fg: '111827', sub: '374151', muted: '4B5563', bar: '111827', accent2: 'F3F4F6', pillBg: '111827', pillFg: 'FFFFFF', cardBg: 'F9FAFB', cardSub: '111827', cardFg: '111827', cardBorder: 'D1D5DB', footerFg: '6B7280', style: 'topbar', fontTitle: 'Arial' },
+                basic_navy: { bg: '1A1842', fg: 'FFFFFF', sub: 'A5B4FC', muted: 'C7D2FE', bar: '6366F1', accent2: '312E81', pillBg: '312E81', pillFg: 'E0E7FF', cardBg: '26235C', cardSub: 'A5B4FC', cardFg: 'FFFFFF', cardBorder: '4F46E5', footerFg: 'A5B4FC', style: 'topbar', fontTitle: 'Calibri' },
+                basic_white: { bg: 'FFFFFF', fg: '0F172A', sub: '334155', muted: '475569', bar: '334155', accent2: 'F1F5F9', pillBg: 'F1F5F9', pillFg: '1E293B', cardBg: 'F8FAFC', cardSub: '1E293B', cardFg: '0F172A', cardBorder: 'CBD5E1', footerFg: '64748B', style: 'topbar', fontTitle: 'Calibri' },
+                pastel_lavender: { bg: 'F6F3FF', fg: '2E1065', sub: '6D28D9', muted: '5B21B6', bar: '7C3AED', accent2: 'EDE9FE', pillBg: 'EDE9FE', pillFg: '6D28D9', cardBg: 'FFFFFF', cardSub: '6D28D9', cardFg: '2E1065', cardBorder: 'DDD6FE', footerFg: '6D28D9', style: 'topbar', fontTitle: 'Calibri' },
+                nordic_teal: { bg: 'F0FDFA', fg: '134E4A', sub: '0F766E', muted: '3B6966', bar: '0D9488', accent2: 'CCFBF1', pillBg: 'CCFBF1', pillFg: '0F766E', cardBg: 'FFFFFF', cardSub: '0F766E', cardFg: '134E4A', cardBorder: '99F6E4', footerFg: '0F766E', style: 'topbar', fontTitle: 'Calibri' },
+                warm_terracotta: { bg: 'FFFBEB', fg: '451A03', sub: 'B45309', muted: '78350F', bar: 'D97706', accent2: 'FEF3C7', pillBg: 'FEF3C7', pillFg: 'B45309', cardBg: 'FFFFFF', cardSub: 'B45309', cardFg: '451A03', cardBorder: 'FDE68A', footerFg: '92400E', style: 'topbar', fontTitle: 'Calibri' },
+                classic_gold: { bg: '0C1427', fg: 'F8FAFC', sub: 'FBBF24', muted: 'CBD5E1', bar: 'F59E0B', accent2: '1E293B', pillBg: '2D2414', pillFg: 'FBBF24', cardBg: '172036', cardSub: 'FBBF24', cardFg: 'F8FAFC', cardBorder: 'B45309', footerFg: 'CBD5E1', style: 'topbar', fontTitle: 'Georgia' }
             };
             const pal = palettes[currentPptTheme] || palettes.royal_academic;
+            const leftPad = pal.style === 'sidebar' ? 0.65 : 0.55;
+            const contentW = 10.0 - leftPad - 0.55;
 
             const rawLogo = uploadedPptLogoBase64 || (pptCoverMeta && pptCoverMeta.logo_base64) || (selectedPptProject && selectedPptProject.logo_base64) || '';
             let pptxLogo = '';
@@ -5507,148 +5833,287 @@
                 }
             }
 
+            const meta = (typeof pptCoverMeta !== 'undefined' && pptCoverMeta) ? pptCoverMeta : {};
+            const instLine = buildPptInstitutionLine(meta);
+            const panel = resolvePptPanelData(meta);
+            const shortProjTitle = (selectedPptProject.title || 'Presentasi Sidang Skripsi').slice(0, 68);
+
             pptSlides.forEach((s, idx) => {
                 const slide = pptx.addSlide();
                 slide.background = { color: pal.bg };
 
-                if (currentPptTheme === 'royal_academic') {
-                    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.2, h: 5.625, fill: { color: pal.bar } });
+                // Ornamen geometris & bar tema premium
+                if (pal.style === 'sidebar') {
+                    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.24, h: 5.625, fill: { color: pal.bar }, line: { color: pal.bar, width: 0 } });
+                    slide.addShape(pptx.ShapeType.rect, { x: 0.24, y: 0, w: 0.06, h: 5.625, fill: { color: pal.accent2 }, line: { color: pal.accent2, width: 0 } });
                 } else {
-                    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.12, fill: { color: pal.bar } });
+                    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10.0, h: 0.13, fill: { color: pal.bar }, line: { color: pal.bar, width: 0 } });
                 }
+                // Dekorasi lembut sudut kanan bawah
+                slide.addShape(pptx.ShapeType.ellipse, {
+                    x: 8.65, y: 4.55, w: 1.9, h: 1.9,
+                    fill: { color: pal.accent2, transparency: 55 },
+                    line: { color: pal.accent2, transparency: 100 }
+                });
 
                 if (idx === 0) {
-                    const meta = (typeof pptCoverMeta !== 'undefined' && pptCoverMeta) ? pptCoverMeta : {};
-
-                    // Top Pill: Logo & Kampus
+                    // Header Bar Cover: Kiri = Pill Kampus + Logo Tunggal (NO dobel logo), Kanan = Pill SIDANG SKRIPSI
                     slide.addShape(pptx.ShapeType.roundRect, {
-                        x: 0.8, y: 0.35, w: 3.5, h: 0.44,
+                        x: leftPad, y: 0.30, w: 3.7, h: 0.44,
                         fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1 }, rectRadius: 0.22
                     });
 
                     if (pptxLogo) {
                         try {
-                            slide.addImage({ data: pptxLogo, x: 0.9, y: 0.38, w: 0.36, h: 0.36, sizing: { type: 'contain', w: 0.36, h: 0.36 } });
+                            slide.addImage({ data: pptxLogo, x: leftPad + 0.12, y: 0.34, w: 0.36, h: 0.36, sizing: { type: 'contain', w: 0.36, h: 0.36 } });
                             slide.addText((meta.kampus || 'UNIVERSITAS').toUpperCase(), {
-                                x: 1.35, y: 0.35, w: 2.85, h: 0.44,
-                                fontSize: 9.5, bold: true, color: pal.cardSub, valign: 'middle'
+                                x: leftPad + 0.56, y: 0.30, w: 3.05, h: 0.44,
+                                fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.cardSub, valign: 'middle', fit: 'shrink'
                             });
                         } catch (e) {
                             slide.addText((meta.kampus || 'UNIVERSITAS').toUpperCase(), {
-                                x: 0.9, y: 0.35, w: 3.3, h: 0.44,
-                                fontSize: 9.5, bold: true, color: pal.cardSub, valign: 'middle'
+                                x: leftPad + 0.16, y: 0.30, w: 3.4, h: 0.44,
+                                fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.cardSub, valign: 'middle', fit: 'shrink'
                             });
                         }
                     } else {
                         slide.addText((meta.kampus || 'UNIVERSITAS').toUpperCase(), {
-                            x: 0.9, y: 0.35, w: 3.3, h: 0.44,
-                            fontSize: 9.5, bold: true, color: pal.cardSub, valign: 'middle'
+                            x: leftPad + 0.16, y: 0.30, w: 3.4, h: 0.44,
+                            fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.cardSub, valign: 'middle', fit: 'shrink'
                         });
                     }
 
-                    // Kategori Header
+                    slide.addShape(pptx.ShapeType.roundRect, {
+                        x: 7.45, y: 0.32, w: 2.0, h: 0.38,
+                        fill: { color: pal.pillBg }, line: { color: pal.cardBorder, width: 0.75 }, rectRadius: 0.19
+                    });
                     slide.addText('SIDANG SKRIPSI', {
-                        x: 1.0, y: 0.95, w: 8.0, h: 0.35,
-                        fontSize: 13, bold: true, color: pal.sub, align: 'center'
+                        x: 7.45, y: 0.32, w: 2.0, h: 0.38,
+                        fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.pillFg, align: 'center', valign: 'middle'
                     });
 
-                    // Judul Skripsi Prominen
+                    // Judul Skripsi Prominen (Auto-fit shrink, tidak pernah overflow)
                     const cleanTitle = (s.title || selectedPptProject.title || 'Judul Skripsi').replace(/\*\*/g, '').toUpperCase();
-                    const titleSize = cleanTitle.length > 80 ? 15 : (cleanTitle.length > 50 ? 17 : 20);
+                    const titleSize = cleanTitle.length > 95 ? 14.5 : (cleanTitle.length > 65 ? 16.5 : 19);
                     slide.addText(cleanTitle, {
-                        x: 0.8, y: 1.35, w: 8.4, h: 1.3,
-                        fontSize: titleSize, bold: true, color: pal.fg, align: 'center', valign: 'middle'
+                        x: leftPad + 0.15, y: 0.94, w: contentW - 0.3, h: 1.24,
+                        fontSize: titleSize, bold: true, fontFace: pal.fontTitle, color: pal.fg,
+                        align: 'center', valign: 'middle', fit: 'shrink'
                     });
 
-                    // Oleh & NIM
+                    // Garis Aksen Dekoratif Tengah
+                    slide.addShape(pptx.ShapeType.roundRect, {
+                        x: 4.5, y: 2.24, w: 1.0, h: 0.055,
+                        fill: { color: pal.bar }, line: { color: pal.bar, width: 0 }, rectRadius: 0.03
+                    });
+
+                    // Pill Identitas Mahasiswa (Disusun Oleh + Nama + NIM)
+                    slide.addShape(pptx.ShapeType.roundRect, {
+                        x: 2.6, y: 2.40, w: 4.8, h: 0.80,
+                        fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1 }, rectRadius: 0.10
+                    });
                     const authorLines = [
-                        { text: 'OLEH :\n', options: { fontSize: 10, bold: true, color: pal.sub } },
-                        { text: (meta.nama || 'Nama Mahasiswa').toUpperCase() + '\n', options: { fontSize: 13, bold: true, color: pal.fg } }
+                        { text: 'DISUSUN OLEH\n', options: { fontSize: 8.5, bold: true, color: pal.cardSub } },
+                        { text: (meta.nama || 'Nama Mahasiswa').toUpperCase() + (meta.nim ? '\n' : ''), options: { fontSize: 12.5, bold: true, color: pal.cardFg } }
                     ];
                     if (meta.nim) {
-                        authorLines.push({ text: meta.nim, options: { fontSize: 11, bold: true, color: pal.fg } });
+                        authorLines.push({ text: 'NIM / NPM: ' + meta.nim, options: { fontSize: 10, bold: false, color: pal.muted } });
                     }
                     slide.addText(authorLines, {
-                        x: 1.0, y: 2.75, w: 8.0, h: 0.8, align: 'center'
+                        x: 2.7, y: 2.42, w: 4.6, h: 0.76,
+                        fontFace: 'Calibri', align: 'center', valign: 'middle', fit: 'shrink'
                     });
 
-                    // 2 Rounded Cards untuk Pembimbing & Penguji (Side-by-Side Sesuai Slide Sidang Asli)
-                    const hasPenguji = !!((meta.penguji_1 && meta.penguji_1.trim() && meta.penguji_1 !== 'Dosen Penguji 1') || (meta.penguji_2 && meta.penguji_2.trim()));
+                    // 2 KARTU SIMETRIS SEJAJAR (Dosen Pembimbing | Dosen Penguji) — Rapi, Rata Kiri, Top Accent Bar
+                    const cardGap = 0.32;
+                    const cardW = (contentW - cardGap) / 2;
+                    const cardY = 3.40;
+                    const cardH = 1.38;
+                    const leftX = leftPad;
+                    const rightX = leftPad + cardW + cardGap;
 
-                    slide.addShape(pptx.ShapeType.roundRect, {
-                        x: 0.8, y: 3.8, w: 4.0, h: 1.3,
-                        fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1.2 }, rectRadius: 0.12
-                    });
-                    slide.addShape(pptx.ShapeType.roundRect, {
-                        x: 5.2, y: 3.8, w: 4.0, h: 1.3,
-                        fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1.2 }, rectRadius: 0.12
-                    });
-
-                    if (hasPenguji) {
-                        const pLines = [
-                            { text: 'Dosen Pembimbing\n', options: { fontSize: 10, bold: true, color: pal.cardSub } },
-                            { text: '1. ' + (meta.pembimbing_1 || 'Dosen Pembimbing 1'), options: { fontSize: 11, bold: true, color: pal.cardFg } }
+                    [
+                        { x: leftX, title: panel.leftTitle, lines: panel.leftLines },
+                        { x: rightX, title: panel.rightTitle, lines: panel.rightLines }
+                    ].forEach((col) => {
+                        slide.addShape(pptx.ShapeType.roundRect, {
+                            x: col.x, y: cardY, w: cardW, h: cardH,
+                            fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1.1 }, rectRadius: 0.08
+                        });
+                        // Top Accent Bar pada kartu
+                        slide.addShape(pptx.ShapeType.rect, {
+                            x: col.x + 0.08, y: cardY, w: cardW - 0.16, h: 0.06,
+                            fill: { color: pal.bar }, line: { color: pal.bar, width: 0 }
+                        });
+                        const textRuns = [
+                            { text: col.title.toUpperCase() + '\n', options: { fontSize: 9, bold: true, color: pal.cardSub, breakLine: false } }
                         ];
-                        if (meta.pembimbing_2) {
-                            pLines.push({ text: '\n2. ' + meta.pembimbing_2, options: { fontSize: 11, bold: true, color: pal.cardFg } });
-                        }
-                        slide.addText(pLines, {
-                            x: 0.9, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
+                        col.lines.forEach((ln, li) => {
+                            textRuns.push({
+                                text: ln + (li < col.lines.length - 1 ? '\n' : ''),
+                                options: { fontSize: 11, bold: true, color: pal.cardFg }
+                            });
                         });
+                        slide.addText(textRuns, {
+                            x: col.x + 0.20, y: cardY + 0.14, w: cardW - 0.40, h: cardH - 0.22,
+                            fontFace: 'Calibri', align: 'left', valign: 'middle', lineSpacing: 17, fit: 'shrink'
+                        });
+                    });
 
-                        const uLines = [
-                            { text: 'Dosen Penguji\n', options: { fontSize: 10, bold: true, color: pal.cardSub } },
-                            { text: '1. ' + (meta.penguji_1 || 'Dosen Penguji 1'), options: { fontSize: 11, bold: true, color: pal.cardFg } }
-                        ];
-                        if (meta.penguji_2) {
-                            uLines.push({ text: '\n2. ' + meta.penguji_2, options: { fontSize: 11, bold: true, color: pal.cardFg } });
-                        }
-                        slide.addText(uLines, {
-                            x: 5.3, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
-                        });
-                    } else {
-                        slide.addText([
-                            { text: 'Pembimbing 1\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
-                            { text: meta.pembimbing_1 || 'Dosen Pembimbing 1', options: { fontSize: 12, bold: true, color: pal.cardFg } }
-                        ], {
-                            x: 0.9, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
-                        });
-
-                        slide.addText([
-                            { text: 'Pembimbing 2\n', options: { fontSize: 11, bold: true, color: pal.cardSub } },
-                            { text: meta.pembimbing_2 || 'Dosen Pembimbing 2', options: { fontSize: 12, bold: true, color: pal.cardFg } }
-                        ], {
-                            x: 5.3, y: 3.85, w: 3.8, h: 1.2, align: 'center', valign: 'middle'
-                        });
-                    }
+                    // Footer Institusi Bawah Cover (Seimbang, tanpa ruang kosong menganga)
+                    slide.addShape(pptx.ShapeType.line, {
+                        x: leftPad, y: 4.96, w: contentW, h: 0,
+                        line: { color: pal.cardBorder, width: 0.8 }
+                    });
+                    slide.addText(instLine, {
+                        x: leftPad, y: 5.02, w: contentW, h: 0.35,
+                        fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.footerFg, align: 'center', valign: 'middle', fit: 'shrink'
+                    });
                 } else {
-                    const cleanSection = (s.section || `Slide ${idx + 1}`).replace(/\*\*/g, '');
+                    // SLIDE 2..N: DESAIN KARTU MODERN ADAPTIF — DIJAMIN 0% TERPOTONG DI POWERPOINT!
+                    const cleanSection = (s.section || `Slide ${idx + 1}`).replace(/\*\*/g, '').toUpperCase();
+                    const pillW = Math.min(3.8, Math.max(1.8, cleanSection.length * 0.105 + 0.55));
+                    slide.addShape(pptx.ShapeType.roundRect, {
+                        x: leftPad, y: 0.28, w: pillW, h: 0.34,
+                        fill: { color: pal.pillBg }, line: { color: pal.cardBorder, width: 0.75 }, rectRadius: 0.17
+                    });
                     slide.addText(cleanSection, {
-                        x: 0.8, y: 0.45, w: 8.4, h: 0.35,
-                        fontSize: 11, bold: true, color: pal.sub
+                        x: leftPad + 0.10, y: 0.28, w: pillW - 0.20, h: 0.34,
+                        fontSize: 9.5, bold: true, fontFace: 'Calibri', color: pal.pillFg, align: 'center', valign: 'middle', fit: 'shrink'
                     });
 
+                    // Slide number badge top-right
+                    slide.addText(`${idx + 1} / ${pptSlides.length}`, {
+                        x: 8.65, y: 0.28, w: 0.85, h: 0.34,
+                        fontSize: 10, bold: true, fontFace: 'Calibri', color: pal.footerFg, align: 'right', valign: 'middle'
+                    });
+
+                    // Judul Slide (Locked max height 0.62", auto-shrink)
                     const cleanTitle = (s.title || '').replace(/\*\*/g, '');
+                    const slideTitleSize = cleanTitle.length > 52 ? 17.5 : 20.5;
                     slide.addText(cleanTitle, {
-                        x: 0.8, y: 0.85, w: 8.4, h: 0.8,
-                        fontSize: 20, bold: true, color: pal.fg
+                        x: leftPad, y: 0.70, w: contentW, h: 0.60,
+                        fontSize: slideTitleSize, bold: true, fontFace: pal.fontTitle, color: pal.fg,
+                        valign: 'middle', fit: 'shrink'
                     });
 
-                    if (s.subtitle) {
-                        const cleanSub = s.subtitle.replace(/\*\*/g, '');
+                    // Subjudul (Locked max height 0.30")
+                    const cleanSub = (s.subtitle || '').replace(/\*\*/g, '');
+                    if (cleanSub) {
                         slide.addText(cleanSub, {
-                            x: 0.8, y: 1.7, w: 8.4, h: 0.4,
-                            fontSize: 12.5, color: pal.sub
+                            x: leftPad, y: 1.32, w: contentW, h: 0.28,
+                            fontSize: 11, italic: false, fontFace: 'Calibri', color: pal.sub,
+                            valign: 'middle', fit: 'shrink'
                         });
                     }
 
-                    const bulletItems = (s.bullets || []).map(b => ({ text: b.replace(/\*\*/g, ''), options: { bullet: true, breakLine: true } }));
-                    if (bulletItems.length) {
-                        slide.addText(bulletItems, {
-                            x: 0.8, y: 2.25, w: 8.4, h: 2.7,
-                            fontSize: 13.5, color: pal.fg, lineSpacing: 22, valign: 'top'
-                        });
+                    // Garis tipis pemisah header & isi
+                    slide.addShape(pptx.ShapeType.line, {
+                        x: leftPad, y: 1.66, w: contentW, h: 0,
+                        line: { color: pal.cardBorder, width: 0.9 }
+                    });
+
+                    // Area konten aman: y = 1.78 s/d 5.02 (tinggi 3.24 inci) -> dijamin TIDAK PERNAH menyentuh footer (5.18)
+                    const cleanBullets = (s.bullets || []).map(b => String(b).replace(/\*\*/g, '').trim()).filter(Boolean);
+                    const totalChars = cleanBullets.reduce((acc, b) => acc + b.length, 0);
+                    const yStart = 1.78;
+                    const availH = 3.24;
+
+                    if (cleanBullets.length > 0) {
+                        const useTwoCols = cleanBullets.length >= 4 || totalChars > 300;
+
+                        if (useTwoCols) {
+                            const colGap = 0.24;
+                            const colW = (contentW - colGap) / 2;
+                            const numRows = Math.ceil(cleanBullets.length / 2);
+                            const rowGap = 0.16;
+                            const cardH = Math.min(1.48, (availH - rowGap * (numRows - 1)) / numRows);
+                            const maxCharInCell = Math.max(...cleanBullets.map(b => b.length));
+                            const dynFont = numRows >= 3 ? (maxCharInCell > 110 ? 9.5 : 10.5) : (maxCharInCell > 130 ? 10.5 : 11.5);
+
+                            cleanBullets.forEach((bText, bIdx) => {
+                                const r = Math.floor(bIdx / 2);
+                                const c = bIdx % 2;
+                                const isLastOdd = (bIdx === cleanBullets.length - 1) && (cleanBullets.length % 2 === 1);
+                                const cx = leftPad + (isLastOdd ? 0 : c * (colW + colGap));
+                                const cw = isLastOdd ? contentW : colW;
+                                const cy = yStart + r * (cardH + rowGap);
+
+                                // Kartu rounded modern
+                                slide.addShape(pptx.ShapeType.roundRect, {
+                                    x: cx, y: cy, w: cw, h: cardH,
+                                    fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1 }, rectRadius: 0.08
+                                });
+                                // Left Accent Bar
+                                slide.addShape(pptx.ShapeType.rect, {
+                                    x: cx, y: cy + 0.08, w: 0.07, h: cardH - 0.16,
+                                    fill: { color: pal.bar }, line: { color: pal.bar, width: 0 }
+                                });
+                                // Badge nomor bulat
+                                const badgeS = 0.28;
+                                slide.addShape(pptx.ShapeType.ellipse, {
+                                    x: cx + 0.16, y: cy + (cardH - badgeS) / 2, w: badgeS, h: badgeS,
+                                    fill: { color: pal.pillBg }, line: { color: pal.bar, width: 0.8 }
+                                });
+                                slide.addText(String(bIdx + 1), {
+                                    x: cx + 0.16, y: cy + (cardH - badgeS) / 2, w: badgeS, h: badgeS,
+                                    fontSize: 9, bold: true, fontFace: 'Calibri', color: pal.pillFg, align: 'center', valign: 'middle'
+                                });
+                                // Teks isi poin (auto-shrink agar tidak pernah terpotong!)
+                                slide.addText(bText, {
+                                    x: cx + 0.52, y: cy + 0.08, w: cw - 0.64, h: cardH - 0.16,
+                                    fontSize: dynFont, fontFace: 'Calibri', color: pal.cardFg,
+                                    align: 'left', valign: 'middle', fit: 'shrink'
+                                });
+                            });
+                        } else {
+                            // 1–3 Poin: Kartu Stacked Full-Width yang Luas & Elegan
+                            const rowGap = 0.18;
+                            const cardH = Math.min(0.98, (availH - rowGap * (cleanBullets.length - 1)) / cleanBullets.length);
+                            const maxChar = Math.max(...cleanBullets.map(b => b.length));
+                            const dynFont = maxChar > 130 ? 11.5 : 12.5;
+
+                            cleanBullets.forEach((bText, bIdx) => {
+                                const cy = yStart + bIdx * (cardH + rowGap);
+                                slide.addShape(pptx.ShapeType.roundRect, {
+                                    x: leftPad, y: cy, w: contentW, h: cardH,
+                                    fill: { color: pal.cardBg }, line: { color: pal.cardBorder, width: 1 }, rectRadius: 0.08
+                                });
+                                slide.addShape(pptx.ShapeType.rect, {
+                                    x: leftPad, y: cy + 0.08, w: 0.08, h: cardH - 0.16,
+                                    fill: { color: pal.bar }, line: { color: pal.bar, width: 0 }
+                                });
+                                const badgeS = 0.34;
+                                slide.addShape(pptx.ShapeType.ellipse, {
+                                    x: leftPad + 0.20, y: cy + (cardH - badgeS) / 2, w: badgeS, h: badgeS,
+                                    fill: { color: pal.pillBg }, line: { color: pal.bar, width: 0.9 }
+                                });
+                                slide.addText(String(bIdx + 1), {
+                                    x: leftPad + 0.20, y: cy + (cardH - badgeS) / 2, w: badgeS, h: badgeS,
+                                    fontSize: 10.5, bold: true, fontFace: 'Calibri', color: pal.pillFg, align: 'center', valign: 'middle'
+                                });
+                                slide.addText(bText, {
+                                    x: leftPad + 0.66, y: cy + 0.08, w: contentW - 0.82, h: cardH - 0.16,
+                                    fontSize: dynFont, fontFace: 'Calibri', color: pal.cardFg,
+                                    align: 'left', valign: 'middle', fit: 'shrink'
+                                });
+                            });
+                        }
                     }
+
+                    // Footer Rapi di Setiap Slide Konten
+                    slide.addShape(pptx.ShapeType.line, {
+                        x: leftPad, y: 5.14, w: contentW, h: 0,
+                        line: { color: pal.cardBorder, width: 0.6 }
+                    });
+                    slide.addText(`${(meta.kampus || 'UNIVERSITAS').toUpperCase()}  ·  ${shortProjTitle}`, {
+                        x: leftPad, y: 5.18, w: contentW - 1.2, h: 0.32,
+                        fontSize: 8.5, fontFace: 'Calibri', color: pal.footerFg, align: 'left', valign: 'middle', fit: 'shrink'
+                    });
+                    slide.addText(`Slide ${idx + 1} / ${pptSlides.length}`, {
+                        x: 8.35, y: 5.18, w: 1.15, h: 0.32,
+                        fontSize: 8.5, bold: true, fontFace: 'Calibri', color: pal.footerFg, align: 'right', valign: 'middle'
+                    });
                 }
 
                 if (s.speaker_notes) {
@@ -5656,13 +6121,16 @@
                 }
             });
 
-            pptx.writeFile({ fileName: 'Slide_Sidang_SkripsiAI.pptx' });
+            const safeSlug = (selectedPptProject.title || 'SkripsiAI').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 32) || 'SkripsiAI';
+            pptx.writeFile({ fileName: `Slide_Sidang_${safeSlug}.pptx` });
         }
 
         // =====================================================================
         // 3. SIMULASI SIDANG (ANIMASI LOADING PERTANYAAN & EVALUASI + ULANGI)
         // =====================================================================
         let defenseTitle = '';
+        let defenseProjectId = null;
+        let defenseDocContext = '';
         let defenseQuestions = [];
         let defenseAnswers = [];
         let defCurrentIdx = 0;
@@ -5735,6 +6203,8 @@
 
         async function startDefenseWithProject(projectId, title) {
             defenseTitle = title;
+            defenseProjectId = projectId;
+            defenseDocContext = '';
             const modeDosen = document.getElementById('def-mode-dosen')?.value || 'kritis';
             const jumlahSoal = document.getElementById('def-jumlah-soal')?.value || '5';
             const minScore = document.getElementById('def-min-score')?.value || '7.0';
@@ -5756,6 +6226,12 @@
                 alert('Pilih file skripsi (.pdf / .docx) terlebih dahulu.');
                 return;
             }
+            if (fileInput.files[0].size > 3.5 * 1024 * 1024) {
+                alert('Ukuran file skripsi melebihi batas 3,5 MB serverless. Silakan unggah file Word/PDF yang lebih ringkas.');
+                return;
+            }
+            defenseProjectId = null;
+            defenseDocContext = '';
             const btn = document.getElementById('btn-start-def-file');
             btn.disabled = true;
             btn.innerHTML = '<span class="ai-spinner"></span><span>Membuat Pertanyaan...</span>';
@@ -5779,7 +6255,7 @@
 
         async function requestDefenseQuestions(formData, labelTitle) {
             const jml = formData.get('jumlah_soal') || 5;
-            renderLoadingCard('defense-loading-box', `Dosen Penguji AI sedang menyiapkan ${jml} pertanyaan sidang...`, `Menganalisis naskah "${labelTitle || 'Skripsi'}" untuk menyusun pertanyaan penguji yang tajam dan spesifik...`);
+            renderLoadingCard('defense-loading-box', `Dosen Penguji AI sedang membaca naskah & menyiapkan ${jml} pertanyaan sidang...`, `Menganalisis isi Bab I–V dari "${escapeHtml(labelTitle || 'Skripsi')}" untuk menyusun pertanyaan penguji riil...`);
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             try {
@@ -5791,9 +6267,19 @@
                 const data = await res.json();
                 if (data.status === 'success' && Array.isArray(data.questions)) {
                     defenseTitle = data.title || defenseTitle;
+                    defenseProjectId = data.project_id || defenseProjectId;
+                    defenseDocContext = data.doc_context || '';
                     defenseQuestions = data.questions;
                     defenseAnswers = [];
                     defCurrentIdx = 0;
+
+                    const statusPill = document.getElementById('def-doc-status-pill');
+                    if (statusPill) {
+                        const wc = data.word_count ? ` (~${Number(data.word_count).toLocaleString('id-ID')} kata terbaca lintas Bab I–V)` : '';
+                        statusPill.textContent = `✓ Naskah skripsi riil berhasil dibaca: "${defenseTitle}"${wc} — Pertanyaan & evaluasi mengacu langsung pada isi skripsimu.`;
+                        statusPill.style.display = 'block';
+                    }
+
                     renderDefenseQuestion();
                     setDefenseStep(2);
                 } else {
@@ -5853,6 +6339,8 @@
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                     body: JSON.stringify({
                         mode: 'evaluate_all',
+                        project_id: defenseProjectId,
+                        doc_context: defenseDocContext,
                         judul: defenseTitle,
                         qa_list: defenseAnswers,
                         mode_dosen: modeDosen,
@@ -5887,6 +6375,18 @@
             document.getElementById('def-eval-score').innerText = overall + '/10';
             document.getElementById('def-eval-summary').innerText = ev.summary || '';
 
+            const gradeEl = document.getElementById('def-eval-grade-badge');
+            const minLbl = document.getElementById('def-eval-min-label');
+            const isPass = !String(ev.verdict || '').toLowerCase().includes('tidak lulus');
+            if (gradeEl) {
+                gradeEl.innerText = ev.grade || (parseFloat(overall) >= 8.5 ? 'A' : parseFloat(overall) >= 7.5 ? 'B+' : parseFloat(overall) >= 6.5 ? 'B' : 'C');
+                gradeEl.style.background = isPass ? '#dcfce7' : '#fee2e2';
+                gradeEl.style.color = isPass ? '#15803d' : '#dc2626';
+            }
+            if (minLbl && ev.min_score) {
+                minLbl.innerText = `Rata-rata Skor (Min. Lulus ${Number(ev.min_score).toFixed(1)})`;
+            }
+
             const bars = document.getElementById('def-score-bars');
             bars.innerHTML = '';
             const details = document.getElementById('def-details-list');
@@ -5914,11 +6414,11 @@
                             <span>Pertanyaan ${i + 1}</span>
                             <span>Skor: ${sc}/10</span>
                         </div>
-                        <div style="font-size:14px; font-weight:600; margin-bottom:8px;">${item.question}</div>
-                        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Jawabanmu:</strong> ${item.student_answer}</div>
-                        <div style="font-size:13px; color:var(--text-main); margin-bottom:10px;"><strong>Evaluasi Penguji:</strong> ${item.feedback}</div>
-                        <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px; font-size:13px; color:var(--text-main);">
-                            <strong>Saran Jawaban Terbaik:</strong><br>${item.better_answer}
+                        <div style="font-size:14px; font-weight:600; margin-bottom:8px;">${escapeHtml(item.question || '')}</div>
+                        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Jawabanmu:</strong> ${escapeHtml(item.student_answer || '')}</div>
+                        <div style="font-size:13px; color:var(--text-main); margin-bottom:10px;"><strong>Evaluasi Penguji:</strong> ${escapeHtml(item.feedback || '')}</div>
+                        <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px; font-size:13px; color:var(--text-main); line-height:1.55;">
+                            <strong>Saran Jawaban Terbaik (Sesuai Isi Skripsimu):</strong><br>${escapeHtml(item.better_answer || '')}
                         </div>
                     </div>
                 `;
@@ -6008,28 +6508,46 @@
                 row.style.cursor = 'default';
                 row.style.alignItems = 'flex-start';
                 const directUrl = j.doi_url || j.pdf_url || '#';
+                const pdfUrl = j.pdf_url || directUrl;
+                const isIndo = (j.scope || '').toLowerCase().includes('indo');
+                const scopeBadge = isIndo
+                    ? '<span class="scope-badge-id">Indonesia · SINTA/Nasional</span>'
+                    : '<span class="scope-badge-int">Internasional · Global/Scopus</span>';
+                const citationStr = j.citation || `${j.author} (${j.year}). ${j.title}. ${j.journal}. ${directUrl}`;
+
                 row.innerHTML = `
                     <div class="project-row-left" style="align-items:flex-start;">
                         <div class="project-initial" style="margin-top:2px;">${idx + 1}</div>
                         <div style="min-width:0; flex:1;">
-                            <div class="project-row-title" style="font-size:14px; line-height:1.45; font-weight:600; color:var(--text-main);">${j.title}</div>
-                            <div class="project-row-meta" style="margin-top:4px;">${j.author} · <strong>${j.journal}</strong> (${j.year})</div>
+                            <div style="margin-bottom:4px;">${scopeBadge}</div>
+                            <div class="project-row-title" style="font-size:14px; line-height:1.45; font-weight:600; color:var(--text-main);">${escapeHtml(j.title || '')}</div>
+                            <div class="project-row-meta" style="margin-top:4px;">${escapeHtml(j.author || '')} · <strong>${escapeHtml(j.journal || '')}</strong> (${escapeHtml(j.year || '')})</div>
                             <div style="margin-top:6px; font-size:12px; word-break:break-all;">
-                                <a href="${directUrl}" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">${directUrl}</a>
+                                <a href="${escapeHtml(directUrl)}" target="_blank" rel="noopener" style="color:var(--primary); text-decoration:underline;">${escapeHtml(directUrl)}</a>
                             </div>
                         </div>
                     </div>
-                    <div class="project-row-action" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                        <a href="${directUrl}" target="_blank" rel="noopener" class="btn-outline" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
-                            <span>Unduh Jurnal</span>
+                    <div class="project-row-action" style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                        <button type="button" class="btn-outline btn-copy-cite" style="padding:6px 10px; font-size:11.5px; white-space:nowrap; border-radius:8px;">Salin Sitasi APA</button>
+                        <a href="${escapeHtml(directUrl)}" target="_blank" rel="noopener" class="btn-outline" style="padding:6px 11px; font-size:11.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Buka Jurnal</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         </a>
-                        <a href="${j.pdf_url}" target="_blank" rel="noopener" class="btn-primary" style="padding:7px 12px; font-size:12px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
-                            <span>Unduh PDF Otomatis</span>
+                        <a href="${escapeHtml(pdfUrl)}" target="_blank" rel="noopener" class="btn-primary" style="padding:6px 11px; font-size:11.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                            <span>Unduh PDF</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         </a>
                     </div>
                 `;
+                const copyBtn = row.querySelector('.btn-copy-cite');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(citationStr).then(() => {
+                            copyBtn.textContent = 'Sitasi Disalin ✓';
+                            setTimeout(() => { copyBtn.textContent = 'Salin Sitasi APA'; }, 1800);
+                        });
+                    });
+                }
                 list.appendChild(row);
             });
         }
@@ -6184,13 +6702,13 @@
 
             const msgBox = document.getElementById('qa-chat-messages');
 
-            // Render User Bubble
+            // Render User Bubble (escape HTML aman)
             const userImgHtml = qaAttachedImageBase64 ? `<img src="${qaAttachedImageBase64}" style="max-height:120px; border-radius:8px; margin-bottom:8px; display:block;">` : '';
             const userHtml = `
                 <div class="chat-msg user" style="display: flex; gap: 10px; align-items: flex-start; justify-content: flex-end; width: 100%;">
                     <div style="background: #2563eb; color: #ffffff; padding: 12px 16px; border-radius: 14px 4px 14px 14px; font-size: 13.5px; line-height: 1.6; max-width: 85%; word-break: break-word;">
                         ${userImgHtml}
-                        ${question ? question.replace(/\n/g, '<br>') : ''}
+                        ${question ? escapeHtml(question).replace(/\n/g, '<br>') : '<em>[Lampiran gambar untuk dianalisis]</em>'}
                     </div>
                 </div>
             `;
@@ -6225,14 +6743,22 @@
             }
 
             try {
-                // Include conversation context
-                const historyContext = qaChatHistory.slice(-4).map(h => `Tanya: ${h.q}\nJawab: ${h.a}`).join('\n\n');
-                const fullQuestion = historyContext ? `${historyContext}\n\nPertanyaan lanjutan: ${question}` : question;
+                // Kirim riwayat chat terstruktur ke backend solveQuestion
+                const structuredHistory = [];
+                qaChatHistory.slice(-4).forEach(h => {
+                    if (h.q) structuredHistory.push({ role: 'user', content: h.q });
+                    if (h.a) structuredHistory.push({ role: 'assistant', content: h.a });
+                });
 
                 const res = await fetch("{{ route('tools.solve') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ question: fullQuestion, image: currentImg, model: getSelectedModel() })
+                    body: JSON.stringify({
+                        question: question,
+                        history: structuredHistory,
+                        image: currentImg,
+                        model: getSelectedModel()
+                    })
                 });
                 const data = await res.json();
                 const typingEl = document.getElementById(typingId);

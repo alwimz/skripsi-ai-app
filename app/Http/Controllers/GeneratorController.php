@@ -30,6 +30,8 @@ class GeneratorController extends Controller
     protected AIManagerService $ai;
     private array $docxTempFiles = [];
     private array $docxFlowchartVmlMap = [];
+    private string $docxFontName = 'Times New Roman';
+    private float $docxFontSize = 12.0;
 
     public function __construct(AIManagerService $ai)
     {
@@ -55,14 +57,25 @@ class GeneratorController extends Controller
                     $xml = $zip->getFromName('word/document.xml');
                     $zip->close();
                     if ($xml !== false) {
-                        $xml = str_replace(['</w:p>', '</w:tr>', '<w:br/>'], ["\n", "\n", "\n"], $xml);
-                        return trim(preg_replace('/\s+/', ' ', strip_tags($xml)));
+                        // Pertahankan struktur baris paragraf, baris tabel, dan pemisah kolom tabel agar BAB I-V tetap utuh
+                        $xml = str_replace(
+                            ['</w:p>', '</w:tr>', '<w:br/>', '<w:br />', '<w:cr/>', '</w:tc>', '<w:tab/>'],
+                            ["\n", "\n", "\n", "\n", "\n", " | ", " "],
+                            $xml
+                        );
+                        $text = html_entity_decode(strip_tags($xml), ENT_QUOTES | ENT_XML1, 'UTF-8');
+                        $text = str_replace(["\r\n", "\r"], "\n", $text);
+                        $text = preg_replace('/[ \t]+/', ' ', $text);
+                        $text = preg_replace('/ *\n */', "\n", $text);
+                        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+                        return trim($text);
                     }
                 }
             }
 
             if (in_array($ext, ['txt', 'md', 'csv'])) {
-                return trim(file_get_contents($path));
+                $rawTxt = (string) file_get_contents($path);
+                return trim(str_replace(["\r\n", "\r"], "\n", $rawTxt));
             }
 
             if ($ext === 'pdf') {
@@ -76,40 +89,46 @@ class GeneratorController extends Controller
                             $uncompressed = @gzinflate($stream);
                         }
                         $source = $uncompressed !== false ? $uncompressed : $stream;
+                        $chunkLines = [];
 
-                        if (preg_match_all('/\(([^()]{2,})\)\s*Tj/s', $source, $tjMatches)) {
+                        if (preg_match_all('/\(((?:\\\\.|[^()\\\\]){1,})\)\s*Tj/s', $source, $tjMatches)) {
                             foreach ($tjMatches[1] as $txt) {
-                                $extracted[] = $txt;
+                                $chunkLines[] = stripslashes($txt);
                             }
                         }
                         if (preg_match_all('/\[(.*?)\]\s*TJ/s', $source, $tjArrMatches)) {
                             foreach ($tjArrMatches[1] as $arrTxt) {
-                                if (preg_match_all('/\(([^()]+)\)/', $arrTxt, $subMatches)) {
-                                    $extracted[] = implode('', $subMatches[1]);
+                                if (preg_match_all('/\(((?:\\\\.|[^()\\\\])+)\)/', $arrTxt, $subMatches)) {
+                                    $chunkLines[] = stripslashes(implode('', $subMatches[1]));
                                 }
                             }
+                        }
+                        if (!empty($chunkLines)) {
+                            $extracted[] = implode(' ', $chunkLines);
                         }
                     }
                 }
 
-                $text = trim(implode(' ', $extracted));
+                $text = trim(implode("\n", $extracted));
                 $text = preg_replace('/[^\P{C}\n]+/u', ' ', $text);
+                $text = preg_replace('/[ \t]+/', ' ', $text);
+                $text = preg_replace('/\n{3,}/', "\n\n", $text);
 
                 if (strlen($text) > 80) {
-                    return Str::limit($text, 15000, '');
+                    return Str::limit($text, 60000, '');
                 }
 
                 if (preg_match_all('/[a-zA-Z0-9\s,\.\-\(\)\:\;\/]{6,}/', $raw, $asciiMatches)) {
                     $fallback = implode(' ', $asciiMatches[0]);
                     $fallback = preg_replace('/\b(obj|endobj|stream|endstream|xref|trailer|Type|Font|Page|Filter|FlateDecode|Length)\b/i', '', $fallback);
-                    return Str::limit(trim(preg_replace('/\s+/', ' ', $fallback)), 12000, '');
+                    return Str::limit(trim(preg_replace('/\s+/', ' ', $fallback)), 30000, '');
                 }
             }
 
             if ($ext === 'doc') {
                 $raw = file_get_contents($path);
                 if (preg_match_all('/[a-zA-Z0-9\s,\.\-\(\)\:\;]{8,}/', $raw, $docMatches)) {
-                    return Str::limit(trim(implode(' ', $docMatches[0])), 12000, '');
+                    return Str::limit(trim(implode("\n", $docMatches[0])), 30000, '');
                 }
             }
         } catch (Throwable $e) {
@@ -117,6 +136,142 @@ class GeneratorController extends Controller
         }
 
         return 'Dokumen referensi: ' . $file->getClientOriginalName();
+    }
+
+    /**
+     * Susun ringkasan konteks seimbang per BAB (Abstrak & BAB I–V) dari teks lengkap file Word/PDF
+     * agar tidak terpotong di Halaman Sampul / Daftar Isi / Bab I saja.
+     */
+    private function buildSmartThesisContext(string $fullText, int $budget = 14500): string
+    {
+        $clean = trim(str_replace(["\r\n", "\r"], "\n", strip_tags($fullText)));
+        if (mb_strlen($clean) <= $budget) {
+            return $clean;
+        }
+
+        // Cari kemunculan terakhir/isi nyata (bukan baris Daftar Isi yang diikuti titik-titik atau angka halaman)
+        $findSectionOffset = function (string $text, string $pattern): ?int {
+            if (!preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
+                return null;
+            }
+            $chosen = null;
+            foreach ($matches[0] as $m) {
+                $offset = $m[1];
+                $lineEnd = strpos($text, "\n", $offset);
+                $line = $lineEnd !== false ? substr($text, $offset, $lineEnd - $offset) : substr($text, $offset, 120);
+                // Lewati entri Daftar Isi (biasanya punya titik-titik panjang atau diakhiri angka halaman)
+                if (preg_match('/\.{3,}|\t\s*\d+\s*$/', $line)) {
+                    continue;
+                }
+                $chosen = $offset;
+            }
+            return $chosen;
+        };
+
+        $sections = [
+            'ABSTRAK' => ['pattern' => '/(?:^|\n)\s*ABSTRAK\b/i', 'share' => 0.11],
+            'BAB I' => ['pattern' => '/(?:^|\n)\s*BAB\s+(?:I|1)\b(?:\s*[:\-\n]|\s+PENDAHULUAN)/i', 'share' => 0.19],
+            'BAB II' => ['pattern' => '/(?:^|\n)\s*BAB\s+(?:II|2)\b(?:\s*[:\-\n]|\s+TINJAUAN|\s+KAJIAN|\s+LANDASAN)/i', 'share' => 0.15],
+            'BAB III' => ['pattern' => '/(?:^|\n)\s*BAB\s+(?:III|3)\b(?:\s*[:\-\n]|\s+METOD)/i', 'share' => 0.20],
+            'BAB IV' => ['pattern' => '/(?:^|\n)\s*BAB\s+(?:IV|4)\b(?:\s*[:\-\n]|\s+HASIL|\s+PEMBAHASAN|\s+IMPLEMENTASI)/i', 'share' => 0.23],
+            'BAB V' => ['pattern' => '/(?:^|\n)\s*BAB\s+(?:V|5)\b(?:\s*[:\-\n]|\s+PENUTUP|\s+KESIMPULAN|\s+SIMPULAN)/i', 'share' => 0.12],
+        ];
+
+        $offsets = [];
+        foreach ($sections as $label => $cfg) {
+            $pos = $findSectionOffset($clean, $cfg['pattern']);
+            if ($pos !== null) {
+                $offsets[$label] = $pos;
+            }
+        }
+
+        // Jika terdeteksi minimal 2 bab nyata, potong proporsional tiap bab
+        if (count($offsets) >= 2) {
+            asort($offsets);
+            $orderedKeys = array_keys($offsets);
+            $chunks = [];
+
+            // Sertakan sedikit header/cover awal (judul & identitas)
+            $firstPos = reset($offsets);
+            if ($firstPos > 60) {
+                $chunks[] = "[SAMPUL / IDENTITAS DOKUMEN]\n" . mb_substr($clean, 0, min(700, $firstPos));
+            }
+
+            $totalShare = 0.0;
+            foreach ($orderedKeys as $k) {
+                $totalShare += $sections[$k]['share'];
+            }
+            $usableBudget = max(4000, $budget - 800);
+
+            foreach ($orderedKeys as $idx => $label) {
+                $start = $offsets[$label];
+                $end = isset($orderedKeys[$idx + 1]) ? $offsets[$orderedKeys[$idx + 1]] : strlen($clean);
+                $rawSlice = trim(substr($clean, $start, max(0, $end - $start)));
+                $alloc = (int) floor($usableBudget * ($sections[$label]['share'] / max(0.01, $totalShare)));
+                if ($rawSlice !== '') {
+                    $chunks[] = "[{$label}]\n" . Str::limit($rawSlice, max(900, $alloc), ' ...');
+                }
+            }
+
+            return implode("\n\n", $chunks);
+        }
+
+        // Fallback dokumen tanpa heading BAB: ambil Awal (42%) + Tengah (28%) + Akhir (30%)
+        $len = mb_strlen($clean);
+        $headLen = (int) floor($budget * 0.42);
+        $midLen = (int) floor($budget * 0.28);
+        $tailLen = $budget - $headLen - $midLen;
+        $midStart = max($headLen, (int) floor(($len - $midLen) / 2));
+
+        return "[BAGIAN AWAL DOKUMEN]\n" . mb_substr($clean, 0, $headLen)
+            . "\n\n[BAGIAN TENGAH DOKUMEN (METODOLOGI/ANALISIS)]\n" . mb_substr($clean, $midStart, $midLen)
+            . "\n\n[BAGIAN AKHIR DOKUMEN (HASIL & KESIMPULAN)]\n" . mb_substr($clean, max(0, $len - $tailLen));
+    }
+
+    /**
+     * Susun konteks naskah proyek DB secara seimbang lintas BAB I–V (bukan terpotong di Bab I).
+     */
+    private function buildProjectThesisContext(Project $proj, int $budget = 14500): string
+    {
+        $meta = $this->getProjectMeta($proj);
+        $header = "Judul: {$proj->judul}\nProgram Studi: {$proj->prodi}\nMetode Penelitian: {$proj->metode_penelitian}";
+        if (!empty($meta['data_awal'])) {
+            $header .= "\nData Awal: " . Str::limit($meta['data_awal'], 400);
+        }
+        if (!empty($meta['data_riil']) && is_array($meta['data_riil'])) {
+            $dr = array_filter($meta['data_riil']);
+            if (!empty($dr)) {
+                $header .= "\nData Olahan Riil: " . Str::limit(json_encode($dr, JSON_UNESCAPED_UNICODE), 700);
+            }
+        }
+
+        $parts = [
+            'BAB I PENDAHULUAN' => ['text' => trim(strip_tags((string) $proj->bab1_content)), 'weight' => 0.19],
+            'BAB II TINJAUAN PUSTAKA' => ['text' => trim(strip_tags((string) $proj->bab2_content)), 'weight' => 0.15],
+            'BAB III METODOLOGI PENELITIAN' => ['text' => trim(strip_tags((string) $proj->bab3_content)), 'weight' => 0.21],
+            'BAB IV HASIL DAN PEMBAHASAN' => ['text' => trim(strip_tags((string) $proj->bab4_content)), 'weight' => 0.28],
+            'BAB V PENUTUP' => ['text' => trim(strip_tags((string) $proj->bab5_content)), 'weight' => 0.12],
+            'DAFTAR PUSTAKA' => ['text' => trim(strip_tags((string) $proj->daftar_pustaka)), 'weight' => 0.05],
+        ];
+
+        $availableWeight = 0.0;
+        foreach ($parts as $p) {
+            if ($p['text'] !== '') {
+                $availableWeight += $p['weight'];
+            }
+        }
+
+        $chunks = [$header];
+        $usable = max(4000, $budget - mb_strlen($header) - 200);
+        foreach ($parts as $label => $p) {
+            if ($p['text'] === '') {
+                continue;
+            }
+            $alloc = (int) floor($usable * ($p['weight'] / max(0.01, $availableWeight)));
+            $chunks[] = "=== {$label} ===\n" . Str::limit($p['text'], max(700, $alloc), ' ...');
+        }
+
+        return implode("\n\n", $chunks);
     }
 
     /**
@@ -496,6 +651,11 @@ class GeneratorController extends Controller
             $items[] = ['label' => 'DAFTAR GAMBAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         }
 
+        $lampiranList = $this->extractLampiranForProject($project, $isProposal);
+        if (!empty($lampiranList)) {
+            $items[] = ['label' => 'DAFTAR LAMPIRAN', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+        }
+
         $pageMap = $this->computeDynamicChapterPages($project, $isProposal);
         $chapters = [
             'bab1' => ['num' => 'I', 'title' => 'PENDAHULUAN'],
@@ -541,7 +701,101 @@ class GeneratorController extends Controller
             $items[] = ['label' => 'DAFTAR PUSTAKA', 'page' => (string) ($pageMap['daftar_pustaka']['start'] ?? 1), 'level' => 1];
         }
 
+        if (!empty($lampiranList)) {
+            $items[] = ['label' => 'LAMPIRAN', 'page' => (string) $lampiranList[0]['page'], 'level' => 1];
+        }
+
         return $items;
+    }
+
+    /**
+     * Ambil daftar lampiran yang diunggah mahasiswa beserta estimasi nomor halamannya setelah Daftar Pustaka.
+     */
+    private function extractLampiranForProject(Project $project, bool $isProposal = false): array
+    {
+        $meta = $this->getProjectMeta($project);
+        $rawList = $meta['lampiran'] ?? [];
+        if (!is_array($rawList) || empty($rawList)) {
+            return [];
+        }
+
+        $pageMap = $this->computeDynamicChapterPages($project, $isProposal);
+        $curPage = 1;
+        foreach ($pageMap as $pm) {
+            if (!empty($pm['end']) && $pm['end'] >= $curPage) {
+                $curPage = $pm['end'] + 1;
+            }
+        }
+
+        $result = [];
+        $idx = 0;
+        foreach ($rawList as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $title = trim((string) ($item['title'] ?? ''));
+            $img = trim((string) ($item['image_base64'] ?? ''));
+            $text = trim((string) ($item['content'] ?? ''));
+            if ($title === '' && $img === '' && $text === '') {
+                continue;
+            }
+            $idx++;
+            $labelTitle = $title !== '' ? $title : "Dokumen Lampiran {$idx}";
+            $fullLabel = preg_match('/^lampiran\s+\d+/i', $labelTitle)
+                ? $labelTitle
+                : "Lampiran {$idx} {$labelTitle}";
+            $result[] = [
+                'index' => $idx,
+                'title' => $labelTitle,
+                'label' => $fullLabel,
+                'image_base64' => $img,
+                'content' => $text,
+                'file_name' => trim((string) ($item['file_name'] ?? '')),
+                'page' => $curPage,
+            ];
+            $extraPages = max(1, (int) ceil(mb_strlen($text) / 2600));
+            $curPage += $extraPages;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Format entri Daftar Pustaka HTML dengan tautan DOI & URL yang dapat diklik langsung.
+     */
+    private function linkifyDaftarPustakaHtml(string $text): string
+    {
+        $safe = $this->pdfSafeText($text);
+        // Ubah URL penuh (https://doi.org/... atau https://...) menjadi hyperlink biru bergaris bawah
+        $safe = preg_replace_callback(
+            '/(https?:\/\/[^\s<>"]+)/i',
+            function ($m) {
+                $rawUrl = $m[1];
+                $trailing = '';
+                while (preg_match('/[\.,;\)\]]$/', $rawUrl, $tm)) {
+                    $trailing = $tm[0] . $trailing;
+                    $rawUrl = substr($rawUrl, 0, -1);
+                }
+                return '<a href="' . $rawUrl . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline;">' . $rawUrl . '</a>' . $trailing;
+            },
+            $safe
+        );
+        // Ubah format "doi: 10.xxxx/..." yang belum berupa URL menjadi link https://doi.org/...
+        $safe = preg_replace_callback(
+            '/(?<!\/)\bdoi:\s*(10\.\d{4,9}\/[^\s<>"]+)/i',
+            function ($m) {
+                $doiVal = $m[1];
+                $trailing = '';
+                while (preg_match('/[\.,;\)\]]$/', $doiVal, $tm)) {
+                    $trailing = $tm[0] . $trailing;
+                    $doiVal = substr($doiVal, 0, -1);
+                }
+                $href = 'https://doi.org/' . $doiVal;
+                return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline;">doi:' . $doiVal . '</a>' . $trailing;
+            },
+            $safe
+        );
+        return $safe;
     }
 
     private function extractTablesForProject(Project $project, bool $isProposal = false): array
@@ -798,9 +1052,8 @@ class GeneratorController extends Controller
                 $pts = ($x + $skew) . ",{$iy} " . ($x + $bw) . ",{$iy} " . ($x + $bw - $skew) . "," . ($iy + $bh) . " {$x}," . ($iy + $bh);
                 $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
             } elseif ($type === 'subprocess') {
+                // Kotak proses tunggal bersih tanpa garis ganda vertikal agar seragam dengan Word & rapi di PDF
                 $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
-                $svgParts[] = "<line x1=\"" . ($x + 14) . "\" y1=\"{$iy}\" x2=\"" . ($x + 14) . "\" y2=\"" . ($iy + $bh) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
-                $svgParts[] = "<line x1=\"" . ($x + $bw - 14) . "\" y1=\"{$iy}\" x2=\"" . ($x + $bw - 14) . "\" y2=\"" . ($iy + $bh) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
             } elseif ($type === 'decision') {
                 $pts = "{$cx},{$iy} " . ($x + $bw) . ",{$cy} {$cx}," . ($iy + $bh) . " {$x},{$cy}";
                 $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.5\"/>";
@@ -1326,12 +1579,16 @@ class GeneratorController extends Controller
                 ];
 
                 if ($hasProviderCol) {
-                    $detectedProvider = (str_starts_with($cleanKey, 'AIza') || str_starts_with($cleanKey, 'AQ.'))
-                        ? 'gemini'
-                        : 'deepseek';
-                    $provider = $request->provider ?: $detectedProvider;
-                    if ($provider === 'groq')
+                    $detectedProvider = null;
+                    if (str_starts_with($cleanKey, 'AIza') || str_starts_with($cleanKey, 'AQ.') || str_starts_with($cleanKey, 'ya29.')) {
+                        $detectedProvider = 'gemini';
+                    } elseif (str_starts_with($cleanKey, 'sk-') || str_starts_with($cleanKey, 'gsk_')) {
+                        $detectedProvider = 'deepseek';
+                    }
+                    $provider = $detectedProvider ?: ($request->provider ?: 'deepseek');
+                    if ($provider === 'groq') {
                         $provider = 'deepseek';
+                    }
                     $data['provider'] = $provider;
                 }
 
@@ -1390,7 +1647,7 @@ class GeneratorController extends Controller
             if ($provider === 'gemini') {
                 $isOAuthBearer = str_starts_with($rawKey, 'ya29.');
                 $client = new \GuzzleHttp\Client(['timeout' => 14, 'verify' => false]);
-                $testModels = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+                $testModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-pro'];
                 $lastEx = null;
 
                 foreach ($testModels as $testModel) {
@@ -1695,15 +1952,15 @@ class GeneratorController extends Controller
         $metode = $request->input('metode') ?: 'Kuantitatif / Kualitatif / R&D';
         $model = $request->input('model', 'auto');
 
-        $prompt = "Sebagai Dosen Pembimbing Skripsi Senior di Indonesia, berikan tepat 12 rekomendasi judul skripsi S1 terbaik untuk:
+        $prompt = "Sebagai Dosen Pembimbing Skripsi Senior Perguruan Tinggi Indonesia (2025–2026), berikan tepat 12 rekomendasi judul skripsi S1 terbaik untuk:
 - Topik / Bidang Penelitian: {$request->topik}
 - Metodologi: {$metode}
 - Program Studi: {$prodi}
 
-Syarat:
-1. Spesifik, orisinal, relevan dengan riset terbaru, dan memiliki variabel atau objek kajian yang jelas serta terukur.
-2. Gunakan Bahasa Indonesia akademik baku dan bervariasi polanya (tidak monoton).
-3. Output WAJIB HANYA daftar judul (1 baris 1 judul), tepat 12 baris, tanpa kata pengantar, tanpa keterangan tambahan, dan tanpa nomor urut.";
+Syarat WAJIB:
+1. Spesifik, orisinal, relevan dengan tren riset 2025–2026, serta secara eksplisit mencerminkan metodologi \"{$metode}\" (jika Kuantitatif cantumkan variabel bebas & terikat yang terukur; jika Kualitatif fokus pada analisis/strategi/fenomena & lokus nyata; jika R&D/IT cantumkan sistem/algoritma & metrik evaluasi; jika Hukum cantumkan analisis yuridis/regulasi/studi kasus).
+2. Gunakan Bahasa Indonesia akademik baku sesuai EYD V, pola kalimat bervariasi (tidak monoton mengulang awalan yang sama), dan hindari istilah klise.
+3. Output WAJIB HANYA daftar judul (1 baris 1 judul), tepat 12 baris, tanpa kata pengantar, tanpa keterangan tambahan, tanpa tanda petik, dan tanpa nomor urut.";
 
         try {
             $content = $this->ai->generateText($prompt, $model);
@@ -1832,12 +2089,13 @@ Syarat:
                 }
             }
 
-            // CrossRef query jika hasil masih sedikit (database DOI publikasi nyata dunia)
+            // CrossRef query jika hasil masih sedikit (database DOI publikasi nyata dunia 2021-2026)
             if (count($journalsId) + count($journalsInt) < 4) {
                 $crRes = Http::timeout(10)->withHeaders($headers)->get('https://api.crossref.org/works', [
                     'query' => $keyword,
-                    'rows' => 8,
-                    'select' => 'title,author,container-title,published,DOI,URL'
+                    'filter' => 'from-pub-date:2021-01-01,until-pub-date:2026-12-31',
+                    'rows' => 10,
+                    'select' => 'title,author,container-title,published,volume,issue,page,DOI,URL'
                 ]);
                 if ($crRes->successful()) {
                     foreach ($crRes->json()['message']['items'] ?? [] as $crItem) {
@@ -1850,18 +2108,23 @@ Syarat:
                         }
                         $cAuthStr = !empty($cAuthors) ? implode(', ', array_filter($cAuthors)) : 'Peneliti';
                         $cVenue = !empty($crItem['container-title'][0]) ? $crItem['container-title'][0] : 'Jurnal Ilmiah Bereputasi';
-                        $cYear = $crItem['published']['date-parts'][0][0] ?? '2023';
-                        $cUrl = $crItem['URL'] ?? ('https://doi.org/' . ($crItem['DOI'] ?? ''));
-                        $cScope = (preg_match('/[a-z]/i', $keyword) && (str_contains(strtolower($cTitle), 'indonesia') || str_contains(strtolower($cVenue), 'jurnal'))) ? 'Indonesia' : 'Internasional';
+                        $cYear = $crItem['published']['date-parts'][0][0] ?? '2024';
+                        $cVol = trim((string) ($crItem['volume'] ?? ''));
+                        $cIss = trim((string) ($crItem['issue'] ?? ''));
+                        $cPage = trim((string) ($crItem['page'] ?? ''));
+                        $cBib = ($cVol !== '' ? ", {$cVol}" . ($cIss !== '' ? "({$cIss})" : '') : '') . ($cPage !== '' ? ", {$cPage}" : '');
+                        $cUrl = !empty($crItem['DOI']) ? ('https://doi.org/' . $crItem['DOI']) : ($crItem['URL'] ?? ('https://scholar.google.com/scholar?q=' . urlencode($cTitle)));
+                        $cPdfUrl = 'https://scholar.google.com/scholar?q=' . urlencode($cTitle . ' filetype:pdf');
+                        $cScope = (str_contains(strtolower($cTitle), 'indonesia') || str_contains(strtolower($cVenue), 'jurnal') || preg_match('/\b(pengaruh|analisis|implementasi|penerapan|pengembangan|studi)\b/i', $cTitle)) ? 'Indonesia' : 'Internasional';
 
                         $crEntry = [
                             'title' => $cTitle,
                             'author' => $cAuthStr,
                             'journal' => $cVenue,
                             'year' => (string) $cYear,
-                            'pdf_url' => $cUrl,
+                            'pdf_url' => $cPdfUrl,
                             'doi_url' => $cUrl,
-                            'citation' => "{$cAuthStr} ({$cYear}). {$cTitle}. {$cVenue}. {$cUrl}",
+                            'citation' => "{$cAuthStr} ({$cYear}). {$cTitle}. {$cVenue}{$cBib}. {$cUrl}",
                             'scope' => $cScope,
                             'is_real_oa' => true,
                         ];
@@ -2032,7 +2295,15 @@ Pertanyaan Mahasiswa:
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
+        $isEnglishMode = str_contains(strtolower($bahasa), 'inggris') || str_contains(strtolower($bahasa), 'english');
+        $bahasaOverride = $isEnglishMode
+            ? "\nLANGUAGE REQUIREMENT (HIGHEST PRIORITY): The student selected ENGLISH writing language. Write ALL chapter headings, sub-headings, paragraphs, tables, diagram labels, and citations in formal Academic English (American/British consistent), NOT Indonesian!\n"
+            : '';
         $sumberArr = is_array($sitasi['sumber'] ?? null) ? implode(', ', $sitasi['sumber']) : 'Umum, Terindeks Sinta';
+        $formatNomor = (string) ($meta['format_nomor'] ?? '1.1');
+        $formatNomorRule = str_starts_with(strtoupper(trim($formatNomor)), 'A')
+            ? '8. Format Sub-bab: Tulis judul sub-bab pada baris tersendiri menggunakan PENOMORAN HURUF KAPITAL (contoh: A. Latar Belakang Masalah, B. Rumusan Masalah, dst., anak sub-bab: 1., 2., dst.).'
+            : '8. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah, 1.2 Rumusan Masalah, dst.).';
 
         $skillPath = resource_path('skills/skripsi_indonesia_skill.md');
         $skillRules = file_exists($skillPath)
@@ -2066,7 +2337,7 @@ KONTEKS PENELITIAN:
 - Program Studi: {$project->prodi}
 - Metode Penelitian: {$project->metode_penelitian}
 - Pengaturan Sitasi: Gaya {$gayaSitasi} | Tahun Terbit Minimum: {$tahunMin} | Asal Referensi: {$asalRef} ({$sumberArr}) | Bahasa Penulisan: {$bahasa}
-{$extraContext}{$verifiedRefText}
+{$bahasaOverride}{$extraContext}{$verifiedRefText}
 PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 {$skillRules}
 
@@ -2093,7 +2364,7 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
    - Setiap tabel wajib memiliki nomor dan judul pada baris tersendiri (contoh: Tabel 3.1 Operasionalisasi Variabel).
    - Sajikan dalam format Markdown Table lengkap dan presisi, pastikan sel-sel terisi pada kolom yang tepat dan tidak bergeser.
 7. Kepatuhan Pedoman Kampus: Jika terdapat Pedoman Kampus Mahasiswa di atas, terapkan seluruh konvensi penamaan, pembagian sub-bab, dan kaidah yang diminta kampus sebagai aturan tertinggi.
-8. Format Sub-bab: Tulis nomor sub-bab pada baris tersendiri menggunakan penomoran desimal (contoh: 1.1 Latar Belakang Masalah).
+{$formatNomorRule}
 9. Tanpa Simbol Markdown Heading: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
     }
 
@@ -2239,9 +2510,18 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
             || str_contains($metodeLower, 'prototype')
             || str_contains($metodeLower, 'rekayasa');
 
+        $isPtk = str_contains($metodeLower, 'ptk')
+            || str_contains($metodeLower, 'tindakan kelas');
+
+        $isStudiPustaka = str_contains($metodeLower, 'studi pustaka')
+            || str_contains($metodeLower, 'library research');
+
+        $isDataSekunder = str_contains($metodeLower, 'data sekunder');
+
+        $isMixedMethod = str_contains($metodeLower, 'mixed');
+
         $isKualitatif = str_contains($metodeLower, 'kualitatif')
-            || str_contains($metodeLower, 'normatif')
-            || str_contains($metodeLower, 'pustaka');
+            || str_contains($metodeLower, 'normatif');
 
         $isPengaruh = str_contains($judulLower, 'pengaruh')
             || str_contains($judulLower, 'hubungan')
@@ -2505,8 +2785,125 @@ Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 2.4 Hipotesis / Proposisi Penelitian."
         };
 
-        // Bab III Sesuai Rumpun Ilmu (WAJIB Flowchart Vertikal Standar ANSI & Metodologi Valid di SEMUA Jurusan)
+        // Bab III Sesuai Rumpun Ilmu & Metode Penelitian (WAJIB Flowchart Vertikal Standar ANSI & Metodologi Valid di SEMUA Jurusan)
         $bab3Prompt = match (true) {
+            $isStudiPustaka => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN STUDI PUSTAKA / LIBRARY RESEARCH) secara mendalam (MINIMAL 1700 - 2300 KATA).
+3.1 Jenis dan Pendekatan Penelitian (Penelitian Kepustakaan / Library Research dengan pendekatan kualitatif deskriptif-analitis atau sistematis).
+3.2 Sumber Data Penelitian (Sumber Data Primer berupa buku induk, dokumen resmi, atau jurnal utama; Sumber Data Sekunder berupa artikel ilmiah SINTA/Scopus {$tahunMin}-2026 dan prosiding).
+3.3 Kriteria Inklusi, Eksklusi, dan Strategi Pencarian Literatur (WAJIB sajikan Tabel 3.1 Kriteria Seleksi Literatur: | Aspek | Kriteria Inklusi | Kriteria Eksklusi |).
+3.4 Teknik Pengumpulan Data Kepustakaan (Dokumentasi, penelusuran basis data akademik, inventarisasi & reduksi literatur).
+3.5 Teknik Analisis Data (Analisis Isi / Content Analysis, Analisis Komparatif, dan Sintesis Tematik) serta Uji Keabsahan Data (Triangulasi sumber & ketekunan telaah).
+3.6 Prosedur Penelitian Kepustakaan:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Studi Pustaka
+```
+[Mulai]
+↓
+[Identifikasi Topik & Perumusan Masalah '{$project->judul}']
+↓
+[Penelusuran Literatur pada Basis Data Ilmiah (OpenAlex/SINTA/Scopus)]
+↓
+[Penyaringan Literatur Berdasarkan Kriteria Inklusi & Eksklusi]
+↓
+[Pengelompokan & Pengkodean Tematik Sumber Primer dan Sekunder]
+↓
+[Evaluasi Validitas & Triangulasi Sumber Literatur]
+↓
+[Sintesis Analisis Isi & Penyusunan Temuan Teoretis]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```",
+
+            $isPtk => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN TINDAKAN KELAS / PTK) secara mendalam (MINIMAL 1800 - 2400 KATA).
+3.1 Jenis dan Desain Penelitian Tindakan Kelas (Model Kemmis & McTaggart: Perencanaan, Pelaksanaan Tindakan, Observasi, dan Refleksi dalam Siklus I & Siklus II).
+3.2 Subjek, Tempat, dan Waktu Penelitian (Karakteristik siswa, kelas, sekolah, dan jadwal siklus).
+3.3 Prosedur Pelaksanaan Tindakan (Uraikan rinci tahapan Pra-Siklus, Siklus I, dan Siklus II beserta alur diagram):
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Tindakan Kelas
+```
+[Mulai]
+↓
+[Observasi Pra-Siklus & Identifikasi Masalah Pembelajaran]
+↓
+[Perencanaan Tindakan Siklus I (RPP, LKPD & Instrumen Evaluasi)]
+↓
+[Pelaksanaan Tindakan & Observasi Pembelajaran Siklus I]
+↓
+[Refleksi & Evaluasi Ketuntasan Belajar Siklus I (KKM >= 75%?)]
+↓
+[Perencanaan & Pelaksanaan Perbaikan Siklus II]
+↓
+[Analisis Peningkatan Hasil Belajar Antar-Siklus]
+↓
+[Penyusunan Laporan Hasil PTK]
+↓
+[Selesai]
+```
+3.4 Teknik dan Instrumen Pengumpulan Data (Tes hasil belajar per siklus, lembar observasi aktivitas guru & siswa, dokumentasi; sajikan Tabel 3.1 Kisi-kisi Instrumen PTK).
+3.5 Teknik Analisis Data (Rumus Nilai Rata-Rata, Persentase Ketuntasan Klasikal = (Jumlah Siswa Tuntas / Total Siswa) × 100%, dan Peningkatan Antar-Siklus).
+3.6 Indikator Keberhasilan Tindakan (Kriteria Ketuntasan Minimal / KKM individu & ketuntasan klasikal minimal 80%–85%).",
+
+            $isMixedMethod => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN MIXED METHOD) secara mendalam (MINIMAL 1800 - 2500 KATA).
+3.1 Jenis dan Desain Penelitian Mixed Method (Jelaskan desain Sequential Explanatory / Exploratory / Convergent Parallel menurut Creswell & Creswell).
+3.2 Lokasi, Objek, dan Waktu Penelitian.
+3.3 Populasi, Sampel Kuantitatif, dan Informan Kualitatif (Rumus Slovin untuk sampel survei + Purposive Sampling untuk informan wawancara mendalam).
+3.4 Variabel Penelitian, Definisi Operasional, dan Fokus Kajian Kualitatif (WAJIB sajikan Tabel 3.1 Matriks Integrasi Variabel Kuantitatif & Fokus Kualitatif).
+3.5 Teknik Pengumpulan Data & Uji Kualitas Data (Tahap Kuantitatif: kuesioner, validitas & reliabilitas; Tahap Kualitatif: wawancara semi-terstruktur, observasi, triangulasi sumber & teknik).
+3.6 Teknik Analisis Data Campuran (Analisis statistik regresi/uji hipotesis dilanjutkan reduksi data, penyajian, dan integrasi temuan kuantitatif-kualitatif).
+3.7 Prosedur Penelitian Mixed Method:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Mixed Method
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Kajian Literatur '{$project->judul}']
+↓
+[Pengumpulan Data Tahap I: Survei Kuesioner Kuantitatif]
+↓
+[Analisis Statistik Kuantitatif & Uji Hipotesis]
+↓
+[Pengumpulan Data Tahap II: Wawancara Mendalam Kualitatif]
+↓
+[Evaluasi Validitas, Reliabilitas & Triangulasi Data]
+↓
+[Integrasi & Interpretasi Temuan Kuantitatif-Kualitatif]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```",
+
+            $isDataSekunder => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUANTITATIF DATA SEKUNDER) secara mendalam (MINIMAL 1800 - 2500 KATA).
+3.1 Jenis dan Pendekatan Penelitian (Kuantitatif Asosiatif / Kausal berbasis Data Sekunder / Time Series / Data Panel).
+3.2 Sumber Data dan Periode Pengamatan (BEI/IDX, Laporan Keuangan Tahunan, BPS, OJK, atau basis data resmi periode pengamatan terkini).
+3.3 Populasi, Sampel, dan Kriteria Purposive Sampling (WAJIB sajikan Tabel 3.1 Kriteria Seleksi Sampel Penelitian).
+3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan Tabel 3.2 Operasionalisasi Variabel & Rumus Pengukuran Rasio/Indikator).
+3.5 Teknik Analisis Data (Statistik Deskriptif, Uji Pemilihan Model Regresi Data Panel [Uji Chow, Uji Hausman, Uji Lagrange Multiplier] atau Uji Asumsi Klasik [Normalitas, Multikolinearitas, Heteroskedastisitas, Autokorelasi], serta Uji Hipotesis [Uji t, Uji F, R²] dalam notasi Unicode bersih).
+3.6 Prosedur Penelitian Data Sekunder:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Data Sekunder
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Penetapan Variabel '{$project->judul}']
+↓
+[Pengumpulan Data Sekunder Resmi (BEI / BPS / Laporan Tahunan)]
+↓
+[Seleksi Sampel Purposive & Tabulasi Data Panel / Time Series]
+↓
+[Uji Statistik Deskriptif & Uji Asumsi Klasik / Pemilihan Model]
+↓
+[Estimasi Model Regresi & Evaluasi Signifikansi (Uji t, Uji F, R²)]
+↓
+[Interpretasi Empiris & Pembahasan Hasil]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```",
+
             $isInformatika => "
 TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KOMPUTASI / INFORMATIKA) secara mendalam (MINIMAL 1800 - 2500 KATA).
 WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
@@ -3154,7 +3551,8 @@ INSTRUKSI MUTLAK:
 
         $instruction = trim($request->input('instruction', ''));
         if (empty($instruction) && empty($request->image_base64) && empty($docExtract)) {
-            return response()->json(['error' => 'Masukkan catatan revisi, gambar coretan dosen, atau dokumen revisi.'], 422);
+            $errMsg = 'Masukkan catatan revisi, gambar coretan dosen, atau dokumen revisi.';
+            return response()->json(['status' => 'error', 'message' => $errMsg, 'error' => $errMsg], 422);
         }
 
         $chapterLabels = [
@@ -3256,18 +3654,102 @@ ATURAN REVISI (SANGAT KETAT):
                 'content' => $cleanContent,
             ]);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Gagal merevisi bab: ' . $e->getMessage()], 500);
+            $errMsg = 'Gagal merevisi bab: ' . $e->getMessage();
+            return response()->json(['status' => 'error', 'message' => $errMsg, 'error' => $errMsg], 500);
         }
+    }
+
+    public function extractLampiranFile(Request $request, $id)
+    {
+        Project::where('user_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'file' => 'required|file|max:3600',
+        ]);
+
+        $file = $request->file('file');
+        $text = $this->extractTextFromUploadedFile($file);
+        return response()->json([
+            'status' => 'success',
+            'file_name' => $file->getClientOriginalName(),
+            'content' => Str::limit(trim($text), 12000, ''),
+        ]);
     }
 
     public function saveChapterManual(Request $request, $id)
     {
         $request->validate([
-            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo,identity',
-            'content' => 'required_unless:chapter,identity|string',
+            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo,identity,data_riil,lampiran',
+            'content' => 'required_unless:chapter,identity,data_riil,lampiran|string',
         ]);
 
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($request->chapter === 'lampiran') {
+            $meta = $this->getProjectMeta($project);
+            $rawItems = $request->input('lampiran', []);
+            if (!is_array($rawItems)) {
+                $rawItems = [];
+            }
+            $cleanItems = [];
+            foreach (array_slice($rawItems, 0, 15) as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $title = trim((string) ($item['title'] ?? ''));
+                $img = trim((string) ($item['image_base64'] ?? ''));
+                if ($img !== '' && !str_starts_with($img, 'data:image/')) {
+                    $img = 'data:image/jpeg;base64,' . $img;
+                }
+                $text = Str::limit(trim((string) ($item['content'] ?? '')), 12000, '');
+                $fname = trim((string) ($item['file_name'] ?? ''));
+                if ($title === '' && $img === '' && $text === '') {
+                    continue;
+                }
+                $cleanItems[] = [
+                    'id' => (string) ($item['id'] ?? Str::uuid()),
+                    'title' => $title ?: 'Dokumen Lampiran',
+                    'image_base64' => $img,
+                    'content' => $text,
+                    'file_name' => $fname,
+                ];
+            }
+            $meta['lampiran'] = $cleanItems;
+            // Hapus cache halaman depan agar Daftar Isi & Daftar Lampiran otomatis terbarui
+            unset($meta['front_matter_html']);
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+            $project->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Lampiran berhasil disimpan & otomatis diperbarui di Daftar Isi.',
+                'lampiran' => $cleanItems,
+            ]);
+        }
+
+        if ($request->chapter === 'data_riil') {
+            $meta = $this->getProjectMeta($project);
+            $rawData = $request->input('data_riil', []);
+            if (!is_array($rawData)) {
+                $rawData = [];
+            }
+            $cleanData = [
+                'metode' => trim((string) ($rawData['metode'] ?? '')),
+                'sampel' => trim((string) ($rawData['sampel'] ?? '')),
+                'rumus' => trim((string) ($rawData['rumus'] ?? '')),
+                'lokasi' => trim((string) ($rawData['lokasi'] ?? '')),
+                'metrik' => trim((string) ($rawData['metrik'] ?? '')),
+                'evaluasi' => trim((string) ($rawData['evaluasi'] ?? '')),
+            ];
+            $meta['data_riil'] = $cleanData;
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+            $project->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data olahan & rumus penelitian berhasil disimpan ke proyek.',
+                'data_riil' => $cleanData,
+            ]);
+        }
 
         if ($request->chapter === 'identity') {
             $meta = $this->getProjectMeta($project);
@@ -3343,6 +3825,70 @@ ATURAN REVISI (SANGAT KETAT):
     // 5. DOWNLOAD DOCX & PDF (TERMASUK CONTOH PUBLIK LANDING PAGE)
     // =========================================================================
 
+    /**
+     * Escape teks untuk HTML Dompdf sekaligus mengubah subskrip/superskrip Unicode
+     * menjadi <sub>/<sup> dan membungkus simbol Yunani/matematika dengan DejaVu Serif
+     * agar tidak pernah berubah menjadi tanda tanya (?) di font Times-Roman CPDF.
+     */
+    private function pdfSafeText(string $text): string
+    {
+        // Ubah kombinasi huruf + combining circumflex / precomposed hat agar rapi
+        $text = str_replace(
+            ['ŷ', 'Ŷ', 'ĉ', 'Ĉ', 'x̄', 'X̄', 'ȳ', 'Ȳ', 'p̂', 'P̂'],
+            ['y&#770;', 'Y&#770;', 'c&#770;', 'C&#770;', 'x&#772;', 'X&#772;', 'y&#772;', 'Y&#772;', 'p&#770;', 'P&#770;'],
+            $text
+        );
+
+        // Escape karakter HTML dulu (biarkan entitas &#770;/&#772; yang baru disisipkan)
+        $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+
+        // Ubah subskrip Unicode menjadi tag <sub> agar tajam di Times New Roman
+        $subMap = [
+            '₀' => '0', '₁' => '1', '₂' => '2', '₃' => '3', '₄' => '4',
+            '₅' => '5', '₆' => '6', '₇' => '7', '₈' => '8', '₉' => '9',
+            'ᵢ' => 'i', 'ⱼ' => 'j', 'ₖ' => 'k', 'ₙ' => 'n', 'ₘ' => 'm',
+            'ₓ' => 'x', 'ₐ' => 'a', 'ₑ' => 'e', 'ₒ' => 'o', 'ᵣ' => 'r',
+            'ₜ' => 't', 'ᵤ' => 'u', 'ᵥ' => 'v', 'ₚ' => 'p', 'ₛ' => 's',
+            '₊' => '+', '₋' => '-', '₌' => '=', '₍' => '(', '₎' => ')',
+        ];
+        foreach ($subMap as $u => $ascii) {
+            $escaped = str_replace($u, '<sub style="font-size:75%; line-height:0;">' . $ascii . '</sub>', $escaped);
+        }
+
+        // Ubah superskrip Unicode menjadi tag <sup>
+        $supMap = [
+            '⁰' => '0', '¹' => '1', '²' => '2', '³' => '3', '⁴' => '4',
+            '⁵' => '5', '⁶' => '6', '⁷' => '7', '⁸' => '8', '⁹' => '9',
+            'ⁱ' => 'i', 'ⁿ' => 'n', 'ᵗ' => 't', '⁺' => '+', '⁻' => '-', '⁼' => '=',
+        ];
+        foreach ($supMap as $u => $ascii) {
+            $escaped = str_replace($u, '<sup style="font-size:75%; line-height:0;">' . $ascii . '</sup>', $escaped);
+        }
+
+        // Gabungkan sub/sup berurutan agar bersih
+        $escaped = preg_replace('/<\/sub><sub style="font-size:75%; line-height:0;">/', '', $escaped);
+        $escaped = preg_replace('/<\/sup><sup style="font-size:75%; line-height:0;">/', '', $escaped);
+
+        // Bungkus huruf bertopi (c&#770;, y&#770;, x&#772;) dengan DejaVu Serif
+        $escaped = preg_replace(
+            '/([A-Za-z](?:&#770;|&#772;))/',
+            '<span style="font-family:\'DejaVu Serif\', serif;">$1</span>',
+            $escaped
+        );
+
+        // Bungkus simbol matematika, Yunani, panah, & tanda khusus di luar Windows-1252 dengan DejaVu Serif
+        $escaped = preg_replace(
+            '/([α-ωΑ-Ω∑∏√≈≤≥≠±∞∈∉⊂⊆∪∩∂∫∇→←↔⇒⇔↓↑•—–‘’“”]+)/u',
+            '<span style="font-family:\'DejaVu Serif\', serif;">$1</span>',
+            $escaped
+        );
+
+        // Bersihkan emoji yang tidak memiliki glyph di font PDF akademik
+        $escaped = preg_replace('/[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/u', '', $escaped);
+
+        return $escaped;
+    }
+
     private function formatAcademicContentForPdf(string $content, string $judul = ''): string
     {
         $content = str_replace(["\r\n", "\r"], "\n", $content);
@@ -3388,7 +3934,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $rows[] = $cells;
                 }
             }
-            if (!empty($rows)) {
+            if (count($rows) >= 2) {
                 $maxCols = max(array_map('count', $rows));
                 if (count($rows[0]) < $maxCols) {
                     $diff = $maxCols - count($rows[0]);
@@ -3439,43 +3985,49 @@ ATURAN REVISI (SANGAT KETAT):
                 $avoidSplit = count($rows) <= 5 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
                 $fontSize = ($colCount >= 6) ? '8.5pt' : (($colCount === 5) ? '9pt' : '10pt');
                 $headerSize = ($colCount >= 6) ? '9pt' : (($colCount === 5) ? '9.5pt' : '10pt');
-                $lineHeight = '1.2';
-                $cellPadding = ($colCount >= 5) ? '4.5pt 5pt' : '5pt 7pt';
-                $totalRows = count($rows);
+                $lineHeight = '1.25';
+                $cellPadding = ($colCount >= 5) ? '4.5pt 5pt' : '5.5pt 7pt';
 
                 if (!empty($pendingTableCaption)) {
                     $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:12pt; margin-bottom:4pt; text-align:left; text-indent:0; line-height:1.25; page-break-after:avoid; break-after:avoid;'>" . e($pendingTableCaption) . "</div>";
                     $pendingTableCaption = '';
                 }
 
-                // Standar Tabel Skripsi Indonesia & APA 7th (Open Table: TANPA garis vertikal, garis atas-bawah header + penutup bawah)
-                $html .= "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin:4pt 0 12pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; border-left:none; border-right:none; {$avoidSplit}'>";
+                // Tabel Akademik Bergaris Lengkap (Full-Grid Crisp Table Standar Skripsi Indonesia)
+                $html .= "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin:4pt 0 12pt 0; font-size:{$fontSize}; font-family:inherit; border:1pt solid #000000; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
-                    $isLast = ($rIdx === $totalRows - 1);
                     if ($isHeader) {
-                        $html .= "<thead style='display:table-header-group;'><tr style='background:#ffffff; page-break-inside:avoid;'>";
+                        $html .= "<thead style='display:table-header-group;'><tr style='background:#f1f5f9; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word; background:#ffffff;'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:0.75pt solid #000000; border-bottom:1.2pt solid #000000; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word; background:#f1f5f9;'>" . $this->pdfSafeText($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $rowBorderBottom = $isLast ? '1.5pt solid #000000' : '0.4pt solid #cccccc';
-                        $html .= "<tr style='page-break-inside:avoid;'>";
+                        $rowBg = ($rIdx % 2 === 0) ? '#fafbfc' : '#ffffff';
+                        $html .= "<tr style='background:{$rowBg}; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
                             $isMetric = preg_match('/^[\d\s,.\-%—\(\)<>]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; border-bottom:{$rowBorderBottom}; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border:0.65pt solid #000000; line-height:{$lineHeight}; font-size:{$fontSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . $this->pdfSafeText($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
                 }
                 $html .= "</tbody></table>";
+            } else {
+                // Bukan tabel nyata (mis. 1 baris paragraf berisi notasi |V| atau P(t|c)) -> kembalikan sebagai paragraf biasa
+                foreach ($tableBuffer as $rawFallbackLine) {
+                    $cleanP = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $rawFallbackLine)));
+                    if ($cleanP !== '') {
+                        $html .= "<p style='text-align:justify; text-indent:1.27cm; margin:0 0 6pt 0; line-height:1.5;'>" . $this->pdfSafeText($cleanP) . "</p>";
+                    }
+                }
             }
             $tableBuffer = [];
         };
@@ -3550,9 +4102,11 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // Buffer tabel markdown (menerima baris dengan | di ujung ATAU minimal 2 pemisah |)
-            $isMdTableRow = (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|'))
-                || (substr_count($trimmed, '|') >= 2 && !preg_match('/^P\(/i', $trimmed));
+            // Buffer tabel markdown (hindari salah deteksi notasi matematika |V|, |D|, atau P(t|c))
+            $strippedMathPipesPdf = preg_replace(['/\|[A-Za-z0-9_,\s+\-]{1,8}\|/', '/[A-Za-z]\([^)]*\|[^)]*\)/'], ' ', $trimmed);
+            $isMdTableRow = (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|') && substr_count($trimmed, '|') >= 3)
+                || (str_starts_with($trimmed, '|') && substr_count($strippedMathPipesPdf, '|') >= 2)
+                || (substr_count($strippedMathPipesPdf, ' | ') >= 2);
             if ($isMdTableRow) {
                 $closeLists();
                 $tableBuffer[] = $trimmed;
@@ -3626,7 +4180,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $inOl = true;
                 }
                 $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
-                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($cleanLi) . "</li>";
+                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
@@ -3641,7 +4195,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $inUl = true;
                 }
                 $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
-                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($cleanLi) . "</li>";
+                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
@@ -3651,9 +4205,9 @@ ATURAN REVISI (SANGAT KETAT):
             if ($cleanP !== '') {
                 $cleanP = $this->formatAcademicMathText($cleanP);
                 if ($this->isStandaloneFormula($cleanP)) {
-                    $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:\"Times New Roman\", serif; font-style:normal; line-height:1.5;'>" . e($cleanP) . "</p>";
+                    $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:inherit; font-style:normal; line-height:1.5;'>" . $this->pdfSafeText($cleanP) . "</p>";
                 } else {
-                    $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 6pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
+                    $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 6pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . $this->pdfSafeText($cleanP) . "</p>";
                 }
             }
         }
@@ -3693,7 +4247,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $rows[] = $cells;
                 }
             }
-            if (!empty($rows)) {
+            if (count($rows) >= 2) {
                 $maxCols = max(array_map('count', $rows));
 
                 if (count($rows[0]) < $maxCols) {
@@ -3714,36 +4268,48 @@ ATURAN REVISI (SANGAT KETAT):
 
                 $isFirstColNo = preg_match('/^(no|no\.?|#)$/i', trim($rows[0][0] ?? ''));
                 $totalWidthTwips = 7940; // ~14 cm (A4 21cm - 4cm kiri - 3cm kanan)
-                $noColW = 680;
-                $otherColW = $isFirstColNo && $maxCols > 1
-                    ? max(950, (int) round(($totalWidthTwips - $noColW) / ($maxCols - 1)))
-                    : max(1000, (int) round($totalWidthTwips / max(1, $maxCols)));
+                // Distribusi proporsional lebar kolom Word sesuai jumlah kolom agar kolom narasi luas & rapi
+                $pctMap = [];
+                if ($maxCols === 6) {
+                    $pctMap = $isFirstColNo ? [0.06, 0.16, 0.22, 0.14, 0.16, 0.26] : [0.16, 0.20, 0.20, 0.15, 0.14, 0.15];
+                } elseif ($maxCols === 5) {
+                    $pctMap = $isFirstColNo ? [0.07, 0.20, 0.27, 0.23, 0.23] : [0.20, 0.28, 0.16, 0.22, 0.14];
+                } elseif ($maxCols === 4) {
+                    $pctMap = $isFirstColNo ? [0.08, 0.28, 0.34, 0.30] : [0.24, 0.28, 0.24, 0.24];
+                } elseif ($maxCols === 3) {
+                    $pctMap = $isFirstColNo ? [0.08, 0.42, 0.50] : [0.30, 0.35, 0.35];
+                } elseif ($maxCols === 2) {
+                    $pctMap = [0.36, 0.64];
+                } else {
+                    if ($isFirstColNo && $maxCols > 1) {
+                        $pctMap[] = 0.06;
+                        for ($i = 1; $i < $maxCols; $i++) {
+                            $pctMap[] = 0.94 / ($maxCols - 1);
+                        }
+                    } else {
+                        for ($i = 0; $i < $maxCols; $i++) {
+                            $pctMap[] = 1.0 / max(1, $maxCols);
+                        }
+                    }
+                }
+                $colTwips = array_map(fn($p) => max(480, (int) round($totalWidthTwips * $p)), $pctMap);
 
-                // Standar Tabel Skripsi APA 7th (Open Table: TANPA garis vertikal, garis atas & bawah horizontal bersih)
+                // Tabel Akademik Bergaris Lengkap (Full-Grid Crisp Table Standar Skripsi Indonesia)
                 $table = $section->addTable([
-                    'borderTopSize' => 12,
-                    'borderTopColor' => '000000',
-                    'borderBottomSize' => 12,
-                    'borderBottomColor' => '000000',
-                    'borderLeftSize' => 0,
-                    'borderLeftColor' => 'FFFFFF',
-                    'borderRightSize' => 0,
-                    'borderRightColor' => 'FFFFFF',
-                    'borderInsideVSize' => 0,
-                    'borderInsideVColor' => 'FFFFFF',
-                    'borderInsideHSize' => 4,
-                    'borderInsideHColor' => 'CCCCCC',
-                    'cellMarginTop' => 60,
-                    'cellMarginBottom' => 60,
-                    'cellMarginLeft' => 80,
-                    'cellMarginRight' => 80,
+                    'borderSize' => 6,
+                    'borderColor' => '000000',
+                    'cellMarginTop' => 70,
+                    'cellMarginBottom' => 70,
+                    'cellMarginLeft' => 90,
+                    'cellMarginRight' => 90,
                     'alignment' => Jc::CENTER,
+                    'width' => $totalWidthTwips,
+                    'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::TWIP,
+                    'layout' => \PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED,
                 ]);
 
-                $totalRows = count($rows);
                 foreach ($rows as $rIdx => $rowCells) {
                     $isHeader = ($rIdx === 0);
-                    $isLast = ($rIdx === $totalRows - 1);
                     $tRow = $table->addRow(null, [
                         'tblHeader' => $isHeader,
                         'cantSplit' => true,
@@ -3757,24 +4323,14 @@ ATURAN REVISI (SANGAT KETAT):
                     foreach ($rowCells as $cIdx => $cellText) {
                         $cleanCell = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $cellText));
                         $cleanCell = $this->formatAcademicMathText($cleanCell);
-                        $thisColWidth = ($isFirstColNo && $cIdx === 0) ? $noColW : $otherColW;
+                        $thisColWidth = $colTwips[$cIdx] ?? max(950, (int) round($totalWidthTwips / max(1, $maxCols)));
 
                         $cellStyle = [
-                            'bgColor' => 'FFFFFF',
+                            'bgColor' => $isHeader ? 'F1F5F9' : ($rIdx % 2 === 0 ? 'FAFBFC' : 'FFFFFF'),
                             'valign' => $isHeader ? 'center' : 'top',
-                            'borderLeftStyle' => 'none',
-                            'borderRightStyle' => 'none',
                         ];
                         if ($isHeader) {
-                            $cellStyle['borderTopStyle'] = 'single';
-                            $cellStyle['borderTopSize'] = 12;
-                            $cellStyle['borderTopColor'] = '000000';
-                            $cellStyle['borderBottomStyle'] = 'single';
-                            $cellStyle['borderBottomSize'] = 8;
-                            $cellStyle['borderBottomColor'] = '000000';
-                        } elseif ($isLast) {
-                            $cellStyle['borderBottomStyle'] = 'single';
-                            $cellStyle['borderBottomSize'] = 12;
+                            $cellStyle['borderBottomSize'] = 10;
                             $cellStyle['borderBottomColor'] = '000000';
                         }
 
@@ -3784,11 +4340,23 @@ ATURAN REVISI (SANGAT KETAT):
                         $cell->addText(
                             $cleanCell,
                             ['name' => 'Times New Roman', 'size' => $fontSize, 'bold' => $isHeader],
-                            ['alignment' => $align, 'lineHeight' => 1.05, 'spaceBefore' => 0, 'spaceAfter' => 0, 'indentation' => ['firstLine' => 0]]
+                            ['alignment' => $align, 'lineHeight' => 1.1, 'spaceBefore' => 0, 'spaceAfter' => 0, 'indentation' => ['firstLine' => 0]]
                         );
                     }
                 }
                 $section->addTextBreak(1);
+            } else {
+                // Bukan tabel nyata (mis. 1 baris paragraf berisi notasi |V| atau P(t|c)) -> kembalikan sebagai paragraf biasa
+                foreach ($tableBuffer as $rawFallbackLine) {
+                    $cleanP = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $rawFallbackLine)));
+                    if ($cleanP !== '') {
+                        $section->addText(
+                            $cleanP,
+                            ['name' => 'Times New Roman', 'size' => 12],
+                            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'spaceBefore' => 0, 'spaceAfter' => 120, 'indentation' => ['firstLine' => 720]]
+                        );
+                    }
+                }
             }
             $tableBuffer = [];
             $currentTableCaption = '';
@@ -3876,9 +4444,11 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // Buffer baris tabel markdown (menerima pipe penuh atau minimal 2 pemisah |)
-            $isMdTableRow = (str_starts_with($cleanLine, '|') && str_ends_with($cleanLine, '|'))
-                || (substr_count($cleanLine, '|') >= 2 && !preg_match('/^P\(/i', $cleanLine));
+            // Buffer baris tabel markdown (hindari salah deteksi notasi matematika |V|, |D|, atau P(t|c))
+            $strippedMathPipes = preg_replace(['/\|[A-Za-z0-9_,\s+\-]{1,8}\|/', '/[A-Za-z]\([^)]*\|[^)]*\)/'], ' ', $cleanLine);
+            $isMdTableRow = (str_starts_with($cleanLine, '|') && str_ends_with($cleanLine, '|') && substr_count($cleanLine, '|') >= 3)
+                || (str_starts_with($cleanLine, '|') && substr_count($strippedMathPipes, '|') >= 2)
+                || (substr_count($strippedMathPipes, ' | ') >= 2);
             if ($isMdTableRow) {
                 $tableBuffer[] = $cleanLine;
                 continue;
@@ -4147,10 +4717,20 @@ ATURAN REVISI (SANGAT KETAT):
     private function createPhpWordDocument($project, Request $request, ?string $logoPath = null, array $meta = [])
     {
         $this->docxFlowchartVmlMap = [];
+        $fontKey = strtolower(trim((string) $request->input('font_family', 'times')));
+        $fontMap = [
+            'times' => ['name' => 'Times New Roman', 'size' => 12.0],
+            'arial' => ['name' => 'Arial', 'size' => 11.0],
+            'georgia' => ['name' => 'Georgia', 'size' => 11.0],
+        ];
+        $chosenFont = $fontMap[$fontKey] ?? $fontMap['times'];
+        $this->docxFontName = $chosenFont['name'];
+        $this->docxFontSize = $chosenFont['size'];
+
         $phpWord = new PhpWord();
         Settings::setOutputEscapingEnabled(true);
-        $phpWord->setDefaultFontName('Times New Roman');
-        $phpWord->setDefaultFontSize(12);
+        $phpWord->setDefaultFontName($this->docxFontName);
+        $phpWord->setDefaultFontSize($this->docxFontSize);
 
         $marginTop = (float) $request->input('margin_top', 4);
         $marginLeft = (float) $request->input('margin_left', 4);
@@ -4437,6 +5017,21 @@ ATURAN REVISI (SANGAT KETAT):
             }
         }
 
+        // --- DAFTAR LAMPIRAN (OTOMATIS MUNCUL HANYA JIKA MAHASISWA MENGUNGGAH LAMPIRAN) ---
+        $lampiransDocx = $this->extractLampiranForProject($project, $isProposal);
+        if (!empty($lampiransDocx)) {
+            $section->addPageBreak();
+            $section->addTitle("DAFTAR LAMPIRAN", 1);
+            foreach ($lampiransDocx as $lmp) {
+                $pStyle = [
+                    'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
+                    'spaceAfter' => 60,
+                    'lineHeight' => 1.25,
+                ];
+                $section->addText($lmp['label'] . "\t" . $lmp['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+            }
+        }
+
         // =====================================================================
         // SECTION 3+: BAB UTAMA (RESET ANGKA ARAB 1; AWAL BAB TENGAH BAWAH, LANJUTAN KANAN ATAS)
         // =====================================================================
@@ -4506,13 +5101,101 @@ ATURAN REVISI (SANGAT KETAT):
             $section->addTitle("DAFTAR PUSTAKA", 1);
             $refs = explode("\n", str_replace(["\r\n", "\r"], "\n", $dpContent));
             foreach ($refs as $ref) {
-                if (trim($ref)) {
-                    // Standar APA 7th Skripsi: spasi 1,0 di dalam 1 entri, jarak antar entri 8pt, hanging indent 1,27 cm (720 twips)
-                    $section->addText(
-                        trim($ref),
-                        ['name' => 'Times New Roman', 'size' => 12],
-                        ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['left' => 720, 'hanging' => 720], 'spaceBefore' => 0, 'spaceAfter' => 140]
-                    );
+                $trimRef = trim($ref);
+                if ($trimRef !== '') {
+                    // Standar APA 7th Skripsi: spasi 1,0 di dalam 1 entri, jarak antar entri 8pt, hanging indent 1,27 cm + LINK DOI/URL BISA DIKLIK
+                    $dpParaStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['left' => 720, 'hanging' => 720], 'spaceBefore' => 0, 'spaceAfter' => 140];
+                    $textRun = $section->addTextRun($dpParaStyle);
+                    $tokens = preg_split('/(https?:\/\/[^\s<>"]+|\bdoi:\s*10\.\d{4,9}\/[^\s<>"]+)/i', $trimRef, -1, PREG_SPLIT_DELIM_CAPTURE);
+                    foreach ($tokens as $tok) {
+                        if ($tok === '') {
+                            continue;
+                        }
+                        if (preg_match('/^https?:\/\//i', $tok)) {
+                            $cleanUrl = $tok;
+                            $trail = '';
+                            while (preg_match('/[\.,;\)\]]$/', $cleanUrl, $tm)) {
+                                $trail = $tm[0] . $trail;
+                                $cleanUrl = substr($cleanUrl, 0, -1);
+                            }
+                            $textRun->addLink($cleanUrl, $cleanUrl, ['name' => 'Times New Roman', 'size' => 12, 'color' => '1D4ED8', 'underline' => 'single']);
+                            if ($trail !== '') {
+                                $textRun->addText($trail, ['name' => 'Times New Roman', 'size' => 12]);
+                            }
+                        } elseif (preg_match('/^doi:\s*(10\.\d{4,9}\/.+)$/i', $tok, $dm)) {
+                            $doiCode = $dm[1];
+                            $trail = '';
+                            while (preg_match('/[\.,;\)\]]$/', $doiCode, $tm)) {
+                                $trail = $tm[0] . $trail;
+                                $doiCode = substr($doiCode, 0, -1);
+                            }
+                            $textRun->addLink('https://doi.org/' . $doiCode, 'doi:' . $doiCode, ['name' => 'Times New Roman', 'size' => 12, 'color' => '1D4ED8', 'underline' => 'single']);
+                            if ($trail !== '') {
+                                $textRun->addText($trail, ['name' => 'Times New Roman', 'size' => 12]);
+                            }
+                        } else {
+                            $textRun->addText($tok, ['name' => 'Times New Roman', 'size' => 12]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // =====================================================================
+        // SECTION AKHIR: LAMPIRAN (MUNCUL OTOMATIS JIKA MAHASISWA MENGUNGGAH LAMPIRAN)
+        // =====================================================================
+        if (!empty($lampiransDocx)) {
+            $lmpStyle = $baseSectionStyle;
+            if ($isFirstMainSection) {
+                $lmpStyle['pageNumberingStart'] = 1;
+            }
+            $section = $phpWord->addSection($lmpStyle);
+            $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
+            $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
+            $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
+            $firstHeader->addText('', ['size' => 1]);
+            $contHeader = $section->addHeader();
+            $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
+            $contFooter = $section->addFooter();
+            $contFooter->addText('', ['size' => 1]);
+
+            $section->addTitle("LAMPIRAN", 1);
+
+            foreach ($lampiransDocx as $lIdx => $lmp) {
+                if ($lIdx > 0) {
+                    $section->addPageBreak();
+                }
+                $section->addTitle($lmp['label'], 2);
+
+                if (!empty($lmp['image_base64'])) {
+                    $rawImg = preg_replace('#^data:image/([^;]+);base64,#i', '', $lmp['image_base64']);
+                    $decodedImg = @base64_decode($rawImg);
+                    if (!empty($decodedImg) && strlen($decodedImg) > 100) {
+                        $imgExt = str_contains($lmp['image_base64'], 'image/png') ? '.png' : '.jpg';
+                        $tmpImg = tempnam(sys_get_temp_dir(), 'lmp_') . $imgExt;
+                        if (@file_put_contents($tmpImg, $decodedImg)) {
+                            $this->docxTempFiles[] = $tmpImg;
+                            try {
+                                $imgProps = ['width' => 395, 'alignment' => Jc::CENTER];
+                                $dim = @getimagesize($tmpImg);
+                                if (!empty($dim[0]) && !empty($dim[1])) {
+                                    $maxW = 395;
+                                    $maxH = 510;
+                                    $scale = min($maxW / $dim[0], $maxH / $dim[1], 1.0);
+                                    $imgProps['width'] = (int) round($dim[0] * $scale);
+                                    $imgProps['height'] = (int) round($dim[1] * $scale);
+                                }
+                                $section->addImage($tmpImg, $imgProps);
+                                $section->addTextBreak(1);
+                            } catch (Throwable $e) {
+                                Log::warning('Word lampiran image notice: ' . $e->getMessage());
+                            }
+                        }
+                    }
+                }
+
+                if (!empty($lmp['content'])) {
+                    $this->parseAndAddContent($section, $lmp['content'], $project);
                 }
             }
         }
@@ -4620,7 +5303,29 @@ ATURAN REVISI (SANGAT KETAT):
                         $this->docxFlowchartVmlMap = [];
                     }
 
+                    // Jika user memilih font non-default (Arial / Georgia), terapkan ke seluruh run & style DOCX secara konsisten
+                    if ($this->docxFontName !== 'Times New Roman') {
+                        $docXml = str_replace('Times New Roman', $this->docxFontName, $docXml);
+                        if ($this->docxFontSize == 11.0) {
+                            $docXml = str_replace('<w:sz w:val="24"/>', '<w:sz w:val="22"/>', $docXml);
+                            $docXml = str_replace('<w:szCs w:val="24"/>', '<w:szCs w:val="22"/>', $docXml);
+                        }
+                    }
+
                     $zip->addFromString('word/document.xml', $docXml);
+                }
+
+                // Terapkan font pilihan ke header/footer DOCX juga
+                if ($this->docxFontName !== 'Times New Roman') {
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $entryName = $zip->getNameIndex($i);
+                        if (preg_match('/^word\/(header|footer)\d*\.xml$/', $entryName)) {
+                            $hfXml = $zip->getFromName($entryName);
+                            if ($hfXml && str_contains($hfXml, 'Times New Roman')) {
+                                $zip->addFromString($entryName, str_replace('Times New Roman', $this->docxFontName, $hfXml));
+                            }
+                        }
+                    }
                 }
 
                 // 2. Modifikasi word/styles.xml untuk Heading styles
@@ -4644,6 +5349,9 @@ ATURAN REVISI (SANGAT KETAT):
                         }
                         return '<w:style ' . $attrs . '>' . $prefix . $inner . '</w:style>';
                     }, $stylesXml);
+                    if ($this->docxFontName !== 'Times New Roman') {
+                        $stylesXml = str_replace('Times New Roman', $this->docxFontName, $stylesXml);
+                    }
                     $zip->addFromString('word/styles.xml', $stylesXml);
                 }
 
@@ -4755,12 +5463,21 @@ ATURAN REVISI (SANGAT KETAT):
             $tocRowsHtml .= $makeDotLeaderRow((string) ($item['label'] ?? ''), (string) ($item['page'] ?? ''), (int) ($item['level'] ?? 1));
         }
 
+        $fontKeyPdf = strtolower(trim((string) $request->input('font_family', 'times')));
+        $pdfFontMap = [
+            'times' => ['css' => "'Times New Roman', serif", 'size' => '12pt', 'cpdf' => 'Times-Roman'],
+            'arial' => ['css' => "Helvetica, Arial, sans-serif", 'size' => '11pt', 'cpdf' => 'Helvetica'],
+            'georgia' => ['css' => "'DejaVu Serif', Georgia, serif", 'size' => '11pt', 'cpdf' => 'Times-Roman'],
+        ];
+        $pdfFont = $pdfFontMap[$fontKeyPdf] ?? $pdfFontMap['times'];
+
         $html = "<html><head><style>
             @page { size: A4; margin: {$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; }
-            body { font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt; color:#000000; }
+            body { font-family:{$pdfFont['css']}; text-align:justify; line-height:1.5; font-size:{$pdfFont['size']}; color:#000000; }
             h1,h2 { text-align:center; font-weight:bold; font-size:14pt; line-height:1.3; margin:0 0 16pt 0; }
-            h3,h4 { font-weight:bold; font-size:12pt; }
+            h3,h4 { font-weight:bold; font-size:{$pdfFont['size']}; }
             p { text-indent: 1.27cm; margin: 0 0 6pt 0; }
+            table { font-family: inherit; }
             .cover p { text-indent:0; text-align:center; }
             .cover { position:relative; height:100%; text-align:center; }
             .cover-bottom { position:absolute; bottom:0; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35; }
@@ -4931,6 +5648,18 @@ ATURAN REVISI (SANGAT KETAT):
             $html .= "</div></div>";
         }
 
+        // 9. DAFTAR LAMPIRAN (OTOMATIS MUNCUL HANYA JIKA MAHASISWA MENGUNGGAH LAMPIRAN)
+        $pdfLampirans = $this->extractLampiranForProject($project, $isProposal);
+        if (!empty($pdfLampirans)) {
+            $html .= "<div class='page-break'>
+                <h2>DAFTAR LAMPIRAN</h2>
+                <div style='margin-top:12pt;'>";
+            foreach ($pdfLampirans as $lItem) {
+                $html .= $makeDotLeaderRow((string) $lItem['label'], (string) $lItem['page'], 1);
+            }
+            $html .= "</div></div>";
+        }
+
         // BAB UTAMA (SETIAP BAB DIAWALI PAGE BREAK SATU KALI — BEBAS HALAMAN KOSONG)
         $chapters = [
             'bab1' => 'PENDAHULUAN',
@@ -4965,11 +5694,37 @@ ATURAN REVISI (SANGAT KETAT):
             foreach ($dpLines as $dpl) {
                 $trimDpl = trim($dpl);
                 if ($trimDpl !== '') {
-                    // Standar APA 7th: 1 spasi dalam 1 entri, jarak 8pt antar entri, hanging indent 1,27 cm
-                    $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . e($trimDpl) . "</p>";
+                    // Standar APA 7th: 1 spasi dalam 1 entri, jarak 8pt antar entri, hanging indent 1,27 cm + LINK DOI/URL BISA DIKLIK
+                    $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . $this->linkifyDaftarPustakaHtml($trimDpl) . "</p>";
                 }
             }
             $html .= "</div>";
+        }
+
+        // LAMPIRAN (OTOMATIS MUNCUL DI AKHIR PDF JIKA MAHASISWA MENGUNGGAH LAMPIRAN)
+        if (!empty($pdfLampirans)) {
+            foreach ($pdfLampirans as $lIdx => $lmp) {
+                $html .= "<div class='page-break'>";
+                if ($lIdx === 0) {
+                    $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:14pt; page-break-after:avoid;'>LAMPIRAN</h2>";
+                }
+                $html .= "<h3 style='font-size:12pt; font-weight:bold; text-align:left; text-indent:0; margin:0 0 12pt 0; page-break-after:avoid;'>" . $this->pdfSafeText($lmp['label']) . "</h3>";
+
+                if (!empty($lmp['image_base64'])) {
+                    $imgSrc = $lmp['image_base64'];
+                    $isJpegLmp = str_starts_with($imgSrc, 'data:image/jpeg') || str_starts_with($imgSrc, 'data:image/jpg') || str_contains($imgSrc, '/9j/');
+                    if ($isJpegLmp || $hasGd) {
+                        $html .= "<div style='text-align:center; margin:10pt 0 14pt 0; page-break-inside:avoid;'>"
+                            . "<img src='{$imgSrc}' style='max-width:100%; max-height:19cm; width:auto; height:auto; border:0.5pt solid #cbd5e1;'>"
+                            . "</div>";
+                    }
+                }
+
+                if (!empty($lmp['content'])) {
+                    $html .= $this->formatAcademicContentForPdf($lmp['content'], (string) ($project->judul ?? ''));
+                }
+                $html .= "</div>";
+            }
         }
         $html .= "</body></html>";
 
@@ -5011,12 +5766,12 @@ ATURAN REVISI (SANGAT KETAT):
                         $rawStream .= (string) ($cpdf->objects[$cid]['c'] ?? '');
                     }
                     // Deteksi heading halaman pembuka BAB (di luar Daftar Isi)
-                    $isTocOrFront = str_contains($rawStream, '(DAFTAR ISI)') || str_contains($rawStream, '(DAFTAR TABEL)') || str_contains($rawStream, '(DAFTAR GAMBAR)');
+                    $isTocOrFront = str_contains($rawStream, '(DAFTAR ISI)') || str_contains($rawStream, '(DAFTAR TABEL)') || str_contains($rawStream, '(DAFTAR GAMBAR)') || str_contains($rawStream, '(DAFTAR LAMPIRAN)');
                     if (!$isTocOrFront && $pIdx >= 2) {
                         if ($bab1Page === null && preg_match('/\(BAB I\)/', $rawStream)) {
                             $bab1Page = $pIdx;
                             $chapterStartPages[$pIdx] = true;
-                        } elseif (preg_match('/\(BAB (?:I|II|III|IV|V)\)/', $rawStream) || str_contains($rawStream, '(DAFTAR PUSTAKA)')) {
+                        } elseif (preg_match('/\(BAB (?:I|II|III|IV|V)\)/', $rawStream) || str_contains($rawStream, '(DAFTAR PUSTAKA)') || str_contains($rawStream, '(LAMPIRAN)')) {
                             $chapterStartPages[$pIdx] = true;
                         }
                     }
@@ -5034,11 +5789,12 @@ ATURAN REVISI (SANGAT KETAT):
                 return $this->toRomanLower($n);
             };
 
-            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($bab1Page, $chapterStartPages, $rightEdgeX, $topY, $bottomY, $toRoman) {
+            $cpdfFontName = $pdfFont['cpdf'] ?? 'Times-Roman';
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($bab1Page, $chapterStartPages, $rightEdgeX, $topY, $bottomY, $toRoman, $cpdfFontName) {
                 if ($pageNumber <= 1) {
                     return; // Halaman Sampul (Cover) tanpa nomor halaman
                 }
-                $font = $fontMetrics->getFont('Times-Roman', 'normal');
+                $font = $fontMetrics->getFont($cpdfFontName, 'normal');
                 $size = 11;
                 if ($pageNumber < $bab1Page) {
                     // Bagian Depan: Angka Romawi kecil (ii, iii, iv, ...) di tengah bawah
@@ -5499,14 +6255,21 @@ NASKAH BAB I - BAB V:
     public function solveQuestion(Request $request)
     {
         $request->validate([
-            'question' => 'required|string',
+            'question' => 'nullable|string',
             'image' => 'nullable|string',
             'model' => 'nullable|string'
         ]);
 
+        $question = trim((string) $request->input('question', ''));
+        $image = $request->input('image');
+        if (empty($question) && empty($image)) {
+            return response()->json(['status' => 'error', 'message' => 'Tuliskan pertanyaan atau lampirkan gambar terlebih dahulu.'], 422);
+        }
+        if (empty($question)) {
+            $question = 'Analisis dan jelaskan gambar/grafik/tabel/soal terlampir secara akademik dan sistematis untuk mahasiswa skripsi.';
+        }
+
         try {
-            $question = $request->question;
-            $image = $request->image;
             $model = $request->input('model', 'auto');
             $history = $request->input('history', []);
 
@@ -5616,7 +6379,8 @@ TEKS ASLI:
 
         if ($request->hasFile('file_skripsi')) {
             $file = $request->file('file_skripsi');
-            $docText = $this->extractTextFromUploadedFile($file);
+            $rawExtracted = $this->extractTextFromUploadedFile($file);
+            $docText = $this->buildSmartThesisContext($rawExtracted, 14500);
             if (empty($docTitle)) {
                 $docTitle = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $docTitle = str_replace(['_', '-'], ' ', $docTitle);
@@ -5632,10 +6396,7 @@ TEKS ASLI:
                 $docTitle = $proj->judul;
                 $projProdi = $proj->prodi;
                 $projMeta = $this->getProjectMeta($proj);
-                $docText = strip_tags(
-                    "Judul: {$proj->judul}\nProdi: {$proj->prodi}\nMetode: {$proj->metode_penelitian}\n" .
-                    "BAB 1:\n{$proj->bab1_content}\nBAB 2:\n{$proj->bab2_content}\nBAB 3:\n{$proj->bab3_content}\nBAB 4:\n{$proj->bab4_content}\nBAB 5:\n{$proj->bab5_content}"
-                );
+                $docText = $this->buildProjectThesisContext($proj, 14500);
 
                 // Sinkronkan update metadata identitas jika diubah oleh mahasiswa di formulir PPT
                 $updatedMeta = $projMeta;
@@ -5657,32 +6418,38 @@ TEKS ASLI:
         }
 
         $coverMeta = [
-            'nama' => $request->input('nama') ?: ($projMeta['nama'] ?? $defaultId['nama'] ?? (Auth::user()->name ?? 'Mahasiswa')),
-            'nim' => $request->input('nim') ?: ($projMeta['nim'] ?? $defaultId['nim'] ?? ''),
-            'kampus' => $request->input('kampus') ?: ($projMeta['kampus'] ?? $defaultId['kampus'] ?? 'Universitas'),
-            'fakultas' => $projMeta['fakultas'] ?? $defaultId['fakultas'] ?? '',
-            'prodi' => $projProdi,
+            'nama' => trim((string) ($request->input('nama') ?: ($projMeta['nama'] ?? $defaultId['nama'] ?? (Auth::user()->name ?? 'Mahasiswa')))),
+            'nim' => trim((string) ($request->input('nim') ?: ($projMeta['nim'] ?? $defaultId['nim'] ?? ''))),
+            'kampus' => trim((string) ($request->input('kampus') ?: ($projMeta['kampus'] ?? $defaultId['kampus'] ?? 'Universitas'))),
+            'fakultas' => trim((string) ($request->input('fakultas') ?: ($projMeta['fakultas'] ?? $defaultId['fakultas'] ?? ''))),
+            'prodi' => trim((string) ($request->input('prodi') ?: $projProdi)),
             'logo_base64' => $request->input('logo_base64') ?: ($projMeta['logo_base64'] ?? $defaultId['logo_base64'] ?? ''),
-            'pembimbing_1' => $request->input('pembimbing_1') ?: 'Dosen Pembimbing 1',
-            'pembimbing_2' => $request->input('pembimbing_2') ?: 'Dosen Pembimbing 2',
-            'penguji_1' => $request->input('penguji_1') ?: 'Dosen Penguji 1',
-            'penguji_2' => $request->input('penguji_2') ?: 'Dosen Penguji 2',
+            'pembimbing_1' => trim((string) $request->input('pembimbing_1', '')),
+            'pembimbing_2' => trim((string) $request->input('pembimbing_2', '')),
+            'penguji_1' => trim((string) $request->input('penguji_1', '')),
+            'penguji_2' => trim((string) $request->input('penguji_2', '')),
         ];
 
         $prompt = "PERAN: Anda adalah Konsultan Presentasi Sidang Skripsi Akademik Indonesia.
 TUGAS: Rangkum dokumen skripsi/proposal berikut menjadi PERSIS {$slideCount} SLIDE PRESENTASI SIDANG dalam format JSON Array murni.
 
 JUDUL / TOPIK: {$docTitle}
-ISI DOKUMEN SKRIPSI MAHASISWA:
+ISI DOKUMEN SKRIPSI MAHASISWA (TERBACA DARI BAB I–V):
 \"\"\"
-" . Str::limit($docText ?: $docTitle, 12000) . "
+" . Str::limit($docText ?: $docTitle, 14500) . "
 \"\"\"
 
-ATURAN WAJIB FORMAT & KONTEN:
+ATURAN WAJIB FORMAT & KONTEN (ANTI-TERPOTONG, RIIL SESUAI NASKAH & SIAP SIDANG):
+0. SEMUA ISI SLIDE (Latar Belakang, Rumusan, Teori, Metodologi, Hasil, Angka/Metrik, Kesimpulan) WAJIB 100% DIAMBIL DARI ISI DOKUMEN SKRIPSI MAHASISWA DI ATAS — dilarang mengarang angka/variabel/metode di luar naskah!
 1. DILARANG KERAS menggunakan simbol markdown bintang ganda (** atau *) di dalam title, subtitle, maupun bullets. Semua teks harus teks biasa yang bersih, rapi, dan mudah dibaca.
-2. Buat PERSIS {$slideCount} slide terstruktur berurutan:
-   - Slide 1: Sampul Sidang (Cover). Title adalah judul lengkap skripsi, subtitle adalah Program Studi & Metode Penelitian, bullets berisi poin ringkas fokus penelitian.
-   - Slide 2 s/d " . ($slideCount - 1) . ": Inti materi presentasi (Latar Belakang, Masalah & Tujuan, Teori & Kerangka, Metodologi, Hasil Penelitian, Pembahasan).
+2. KEPADATAN SLIDE (WAJIB DIPATUHI):
+   - Setiap slide isi (Slide 2 s/d {$slideCount}) WAJIB berisi 3 hingga MAKSIMAL 4 poin bullets (maksimal 5 poin khusus untuk Rumusan/Hasil jika benar-benar ringkas).
+   - Setiap poin bullet WAJIB SINGKAT, PADAT, DAN TAJAM: MAKSIMAL 14–18 kata (maks 115 karakter per poin) agar 100% muat proporsional di slide 16:9 tanpa pernah terpotong!
+   - Judul slide singkat (maksimal 7–9 kata). Subjudul 1 baris ringkas (maksimal 10 kata).
+   - Penjelasan mendalam, angka detail, dan narasi panjang WAJIB dimasukkan ke field \"speaker_notes\" (3–5 kalimat siap baca saat presentasi), BUKAN ditumpuk di bullets!
+3. Buat PERSIS {$slideCount} slide terstruktur berurutan:
+   - Slide 1: Sampul Sidang (Cover). Title adalah judul lengkap skripsi, subtitle adalah Program Studi & Metode Penelitian, bullets berisi 2–3 poin singkat fokus penelitian.
+   - Slide 2 s/d " . ($slideCount - 1) . ": Inti materi presentasi (Latar Belakang, Rumusan & Tujuan, Landasan Teori & Kerangka, Metodologi, Hasil Pengujian, Pembahasan).
    - Slide {$slideCount}: Kesimpulan & Saran.
 
 Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
@@ -5925,27 +6692,33 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
 
                 if ($request->hasFile('file_skripsi')) {
                     $file = $request->file('file_skripsi');
-                    $docText = $this->extractTextFromUploadedFile($file);
+                    $rawExtracted = $this->extractTextFromUploadedFile($file);
+                    $docText = $this->buildSmartThesisContext($rawExtracted, 14000);
                     if (empty($docTitle)) {
                         $docTitle = str_replace(['_', '-'], ' ', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
                     }
                 }
 
+                $projectIdVal = null;
                 if ($request->filled('project_id')) {
                     $proj = Project::where('user_id', Auth::id())->find($request->project_id);
                     if ($proj) {
+                        $projectIdVal = $proj->id;
                         $docTitle = $proj->judul;
                         $metode = $proj->metode_penelitian;
-                        $docText = strip_tags(
-                            "Judul: {$proj->judul}\nProdi: {$proj->prodi}\nMetode: {$proj->metode_penelitian}\n" .
-                            "BAB 1:\n{$proj->bab1_content}\nBAB 2:\n{$proj->bab2_content}\nBAB 3:\n{$proj->bab3_content}\nBAB 4:\n{$proj->bab4_content}\nBAB 5:\n{$proj->bab5_content}"
-                        );
+                        $docText = $this->buildProjectThesisContext($proj, 14000);
                     }
                 }
 
                 if (empty($docTitle) && empty($docText)) {
                     return response()->json(['status' => 'error', 'message' => 'Silakan unggah file skripsi (.pdf / .docx) atau pilih proyek skripsi Anda.'], 422);
                 }
+
+                $docContextDigest = Str::limit($docText ?: $docTitle, 12000, '');
+                session([
+                    'defense_doc_context' => $docContextDigest,
+                    'defense_doc_title' => $docTitle,
+                ]);
 
                 $personaDesc = match ($modeDosen) {
                     'santai' => 'Gaya Dosen Penguji: SANTAI & RAMAH. Pertanyaan bernada hangat, membimbing, apresiatif terhadap proses mahasiswa, namun tetap mengonfirmasi pemahaman konseptual dasar.',
@@ -5957,15 +6730,18 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
                 $prompt = "PERAN: Anda adalah Ketua Dewan Dosen Penguji Sidang Skripsi S1 di Indonesia.
 {$personaDesc}
 
-Berdasarkan naskah skripsi mahasiswa berikut:
+Berdasarkan naskah skripsi nyata mahasiswa berikut (mencakup Bab I hingga Bab V):
 JUDUL: {$docTitle}
 METODE: {$metode}
-RINGKASAN NASKAH:
+ISI NASKAH SKRIPSI MAHASISWA:
 \"\"\"
-" . Str::limit($docText ?: $docTitle, 10000) . "
+{$docContextDigest}
 \"\"\"
 
 TUGAS: Susun TEPAT {$jumlahSoal} PERTANYAAN UJIAN SIDANG SKRIPSI sesuai karakter dosen penguji di atas, mencakup Bab I hingga Bab V.
+ATURAN KETAT BERBASIS NASKAH RIIL:
+- Setiap pertanyaan WAJIB merujuk langsung variabel, objek, lokasi, teori, metode, sampel, atau angka/temuan RIIL yang tertulis di naskah skripsi mahasiswa di atas (BUKAN pertanyaan umum/template!).
+- Field \"hint\" (kisi-kisi) WAJIB menyebutkan poin/angka/teori kunci yang benar-benar ada di dalam naskah skripsi mahasiswa tersebut.
 
 FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi {$jumlahSoal} objek pertanyaan (tanpa pembuka/penutup):
 [
@@ -6011,6 +6787,9 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi {$jumlahSoal} obje
                 return response()->json([
                     'status' => 'success',
                     'title' => $docTitle,
+                    'project_id' => $projectIdVal,
+                    'doc_context' => Str::limit($docContextDigest, 9000, ''),
+                    'word_count' => str_word_count(strip_tags($docText ?: $docTitle)),
                     'mode_dosen' => $modeDosen,
                     'questions' => $questions,
                 ]);
@@ -6019,6 +6798,22 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi {$jumlahSoal} obje
             $qaList = $request->input('qa_list', []);
             $docTitle = $request->input('judul', 'Skripsi Mahasiswa');
             $modeDosen = $request->input('mode_dosen', 'tegas');
+
+            // Ambil isi naskah skripsi RIIL (dari project_id DB, doc_context unggahan Word/PDF, atau session)
+            $evalDocContext = '';
+            if ($request->filled('project_id')) {
+                $evalProj = Project::where('user_id', Auth::id())->find($request->project_id);
+                if ($evalProj) {
+                    $docTitle = $evalProj->judul;
+                    $evalDocContext = $this->buildProjectThesisContext($evalProj, 11000);
+                }
+            }
+            if (empty($evalDocContext) && $request->filled('doc_context')) {
+                $evalDocContext = Str::limit(trim((string) $request->input('doc_context')), 10000, '');
+            }
+            if (empty($evalDocContext) && session('defense_doc_context')) {
+                $evalDocContext = Str::limit((string) session('defense_doc_context'), 10000, '');
+            }
 
             $qaFormatted = "";
             $totalWords = 0;
@@ -6049,17 +6844,25 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi {$jumlahSoal} obje
                 default => 'Dosen Tegas: Standar akademik formal universitas di Indonesia.'
             };
 
+            $docContextBlock = !empty($evalDocContext)
+                ? "\nREFERENSI ISI NASKAH SKRIPSI ASLI MAHASISWA (WAJIB DIJADIKAN ACUAN UTAMA VERIFIKASI & SARAN JAWABAN TERBAIK):\n\"\"\"\n{$evalDocContext}\n\"\"\"\n"
+                : '';
+
             $prompt = "PERAN: Anda adalah Ketua Dewan Dosen Penguji Sidang Skripsi S1.
 {$personaRubric}
 
 Evaluasi seluruh jawaban mahasiswa pada simulasi sidang skripsi untuk judul: \"{$docTitle}\".
-
+{$docContextBlock}
 DAFTAR PERTANYAAN DAN JAWABAN MAHASISWA:
 \"\"\"
 {$qaFormatted}
 \"\"\"
 
-PANDUAN PENILAIAN OBJEKTIF & SANGAT KETAT:
+PANDUAN PENILAIAN OBJEKTIF, RIIL SESUAI NASKAH & SANGAT KETAT:
+0. KESESUAIAN DENGAN ISI SKRIPSI ASLI:
+   - Cocokkan setiap jawaban mahasiswa dengan isi nyata skripsi di atas (variabel, teori, metode, jumlah sampel/dataset, hasil angka/pengujian, dan kesimpulan).
+   - Pada field \"feedback\", evaluasi secara spesifik apakah jawaban mahasiswa sesuai, kurang lengkap, atau menyimpang dari isi naskah skripsinya sendiri.
+   - Pada field \"better_answer\", susun contoh jawaban sidang terbaik yang 100% RIIL merujuk data, teori, metode, dan temuan yang benar-benar ada di naskah skripsi mahasiswa di atas (BUKAN jawaban umum/template!).
 1. JIKA JAWABAN MAHASISWA HANYA KATA PENDEK/ASAL ('Tes', 'Betul', 'Tidak', 'Kurang paham') atau tidak ilmiah:
    - Skor per pertanyaan WAJIB antara 1.0 s.d 3.5 per pertanyaan!
    - Overall score WAJIB antara 1.5 s.d 3.8!

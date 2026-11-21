@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/project/{id}/generate', [GeneratorController::class, 'generateChapter'])->name('project.generate');
     Route::post('/project/{id}/revise', [GeneratorController::class, 'reviseChapter'])->name('project.revise');
     Route::post('/project/{id}/save-chapter', [GeneratorController::class, 'saveChapterManual'])->name('project.save.chapter');
+    Route::post('/project/{id}/lampiran/extract', [GeneratorController::class, 'extractLampiranFile'])->name('project.lampiran.extract');
     Route::post('/project/{id}/guideline', [GeneratorController::class, 'uploadGuideline'])->name('project.guideline');
     Route::post('/project/{id}/refine-references', [GeneratorController::class, 'refineReferences'])->name('project.refine.references');
 
