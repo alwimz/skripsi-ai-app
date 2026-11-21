@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SkripsiLab — Workspace Penulisan Proposal, Skripsi &amp; Sidang</title>
+    <title>SkripsiLab AI — Workspace Penulisan Proposal, Skripsi &amp; Sidang</title>
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1878,74 +1878,29 @@
             .form-input,
             .form-select,
             .form-textarea {
-                font-size: 13px !important;
-                min-height: 38px !important;
-                padding: 8px 11px !important;
-                border-radius: 9px !important;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-
-            input[type="file"].form-input {
-                font-size: 12px !important;
-                padding: 7px 9px !important;
-            }
-
-            .form-textarea {
-                min-height: 80px !important;
+                font-size: 16px;
+                min-height: 46px;
+                font-size: 13.5px;
+                min-height: 39px;
+                padding: 8px 11px;
+                border-radius: 9px;
             }
 
             .form-label {
-                font-size: 12px !important;
-                margin-bottom: 5px !important;
+                font-size: 12px;
+                margin-bottom: 5px;
             }
 
             .form-group,
             .form-row {
-                margin-bottom: 12px !important;
-                gap: 10px !important;
-            }
-
-            .responsive-grid-2,
-            .responsive-grid-3,
-            .responsive-grid-title-logo {
-                gap: 10px !important;
-            }
-
-            .page-subtitle {
-                font-size: 13px !important;
-                margin-bottom: 18px !important;
+                margin-bottom: 12px;
+                gap: 10px;
             }
 
             .btn-primary {
-                min-height: 38px;
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-
-            .btn-outline {
-                min-height: 34px;
-                padding: 6px 11px;
-                font-size: 12.5px;
-            }
-
-            #label-target-proposal,
-            #label-target-full {
-                padding: 11px 12px !important;
-                gap: 8px !important;
-                flex-wrap: wrap !important;
-            }
-
-            #title-target-proposal,
-            #title-target-full {
-                font-size: 13px !important;
-            }
-
-            #badge-target-proposal,
-            #badge-target-full {
-                font-size: 10.5px !important;
-                padding: 2px 8px !important;
-                white-space: nowrap !important;
+                min-height: 40px;
+                padding: 9px 16px;
+                font-size: 13.5px;
             }
 
             .topbar {
@@ -2497,11 +2452,11 @@
         <div class="sidebar-header">
             <div class="sidebar-brand-left">
                 <a href="/" class="brand-avatar" style="padding: 0; background: none; border: none;">
-                    <img src="/images/logo.svg" alt="SkripsiLab"
+                    <img src="/images/logo.svg" alt="SkripsiLab AI"
                         style="width: 32px; height: 32px; border-radius: 8px; display: block;">
                 </a>
                 <div class="brand-info">
-                    <div class="brand-name">SkripsiLab</div>
+                    <div class="brand-name">SkripsiLab AI</div>
                     <div class="brand-user">{{ $user->name }}</div>
                 </div>
             </div>
@@ -3027,15 +2982,8 @@
                             <div class="responsive-grid-title-logo"
                                 style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
-                                        <label for="input-project-judul" class="form-label" style="margin-bottom: 0;">Judul Proposal / Skripsi <span
-                                                class="req">*</span></label>
-                                        <button type="button" onclick="openTab('titles', 'Cari Judul')"
-                                            style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                            <span>Belum punya judul? Cari Judul AI →</span>
-                                        </button>
-                                    </div>
+                                    <label class="form-label">Judul Proposal / Skripsi <span
+                                            class="req">*</span></label>
                                     <textarea name="judul" id="input-project-judul" class="form-textarea"
                                         style="min-height: 92px;"
                                         placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)"
@@ -3399,6 +3347,7 @@
                     </button>
                 </div>
 
+                <!-- STEP 1: Pilih Skripsi atau Upload File -->
                 <!-- STEP 1: PPT Saya + Pilih Skripsi atau Upload File -->
                 <div id="ppt-view-step-1">
                     <!-- PPT Saya (Tersimpan Otomatis — Bisa Dilihat, Diedit & Diunduh Ulang Kapan Saja) -->
@@ -3610,8 +3559,14 @@
                 <div id="ppt-view-step-3" style="display: none;">
                     <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
                     <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div>
+                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain
+                                    Template Slide</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik
+                                    maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</span>
                                     <span id="ppt-autosave-status" style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 9px; border-radius: 999px; white-space: nowrap;">✓ Tersimpan di PPT Saya</span>
@@ -3628,6 +3583,7 @@
                                 </button>
                                 <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;"
                                     onclick="openPptGridPreviewStep()">
+                                    Preview Semua & Unduh (.pptx) →
                                     Preview Semua &amp; Unduh (.pptx) →
                                 </button>
                             </div>
@@ -4377,7 +4333,7 @@
                             <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif
                                 Otomatis (Tanpa Wajib API Key)</div>
                             <div style="font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px;">
-                                SkripsiLab sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
+                                SkripsiLab AI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
                                 default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi,
                                 membuat slide PPT, atau simulasi sidang.
                             </div>
@@ -4568,7 +4524,7 @@
                 @endphp
                 <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral)</h1>
-                <p class="page-subtitle">Bagikan link undangan SkripsiLab ke teman sejurusan atau kelompok bimbinganmu.
+                <p class="page-subtitle">Bagikan link undangan SkripsiLab AI ke teman sejurusan atau kelompok bimbinganmu.
                 </p>
 
                 <div class="card"
@@ -4583,7 +4539,7 @@
                                 Dapatkan Komisi 10% dari Setiap Pembelian Paket</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
                                 seangkatan atau tim bimbinganmu. Anda otomatis mendapatkan <strong>komisi 10%</strong>
-                                dari setiap pembelian paket atau fitur berbayar SkripsiLab di masa depan.</p>
+                                dari setiap pembelian paket atau fitur berbayar SkripsiLab AI di masa depan.</p>
                         </div>
                         <div
                             style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
@@ -4618,7 +4574,7 @@
 
                 <div class="card">
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara
-                        Kerja Komisi Referral SkripsiLab</div>
+                        Kerja Komisi Referral SkripsiLab AI</div>
                     <div class="form-row responsive-grid-3"
                         style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
                         <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
@@ -4648,7 +4604,7 @@
             <!-- 12. TAB SARAN & LAPORAN KE WHATSAPP PENGEMBANG -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-feedback">
-                <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiLab</div>
+                <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiLab AI</div>
                 <h1 class="page-title">Saran &amp; Laporan Kendala</h1>
                 <p class="page-subtitle">Sampaikan saran fitur baru, kritik format penulisan kampusmu, atau laporkan
                     kendala teknis langsung ke WhatsApp developer (Muh Alwi Syahrir).</p>
@@ -5244,7 +5200,7 @@
         function shareReferralWhatsapp() {
             const urlEl = document.getElementById('referral-link-input');
             const refUrl = urlEl ? urlEl.value : window.location.origin;
-            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab untuk susun Bab 1-5, cari jurnal, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
+            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab AI untuk susun Bab 1-5 otomatis dengan referensi jurnal asli, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
@@ -5307,14 +5263,14 @@
                 return;
             }
 
-            let text = `Halo Mas Alwi (Developer SkripsiLab),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
+            let text = `Halo Mas Alwi (Developer SkripsiLab AI),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
                 `*Nama Mahasiswa:* ${nama || '-'}\n` +
                 `*Kampus:* ${kampus || '-'}\n` +
                 `*Program Studi:* ${prodi || '-'}\n`;
             if (judul) {
                 text += `*Judul Skripsi:* ${judul}\n`;
             }
-            text += `\n*Pesan / Kendala:*\n${pesan}\n\n_Terkirim dari aplikasi SkripsiLab_`;
+            text += `\n*Pesan / Kendala:*\n${pesan}\n\n_Terkirim dari aplikasi SkripsiLab AI_`;
 
             const encoded = encodeURIComponent(text);
             const waUrl = `https://wa.me/6282195036971?text=${encoded}`;
@@ -6705,7 +6661,7 @@
                 }
             });
 
-            const safeSlug = (selectedPptProject.title || 'SkripsiLab').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 32) || 'SkripsiLab';
+            const safeSlug = (selectedPptProject.title || 'SkripsiLab_AI').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 32) || 'SkripsiLab_AI';
             pptx.writeFile({ fileName: `Slide_Sidang_${safeSlug}.pptx` });
         }
 
