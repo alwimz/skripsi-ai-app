@@ -1171,6 +1171,14 @@
                 box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.12);
                 z-index: 100;
             }
+
+            .a4-sheet {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                padding: 28px 20px 52px 22px !important;
+                box-sizing: border-box !important;
+            }
         }
 
         @media (max-width: 768px) {
@@ -3762,16 +3770,7 @@
             }
             if (activeView === 'front') {
                 const savedFront = projectMeta.front_matter_html;
-                const frontToolbar = `
-                    <div id="front-action-bar" style="max-width: 794px; margin: 0 auto 14px; padding: 10px 14px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
-                        <span style="font-size: 12.5px; color: #475569; font-weight: 500;">Klik teks pada lembar A4 di bawah untuk mengedit langsung, atau perbarui identitas sampul:</span>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                            <button type="button" class="btn-top" onclick="openEditIdentityModal()">✏️ Edit Identitas Mahasiswa</button>
-                            <button type="button" class="btn-top" onclick="document.getElementById('sidebar-logo-upload').click()">📷 Ganti Logo Kampus</button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML = frontToolbar + `<div id="front-sheets-wrap">${savedFront || buildCoverAndFrontMatterHtml()}</div>`;
+                container.innerHTML = `<div id="front-sheets-wrap">${savedFront || buildCoverAndFrontMatterHtml()}</div>`;
                 applyCurrentDocFormatting();
                 container.querySelectorAll('[contenteditable="true"]').forEach((el) => {
                     el.addEventListener('input', () => {
@@ -4151,17 +4150,20 @@
             const left = document.getElementById('m-left')?.value || '4';
             const bottom = document.getElementById('m-bottom')?.value || '3';
             const right = document.getElementById('m-right')?.value || '3';
+            const isCompactViewport = window.innerWidth <= 900;
 
             document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
                 el.style.fontFamily = cfg.css;
                 if (el.classList.contains('paper-editor')) {
-                    el.style.fontSize = cfg.size;
+                    el.style.fontSize = isCompactViewport ? '14px' : cfg.size;
                 }
-                if (el.classList.contains('a4-sheet') && !el.classList.contains('empty-sheet') && !el.classList.contains('empty-sheet-premium') && window.innerWidth > 768) {
-                    el.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+                if (el.classList.contains('a4-sheet') && !el.classList.contains('empty-sheet') && !el.classList.contains('empty-sheet-premium')) {
+                    el.style.padding = isCompactViewport ? '' : `${top}cm ${right}cm ${bottom}cm ${left}cm`;
                 }
             });
         }
+
+        window.addEventListener('resize', applyCurrentDocFormatting);
 
         function updateDocFont(val, silent = false) {
             const cfg = DOC_FONT_MAP[val] || DOC_FONT_MAP.times;
