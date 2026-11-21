@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SkripsiAI — Workspace</title>
+    <title>SkripsiLab — Workspace Penulisan Proposal, Skripsi &amp; Sidang</title>
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2164,55 +2164,175 @@
 
             /* Responsive Dosen AI Card di HP */
             #pane-qa .dosen-ai-card {
-                min-height: calc(100vh - 200px) !important;
-                max-height: calc(100dvh - 160px) !important;
+                height: calc(100dvh - 145px) !important;
+                min-height: 430px !important;
+                max-height: none !important;
                 border-radius: 14px !important;
                 margin-bottom: 12px !important;
             }
 
             #qa-chat-messages {
-                padding: 12px 10px !important;
+                padding: 14px 12px !important;
                 gap: 12px !important;
             }
 
             #pane-qa .chat-msg.assistant {
-                max-width: 96% !important;
+                max-width: 100% !important;
+                gap: 8px !important;
+            }
+
+            #pane-qa .chat-msg.assistant .qa-avatar {
+                width: 28px !important;
+                height: 28px !important;
             }
 
             #pane-qa .chat-msg.user {
-                max-width: 90% !important;
+                max-width: 100% !important;
             }
 
-            #pane-qa .chat-msg.assistant>div:last-child {
+            #pane-qa .chat-msg.user > div {
+                max-width: 88% !important;
                 padding: 10px 13px !important;
-                font-size: 13px !important;
+                font-size: 13.5px !important;
             }
 
-            #pane-qa .chat-msg.user>div {
-                padding: 10px 13px !important;
-                font-size: 13px !important;
+            #pane-qa .chat-msg.assistant .qa-bubble {
+                padding: 11px 13px !important;
+                font-size: 13.5px !important;
             }
 
             .qa-chips-bar {
-                padding: 6px 10px !important;
+                padding: 8px 10px !important;
                 gap: 6px !important;
             }
 
             .qa-input-bar {
-                padding: 8px 10px !important;
-                gap: 6px !important;
+                padding: 10px !important;
+                gap: 8px !important;
             }
 
             .qa-input-bar textarea {
-                font-size: 13px !important;
-                padding: 8px 10px !important;
-                min-height: 38px !important;
+                font-size: 16px !important;
+                padding: 9px 11px !important;
+                min-height: 42px !important;
             }
 
             .qa-input-bar .btn-primary {
-                padding: 8px 12px !important;
-                font-size: 12.5px !important;
+                min-height: 42px !important;
+                padding: 8px 13px !important;
+                font-size: 13px !important;
             }
+        }
+
+        /* Dosen AI Clean Responsive Chat Layout */
+        #pane-qa .dosen-ai-card {
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: clamp(500px, calc(100dvh - 190px), 740px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #ffffff;
+        }
+
+        .qa-header-bar {
+            flex-shrink: 0;
+            padding: 12px 18px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #qa-chat-messages {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #ffffff;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .qa-chips-bar {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .qa-chips-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .qa-chip-pill {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 13px;
+            min-height: 32px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .qa-chip-pill:hover {
+            background: var(--bg-muted);
+            border-color: #93c5fd;
+            color: var(--primary-hover);
+        }
+
+        .qa-input-bar {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .qa-copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            min-height: 28px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            font-size: 11.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .qa-copy-btn:hover {
+            background: var(--bg-muted);
+            border-color: #93c5fd;
+            color: var(--primary-hover);
         }
 
         .qa-prompt-chip {
@@ -2257,11 +2377,11 @@
         <div class="sidebar-header">
             <div class="sidebar-brand-left">
                 <a href="/" class="brand-avatar" style="padding: 0; background: none; border: none;">
-                    <img src="/images/logo.svg" alt="SkripsiAI"
+                    <img src="/images/logo.svg" alt="SkripsiLab"
                         style="width: 32px; height: 32px; border-radius: 8px; display: block;">
                 </a>
                 <div class="brand-info">
-                    <div class="brand-name">SkripsiAI</div>
+                    <div class="brand-name">SkripsiLab</div>
                     <div class="brand-user">{{ $user->name }}</div>
                 </div>
             </div>
@@ -3985,22 +4105,19 @@
                     pembimbing, perumusan fenomena &amp; gap riset, revisi bab naskah, olah data statistik/kualitatif,
                     tips lolos Turnitin, hingga strategi menjawab ujian sidang.</p>
 
-                <div class="card dosen-ai-card"
-                    style="padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 540px; max-height: 75vh; border: 1px solid var(--border);">
+                <div class="card dosen-ai-card">
                     <!-- Header Chat Status -->
-                    <div
-                        style="padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div class="qa-header-bar">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div
-                                style="width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);">
+                                style="width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); flex-shrink: 0;">
                             </div>
-                            <span style="font-size: 13px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing
+                            <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing
                                 AI (Aktif 24 Jam)</span>
                         </div>
-                        <button type="button" class="btn-outline"
-                            style="padding: 4px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;"
+                        <button type="button" class="qa-copy-btn"
                             onclick="resetQaChat()">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                                 <path d="M3 3v5h5" />
@@ -4010,21 +4127,20 @@
                     </div>
 
                     <!-- Scrollable Messages Container -->
-                    <div id="qa-chat-messages"
-                        style="flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;">
+                    <div id="qa-chat-messages">
                         <!-- Initial Assistant Greeting -->
                         <div class="chat-msg assistant"
-                            style="display: flex; gap: 12px; align-items: flex-start; max-width: 88%;">
-                            <div
-                                style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            style="display: flex; gap: 12px; align-items: flex-start; max-width: 92%;">
+                            <div class="qa-avatar"
+                                style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="1.8">
                                     <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                                     <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
                                 </svg>
                             </div>
-                            <div
-                                style="background: #f1f5f9; padding: 12px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+                            <div class="qa-bubble"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 13px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.65; color: var(--text-main);">
                                 Halo! Saya adalah Dosen AI, asisten pembimbing skripsi dan proposal Anda. Anda bisa
                                 menanyakan apa saja: mulai dari cara menemukan gap penelitian, menyusun latar belakang
                                 masalah, olah data statistik (SPSS/PLS), tips menghadapi revisi dosen, cara menurunkan
@@ -4035,37 +4151,30 @@
                     </div>
 
                     <!-- Suggestion Chips -->
-                    <div class="qa-chips-bar"
-                        style="padding: 8px 18px; background: #ffffff; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                    <div class="qa-chips-bar" aria-label="Contoh pertanyaan cepat">
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Bagaimana cara sopan menghubungi dan menghadapi dosen pembimbing yang slow response atau sering menolak draft?')">Tips
                             Hadapi Dosen Pembimbing</button>
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Bagaimana langkah praktis menemukan fenomena masalah nyata dan research gap untuk judul proposal skripsi?')">Cari
                             Fenomena &amp; Research Gap</button>
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Bagaimana cara efektif menurunkan skor similarity Turnitin yang tinggi tanpa mengubah substansi ilmiah?')">Tips
                             Lolos Turnitin</button>
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Bagaimana cara membaca output regresi linier, uji F, dan uji t pada SPSS beserta artinya?')">Interpretasi
                             Regresi SPSS</button>
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Pertanyaan apa saja yang paling sering diajukan penguji saat ujian sidang skripsi dan bagaimana cara menjawabnya?')">Strategi
                             Sidang Skripsi</button>
-                        <button type="button" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 11.5px; white-space: nowrap; border-radius: 999px; background: #f8fafc;"
+                        <button type="button" class="qa-chip-pill"
                             onclick="sendQuickPrompt('Apa perbedaan mendasar antara penelitian Kuantitatif, Kualitatif, dan R&D?')">Kuantitatif
                             vs Kualitatif vs R&amp;D</button>
                     </div>
 
                     <!-- Attached Image Preview Bar -->
                     <div id="qa-image-preview-bar"
-                        style="display: none; padding: 8px 18px; background: #f8fafc; border-top: 1px solid var(--border); align-items: center; gap: 10px;">
+                        style="display: none; flex-shrink: 0; padding: 8px 16px; background: #f8fafc; border-top: 1px solid var(--border); align-items: center; gap: 10px;">
                         <img id="qa-image-preview-img" src="" alt="preview"
                             style="height: 38px; width: 38px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);">
                         <span id="qa-image-name"
@@ -4075,10 +4184,9 @@
                     </div>
 
                     <!-- Input Bar -->
-                    <div class="qa-input-bar"
-                        style="padding: 12px 18px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end;">
+                    <div class="qa-input-bar">
                         <label title="Lampirkan foto/gambar soal, grafik, atau tabel"
-                            style="margin-bottom: 2px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #ffffff; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path
@@ -4088,11 +4196,11 @@
                                 onchange="handleQaImageSelect(this)">
                         </label>
                         <textarea id="qa-question" class="form-textarea" rows="1"
-                            style="min-height: 40px; max-height: 120px; padding: 9px 12px; font-size: 13.5px; resize: none; flex: 1; border-radius: 10px;"
+                            style="min-height: 42px; max-height: 120px; padding: 10px 13px; font-size: 13.5px; resize: none; flex: 1; border-radius: 10px;"
                             placeholder="Tuliskan pertanyaan atau kendala skripsimu... (Shift+Enter untuk baris baru)"
-                            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSolveQa(); }"></textarea>
+                            onkeydown="if(event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); handleSolveQa(); }"></textarea>
                         <button type="button" id="btn-solve-qa" class="btn-primary"
-                            style="padding: 10px 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;"
+                            style="min-height: 42px; padding: 9px 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;"
                             onclick="handleSolveQa()">
                             <span>Kirim</span>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -4131,7 +4239,7 @@
                             <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif
                                 Otomatis (Tanpa Wajib API Key)</div>
                             <div style="font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px;">
-                                SkripsiAI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
+                                SkripsiLab sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
                                 default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi,
                                 membuat slide PPT, atau simulasi sidang.
                             </div>
@@ -4322,7 +4430,7 @@
                 @endphp
                 <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral)</h1>
-                <p class="page-subtitle">Bagikan link undangan SkripsiAI ke teman sejurusan atau kelompok bimbinganmu.
+                <p class="page-subtitle">Bagikan link undangan SkripsiLab ke teman sejurusan atau kelompok bimbinganmu.
                 </p>
 
                 <div class="card"
@@ -4337,7 +4445,7 @@
                                 Dapatkan Komisi 10% dari Setiap Pembelian Paket</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
                                 seangkatan atau tim bimbinganmu. Anda otomatis mendapatkan <strong>komisi 10%</strong>
-                                dari setiap pembelian paket atau fitur berbayar SkripsiAI di masa depan.</p>
+                                dari setiap pembelian paket atau fitur berbayar SkripsiLab di masa depan.</p>
                         </div>
                         <div
                             style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
@@ -4372,7 +4480,7 @@
 
                 <div class="card">
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara
-                        Kerja Komisi Referral SkripsiAI</div>
+                        Kerja Komisi Referral SkripsiLab</div>
                     <div class="form-row responsive-grid-3"
                         style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
                         <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
@@ -4402,7 +4510,7 @@
             <!-- 12. TAB SARAN & LAPORAN KE WHATSAPP PENGEMBANG -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-feedback">
-                <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiAI</div>
+                <div class="page-eyebrow">Dukungan Pengguna Langsung · Pengembang SkripsiLab</div>
                 <h1 class="page-title">Saran &amp; Laporan Kendala</h1>
                 <p class="page-subtitle">Sampaikan saran fitur baru, kritik format penulisan kampusmu, atau laporkan
                     kendala teknis langsung ke WhatsApp developer (Muh Alwi Syahrir).</p>
@@ -4998,7 +5106,7 @@
         function shareReferralWhatsapp() {
             const urlEl = document.getElementById('referral-link-input');
             const refUrl = urlEl ? urlEl.value : window.location.origin;
-            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiAI untuk susun Bab 1-5, cari jurnal, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
+            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab untuk susun Bab 1-5, cari jurnal, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
@@ -5061,14 +5169,14 @@
                 return;
             }
 
-            let text = `Halo Mas Alwi (Developer SkripsiAI),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
+            let text = `Halo Mas Alwi (Developer SkripsiLab),\nSaya ingin menyampaikan *${kategori}*:\n\n` +
                 `*Nama Mahasiswa:* ${nama || '-'}\n` +
                 `*Kampus:* ${kampus || '-'}\n` +
                 `*Program Studi:* ${prodi || '-'}\n`;
             if (judul) {
                 text += `*Judul Skripsi:* ${judul}\n`;
             }
-            text += `\n*Pesan / Kendala:*\n${pesan}\n\n_Terkirim dari aplikasi SkripsiAI_`;
+            text += `\n*Pesan / Kendala:*\n${pesan}\n\n_Terkirim dari aplikasi SkripsiLab_`;
 
             const encoded = encodeURIComponent(text);
             const waUrl = `https://wa.me/6282195036971?text=${encoded}`;
@@ -6247,7 +6355,7 @@
                 }
             });
 
-            const safeSlug = (selectedPptProject.title || 'SkripsiAI').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 32) || 'SkripsiAI';
+            const safeSlug = (selectedPptProject.title || 'SkripsiLab').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 32) || 'SkripsiLab';
             pptx.writeFile({ fileName: `Slide_Sidang_${safeSlug}.pptx` });
         }
 
@@ -6897,17 +7005,17 @@
 
                     if (msgBox) {
                         msgBox.innerHTML += `
-                            <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 90%;">
-                                <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <div class="chat-msg assistant" style="display: flex; gap: 12px; align-items: flex-start; max-width: 92%;">
+                                <div class="qa-avatar" style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                                         <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
                                     </svg>
                                 </div>
-                                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 18px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.65; color: var(--text-main); width: 100%;">
+                                <div class="qa-bubble" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 4px 14px 14px 14px; font-size: 13.5px; line-height: 1.68; color: var(--text-main); flex: 1; min-width: 0; word-break: break-word;">
                                     <div id="${ansId}">${cleanAnswerHtml}</div>
                                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
-                                        <button type="button" class="btn-outline" style="padding: 3px 9px; font-size: 11px;" onclick="navigator.clipboard.writeText(document.getElementById('${ansId}').innerText); alert('Jawaban disalin!');">Salin Teks</button>
+                                        <button type="button" class="qa-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${ansId}').innerText); this.textContent='✓ Tersalin'; setTimeout(() => this.textContent='Salin Teks', 1800);">Salin Teks</button>
                                     </div>
                                 </div>
                             </div>

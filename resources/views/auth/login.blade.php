@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — SkripsiAI | Workspace Penulisan Proposal &amp; Skripsi</title>
-    <meta name="description" content="Masuk ke akun SkripsiAI untuk melanjutkan penyusunan proposal Bab 1–3, skripsi lengkap Bab 1–5, PPT sidang, dan simulasi sidang mahasiswa Indonesia.">
+    <title>Masuk — SkripsiLab | Workspace Penulisan Proposal &amp; Skripsi</title>
+    <meta name="description" content="Masuk ke akun SkripsiLab untuk melanjutkan penyusunan proposal Bab 1–3, skripsi lengkap Bab 1–5, PPT sidang, dan simulasi sidang mahasiswa Indonesia.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/login') }}">
     <meta name="theme-color" content="#2563eb">
@@ -269,8 +269,8 @@
 <body>
     <main class="auth-card">
         <a href="/" class="brand">
-            <img src="/images/logo.svg" alt="SkripsiAI" class="brand-logo-img" width="34" height="34">
-            <span>SkripsiAI</span>
+            <img src="/images/logo.svg" alt="SkripsiLab" class="brand-logo-img" width="34" height="34">
+            <span>SkripsiLab</span>
         </a>
 
         <h1>Masuk ke Akun</h1>
@@ -322,7 +322,7 @@
     </main>
 
     <footer class="footer-credit">
-        Demo by <strong>Muh Alwi Syahrir</strong> &bull; SkripsiAI &copy; {{ date('Y') }}
+        Demo by <strong>Muh Alwi Syahrir</strong> &bull; SkripsiLab &copy; {{ date('Y') }}
     </footer>
 
     <script>

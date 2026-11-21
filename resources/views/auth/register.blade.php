@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun — SkripsiAI | Mulai Susun Proposal &amp; Skripsi</title>
-    <meta name="description" content="Daftar akun SkripsiAI gratis untuk menyusun proposal Bab 1–3, skripsi Bab 1–5, cari judul, referensi DOI, PPT sidang 13 tema, dan simulasi sidang.">
+    <title>Daftar Akun — SkripsiLab | Mulai Susun Proposal &amp; Skripsi</title>
+    <meta name="description" content="Daftar akun SkripsiLab gratis untuk menyusun proposal Bab 1–3, skripsi Bab 1–5, cari judul, referensi DOI, PPT sidang 13 tema, dan simulasi sidang.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/register') }}">
     <meta name="theme-color" content="#2563eb">
@@ -200,8 +200,8 @@
 <body>
     <main class="auth-card">
         <a href="/" class="brand">
-            <img src="/images/logo.svg" alt="SkripsiAI" class="brand-logo-img" width="34" height="34">
-            <span>SkripsiAI</span>
+            <img src="/images/logo.svg" alt="SkripsiLab" class="brand-logo-img" width="34" height="34">
+            <span>SkripsiLab</span>
         </a>
 
         <h1>Buat Akun Baru</h1>
@@ -269,7 +269,7 @@
     </main>
 
     <footer class="footer-credit">
-        Demo by <strong>Muh Alwi Syahrir</strong> &bull; SkripsiAI &copy; {{ date('Y') }}
+        Demo by <strong>Muh Alwi Syahrir</strong> &bull; SkripsiLab &copy; {{ date('Y') }}
     </footer>
 
     <script>

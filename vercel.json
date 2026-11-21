@@ -13,7 +13,7 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
-        "APP_URL": "https://${VERCEL_URL}",
+        "APP_URL": "https://muhalwisyahrir.tech",
         "APP_KEY": "${APP_KEY}",
         "DB_CONNECTION": "mysql",
         "SESSION_DRIVER": "cookie", 

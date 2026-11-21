@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiAI — AI Pembuat Proposal, Skripsi Bab 1–5, PPT Sidang &amp; Simulasi Sidang Mahasiswa Indonesia</title>
-    <meta name="description" content="Workspace AI akademik untuk mahasiswa Indonesia: susun proposal skripsi Bab 1–3 &amp; skripsi lengkap Bab 1–5 sesuai pedoman kampus, cari judul &amp; jurnal DOI APA 7th, buat PPT sidang 13 tema, simulasi sidang, hingga ekspor Word (.docx) &amp; PDF rapi.">
-    <meta name="keywords" content="skripsi ai, buat proposal skripsi ai, generator skripsi otomatis, contoh proposal skripsi, cari judul skripsi, cari jurnal doi, daftar pustaka apa 7th, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
-    <meta name="author" content="SkripsiAI">
+    <title>SkripsiLab — AI Pembuat Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang</title>
+    <meta name="description" content="SkripsiLab adalah workspace AI mahasiswa Indonesia: susun proposal Bab 1–3 &amp; skripsi Bab 1–5, referensi DOI APA 7th, PPT sidang 13 tema, simulasi sidang, ekspor Word/PDF.">
+    <meta name="keywords" content="skripsilab, skripsi lab, skripsi ai, ai pembuat skripsi, buat proposal skripsi ai, generator skripsi bab 1-5, contoh proposal skripsi, cari judul skripsi, cari jurnal doi, daftar pustaka apa 7th, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
+    <meta name="author" content="SkripsiLab">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
@@ -15,17 +15,17 @@
     <!-- Open Graph / WhatsApp / LinkedIn / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
-    <meta property="og:site_name" content="SkripsiAI">
+    <meta property="og:site_name" content="SkripsiLab">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:title" content="SkripsiAI — Workspace AI Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
-    <meta property="og:description" content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 sesuai pedoman kampus, referensi DOI aktif, Lampiran otomatis, PPT Sidang 13 tema, dan Simulasi Sidang berbasis naskah.">
+    <meta property="og:title" content="SkripsiLab — AI Pembuat Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
+    <meta property="og:description" content="Workspace AI mahasiswa Indonesia untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 sesuai pedoman kampus, referensi DOI aktif, Lampiran otomatis, PPT Sidang 13 tema, dan Simulasi Sidang.">
     <meta property="og:image" content="{{ url('/images/logo.svg') }}">
-    <meta property="og:image:alt" content="Logo SkripsiAI — Workspace Penulisan Akademik Mahasiswa Indonesia">
+    <meta property="og:image:alt" content="Logo SkripsiLab — Workspace Penulisan Proposal dan Skripsi Mahasiswa Indonesia">
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SkripsiAI — Workspace AI Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
-    <meta name="twitter:description" content="Pendamping lengkap mahasiswa Indonesia dari cari judul, susun Bab I–V margin 4-4-3-3, daftar pustaka DOI, PPT Sidang, hingga Simulasi Sidang.">
+    <meta name="twitter:title" content="SkripsiLab — AI Pembuat Proposal, Skripsi Bab 1–5, PPT &amp; Simulasi Sidang">
+    <meta name="twitter:description" content="Pendamping lengkap mahasiswa Indonesia: cari judul, susun Bab I–V margin 4-4-3-3, daftar pustaka DOI APA 7th, PPT Sidang 13 tema, hingga Simulasi Sidang.">
     <meta name="twitter:image" content="{{ url('/images/logo.svg') }}">
 
     <!-- Structured Data (JSON-LD) untuk Google Rich Results -->
@@ -37,19 +37,21 @@
                     '@type' => 'WebSite',
                     '@id' => url('/') . '#website',
                     'url' => url('/'),
-                    'name' => 'SkripsiAI',
-                    'description' => 'Workspace penulisan akademik berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi, skripsi Bab 1–5, referensi jurnal DOI, PPT sidang, dan simulasi sidang.',
+                    'name' => 'SkripsiLab',
+                    'alternateName' => ['Skripsi Lab', 'SkripsiLab AI'],
+                    'description' => 'SkripsiLab adalah workspace penulisan akademik berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi Bab 1–3, skripsi Bab 1–5, referensi jurnal DOI, PPT sidang, dan simulasi sidang.',
                     'inLanguage' => 'id-ID',
                 ],
                 [
                     '@type' => 'SoftwareApplication',
                     '@id' => url('/') . '#app',
-                    'name' => 'SkripsiAI',
+                    'name' => 'SkripsiLab',
+                    'alternateName' => 'SkripsiLab AI',
                     'applicationCategory' => 'EducationalApplication',
                     'operatingSystem' => 'Web Browser',
                     'url' => url('/'),
                     'inLanguage' => 'id-ID',
-                    'description' => 'Aplikasi workspace penulisan proposal skripsi Bab 1–3 dan skripsi penuh Bab 1–5, cari judul, cari jurnal DOI, parafrase akademik, Dosen AI, PPT sidang 13 tema, simulasi sidang, lampiran otomatis, serta ekspor Word (.docx) dan PDF (.pdf).',
+                    'description' => 'SkripsiLab adalah workspace AI untuk menyusun proposal skripsi Bab 1–3 dan skripsi penuh Bab 1–5, cari judul, cari jurnal DOI, parafrase akademik, Dosen AI, PPT sidang 13 tema, simulasi sidang, lampiran otomatis, serta ekspor Word (.docx) dan PDF (.pdf).',
                     'offers' => [
                         '@type' => 'Offer',
                         'price' => '0',
@@ -73,10 +75,10 @@
                     'mainEntity' => [
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah SkripsiAI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?',
+                            'name' => 'Apakah SkripsiLab bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Mahasiswa dapat memilih tahap Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V), mengatur pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm sejak awal proyek.',
+                                'text' => 'Ya. Di SkripsiLab, mahasiswa dapat memilih tahap Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V), mengatur pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm sejak awal proyek.',
                             ],
                         ],
                         [
@@ -89,10 +91,10 @@
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Jurusan dan metode penelitian apa saja yang didukung SkripsiAI?',
+                            'name' => 'Jurusan dan metode penelitian apa saja yang didukung SkripsiLab?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SkripsiAI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
+                                'text' => 'SkripsiLab mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
                             ],
                         ],
                         [
@@ -1078,8 +1080,8 @@
     <header class="navbar">
         <div class="container nav-inner">
             <a href="/" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiAI" style="width: 32px; height: 32px; border-radius: 8px; display: block;">
-                SkripsiAI
+                <img src="/images/logo.svg" alt="SkripsiLab" style="width: 32px; height: 32px; border-radius: 8px; display: block;">
+                SkripsiLab
             </a>
 
             <ul class="nav-links">
@@ -1184,7 +1186,7 @@
         <div class="mobile-nav-list">
             <a href="#workspace-preview" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pratinjau Workspace A4 <span>→</span></a>
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp; Skripsi <span>→</span></a>
-            <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiAI <span>→</span></a>
+            <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab <span>→</span></a>
             <a href="#faq" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pertanyaan Umum (FAQ) <span>→</span></a>
         </div>
     </nav>
@@ -1206,7 +1208,7 @@
                 <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal &amp; Skripsi</a>
             </div>
 
-            <div class="hero-trust-strip" aria-label="Keunggulan utama SkripsiAI">
+            <div class="hero-trust-strip" aria-label="Keunggulan utama SkripsiLab">
                 <span class="hero-trust-pill">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                     Margin 4-4-3-3 &amp; Penomoran Otomatis
@@ -1448,7 +1450,7 @@
     <section id="fitur-lengkap" class="section section-subtle">
         <div class="container">
             <div class="section-header">
-                <span class="section-label">Semua Modul SkripsiAI</span>
+                <span class="section-label">Semua Modul SkripsiLab</span>
                 <h2 class="section-title">Pendamping Lengkap dari Ide Judul hingga Sidang</h2>
                 <p class="section-desc">Sembilan modul akademik terintegrasi dalam satu workspace untuk membantu menyusun proposal, skripsi penuh, referensi, presentasi, hingga persiapan sidang.</p>
             </div>
@@ -1562,12 +1564,12 @@
             <div class="section-header">
                 <span class="section-label">Pertanyaan Umum</span>
                 <h2 class="section-title">Hal yang Sering Ditanyakan Mahasiswa</h2>
-                <p class="section-desc">Informasi singkat mengenai penyusunan proposal, skripsi Bab I–V, format ekspor Word/PDF, referensi DOI, hingga persiapan sidang di SkripsiAI.</p>
+                <p class="section-desc">Informasi singkat mengenai penyusunan proposal, skripsi Bab I–V, format ekspor Word/PDF, referensi DOI, hingga persiapan sidang di SkripsiLab.</p>
             </div>
 
             <div class="faq-grid">
                 <details class="faq-item" open>
-                    <summary>Apakah SkripsiAI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?</summary>
+                    <summary>Apakah SkripsiLab bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?</summary>
                     <div class="faq-answer">
                         Ya. Mahasiswa dapat memilih tahap <strong>Proposal Skripsi (Bab I–III)</strong> maupun <strong>Skripsi Penuh (Bab I–V)</strong> sejak awal pembuatan proyek, lengkap dengan pengaturan pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.
                     </div>
@@ -1581,9 +1583,9 @@
                 </details>
 
                 <details class="faq-item">
-                    <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiAI?</summary>
+                    <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiLab?</summary>
                     <div class="faq-answer">
-                        SkripsiAI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan/PGSD, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
+                        SkripsiLab mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan/PGSD, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
                     </div>
                 </details>
 
@@ -1597,7 +1599,7 @@
 
             <div class="cta-banner" style="margin-top: 44px;">
                 <h2>Siap Menyusun Proposal &amp; Skripsimu Lebih Rapi?</h2>
-                <p>Buka Workspace SkripsiAI sekarang dan nikmati seluruh 9 modul akademik dalam satu tempat yang bersih, cepat, dan mudah digunakan di laptop maupun HP.</p>
+                <p>Buka Workspace SkripsiLab sekarang dan nikmati seluruh 9 modul akademik dalam satu tempat yang bersih, cepat, dan mudah digunakan di laptop maupun HP.</p>
                 <div class="hero-cta">
                     @auth
                         <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka Workspace Saya →</a>
@@ -1615,10 +1617,10 @@
     <footer class="footer">
         <div class="container footer-inner">
             <div class="brand" style="font-size: 15px;">
-                <img src="/images/logo.svg" alt="SkripsiAI" style="width: 26px; height: 26px; border-radius: 6px; display: block;">
-                SkripsiAI
+                <img src="/images/logo.svg" alt="SkripsiLab" style="width: 26px; height: 26px; border-radius: 6px; display: block;">
+                SkripsiLab
             </div>
-            <div>&copy; {{ date('Y') }} SkripsiAI &bull; Demo by Muh Alwi Syahrir &bull; Workspace penulisan akademik mahasiswa Indonesia.</div>
+            <div>&copy; {{ date('Y') }} SkripsiLab &bull; Demo by Muh Alwi Syahrir &bull; Workspace penulisan akademik mahasiswa Indonesia.</div>
         </div>
     </footer>
 

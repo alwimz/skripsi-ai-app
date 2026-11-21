@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kunci Akses Admin · SkripsiAI</title>
+    <title>Kunci Akses Admin · SkripsiLab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -150,7 +150,7 @@
         </div>
 
         <h1>Panel Admin Khusus</h1>
-        <p class="desc">Halaman monitoring data dan jumlah pengguna SkripsiAI. Masukkan kode akses pemilik (Admin PIN) untuk melanjutkan.</p>
+        <p class="desc">Halaman monitoring data dan jumlah pengguna SkripsiLab. Masukkan kode akses pemilik (Admin PIN) untuk melanjutkan.</p>
 
         @if(!empty($error))
             <div class="alert alert-error">{{ $error }}</div>

@@ -13,4 +13,4 @@ Disallow: /profile/
 Disallow: /admin
 Disallow: /masuk
 
-Sitemap: https://skripsi-ai-app.vercel.app/sitemap.xml
+Sitemap: https://muhalwisyahrir.tech/sitemap.xml

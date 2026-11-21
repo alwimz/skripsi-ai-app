@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistik & Data Pengguna · SkripsiAI Admin</title>
+    <title>Statistik & Data Pengguna · SkripsiLab Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -446,7 +446,7 @@
                 </div>
                 <div>
                     <div class="brand-title">
-                        SkripsiAI
+                        SkripsiLab
                         <span class="badge-admin">ADMIN ONLY</span>
                     </div>
                     <div class="brand-sub">Dashboard Monitoring Data &amp; Pertumbuhan Pengguna</div>
@@ -668,7 +668,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #475569;">
-            SkripsiAI Dedicated Owner Console &copy; {{ date('Y') }} &bull; Private &amp; Confidential
+            SkripsiLab Dedicated Owner Console &copy; {{ date('Y') }} &bull; Private &amp; Confidential
         </div>
     </div>
 </body>
