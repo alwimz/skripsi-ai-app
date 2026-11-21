@@ -1705,8 +1705,8 @@
                 A4 <span>→</span></a>
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp;
                 Skripsi <span>→</span></a>
-            <a href="#tools-gratis" class="mobile-nav-link" onclick="closeLandingMobileNav()">10 Tools Mahasiswa Gratis
-                (Flowchart, Rapikan Word, PDF, dll.) <span>→</span></a>
+            <a href="#tools-gratis" class="mobile-nav-link" onclick="closeLandingMobileNav()">10 Tools Gratis
+                <span>→</span></a>
             <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab
                 AI
                 <span>→</span></a>
