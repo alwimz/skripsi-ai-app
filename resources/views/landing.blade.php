@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli</title>
+    <title>SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan</title>
     <meta name="description"
-        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis dengan AI dan referensi jurnal ilmiah asli ber-DOI. Ekspor Word/PDF, PPT sidang, &amp; simulasi sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah dan jurnal yang relevan ber-DOI. Ekspor Word/PDF, PPT &amp; simulasi sidang.">
     <meta name="keywords"
-        content="skripsilab ai, skripsilab, skripsi lab, skripsi ai, buat skripsi otomatis ai, buat proposal skripsi otomatis, referensi ilmiah jurnal asli, cari jurnal doi asli, ai pembuat skripsi, generator skripsi bab 1-5, contoh proposal skripsi, cari judul skripsi, daftar pustaka apa 7th otomatis, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
+        content="skripsilab ai, skripsilab, skripsi lab, skripsi ai, buat skripsi otomatis ai, buat proposal skripsi otomatis, referensi ilmiah jurnal relevan, cari jurnal doi relevan, ai pembuat skripsi, generator skripsi bab 1-5, contoh proposal skripsi, cari judul skripsi, daftar pustaka apa 7th otomatis, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
     <meta name="author" content="SkripsiLab AI">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="theme-color" content="#2563eb">
@@ -20,18 +20,18 @@
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="SkripsiLab AI">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli">
+    <meta property="og:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan">
     <meta property="og:description"
-        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
     <meta property="og:image" content="{{ url('/images/logo.svg') }}">
     <meta property="og:image:alt"
-        content="Logo SkripsiLab AI — Workspace Penulisan Proposal dan Skripsi Otomatis Berbasis AI">
+        content="Logo SkripsiLab AI — Workspace Penulisan Proposal dan Skripsi Otomatis Menggunakan AI">
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli">
+    <meta name="twitter:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan">
     <meta name="twitter:description"
-        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
     <meta name="twitter:image" content="{{ url('/images/logo.svg') }}">
 
     <!-- Structured Data (JSON-LD) untuk Google Rich Results -->
@@ -45,7 +45,7 @@
                     'url' => url('/'),
                     'name' => 'SkripsiLab AI',
                     'alternateName' => ['SkripsiLab', 'Skripsi Lab'],
-                    'description' => 'SkripsiLab AI adalah workspace penulisan akademik otomatis berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi Bab 1–3 dan skripsi Bab 1–5 dengan referensi ilmiah serta jurnal asli terverifikasi DOI, PPT sidang, dan simulasi sidang.',
+                    'description' => 'SkripsiLab AI adalah workspace penulisan akademik otomatis menggunakan AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi Bab 1–3 dan skripsi Bab 1–5 dengan referensi ilmiah serta jurnal yang relevan terverifikasi DOI, PPT sidang, dan simulasi sidang.',
                     'inLanguage' => 'id-ID',
                 ],
                 [
@@ -57,7 +57,7 @@
                     'operatingSystem' => 'Web Browser',
                     'url' => url('/'),
                     'inLanguage' => 'id-ID',
-                    'description' => 'SkripsiLab AI adalah workspace AI untuk menyusun proposal skripsi Bab 1–3 dan skripsi penuh Bab 1–5 secara otomatis menggunakan AI dengan referensi ilmiah dan jurnal asli terverifikasi DOI, cari judul, parafrase akademik, Dosen AI, PPT sidang 13 tema, simulasi sidang, lampiran otomatis, serta ekspor Word (.docx) dan PDF (.pdf).',
+                    'description' => 'SkripsiLab AI adalah workspace AI untuk menyusun proposal skripsi Bab 1–3 dan skripsi penuh Bab 1–5 secara otomatis menggunakan AI dengan referensi ilmiah dan jurnal yang relevan terverifikasi DOI, cari judul, parafrase akademik, Dosen AI, PPT sidang 13 tema, simulasi sidang, lampiran otomatis, serta ekspor Word (.docx) dan PDF (.pdf).',
                     'offers' => [
                         '@type' => 'Offer',
                         'price' => '0',
@@ -65,13 +65,13 @@
                     ],
                     'featureList' => [
                         'Penyusunan Proposal (Bab I–III) dan Skripsi Lengkap (Bab I–V) Otomatis Menggunakan AI',
-                        'Referensi Ilmiah & Jurnal Asli Nasional/Internasional Terverifikasi DOI (Crossref & OpenAlex)',
+                        'Referensi Ilmiah & Jurnal Relevan Nasional/Internasional Terverifikasi DOI (Crossref & OpenAlex)',
                         'Format Kertas A4 Margin 4-4-3-3, Daftar Isi, Daftar Tabel, Daftar Gambar & Daftar Lampiran Otomatis',
                         'Daftar Pustaka APA 7th Otomatis dengan Tautan DOI Aktif',
                         'Ekspor Dokumen Word (.docx) dan PDF (.pdf) Siap Cetak',
                         'Cari Judul Penelitian untuk 9 Metode (Kuantitatif, Kualitatif, R&D, PTK, Hukum Normatif, Mixed Method, dll.)',
                         'Generator PPT Sidang 13 Tema Akademik & Ekspor PowerPoint (.pptx)',
-                        'Simulasi Sidang Skripsi Berbasis Naskah Bab I–V',
+                        'Simulasi Sidang Skripsi Otomatis dari Naskah Bab I–V',
                         'Parafrase Akademik & Konsultasi Dosen AI 24 Jam',
                     ],
                 ],
@@ -81,10 +81,10 @@
                     'mainEntity' => [
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) otomatis dengan referensi jurnal asli?',
+                            'name' => 'Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) otomatis dengan referensi jurnal yang relevan?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Di SkripsiLab AI, mahasiswa dapat menyusun Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V) secara otomatis menggunakan AI yang terhubung dengan referensi ilmiah dan jurnal asli terverifikasi DOI (Crossref & OpenAlex), lengkap dengan pedoman kampus, logo universitas, font, dan margin 4-4-3-3 cm.',
+                                'text' => 'Ya. Di SkripsiLab AI, mahasiswa dapat menyusun Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V) secara otomatis menggunakan AI yang terhubung dengan referensi ilmiah dan jurnal yang relevan terverifikasi DOI (Crossref & OpenAlex), lengkap dengan pedoman kampus, logo universitas, font, dan margin 4-4-3-3 cm.',
                             ],
                         ],
                         [
@@ -92,7 +92,7 @@
                             'name' => 'Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar skripsi Indonesia?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab, tabel bergaris penuh, flowchart, serta daftar pustaka dari jurnal ilmiah asli berlink DOI aktif.',
+                                'text' => 'Ya. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab, tabel bergaris penuh, flowchart, serta daftar pustaka dari jurnal ilmiah relevan berlink DOI aktif.',
                             ],
                         ],
                         [
@@ -1416,9 +1416,9 @@
         <section class="hero">
             <div class="container">
                 <div class="hero-eyebrow">SkripsiLab AI · Workspace Akademik Mahasiswa</div>
-                <h1>Susun Proposal &amp; Skripsi Otomatis Berbasis AI</h1>
+                <h1>Susun Proposal &amp; Skripsi Otomatis dengan AI</h1>
                 <p>Buat proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan <strong>referensi ilmiah
-                        dan jurnal asli ber-DOI</strong>, ekspor Word/PDF, PPT sidang, hingga simulasi sidang.</p>
+                        dan jurnal yang relevan ber-DOI</strong>, ekspor Word/PDF, PPT sidang, hingga simulasi sidang.</p>
 
                 <div class="hero-cta">
                     @auth
@@ -1436,7 +1436,7 @@
                             stroke-width="2.5" aria-hidden="true">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
-                        Referensi Ilmiah &amp; Jurnal Asli (DOI)
+                        Referensi Ilmiah &amp; Jurnal Relevan (DOI)
                     </span>
                     <span class="hero-trust-pill">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1575,92 +1575,52 @@
         <!-- Section 2: Contoh Hasil Proposal & Skripsi -->
         <section id="contoh-hasil" class="section">
             <div class="container">
+                @php
+                    $realProjects = collect($publicProjects ?? []);
+                    $proposalCount = $realProjects->filter(function ($p) {
+                        return trim((string) $p->bab4_content) === '' || trim((string) $p->bab5_content) === '';
+                    })->count();
+                    $skripsiCount = $realProjects->filter(function ($p) {
+                        return trim((string) $p->bab4_content) !== '' && trim((string) $p->bab5_content) !== '';
+                    })->count();
+                @endphp
                 <div class="section-header">
-                    <span class="section-label">Contoh Hasil Proposal & Skripsi</span>
-                    <h2 class="section-title">Galeri Contoh Naskah Siap Baca & Unduh</h2>
-                    <p class="section-desc">Setiap dokumen memiliki halaman sampul, Kata Pengantar, Daftar Isi dengan
-                        titik-titik rapi, Bab I–III / Bab I–V lengkap, dan Daftar Pustaka terverifikasi.</p>
+                    <span class="section-label">Contoh Hasil Proposal &amp; Skripsi</span>
+                    <h2 class="section-title">Galeri Naskah Asli Hasil Generate</h2>
+                    <p class="section-desc">Daftar proyek nyata yang telah selesai disusun di SkripsiLab AI — lengkap
+                        Bab I–III untuk Proposal dan Bab I–V untuk Full Skripsi, siap baca PDF &amp; unduh Word.</p>
                 </div>
 
                 <div class="major-selector" id="gallery-filter-bar">
-                    <button type="button" class="major-pill active" onclick="filterGallery('all', this)">Semua</button>
-                    <button type="button" class="major-pill" onclick="filterGallery('proposal', this)">Proposal (Bab
-                        1–3)</button>
-                    <button type="button" class="major-pill" onclick="filterGallery('skripsi', this)">Full Skripsi (Bab
-                        1–5)</button>
+                    <button type="button" class="major-pill active" onclick="filterGallery('all', this)">Semua
+                        ({{ $realProjects->count() }})</button>
+                    <button type="button" class="major-pill" onclick="filterGallery('proposal', this)">Proposal Bab
+                        1–3 ({{ $proposalCount }})</button>
+                    <button type="button" class="major-pill" onclick="filterGallery('skripsi', this)">Full Skripsi Bab
+                        1–5 ({{ $skripsiCount }})</button>
                 </div>
 
-                @php
-                    $curatedSamples = [
-                        [
-                            'major' => 'manajemen',
-                            'stage' => 'proposal',
-                            'stage_label' => 'Proposal (Bab 1–3)',
-                            'prodi' => 'Manajemen',
-                            'metode' => 'Kuantitatif (Survei / Regresi)',
-                            'title' => 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi Terhadap Kesiapan Kerja Mahasiswa',
-                        ],
-                        [
-                            'major' => 'it',
-                            'stage' => 'skripsi',
-                            'stage_label' => 'Full Skripsi (Bab 1–5)',
-                            'prodi' => 'Teknik Informatika',
-                            'metode' => 'Research & Development (R&D)',
-                            'title' => 'Implementasi Algoritma Random Forest dan Ekstraksi Fitur Citra untuk Klasifikasi Penyakit Daun Padi',
-                        ],
-                        [
-                            'major' => 'hukum',
-                            'stage' => 'proposal',
-                            'stage_label' => 'Proposal (Bab 1–3)',
-                            'prodi' => 'Ilmu Hukum',
-                            'metode' => 'Yuridis Normatif',
-                            'title' => 'Pelindungan Hukum Bagi Konsumen atas Kebocoran Data Pribadi pada Layanan Pinjaman Daring Berdasarkan UU PDP',
-                        ],
-                        [
-                            'major' => 'kedokteran',
-                            'stage' => 'skripsi',
-                            'stage_label' => 'Full Skripsi (Bab 1–5)',
-                            'prodi' => 'Kedokteran / Keperawatan',
-                            'metode' => 'Kuantitatif Observasional Analitik',
-                            'title' => 'Hubungan Kualitas Tidur dan Tingkat Stres Akademik dengan Kejadian Hipertensi pada Mahasiswa Tingkat Akhir',
-                        ],
-                        [
-                            'major' => 'pendidikan',
-                            'stage' => 'proposal',
-                            'stage_label' => 'Proposal (Bab 1–3)',
-                            'prodi' => 'Pendidikan (PGSD / FKIP)',
-                            'metode' => 'Quasi-Eksperimen',
-                            'title' => 'Efektivitas Model Pembelajaran Problem Based Learning Berbantuan Media Interaktif Terhadap Berpikir Kritis Siswa',
-                        ],
-                        [
-                            'major' => 'teknik',
-                            'stage' => 'skripsi',
-                            'stage_label' => 'Full Skripsi (Bab 1–5)',
-                            'prodi' => 'Teknik Sipil / Industri',
-                            'metode' => 'Eksperimen & Uji Laboratorium',
-                            'title' => 'Analisis Kuat Tekan Beton Ramah Lingkungan dengan Substitusi Parsial Abu Sekam Padi dan Limbah Plastik',
-                        ],
-                    ];
-                @endphp
-
                 <div class="sample-grid" id="sample-cards-grid">
-                    @foreach ($curatedSamples as $item)
+                    @forelse ($realProjects as $proj)
                         @php
-                            $pdfUrl = route('sample.download', ['major' => $item['major'], 'format' => 'pdf']);
-                            $docxUrl = route('sample.download', ['major' => $item['major'], 'format' => 'docx']);
+                            $projHas45 = trim((string) $proj->bab4_content) !== '' && trim((string) $proj->bab5_content) !== '';
+                            $projStage = $projHas45 ? 'skripsi' : 'proposal';
+                            $projPdfUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'pdf']);
+                            $projDocxUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'docx']);
                         @endphp
-                        <article class="sample-card" data-stage="{{ $item['stage'] }}">
+                        <article class="sample-card" data-stage="{{ $projStage }}">
                             <div>
                                 <div class="sample-badges">
-                                    <span class="badge badge-blue">{{ $item['stage_label'] }}</span>
-                                    <span class="badge badge-slate">{{ $item['prodi'] }}</span>
+                                    <span
+                                        class="badge badge-blue">{{ $projHas45 ? 'Full Skripsi (Bab 1–5)' : 'Proposal (Bab 1–3)' }}</span>
+                                    <span class="badge badge-slate">{{ $proj->prodi ?: 'Skripsi S1' }}</span>
                                 </div>
-                                <h3>{{ $item['title'] }}</h3>
-                                <div class="sample-meta">Metode: {{ $item['metode'] }}</div>
+                                <h3>{{ $proj->judul }}</h3>
+                                <div class="sample-meta">Metode: {{ $proj->metode_penelitian ?: 'Akademik' }}</div>
                             </div>
                             <div class="sample-actions">
                                 <button type="button" class="sample-btn primary"
-                                    onclick="openPdfModal(@json($item['title']), @json($pdfUrl . '?inline=1'))">
+                                    onclick="openPdfModal(@json($proj->judul), @json($projPdfUrl . '?inline=1'))">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -1668,7 +1628,7 @@
                                     </svg>
                                     <span>Lihat PDF</span>
                                 </button>
-                                <a href="{{ $docxUrl }}" class="sample-btn">
+                                <a href="{{ $projDocxUrl }}" class="sample-btn">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -1676,7 +1636,7 @@
                                     </svg>
                                     <span>.docx</span>
                                 </a>
-                                <a href="{{ $pdfUrl }}" class="sample-btn">
+                                <a href="{{ $projPdfUrl }}" class="sample-btn">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -1686,56 +1646,15 @@
                                 </a>
                             </div>
                         </article>
-                    @endforeach
-
-                    @if (isset($publicProjects) && count($publicProjects) > 0)
-                        @foreach ($publicProjects as $proj)
-                            @php
-                                $projHas45 = !empty($proj->bab4_content) || !empty($proj->bab5_content);
-                                $projStage = $projHas45 ? 'skripsi' : 'proposal';
-                                $projPdfUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'pdf']);
-                                $projDocxUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'docx']);
-                            @endphp
-                            <article class="sample-card" data-stage="{{ $projStage }}">
-                                <div>
-                                    <div class="sample-badges">
-                                        <span
-                                            class="badge badge-blue">{{ $projHas45 ? 'Full Skripsi (Bab 1–5)' : 'Proposal (Bab 1–3)' }}</span>
-                                        <span class="badge badge-slate">{{ $proj->prodi ?: 'Skripsi S1' }}</span>
-                                    </div>
-                                    <h3>{{ $proj->judul }}</h3>
-                                    <div class="sample-meta">Metode: {{ $proj->metode_penelitian ?: 'Akademik' }}</div>
-                                </div>
-                                <div class="sample-actions">
-                                    <button type="button" class="sample-btn primary"
-                                        onclick="openPdfModal(@json($proj->judul), @json($projPdfUrl . '?inline=1'))">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                        <span>Lihat PDF</span>
-                                    </button>
-                                    <a href="{{ $projDocxUrl }}" class="sample-btn">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                            <polyline points="14 2 14 8 20 8" />
-                                        </svg>
-                                        <span>.docx</span>
-                                    </a>
-                                    <a href="{{ $projPdfUrl }}" class="sample-btn">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                            <polyline points="14 2 14 8 20 8" />
-                                        </svg>
-                                        <span>.pdf</span>
-                                    </a>
-                                </div>
-                            </article>
-                        @endforeach
-                    @endif
+                    @empty
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 14px; color: var(--text-muted); font-size: 13.5px;">
+                            Belum ada proyek Proposal (Bab 1–3) atau Full Skripsi (Bab 1–5) yang selesai di-generate.
+                        </div>
+                    @endforelse
+                </div>
+                <div id="gallery-empty-filter"
+                    style="display: none; text-align: center; padding: 28px 18px; margin-top: 12px; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 12px; color: var(--text-muted); font-size: 13.5px;">
+                    Belum ada proyek selesai pada kategori ini.
                 </div>
             </div>
         </section>
@@ -1921,21 +1840,21 @@
                     <span class="section-label">Pertanyaan Umum</span>
                     <h2 class="section-title">Hal yang Sering Ditanyakan Mahasiswa</h2>
                     <p class="section-desc">Informasi singkat mengenai penyusunan proposal dan skripsi Bab I–V otomatis
-                        menggunakan AI, referensi ilmiah &amp; jurnal asli ber-DOI, ekspor Word/PDF, hingga persiapan
+                        menggunakan AI, referensi ilmiah &amp; jurnal relevan ber-DOI, ekspor Word/PDF, hingga persiapan
                         sidang di SkripsiLab AI.</p>
                 </div>
 
                 <div class="faq-grid">
                     <details class="faq-item" open>
                         <summary>Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)
-                            otomatis dengan referensi jurnal asli?
+                            otomatis dengan referensi jurnal yang relevan?
                         </summary>
                         <div class="faq-answer">
                             Ya. Di <strong>SkripsiLab AI</strong>, mahasiswa dapat memilih tahap <strong>Proposal Skripsi
                                 (Bab I–III)</strong> maupun <strong>Skripsi Penuh (Bab I–V)</strong> secara otomatis
-                            menggunakan AI yang didukung <strong>referensi ilmiah dan jurnal asli terverifikasi DOI</strong>
-                            (Crossref &amp; OpenAlex), lengkap dengan pedoman kampus, logo universitas, font, dan margin
-                            4-4-3-3 cm.
+                            menggunakan AI yang didukung <strong>referensi ilmiah dan jurnal yang relevan terverifikasi
+                                DOI</strong> (Crossref &amp; OpenAlex), lengkap dengan pedoman kampus, logo universitas,
+                            font, dan margin 4-4-3-3 cm.
                         </div>
                     </details>
 
@@ -1947,7 +1866,7 @@
                             pengesahan/persetujuan, surat pernyataan, abstrak &amp; abstract, kata pengantar, daftar
                             isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman Romawi &amp; Arab yang
                             rapi, tabel bergaris penuh, diagram alur (flowchart), serta daftar pustaka dari jurnal ilmiah
-                            asli dengan tautan DOI aktif.
+                            relevan dengan tautan DOI aktif.
                         </div>
                     </details>
 
@@ -1976,7 +1895,7 @@
 
                 <div class="cta-banner" style="margin-top: 44px;">
                     <h2>Susun Proposal &amp; Skripsi Lebih Cepat</h2>
-                    <p>Otomatis berbasis AI dengan referensi ilmiah &amp; jurnal asli ber-DOI dalam satu workspace.</p>
+                    <p>Otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI dalam satu workspace.</p>
                     <div class="hero-cta">
                         @auth
                             <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka
@@ -2000,7 +1919,7 @@
                 SkripsiLab AI
             </div>
             <div>&copy; {{ date('Y') }} SkripsiLab AI &bull; Proposal &amp; skripsi otomatis AI dengan referensi jurnal
-                asli.</div>
+                yang relevan.</div>
         </div>
     </footer>
 
@@ -2127,10 +2046,17 @@
         function filterGallery(stage, btn) {
             document.querySelectorAll('#gallery-filter-bar .major-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.querySelectorAll('#sample-cards-grid .sample-card').forEach(card => {
+            let visibleCount = 0;
+            const cards = document.querySelectorAll('#sample-cards-grid .sample-card');
+            cards.forEach(card => {
                 const show = stage === 'all' || card.dataset.stage === stage;
                 card.style.display = show ? 'flex' : 'none';
+                if (show) visibleCount++;
             });
+            const emptyEl = document.getElementById('gallery-empty-filter');
+            if (emptyEl) {
+                emptyEl.style.display = (cards.length > 0 && visibleCount === 0) ? 'block' : 'none';
+            }
         }
 
         function openPdfModal(title, url) {

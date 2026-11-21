@@ -5200,7 +5200,7 @@
         function shareReferralWhatsapp() {
             const urlEl = document.getElementById('referral-link-input');
             const refUrl = urlEl ? urlEl.value : window.location.origin;
-            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab AI untuk susun Bab 1-5 otomatis dengan referensi jurnal asli, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
+            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab AI untuk susun Bab 1-5 otomatis dengan referensi jurnal yang relevan, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Akun — SkripsiLab AI | Susun Proposal &amp; Skripsi Otomatis</title>
-    <meta name="description" content="Daftar akun SkripsiLab AI gratis untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah, jurnal asli ber-DOI, PPT sidang 13 tema, dan simulasi sidang.">
+    <meta name="description" content="Daftar akun SkripsiLab AI gratis untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah, jurnal yang relevan ber-DOI, PPT sidang 13 tema, dan simulasi sidang.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/register') }}">
     <meta name="theme-color" content="#2563eb">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk — SkripsiLab AI | Workspace Penulisan Proposal &amp; Skripsi</title>
-    <meta name="description" content="Masuk ke akun SkripsiLab AI untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli ber-DOI, PPT sidang, dan simulasi sidang.">
+    <meta name="description" content="Masuk ke akun SkripsiLab AI untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI, PPT sidang, dan simulasi sidang.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/login') }}">
     <meta name="theme-color" content="#2563eb">

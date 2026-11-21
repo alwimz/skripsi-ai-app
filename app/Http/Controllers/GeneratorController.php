@@ -5502,20 +5502,27 @@ ATURAN REVISI (SANGAT KETAT):
             }
         }
 
-        if (!empty($project->bab4_content) && (empty($project->bab5_content) || strlen(trim(strip_tags($project->bab5_content))) < 120)) {
-            $project->bab5_content = $this->buildDefaultBab5Content($project);
-            $project->save();
-        }
+        return $this->renderAndStreamProjectPdf($project, $request, $meta, true);
+    }
 
-        $hasMathUpdate = false;
-        foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
-            if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
-                $project->$col = $this->formatAcademicMathText($project->$col);
-                $hasMathUpdate = true;
+    protected function renderAndStreamProjectPdf(Project $project, Request $request, array $meta, bool $allowMutate = true)
+    {
+        if ($allowMutate) {
+            if (!empty($project->bab4_content) && (empty($project->bab5_content) || strlen(trim(strip_tags($project->bab5_content))) < 120)) {
+                $project->bab5_content = $this->buildDefaultBab5Content($project);
+                $project->save();
             }
-        }
-        if ($hasMathUpdate) {
-            $project->save();
+
+            $hasMathUpdate = false;
+            foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
+                if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
+                    $project->$col = $this->formatAcademicMathText($project->$col);
+                    $hasMathUpdate = true;
+                }
+            }
+            if ($hasMathUpdate) {
+                $project->save();
+            }
         }
 
         $logoPath = $this->resolveLogoTempPath($request, $meta);
@@ -6159,12 +6166,35 @@ ATURAN REVISI (SANGAT KETAT):
     {
         $publicProjects = collect();
         try {
-            $publicProjects = Project::whereNotNull('bab1_content')
-                ->where('bab1_content', '!=', '')
-                ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 20')
+            // Ambil proyek Skripsi Penuh (Bab 1-5 sudah selesai semua)
+            $fullSkripsi = Project::whereNotNull('bab1_content')->whereRaw("TRIM(bab1_content) != ''")
+                ->whereNotNull('bab2_content')->whereRaw("TRIM(bab2_content) != ''")
+                ->whereNotNull('bab3_content')->whereRaw("TRIM(bab3_content) != ''")
+                ->whereNotNull('bab4_content')->whereRaw("TRIM(bab4_content) != ''")
+                ->whereNotNull('bab5_content')->whereRaw("TRIM(bab5_content) != ''")
+                ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 12')
                 ->orderBy('updated_at', 'desc')
-                ->take(6)
+                ->take(12)
                 ->get();
+
+            // Ambil proyek Proposal (Bab 1-3 sudah selesai semua, belum lengkap Bab 4-5)
+            $proposalProjects = Project::whereNotNull('bab1_content')->whereRaw("TRIM(bab1_content) != ''")
+                ->whereNotNull('bab2_content')->whereRaw("TRIM(bab2_content) != ''")
+                ->whereNotNull('bab3_content')->whereRaw("TRIM(bab3_content) != ''")
+                ->where(function ($q) {
+                    $q->whereNull('bab4_content')
+                        ->orWhereRaw("TRIM(bab4_content) = ''")
+                        ->orWhereNull('bab5_content')
+                        ->orWhereRaw("TRIM(bab5_content) = ''");
+                })
+                ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 12')
+                ->orderBy('updated_at', 'desc')
+                ->take(12)
+                ->get();
+
+            $publicProjects = $fullSkripsi->concat($proposalProjects)
+                ->sortByDesc('updated_at')
+                ->values();
         } catch (Throwable $e) {
             $publicProjects = collect();
         }
@@ -6174,10 +6204,26 @@ ATURAN REVISI (SANGAT KETAT):
     public function downloadPublicProject($id, string $format, Request $request)
     {
         $project = Project::findOrFail($id);
-        $meta = $this->getProjectMeta($project);
-        $logoPath = $this->resolveLogoTempPath($request, $meta);
 
-        $hasFull = !empty($project->bab4_content) || !empty($project->bab5_content);
+        // Hanya izinkan pratinjau/unduh publik untuk proyek yang minimal Bab 1-3 sudah lengkap
+        $hasBab13 = trim((string) $project->bab1_content) !== ''
+            && trim((string) $project->bab2_content) !== ''
+            && trim((string) $project->bab3_content) !== '';
+        if (!$hasBab13) {
+            abort(404, 'Dokumen belum lengkap.');
+        }
+
+        $meta = $this->getProjectMeta($project);
+        if (!empty($project->user_id)) {
+            $defaultIdentity = $this->getDefaultUserIdentity($project->user_id);
+            foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
+                if (empty($meta[$field]) && !empty($defaultIdentity[$field])) {
+                    $meta[$field] = $defaultIdentity[$field];
+                }
+            }
+        }
+
+        $hasFull = trim((string) $project->bab4_content) !== '' && trim((string) $project->bab5_content) !== '';
         $request->merge([
             'nama' => $meta['nama'] ?? 'Mahasiswa Peneliti',
             'npm' => $meta['nim'] ?? '-',
@@ -6187,114 +6233,10 @@ ATURAN REVISI (SANGAT KETAT):
         ]);
 
         if ($format === 'pdf') {
-            $jenisDokumen = $hasFull ? 'SKRIPSI' : 'PROPOSAL SKRIPSI';
-            $nama = $meta['nama'] ?? 'Mahasiswa Peneliti';
-            $npm = $meta['nim'] ?? '';
-            $kampus = $meta['kampus'] ?? 'Universitas';
-            $fakultas = $meta['fakultas'] ?? '';
-
-            $hasGd = extension_loaded('gd');
-            $logoHtml = '';
-            if ($hasGd && $logoPath && file_exists($logoPath)) {
-                $mime = mime_content_type($logoPath) ?: 'image/png';
-                $b64 = base64_encode(file_get_contents($logoPath));
-                $logoHtml = "<div style='margin: 20px 0; text-align:center;'><img src='data:{$mime};base64,{$b64}' style='width:100px; height:auto;'></div>";
-                @unlink($logoPath);
-            } else {
-                $logoHtml = "<div style='margin: 18px auto; width:85px; height:85px; border:2px solid #0f172a; border-radius:50%; text-align:center; line-height:80px; font-weight:bold; font-size:10pt; letter-spacing:1px; color:#0f172a;'>UNIVERSITAS</div>";
-            }
-
-            $html = "<html><head><style>
-                @page { size: A4; margin: 4cm 3cm 3cm 4cm; }
-                body{font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt;}
-                h1,h2{text-align:center; font-weight:bold; font-size:14pt;}
-                h3,h4{font-weight:bold; font-size:12pt;}
-                p{text-indent: 1.27cm; margin: 0 0 8px 0;}
-                .cover p{text-indent:0; text-align:center;}
-                .cover { position:relative; height:100%; text-align:center; }
-                .cover-bottom { position:absolute; bottom:0; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35; }
-            </style></head><body>
-            <div class='cover'>
-                <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
-                <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
-                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
-                <div style='text-align:center; margin-top:55pt;'>{$logoHtml}</div>
-                <div style='text-align:center; margin-top:45pt; font-size:11.5pt; line-height:1.5;'>
-                    <div>OLEH:</div>
-                    <div style='margin-top:4pt;'><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                    " . ($npm ? "<div style='margin-top:3pt;'>NIM: " . e($npm) . "</div>" : "") . "
-                </div>
-                <div class='cover-bottom'>
-                    <div>PROGRAM STUDI " . strtoupper(e($project->prodi)) . "</div>
-                    " . ($fakultas ? "<div>" . strtoupper(e($fakultas)) . "</div>" : "") . "
-                    <div>" . strtoupper(e($kampus)) . "</div>
-                    <div style='margin-top:3pt;'>" . date('Y') . "</div>
-                </div>
-            </div>";
-
-            $chapters = [
-                'bab1' => 'PENDAHULUAN',
-                'bab2' => 'TINJAUAN PUSTAKA',
-                'bab3' => 'METODOLOGI PENELITIAN',
-                'bab4' => 'HASIL DAN PEMBAHASAN',
-                'bab5' => 'PENUTUP'
-            ];
-            $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
-            foreach ($chapters as $k => $v) {
-                if ($c = $project->{$k . '_content'}) {
-                    $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
-                    $html .= $this->formatAcademicContentForPdf($c);
-                    $html .= "<div style='page-break-after:always;'></div>";
-                }
-            }
-            if (!empty($project->daftar_pustaka)) {
-                $html .= "<div style='page-break-before:always;'><h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
-                $dpLines = explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $project->daftar_pustaka));
-                foreach ($dpLines as $dpl) {
-                    $trimDpl = trim($dpl);
-                    if ($trimDpl !== '') {
-                        $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . e($trimDpl) . "</p>";
-                    }
-                }
-                $html .= "</div>";
-            }
-            $html .= "</body></html>";
-
-            $dompdf = new Dompdf();
-            $dompdf->set_option('isHtml5ParserEnabled', true);
-            $dompdf->set_option('isRemoteEnabled', false);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('A4');
-            try {
-                $dompdf->render();
-            } catch (\Throwable $e) {
-                Log::warning('Dompdf downloadProjectDocument render fallback: ' . $e->getMessage());
-                $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
-                $dompdf = new Dompdf();
-                $dompdf->set_option('isHtml5ParserEnabled', true);
-                $dompdf->set_option('isRemoteEnabled', false);
-                $dompdf->loadHtml($fallbackHtml);
-                $dompdf->setPaper('A4');
-                $dompdf->render();
-            }
-
-            try {
-                $canvas = $dompdf->getCanvas();
-                $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
-                    if ($pageNumber > 1) {
-                        $font = $fontMetrics->getFont('Times-Roman', 'normal');
-                        $label = (string) ($pageNumber - 1);
-                        $tw = $fontMetrics->getTextWidth($label, $font, 11);
-                        $canvas->text((595.28 - $tw) / 2, 795, $label, $font, 11, [0, 0, 0]);
-                    }
-                });
-            } catch (\Throwable $e) {
-            }
-
-            $inline = $request->boolean('inline');
-            return $dompdf->stream('Dokumen_' . Str::slug(substr($project->judul, 0, 28), '_') . '.pdf', ['Attachment' => !$inline]);
+            return $this->renderAndStreamProjectPdf($project, $request, $meta, false);
         }
 
+        $logoPath = $this->resolveLogoTempPath($request, $meta);
         if (ob_get_length())
             ob_end_clean();
         $phpWord = $this->createPhpWordDocument($project, $request, $logoPath, $meta);
