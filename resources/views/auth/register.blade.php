@@ -32,70 +32,75 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 28px 16px;
-            line-height: 1.5;
+            padding: 18px 14px;
+            line-height: 1.45;
             -webkit-font-smoothing: antialiased;
         }
         .auth-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 480px;
             background: #ffffff;
             border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 32px 30px;
+            border-radius: 16px;
+            padding: 24px 26px;
             box-shadow: 0 20px 44px -18px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(37, 99, 235, 0.06);
         }
         .brand {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.0625rem;
+            gap: 9px;
+            font-size: 1rem;
             font-weight: 800;
             color: var(--text-main);
             letter-spacing: -0.02em;
             text-decoration: none;
-            margin-bottom: 22px;
+            margin-bottom: 14px;
         }
         .brand-logo-img {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
             display: block;
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
         }
         h1 {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 800;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: -0.025em;
             text-wrap: balance;
         }
         p.sub {
-            font-size: 0.875rem;
+            font-size: 0.84rem;
             color: var(--text-muted);
-            margin-bottom: 22px;
+            margin-bottom: 16px;
             text-wrap: pretty;
         }
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
         .field {
-            margin-bottom: 14px;
+            margin-bottom: 11px;
         }
         label {
             display: block;
-            font-size: 0.8125rem;
+            font-size: 0.78rem;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .input-wrap {
             position: relative;
         }
         input {
             width: 100%;
-            min-height: 45px;
-            padding: 10px 14px;
+            min-height: 40px;
+            padding: 8px 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 11px;
-            font-size: max(1rem, 14px);
+            border-radius: 10px;
+            font-size: 0.875rem;
             font-family: inherit;
             color: var(--text-main);
             background: #ffffff;
@@ -105,23 +110,23 @@
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.14);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
         }
         input:focus-visible {
             outline: 2px solid var(--primary);
             outline-offset: 1px;
         }
         input:user-invalid { border-color: #dc2626; }
-        .pw-input { padding-right: 46px; }
+        .pw-input { padding-right: 38px; }
         .pw-toggle {
             position: absolute;
-            right: 8px;
+            right: 6px;
             top: 50%;
             transform: translateY(-50%);
-            width: 34px;
-            height: 34px;
+            width: 30px;
+            height: 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 7px;
             background: transparent;
             color: var(--text-muted);
             display: inline-flex;
@@ -134,17 +139,17 @@
         .pw-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
         .btn {
             width: 100%;
-            min-height: 46px;
-            padding: 12px 16px;
+            min-height: 42px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 11px;
+            border-radius: 10px;
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
-            font-size: 0.9375rem;
+            font-size: 0.9rem;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 4px;
             box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.45);
             transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), filter 0.16s ease;
         }
@@ -158,27 +163,27 @@
         .divider {
             display: flex;
             align-items: center;
-            margin: 18px 0 14px;
+            margin: 14px 0 12px;
             text-align: center;
             color: #94a3b8;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
         }
         .divider::before,
         .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
-        .divider span { padding: 0 12px; font-weight: 500; }
+        .divider span { padding: 0 10px; font-weight: 500; }
         .btn-google {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 9px;
             width: 100%;
-            min-height: 46px;
-            padding: 11px 14px;
+            min-height: 41px;
+            padding: 9px 14px;
             border: 1px solid #cbd5e1;
-            border-radius: 11px;
+            border-radius: 10px;
             background: #ffffff;
             color: #1e293b;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             font-weight: 600;
             text-decoration: none;
             box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
@@ -186,14 +191,18 @@
         }
         .btn-google:hover { background: #f8fafc; border-color: #94a3b8; transform: translateY(-1px); }
         .btn-google:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-        .footer-text { margin-top: 20px; text-align: center; font-size: 0.84rem; color: var(--text-muted); }
+        .footer-text { margin-top: 14px; text-align: center; font-size: 0.82rem; color: var(--text-muted); }
         .footer-text a { color: var(--primary); font-weight: 600; text-decoration: none; }
         .footer-text a:hover { text-decoration: underline; }
-        .alert { padding: 11px 13px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: 0.84rem; margin-bottom: 16px; }
-        .footer-credit { margin-top: 22px; text-align: center; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+        .alert { padding: 10px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: 0.82rem; margin-bottom: 12px; }
+        .footer-credit { margin-top: 14px; text-align: center; font-size: 0.76rem; color: var(--text-muted); line-height: 1.5; }
         .footer-credit strong { color: #334155; font-weight: 600; }
-        @media (max-width: 480px) {
-            .auth-card { padding: 26px 20px; border-radius: 16px; }
+        @media (max-width: 540px) {
+            body { padding: 14px 12px; justify-content: flex-start; }
+            .auth-card { padding: 20px 18px; border-radius: 14px; }
+            .field-row { grid-template-columns: 1fr; gap: 0; }
+            input { min-height: 38px; font-size: 0.84rem; padding: 8px 11px; }
+            .btn, .btn-google { min-height: 40px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -223,23 +232,25 @@
                 <input type="email" id="reg-email" name="email" value="{{ old('email') }}" required autocomplete="email" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="next" placeholder="nama@email.com">
             </div>
 
-            <div class="field">
-                <label for="reg-password">Kata Sandi</label>
-                <div class="input-wrap">
-                    <input type="password" id="reg-password" name="password" class="pw-input" required minlength="6" autocomplete="new-password" enterkeyhint="next" placeholder="Minimal 6 karakter">
-                    <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Tampilkan kata sandi" onclick="toggleAuthPassword('reg-password', this)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
+            <div class="field-row">
+                <div class="field">
+                    <label for="reg-password">Kata Sandi</label>
+                    <div class="input-wrap">
+                        <input type="password" id="reg-password" name="password" class="pw-input" required minlength="6" autocomplete="new-password" enterkeyhint="next" placeholder="Minimal 6 karakter">
+                        <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Tampilkan kata sandi" onclick="toggleAuthPassword('reg-password', this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="field">
-                <label for="reg-password-confirm">Konfirmasi Kata Sandi</label>
-                <div class="input-wrap">
-                    <input type="password" id="reg-password-confirm" name="password_confirmation" class="pw-input" required minlength="6" autocomplete="new-password" enterkeyhint="next" placeholder="Ulangi kata sandi">
-                    <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Tampilkan konfirmasi kata sandi" onclick="toggleAuthPassword('reg-password-confirm', this)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
+                <div class="field">
+                    <label for="reg-password-confirm">Konfirmasi Sandi</label>
+                    <div class="input-wrap">
+                        <input type="password" id="reg-password-confirm" name="password_confirmation" class="pw-input" required minlength="6" autocomplete="new-password" enterkeyhint="next" placeholder="Ulangi kata sandi">
+                        <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Tampilkan konfirmasi kata sandi" onclick="toggleAuthPassword('reg-password-confirm', this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 

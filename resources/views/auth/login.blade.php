@@ -92,11 +92,11 @@
         }
         input {
             width: 100%;
-            min-height: 46px;
-            padding: 11px 14px;
+            min-height: 41px;
+            padding: 9px 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 11px;
-            font-size: max(1rem, 14px);
+            border-radius: 10px;
+            font-size: 0.875rem;
             font-family: inherit;
             color: var(--text-main);
             background: #ffffff;
@@ -262,7 +262,10 @@
             font-weight: 600;
         }
         @media (max-width: 480px) {
-            .auth-card { padding: 26px 20px; border-radius: 16px; }
+            body { padding: 16px 12px; }
+            .auth-card { padding: 22px 18px; border-radius: 14px; }
+            input { min-height: 39px; font-size: 0.84rem; padding: 8px 11px; }
+            .btn, .btn-google { min-height: 41px; font-size: 0.85rem; }
         }
     </style>
 </head>
