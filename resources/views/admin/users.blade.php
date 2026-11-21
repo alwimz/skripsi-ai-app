@@ -640,7 +640,7 @@
                                 </td>
                                 <td>
                                     <div class="date-main">
-                                        {{ $u->created_at ? $u->created_at->format('d M Y, H:i') : '-' }}
+                                        {{ $u->created_at ? $u->created_at->copy()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB' : '-' }}
                                     </div>
                                     <div class="date-rel">
                                         {{ $u->created_at ? $u->created_at->diffForHumans() : '' }}
@@ -659,6 +659,66 @@
                                     </svg>
                                     <div style="font-weight: 600; font-size: 14px; color: #cbd5e1; margin-bottom: 4px;">Tidak Ada Pengguna Ditemukan</div>
                                     <p style="font-size: 12.5px;">Coba gunakan kata kunci pencarian yang lain.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section List Projects & Owners -->
+        <div class="section-header" style="margin-top: 32px;">
+            <div class="section-title">
+                <span>Daftar Proyek Skripsi &amp; Pemilik Akun</span>
+                <span class="user-count-pill">{{ isset($projects) ? count($projects) : 0 }} Proyek</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 46px; text-align: center;">#</th>
+                            <th>Judul Proposal / Skripsi</th>
+                            <th>Pemilik Akun</th>
+                            <th>Prodi</th>
+                            <th style="text-align: center;">Progres Bab</th>
+                            <th>Terakhir Diperbarui</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse(($projects ?? []) as $pIdx => $proj)
+                            <tr>
+                                <td style="text-align: center; color: #64748b; font-weight: 600;">{{ $pIdx + 1 }}</td>
+                                <td style="max-width: 360px;">
+                                    <div style="font-weight: 600; color: #f8fafc; line-height: 1.4;">{{ $proj->judul }}</div>
+                                    <div class="user-id-tag">Project ID: #{{ $proj->id }}</div>
+                                </td>
+                                <td>
+                                    <div class="user-name">{{ $proj->owner_name }}</div>
+                                    <div style="font-family: monospace; font-size: 12px; color: #94a3b8;">{{ $proj->owner_email }} (User #{{ $proj->user_id }})</div>
+                                </td>
+                                <td style="color: #cbd5e1; font-size: 13px;">{{ $proj->prodi ?: '-' }}</td>
+                                <td style="text-align: center;">
+                                    <span class="badge-projects">
+                                        {{ $proj->filled_chapters }} Bab{{ $proj->has_dp ? ' + DP' : '' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="date-main">
+                                        {{ $proj->updated_at ? $proj->updated_at->copy()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB' : '-' }}
+                                    </div>
+                                    <div class="date-rel">
+                                        {{ $proj->updated_at ? $proj->updated_at->diffForHumans() : '' }}
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div style="font-weight: 600; font-size: 14px; color: #cbd5e1;">Belum ada proyek skripsi ditemukan.</div>
                                 </td>
                             </tr>
                         @endforelse

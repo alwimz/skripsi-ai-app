@@ -5622,12 +5622,26 @@ ATURAN REVISI (SANGAT KETAT):
         $tglBulanIndo = $this->formatIndonesianDate('month_year');
 
         $makeDotLeaderRow = function (string $label, string $page, int $level = 1): string {
-            $pad = $level === 1 ? '0' : '20pt';
+            $pad = $level === 1 ? '0' : '22pt';
             $weight = $level === 1 ? 'bold' : 'normal';
-            return "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin-bottom:5pt; font-size:11.5pt; line-height:1.35;'><tr>"
-                . "<td style='width:91%; padding:0 8pt 3pt {$pad}; font-weight:{$weight}; text-align:left; vertical-align:bottom; border:none; border-bottom:0.75pt dotted #94a3b8; word-wrap:break-word; overflow-wrap:break-word;'>" . e($label) . "</td>"
-                . "<td style='width:9%; padding:0 0 3pt 6pt; text-align:right; vertical-align:bottom; font-weight:{$weight}; border:none; border-bottom:0.75pt dotted #94a3b8; white-space:nowrap;'>" . e($page) . "</td>"
-                . "</tr></table>";
+            $cleanLabel = preg_replace('/\s+/', ' ', trim($label));
+            // Bungkus teks panjang ke baris sebelumnya agar baris terakhir + titik-titik (dot leader) + nomor halaman tetap sejajar lurus rata kanan seperti standar skripsi Word
+            $maxChars = $level === 1 ? 56 : 50;
+            $wrappedLines = explode("\n", wordwrap($cleanLabel, $maxChars, "\n", false));
+            $lastLine = array_pop($wrappedLines);
+
+            $rowHtml = "<div style='margin-bottom:5pt; page-break-inside:avoid;'>";
+            if (!empty($wrappedLines)) {
+                $rowHtml .= "<div style='padding:0 36pt 0 {$pad}; font-size:12pt; line-height:1.35; font-weight:{$weight}; text-align:left;'>"
+                    . implode('<br>', array_map('e', $wrappedLines))
+                    . "</div>";
+            }
+            $rowHtml .= "<table style='width:100%; border-collapse:collapse; font-size:12pt; line-height:1.35;'><tr>"
+                . "<td style='padding:0 5pt 0 {$pad}; font-weight:{$weight}; border:none; white-space:nowrap; width:1%;'>" . e($lastLine) . "</td>"
+                . "<td style='border:none; padding:0 4pt 3pt 2pt; vertical-align:bottom;'><div style='border-bottom:1pt dotted #334155; height:1pt;'></div></td>"
+                . "<td style='padding:0 0 0 5pt; text-align:right; font-weight:{$weight}; border:none; white-space:nowrap; width:28pt;'>" . e($page) . "</td>"
+                . "</tr></table></div>";
+            return $rowHtml;
         };
 
         $tocRowsHtml = '';
@@ -6236,9 +6250,143 @@ ATURAN REVISI (SANGAT KETAT):
         return 'proposal';
     }
 
+    protected function buildLandingPreviewExcerptHtml(string $rawText, string $babNum, string $babTitle, bool $isDaftarPustaka = false): string
+    {
+        $rawText = str_replace(["\r\n", "\r"], "\n", trim($rawText));
+        if ($rawText === '') {
+            return '';
+        }
+
+        $headerHtml = "<div class='sf-chapter-head'>"
+            . ($babNum !== '' ? "<div class='sf-chapter-num'>" . e($babNum) . "</div>" : '')
+            . "<div class='sf-chapter-name'>" . e($babTitle) . "</div>"
+            . "</div>";
+
+        if ($isDaftarPustaka) {
+            $lines = array_values(array_filter(array_map('trim', explode("\n", $rawText)), fn($l) => $l !== ''));
+            $slice = array_slice($lines, 0, 10);
+            $dpHtml = $headerHtml;
+            foreach ($slice as $line) {
+                $escaped = e($line);
+                $escaped = preg_replace(
+                    '/(https?:\/\/[^\s<]+)/i',
+                    '<a href="$1" target="_blank" rel="noopener" class="cite-blue">$1</a>',
+                    $escaped
+                );
+                $dpHtml .= "<p class='sf-dp-entry'>{$escaped}</p>";
+            }
+            if (count($lines) > 10) {
+                $dpHtml .= "<div class='sf-more-note'>+ " . (count($lines) - 10) . " referensi ilmiah lainnya di dokumen lengkap PDF / Word.</div>";
+            }
+            return $dpHtml;
+        }
+
+        // Ambil cuplikan representatif (~2.600 karakter) agar pratinjau cepat, lengkap, & rapi
+        $lines = explode("\n", $rawText);
+        $out = $headerHtml;
+        $charCount = 0;
+        $truncated = false;
+        $inCode = false;
+        $tableRows = [];
+
+        $flushPreviewTable = function () use (&$out, &$tableRows) {
+            if (count($tableRows) >= 2) {
+                $out .= "<div class='sf-table-wrap'><table class='sf-preview-table'>";
+                foreach ($tableRows as $rIdx => $cells) {
+                    $tag = $rIdx === 0 ? 'th' : 'td';
+                    $out .= '<tr>';
+                    foreach ($cells as $c) {
+                        $out .= "<{$tag}>" . e($c) . "</{$tag}>";
+                    }
+                    $out .= '</tr>';
+                }
+                $out .= "</table></div>";
+            }
+            $tableRows = [];
+        };
+
+        $formatInline = function (string $t): string {
+            $t = $this->formatAcademicMathText($t);
+            $s = e($t);
+            $s = preg_replace('/\*\*([^*\n]+?)\*\*/u', '<strong>$1</strong>', $s);
+            $s = preg_replace('/(?<![A-Za-z0-9*])\*([^*\n]+?)\*(?![A-Za-z0-9*])/u', '<em>$1</em>', $s);
+            // Sorot sitasi ilmiah (Nama, 2024) atau Nama (2024)
+            $s = preg_replace('/(\([A-Z][A-Za-zÀ-ÿ\s.&,\'-]{1,45},\s*(?:19|20)\d{2}[a-z]?\))/u', '<span class="cite-blue">$1</span>', $s);
+            return $s;
+        };
+
+        foreach ($lines as $line) {
+            $t = trim($line);
+            if (str_starts_with($t, '```')) {
+                $inCode = !$inCode;
+                continue;
+            }
+            if ($inCode || $t === '') {
+                $flushPreviewTable();
+                continue;
+            }
+
+            if ($charCount >= 2600) {
+                $truncated = true;
+                break;
+            }
+
+            if (str_starts_with($t, '|') && substr_count($t, '|') >= 2) {
+                $inner = trim($t, '| ');
+                if (preg_match('/^[\s\-:|]+$/', $inner)) {
+                    continue;
+                }
+                $cells = array_map(fn($c) => trim(preg_replace('/^\*{1,2}|\*{1,2}$/', '', trim($c))), explode('|', $inner));
+                if (count($cells) >= 2 && count($tableRows) < 6) {
+                    $tableRows[] = $cells;
+                    $charCount += mb_strlen($t);
+                }
+                continue;
+            }
+            $flushPreviewTable();
+
+            // Lewati heading BAB duplikat di awal teks
+            if (preg_match('/^#{0,3}\s*BAB\s+[IVX]+/i', $t)) {
+                continue;
+            }
+
+            if (preg_match('/^(?:#{2,4}\s+|\d+\.\d+(?:\.\d+)?\.?\s+)/', $t)) {
+                $cleanH = trim(preg_replace('/^(?:#{1,4}\s+|\*{1,2})|\*{1,2}$/', '', $t));
+                $out .= "<h4>" . e($cleanH) . "</h4>";
+                $charCount += mb_strlen($cleanH);
+                continue;
+            }
+
+            if (preg_match('/^(?:\*{1,2})?(?:Tabel|Gambar)\s+\d+\.\d+/i', $t)) {
+                $cleanCap = trim(preg_replace('/^\*{1,2}|\*{1,2}$/', '', $t));
+                $out .= "<div class='sf-caption'>" . e($cleanCap) . "</div>";
+                $charCount += mb_strlen($cleanCap);
+                continue;
+            }
+
+            $cleanP = trim(preg_replace('/^#+\s+/', '', $t));
+            if ($cleanP !== '') {
+                if (preg_match('/^(?:\d+\.\s+|[-*]\s+)(.+)$/', $cleanP, $lm)) {
+                    $out .= "<p class='sf-list-line'>" . $formatInline($cleanP) . "</p>";
+                } else {
+                    $out .= "<p>" . $formatInline($cleanP) . "</p>";
+                }
+                $charCount += mb_strlen($cleanP);
+            }
+        }
+        $flushPreviewTable();
+
+        if ($truncated) {
+            $out .= "<div class='sf-more-note'>Cuplikan pratinjau — klik <strong>Lihat PDF</strong> atau <strong>Unduh Word (.docx)</strong> di atas untuk membaca naskah lengkap.</div>";
+        }
+
+        return $out;
+    }
+
     public function landingPage()
     {
         $publicProjects = collect();
+        $previewProjects = [];
         try {
             $candidates = Project::whereNotNull('bab1_content')->whereRaw("CHAR_LENGTH(TRIM(bab1_content)) >= 200")
                 ->whereNotNull('bab2_content')->whereRaw("CHAR_LENGTH(TRIM(bab2_content)) >= 200")
@@ -6265,10 +6413,64 @@ ATURAN REVISI (SANGAT KETAT):
             $publicProjects = $fullSkripsi->concat($proposalProjects)
                 ->sortByDesc('updated_at')
                 ->values();
+
+            // Siapkan maksimal 4 proyek asli terbaik untuk Pratinjau Workspace Interaktif (campuran Skripsi & Proposal)
+            $pickedForPreview = $fullSkripsi->take(2)->concat($proposalProjects->take(2));
+            if ($pickedForPreview->count() < 4) {
+                $pickedIds = $pickedForPreview->pluck('id')->all();
+                foreach ($publicProjects as $p) {
+                    if ($pickedForPreview->count() >= 4) {
+                        break;
+                    }
+                    if (!in_array($p->id, $pickedIds, true)) {
+                        $pickedForPreview->push($p);
+                        $pickedIds[] = $p->id;
+                    }
+                }
+            }
+
+            foreach ($pickedForPreview as $proj) {
+                $meta = $this->getProjectMeta($proj);
+                $isFull = ($proj->gallery_stage ?? '') === 'skripsi';
+                $prodiShort = Str::limit(trim((string) ($proj->prodi ?: 'Skripsi S1')), 22, '');
+                $pdfUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'pdf']);
+                $docxUrl = route('public.project.download', ['id' => $proj->id, 'format' => 'docx']);
+
+                $chapters = [
+                    'bab1' => $this->buildLandingPreviewExcerptHtml((string) $proj->bab1_content, 'BAB I', 'PENDAHULUAN'),
+                    'bab2' => $this->buildLandingPreviewExcerptHtml((string) $proj->bab2_content, 'BAB II', 'TINJAUAN PUSTAKA'),
+                    'bab3' => $this->buildLandingPreviewExcerptHtml((string) $proj->bab3_content, 'BAB III', 'METODOLOGI PENELITIAN'),
+                ];
+                if ($isFull) {
+                    $chapters['bab4'] = $this->buildLandingPreviewExcerptHtml((string) $proj->bab4_content, 'BAB IV', 'HASIL PENELITIAN DAN PEMBAHASAN');
+                    $chapters['bab5'] = $this->buildLandingPreviewExcerptHtml((string) $proj->bab5_content, 'BAB V', 'PENUTUP');
+                }
+                $chapters['dp'] = $this->buildLandingPreviewExcerptHtml((string) $proj->daftar_pustaka, '', 'DAFTAR PUSTAKA', true);
+
+                $previewProjects[] = [
+                    'id' => $proj->id,
+                    'pill' => $prodiShort . ' · ' . ($isFull ? 'Bab 1–5' : 'Bab 1–3'),
+                    'title' => (string) $proj->judul,
+                    'prodi' => (string) ($proj->prodi ?: 'Skripsi S1'),
+                    'metode' => (string) ($proj->metode_penelitian ?: 'Akademik'),
+                    'stage' => $isFull ? 'skripsi' : 'proposal',
+                    'stage_label' => $isFull ? 'FULL SKRIPSI · 5 DARI 5 BAB' : 'PROPOSAL SKRIPSI · 3 DARI 3 BAB',
+                    'jenis' => $isFull ? 'SKRIPSI' : 'PROPOSAL SKRIPSI',
+                    'nama' => (string) ($meta['nama'] ?? 'Mahasiswa Peneliti'),
+                    'nim' => (string) ($meta['nim'] ?? ''),
+                    'kampus' => (string) ($meta['kampus'] ?? 'Universitas di Indonesia'),
+                    'fakultas' => (string) ($meta['fakultas'] ?? ''),
+                    'docx_url' => $docxUrl,
+                    'pdf_url' => $pdfUrl,
+                    'pdf_inline_url' => $pdfUrl . '?inline=1',
+                    'chapters' => $chapters,
+                ];
+            }
         } catch (Throwable $e) {
             $publicProjects = collect();
+            $previewProjects = [];
         }
-        return view('landing', compact('publicProjects'));
+        return view('landing', compact('publicProjects', 'previewProjects'));
     }
 
     public function downloadPublicProject($id, string $format, Request $request)

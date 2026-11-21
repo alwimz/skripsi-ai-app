@@ -81,10 +81,18 @@
                     'mainEntity' => [
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) otomatis dengan referensi jurnal yang relevan?',
+                            'name' => 'Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Di SkripsiLab AI, mahasiswa dapat menyusun Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V) secara otomatis menggunakan AI yang terhubung dengan referensi ilmiah dan jurnal yang relevan terverifikasi DOI (Crossref & OpenAlex), lengkap dengan pedoman kampus, logo universitas, font, dan margin 4-4-3-3 cm.',
+                                'text' => 'Ya. Mahasiswa dapat memilih tahap Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V) sejak awal proyek, lengkap dengan pengaturan pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis APA 7th?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional dan internasional terverifikasi DOI (Crossref & OpenAlex) sehingga sitasi dan Daftar Pustaka tersusun otomatis dalam format APA 7th lengkap dengan tautan DOI aktif.',
                             ],
                         ],
                         [
@@ -92,7 +100,7 @@
                             'name' => 'Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar skripsi Indonesia?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab, tabel bergaris penuh, flowchart, serta daftar pustaka dari jurnal ilmiah relevan berlink DOI aktif.',
+                                'text' => 'Ya. Ekspor Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab di tengah bawah, tabel bergaris penuh, serta daftar pustaka.',
                             ],
                         ],
                         [
@@ -100,15 +108,39 @@
                             'name' => 'Jurusan dan metode penelitian apa saja yang didukung SkripsiLab AI?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
+                                'text' => 'SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah mahasiswa bisa mengunggah lampiran dan membuat PPT sidang otomatis?',
+                            'name' => 'Bagaimana cara menambahkan Lampiran agar otomatis masuk Daftar Isi, Word, dan PDF?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Bisa. Fitur Lampiran mendukung unggah gambar maupun dokumen Word/PDF yang otomatis masuk ke Daftar Isi, Daftar Lampiran, Word, dan PDF. Selain itu tersedia PPT Sidang Otomatis dengan 13 tema akademik dan ekspor PowerPoint (.pptx) serta Simulasi Sidang.',
+                                'text' => 'Di dalam Workspace Penulisan tersedia menu Lampiran untuk mengunggah gambar maupun dokumen Word/PDF. Lampiran otomatis masuk ke Daftar Isi, Daftar Lampiran, pratinjau A4, serta ikut tercetak saat unduh Word dan PDF.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Bagaimana cara membuat PPT Sidang otomatis (.pptx)?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Di menu Generate PPT Sidang, pilih proyek skripsimu atau unggah file Word/PDF, pilih jumlah slide (6–12 slide) dan 13 tema akademik, lalu edit langsung atau unduh PowerPoint (.pptx) lengkap dengan catatan bicara presenter.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Bagaimana cara latihan tanya-jawab di fitur Simulasi Sidang?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Pilih proyek skripsimu atau unggah naskah di menu Simulasi Sidang. AI menyusun 5 pertanyaan penguji langsung dari isi Bab I–V naskahmu, lengkap dengan evaluasi skor per jawaban, grade akhir, dan contoh jawaban terbaik.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah tersedia fitur Cari Judul, Parafrase Akademik, dan Dosen AI?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Ya. Semua tersedia dalam satu dashboard: Cari Judul menghasilkan 10 rekomendasi judul sesuai jurusan dan metode, Parafrase Akademik merapikan paragraf sesuai EYD V, dan Dosen AI siap membantu konsultasi metodologi maupun bedah soal 24 jam.',
                             ],
                         ],
                     ],
@@ -641,21 +673,21 @@
         .studio-frame {
             background: #eef2f7;
             border: 1px solid #cbd5e1;
-            border-radius: 16px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.1);
+            box-shadow: 0 24px 50px -18px rgba(15, 23, 42, 0.14);
             display: grid;
-            grid-template-columns: 245px 1fr;
-            min-height: 540px;
+            grid-template-columns: 260px 1fr;
+            min-height: 580px;
         }
 
         .studio-frame-sidebar {
             background: #ffffff;
             border-right: 1px solid #e2e8f0;
-            padding: 16px 12px;
+            padding: 16px 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 11px;
         }
 
         .sf-title {
@@ -663,7 +695,11 @@
             font-weight: 700;
             color: #0f172a;
             text-transform: uppercase;
-            line-height: 1.4;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .sf-sub {
@@ -671,13 +707,20 @@
             font-weight: 700;
             color: var(--primary);
             text-transform: uppercase;
-            margin-top: 4px;
+            margin-top: 5px;
+            letter-spacing: 0.02em;
+        }
+
+        .sf-nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
 
         .sf-nav-btn {
             width: 100%;
             text-align: left;
-            padding: 8px 10px;
+            padding: 7.5px 10px;
             border-radius: 8px;
             border: 1px solid transparent;
             background: transparent;
@@ -689,16 +732,36 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            transition: background 0.14s ease, color 0.14s ease;
         }
 
         .sf-nav-btn:hover {
             background: #f1f5f9;
+            color: #0f172a;
         }
 
         .sf-nav-btn.active {
             background: var(--primary-soft);
             color: var(--primary-hover);
             border-color: var(--primary-border);
+        }
+
+        .sf-side-foot {
+            margin-top: auto;
+            padding: 10px 11px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .sf-side-foot strong {
+            display: block;
+            color: #1e40af;
+            font-size: 11.5px;
+            margin-bottom: 2px;
         }
 
         .studio-frame-main {
@@ -710,7 +773,7 @@
         .sf-topbar {
             background: #ffffff;
             border-bottom: 1px solid #e2e8f0;
-            padding: 10px 18px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -718,37 +781,205 @@
             gap: 10px;
         }
 
+        .sf-topbar-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            min-width: 0;
+        }
+
+        .sf-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #10b981;
+            flex-shrink: 0;
+        }
+
         .sf-paper-area {
-            padding: 24px;
+            padding: 22px;
             flex: 1;
             overflow-y: auto;
-            max-height: 500px;
+            max-height: 540px;
         }
 
         .sf-a4-paper {
             background: #ffffff;
             border: 1px solid #cbd5e1;
+            border-radius: 4px;
             max-width: 720px;
             margin: 0 auto;
-            padding: 40px 48px;
+            padding: 36px 46px 46px;
             font-family: 'Times New Roman', Times, serif;
-            font-size: 12pt;
-            line-height: 1.75;
+            font-size: 11.5pt;
+            line-height: 1.65;
             color: #0f172a;
             text-align: justify;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            position: relative;
+        }
+
+        .sf-chapter-head {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 18px;
+            line-height: 1.35;
+        }
+
+        .sf-chapter-num {
+            font-size: 13pt;
+            letter-spacing: 0.03em;
+        }
+
+        .sf-chapter-name {
+            font-size: 13pt;
+            text-transform: uppercase;
         }
 
         .sf-a4-paper h4 {
-            font-size: 12pt;
+            font-size: 11.5pt;
             font-weight: bold;
             margin: 14px 0 6px;
             text-indent: 0;
+            text-align: left;
         }
 
         .sf-a4-paper p {
-            text-indent: 1.27cm;
-            margin-bottom: 10px;
+            text-indent: 1.1cm;
+            margin-bottom: 9px;
+        }
+
+        .sf-a4-paper p.sf-list-line {
+            text-indent: 0;
+            padding-left: 16px;
+            margin-bottom: 6px;
+        }
+
+        .sf-a4-paper p.sf-dp-entry {
+            text-indent: -1.1cm;
+            padding-left: 1.1cm;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .sf-caption {
+            font-size: 10.5pt;
+            font-weight: 700;
+            margin: 12px 0 6px;
+            text-align: left;
+            text-indent: 0;
+        }
+
+        .sf-table-wrap {
+            overflow-x: auto;
+            margin: 8px 0 14px;
+        }
+
+        .sf-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5pt;
+            line-height: 1.35;
+            text-align: left;
+        }
+
+        .sf-preview-table th,
+        .sf-preview-table td {
+            border: 1px solid #334155;
+            padding: 5px 7px;
+            vertical-align: top;
+        }
+
+        .sf-preview-table th {
+            background: #f1f5f9;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .sf-cover-box {
+            text-align: center;
+            padding: 16px 8px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sf-cover-kind {
+            font-size: 13pt;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .sf-cover-title {
+            font-size: 12.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.45;
+            max-width: 520px;
+        }
+
+        .sf-cover-sub {
+            font-size: 10.5pt;
+            line-height: 1.45;
+            max-width: 460px;
+            color: #334155;
+        }
+
+        .sf-cover-seal {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            border: 2px solid #1e3a8a;
+            background: #eff6ff;
+            color: #1e3a8a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            margin: 6px 0;
+        }
+
+        .sf-cover-author {
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+
+        .sf-cover-campus {
+            font-size: 11.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.45;
+            margin-top: 10px;
+        }
+
+        .sf-more-note {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: #475569;
+            text-align: center;
+            text-indent: 0;
+            line-height: 1.5;
+        }
+
+        .sf-page-footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 10.5pt;
+            color: #475569;
         }
 
         .cite-blue {
@@ -942,31 +1173,31 @@
 
         /* FAQ Accordion (SEO + UX) */
         .faq-grid {
-            max-width: 820px;
+            max-width: 840px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .faq-item {
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            box-shadow: var(--shadow-card);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
             transition: border-color 0.16s ease, box-shadow 0.16s ease;
             overflow: hidden;
         }
 
         .faq-item[open] {
             border-color: #93c5fd;
-            box-shadow: var(--shadow-hover);
+            box-shadow: 0 10px 26px -10px rgba(37, 99, 235, 0.16);
         }
 
         .faq-item summary {
             list-style: none;
-            padding: 18px 20px;
-            font-size: 15px;
+            padding: 16px 20px;
+            font-size: 14.5px;
             font-weight: 700;
             color: var(--text-primary);
             cursor: pointer;
@@ -975,6 +1206,7 @@
             justify-content: space-between;
             gap: 12px;
             user-select: none;
+            line-height: 1.45;
         }
 
         .faq-item summary::-webkit-details-marker {
@@ -1004,8 +1236,9 @@
         }
 
         .faq-answer {
-            padding: 0 20px 18px;
-            font-size: 14px;
+            padding: 12px 20px 18px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 13.8px;
             color: var(--text-secondary);
             line-height: 1.68;
             text-wrap: pretty;
@@ -1470,98 +1703,117 @@
             <div class="container">
                 <div class="section-header">
                     <span class="section-label">Pratinjau Workspace</span>
-                    <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi & Terstandar</h2>
-                    <p class="section-desc">Coba pindah antarprogram studi dan bab di bawah ini untuk melihat langsung
-                        format penulisan kertas A4 lengkap dengan Daftar Pustaka otomatis.</p>
+                    <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi &amp; Terstandar</h2>
+                    <p class="section-desc">Pindah antarproyek asli dan bab di bawah ini untuk melihat langsung format
+                        kertas A4, sitasi ilmiah, tabel akademik, hingga Daftar Pustaka APA 7th otomatis.</p>
                 </div>
 
-                <div class="major-selector">
-                    <button type="button" class="major-pill active"
-                        onclick="switchSampleMajor('manajemen', this)">Manajemen (Kuantitatif)</button>
-                    <button type="button" class="major-pill" onclick="switchSampleMajor('it', this)">Teknik Informatika
-                        (R&D)</button>
-                    <button type="button" class="major-pill" onclick="switchSampleMajor('hukum', this)">Ilmu Hukum
-                        (Normatif)</button>
+                @php
+                    $previewList = !empty($previewProjects) ? $previewProjects : [];
+                @endphp
+
+                <div class="major-selector" id="preview-project-pills">
+                    @if (count($previewList) > 0)
+                        @foreach ($previewList as $pIdx => $pItem)
+                            <button type="button" class="major-pill {{ $pIdx === 0 ? 'active' : '' }}"
+                                onclick="switchPreviewProject({{ $pIdx }}, this)">{{ $pItem['pill'] }}</button>
+                        @endforeach
+                    @else
+                        <button type="button" class="major-pill active"
+                            onclick="switchPreviewProject(0, this)">Manajemen · Bab 1–3</button>
+                    @endif
                 </div>
 
                 <div class="studio-frame">
                     <div class="studio-frame-sidebar">
                         <div>
-                            <div class="sf-title" id="sf-proj-title">PENGARUH LITERASI DIGITAL, REGULASI DIRI, DAN
-                                DUKUNGAN INSTITUSI...</div>
-                            <div class="sf-sub">PROPOSAL SKRIPSI · 3 DARI 3 BAB</div>
+                            <div class="sf-title" id="sf-proj-title">Memuat pratinjau proyek...</div>
+                            <div class="sf-sub" id="sf-proj-stage">SKRIPSI · LENGKAP</div>
                         </div>
 
                         <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                            <div style="width: 100%; height: 100%; background: #2563eb;"></div>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #2563eb, #10b981);"></div>
                         </div>
 
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="sf-nav-list">
+                            <button type="button" class="sf-nav-btn" id="sf-btn-cover"
+                                onclick="switchPreviewChapter('cover')">
+                                <span>Sampul &amp; Identitas</span>
+                                <span style="color: #2563eb;">●</span>
+                            </button>
                             <button type="button" class="sf-nav-btn active" id="sf-btn-bab1"
-                                onclick="switchSampleChapter('bab1')">
+                                onclick="switchPreviewChapter('bab1')">
                                 <span>Bab I Pendahuluan</span>
                                 <span style="color: #059669;">●</span>
                             </button>
                             <button type="button" class="sf-nav-btn" id="sf-btn-bab2"
-                                onclick="switchSampleChapter('bab2')">
+                                onclick="switchPreviewChapter('bab2')">
                                 <span>Bab II Tinjauan Pustaka</span>
                                 <span style="color: #059669;">●</span>
                             </button>
                             <button type="button" class="sf-nav-btn" id="sf-btn-bab3"
-                                onclick="switchSampleChapter('bab3')">
+                                onclick="switchPreviewChapter('bab3')">
                                 <span>Bab III Metodologi</span>
                                 <span style="color: #059669;">●</span>
                             </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-dp" onclick="switchSampleChapter('dp')">
+                            <button type="button" class="sf-nav-btn" id="sf-btn-bab4"
+                                onclick="switchPreviewChapter('bab4')" style="display: none;">
+                                <span>Bab IV Hasil &amp; Pembahasan</span>
+                                <span style="color: #059669;">●</span>
+                            </button>
+                            <button type="button" class="sf-nav-btn" id="sf-btn-bab5"
+                                onclick="switchPreviewChapter('bab5')" style="display: none;">
+                                <span>Bab V Penutup</span>
+                                <span style="color: #059669;">●</span>
+                            </button>
+                            <button type="button" class="sf-nav-btn" id="sf-btn-dp"
+                                onclick="switchPreviewChapter('dp')">
                                 <span>Daftar Pustaka</span>
                                 <span style="color: #059669;">●</span>
                             </button>
                         </div>
 
-                        <div
-                            style="margin-top: auto; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 9px; font-size: 11.5px; color: #1e40af; line-height: 1.45;">
-                            <strong style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path
-                                        d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z" />
-                                </svg>
-                                <span>Lab Revisi Sub-bab</span>
-                            </strong>
-                            Perbaiki sub-bab spesifik (misal 1.1 atau 2.1) sesuai catatan dosen pembimbing.
+                        <div class="sf-side-foot">
+                            <strong>Lab Revisi &amp; Lampiran Otomatis</strong>
+                            Margin 4-4-3-3, penomoran Romawi/Arab, dan ekspor Word/PDF siap cetak.
                         </div>
                     </div>
 
                     <div class="studio-frame-main">
                         <div class="sf-topbar">
-                            <div style="font-size: 12px; font-weight: 600; color: #475569;">
-                                Workspace Skripsi · Margin 4-4-3-3 · Times New Roman 12pt
+                            <div class="sf-topbar-meta">
+                                <span class="sf-live-dot"></span>
+                                <span id="sf-topbar-label">Pratinjau A4 · Margin 4-4-3-3 · Times New Roman 12pt</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <a id="sample-dl-docx"
-                                    href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'docx']) }}"
-                                    class="btn btn-outline"
-                                    style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                            <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                                <a id="sample-view-pdf" href="#" target="_blank" rel="noopener" class="btn btn-outline"
+                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <span>Lihat PDF</span>
+                                </a>
+                                <a id="sample-dl-docx" href="#" download class="btn btn-outline"
+                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                         <polyline points="14 2 14 8 20 8" />
                                     </svg>
-                                    <span>Unduh Word (.docx)</span>
+                                    <span>.docx</span>
                                 </a>
-                                <a id="sample-dl-pdf"
-                                    href="{{ route('sample.download', ['major' => 'manajemen', 'format' => 'pdf']) }}"
-                                    class="btn btn-primary"
-                                    style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                <a id="sample-dl-pdf" href="#" download class="btn btn-primary"
+                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                         <polyline points="14 2 14 8 20 8" />
                                         <line x1="16" y1="13" x2="8" y2="13" />
                                         <line x1="16" y1="17" x2="8" y2="17" />
-                                        <polyline points="10 9 9 9 8 9" />
                                     </svg>
-                                    <span>Unduh PDF (.pdf)</span>
+                                    <span>Unduh PDF</span>
                                 </a>
                             </div>
                         </div>
@@ -1849,52 +2101,77 @@
 
                 <div class="faq-grid">
                     <details class="faq-item" open>
-                        <summary>Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)
-                            otomatis dengan referensi jurnal yang relevan?
-                        </summary>
+                        <summary>Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?</summary>
                         <div class="faq-answer">
-                            Ya. Di <strong>SkripsiLab AI</strong>, mahasiswa dapat memilih tahap <strong>Proposal
-                                Skripsi
-                                (Bab I–III)</strong> maupun <strong>Skripsi Penuh (Bab I–V)</strong> secara otomatis
-                            menggunakan AI yang didukung <strong>referensi ilmiah dan jurnal yang relevan terverifikasi
-                                DOI</strong> (Crossref &amp; OpenAlex), lengkap dengan pedoman kampus, logo universitas,
-                            font, dan margin 4-4-3-3 cm.
+                            Ya. Mahasiswa dapat memilih tahap <strong>Proposal Skripsi (Bab I–III)</strong> maupun
+                            <strong>Skripsi Penuh (Bab I–V)</strong> sejak awal pembuatan proyek, lengkap dengan pedoman
+                            struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar kampus Indonesia?
-                        </summary>
+                        <summary>Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis APA 7th?</summary>
                         <div class="faq-answer">
-                            Sudah. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar
-                            pengesahan/persetujuan, surat pernyataan, abstrak &amp; abstract, kata pengantar, daftar
-                            isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman Romawi &amp; Arab yang
-                            rapi, tabel bergaris penuh, diagram alur (flowchart), serta daftar pustaka dari jurnal
-                            ilmiah
-                            relevan dengan tautan DOI aktif.
+                            SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional &amp; internasional
+                            terverifikasi DOI (<strong>Crossref &amp; OpenAlex</strong>), sehingga sitasi di dalam teks
+                            dan <strong>Daftar Pustaka APA 7th</strong> tersusun otomatis lengkap dengan tautan DOI aktif.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai margin 4-4-3-3 kampus?</summary>
+                        <div class="faq-answer">
+                            Sudah. Ekspor Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak,
+                            kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman
+                            Romawi &amp; Arab di tengah bawah, tabel bergaris penuh, serta daftar pustaka.
                         </div>
                     </details>
 
                     <details class="faq-item">
                         <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiLab AI?</summary>
                         <div class="faq-answer">
-                            SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu
-                            Hukum,
-                            Pendidikan/PGSD, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan
-                            <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder,
-                            Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
+                            Mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan,
+                            Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan <strong>9 metode
+                                penelitian</strong>: Kuantitatif Survei/Regresi, Data Sekunder, Kualitatif, R&amp;D, PTK,
+                            Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Bagaimana cara menambahkan Lampiran, membuat PPT Sidang, dan latihan Simulasi Sidang?
-                        </summary>
+                        <summary>Bagaimana cara menambahkan Lampiran agar otomatis masuk Daftar Isi, Word &amp; PDF?</summary>
                         <div class="faq-answer">
                             Di dalam Workspace Penulisan tersedia menu <strong>Lampiran</strong> untuk mengunggah gambar
-                            atau dokumen Word/PDF yang langsung tersinkron ke Daftar Isi, Word, dan PDF. Di Dashboard
-                            juga tersedia <strong>PPT Sidang Otomatis</strong> (13 tema akademik + ekspor
-                            <code>.pptx</code>) serta <strong>Simulasi Sidang</strong> dengan 5 pertanyaan penguji yang
-                            disusun langsung dari isi Bab I–V naskahmu.
+                            maupun dokumen Word/PDF. Lampiran yang diunggah langsung tercatat otomatis di Daftar Isi,
+                            Daftar Lampiran, pratinjau A4, dan ikut tercetak saat unduh Word &amp; PDF.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Bagaimana cara membuat PPT Sidang otomatis (.pptx)?</summary>
+                        <div class="faq-answer">
+                            Buka menu <strong>Generate PPT Sidang</strong> di Dashboard, pilih proyek skripsimu atau
+                            unggah file Word/PDF, tentukan jumlah slide (6–12 slide) serta pilih dari <strong>13 tema
+                                akademik</strong>, lalu edit langsung atau unduh PowerPoint (<code>.pptx</code>) lengkap
+                            dengan catatan bicara presenter.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Bagaimana cara latihan tanya-jawab di fitur Simulasi Sidang?</summary>
+                        <div class="faq-answer">
+                            Pilih proyek skripsimu atau unggah naskah di menu <strong>Simulasi Sidang</strong>. AI akan
+                            menyusun 5 pertanyaan penguji langsung dari isi Bab I–V naskahmu, lengkap dengan skor per
+                            pertanyaan, grade akhir, dan contoh jawaban terbaik.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Apakah tersedia fitur Cari Judul, Parafrase Akademik, dan Dosen AI?</summary>
+                        <div class="faq-answer">
+                            Ya. Seluruh modul tersedia dalam satu dashboard: <strong>Cari Judul</strong> memberi 10 ide
+                            judul sesuai jurusan &amp; metode, <strong>Parafrase Akademik</strong> merapikan paragraf
+                            sesuai EYD V, dan <strong>Dosen AI</strong> siap membantu konsultasi metodologi maupun bedah
+                            soal 24 jam.
                         </div>
                     </details>
                 </div>
@@ -1957,100 +2234,130 @@
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 
-        const studioSamples = {
-            manajemen: {
-                title: 'PENGARUH LITERASI DIGITAL, REGULASI DIRI, DAN DUKUNGAN INSTITUSI TERHADAP KESIAPAN KERJA MAHASISWA',
-                bab1: `
-                    <h4>1.1 Latar Belakang Masalah</h4>
-                    <p>Perkembangan teknologi informasi di era transformasi digital telah mengubah struktur kompetensi yang dibutuhkan oleh dunia industri secara fundamental. Menurut <span class="cite-blue">Naufal & Wijaya (2024)</span>, lulusan perguruan tinggi tidak lagi hanya dituntut menguasai pengetahuan teoretis pada bidang keilmuannya, melainkan juga harus memiliki kecakapan literasi digital serta kemampuan adaptasi mandiri yang tinggi.</p>
-                    <p>Hasil studi pendahuluan yang dilakukan oleh <span class="cite-blue">Kusuma et al. (2023)</span> menunjukkan bahwa meskipun intensitas penggunaan perangkat digital di kalangan mahasiswa mencapai lebih dari 8 jam per hari, pemanfaatan teknologi untuk produktivitas akademik dan persiapan karier profesional masih belum optimal. Hal ini sejalan dengan temuan <span class="cite-blue">Pratama & Santoso (2024)</span> yang mengungkapkan adanya kesenjangan antara penguasaan teknologi dasar dengan kesiapan kerja lulusan baru.</p>
-                    <h4>1.2 Rumusan Masalah</h4>
-                    <p>1. Apakah literasi digital berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
-                    <p>2. Apakah regulasi diri berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
-                `,
-                bab2: `
-                    <h4>2.1 Landasan Teori</h4>
-                    <p>Literasi digital didefinisikan oleh <span class="cite-blue">Rahmawati & Hidayat (2023)</span> sebagai kemampuan individu untuk memahami, mengevaluasi, dan mengintegrasikan informasi dalam berbagai format digital secara kritis dan produktif. Indikator literasi digital mencakup pencarian informasi daring, evaluasi kredibilitas konten, serta kolaborasi digital.</p>
-                    <p>Regulasi diri (self-regulation) menurut <span class="cite-blue">Zimmerman (2020)</span> merupakan kapasitas psikologis individu dalam merencanakan, memantau, dan mengendalikan perilaku belajarnya guna mencapai target karier yang telah ditetapkan.</p>
-                `,
-                bab3: `
-                    <h4>3.1 Jenis dan Desain Penelitian</h4>
-                    <p>Penelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei menggunakan instrumen kuesioner skala Likert 1 sampai 5 (<span class="cite-blue">Sugiyono, 2022</span>). Penentuan jumlah sampel menggunakan rumus Slovin sehingga diperoleh sebanyak 175 responden.</p>
-                `,
-                dp: `
-                    <h4>DAFTAR PUSTAKA</h4>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Handayani, S., & Putri, M. A. (2023). Pengaruh kompetensi digital terhadap kesiapan kerja lulusan perguruan tinggi. <em>Jurnal Manajemen Pendidikan Indonesia</em>, 15(2), 112-125.</p>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Kusuma, A. R., Pratama, D., & Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. <em>Jurnal Ekonomi dan Bisnis</em>, 18(1), 45-59.</p>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Naufal, M., & Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. <em>Jurnal Riset Manajemen</em>, 11(3), 201-215.</p>
-                `
-            },
-            it: {
-                title: 'IMPLEMENTASI ALGORITMA RANDOM FOREST DAN EKSTRAKSI FITUR CITRA UNTUK KLASIFIKASI PENYAKIT DAUN PADI',
-                bab1: `
-                    <h4>1.1 Latar Belakang Masalah</h4>
-                    <p>Komoditas padi merupakan sumber pangan utama di Indonesia yang produktivitasnya sangat dipengaruhi oleh kesehatan tanaman pada fase vegetatif. Serangan patogen seperti hawar daun bakteri dan bercak coklat sering kali terlambat diidentifikasi secara kasatmata oleh petani (<span class="cite-blue">Setiawan & Nugroho, 2023</span>).</p>
-                    <p>Kemajuan bidang pengolahan citra digital dan pembelajaran mesin memungkinkan deteksi penyakit daun dilakukan secara otomatis melalui ekstraksi fitur warna HSV dan tekstur GLCM. Algoritma Random Forest dipilih karena kemampuannya menggabungkan banyak pohon keputusan sehingga menghasilkan akurasi klasifikasi yang stabil (<span class="cite-blue">Saputra et al., 2024</span>).</p>
-                `,
-                bab2: `
-                    <h4>2.1 Landasan Teori</h4>
-                    <p>Pengolahan citra digital merupakan proses transformasi matriks piksel dua dimensi untuk meningkatkan kualitas visual atau mengekstraksi informasi ciri tertentu dari suatu objek (<span class="cite-blue">Gonzalez & Woods, 2021</span>).</p>
-                `,
-                bab3: `
-                    <h4>3.1 Metode Pengembangan Sistem</h4>
-                    <p>Penelitian ini menerapkan metode Research and Development (R&D) dengan tahapan pengumpulan dataset 1.200 citra daun padi, preprocessing citra, ekstraksi fitur HSV dan GLCM, pelatihan model Random Forest, serta pengujian akurasi menggunakan Confusion Matrix.</p>
-                `,
-                dp: `
-                    <h4>DAFTAR PUSTAKA</h4>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Gonzalez, R. C., & Woods, R. E. (2021). <em>Digital image processing</em> (4th ed.). Pearson.</p>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Saputra, D., Kurniawan, R., & Hakim, L. (2024). Klasifikasi penyakit tanaman pangan menggunakan ensemble machine learning. <em>Jurnal Teknologi Informasi dan Ilmu Komputer</em>, 11(1), 33-44.</p>
-                `
-            },
-            hukum: {
-                title: 'PELINDUNGAN HUKUM BAGI KONSUMEN ATAS KEBOCORAN DATA PRIBADI PADA LAYANAN PINJAMAN DARING BERDASARKAN UU PDP',
-                bab1: `
-                    <h4>1.1 Latar Belakang Masalah</h4>
-                    <p>Perkembangan layanan pendanaan bersama berbasis teknologi informasi telah memperluas inklusi keuangan di Indonesia, namun di sisi lain menimbulkan kerentanan hukum terkait pelindungan data pribadi pengguna (<span class="cite-blue">Siregar & Wibowo, 2023</span>).</p>
-                    <p>Pengesahan Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi menjadi instrumen hukum positif dalam mengatur kewajiban pengendali data, namun mekanisme pemulihan kerugian bagi konsumen masih menghadapi kendala pembuktian (<span class="cite-blue">Maharani et al., 2024</span>).</p>
-                `,
-                bab2: `
-                    <h4>2.1 Tinjauan Pustaka</h4>
-                    <p>Teori Pelindungan Hukum menurut Satjipto Rahardjo menekankan bahwa hukum hadir untuk mengintegrasikan berbagai kepentingan dalam masyarakat dengan cara melindungi hak-hak pihak yang berada pada posisi lemah secara kontraktual.</p>
-                `,
-                bab3: `
-                    <h4>3.1 Jenis dan Pendekatan Penelitian</h4>
-                    <p>Penelitian ini merupakan penelitian hukum yuridis normatif dengan menggunakan pendekatan perundang-undangan (statute approach) terhadap UU Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.</p>
-                `,
-                dp: `
-                    <h4>DAFTAR PUSTAKA</h4>
-                    <p style="text-indent: -1.27cm; padding-left: 1.27cm;">Maharani, D., Prasetyo, Y., & Santoso, H. (2024). Tanggung jawab pengendali data pribadi dalam perspektif UU Nomor 27 Tahun 2022. <em>Jurnal Hukum Ius Quia Iustum</em>, 31(1), 55-74.</p>
-                `
+        const realPreviewProjects = @json($previewProjects ?? []);
+        const fallbackPreviewProjects = [
+            {
+                id: 0,
+                pill: 'Manajemen · Bab 1–3',
+                title: 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi terhadap Kesiapan Kerja Mahasiswa',
+                prodi: 'Manajemen',
+                metode: 'Kuantitatif (Survei / Regresi)',
+                stage: 'proposal',
+                stage_label: 'PROPOSAL SKRIPSI · 3 DARI 3 BAB',
+                jenis: 'PROPOSAL SKRIPSI',
+                nama: 'Mahasiswa Peneliti',
+                nim: '2021041082',
+                kampus: 'Universitas di Indonesia',
+                fakultas: 'Fakultas Ekonomi dan Bisnis',
+                docx_url: '/sample/download/manajemen/docx',
+                pdf_url: '/sample/download/manajemen/pdf',
+                pdf_inline_url: '/sample/download/manajemen/pdf?inline=1',
+                chapters: {
+                    bab1: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div><h4>1.1 Latar Belakang Masalah</h4><p>Perkembangan teknologi informasi di era transformasi digital telah mengubah struktur kompetensi yang dibutuhkan oleh dunia industri secara fundamental (<span class="cite-blue">Naufal &amp; Wijaya, 2024</span>).</p><p>Hasil studi pendahuluan menunjukkan bahwa pemanfaatan teknologi untuk produktivitas akademik dan persiapan karier profesional mahasiswa masih perlu diperkuat (<span class="cite-blue">Kusuma et al., 2023</span>).</p>`,
+                    bab2: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div><h4>2.1 Landasan Teori</h4><p>Literasi digital didefinisikan sebagai kemampuan individu untuk memahami, mengevaluasi, dan mengintegrasikan informasi dalam berbagai format digital secara kritis dan produktif (<span class="cite-blue">Rahmawati &amp; Hidayat, 2023</span>).</p>`,
+                    bab3: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div><h4>3.1 Jenis dan Desain Penelitian</h4><p>Penelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei instrumen kuesioner skala Likert 1–5 (<span class="cite-blue">Sugiyono, 2022</span>).</p>`,
+                    dp: `<div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div><p class="sf-dp-entry">Kusuma, A. R., Pratama, D., &amp; Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. <em>Jurnal Ekonomi dan Bisnis</em>, 18(1), 45–59.</p><p class="sf-dp-entry">Naufal, M., &amp; Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. <em>Jurnal Riset Manajemen</em>, 11(3), 201–215.</p>`
+                }
             }
-        };
+        ];
 
-        let sampleMajor = 'manajemen';
-        let sampleChap = 'bab1';
+        const previewProjectsData = (Array.isArray(realPreviewProjects) && realPreviewProjects.length > 0)
+            ? realPreviewProjects
+            : fallbackPreviewProjects;
 
-        function renderSampleStudio() {
-            const d = studioSamples[sampleMajor];
-            document.getElementById('sf-proj-title').innerText = d.title;
-            document.getElementById('sf-paper-content').innerHTML = d[sampleChap];
-            document.getElementById('sample-dl-docx').href = `/sample/download/${sampleMajor}/docx`;
-            document.getElementById('sample-dl-pdf').href = `/sample/download/${sampleMajor}/pdf`;
+        let activePreviewIdx = 0;
+        let activePreviewChap = 'bab1';
+
+        function escapePreviewHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
 
-        function switchSampleMajor(m, btn) {
-            sampleMajor = m;
-            document.querySelectorAll('#workspace-preview .major-pill').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderSampleStudio();
+        function buildPreviewCoverHtml(p) {
+            const syarat = p.stage === 'skripsi'
+                ? 'Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi '
+                : 'Diajukan untuk Memenuhi Persyaratan Seminar Proposal Skripsi pada Program Studi ';
+            return `
+                <div class="sf-cover-box">
+                    <div class="sf-cover-kind">${escapePreviewHtml(p.jenis || 'SKRIPSI')}</div>
+                    <div class="sf-cover-title">${escapePreviewHtml(p.title)}</div>
+                    <div class="sf-cover-sub">${syarat}${escapePreviewHtml(p.prodi)}</div>
+                    <div class="sf-cover-seal">LOGO<br>KAMPUS</div>
+                    <div class="sf-cover-author">
+                        <div>OLEH:</div>
+                        <div style="margin-top:4px;"><u><strong>${escapePreviewHtml((p.nama || 'Mahasiswa Peneliti').toUpperCase())}</strong></u></div>
+                        ${p.nim ? `<div style="margin-top:2px;">NIM: ${escapePreviewHtml(p.nim)}</div>` : ''}
+                    </div>
+                    <div class="sf-cover-campus">
+                        <div>PROGRAM STUDI ${escapePreviewHtml((p.prodi || '').toUpperCase())}</div>
+                        ${p.fakultas ? `<div>${escapePreviewHtml(p.fakultas.toUpperCase())}</div>` : ''}
+                        <div>${escapePreviewHtml((p.kampus || 'UNIVERSITAS').toUpperCase())}</div>
+                        <div>${new Date().getFullYear()}</div>
+                    </div>
+                </div>
+            `;
         }
 
-        function switchSampleChapter(ch) {
-            sampleChap = ch;
-            ['bab1', 'bab2', 'bab3', 'dp'].forEach(k => {
-                document.getElementById('sf-btn-' + k).classList.toggle('active', k === ch);
+        function renderPreviewStudio() {
+            const p = previewProjectsData[activePreviewIdx] || previewProjectsData[0];
+            if (!p) return;
+
+            const isFull = p.stage === 'skripsi';
+            const b4 = document.getElementById('sf-btn-bab4');
+            const b5 = document.getElementById('sf-btn-bab5');
+            if (b4) b4.style.display = isFull ? 'flex' : 'none';
+            if (b5) b5.style.display = isFull ? 'flex' : 'none';
+
+            if (!isFull && (activePreviewChap === 'bab4' || activePreviewChap === 'bab5')) {
+                activePreviewChap = 'bab1';
+            }
+
+            document.getElementById('sf-proj-title').textContent = p.title;
+            document.getElementById('sf-proj-stage').textContent = p.stage_label || (isFull ? 'FULL SKRIPSI · 5 DARI 5 BAB' : 'PROPOSAL SKRIPSI · 3 DARI 3 BAB');
+            const topMeta = document.getElementById('sf-topbar-label');
+            if (topMeta) {
+                topMeta.textContent = `${p.prodi} · ${p.metode} · A4 Margin 4-4-3-3`;
+            }
+
+            ['cover', 'bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'dp'].forEach(k => {
+                const btn = document.getElementById('sf-btn-' + k);
+                if (btn) btn.classList.toggle('active', k === activePreviewChap);
             });
-            renderSampleStudio();
+
+            const paper = document.getElementById('sf-paper-content');
+            if (activePreviewChap === 'cover') {
+                paper.innerHTML = buildPreviewCoverHtml(p);
+            } else {
+                const pageNumMap = { bab1: '1', bab2: '8', bab3: '18', bab4: '26', bab5: '42', dp: isFull ? '45' : '24' };
+                const bodyHtml = (p.chapters && p.chapters[activePreviewChap]) ? p.chapters[activePreviewChap] : '<p>Isi bab tidak tersedia.</p>';
+                paper.innerHTML = bodyHtml + `<div class="sf-page-footer">${pageNumMap[activePreviewChap] || '1'}</div>`;
+            }
+
+            const paperArea = document.querySelector('.sf-paper-area');
+            if (paperArea) paperArea.scrollTop = 0;
+
+            const viewPdfBtn = document.getElementById('sample-view-pdf');
+            const dlDocxBtn = document.getElementById('sample-dl-docx');
+            const dlPdfBtn = document.getElementById('sample-dl-pdf');
+            if (viewPdfBtn) viewPdfBtn.href = p.pdf_inline_url || p.pdf_url;
+            if (dlDocxBtn) dlDocxBtn.href = p.docx_url;
+            if (dlPdfBtn) dlPdfBtn.href = p.pdf_url;
+        }
+
+        function switchPreviewProject(idx, btn) {
+            activePreviewIdx = idx;
+            activePreviewChap = 'bab1';
+            document.querySelectorAll('#preview-project-pills .major-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderPreviewStudio();
+        }
+
+        function switchPreviewChapter(ch) {
+            activePreviewChap = ch;
+            renderPreviewStudio();
         }
 
         function filterGallery(stage, btn) {
@@ -2088,7 +2395,7 @@
             dialog.close();
         }
 
-        renderSampleStudio();
+        renderPreviewStudio();
     </script>
 </body>
 
