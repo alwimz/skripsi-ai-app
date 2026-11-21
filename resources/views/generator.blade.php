@@ -2022,7 +2022,7 @@
                 genBtn.style.display = 'none';
                 document.getElementById('btn-save-edit').style.display = 'none';
             } else if (viewKey === 'lampiran') {
-                titleEl.textContent = 'LAMPIRAN PENELITIAN (OTOMATIS MASUK DAFTAR ISI, WORD & PDF)';
+                titleEl.textContent = 'LAMPIRAN PENELITIAN';
                 genBtn.style.display = 'none';
                 document.getElementById('btn-save-edit').style.display = 'none';
             } else if (viewKey === 'revisi') {
