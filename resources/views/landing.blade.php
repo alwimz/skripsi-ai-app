@@ -1621,17 +1621,15 @@
                                 <div class="sample-meta">Metode: {{ $proj->metode_penelitian ?: 'Akademik' }}</div>
                             </div>
                             <div class="sample-actions">
-                                <button type="button" class="sample-btn primary"
-                                    data-title="{{ $proj->judul }}"
-                                    data-pdf="{{ $projPdfUrl . '?inline=1' }}"
-                                    onclick="openPdfModal(this.dataset.title, this.dataset.pdf)">
+                                <a href="{{ $projPdfUrl . '?inline=1' }}" target="_blank" rel="noopener"
+                                    class="sample-btn primary">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                         <circle cx="12" cy="12" r="3" />
                                     </svg>
                                     <span>Lihat PDF</span>
-                                </button>
+                                </a>
                                 <a href="{{ $projDocxUrl }}" class="sample-btn" download>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
@@ -1651,7 +1649,8 @@
                             </div>
                         </article>
                     @empty
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 14px; color: var(--text-muted); font-size: 13.5px;">
+                        <div
+                            style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 14px; color: var(--text-muted); font-size: 13.5px;">
                             Belum ada proyek Proposal (Bab 1–3) atau Full Skripsi (Bab 1–5) yang selesai di-generate.
                         </div>
                     @endforelse
