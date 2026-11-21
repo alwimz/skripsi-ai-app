@@ -44,7 +44,7 @@ Route::get('/sitemap.xml', function () {
     return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
 })->name('sitemap');
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
-Route::get('/public/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
+Route::get('/galeri/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
 
 // 2. AUTHENTICATION (Login, Register, Logout)
 Route::middleware('guest')->group(function () {

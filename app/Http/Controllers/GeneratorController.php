@@ -6162,35 +6162,65 @@ ATURAN REVISI (SANGAT KETAT):
         return implode("\n", $cleaned);
     }
 
+    protected function isPublicGalleryProjectCompleted(Project $project): ?string
+    {
+        $b1 = mb_strlen(trim(strip_tags((string) $project->bab1_content)));
+        $b2 = mb_strlen(trim(strip_tags((string) $project->bab2_content)));
+        $b3 = mb_strlen(trim(strip_tags((string) $project->bab3_content)));
+        $b4 = mb_strlen(trim(strip_tags((string) $project->bab4_content)));
+        $b5 = mb_strlen(trim(strip_tags((string) $project->bab5_content)));
+        $dp = mb_strlen(trim(strip_tags((string) $project->daftar_pustaka)));
+
+        // Minimal Bab 1-3 dan Daftar Pustaka wajib terisi lengkap
+        if ($b1 < 200 || $b2 < 200 || $b3 < 200 || $dp < 30) {
+            return null;
+        }
+
+        // Jika Bab 4 dan Bab 5 juga sudah terisi lengkap -> Full Skripsi selesai (Bab 1-5)
+        if ($b4 >= 200 && $b5 >= 200) {
+            return 'skripsi';
+        }
+
+        // Jika Bab 4 atau Bab 5 baru terisi sebagian -> masih dalam pengerjaan, jangan tampilkan
+        if ($b4 > 0 || $b5 > 0) {
+            return null;
+        }
+
+        // Hanya tampilkan sebagai Proposal selesai jika target proyeknya memang Proposal (bukan Full Skripsi yang baru sampai Bab 3)
+        $meta = $this->getProjectMeta($project);
+        $tahap = strtolower((string) ($meta['tahap_pengerjaan'] ?? ''));
+        if ($tahap !== '' && !str_contains($tahap, 'proposal')) {
+            return null;
+        }
+
+        return 'proposal';
+    }
+
     public function landingPage()
     {
         $publicProjects = collect();
         try {
-            // Ambil proyek Skripsi Penuh (Bab 1-5 sudah selesai semua)
-            $fullSkripsi = Project::whereNotNull('bab1_content')->whereRaw("TRIM(bab1_content) != ''")
-                ->whereNotNull('bab2_content')->whereRaw("TRIM(bab2_content) != ''")
-                ->whereNotNull('bab3_content')->whereRaw("TRIM(bab3_content) != ''")
-                ->whereNotNull('bab4_content')->whereRaw("TRIM(bab4_content) != ''")
-                ->whereNotNull('bab5_content')->whereRaw("TRIM(bab5_content) != ''")
+            $candidates = Project::whereNotNull('bab1_content')->whereRaw("CHAR_LENGTH(TRIM(bab1_content)) >= 200")
+                ->whereNotNull('bab2_content')->whereRaw("CHAR_LENGTH(TRIM(bab2_content)) >= 200")
+                ->whereNotNull('bab3_content')->whereRaw("CHAR_LENGTH(TRIM(bab3_content)) >= 200")
+                ->whereNotNull('daftar_pustaka')->whereRaw("CHAR_LENGTH(TRIM(daftar_pustaka)) >= 30")
                 ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 12')
                 ->orderBy('updated_at', 'desc')
-                ->take(12)
+                ->take(60)
                 ->get();
 
-            // Ambil proyek Proposal (Bab 1-3 sudah selesai semua, belum lengkap Bab 4-5)
-            $proposalProjects = Project::whereNotNull('bab1_content')->whereRaw("TRIM(bab1_content) != ''")
-                ->whereNotNull('bab2_content')->whereRaw("TRIM(bab2_content) != ''")
-                ->whereNotNull('bab3_content')->whereRaw("TRIM(bab3_content) != ''")
-                ->where(function ($q) {
-                    $q->whereNull('bab4_content')
-                        ->orWhereRaw("TRIM(bab4_content) = ''")
-                        ->orWhereNull('bab5_content')
-                        ->orWhereRaw("TRIM(bab5_content) = ''");
-                })
-                ->whereRaw('CHAR_LENGTH(TRIM(judul)) >= 12')
-                ->orderBy('updated_at', 'desc')
-                ->take(12)
-                ->get();
+            $fullSkripsi = collect();
+            $proposalProjects = collect();
+            foreach ($candidates as $proj) {
+                $stage = $this->isPublicGalleryProjectCompleted($proj);
+                if ($stage === 'skripsi' && $fullSkripsi->count() < 12) {
+                    $proj->gallery_stage = 'skripsi';
+                    $fullSkripsi->push($proj);
+                } elseif ($stage === 'proposal' && $proposalProjects->count() < 12) {
+                    $proj->gallery_stage = 'proposal';
+                    $proposalProjects->push($proj);
+                }
+            }
 
             $publicProjects = $fullSkripsi->concat($proposalProjects)
                 ->sortByDesc('updated_at')
@@ -6205,12 +6235,10 @@ ATURAN REVISI (SANGAT KETAT):
     {
         $project = Project::findOrFail($id);
 
-        // Hanya izinkan pratinjau/unduh publik untuk proyek yang minimal Bab 1-3 sudah lengkap
-        $hasBab13 = trim((string) $project->bab1_content) !== ''
-            && trim((string) $project->bab2_content) !== ''
-            && trim((string) $project->bab3_content) !== '';
-        if (!$hasBab13) {
-            abort(404, 'Dokumen belum lengkap.');
+        // Hanya izinkan pratinjau/unduh publik untuk proyek yang sudah benar-benar selesai di-generate
+        $stage = $this->isPublicGalleryProjectCompleted($project);
+        if ($stage === null) {
+            abort(404, 'Dokumen belum selesai disusun.');
         }
 
         $meta = $this->getProjectMeta($project);
@@ -6223,7 +6251,7 @@ ATURAN REVISI (SANGAT KETAT):
             }
         }
 
-        $hasFull = trim((string) $project->bab4_content) !== '' && trim((string) $project->bab5_content) !== '';
+        $hasFull = $stage === 'skripsi';
         $request->merge([
             'nama' => $meta['nama'] ?? 'Mahasiswa Peneliti',
             'npm' => $meta['nim'] ?? '-',

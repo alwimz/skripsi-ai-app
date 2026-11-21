@@ -136,33 +136,6 @@
             text-decoration: none;
         }
 
-        .topbar-back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            height: 34px;
-            padding: 0 11px;
-            border-radius: 8px;
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1d4ed8;
-            font-size: 12.5px;
-            font-weight: 700;
-            text-decoration: none;
-            white-space: nowrap;
-            flex-shrink: 0;
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-
-        .topbar-back-btn:hover {
-            background: #dbeafe;
-            border-color: #93c5fd;
-        }
-
-        .topbar-back-btn .back-label-short {
-            display: none;
-        }
-
         .project-title-side {
             font-size: 13px;
             font-weight: 700;
@@ -1308,23 +1281,6 @@
 
             .topbar-brand-label {
                 font-size: 13px !important;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .topbar-back-btn {
-                height: 32px;
-                padding: 0 9px;
-                font-size: 12px;
-            }
-
-            .topbar-back-btn .back-label-full {
-                display: none;
-            }
-
-            .topbar-back-btn .back-label-short {
-                display: inline;
             }
 
             .topbar-actions {
@@ -1879,21 +1835,13 @@
 
         <main class="studio-main">
             <header class="studio-topbar">
-                <div class="topbar-left" style="min-width: 0;">
+                <div class="topbar-left">
                     <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar"
                         title="Buka/Tutup Sidebar">☰</button>
-                    <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="topbar-back-btn"
-                        title="Kembali ke daftar Proyek Saya">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
-                            <line x1="19" y1="12" x2="5" y2="12" />
-                            <polyline points="12 19 5 12 12 5" />
-                        </svg>
-                        <span class="back-label-full">Kembali ke Proyek</span>
-                        <span class="back-label-short">Proyek</span>
-                    </a>
-                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         <span class="topbar-brand-label"
-                            style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace</span>
+                            style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace
+                            Penulisan</span>
                     </div>
                 </div>
 

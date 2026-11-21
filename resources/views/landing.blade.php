@@ -1392,7 +1392,8 @@
                 A4 <span>→</span></a>
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp;
                 Skripsi <span>→</span></a>
-            <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab AI
+            <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab
+                AI
                 <span>→</span></a>
             <a href="#faq" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pertanyaan Umum (FAQ)
                 <span>→</span></a>
@@ -1418,7 +1419,8 @@
                 <div class="hero-eyebrow">SkripsiLab AI · Workspace Akademik Mahasiswa</div>
                 <h1>Susun Proposal &amp; Skripsi Otomatis dengan AI</h1>
                 <p>Buat proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan <strong>referensi ilmiah
-                        dan jurnal yang relevan ber-DOI</strong>, ekspor Word/PDF, PPT sidang, hingga simulasi sidang.</p>
+                        dan jurnal yang relevan ber-DOI</strong>, ekspor Word/PDF, PPT sidang, hingga simulasi sidang.
+                </p>
 
                 <div class="hero-cta">
                     @auth
@@ -1620,7 +1622,9 @@
                             </div>
                             <div class="sample-actions">
                                 <button type="button" class="sample-btn primary"
-                                    onclick="openPdfModal(@json($proj->judul), @json($projPdfUrl . '?inline=1'))">
+                                    data-title="{{ $proj->judul }}"
+                                    data-pdf="{{ $projPdfUrl . '?inline=1' }}"
+                                    onclick="openPdfModal(this.dataset.title, this.dataset.pdf)">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -1628,7 +1632,7 @@
                                     </svg>
                                     <span>Lihat PDF</span>
                                 </button>
-                                <a href="{{ $projDocxUrl }}" class="sample-btn">
+                                <a href="{{ $projDocxUrl }}" class="sample-btn" download>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -1636,7 +1640,7 @@
                                     </svg>
                                     <span>.docx</span>
                                 </a>
-                                <a href="{{ $projPdfUrl }}" class="sample-btn">
+                                <a href="{{ $projPdfUrl }}" class="sample-btn" download>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -1850,7 +1854,8 @@
                             otomatis dengan referensi jurnal yang relevan?
                         </summary>
                         <div class="faq-answer">
-                            Ya. Di <strong>SkripsiLab AI</strong>, mahasiswa dapat memilih tahap <strong>Proposal Skripsi
+                            Ya. Di <strong>SkripsiLab AI</strong>, mahasiswa dapat memilih tahap <strong>Proposal
+                                Skripsi
                                 (Bab I–III)</strong> maupun <strong>Skripsi Penuh (Bab I–V)</strong> secara otomatis
                             menggunakan AI yang didukung <strong>referensi ilmiah dan jurnal yang relevan terverifikasi
                                 DOI</strong> (Crossref &amp; OpenAlex), lengkap dengan pedoman kampus, logo universitas,
@@ -1865,7 +1870,8 @@
                             Sudah. Dokumen Word dan PDF otomatis menyertakan halaman sampul, lembar
                             pengesahan/persetujuan, surat pernyataan, abstrak &amp; abstract, kata pengantar, daftar
                             isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman Romawi &amp; Arab yang
-                            rapi, tabel bergaris penuh, diagram alur (flowchart), serta daftar pustaka dari jurnal ilmiah
+                            rapi, tabel bergaris penuh, diagram alur (flowchart), serta daftar pustaka dari jurnal
+                            ilmiah
                             relevan dengan tautan DOI aktif.
                         </div>
                     </details>
@@ -1873,7 +1879,8 @@
                     <details class="faq-item">
                         <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiLab AI?</summary>
                         <div class="faq-answer">
-                            SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum,
+                            SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu
+                            Hukum,
                             Pendidikan/PGSD, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan
                             <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder,
                             Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
@@ -1895,7 +1902,8 @@
 
                 <div class="cta-banner" style="margin-top: 44px;">
                     <h2>Susun Proposal &amp; Skripsi Lebih Cepat</h2>
-                    <p>Otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI dalam satu workspace.</p>
+                    <p>Otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI dalam satu
+                        workspace.</p>
                     <div class="hero-cta">
                         @auth
                             <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka
@@ -1927,7 +1935,10 @@
     <dialog id="pdf-preview-dialog" class="pdf-dialog">
         <div class="pdf-dialog-head">
             <div class="pdf-dialog-title" id="pdf-dialog-title">Pratinjau Dokumen PDF</div>
-            <button type="button" class="sample-btn" onclick="closePdfModal()">✕ Tutup</button>
+            <div style="display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <a id="pdf-dialog-newtab" href="#" target="_blank" rel="noopener" class="sample-btn">Buka Tab Baru ↗</a>
+                <button type="button" class="sample-btn" onclick="closePdfModal()">✕ Tutup</button>
+            </div>
         </div>
         <iframe id="pdf-dialog-frame" class="pdf-dialog-frame" title="Pratinjau PDF Skripsi"></iframe>
     </dialog>
@@ -2061,9 +2072,15 @@
 
         function openPdfModal(title, url) {
             const dialog = document.getElementById('pdf-preview-dialog');
-            document.getElementById('pdf-dialog-title').textContent = title;
+            const newTabEl = document.getElementById('pdf-dialog-newtab');
+            document.getElementById('pdf-dialog-title').textContent = title || 'Pratinjau Dokumen PDF';
             document.getElementById('pdf-dialog-frame').src = url;
-            dialog.showModal();
+            if (newTabEl) newTabEl.href = url;
+            if (typeof dialog.showModal === 'function') {
+                dialog.showModal();
+            } else {
+                window.open(url, '_blank');
+            }
         }
 
         function closePdfModal() {
