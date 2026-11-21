@@ -1718,8 +1718,7 @@
                 <div class="studio-frame">
                     <div class="studio-frame-sidebar">
                         <div>
-                            <div class="sf-title" id="sf-proj-title">PENGARUH LITERASI DIGITAL DAN REGULASI DIRI TERHADAP KESIAPAN KERJA MAHASISWA</div>
-                            <div class="sf-sub" id="sf-proj-stage">PROPOSAL SKRIPSI · 3 DARI 3 BAB</div>
+                            <div class="sf-sub" id="sf-proj-stage" style="margin-top: 0;">PROPOSAL SKRIPSI · 3 DARI 3 BAB</div>
                         </div>
 
                         <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
@@ -2367,7 +2366,8 @@
                 activePreviewChap = 'bab1';
             }
 
-            document.getElementById('sf-proj-title').textContent = p.title;
+            const projTitleEl = document.getElementById('sf-proj-title');
+            if (projTitleEl) projTitleEl.textContent = p.title;
             document.getElementById('sf-proj-stage').textContent = p.stage_label;
             const topMeta = document.getElementById('sf-topbar-label');
             if (topMeta) {
