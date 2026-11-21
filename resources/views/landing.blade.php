@@ -612,6 +612,13 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: border-color 0.16s, box-shadow 0.16s, transform 0.16s;
+        }
+
+        .feature-card:hover {
+            border-color: #bfdbfe;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+            transform: translateY(-2px);
         }
 
         .feature-icon {
@@ -703,7 +710,7 @@
             .studio-frame { grid-template-columns: 1fr; }
             .studio-frame-sidebar { border-right: none; border-bottom: 1px solid #e2e8f0; }
             .sample-grid { grid-template-columns: repeat(2, 1fr); }
-            .features-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-links { display: none; }
         }
 
@@ -712,6 +719,7 @@
             .hero { padding: 48px 0 40px; }
             .section { padding: 48px 0; }
             .sample-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
             .sf-paper-area { padding: 12px; }
             .sf-a4-paper { padding: 22px 16px; font-size: 11pt; }
             .btn { padding: 8px 12px; font-size: 12.5px; }
@@ -780,8 +788,8 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
                             </div>
                             <div>
-                                <div class="dropdown-title">PPT Sidang & Slide Show</div>
-                                <div class="dropdown-desc">Generate slide presentasi sidang otomatis</div>
+                                <div class="dropdown-title">PPT Sidang &amp; Slide Show</div>
+                                <div class="dropdown-desc">13 tema akademik profesional &amp; ekspor .pptx</div>
                             </div>
                         </a>
 
@@ -791,7 +799,17 @@
                             </div>
                             <div>
                                 <div class="dropdown-title">Simulasi Sidang</div>
-                                <div class="dropdown-desc">Latihan tanya-jawab penguji & skor evaluasi</div>
+                                <div class="dropdown-desc">Latihan tanya-jawab penguji &amp; skor evaluasi</div>
+                            </div>
+                        </a>
+
+                        <a href="{{ auth()->check() ? route('app.create', ['tab' => 'qa']) : route('login') }}" class="dropdown-item">
+                            <div class="dropdown-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div>
+                                <div class="dropdown-title">Dosen AI (Konsultasi)</div>
+                                <div class="dropdown-desc">Bedah metodologi, analisis data &amp; tanya jawab soal</div>
                             </div>
                         </a>
                     </div>
@@ -1051,8 +1069,9 @@
     <section id="fitur-lengkap" class="section section-subtle">
         <div class="container">
             <div class="section-header">
-                <span class="section-label">Fitur Lengkap</span>
-                <h2 class="section-title">Pendamping dari Ide Judul hingga Sidang</h2>
+                <span class="section-label">Semua Modul SkripsiAI</span>
+                <h2 class="section-title">Pendamping Lengkap dari Ide Judul hingga Sidang</h2>
+                <p class="section-desc">Sembilan modul akademik terintegrasi dalam satu workspace untuk membantu menyusun proposal, skripsi penuh, referensi, presentasi, hingga persiapan sidang.</p>
             </div>
 
             <div class="features-grid">
@@ -1061,10 +1080,32 @@
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <h3>Workspace Proposal & Skripsi</h3>
-                        <p>Atur pedoman kampus, logo universitas, dan identitas sekali di awal form proyek, lalu susun Bab I–III / Bab I–V lengkap dengan Lab Revisi per sub-bab.</p>
+                        <h3>Workspace Proposal &amp; Skripsi</h3>
+                        <p>Atur pedoman kampus, logo universitas, font &amp; margin 4-4-3-3, lalu susun Bab I–III atau Bab I–V lengkap dengan Daftar Isi otomatis, Daftar Pustaka berlink DOI, serta ekspor Word (.docx) &amp; PDF (.pdf).</p>
                     </div>
                     <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('login') }}" class="feature-link">Buka Workspace →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <h3>Cari Judul Penelitian</h3>
+                        <p>Hasilkan 10 rekomendasi judul skripsi terbaru beserta rumusan masalah yang selaras dengan program studi dan 9 pilihan metode penelitian (Kuantitatif, Kualitatif, R&amp;D, PTK, Normatif, Mixed Method, dll.).</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'titles']) : route('login') }}" class="feature-link">Cari Judul →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <h3>Cari Jurnal &amp; Referensi DOI</h3>
+                        <p>Temukan artikel jurnal nasional &amp; internasional terverifikasi Crossref/OpenAlex tahun 2021–2026 lengkap dengan tautan DOI aktif, filter cakupan, dan tombol salin sitasi APA 7th siap pakai.</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'journals']) : route('login') }}" class="feature-link">Cari Jurnal →</a>
                 </div>
 
                 <div class="feature-card">
@@ -1073,7 +1114,7 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
                         </div>
                         <h3>PPT Sidang Otomatis</h3>
-                        <p>Pilih proyek skripsimu atau unggah file PDF/Word, pilih dari 6 tema profesional, presentasikan Fullscreen Slide Show, atau ekspor PowerPoint (.pptx).</p>
+                        <p>Pilih proyek skripsimu atau unggah file Word/PDF, pilih dari 13 tema akademik profesional, presentasikan Fullscreen Slide Show lengkap dengan catatan bicara, atau ekspor PowerPoint (.pptx).</p>
                     </div>
                     <a href="{{ auth()->check() ? route('app.create', ['tab' => 'ppt']) : route('login') }}" class="feature-link">Buat Slide PPT →</a>
                 </div>
@@ -1083,10 +1124,54 @@
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                         </div>
-                        <h3>Simulasi Sidang</h3>
-                        <p>Jawab 5 pertanyaan penguji yang dibuat otomatis dari naskah skripsimu dan lihat rincian skor per pertanyaan beserta saran jawaban terbaik.</p>
+                        <h3>Simulasi Sidang Skripsi</h3>
+                        <p>Latihan menjawab 5 pertanyaan penguji yang dibuat langsung dari isi naskah Bab I–V atau unggahan Word/PDF, lengkap dengan skor per pertanyaan, grade akhir, dan contoh jawaban terbaik.</p>
                     </div>
                     <a href="{{ auth()->check() ? route('app.create', ['tab' => 'defense']) : route('login') }}" class="feature-link">Mulai Latihan →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </div>
+                        <h3>Parafrase Akademik</h3>
+                        <p>Tulis ulang paragraf agar gaya bahasanya lebih ilmiah, kohesif, dan natural sesuai kaidah EYD V tanpa mengubah makna kutipan untuk menurunkan tingkat kemiripan teks.</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'paraphrase']) : route('login') }}" class="feature-link">Buka Parafrase →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <h3>Dosen AI (Konsultasi &amp; Bedah Soal)</h3>
+                        <p>Konsultasi interaktif seputar metodologi penelitian, pemilihan uji statistik, kerangka teori, hingga unggah foto soal, tabel, atau output pengujian untuk dibedah langkah demi langkah.</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'qa']) : route('login') }}" class="feature-link">Tanya Dosen AI →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2v7.31L4.62 17.6A2 2 0 0 0 6.3 20.5h11.4a2 2 0 0 0 1.68-2.9L14 9.31V2z"/></svg>
+                        </div>
+                        <h3>Lab Revisi &amp; Olah Data Penelitian</h3>
+                        <p>Perbaiki sub-bab spesifik sesuai catatan dosen pembimbing serta masukkan angka olah data riil &amp; rumus (SPSS, SmartPLS, Machine Learning, Eksperimen) agar langsung terintegrasi ke Bab III &amp; IV.</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('login') }}" class="feature-link">Kelola Proyek →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        </div>
+                        <h3>Lampiran Otomatis (Word &amp; PDF)</h3>
+                        <p>Unggah kuesioner, surat izin, dokumentasi sistem, atau dokumen Word/PDF/gambar sebagai lampiran yang otomatis tercatat di Daftar Isi &amp; Daftar Lampiran serta ikut tercetak di Word &amp; PDF.</p>
+                    </div>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('login') }}" class="feature-link">Tambah Lampiran →</a>
                 </div>
             </div>
         </div>

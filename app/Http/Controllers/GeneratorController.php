@@ -5062,18 +5062,9 @@ ATURAN REVISI (SANGAT KETAT):
                 }
                 $section = $phpWord->addSection($chapStyle);
 
-                // Standar Skripsi Indonesia:
-                // - Halaman pertama Bab: nomor halaman di TENGAH BAWAH
-                // - Halaman lanjutan Bab: nomor halaman di KANAN ATAS
-                $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
-                $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
-                $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
-                $firstHeader->addText('', ['size' => 1]);
-
-                $contHeader = $section->addHeader();
-                $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
-                $contFooter = $section->addFooter();
-                $contFooter->addText('', ['size' => 1]);
+                // Penomoran Halaman Konsisten (Tengah Bawah di semua halaman, seragam dengan Preview & PDF)
+                $chFooter = $section->addFooter();
+                $chFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
 
                 // Judul BAB 2 baris resmi standar skripsi Indonesia (BAB I \n PENDAHULUAN)
                 $section->addTitle("BAB " . $nums[$k] . "\n" . strtoupper($v), 1);
@@ -5089,14 +5080,8 @@ ATURAN REVISI (SANGAT KETAT):
                 $dpStyle['pageNumberingStart'] = 1;
             }
             $section = $phpWord->addSection($dpStyle);
-            $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
-            $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
-            $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
-            $firstHeader->addText('', ['size' => 1]);
-            $contHeader = $section->addHeader();
-            $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
-            $contFooter = $section->addFooter();
-            $contFooter->addText('', ['size' => 1]);
+            $dpFooter = $section->addFooter();
+            $dpFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
 
             $section->addTitle("DAFTAR PUSTAKA", 1);
             $refs = explode("\n", str_replace(["\r\n", "\r"], "\n", $dpContent));
@@ -5150,14 +5135,8 @@ ATURAN REVISI (SANGAT KETAT):
                 $lmpStyle['pageNumberingStart'] = 1;
             }
             $section = $phpWord->addSection($lmpStyle);
-            $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
-            $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
-            $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
-            $firstHeader->addText('', ['size' => 1]);
-            $contHeader = $section->addHeader();
-            $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
-            $contFooter = $section->addFooter();
-            $contFooter->addText('', ['size' => 1]);
+            $lmpFooter = $section->addFooter();
+            $lmpFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
 
             $section->addTitle("LAMPIRAN", 1);
 
@@ -5746,17 +5725,14 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf->render();
         }
 
-        // Penomoran Halaman Standar Skripsi Indonesia Presisi:
+        // Penomoran Halaman Presisi & Seragam (Tengah Bawah, konsisten dengan Preview & Word):
         // - Halaman 1 (Cover): Tanpa nomor halaman
         // - Halaman Bagian Depan (2 s/d sebelum BAB I): Angka Romawi kecil (ii, iii, iv, ...) di TENGAH BAWAH
-        // - Halaman Isi Utama (BAB I s/d DAFTAR PUSTAKA): Reset mulai Angka Arab 1
-        //   * Halaman awal tiap BAB / DAFTAR PUSTAKA: TENGAH BAWAH
-        //   * Halaman lanjutan dalam BAB: KANAN ATAS
+        // - Halaman Isi Utama (BAB I s/d DAFTAR PUSTAKA & LAMPIRAN): Reset mulai Angka Arab 1 di TENGAH BAWAH
         try {
             $canvas = $dompdf->getCanvas();
             $cpdf = $canvas->get_cpdf();
             $bab1Page = null;
-            $chapterStartPages = [];
             $pIdx = 0;
             foreach ($cpdf->objects as $obj) {
                 if (($obj['t'] ?? '') === 'page') {
@@ -5765,15 +5741,11 @@ ATURAN REVISI (SANGAT KETAT):
                     foreach (($obj['info']['contents'] ?? []) as $cid) {
                         $rawStream .= (string) ($cpdf->objects[$cid]['c'] ?? '');
                     }
-                    // Deteksi heading halaman pembuka BAB (di luar Daftar Isi)
+                    // Deteksi heading halaman pembuka BAB I (di luar Daftar Isi)
                     $isTocOrFront = str_contains($rawStream, '(DAFTAR ISI)') || str_contains($rawStream, '(DAFTAR TABEL)') || str_contains($rawStream, '(DAFTAR GAMBAR)') || str_contains($rawStream, '(DAFTAR LAMPIRAN)');
-                    if (!$isTocOrFront && $pIdx >= 2) {
-                        if ($bab1Page === null && preg_match('/\(BAB I\)/', $rawStream)) {
-                            $bab1Page = $pIdx;
-                            $chapterStartPages[$pIdx] = true;
-                        } elseif (preg_match('/\(BAB (?:I|II|III|IV|V)\)/', $rawStream) || str_contains($rawStream, '(DAFTAR PUSTAKA)') || str_contains($rawStream, '(LAMPIRAN)')) {
-                            $chapterStartPages[$pIdx] = true;
-                        }
+                    if (!$isTocOrFront && $pIdx >= 2 && $bab1Page === null && preg_match('/\(BAB I\)/', $rawStream)) {
+                        $bab1Page = $pIdx;
+                        break;
                     }
                 }
             }
@@ -5781,8 +5753,6 @@ ATURAN REVISI (SANGAT KETAT):
                 $bab1Page = $pIdx + 1;
             }
 
-            $rightEdgeX = 595.28 - ($marginRight * 28.3465) - 18;
-            $topY = max(28, ($marginTop * 28.3465) - 34);
             $bottomY = 841.89 - max(32, ($marginBottom * 28.3465) - 24);
 
             $toRoman = function (int $n): string {
@@ -5790,7 +5760,7 @@ ATURAN REVISI (SANGAT KETAT):
             };
 
             $cpdfFontName = $pdfFont['cpdf'] ?? 'Times-Roman';
-            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($bab1Page, $chapterStartPages, $rightEdgeX, $topY, $bottomY, $toRoman, $cpdfFontName) {
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($bab1Page, $bottomY, $toRoman, $cpdfFontName) {
                 if ($pageNumber <= 1) {
                     return; // Halaman Sampul (Cover) tanpa nomor halaman
                 }
@@ -5802,16 +5772,10 @@ ATURAN REVISI (SANGAT KETAT):
                     $tw = $fontMetrics->getTextWidth($roman, $font, $size);
                     $canvas->text((595.28 - $tw) / 2, $bottomY, $roman, $font, $size, [0, 0, 0]);
                 } else {
-                    // Bagian Utama: Reset angka Arab mulai dari 1 pada BAB I
+                    // Bagian Utama (BAB I s/d LAMPIRAN): Reset angka Arab mulai dari 1 di tengah bawah
                     $arabic = (string) ($pageNumber - $bab1Page + 1);
                     $tw = $fontMetrics->getTextWidth($arabic, $font, $size);
-                    if (!empty($chapterStartPages[$pageNumber])) {
-                        // Halaman awal BAB / DAFTAR PUSTAKA: tengah bawah
-                        $canvas->text((595.28 - $tw) / 2, $bottomY, $arabic, $font, $size, [0, 0, 0]);
-                    } else {
-                        // Halaman lanjutan: kanan atas
-                        $canvas->text($rightEdgeX - $tw + 18, $topY, $arabic, $font, $size, [0, 0, 0]);
-                    }
+                    $canvas->text((595.28 - $tw) / 2, $bottomY, $arabic, $font, $size, [0, 0, 0]);
                 }
             });
         } catch (\Throwable $e) {

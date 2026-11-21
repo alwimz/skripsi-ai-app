@@ -911,6 +911,28 @@
             animation: spin 0.8s linear infinite;
         }
 
+        .btn-mini-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #ffffff;
+            border-radius: 999px;
+            display: inline-block;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .btn-mini-spinner-dark {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #bfdbfe;
+            border-top-color: #2563eb;
+            border-radius: 999px;
+            display: inline-block;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -1842,8 +1864,8 @@
                 style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 14px; flex-wrap: wrap;">
                 <button type="button" onclick="closeDataRiilModal()"
                     style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;">Batal</button>
-                <button type="button" onclick="saveDataRiil()"
-                    style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s;">Simpan
+                <button type="button" id="btn-save-data-riil" onclick="saveDataRiil()"
+                    style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px;">Simpan
                     Data Olahan</button>
             </div>
         </div>
@@ -2762,56 +2784,162 @@
             `;
         }
 
+        const PREVIEW_CHAPTER_HEADERS = {
+            'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
+            'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
+            'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
+            'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
+            'bab5': { num: 'BAB V', title: 'PENUTUP' },
+            'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
+        };
+
+        function buildChapterFullHtml(chapterKey) {
+            const raw = (chapterContents[chapterKey] || '').trim();
+            if (!raw) return '';
+            const curH = PREVIEW_CHAPTER_HEADERS[chapterKey] || { num: '', title: chapterLabels[chapterKey] || 'DOKUMEN' };
+            let bodyHtml = markdownToAcademicHtml(raw, chapterKey === 'daftar_pustaka');
+            if (curH) {
+                const testUpper = bodyHtml.slice(0, 350).toUpperCase();
+                const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
+                if (!hasHeaderAlready) {
+                    const hHtml = `
+                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
+                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
+                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
+                </div>
+            `;
+                    bodyHtml = hHtml + bodyHtml;
+                }
+            }
+            return bodyHtml;
+        }
+
+        function splitBodyHtmlToPages(fullBodyHtml) {
+            if (!fullBodyHtml || !fullBodyHtml.trim()) return [];
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = fullBodyHtml;
+
+                const blocks = Array.from(tempDiv.children);
+                if (!blocks.length) {
+                    return [fullBodyHtml];
+                }
+
+                const pages = [];
+                let curPageBlocks = [];
+                let curPageWeight = 0;
+                // Kapasitas bobot teks standar kertas A4 akademik (~2600 karakter per halaman Times New Roman 12pt 1.5 spasi)
+                const MAX_PAGE_WEIGHT = 2600;
+
+                blocks.forEach((block) => {
+                    const textLen = (block.innerText || block.textContent || '').length;
+                    const tagName = (block.tagName || '').toLowerCase();
+                    let blockWeight = textLen;
+
+                    // Bobot visual proporsional elemen tabel, bagan, gambar, list, dan heading
+                    if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && (block.querySelector('table') || block.querySelector('img')))) {
+                        blockWeight = Math.max(textLen, 1100);
+                    } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
+                        blockWeight = Math.max(textLen, 160);
+                    } else if (tagName === 'ul' || tagName === 'ol') {
+                        blockWeight = Math.max(textLen, 300);
+                    } else {
+                        blockWeight = Math.max(textLen, 250);
+                    }
+
+                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi proporsional
+                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 450) : MAX_PAGE_WEIGHT;
+
+                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 1900 bobot) dan melebihi batas kapasitas
+                    if (curPageBlocks.length > 0 && curPageWeight >= 1900 && (curPageWeight + blockWeight > curLimit)) {
+                        // Hindari meletakkan heading atau caption tabel/gambar sendirian di paling bawah halaman penuh (orphan heading/caption)
+                        const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                        const lastTag = (lastBlock.tagName || '').toLowerCase();
+                        const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
+                        const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
+
+                        if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
+                            const orphanEl = curPageBlocks.pop();
+                            const orphanWeight = (orphanEl.innerText || orphanEl.textContent || '').length || 100;
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [orphanEl, block];
+                            curPageWeight = orphanWeight + blockWeight;
+                        } else {
+                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                            curPageBlocks = [block];
+                            curPageWeight = blockWeight;
+                        }
+                    } else {
+                        curPageBlocks.push(block);
+                        curPageWeight += blockWeight;
+                    }
+                });
+
+                if (curPageBlocks.length > 0) {
+                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                }
+
+                return pages.length ? pages : [fullBodyHtml];
+            } catch (e) {
+                console.error('Error splitBodyHtmlToPages:', e);
+                return [fullBodyHtml];
+            }
+        }
+
+        function findPageNumberInChapterPages(chPageInfo, searchNeedle, fallbackPage) {
+            if (!chPageInfo || !Array.isArray(chPageInfo.pages) || !chPageInfo.pages.length) {
+                return fallbackPage;
+            }
+            const norm = (s) => String(s || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+            const needle = norm(searchNeedle);
+            if (needle) {
+                for (let i = 0; i < chPageInfo.pages.length; i++) {
+                    if (norm(chPageInfo.pages[i]).includes(needle)) {
+                        return chPageInfo.startPage + i;
+                    }
+                }
+            }
+            return Math.min(Math.max(fallbackPage, chPageInfo.startPage), chPageInfo.endPage);
+        }
+
         function computeDocumentPagination() {
             const pageMap = {};
             let curPage = 1;
 
-            const chapterKeys = ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
+            const chapterKeys = allowBab45
+                ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
+                : ['bab1', 'bab2', 'bab3', 'daftar_pustaka'];
 
             chapterKeys.forEach(k => {
-                if (!allowBab45 && (k === 'bab4' || k === 'bab5')) return;
-                const text = (chapterContents[k] || '').trim();
-                let pages = 0;
-                if (text.length > 0) {
-                    pages = Math.max(1, Math.ceil(text.length / 2500));
+                const bodyHtml = buildChapterFullHtml(k);
+                if (bodyHtml) {
+                    const pages = splitBodyHtmlToPages(bodyHtml);
+                    const count = Math.max(1, pages.length);
                     pageMap[k] = {
                         startPage: curPage,
-                        pageCount: pages,
-                        endPage: curPage + pages - 1
+                        pageCount: count,
+                        endPage: curPage + count - 1,
+                        pages: pages
                     };
-                    curPage += pages;
+                    curPage += count;
                 } else {
                     pageMap[k] = {
                         startPage: curPage,
                         pageCount: 0,
-                        endPage: curPage
+                        endPage: curPage - 1,
+                        pages: []
                     };
                 }
             });
 
-            // Daftar Pustaka dihitung dinamis setelah bab terakhir yang telah disusun
-            const dpText = (chapterContents.daftar_pustaka || '').trim();
-            const dpPages = dpText.length > 0 ? Math.max(1, Math.ceil(dpText.length / 2000)) : 1;
-            pageMap.daftar_pustaka = {
-                startPage: curPage,
-                pageCount: dpPages,
-                endPage: curPage + dpPages - 1
-            };
-            curPage += dpPages;
-
-            // Lampiran
-            pageMap.lampiran = {
-                startPage: curPage,
-                pageCount: 4,
-                endPage: curPage + 3
-            };
-
+            // Halaman pertama untuk Lampiran dimulai tepat setelah halaman terakhir bab/daftar pustaka (tanpa lompat!)
+            pageMap._nextPageAfterMain = curPage;
             return pageMap;
         }
 
-        function extractTablesForDocument() {
+        function extractTablesForDocument(existingPageMap) {
             const list = [];
-            const pageMap = computeDocumentPagination();
+            const pageMap = existingPageMap || computeDocumentPagination();
             const chapters = [
                 { key: 'bab1', num: 1 },
                 { key: 'bab2', num: 2 },
@@ -2823,9 +2951,9 @@
             chapters.forEach(ch => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text || !pageMap[ch.key]) return;
+                const chInfo = pageMap[ch.key];
+                if (!text || !chInfo || chInfo.pageCount === 0) return;
 
-                const basePage = pageMap[ch.key].startPage;
                 const lines = text.split('\n');
                 let inCode = false;
 
@@ -2846,8 +2974,9 @@
                         }
                         const num = capMatch[1];
                         const title = rawTitle || `Tabel ${num}`;
-                        const estPage = basePage + Math.floor(lIdx / 45);
-                        list.push({ num: num, title: `Tabel ${num} ${title}`, page: estPage });
+                        const fallbackPg = chInfo.startPage + Math.floor((lIdx / Math.max(1, lines.length)) * chInfo.pageCount);
+                        const exactPage = findPageNumberInChapterPages(chInfo, `Tabel ${num}`, fallbackPg);
+                        list.push({ num: num, title: `Tabel ${num} ${title}`, page: exactPage });
                     }
                 });
             });
@@ -2855,9 +2984,9 @@
             return list;
         }
 
-        function extractFiguresForDocument() {
+        function extractFiguresForDocument(existingPageMap) {
             const list = [];
-            const pageMap = computeDocumentPagination();
+            const pageMap = existingPageMap || computeDocumentPagination();
             const chapters = [
                 { key: 'bab1', num: 1 },
                 { key: 'bab2', num: 2 },
@@ -2869,15 +2998,17 @@
             chapters.forEach(ch => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text || !pageMap[ch.key]) return;
+                const chInfo = pageMap[ch.key];
+                if (!text || !chInfo || chInfo.pageCount === 0) return;
 
-                const basePage = pageMap[ch.key].startPage;
                 if (ch.key === 'bab2' && (text.includes('Kerangka') || text.includes('kerangka') || text.includes('-->') || text.includes('```'))) {
-                    list.push({ num: '2.1', title: 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', page: basePage + 3 });
+                    const exactPg = findPageNumberInChapterPages(chInfo, 'Gambar 2.1', chInfo.endPage);
+                    list.push({ num: '2.1', title: 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', page: exactPg });
                 }
 
                 if (ch.key === 'bab3' && (text.includes('Flowchart') || text.includes('flowchart') || text.includes('Alur') || text.includes('-->') || text.includes('```'))) {
-                    list.push({ num: '3.1', title: 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', page: basePage + 2 });
+                    const exactPg = findPageNumberInChapterPages(chInfo, 'Gambar 3.1', chInfo.startPage + Math.min(2, chInfo.pageCount - 1));
+                    list.push({ num: '3.1', title: 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', page: exactPg });
                 }
 
                 const lines = text.split('\n');
@@ -2887,7 +3018,9 @@
                         const num = m[1];
                         if (num !== '2.1' && num !== '3.1') {
                             const title = m[2].replace(/^[:\-\s]+/, '').trim() || `Gambar ${num}`;
-                            list.push({ num: num, title: `Gambar ${num} ${title}`, page: basePage + Math.floor(lIdx / 45) });
+                            const fallbackPg = chInfo.startPage + Math.floor((lIdx / Math.max(1, lines.length)) * chInfo.pageCount);
+                            const exactPg = findPageNumberInChapterPages(chInfo, `Gambar ${num}`, fallbackPg);
+                            list.push({ num: num, title: `Gambar ${num} ${title}`, page: exactPg });
                         }
                     }
                 });
@@ -2896,8 +3029,8 @@
             return list;
         }
 
-        function buildCoverAndFrontMatterHtml() {
-            const pageMap = computeDocumentPagination();
+        function buildCoverAndFrontMatterHtml(existingPageMap) {
+            const pageMap = existingPageMap || computeDocumentPagination();
             const nama = projectMeta.nama || defaultUserName;
             const nim = projectMeta.nim || '';
             const kampus = projectMeta.kampus || 'UNIVERSITAS';
@@ -2924,8 +3057,8 @@
                 return res;
             };
 
-            const daftarTabelList = extractTablesForDocument();
-            const daftarGambarList = extractFiguresForDocument();
+            const daftarTabelList = extractTablesForDocument(pageMap);
+            const daftarGambarList = extractFiguresForDocument(pageMap);
 
             const tocRows = [];
             let romanCur = 2;
@@ -2969,14 +3102,15 @@
             chaptersDef.forEach((ch) => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
                 const text = (chapterContents[ch.key] || '').trim();
-                if (!text || !pageMap[ch.key]) return;
+                const chInfo = pageMap[ch.key];
+                if (!text || !chInfo || chInfo.pageCount === 0) return;
 
-                const chPage = pageMap[ch.key].startPage;
+                const chPage = chInfo.startPage;
                 tocRows.push({ title: ch.title, page: String(chPage), isMain: true, isSub: false });
 
                 const lines = text.split('\n');
                 let subCount = 0;
-                lines.forEach((raw) => {
+                lines.forEach((raw, lIdx) => {
                     const line = raw.trim();
                     const m = line.match(/^(?:##\s+)?(\d+\.\d+\.?\s+[^\n]+)/) ||
                         line.match(/^(?:##\s+)?([A-Z]\.\s+[A-Z][^\n]+)/);
@@ -2984,7 +3118,8 @@
                         const clean = m[1].replace(/^##\s+/, '').trim();
                         if (clean.length >= 4 && clean.length <= 80) {
                             subCount++;
-                            const subPage = chPage + Math.floor((subCount - 1) / 2);
+                            const fallbackPg = chPage + Math.floor((lIdx / Math.max(1, lines.length)) * chInfo.pageCount);
+                            const subPage = findPageNumberInChapterPages(chInfo, clean, fallbackPg);
                             tocRows.push({ title: clean, page: String(subPage), isMain: false, isSub: true });
                         }
                     }
@@ -2993,7 +3128,7 @@
                 if (subCount === 0) {
                     defaultSubchapters.forEach((item, idx) => {
                         if (item.chapter === ch.key && item.code) {
-                            const subPage = chPage + Math.floor(idx / 2);
+                            const subPage = Math.min(chInfo.endPage, chPage + Math.floor(idx / 2));
                             tocRows.push({ title: item.label, page: String(subPage), isMain: false, isSub: true });
                             subCount++;
                         }
@@ -3497,7 +3632,7 @@
 
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = 'Menyimpan...';
+                btn.innerHTML = '<span class="btn-mini-spinner"></span><span>Menyimpan...</span>';
             }
 
             try {
@@ -3540,7 +3675,7 @@
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerText = 'Simpan Identitas';
+                    btn.innerHTML = 'Simpan Identitas';
                 }
             }
         }
@@ -3555,6 +3690,11 @@
         }
 
         async function saveDataRiil() {
+            const btn = document.getElementById('btn-save-data-riil');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-mini-spinner"></span><span>Menyimpan...</span>';
+            }
             researchDataRiil = {
                 metode: (document.getElementById('riil-metode').value || '').trim(),
                 sampel: (document.getElementById('riil-sampel').value || '').trim(),
@@ -3584,120 +3724,42 @@
             } catch (e) {
                 closeDataRiilModal();
                 showToast('Data olahan tersimpan lokal (sinkronisasi server tertunda).', 'info');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Simpan Data Olahan';
+                }
             }
         }
 
         // =========================================================================
         // PAGINASI PRESISI KERTAS A4 UNTUK NASKAH BAB & HALAMAN DEPAN
         // =========================================================================
-        function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum) {
-            if (!fullBodyHtml || !fullBodyHtml.trim()) return '';
+        function paginateChapterToSheetsHtml(chapterKey, fullBodyHtml, startPageNum, precomputedPages) {
+            const pages = Array.isArray(precomputedPages) && precomputedPages.length > 0
+                ? precomputedPages
+                : splitBodyHtmlToPages(fullBodyHtml);
+            if (!pages.length) return '';
 
-            const fallbackHtml = `
-                <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
-                    <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${startPageNum}">${fullBodyHtml}</div>
-                    <div class="sheet-footer">${startPageNum}</div>
-                </div>
-            `;
-
-            try {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = fullBodyHtml;
-
-                const blocks = Array.from(tempDiv.children);
-                if (!blocks.length) {
-                    return fallbackHtml;
-                }
-
-                const pages = [];
-                let curPageBlocks = [];
-                let curPageWeight = 0;
-                // Kapasitas bobot teks standar kertas A4 akademik (~2600 karakter per halaman Times New Roman 12pt 1.5 spasi)
-                const MAX_PAGE_WEIGHT = 2600;
-
-                blocks.forEach((block) => {
-                    const textLen = (block.innerText || '').length;
-                    const tagName = (block.tagName || '').toLowerCase();
-                    let blockWeight = textLen;
-
-                    // Bobot visual proporsional elemen tabel, bagan, list, dan heading
-                    if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && block.querySelector('table'))) {
-                        blockWeight = Math.max(textLen, 1100);
-                    } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                        blockWeight = Math.max(textLen, 160);
-                    } else if (tagName === 'ul' || tagName === 'ol') {
-                        blockWeight = Math.max(textLen, 300);
-                    } else {
-                        blockWeight = Math.max(textLen, 250);
-                    }
-
-                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi proporsional
-                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 450) : MAX_PAGE_WEIGHT;
-
-                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 1900 bobot) dan melebihi batas kapasitas
-                    if (curPageBlocks.length > 0 && curPageWeight >= 1900 && (curPageWeight + blockWeight > curLimit)) {
-                        // Hindari meletakkan heading atau caption tabel/gambar sendirian di paling bawah halaman penuh (orphan heading/caption)
-                        const lastBlock = curPageBlocks[curPageBlocks.length - 1];
-                        const lastTag = (lastBlock.tagName || '').toLowerCase();
-                        const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
-                        const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
-
-                        if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
-                            const orphanEl = curPageBlocks.pop();
-                            const orphanWeight = (orphanEl.innerText || '').length || 100;
-                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                            curPageBlocks = [orphanEl, block];
-                            curPageWeight = orphanWeight + blockWeight;
-                        } else {
-                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                            curPageBlocks = [block];
-                            curPageWeight = blockWeight;
-                        }
-                    } else {
-                        curPageBlocks.push(block);
-                        curPageWeight += blockWeight;
-                    }
-                });
-
-                if (curPageBlocks.length > 0) {
-                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                }
-
-                if (!pages.length) return fallbackHtml;
-
-                let outputHtml = '';
-                pages.forEach((pageContent, pIdx) => {
-                    const thisPageNum = startPageNum + pIdx;
-                    outputHtml += `
-                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
-                            <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
-                                ${pageContent}
-                            </div>
-                            <div class="sheet-footer">${thisPageNum}</div>
+            let outputHtml = '';
+            pages.forEach((pageContent, pIdx) => {
+                const thisPageNum = startPageNum + pIdx;
+                outputHtml += `
+                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
+                        <div class="paper-editor" contenteditable="true" spellcheck="false" data-chapter="${chapterKey}" data-page="${thisPageNum}">
+                            ${pageContent}
                         </div>
-                    `;
-                });
-
-                return outputHtml || fallbackHtml;
-            } catch (e) {
-                console.error('Error paginasi chapter:', e);
-                return fallbackHtml;
-            }
+                        <div class="sheet-footer">${thisPageNum}</div>
+                    </div>
+                `;
+            });
+            return outputHtml;
         }
 
         function renderAllSheets() {
             const container = document.getElementById('sheets-container');
-            const frontHtml = buildCoverAndFrontMatterHtml();
             const pageMap = computeDocumentPagination();
-
-            const chapterHeaders = {
-                'bab1': { num: 'BAB I', title: 'PENDAHULUAN' },
-                'bab2': { num: 'BAB II', title: 'TINJAUAN PUSTAKA' },
-                'bab3': { num: 'BAB III', title: 'METODOLOGI PENELITIAN' },
-                'bab4': { num: 'BAB IV', title: 'HASIL PENELITIAN DAN PEMBAHASAN' },
-                'bab5': { num: 'BAB V', title: 'PENUTUP' },
-                'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
-            };
+            const frontHtml = buildCoverAndFrontMatterHtml(pageMap);
 
             const keys = allowBab45
                 ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'daftar_pustaka']
@@ -3707,8 +3769,9 @@
 
             keys.forEach((key) => {
                 const raw = (chapterContents[key] || '').trim();
-                const curH = chapterHeaders[key];
-                if (!raw) {
+                const curH = PREVIEW_CHAPTER_HEADERS[key] || { num: '', title: chapterLabels[key] || 'DOKUMEN' };
+                const chInfo = pageMap[key];
+                if (!raw || !chInfo || chInfo.pageCount === 0) {
                     sheetsHtml += `
                 <div class="a4-sheet empty-sheet" style="margin-top: 28px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed #cbd5e1; background: #fafafa;">
                     <h3 style="font-size: 15px; font-weight: 700; color: #475569; margin-bottom: 6px;">${escapeHtml(chapterLabels[key] || curH.title)}</h3>
@@ -3719,21 +3782,7 @@
                     return;
                 }
 
-                let bodyHtml = markdownToAcademicHtml(raw, key === 'daftar_pustaka');
-                const testUpper = bodyHtml.slice(0, 350).toUpperCase();
-                const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
-                if (!hasHeaderAlready) {
-                    const hHtml = `
-                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
-                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
-                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
-                </div>
-            `;
-                    bodyHtml = hHtml + bodyHtml;
-                }
-
-                const chStartPage = pageMap[key] ? pageMap[key].startPage : 1;
-                sheetsHtml += paginateChapterToSheetsHtml(key, bodyHtml, chStartPage);
+                sheetsHtml += paginateChapterToSheetsHtml(key, '', chInfo.startPage, chInfo.pages);
             });
 
             // Lampiran A4 Sheets di akhir tampilan Lihat Semua Bab (Full) jika sudah ada lampiran
@@ -3845,27 +3894,13 @@
                 return;
             }
 
-            // Bersih tanpa banner panduan
-            const frontNoticeHtml = '';
-            let bodyHtml = markdownToAcademicHtml(raw, activeView === 'daftar_pustaka');
-            if (curH) {
-                const testUpper = bodyHtml.slice(0, 350).toUpperCase();
-                const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
-                if (!hasHeaderAlready) {
-                    const hHtml = `
-                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
-                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
-                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
-                </div>
-            `;
-                    bodyHtml = hHtml + bodyHtml;
-                }
-            }
-
             const pageMap = computeDocumentPagination();
-            const chStartPage = pageMap[activeView] ? pageMap[activeView].startPage : 1;
+            const chInfo = pageMap[activeView];
+            const chStartPage = chInfo ? chInfo.startPage : 1;
 
-            container.innerHTML = frontNoticeHtml + paginateChapterToSheetsHtml(activeView, bodyHtml, chStartPage);
+            container.innerHTML = (chInfo && chInfo.pages && chInfo.pages.length)
+                ? paginateChapterToSheetsHtml(activeView, '', chStartPage, chInfo.pages)
+                : paginateChapterToSheetsHtml(activeView, buildChapterFullHtml(activeView), chStartPage);
             applyCurrentDocFormatting();
 
             container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`).forEach(editor => {
@@ -4068,7 +4103,11 @@
             const container = document.getElementById('sheets-container');
             if (!container || activeView === 'revisi') return;
             const btn = document.getElementById('btn-save-edit');
-            if (btn) btn.disabled = true;
+            const origBtnHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-mini-spinner"></span><span>Menyimpan...</span>';
+            }
 
             try {
                 if (activeView === 'front') {
@@ -4133,7 +4172,10 @@
             } catch (err) {
                 showToast(err.message || 'Gagal menyimpan.', 'error');
             } finally {
-                if (btn) btn.disabled = false;
+                if (btn) {
+                    btn.disabled = false;
+                    if (origBtnHtml) btn.innerHTML = origBtnHtml;
+                }
             }
         }
 
@@ -4298,41 +4340,56 @@
 
         function getLampiranWithPages(pageMap) {
             if (!Array.isArray(projectLampiran) || projectLampiran.length === 0) return [];
-            let nextPage = 1;
-            Object.values(pageMap || {}).forEach(pm => {
-                if (pm && pm.endPage && pm.endPage >= nextPage) {
-                    nextPage = pm.endPage + 1;
-                }
-            });
+            let nextPage = (pageMap && typeof pageMap._nextPageAfterMain === 'number' && pageMap._nextPageAfterMain > 0)
+                ? pageMap._nextPageAfterMain
+                : 1;
+            if (!(pageMap && typeof pageMap._nextPageAfterMain === 'number')) {
+                Object.entries(pageMap || {}).forEach(([k, pm]) => {
+                    if (k === 'lampiran' || k.startsWith('_')) return;
+                    if (pm && pm.pageCount > 0 && pm.endPage >= nextPage) {
+                        nextPage = pm.endPage + 1;
+                    }
+                });
+            }
             return projectLampiran.map((item, idx) => {
                 const rawTitle = (item.title || '').trim() || `Dokumen Lampiran ${idx + 1}`;
                 const label = /^lampiran\s+\d+/i.test(rawTitle) ? rawTitle : `Lampiran ${idx + 1} ${rawTitle}`;
+                const imgHtml = item.image_base64
+                    ? `<div style="text-align: center; margin: 12px 0 18px;"><img src="${item.image_base64}" alt="${escapeHtml(label)}" style="max-width: 100%; max-height: 760px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 4px;"></div>`
+                    : '';
+                const textHtml = item.content ? markdownToAcademicHtml(item.content, false) : '';
+                const innerHtml = `
+                    ${idx === 0 ? `<div class="academic-chapter-header" style="text-align: center; margin-bottom: 22px;"><div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em;">LAMPIRAN</div></div>` : ''}
+                    <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 12pt; font-weight: 700;">${escapeHtml(label)}</h3>
+                    ${imgHtml}
+                    ${textHtml}
+                `;
+                const pages = splitBodyHtmlToPages(innerHtml);
+                const pageCount = Math.max(1, pages.length);
                 const pg = nextPage;
-                const extra = Math.max(1, Math.ceil(((item.content || '').length) / 2600));
-                nextPage += extra;
-                return Object.assign({}, item, { index: idx + 1, label, page: pg });
+                nextPage += pageCount;
+                return Object.assign({}, item, { index: idx + 1, label, page: pg, pageCount, pages });
             });
         }
 
         function buildLampiranSheetsHtml(lampiranItems) {
             if (!lampiranItems || !lampiranItems.length) return '';
-            return lampiranItems.map((lmp, idx) => {
-                const imgHtml = lmp.image_base64
-                    ? `<div style="text-align: center; margin: 12px 0 18px;"><img src="${lmp.image_base64}" alt="${escapeHtml(lmp.label)}" style="max-width: 100%; max-height: 760px; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 4px;"></div>`
-                    : '';
-                const textHtml = lmp.content ? markdownToAcademicHtml(lmp.content, false) : '';
-                return `
-                    <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
-                        <div class="paper-editor">
-                            ${idx === 0 ? `<div class="academic-chapter-header" style="text-align: center; margin-bottom: 22px;"><div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em;">LAMPIRAN</div></div>` : ''}
-                            <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 12pt; font-weight: 700;">${escapeHtml(lmp.label)}</h3>
-                            ${imgHtml}
-                            ${textHtml}
+            let out = '';
+            lampiranItems.forEach((lmp) => {
+                const pages = Array.isArray(lmp.pages) && lmp.pages.length ? lmp.pages : [''];
+                pages.forEach((pageContent, pIdx) => {
+                    const thisPageNum = lmp.page + pIdx;
+                    out += `
+                        <div class="a4-sheet" style="min-height: 1123px; display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 24px; position: relative;">
+                            <div class="paper-editor">
+                                ${pageContent}
+                            </div>
+                            <div class="sheet-footer">${thisPageNum}</div>
                         </div>
-                        <div class="sheet-footer">${lmp.page}</div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                });
+            });
+            return out;
         }
 
         async function handleLampiranFileSelect(input) {
@@ -4357,7 +4414,7 @@
                     const img = new Image();
                     img.onload = function () {
                         const canvas = document.createElement('canvas');
-                        const maxDim = 1000;
+                        const maxDim = 820;
                         let w = img.width;
                         let h = img.height;
                         if (w > maxDim || h > maxDim) {
@@ -4370,7 +4427,7 @@
                         ctx.fillStyle = '#ffffff';
                         ctx.fillRect(0, 0, w, h);
                         ctx.drawImage(img, 0, 0, w, h);
-                        pendingLampiranImage = canvas.toDataURL('image/jpeg', 0.85);
+                        pendingLampiranImage = canvas.toDataURL('image/jpeg', 0.78);
                         if (statusEl) {
                             statusEl.innerHTML = `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;"><img src="${pendingLampiranImage}" style="height:44px; width:44px; object-fit:cover; border-radius:5px; border:1px solid #cbd5e1;"><span style="font-size:12px; color:#166534; font-weight:600;">✓ Gambar siap dilampirkan: ${escapeHtml(file.name)}</span></div>`;
                         }
@@ -4407,10 +4464,18 @@
         }
 
         async function persistLampiranList(successMsg) {
+            // Kirim raw base64 tanpa prefix data:image/... agar aman dari WAF Vercel & lebih ringan
+            const payloadItems = projectLampiran.map(it => ({
+                id: it.id || ('lmp_' + Date.now()),
+                title: it.title || '',
+                image_base64: it.image_base64 ? String(it.image_base64).replace(/^data:image\/[^;]+;base64,/i, '') : '',
+                content: it.content || '',
+                file_name: it.file_name || ''
+            }));
             const res = await fetch(`/project/${projectId}/save-chapter`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ chapter: 'lampiran', lampiran: projectLampiran })
+                body: JSON.stringify({ chapter: 'lampiran', lampiran: payloadItems })
             });
             const data = await res.json();
             if (!res.ok || data.status !== 'success') {
@@ -4427,6 +4492,7 @@
             const titleEl = document.getElementById('lampiran-title-input');
             const contentEl = document.getElementById('lampiran-content-input');
             const btn = document.getElementById('btn-add-lampiran');
+            const saveLoader = document.getElementById('lampiran-save-loading');
 
             const title = (titleEl?.value || '').trim();
             const content = (contentEl?.value || '').trim();
@@ -4439,7 +4505,11 @@
                 return;
             }
 
-            if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-mini-spinner"></span><span>Menyimpan Lampiran...</span>';
+            }
+            if (saveLoader) saveLoader.style.display = 'flex';
             try {
                 projectLampiran.push({
                     id: 'lmp_' + Date.now(),
@@ -4455,7 +4525,11 @@
             } catch (err) {
                 projectLampiran.pop();
                 showToast(err.message || 'Gagal menyimpan lampiran.', 'error');
-                if (btn) { btn.disabled = false; btn.textContent = '+ Simpan & Tambahkan Lampiran'; }
+                if (saveLoader) saveLoader.style.display = 'none';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '+ Simpan &amp; Tambahkan Lampiran';
+                }
             }
         }
 
@@ -4545,6 +4619,10 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                             <span style="font-size:11.5px; color:#64748b;">Lampiran akan otomatis tercatat di <strong>Daftar Isi</strong> &amp; <strong>Daftar Lampiran</strong>, serta ikut tercetak saat unduh Word &amp; PDF.</span>
                             <button type="button" id="btn-add-lampiran" class="btn-top primary" onclick="addLampiranItem()">+ Simpan &amp; Tambahkan Lampiran</button>
+                        </div>
+                        <div id="lampiran-save-loading" style="display:none; align-items:center; gap:10px; margin-top:12px; padding:10px 14px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; font-size:12.5px; font-weight:600; color:#1d4ed8;">
+                            <span class="btn-mini-spinner-dark"></span>
+                            <span>Sedang menyimpan lampiran &amp; memperbarui Daftar Isi otomatis...</span>
                         </div>
                     </div>
 
