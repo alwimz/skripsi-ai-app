@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Services\AIManagerService;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -22,7 +24,16 @@ class StudentToolsController extends Controller
 
     public function index()
     {
-        return view('tools');
+        $projectCount = 0;
+        if (Auth::check()) {
+            try {
+                $projectCount = Project::where('user_id', Auth::id())->count();
+            } catch (\Throwable $e) {
+                $projectCount = 0;
+            }
+        }
+
+        return view('tools', compact('projectCount'));
     }
 
     /**

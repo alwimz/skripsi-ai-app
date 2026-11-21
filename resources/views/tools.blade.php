@@ -68,7 +68,199 @@
             padding: 0 20px;
         }
 
-        /* Header */
+        /* Workspace Sidebar Shell (identik dengan pre_generator saat user login) */
+        .ws-sidebar {
+            width: 248px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 50;
+            transition: transform 0.22s ease;
+        }
+        body.ws-sidebar-collapsed .ws-sidebar { transform: translateX(-100%); }
+        body.ws-sidebar-collapsed .ws-main { margin-left: 0; }
+        .ws-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 45;
+            display: none;
+        }
+        .ws-backdrop.open { display: block; }
+        .ws-sidebar-head {
+            padding: 15px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .ws-brand-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ws-brand-name { font-size: 14px; font-weight: 700; color: var(--text-main); line-height: 1.25; }
+        .ws-brand-user { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ws-close-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .ws-close-btn:hover { background: #eff6ff; color: var(--primary); }
+        .ws-nav {
+            padding: 14px 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+        }
+        .ws-group {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            padding: 10px 12px 4px;
+        }
+        .ws-nav-btn {
+            width: 100%;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: #334155;
+            font-size: 13.5px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .ws-nav-btn:hover { background: #f1f5f9; color: var(--text-main); }
+        .ws-nav-btn.active {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--primary);
+        }
+        .ws-nav-btn svg { width: 18px; height: 18px; color: #64748b; flex-shrink: 0; }
+        .ws-nav-btn.active svg { color: var(--primary); }
+        .ws-sidebar-foot {
+            padding: 12px 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .ws-logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+        .ws-logout-btn:hover { background: #eff6ff; color: var(--text-main); }
+        .ws-main {
+            margin-left: 248px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            transition: margin-left 0.22s ease;
+        }
+        .ws-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 35;
+            height: 58px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .ws-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            min-width: 0;
+        }
+        .ws-crumb-current { font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ws-toggle-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .ws-toggle-btn:hover { background: #f8fafc; border-color: var(--border-strong); }
+        .ws-pkg-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+        .ws-content {
+            max-width: 1020px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 26px 28px 44px;
+        }
+        .ws-page-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+        .ws-page-sub {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+        }
+        @media (max-width: 920px) {
+            .ws-sidebar { transform: translateX(-100%); }
+            body.ws-mobile-open .ws-sidebar { transform: translateX(0); }
+            .ws-main { margin-left: 0; }
+            .ws-topbar { padding: 0 14px; }
+            .ws-content { padding: 18px 14px 36px; }
+            .ws-page-title { font-size: 21px; }
+        }
+
+        /* Header (untuk tamu / publik) */
         .topbar {
             position: sticky;
             top: 0;
@@ -602,33 +794,148 @@
     </style>
 </head>
 <body>
-    <header class="topbar">
-        <div class="container topbar-inner">
-            <a href="/" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI">
-                <span>SkripsiLab AI</span>
-                <span class="brand-pill">Tools Mahasiswa</span>
-            </a>
-            <div class="topbar-actions">
-                @auth
-                    <a href="{{ route('app.create') }}" class="btn btn-soft">← Kembali ke Workspace</a>
-                @else
+    @auth
+        @php $authUser = auth()->user(); @endphp
+        <div class="ws-backdrop" id="ws-backdrop" onclick="closeWsSidebarMobile()"></div>
+
+        <aside class="ws-sidebar" id="ws-sidebar">
+            <div class="ws-sidebar-head">
+                <div class="ws-brand-left">
+                    <a href="/" style="display:block; flex-shrink:0;">
+                        <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:32px; height:32px; border-radius:8px; display:block;">
+                    </a>
+                    <div style="overflow:hidden;">
+                        <div class="ws-brand-name">SkripsiLab AI</div>
+                        <div class="ws-brand-user">{{ $authUser->name }}</div>
+                    </div>
+                </div>
+                <button type="button" class="ws-close-btn" onclick="toggleWsSidebar()" title="Tutup / Buka Sidebar">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="ws-nav">
+                <div class="ws-group">Utama</div>
+                <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span style="flex:1;">Proyek Saya</span>
+                    <span style="font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px; background:var(--primary-soft); color:var(--primary);">{{ $projectCount ?? 0 }}</span>
+                </a>
+
+                <div class="ws-group">Penulisan &amp; Riset</div>
+                <a href="{{ route('app.create', ['tab' => 'titles']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Cari Judul</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'ppt']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span>Generate PPT Sidang</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'defense']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <span>Simulasi Sidang</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'journals']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span>Cari Jurnal</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'paraphrase']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Parafrase</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'qa']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
+                    <span>Dosen AI</span>
+                </a>
+                <a href="{{ route('tools.hub') }}" class="ws-nav-btn active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    <span style="flex:1;">Tools Mahasiswa</span>
+                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#ecfdf5; color:#059669;">8</span>
+                </a>
+
+                <div class="ws-group">Akun &amp; Bonus</div>
+                <a href="{{ route('app.create', ['tab' => 'account']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Akun Saya</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'referral']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    <span>Ajak Teman (Referral)</span>
+                </a>
+                <a href="{{ route('app.create', ['tab' => 'apikeys']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>Pengaturan API</span>
+                </a>
+
+                <div class="ws-group">Bantuan &amp; Pengembang</div>
+                <a href="{{ route('app.create', ['tab' => 'feedback']) }}" class="ws-nav-btn" style="color:#0284c7;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <span>Saran &amp; Laporan</span>
+                </a>
+            </nav>
+
+            <div class="ws-sidebar-foot">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="ws-logout-btn" title="Keluar">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Keluar</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <div class="ws-main">
+            <header class="ws-topbar">
+                <div class="ws-breadcrumb">
+                    <button type="button" class="ws-toggle-btn" onclick="toggleWsSidebar()" title="Buka / Tutup Sidebar" aria-label="Toggle Sidebar">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <span>Workspace</span>
+                    <span>›</span>
+                    <span class="ws-crumb-current">Tools Mahasiswa</span>
+                </div>
+                <span class="ws-pkg-pill">
+                    <span style="width:7px; height:7px; border-radius:999px; background:#10b981; display:inline-block;"></span>
+                    <span>Paket Aktif</span>
+                </span>
+            </header>
+
+            <main class="ws-content">
+                <h1 class="ws-page-title">Tools Mahasiswa</h1>
+                <p class="ws-page-sub">8 alat gratis untuk kebutuhan harian skripsi &amp; kuliah: Flowchart AI, PDF ⇄ Word, Gabung/Pisah PDF, Foto ke PDF A4, Kompres Gambar, Slovin, dan Hitung Kata.</p>
+    @else
+        <header class="topbar">
+            <div class="container topbar-inner">
+                <a href="/" class="brand">
+                    <img src="/images/logo.svg" alt="SkripsiLab AI">
+                    <span>SkripsiLab AI</span>
+                    <span class="brand-pill">Tools Mahasiswa</span>
+                </a>
+                <div class="topbar-actions">
                     <a href="/" class="btn btn-outline">Beranda</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Coba Gratis</a>
-                @endauth
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <section class="tools-hero">
-        <div class="container">
-            <div class="hero-eyebrow">8 Alat Produktivitas Akademik · 100% Gratis</div>
-            <h1>Tools Mahasiswa SkripsiLab AI</h1>
-            <p>Buat flowchart skripsi otomatis pakai AI, konversi PDF ⇄ Word, gabung &amp; pisah PDF, ubah foto ke PDF A4, kompres gambar SIAKAD, hitung sampel Slovin Bab III, hingga penghitung kata skripsi.</p>
-        </div>
-    </section>
+        <section class="tools-hero">
+            <div class="container">
+                <div class="hero-eyebrow">8 Alat Produktivitas Akademik · 100% Gratis</div>
+                <h1>Tools Mahasiswa SkripsiLab AI</h1>
+                <p>Buat flowchart skripsi otomatis pakai AI, konversi PDF ⇄ Word, gabung &amp; pisah PDF, ubah foto ke PDF A4, kompres gambar SIAKAD, hitung sampel Slovin Bab III, hingga penghitung kata skripsi.</p>
+            </div>
+        </section>
 
-    <main class="container">
+        <main class="container">
+    @endauth
         <!-- Grid Pemilih 8 Tools -->
         <div class="tools-nav-grid" role="tablist" aria-label="Pilih Tool Mahasiswa">
             <button type="button" class="tool-tab-card active" data-tool="flowchart" onclick="switchTool('flowchart')">
@@ -1081,15 +1388,33 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            &copy; {{ date('Y') }} <strong>SkripsiLab AI</strong> &bull; Tools Mahasiswa Gratis &bull;
-            <a href="/" style="color:var(--primary); font-weight:600;">Beranda</a> &bull;
-            <a href="{{ route('register') }}" style="color:var(--primary); font-weight:600;">Workspace Proposal &amp; Skripsi</a>
+    @auth
         </div>
-    </footer>
+    @else
+        <footer class="footer">
+            <div class="container">
+                &copy; {{ date('Y') }} <strong>SkripsiLab AI</strong> &bull; Tools Mahasiswa Gratis &bull;
+                <a href="/" style="color:var(--primary); font-weight:600;">Beranda</a> &bull;
+                <a href="{{ route('register') }}" style="color:var(--primary); font-weight:600;">Workspace Proposal &amp; Skripsi</a>
+            </div>
+        </footer>
+    @endauth
 
     <script>
+        function toggleWsSidebar() {
+            if (window.innerWidth <= 920) {
+                const isOpen = document.body.classList.toggle('ws-mobile-open');
+                const bd = document.getElementById('ws-backdrop');
+                if (bd) bd.classList.toggle('open', isOpen);
+            } else {
+                document.body.classList.toggle('ws-sidebar-collapsed');
+            }
+        }
+        function closeWsSidebarMobile() {
+            document.body.classList.remove('ws-mobile-open');
+            const bd = document.getElementById('ws-backdrop');
+            if (bd) bd.classList.remove('open');
+        }
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         function setStatus(id, type, msg) {
