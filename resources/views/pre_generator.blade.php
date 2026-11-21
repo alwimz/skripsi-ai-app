@@ -2584,15 +2584,6 @@
                 <span>Ajak Teman (Referral)</span>
             </button>
 
-            <button type="button" class="nav-btn" id="nav-apikeys" onclick="openTab('apikeys', 'Pengaturan API')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="12" cy="12" r="3" />
-                    <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-                <span>Pengaturan API</span>
-            </button>
-
             <div class="nav-group-title">Bantuan &amp; Pengembang</div>
             <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')"
                 style="color: #0284c7;">
@@ -4317,136 +4308,6 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 9. TAB PENGATURAN API KEY -->
-            <!-- ========================================================= -->
-            <section class="tab-pane" id="pane-apikeys">
-                <div class="page-eyebrow">Konfigurasi AI Multi-Key</div>
-                <h1 class="page-title">Pengaturan API Key</h1>
-                <p class="page-subtitle">Kelola kuota AI pribadi atau gunakan AI gratis bawaan yang aktif otomatis tanpa
-                    perlu konfigurasi.</p>
-
-                <!-- Banner Informasi AI Gratis & Cara Mendapatkan Kunci Resmi -->
-                <div class="card"
-                    style="margin-bottom: 20px; border-color: #bfdbfe; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);">
-                    <div style="display: flex; gap: 14px; align-items: flex-start;">
-                        <div
-                            style="width: 38px; height: 38px; border-radius: 10px; background: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div style="font-size: 14.5px; font-weight: 700; color: #1e3a8a;">AI Gratis Cadangan Aktif
-                                Otomatis (Tanpa Wajib API Key)</div>
-                            <div style="font-size: 13px; color: #334155; line-height: 1.6; margin-top: 4px;">
-                                SkripsiLab AI sudah dilengkapi mesin <strong>DeepSeek &amp; Free AI Engine</strong> secara
-                                default. Anda <strong>tidak wajib</strong> memasukkan API Key untuk menulis skripsi,
-                                membuat slide PPT, atau simulasi sidang.
-                            </div>
-                            <div
-                                style="margin-top: 10px; padding: 10px 14px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px; color: #475569; line-height: 1.6;">
-                                <strong>💡 Ingin Kecepatan Maksimal dengan API Key Pribadi Gratis?</strong>
-                                <ul style="margin: 4px 0 0; padding-left: 18px;">
-                                    <li><strong>Google Gemini (Gratis):</strong> Dapatkan di <a
-                                            href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"
-                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">Google
-                                            AI Studio</a>. Kunci resmi wajib diawali <code>AIzaSy...</code>.</li>
-                                    <li><strong>DeepSeek / OpenRouter (Gratis):</strong> Dapatkan di <a
-                                            href="https://openrouter.ai/keys" target="_blank" rel="noopener"
-                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">OpenRouter</a>
-                                        (diawali <code>sk-or-v1-...</code>) atau <a
-                                            href="https://platform.deepseek.com/" target="_blank" rel="noopener"
-                                            style="color: #2563eb; text-decoration: underline; font-weight: 600;">DeepSeek
-                                            Platform</a> (diawali <code>sk-...</code>).</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-bottom: 20px;">
-                    <form action="{{ route('api.key.add') }}" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label class="form-label">Provider Default (opsional, sistem deteksi otomatis dari awalan kunci)</label>
-                            <select name="provider" class="form-select">
-                                <option value="" selected>Deteksi Otomatis (Disarankan — Gemini / DeepSeek)</option>
-                                <option value="deepseek">DeepSeek AI (Official sk-... / OpenRouter sk-or-... / Groq gsk_...)</option>
-                                <option value="gemini">Google Gemini (AI Studio · AIzaSy... / AQ.)</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Daftar API Key (Bisa Tempel Banyak Sekaligus) <span
-                                    class="req">*</span></label>
-                            <textarea name="key" class="form-textarea"
-                                style="min-height: 100px; font-family: monospace; font-size: 12.5px;"
-                                placeholder="Tempelkan 1 atau banyak API Key (1 baris per key):&#10;AIzaSy...&#10;sk-or-v1-...&#10;sk-..."
-                                required></textarea>
-                        </div>
-                        <div class="card-footer-bar">
-                            <span class="footer-meta">ROTASI OTOMATIS MULTI-KEY + FALLBACK DEEPSEEK REALTIME</span>
-                            <button type="submit" class="btn-primary">Simpan Semua API Key</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card-flush">
-                    <div class="card-header-bar">
-                        <span>Daftar API Key Tersimpan <span class="count-badge">{{ count($apiKeys) }}</span></span>
-                        <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">Klik "Uji Kunci"
-                            untuk memastikan status aktif</span>
-                    </div>
-                    @forelse($apiKeys as $k)
-                        <div class="project-row"
-                            style="cursor: default; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px;">
-                            <div class="project-row-left" style="min-width: 0; flex: 1;">
-                                <div class="project-initial" style="font-size: 11px; width: 36px; height: 36px;">
-                                    {{ strtoupper(substr($k->provider ?? 'AI', 0, 2)) }}
-                                </div>
-                                <div style="min-width: 0;">
-                                    <div class="project-row-title" style="font-family: monospace; font-size: 13px;">
-                                        {{ substr($k->key, 0, 10) }}••••••••••••
-                                    </div>
-                                    <div class="project-row-meta"
-                                        style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 3px;">
-                                        <span>{{ strtoupper($k->provider ?? 'GEMINI') }}</span>
-                                        <span>·</span>
-                                        <span>Digunakan {{ $k->usage_count ?? 0 }}x</span>
-                                        <span id="api-key-status-{{ $k->id }}"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                                <button type="button" class="btn-outline"
-                                    style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
-                                    onclick="testApiKey({{ $k->id }}, this)">
-                                    Uji Kunci
-                                </button>
-                                <form action="{{ route('api.key.delete', ['id' => $k->id]) }}" method="POST"
-                                    onsubmit="return confirm('Hapus API Key ini?');" style="margin: 0;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-outline"
-                                        style="color: #dc2626; border-color: #fecaca; padding: 5px 10px; font-size: 12px;"
-                                        title="Hapus">
-                                        Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @empty
-                        <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13.5px;">
-                            Belum ada API Key pribadi. Sistem otomatis menjalankan Gemini &amp; DeepSeek Realtime tanpa
-                            batas.
-                        </div>
-                    @endforelse
-                </div>
-            </section>
-
-            <!-- ========================================================= -->
             <!-- 10. TAB AKUN SAYA & STATUS LANGGANAN -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-account">
@@ -4767,41 +4628,6 @@
             }
         }
 
-        function testApiKey(id, btn) {
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span> Menguji...';
-
-            fetch(`/api-key/test/${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                }
-            })
-                .then(r => r.json().then(data => ({ ok: r.ok, data })))
-                .then(({ ok, data }) => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    const statusBox = document.getElementById(`api-key-status-${id}`);
-                    if (statusBox) {
-                        if (ok && data.status === 'success') {
-                            statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">✓ ${data.message}</span>`;
-                        } else {
-                            statusBox.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#dc2626; background:#fef2f2; border:1px solid #fecaca; padding:2px 8px; border-radius:999px;" title="${data.message || ''}">⚠ ${data.message || 'Kunci gagal diuji'}</span>`;
-                        }
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    const statusBox = document.getElementById(`api-key-status-${id}`);
-                    if (statusBox) {
-                        statusBox.innerHTML = `<span style="font-size:11.5px; color:#dc2626;">⚠ Gagal menghubungi server</span>`;
-                    }
-                });
-        }
-
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
@@ -4904,7 +4730,6 @@
                 'qa': 'Dosen AI',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
-                'apikeys': 'Pengaturan API',
                 'feedback': 'Saran & Laporan'
             };
 

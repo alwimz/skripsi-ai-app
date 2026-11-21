@@ -80,7 +80,7 @@ class AIManagerService
             }
         }
 
-        throw new Exception('Seluruh layanan AI (Gemini, DeepSeek, dan Free Server) sedang sibuk. Silakan tambahkan API Key Gemini/DeepSeek di menu Pengaturan API.');
+        throw new Exception('Seluruh layanan AI sedang sibuk sementara. Silakan coba kembali beberapa saat lagi.');
     }
 
     /**
