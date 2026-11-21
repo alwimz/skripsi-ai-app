@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkripsiLab AI — Buat Proposal &amp; Skripsi Otomatis dengan Referensi Jurnal Asli</title>
+    <title>SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli</title>
     <meta name="description"
-        content="SkripsiLab AI membantu mahasiswa Indonesia menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah, jurnal asli ber-DOI, PPT &amp; simulasi sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis dengan AI dan referensi jurnal ilmiah asli ber-DOI. Ekspor Word/PDF, PPT sidang, &amp; simulasi sidang.">
     <meta name="keywords"
         content="skripsilab ai, skripsilab, skripsi lab, skripsi ai, buat skripsi otomatis ai, buat proposal skripsi otomatis, referensi ilmiah jurnal asli, cari jurnal doi asli, ai pembuat skripsi, generator skripsi bab 1-5, contoh proposal skripsi, cari judul skripsi, daftar pustaka apa 7th otomatis, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
     <meta name="author" content="SkripsiLab AI">
@@ -20,18 +20,18 @@
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="SkripsiLab AI">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:title" content="SkripsiLab AI — Buat Proposal &amp; Skripsi Otomatis dengan Referensi Jurnal Asli">
+    <meta property="og:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli">
     <meta property="og:description"
-        content="Workspace AI mahasiswa Indonesia untuk menyusun proposal Bab 1–3 &amp; skripsi Bab 1–5 secara otomatis menggunakan AI dengan referensi ilmiah dan jurnal asli terverifikasi DOI, PPT Sidang 13 tema, dan Simulasi Sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
     <meta property="og:image" content="{{ url('/images/logo.svg') }}">
     <meta property="og:image:alt"
         content="Logo SkripsiLab AI — Workspace Penulisan Proposal dan Skripsi Otomatis Berbasis AI">
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SkripsiLab AI — Buat Proposal &amp; Skripsi Otomatis dengan Referensi Jurnal Asli">
+    <meta name="twitter:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal Asli">
     <meta name="twitter:description"
-        content="Susun proposal Bab 1–3 dan skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli terverifikasi DOI, daftar pustaka APA 7th, PPT Sidang 13 tema, hingga Simulasi Sidang.">
+        content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal asli ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
     <meta name="twitter:image" content="{{ url('/images/logo.svg') }}">
 
     <!-- Structured Data (JSON-LD) untuk Google Rich Results -->
@@ -1429,12 +1429,10 @@
         <!-- Hero -->
         <section class="hero">
             <div class="container">
-                <div class="hero-eyebrow">SkripsiLab AI · Penulisan Proposal &amp; Skripsi Otomatis Berbasis AI</div>
-                <h1>Susun Proposal &amp; Skripsi Otomatis Menggunakan AI dengan Referensi Jurnal Asli</h1>
-                <p><strong>SkripsiLab AI</strong> membantu mahasiswa Indonesia menyusun proposal Bab 1–3 dan skripsi
-                    lengkap Bab 1–5 secara otomatis menggunakan AI yang didukung <strong>referensi ilmiah dan jurnal
-                        asli terverifikasi DOI</strong> (Crossref &amp; OpenAlex), lengkap dengan Daftar Pustaka APA
-                    7th, revisi per sub-bab di Lab Revisi, PPT sidang 13 tema, hingga simulasi sidang.</p>
+                <div class="hero-eyebrow">SkripsiLab AI · Workspace Akademik Mahasiswa</div>
+                <h1>Susun Proposal &amp; Skripsi Otomatis Berbasis AI</h1>
+                <p>Buat proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan <strong>referensi ilmiah
+                        dan jurnal asli ber-DOI</strong>, ekspor Word/PDF, PPT sidang, hingga simulasi sidang.</p>
 
                 <div class="hero-cta">
                     @auth
@@ -1991,11 +1989,9 @@
                 </div>
 
                 <div class="cta-banner" style="margin-top: 44px;">
-                    <h2>Susun Proposal &amp; Skripsi Otomatis dengan AI dan Referensi Jurnal Asli</h2>
-                    <p>Buka Workspace <strong>SkripsiLab AI</strong> sekarang untuk menyusun proposal Bab 1–3 hingga
-                        skripsi lengkap Bab 1–5 secara otomatis berbasis AI dengan referensi ilmiah &amp; jurnal asli
-                        terverifikasi DOI, sitasi APA 7th otomatis, PPT sidang 13 tema, dan simulasi sidang — cepat dan
-                        rapi di laptop maupun HP.</p>
+                    <h2>Siap Susun Proposal &amp; Skripsi Otomatis dengan AI?</h2>
+                    <p>Mulai di <strong>SkripsiLab AI</strong> untuk menyusun Bab 1–5 otomatis dengan referensi ilmiah
+                        &amp; jurnal asli ber-DOI, PPT sidang 13 tema, dan simulasi sidang.</p>
                     <div class="hero-cta">
                         @auth
                             <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka
@@ -2014,12 +2010,9 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-seo-summary">
-                <strong>SkripsiLab AI</strong> adalah workspace penulisan akademik otomatis menggunakan AI untuk
-                mahasiswa Indonesia. Mulai dari cari judul penelitian, penyusunan <strong>proposal skripsi Bab 1–3</strong>
-                dan <strong>skripsi penuh Bab 1–5 otomatis</strong> dengan <strong>referensi ilmiah dan jurnal asli
-                    terverifikasi DOI</strong> (Crossref &amp; OpenAlex), format Daftar Pustaka APA 7th, margin kampus
-                4-4-3-3, ekspor Word (<code>.docx</code>) &amp; PDF (<code>.pdf</code>), hingga <strong>PPT Sidang
-                    otomatis</strong> dan <strong>Simulasi Sidang</strong>.
+                <strong>SkripsiLab AI</strong> — workspace penulisan proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis
+                menggunakan AI dengan <strong>referensi ilmiah dan jurnal asli ber-DOI</strong>, Daftar Pustaka APA 7th,
+                ekspor Word &amp; PDF margin 4-4-3-3, PPT sidang, hingga simulasi sidang.
             </div>
             <div class="footer-inner">
                 <div class="brand" style="font-size: 15px;">
