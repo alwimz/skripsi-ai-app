@@ -1704,31 +1704,22 @@
                 <div class="section-header">
                     <span class="section-label">Pratinjau Workspace</span>
                     <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi &amp; Terstandar</h2>
-                    <p class="section-desc">Pindah antarproyek asli dan bab di bawah ini untuk melihat langsung format
-                        kertas A4, sitasi ilmiah, tabel akademik, hingga Daftar Pustaka APA 7th otomatis.</p>
+                    <p class="section-desc">Lihat simulasi tampilan Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) di
+                        editor kertas A4 lengkap dengan sampul, tabel akademik, sitasi ilmiah, dan Daftar Pustaka APA 7th.</p>
                 </div>
 
-                @php
-                    $previewList = !empty($previewProjects) ? $previewProjects : [];
-                @endphp
-
                 <div class="major-selector" id="preview-project-pills">
-                    @if (count($previewList) > 0)
-                        @foreach ($previewList as $pIdx => $pItem)
-                            <button type="button" class="major-pill {{ $pIdx === 0 ? 'active' : '' }}"
-                                onclick="switchPreviewProject({{ $pIdx }}, this)">{{ $pItem['pill'] }}</button>
-                        @endforeach
-                    @else
-                        <button type="button" class="major-pill active"
-                            onclick="switchPreviewProject(0, this)">Manajemen · Bab 1–3</button>
-                    @endif
+                    <button type="button" class="major-pill active"
+                        onclick="switchPreviewProject(0, this)">Contoh Proposal (Bab 1–3)</button>
+                    <button type="button" class="major-pill"
+                        onclick="switchPreviewProject(1, this)">Contoh Skripsi (Bab 1–5)</button>
                 </div>
 
                 <div class="studio-frame">
                     <div class="studio-frame-sidebar">
                         <div>
-                            <div class="sf-title" id="sf-proj-title">Memuat pratinjau proyek...</div>
-                            <div class="sf-sub" id="sf-proj-stage">SKRIPSI · LENGKAP</div>
+                            <div class="sf-title" id="sf-proj-title">PENGARUH LITERASI DIGITAL DAN REGULASI DIRI TERHADAP KESIAPAN KERJA MAHASISWA</div>
+                            <div class="sf-sub" id="sf-proj-stage">PROPOSAL SKRIPSI · 3 DARI 3 BAB</div>
                         </div>
 
                         <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
@@ -1786,34 +1777,14 @@
                                 <span id="sf-topbar-label">Pratinjau A4 · Margin 4-4-3-3 · Times New Roman 12pt</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
-                                <a id="sample-view-pdf" href="#" target="_blank" rel="noopener" class="btn btn-outline"
+                                <a href="#contoh-hasil" class="btn btn-outline"
                                     style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
-                                    <span>Lihat PDF</span>
+                                    <span>Lihat Galeri PDF &amp; Word</span>
                                 </a>
-                                <a id="sample-dl-docx" href="#" download class="btn btn-outline"
-                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                        <polyline points="14 2 14 8 20 8" />
-                                    </svg>
-                                    <span>.docx</span>
-                                </a>
-                                <a id="sample-dl-pdf" href="#" download class="btn btn-primary"
-                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                        <polyline points="14 2 14 8 20 8" />
-                                        <line x1="16" y1="13" x2="8" y2="13" />
-                                        <line x1="16" y1="17" x2="8" y2="17" />
-                                    </svg>
-                                    <span>Unduh PDF</span>
+                                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}"
+                                    class="btn btn-primary"
+                                    style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                    <span>Coba di Workspace →</span>
                                 </a>
                             </div>
                         </div>
@@ -2234,36 +2205,117 @@
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 
-        const realPreviewProjects = @json($previewProjects ?? []);
-        const fallbackPreviewProjects = [
+        const previewProjectsData = [
             {
-                id: 0,
-                pill: 'Manajemen · Bab 1–3',
                 title: 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi terhadap Kesiapan Kerja Mahasiswa',
                 prodi: 'Manajemen',
                 metode: 'Kuantitatif (Survei / Regresi)',
                 stage: 'proposal',
                 stage_label: 'PROPOSAL SKRIPSI · 3 DARI 3 BAB',
                 jenis: 'PROPOSAL SKRIPSI',
-                nama: 'Mahasiswa Peneliti',
+                nama: 'Rizky Pratama Putra',
                 nim: '2021041082',
-                kampus: 'Universitas di Indonesia',
+                kampus: 'Universitas Indonesia',
                 fakultas: 'Fakultas Ekonomi dan Bisnis',
-                docx_url: '/sample/download/manajemen/docx',
-                pdf_url: '/sample/download/manajemen/pdf',
-                pdf_inline_url: '/sample/download/manajemen/pdf?inline=1',
                 chapters: {
-                    bab1: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div><h4>1.1 Latar Belakang Masalah</h4><p>Perkembangan teknologi informasi di era transformasi digital telah mengubah struktur kompetensi yang dibutuhkan oleh dunia industri secara fundamental (<span class="cite-blue">Naufal &amp; Wijaya, 2024</span>).</p><p>Hasil studi pendahuluan menunjukkan bahwa pemanfaatan teknologi untuk produktivitas akademik dan persiapan karier profesional mahasiswa masih perlu diperkuat (<span class="cite-blue">Kusuma et al., 2023</span>).</p>`,
-                    bab2: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div><h4>2.1 Landasan Teori</h4><p>Literasi digital didefinisikan sebagai kemampuan individu untuk memahami, mengevaluasi, dan mengintegrasikan informasi dalam berbagai format digital secara kritis dan produktif (<span class="cite-blue">Rahmawati &amp; Hidayat, 2023</span>).</p>`,
-                    bab3: `<div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div><h4>3.1 Jenis dan Desain Penelitian</h4><p>Penelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei instrumen kuesioner skala Likert 1–5 (<span class="cite-blue">Sugiyono, 2022</span>).</p>`,
-                    dp: `<div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div><p class="sf-dp-entry">Kusuma, A. R., Pratama, D., &amp; Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. <em>Jurnal Ekonomi dan Bisnis</em>, 18(1), 45–59.</p><p class="sf-dp-entry">Naufal, M., &amp; Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. <em>Jurnal Riset Manajemen</em>, 11(3), 201–215.</p>`
+                    bab1: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div>
+                        <h4>1.1 Latar Belakang Masalah</h4>
+                        <p>Transformasi digital pada sektor industri telah menggeser standar kompetensi yang dibutuhkan dari lulusan perguruan tinggi. Menurut <span class="cite-blue">Naufal &amp; Wijaya (2024)</span>, penguasaan teori akademik saja tidak lagi cukup tanpa dibarengi kecakapan literasi digital serta regulasi diri yang matang dalam menyelesaikan target kerja.</p>
+                        <p>Hasil observasi awal menunjukkan bahwa meskipun mahasiswa menggunakan perangkat digital lebih dari 7 jam per hari, pemanfaatannya untuk riset karier dan produktivitas profesional masih rendah (<span class="cite-blue">Kusuma et al., 2023</span>). Oleh karena itu, kajian empiris mengenai peran literasi digital, regulasi diri, dan dukungan institusi terhadap kesiapan kerja menjadi penting dilakukan.</p>
+                        <h4>1.2 Rumusan Masalah</h4>
+                        <p class="sf-list-line">1. Apakah literasi digital berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
+                        <p class="sf-list-line">2. Apakah regulasi diri berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
+                        <p class="sf-list-line">3. Apakah dukungan institusi memoderasi pengaruh literasi digital terhadap kesiapan kerja?</p>
+                    `,
+                    bab2: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div>
+                        <h4>2.1 Landasan Teori</h4>
+                        <p>Literasi digital didefinisikan oleh <span class="cite-blue">Rahmawati &amp; Hidayat (2023)</span> sebagai kemampuan individu untuk menelusuri, mengevaluasi, dan mengintegrasikan informasi digital secara kritis dan produktif. Sementara itu, regulasi diri (<em>self-regulation</em>) merupakan kapasitas merencanakan, memantau, dan mengevaluasi pencapaian target secara mandiri (<span class="cite-blue">Zimmerman, 2020</span>).</p>
+                        <div class="sf-caption">Tabel 2.1 Sintesis Penelitian Terdahulu</div>
+                        <div class="sf-table-wrap"><table class="sf-preview-table">
+                            <tr><th>Peneliti</th><th>Variabel</th><th>Metode</th><th>Temuan Utama</th></tr>
+                            <tr><td>Naufal &amp; Wijaya (2024)</td><td>Literasi Digital, Kesiapan Kerja</td><td>PLS-SEM (n=210)</td><td>Literasi digital berpengaruh signifikan (p &lt; 0,001).</td></tr>
+                            <tr><td>Kusuma et al. (2023)</td><td>Regulasi Diri, Dukungan Kampus</td><td>Regresi Berganda</td><td>Regulasi diri menyumbang 38,4% variasi kesiapan kerja.</td></tr>
+                        </table></div>
+                    `,
+                    bab3: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div>
+                        <h4>3.1 Desain dan Sampel Penelitian</h4>
+                        <p>Penelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei kuesioner skala Likert 1–5 (<span class="cite-blue">Sugiyono, 2022</span>). Ukuran sampel ditentukan menggunakan rumus Slovin dengan taraf kesalahan 5% sehingga diperoleh 175 responden mahasiswa tingkat akhir.</p>
+                        <h4>3.2 Teknik Analisis Data</h4>
+                        <p>Analisis data dilakukan menggunakan <em>Partial Least Squares Structural Equation Modeling</em> (PLS-SEM) yang meliputi evaluasi <em>Outer Model</em> (validitas konvergen, diskriminan, reliabilitas komposit) serta <em>Inner Model</em> (R-Square dan uji hipotesis <em>bootstrapping</em>).</p>
+                    `,
+                    dp: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div>
+                        <p class="sf-dp-entry">Kusuma, A. R., Pratama, D., &amp; Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. <em>Jurnal Ekonomi dan Bisnis</em>, 18(1), 45–59. <span class="cite-blue">https://doi.org/10.22146/jeb.84122</span></p>
+                        <p class="sf-dp-entry">Naufal, M., &amp; Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. <em>Jurnal Riset Manajemen</em>, 11(3), 201–215. <span class="cite-blue">https://doi.org/10.31002/jrm.11308</span></p>
+                        <p class="sf-dp-entry">Rahmawati, S., &amp; Hidayat, T. (2023). Pengukuran kompetensi literasi digital mahasiswa perguruan tinggi. <em>Jurnal Pendidikan Vokasi</em>, 13(2), 112–126.</p>
+                        <p class="sf-dp-entry">Sugiyono. (2022). <em>Metode penelitian kuantitatif, kualitatif, dan R&amp;D</em>. Alfabeta.</p>
+                    `
+                }
+            },
+            {
+                title: 'Implementasi Algoritma Naive Bayes dan Ekstraksi Fitur TF-IDF untuk Klasifikasi Sentimen Ulasan Pengguna Aplikasi',
+                prodi: 'Teknik Informatika',
+                metode: 'Research & Development (R&D)',
+                stage: 'skripsi',
+                stage_label: 'FULL SKRIPSI · 5 DARI 5 BAB',
+                jenis: 'SKRIPSI',
+                nama: 'Aulia Rahmadani',
+                nim: '210299014',
+                kampus: 'Universitas Negeri Makassar',
+                fakultas: 'Fakultas Teknik',
+                chapters: {
+                    bab1: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div>
+                        <h4>1.1 Latar Belakang Masalah</h4>
+                        <p>Pertumbuhan jumlah ulasan pengguna pada platform digital menghasilkan data teks tak terstruktur dalam volume besar yang menyimpan persepsi nyata terhadap kualitas layanan (<span class="cite-blue">Saputra et al., 2024</span>). Pengelompokan sentimen secara manual tidak efisien dan rentan subjektivitas, sehingga diperlukan model klasifikasi otomatis berbasis pembelajaran mesin.</p>
+                        <p>Algoritma Multinomial Naive Bayes dikombinasikan dengan pembobotan fitur <em>Term Frequency–Inverse Document Frequency</em> (TF-IDF) dikenal cepat, ringan, dan kompetitif untuk klasifikasi teks berbahasa Indonesia (<span class="cite-blue">Setiawan &amp; Nugroho, 2023</span>).</p>
+                        <h4>1.2 Tujuan Penelitian</h4>
+                        <p class="sf-list-line">1. Merancang tahapan pra-pemrosesan teks dan pembobotan TF-IDF yang sesuai karakteristik bahasa informal.</p>
+                        <p class="sf-list-line">2. Mengukur kinerja klasifikasi sentimen Multinomial Naive Bayes menggunakan akurasi, presisi, recall, dan F1-Score.</p>
+                    `,
+                    bab2: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div>
+                        <h4>2.1 Analisis Sentimen dan TF-IDF</h4>
+                        <p>Analisis sentimen (<em>opinion mining</em>) merupakan proses komputasi untuk mengidentifikasi polaritas opini ke dalam kelas positif, netral, maupun negatif (<span class="cite-blue">Liu, 2020</span>). Pembobotan TF-IDF menilai tingkat kepentingan suatu kata pada dokumen relatif terhadap seluruh korpus teks.</p>
+                        <h4>2.2 Algoritma Multinomial Naive Bayes</h4>
+                        <p>Multinomial Naive Bayes menghitung probabilitas posterior setiap kelas berdasarkan frekuensi kemunculan kata dengan asumsi independensi kondisional antarfitur dan penerapan <em>Laplace Smoothing</em> untuk menangani kata yang belum muncul pada data latih.</p>
+                    `,
+                    bab3: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div>
+                        <h4>3.1 Tahapan Penelitian</h4>
+                        <p>Penelitian dilaksanakan dengan metode eksperimen komputasional meliputi pengumpulan 2.400 data ulasan, pelabelan tiga kelas sentimen, pra-pemrosesan (<em>case folding</em>, pembersihan noise, normalisasi kata baku, <em>stopword removal</em>, <em>stemming</em>), ekstraksi TF-IDF, pembagian data 80:20, pelatihan model, dan evaluasi <em>Confusion Matrix</em>.</p>
+                    `,
+                    bab4: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB IV</div><div class="sf-chapter-name">HASIL PENELITIAN DAN PEMBAHASAN</div></div>
+                        <h4>4.1 Evaluasi Kinerja Klasifikasi</h4>
+                        <p>Hasil pengujian terhadap 480 data uji menunjukkan bahwa kombinasi normalisasi slang bahasa Indonesia, TF-IDF unigram-bigram, dan Multinomial Naive Bayes mencapai akurasi keseluruhan sebesar 86,25% dengan Macro F1-Score 85,40%.</p>
+                        <div class="sf-caption">Tabel 4.1 Perbandingan Metrik Evaluasi per Kelas Sentimen</div>
+                        <div class="sf-table-wrap"><table class="sf-preview-table">
+                            <tr><th>Kelas Sentimen</th><th>Presisi</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
+                            <tr><td>Positif</td><td>88,4%</td><td>90,1%</td><td>89,2%</td><td>212</td></tr>
+                            <tr><td>Netral</td><td>81,2%</td><td>78,5%</td><td>79,8%</td><td>116</td></tr>
+                            <tr><td>Negatif</td><td>86,8%</td><td>87,5%</td><td>87,1%</td><td>152</td></tr>
+                        </table></div>
+                    `,
+                    bab5: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB V</div><div class="sf-chapter-name">PENUTUP</div></div>
+                        <h4>5.1 Kesimpulan</h4>
+                        <p>Model klasifikasi sentimen berbasis Multinomial Naive Bayes dan TF-IDF berhasil mengklasifikasikan ulasan pengguna dengan akurasi 86,25%. Tahap normalisasi kosakata tidak baku berkontribusi paling signifikan terhadap peningkatan F1-Score sebesar 4,8%.</p>
+                        <h4>5.2 Saran</h4>
+                        <p>Penelitian selanjutnya disarankan membandingkan model dengan arsitektur transformer ringan seperti IndoBERT untuk menangani kalimat sarkasme serta memperluas dataset lintas domain aplikasi.</p>
+                    `,
+                    dp: `
+                        <div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div>
+                        <p class="sf-dp-entry">Liu, B. (2020). <em>Sentiment analysis: Mining opinions, sentiments, and emotions</em> (2nd ed.). Cambridge University Press.</p>
+                        <p class="sf-dp-entry">Saputra, D., Kurniawan, R., &amp; Hakim, L. (2024). Analisis sentimen ulasan aplikasi berbahasa Indonesia menggunakan TF-IDF dan Naive Bayes. <em>Jurnal Teknologi Informasi dan Ilmu Komputer</em>, 11(1), 33–44. <span class="cite-blue">https://doi.org/10.25126/jtiik.2024117891</span></p>
+                        <p class="sf-dp-entry">Setiawan, A., &amp; Nugroho, E. (2023). Evaluasi pra-pemrosesan teks informal terhadap akurasi klasifikasi sentimen. <em>Jurnal RESTI</em>, 7(4), 812–820. <span class="cite-blue">https://doi.org/10.29207/resti.v7i4.5102</span></p>
+                    `
                 }
             }
         ];
-
-        const previewProjectsData = (Array.isArray(realPreviewProjects) && realPreviewProjects.length > 0)
-            ? realPreviewProjects
-            : fallbackPreviewProjects;
 
         let activePreviewIdx = 0;
         let activePreviewChap = 'bab1';
@@ -2316,7 +2368,7 @@
             }
 
             document.getElementById('sf-proj-title').textContent = p.title;
-            document.getElementById('sf-proj-stage').textContent = p.stage_label || (isFull ? 'FULL SKRIPSI · 5 DARI 5 BAB' : 'PROPOSAL SKRIPSI · 3 DARI 3 BAB');
+            document.getElementById('sf-proj-stage').textContent = p.stage_label;
             const topMeta = document.getElementById('sf-topbar-label');
             if (topMeta) {
                 topMeta.textContent = `${p.prodi} · ${p.metode} · A4 Margin 4-4-3-3`;
@@ -2338,13 +2390,6 @@
 
             const paperArea = document.querySelector('.sf-paper-area');
             if (paperArea) paperArea.scrollTop = 0;
-
-            const viewPdfBtn = document.getElementById('sample-view-pdf');
-            const dlDocxBtn = document.getElementById('sample-dl-docx');
-            const dlPdfBtn = document.getElementById('sample-dl-pdf');
-            if (viewPdfBtn) viewPdfBtn.href = p.pdf_inline_url || p.pdf_url;
-            if (dlDocxBtn) dlDocxBtn.href = p.docx_url;
-            if (dlPdfBtn) dlPdfBtn.href = p.pdf_url;
         }
 
         function switchPreviewProject(idx, btn) {
