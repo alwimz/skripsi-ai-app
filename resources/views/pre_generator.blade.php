@@ -1318,36 +1318,53 @@
             padding: 4px 7px !important;
         }
 
-        /* Cover Slide 1 Typography & Symmetrical Cards */
+        /* Cover Slide 1 Typography & Balanced 16:9 Vertical Composition */
+        .ppt-canvas.ppt-is-cover > div {
+            justify-content: space-between;
+        }
+        .ppt-canvas.ppt-is-cover #slide-title-edit,
+        .ppt-canvas.ppt-is-cover #fs-slide-title {
+            margin-top: auto !important;
+            margin-bottom: 10px !important;
+        }
+        .ppt-canvas.ppt-is-cover #slide-subtitle-edit,
+        .ppt-canvas.ppt-is-cover #fs-slide-subtitle {
+            margin-bottom: auto !important;
+        }
+        .ppt-canvas.ppt-is-cover #slide-bullets-edit,
+        .ppt-canvas.ppt-is-cover #fs-slide-bullets {
+            flex: 0 0 auto !important;
+            margin-top: 12px !important;
+        }
         .ppt-cover-title-text {
-            font-size: clamp(16px, 2.25vw, 22px);
+            font-size: clamp(18px, 2.4vw, 25px);
             font-weight: 800;
-            line-height: 1.3;
-            max-width: 92%;
+            line-height: 1.28;
+            max-width: 90%;
             margin: 6px auto 0;
             color: var(--ppt-text);
-            letter-spacing: -0.01em;
+            letter-spacing: -0.015em;
         }
         .ppt-cover-title-text.ppt-title-long {
-            font-size: clamp(14px, 1.9vw, 18.5px);
+            font-size: clamp(16px, 2.05vw, 21.5px);
             line-height: 1.28;
         }
         .ppt-cover-divider {
-            width: 72px;
+            width: 78px;
             height: 3.5px;
             border-radius: 999px;
             background: var(--ppt-accent);
-            margin: 10px auto 6px;
+            margin: 12px auto 6px;
         }
         .ppt-cover-oleh-box {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px 20px;
-            border-radius: 10px;
+            padding: 8px 26px;
+            border-radius: 11px;
             background: var(--ppt-card-bg);
             border: 1px solid var(--ppt-card-border);
-            margin: 4px auto 8px;
+            margin: 4px auto 6px;
         }
         .ppt-cover-oleh-tag {
             font-size: 9.5px;
@@ -1357,16 +1374,16 @@
             text-transform: uppercase;
         }
         .ppt-cover-author-name {
-            font-size: 13.5px;
+            font-size: 14.5px;
             font-weight: 800;
             color: var(--ppt-card-text);
-            margin-top: 2px;
+            margin-top: 3px;
         }
         .ppt-cover-nim {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 600;
             color: var(--ppt-muted);
-            margin-top: 1px;
+            margin-top: 2px;
         }
         .ppt-cover-footer-inst {
             text-align: center;
@@ -1375,8 +1392,8 @@
             letter-spacing: 0.06em;
             text-transform: uppercase;
             color: var(--ppt-muted);
-            margin-top: 10px;
-            padding-top: 8px;
+            margin-top: 12px;
+            padding-top: 9px;
             border-top: 1px solid var(--ppt-divider);
         }
 
@@ -3559,14 +3576,8 @@
                 <div id="ppt-view-step-3" style="display: none;">
                     <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
                     <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
-                        <div
-                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div>
-                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain
-                                    Template Slide</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik
-                                    maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</span>
                                     <span id="ppt-autosave-status" style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 9px; border-radius: 999px; white-space: nowrap;">✓ Tersimpan di PPT Saya</span>
@@ -3574,8 +3585,7 @@
                                 <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Tersedia tema Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.</div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah
-                                    Slide</button>
+                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
                                 <button type="button" class="btn-outline"
                                     style="border-color: var(--primary); color: var(--primary); font-weight: 600;"
                                     onclick="openFullscreenSlideshow()">
@@ -3583,7 +3593,6 @@
                                 </button>
                                 <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;"
                                     onclick="openPptGridPreviewStep()">
-                                    Preview Semua & Unduh (.pptx) →
                                     Preview Semua &amp; Unduh (.pptx) →
                                 </button>
                             </div>
@@ -5837,6 +5846,8 @@
                     campusBadgeEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg><span>${campusName}</span>`;
                 }
             }
+
+            if (canvasEl) canvasEl.classList.toggle('ppt-is-cover', idx === 0);
 
             if (idx === 0) {
                 if (secEl) secEl.innerText = 'SLIDE 1 · COVER SIDANG';

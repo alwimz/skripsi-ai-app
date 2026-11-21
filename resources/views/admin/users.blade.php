@@ -691,22 +691,22 @@
                     <tbody>
                         @forelse(($projects ?? []) as $pIdx => $proj)
                             <tr>
-                                <td style="text-align: center; color: #64748b; font-weight: 600;">{{ $pIdx + 1 }}</td>
-                                <td style="max-width: 360px;">
-                                    <div style="font-weight: 600; color: #f8fafc; line-height: 1.4;">{{ $proj->judul }}</div>
-                                    <div class="user-id-tag">Project ID: #{{ $proj->id }}</div>
+                                <td style="text-align: center; color: #64748b; font-weight: 600; vertical-align: top;">{{ $pIdx + 1 }}</td>
+                                <td style="white-space: normal; word-break: break-word; min-width: 240px; max-width: 340px; vertical-align: top;">
+                                    <div style="font-weight: 600; color: #f8fafc; line-height: 1.45;">{{ $proj->judul }}</div>
+                                    <div class="user-id-tag" style="margin-top: 3px;">Project ID: #{{ $proj->id }}</div>
                                 </td>
-                                <td>
+                                <td style="white-space: normal; min-width: 190px; vertical-align: top;">
                                     <div class="user-name">{{ $proj->owner_name }}</div>
-                                    <div style="font-family: monospace; font-size: 12px; color: #94a3b8;">{{ $proj->owner_email }} (User #{{ $proj->user_id }})</div>
+                                    <div style="font-family: monospace; font-size: 12px; color: #94a3b8; word-break: break-all;">{{ $proj->owner_email }} (User #{{ $proj->user_id }})</div>
                                 </td>
-                                <td style="color: #cbd5e1; font-size: 13px;">{{ $proj->prodi ?: '-' }}</td>
-                                <td style="text-align: center;">
+                                <td style="color: #cbd5e1; font-size: 13px; white-space: normal; min-width: 130px; max-width: 180px; vertical-align: top;">{{ $proj->prodi ?: '-' }}</td>
+                                <td style="text-align: center; vertical-align: top;">
                                     <span class="badge-projects">
                                         {{ $proj->filled_chapters }} Bab{{ $proj->has_dp ? ' + DP' : '' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td style="vertical-align: top;">
                                     <div class="date-main">
                                         {{ $proj->updated_at ? $proj->updated_at->copy()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB' : '-' }}
                                     </div>

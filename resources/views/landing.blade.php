@@ -1660,7 +1660,7 @@
                         <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buat Proyek Baru
                             →</a>
                     @else
-                        <a href="{{ route('register') }}" class="btn btn-primary">Masuk ke Workspace →</a>
+                        <a href="{{ route('register') }}" class="btn btn-primary">Coba Gratis Sekarang →</a>
                     @endauth
                     <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal &amp; Skripsi</a>
                 </div>

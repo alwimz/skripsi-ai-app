@@ -52,10 +52,12 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         if (!$this->isAdminAuthorized($request)) {
-            return view('admin.login', [
-                'error' => session('error'),
-                'info' => session('info')
-            ]);
+            return response()
+                ->view('admin.login', [
+                    'error' => session('error'),
+                    'info' => session('info')
+                ])
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         }
 
         // Hitung metrik (gunakan zona waktu WIB / Asia/Jakarta)
