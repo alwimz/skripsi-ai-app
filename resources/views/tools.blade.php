@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Tools Mahasiswa Gratis — Flowchart AI, PDF ke Word, Gabung PDF &amp; Slovin | SkripsiLab AI</title>
+    <title>Tools Mahasiswa Gratis — Flowchart AI, Rapikan Skripsi, Kompres PDF/Word &amp; Hapus Background | SkripsiLab AI</title>
     <meta name="description"
-        content="Kumpulan 8 tools mahasiswa gratis dari SkripsiLab AI: generator flowchart skripsi otomatis AI (unduh PNG HD/SVG), konversi PDF ke Word &amp; Word ke PDF, gabung &amp; pisah PDF, JPG ke PDF A4, kompres gambar, kalkulator Slovin Bab 3, dan hitung kata.">
+        content="Kumpulan 10 tools mahasiswa gratis dari SkripsiLab AI: generator flowchart skripsi AI, rapikan format skripsi Word (.docx) tanpa ubah isi, konversi PDF ke Word, gabung &amp; pisah PDF, kompres PDF/Word/gambar, hapus background tanda tangan &amp; pas foto, JPG ke PDF A4, kalkulator Slovin &amp; Lemeshow, dan hitung kata.">
     <meta name="keywords"
-        content="buat flowchart skripsi otomatis, generator flowchart ai, diagram alur penelitian bab 3, tools mahasiswa gratis, pdf ke word gratis, word ke pdf online, gabung pdf skripsi, pisah halaman pdf, jpg ke pdf a4, kompres gambar siakad, kalkulator slovin bab 3, hitung kata skripsi, skripsilab ai">
+        content="buat flowchart skripsi otomatis, rapikan format skripsi word otomatis, tools mahasiswa gratis, pdf ke word gratis, word ke pdf online, gabung pdf skripsi, pisah halaman pdf, kompres pdf siakad, kompres word docx, kompres gambar, hapus background tanda tangan pas foto, jpg ke pdf a4, kalkulator slovin lemeshow bab 3, hitung kata skripsi, skripsilab ai">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/tools') }}">
     <meta name="theme-color" content="#2563eb">
@@ -17,9 +17,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Client-side PDF engines (gratis, privat di browser, bebas batas upload server) -->
+    <!-- Client-side PDF & DOCX engines (100% gratis, privat di browser, bebas batas 4.5MB server) -->
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 
     @php
         $toolsSchema = [
@@ -31,7 +32,7 @@
             'operatingSystem' => 'Web Browser',
             'inLanguage' => 'id-ID',
             'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
-            'description' => 'Kumpulan alat produktivitas gratis untuk mahasiswa Indonesia: konversi PDF ke Word, Word ke PDF, gabung PDF, pisah PDF, JPG ke PDF A4, kompres gambar, kalkulator sampel Slovin, dan penghitung kata skripsi.',
+            'description' => 'Kumpulan 10 alat produktivitas gratis untuk mahasiswa Indonesia: Flowchart Skripsi AI, Rapikan Format Skripsi Word, PDF ke Word, Gabung & Pisah PDF, Kompres PDF/Word/Gambar, Hapus Background Gambar, JPG ke PDF A4, Kalkulator Slovin & Lemeshow, dan Hitung Kata.',
         ];
     @endphp
     <script type="application/ld+json">{!! json_encode($toolsSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -60,6 +61,7 @@
             line-height: 1.55;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
         a { color: inherit; text-decoration: none; }
         .container {
@@ -200,12 +202,11 @@
         .ws-breadcrumb {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 13px;
             color: var(--text-muted);
             min-width: 0;
         }
-        .ws-crumb-current { font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ws-toggle-btn {
             width: 34px;
             height: 34px;
@@ -220,27 +221,14 @@
             flex-shrink: 0;
         }
         .ws-toggle-btn:hover { background: #f8fafc; border-color: var(--border-strong); }
-        .ws-pkg-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid var(--border);
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-            white-space: nowrap;
-        }
         .ws-content {
-            max-width: 1020px;
+            max-width: 1060px;
             width: 100%;
             margin: 0 auto;
-            padding: 26px 28px 44px;
+            padding: 24px 26px 48px;
         }
         .ws-page-title {
-            font-size: 26px;
+            font-size: 25px;
             font-weight: 800;
             letter-spacing: -0.025em;
             color: var(--text-main);
@@ -256,8 +244,8 @@
             body.ws-mobile-open .ws-sidebar { transform: translateX(0); }
             .ws-main { margin-left: 0; }
             .ws-topbar { padding: 0 14px; }
-            .ws-content { padding: 18px 14px 36px; }
-            .ws-page-title { font-size: 21px; }
+            .ws-content { padding: 16px 14px 40px; }
+            .ws-page-title { font-size: 20px; }
         }
 
         /* Header (untuk tamu / publik) */
@@ -297,33 +285,39 @@
             color: var(--primary);
             border: 1px solid var(--primary-border);
         }
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 9px;
+            gap: 7px;
+            min-height: 40px;
+            padding: 9px 16px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
             border: 1px solid transparent;
-            transition: all 0.15s ease;
-            white-space: nowrap;
+            transition: all 0.16s ease;
+            text-align: center;
+            line-height: 1.3;
         }
         .btn-primary {
             background: var(--primary);
             color: #ffffff;
-            box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.45);
+            box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.5);
         }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-success {
+            background: #059669;
+            color: #ffffff;
+            box-shadow: 0 6px 16px -6px rgba(5, 150, 105, 0.45);
+        }
+        .btn-success:hover { background: #047857; transform: translateY(-1px); }
         .btn-outline {
             background: #ffffff;
             color: var(--text-main);
@@ -337,9 +331,36 @@
         }
         .btn-soft:hover { background: #dbeafe; }
 
-        /* Hero Intro */
+        /* Responsive Action Bar & Button Stacks */
+        .tool-action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .tool-action-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+        .btn-row-responsive {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-row-responsive .btn-grow { flex: 1 1 200px; }
+
+        /* Hero Intro (Publik) */
         .tools-hero {
-            padding: 28px 0 18px;
+            padding: 26px 0 18px;
             background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
             border-bottom: 1px solid var(--border);
         }
@@ -366,38 +387,51 @@
         .tools-hero p {
             font-size: 13.5px;
             color: var(--text-secondary);
-            max-width: 680px;
+            max-width: 720px;
         }
 
-        /* Tool Selector Grid */
+        /* Tool Selector Grid (5x2 desktop, 2x5 mobile) */
         .tools-nav-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 9px;
-            margin: 18px 0 22px;
+            margin: 16px 0 20px;
         }
         .tool-tab-card {
             background: #ffffff;
             border: 1.5px solid var(--border);
             border-radius: 12px;
-            padding: 11px 12px;
+            padding: 11px 11px;
             text-align: left;
             cursor: pointer;
             font-family: inherit;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
+            position: relative;
             transition: all 0.16s ease;
         }
         .tool-tab-card:hover {
             border-color: #93c5fd;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px -8px rgba(37, 99, 235, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px -10px rgba(37, 99, 235, 0.28);
         }
         .tool-tab-card.active {
             border-color: var(--primary);
             background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-            box-shadow: 0 8px 20px -10px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 8px 20px -10px rgba(37, 99, 235, 0.36);
+        }
+        .tool-tab-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
         }
         .tool-tab-icon {
             width: 32px;
@@ -426,16 +460,16 @@
         }
 
         /* Tool Workspace Panels */
-        .tool-panel { display: none; padding-bottom: 44px; }
-        .tool-panel.active { display: block; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .tool-panel { display: none; padding-bottom: 36px; }
+        .tool-panel.active { display: block; animation: panelEnter 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes panelEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         .panel-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 22px;
-            box-shadow: 0 8px 24px -14px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 26px -16px rgba(15, 23, 42, 0.1);
         }
         .panel-head {
             display: flex;
@@ -447,8 +481,8 @@
             padding-bottom: 14px;
             border-bottom: 1px solid #f1f5f9;
         }
-        .panel-title { font-size: 17px; font-weight: 800; color: var(--text-main); }
-        .panel-desc { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+        .panel-title { font-size: 17.5px; font-weight: 800; color: var(--text-main); letter-spacing: -0.015em; }
+        .panel-desc { font-size: 13px; color: var(--text-secondary); margin-top: 3px; max-width: 680px; }
         .privacy-badge {
             display: inline-flex;
             align-items: center;
@@ -468,13 +502,13 @@
             display: inline-flex;
             background: #f1f5f9;
             padding: 4px;
-            border-radius: 10px;
+            border-radius: 11px;
             gap: 4px;
             margin-bottom: 16px;
             flex-wrap: wrap;
         }
         .seg-btn {
-            padding: 7px 14px;
+            padding: 8px 14px;
             border-radius: 8px;
             border: none;
             background: transparent;
@@ -488,31 +522,38 @@
         .seg-btn.active {
             background: #ffffff;
             color: var(--primary);
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
         }
 
         /* Dropzone */
         .dropzone {
             border: 2px dashed #93c5fd;
-            background: #f8fbff;
+            background: linear-gradient(180deg, #f8fbff 0%, #f1f7ff 100%);
             border-radius: 14px;
-            padding: 26px 18px;
+            padding: 24px 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.18s ease;
             margin-bottom: 14px;
         }
         .dropzone:hover, .dropzone.dragover {
             border-color: var(--primary);
             background: #eff6ff;
+            transform: scale(0.997);
         }
-        .dropzone-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 8px; }
+        .dropzone-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 8px; word-break: break-word; }
         .dropzone-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 
         /* Form controls */
         .form-grid-2 {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 12px;
             margin-bottom: 14px;
         }
@@ -540,6 +581,20 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
         }
+        .check-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 12.5px;
+            color: #334155;
+            cursor: pointer;
+            line-height: 1.45;
+        }
+        .check-card input { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
 
         /* File List */
         .file-list {
@@ -553,11 +608,13 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            padding: 9px 12px;
+            padding: 10px 12px;
             background: #f8fafc;
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 11px;
+            animation: fadeInRow 0.2s ease;
         }
+        @keyframes fadeInRow { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
         .file-row-left {
             display: flex;
             align-items: center;
@@ -566,16 +623,28 @@
             flex: 1;
         }
         .file-thumb {
-            width: 38px;
-            height: 38px;
+            width: 44px;
+            height: 44px;
             border-radius: 7px;
             object-fit: cover;
             border: 1px solid var(--border-strong);
+            background: #ffffff;
             flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .file-pdf-thumb {
+            width: 38px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid var(--border-strong);
+            background: #ffffff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
         .file-badge {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
             background: #dbeafe;
             color: #1d4ed8;
@@ -594,11 +663,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .file-meta { font-size: 11.5px; color: var(--text-muted); }
-        .file-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .file-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+        .file-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; flex-wrap: wrap; }
         .mini-btn {
-            height: 28px;
-            padding: 0 8px;
+            height: 30px;
+            padding: 0 9px;
             border-radius: 7px;
             border: 1px solid var(--border-strong);
             background: #ffffff;
@@ -607,9 +676,135 @@
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
         .mini-btn:hover { background: #f1f5f9; }
+        .mini-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .mini-btn.danger { color: var(--danger); border-color: #fecaca; }
+
+        /* Animated Processing Bar & Rich Result Card */
+        .proc-box {
+            display: none;
+            margin-top: 14px;
+            padding: 14px 16px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+            border: 1px solid #bfdbfe;
+            animation: slideUpPop 0.25s ease;
+        }
+        .proc-box.active { display: block; }
+        .proc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e40af;
+        }
+        .proc-head-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+        .proc-spinner {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2.5px solid #bfdbfe;
+            border-top-color: #2563eb;
+            animation: spin 0.75s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .proc-track {
+            width: 100%;
+            height: 8px;
+            background: #dbeafe;
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .proc-fill {
+            height: 100%;
+            width: 20%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #0ea5e9 100%);
+            background-size: 200% 100%;
+            transition: width 0.28s ease;
+            animation: shimmerBar 1.4s linear infinite;
+        }
+        @keyframes shimmerBar {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .result-card {
+            display: none;
+            margin-top: 14px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 65%);
+            border: 1.5px solid #6ee7b7;
+            box-shadow: 0 10px 24px -14px rgba(5, 150, 105, 0.3);
+            animation: slideUpPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .result-card.active { display: block; }
+        @keyframes slideUpPop {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .result-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .result-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .result-check {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: #059669;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 6px 14px -4px rgba(5, 150, 105, 0.5);
+        }
+        .result-title { font-size: 14px; font-weight: 800; color: #065f46; word-break: break-word; }
+        .result-meta { font-size: 12.5px; color: #047857; margin-top: 2px; }
+        .result-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .audit-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #a7f3d0;
+        }
+        .audit-pill {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
 
         /* Status Box */
         .status-box {
@@ -624,7 +819,182 @@
         .status-box.success { display: block; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; }
         .status-box.error { display: block; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
 
-        /* Stats Grid */
+        /* Split PDF Visual Page Grid */
+        .split-thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+            gap: 10px;
+            max-height: 310px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .split-page-card {
+            position: relative;
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 9px;
+            padding: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .split-page-card:hover { border-color: #93c5fd; transform: translateY(-1px); }
+        .split-page-card.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.35);
+        }
+        .split-page-card.delete-mode.selected {
+            border-color: #dc2626;
+            background: #fef2f2;
+            opacity: 0.78;
+        }
+        .split-page-card canvas, .split-page-card img {
+            width: 100%;
+            height: 92px;
+            object-fit: contain;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            display: block;
+        }
+        .split-page-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .split-page-card.selected .split-page-num { color: var(--primary); }
+        .split-page-card.delete-mode.selected .split-page-num { color: #dc2626; text-decoration: line-through; }
+        .split-page-tick {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .split-page-card.selected .split-page-tick { display: inline-flex; }
+        .split-page-card.delete-mode.selected .split-page-tick { background: #dc2626; }
+
+        .page-picker-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .page-pill {
+            min-width: 36px;
+            height: 32px;
+            padding: 0 8px;
+            border-radius: 7px;
+            border: 1px solid var(--border-strong);
+            background: #ffffff;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .page-pill.selected { background: var(--primary); border-color: var(--primary); color: #ffffff; }
+        .page-pill.delete-mode.selected { background: #dc2626; border-color: #dc2626; color: #ffffff; }
+
+        /* Remove Background Checkerboard & Swatches */
+        .bg-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin: 14px 0;
+        }
+        .bg-stage {
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .bg-stage-head {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .bg-checker {
+            min-height: 220px;
+            max-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background-color: #f8fafc;
+            background-image:
+                linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+                linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+            background-size: 18px 18px;
+            background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+        }
+        .bg-checker img, .bg-checker canvas {
+            max-width: 100%;
+            max-height: 290px;
+            object-fit: contain;
+            display: block;
+            border-radius: 4px;
+        }
+        .swatch-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .swatch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            border-radius: 999px;
+            border: 1.5px solid var(--border-strong);
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .swatch-btn.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+        .swatch-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(15, 23, 42, 0.25);
+            display: inline-block;
+        }
+
+        /* Stats, Slovin & Word Count */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -641,7 +1011,6 @@
         .stat-val { font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 3px; }
         .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* Slovin Result Card */
         .slovin-result {
             background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
             border: 1px solid #bfdbfe;
@@ -649,7 +1018,7 @@
             padding: 18px;
             margin-top: 14px;
         }
-        .slovin-num { font-size: 30px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+        .slovin-num { font-size: 28px; font-weight: 800; color: var(--primary); line-height: 1.15; }
         .slovin-steps {
             margin-top: 10px;
             padding: 11px 14px;
@@ -661,6 +1030,7 @@
             color: #1e293b;
             line-height: 1.65;
             white-space: pre-wrap;
+            overflow-x: auto;
         }
         .slovin-para {
             margin-top: 10px;
@@ -672,10 +1042,25 @@
             color: #1e293b;
             line-height: 1.65;
         }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 12.5px;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .compare-table th, .compare-table td {
+            border: 1px solid var(--border);
+            padding: 7px 10px;
+            text-align: center;
+        }
+        .compare-table th { background: #f1f5f9; font-weight: 700; color: #334155; }
 
         .preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .preset-chip {
-            padding: 5px 11px;
+            padding: 6px 11px;
             border-radius: 999px;
             border: 1px solid var(--border-strong);
             background: #ffffff;
@@ -684,14 +1069,44 @@
             color: var(--text-secondary);
             cursor: pointer;
             font-family: inherit;
+            transition: all 0.14s ease;
         }
         .preset-chip:hover, .preset-chip.active {
             background: var(--primary-soft);
             border-color: var(--primary);
             color: var(--primary);
         }
+        .top-words-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .top-word-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            font-size: 11.5px;
+            color: #334155;
+            font-weight: 600;
+        }
+        .top-word-pill span { color: var(--primary); font-weight: 800; }
+        .abstract-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 6px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: #475569;
+        }
+        .abstract-badge.ideal { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+        .abstract-badge.warn { background: #fffbeb; border-color: #fde68a; color: #b45309; }
 
-        /* Flowchart Studio Split Layout */
+        /* Flowchart Studio */
         .fc-layout {
             display: grid;
             grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -704,6 +1119,12 @@
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 14px;
+        }
+        .fc-ai-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
         }
         .fc-steps-list {
             display: flex;
@@ -726,6 +1147,7 @@
         .fc-step-top {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 6px;
         }
         .fc-step-num {
@@ -756,12 +1178,23 @@
             justify-content: center;
             align-items: center;
             overflow-x: auto;
-            min-height: 360px;
+            min-height: 340px;
         }
-        .fc-preview-paper svg {
-            max-width: 100%;
-            height: auto;
-            display: block;
+        .fc-preview-paper.transparent-bg {
+            background-image:
+                linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+                linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+        }
+        .fc-preview-paper svg { max-width: 100%; height: auto; display: block; }
+        .fc-export-bar {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .footer {
@@ -773,8 +1206,10 @@
             background: #ffffff;
         }
 
-        @media (max-width: 860px) {
+        @media (max-width: 980px) {
+            .tools-nav-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .fc-layout { grid-template-columns: 1fr; }
+            .form-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 720px) {
@@ -783,13 +1218,33 @@
             .brand { font-size: 14.5px; gap: 7px; }
             .brand img { width: 26px; height: 26px; }
             .brand-pill { display: none; }
-            .btn { padding: 7px 11px; font-size: 12px; }
             .tools-nav-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-            .panel-card { padding: 15px 14px; border-radius: 14px; }
-            .form-grid-2 { grid-template-columns: 1fr; }
+            .tool-tab-card { padding: 10px; }
+            .panel-card { padding: 15px 13px; border-radius: 14px; }
+            .form-grid-2, .form-grid-3, .bg-preview-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .file-row { flex-direction: column; align-items: stretch; }
-            .file-actions { justify-content: flex-end; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+            .file-actions { justify-content: flex-end; border-top: 1px solid #e2e8f0; padding-top: 7px; }
+
+            /* Mobile Responsive Buttons & Action Bars di SEMUA tools */
+            .seg-switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); width: 100%; }
+            .seg-btn { text-align: center; padding: 8px 8px; font-size: 12px; }
+            .tool-action-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+            .tool-action-controls { flex-direction: column; align-items: stretch; width: 100%; }
+            .tool-action-bar > .btn,
+            .tool-action-bar .btn-row-responsive { width: 100%; }
+            .btn-row-responsive { display: grid; grid-template-columns: 1fr; width: 100%; }
+            .btn-row-responsive.two-col-mobile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .fc-ai-row { flex-direction: column; align-items: stretch; }
+            .fc-ai-row .btn, .fc-ai-row .form-select { width: 100% !important; min-width: 0 !important; }
+            .fc-export-bar { grid-template-columns: 1fr 1fr; }
+            .fc-export-bar .fc-btn-main { grid-column: 1 / -1; }
+            .result-card-top { flex-direction: column; align-items: stretch; }
+            .result-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+            .result-actions.single-action { grid-template-columns: 1fr; }
+            .slovin-head-row { flex-direction: column; align-items: stretch !important; }
+            .slovin-head-row .btn { width: 100%; }
+            .wc-head-actions { width: 100%; display: grid !important; grid-template-columns: 1fr auto; }
         }
     </style>
 </head>
@@ -857,7 +1312,7 @@
                 <a href="{{ route('tools.hub') }}" class="ws-nav-btn active">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     <span style="flex:1;">Tools Mahasiswa</span>
-                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#ecfdf5; color:#059669;">8</span>
+                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#ecfdf5; color:#059669;">10</span>
                 </a>
 
                 <div class="ws-group">Akun &amp; Bonus</div>
@@ -898,19 +1353,16 @@
                     <button type="button" class="ws-toggle-btn" onclick="toggleWsSidebar()" title="Buka / Tutup Sidebar" aria-label="Toggle Sidebar">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                     </button>
-                    <span>Workspace</span>
-                    <span>›</span>
-                    <span class="ws-crumb-current">Tools Mahasiswa</span>
+                    <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" style="display:inline-flex; align-items:center; gap:8px; color:var(--text-main); font-weight:700; font-size:14px;">
+                        <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:24px; height:24px; border-radius:6px; display:block;">
+                        <span>SkripsiLab AI</span>
+                    </a>
                 </div>
-                <span class="ws-pkg-pill">
-                    <span style="width:7px; height:7px; border-radius:999px; background:#10b981; display:inline-block;"></span>
-                    <span>Paket Aktif</span>
-                </span>
             </header>
 
             <main class="ws-content">
                 <h1 class="ws-page-title">Tools Mahasiswa</h1>
-                <p class="ws-page-sub">8 alat gratis untuk kebutuhan harian skripsi &amp; kuliah: Flowchart AI, PDF ⇄ Word, Gabung/Pisah PDF, Foto ke PDF A4, Kompres Gambar, Slovin, dan Hitung Kata.</p>
+                <p class="ws-page-sub">10 alat lengkap gratis untuk kebutuhan harian skripsi &amp; kuliah: Flowchart AI, Rapikan Skripsi Word, PDF ⇄ Word, Gabung &amp; Pisah PDF, Kompres PDF/Word/Gambar, Hapus Background, Foto ke PDF A4, Slovin/Lemeshow, dan Hitung Kata.</p>
     @else
         <header class="topbar">
             <div class="container topbar-inner">
@@ -928,25 +1380,35 @@
 
         <section class="tools-hero">
             <div class="container">
-                <div class="hero-eyebrow">8 Alat Produktivitas Akademik · 100% Gratis</div>
+                <div class="hero-eyebrow">10 Alat Produktivitas Akademik · 100% Gratis</div>
                 <h1>Tools Mahasiswa SkripsiLab AI</h1>
-                <p>Buat flowchart skripsi otomatis pakai AI, konversi PDF ⇄ Word, gabung &amp; pisah PDF, ubah foto ke PDF A4, kompres gambar SIAKAD, hitung sampel Slovin Bab III, hingga penghitung kata skripsi.</p>
+                <p>Buat flowchart skripsi AI, rapikan tata letak Word skripsi tanpa mengubah isi, konversi PDF ⇄ Word, gabung &amp; pisah PDF, kompres PDF/Word/gambar, hapus background tanda tangan &amp; pas foto, hingga kalkulator sampel Bab III.</p>
             </div>
         </section>
 
         <main class="container">
     @endauth
-        <!-- Grid Pemilih 8 Tools -->
+
+        <!-- Grid Pemilih 10 Tools (5x2 Desktop, 2x5 HP) -->
         <div class="tools-nav-grid" role="tablist" aria-label="Pilih Tool Mahasiswa">
-            <button type="button" class="tool-tab-card active" data-tool="flowchart" onclick="switchTool('flowchart')">
+            <button type="button" class="tool-tab-card active" data-tool="flowchart" onclick="switchTool('flowchart', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="5" rx="2.5"/><path d="M12 7v3"/><rect x="5" y="10" width="14" height="5" rx="1"/><path d="M12 15v3"/><rect x="7" y="18" width="10" height="4" rx="2"/></svg>
                 </span>
                 <span class="tool-tab-name">Flowchart Skripsi</span>
-                <span class="tool-tab-sub">AI + Unduh PNG HD</span>
+                <span class="tool-tab-sub">AI + PNG HD &amp; SVG</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="pdf-word" onclick="switchTool('pdf-word')">
+            <button type="button" class="tool-tab-card" data-tool="tidy-docx" onclick="switchTool('tidy-docx', true)">
+                <span class="tool-tab-badge">Baru</span>
+                <span class="tool-tab-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z"/></svg>
+                </span>
+                <span class="tool-tab-name">Rapikan Skripsi</span>
+                <span class="tool-tab-sub">Tata Word tanpa ubah isi</span>
+            </button>
+
+            <button type="button" class="tool-tab-card" data-tool="pdf-word" onclick="switchTool('pdf-word', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M12 12l3 3-3 3"/></svg>
                 </span>
@@ -954,7 +1416,7 @@
                 <span class="tool-tab-sub">.pdf ke .docx &amp; sebaliknya</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="merge-pdf" onclick="switchTool('merge-pdf')">
+            <button type="button" class="tool-tab-card" data-tool="merge-pdf" onclick="switchTool('merge-pdf', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="10" rx="1.5"/><path d="M7 13v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4"/></svg>
                 </span>
@@ -962,15 +1424,33 @@
                 <span class="tool-tab-sub">Satukan bab &amp; lampiran</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="split-pdf" onclick="switchTool('split-pdf')">
+            <button type="button" class="tool-tab-card" data-tool="split-pdf" onclick="switchTool('split-pdf', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                 </span>
                 <span class="tool-tab-name">Pisah PDF</span>
-                <span class="tool-tab-sub">Ambil halaman tertentu</span>
+                <span class="tool-tab-sub">Ambil / hapus halaman</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="img-pdf" onclick="switchTool('img-pdf')">
+            <button type="button" class="tool-tab-card" data-tool="compress" onclick="switchTool('compress', true)">
+                <span class="tool-tab-badge">3-in-1</span>
+                <span class="tool-tab-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                </span>
+                <span class="tool-tab-name">Kompres File</span>
+                <span class="tool-tab-sub">PDF, Word &amp; Gambar</span>
+            </button>
+
+            <button type="button" class="tool-tab-card" data-tool="remove-bg" onclick="switchTool('remove-bg', true)">
+                <span class="tool-tab-badge">Baru</span>
+                <span class="tool-tab-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="8.5" r="1.5"/></svg>
+                </span>
+                <span class="tool-tab-name">Hapus Background</span>
+                <span class="tool-tab-sub">TTD transparan &amp; pas foto</span>
+            </button>
+
+            <button type="button" class="tool-tab-card" data-tool="img-pdf" onclick="switchTool('img-pdf', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </span>
@@ -978,46 +1458,40 @@
                 <span class="tool-tab-sub">Foto berkas ke PDF A4</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="compress-img" onclick="switchTool('compress-img')">
-                <span class="tool-tab-icon">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                </span>
-                <span class="tool-tab-name">Kompres Gambar</span>
-                <span class="tool-tab-sub">Kecilkan ukuran SIAKAD</span>
-            </button>
-
-            <button type="button" class="tool-tab-card" data-tool="slovin" onclick="switchTool('slovin')">
+            <button type="button" class="tool-tab-card" data-tool="slovin" onclick="switchTool('slovin', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
                 </span>
-                <span class="tool-tab-name">Kalkulator Slovin</span>
-                <span class="tool-tab-sub">Rumus sampel Bab III</span>
+                <span class="tool-tab-name">Kalkulator Sampel</span>
+                <span class="tool-tab-sub">Slovin &amp; Lemeshow Bab III</span>
             </button>
 
-            <button type="button" class="tool-tab-card" data-tool="word-count" onclick="switchTool('word-count')">
+            <button type="button" class="tool-tab-card" data-tool="word-count" onclick="switchTool('word-count', true)">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>
                 </span>
                 <span class="tool-tab-name">Hitung Kata</span>
-                <span class="tool-tab-sub">Kata &amp; estimasi A4</span>
+                <span class="tool-tab-sub">Abstrak &amp; estimasi A4</span>
             </button>
         </div>
 
+        <div id="tools-active-anchor"></div>
+
         <!-- ======================================================= -->
-        <!-- 0. GENERATOR FLOWCHART SKRIPSI & PROPOSAL (AI + VISUAL) -->
+        <!-- 1. GENERATOR FLOWCHART SKRIPSI & PROPOSAL (AI + VISUAL) -->
         <!-- ======================================================= -->
         <section class="tool-panel active" id="panel-flowchart">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
                         <h2 class="panel-title">Generator Flowchart Skripsi &amp; Proposal</h2>
-                        <p class="panel-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), atau flowchart sistem secara otomatis dengan AI — edit simbol standar ISO lalu unduh PNG HD siap tempel ke Word.</p>
+                        <p class="panel-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), atau flowchart sistem otomatis dengan AI — edit simbol standar ISO lalu unduh PNG HD bersih (tanpa teks keterangan di dalam gambar, agar nomor Gambar di Word bisa diketik sendiri).</p>
                     </div>
                     <span class="privacy-badge">✨ Otomatis AI · Siap Tempel Word</span>
                 </div>
 
                 <div class="fc-layout">
-                    <!-- Kolom Kiri: Generator AI + Template + Editor Langkah -->
+                    <!-- Kolom Kiri: AI + Preset + Editor Langkah -->
                     <div>
                         <div class="fc-ai-box">
                             <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">✨ Buat Langkah Otomatis Pakai AI</div>
@@ -1025,14 +1499,21 @@
                                 <label class="form-label" for="fc-ai-topic">Judul Skripsi / Topik Penelitian</label>
                                 <input type="text" id="fc-ai-topic" class="form-input" placeholder="cth: Klasifikasi Sentimen Komentar TikTok Menggunakan Naive Bayes">
                             </div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                                <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:190px; min-height:38px;">
+                            <div class="fc-ai-row">
+                                <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:180px;">
                                     <option value="prosedur">Prosedur Penelitian (Bab III)</option>
                                     <option value="kerangka">Kerangka Berpikir (Bab II)</option>
                                     <option value="sistem">Alur Sistem / Aplikasi (IT &amp; R&amp;D)</option>
                                     <option value="analisis">Alur Pengumpulan &amp; Analisis Data</option>
                                 </select>
                                 <button type="button" class="btn btn-primary" id="btn-fc-ai" onclick="generateFlowchartWithAi()">✨ Buat dengan AI</button>
+                            </div>
+                            <div id="proc-fc" class="proc-box">
+                                <div class="proc-head">
+                                    <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-fc-text">Menyusun langkah flowchart...</span></div>
+                                    <span id="proc-fc-pct">...</span>
+                                </div>
+                                <div class="proc-track"><div class="proc-fill" id="proc-fc-bar" style="width:65%;"></div></div>
                             </div>
                             <div id="status-fc" class="status-box"></div>
                         </div>
@@ -1045,37 +1526,42 @@
                             <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kerangka')">Kerangka Berpikir</button>
                         </div>
 
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0 8px;">
-                            <span style="font-size:12.5px; font-weight:700; color:var(--text-main);">Edit Langkah &amp; Simbol Flowchart</span>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0 8px; gap:8px;">
+                            <span style="font-size:12.5px; font-weight:700; color:var(--text-main);">Edit Langkah &amp; Simbol ISO</span>
                             <button type="button" class="mini-btn" style="color:var(--primary); border-color:var(--primary-border);" onclick="addFlowchartStep()">+ Tambah Langkah</button>
                         </div>
 
                         <div id="fc-steps-editor" class="fc-steps-list"></div>
                     </div>
 
-                    <!-- Kolom Kanan: Pratinjau SVG Tajam + Opsi Gaya & Unduh -->
+                    <!-- Kolom Kanan: Pratinjau SVG Bersih + Gaya & Ekspor -->
                     <div>
                         <div class="form-grid-2" style="margin-bottom:10px;">
                             <div>
                                 <label class="form-label" for="fc-style-select">Gaya Warna Skripsi</label>
-                                <select id="fc-style-select" class="form-select" style="min-height:38px;" onchange="renderFlowchartSvg()">
+                                <select id="fc-style-select" class="form-select" onchange="renderFlowchartSvg()">
                                     <option value="bw" selected>Hitam-Putih Resmi (Siap Cetak)</option>
                                     <option value="blue">Biru Akademik Modern</option>
                                     <option value="navy">Navy Elegan</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label" for="fc-caption-input">Keterangan Gambar (Bawah)</label>
-                                <input type="text" id="fc-caption-input" class="form-input" style="min-height:38px;" value="Gambar 3.1 Diagram Alur Prosedur Penelitian" oninput="renderFlowchartSvg()">
+                                <label class="form-label" for="fc-bg-select">Latar Belakang Gambar</label>
+                                <select id="fc-bg-select" class="form-select" onchange="renderFlowchartSvg()">
+                                    <option value="white" selected>Putih Solid (Rekomendasi Word)</option>
+                                    <option value="transparent">Transparan (PNG Tanpa Background)</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="fc-preview-shell">
                             <div class="fc-preview-paper" id="fc-svg-preview"></div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-                                <button type="button" class="btn btn-primary" style="flex:1;" onclick="downloadFlowchartPng()">⬇ Unduh PNG HD (Siap Tempel Word)</button>
+                            <div class="fc-export-bar">
+                                <button type="button" class="btn btn-primary fc-btn-main" onclick="downloadFlowchartPng()">⬇ Unduh PNG HD</button>
+                                <button type="button" class="btn btn-soft" onclick="copyFlowchartPng()">📋 Salin Gambar</button>
                                 <button type="button" class="btn btn-outline" onclick="downloadFlowchartSvg()">⬇ Unduh SVG</button>
                             </div>
+                            <div id="status-fc-export" class="status-box"></div>
                         </div>
                     </div>
                 </div>
@@ -1083,14 +1569,115 @@
         </section>
 
         <!-- ======================================================= -->
-        <!-- 1. PDF <-> WORD CONVERTER -->
+        <!-- 2. RAPIKAN SKRIPSI / PROPOSAL WORD (.DOCX) — TANPA UBAH ISI -->
+        <!-- ======================================================= -->
+        <section class="tool-panel" id="panel-tidy-docx">
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">Rapikan Tata Letak Skripsi &amp; Proposal (.docx)</h2>
+                        <p class="panel-desc">Unggah file Word yang halaman, margin, font, spasi, atau tabelnya masih berantakan. Sistem menata ulang formatnya secara otomatis <strong>tanpa mengubah 1 kata pun isi skripsimu</strong> (gambar, grafik, &amp; tabel tetap utuh).</p>
+                    </div>
+                    <span class="privacy-badge">✓ 100% Isi Asli Utuh · Tanpa Batas Ukuran</span>
+                </div>
+
+                <div class="dropzone" onclick="document.getElementById('input-tidy-docx').click()">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 14l2 2 4-4"/></svg>
+                    <div class="dropzone-title" id="label-tidy-docx">Klik atau seret file Word skripsi / proposal (.docx) ke sini</div>
+                    <div class="dropzone-sub">Diproses langsung di browser — aman untuk file besar (hingga 50 MB) yang berisi banyak lampiran &amp; gambar</div>
+                    <input type="file" id="input-tidy-docx" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="onSelectTidyDocx(this)">
+                </div>
+
+                <div class="form-grid-3">
+                    <div>
+                        <label class="form-label" for="tidy-margin">Standar Margin A4</label>
+                        <select id="tidy-margin" class="form-select">
+                            <option value="4433" selected>Skripsi 4-4-3-3 cm (Atas 4, Kiri 4, Bawah 3, Kanan 3)</option>
+                            <option value="3333">Simetris 3-3-3-3 cm</option>
+                            <option value="normal">Normal 2,54 cm (Standar Jurnal)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="tidy-font">Jenis &amp; Ukuran Font</label>
+                        <select id="tidy-font" class="form-select">
+                            <option value="Times New Roman|24" selected>Times New Roman 12pt (Standar Skripsi)</option>
+                            <option value="Arial|22">Arial 11pt</option>
+                            <option value="Calibri|22">Calibri 11pt</option>
+                            <option value="Garamond|24">Garamond 12pt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="tidy-spacing">Spasi Baris Paragraf</label>
+                        <select id="tidy-spacing" class="form-select">
+                            <option value="360" selected>1,5 Spasi (Standar Skripsi Indonesia)</option>
+                            <option value="480">2,0 Spasi (Spasi Ganda)</option>
+                            <option value="276">1,15 Spasi (Makalah / Jurnal)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom:6px;">
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-pagebreak" checked>
+                        <span><strong>Rapikan Pindah Halaman &amp; Hapus Halaman Kosong:</strong> Otomatis mulai halaman baru tiap <code>BAB I–V</code>, <code>ABSTRAK</code>, <code>DAFTAR PUSTAKA</code>, serta hapus enter/page break kosong berlebih.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-indent" checked>
+                        <span><strong>Rata Kanan-Kiri &amp; Indentasi Akademik:</strong> Paragraf isi jadi Justify + masuk 1,25 cm, Sub-BAB tidak yatim di bawah halaman (Keep Next), &amp; Daftar Pustaka otomatis Hanging Indent.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-tables" checked>
+                        <span><strong>Rapikan Tabel Otomatis:</strong> Lebar tabel pas 100% margin (tidak keluar kertas), border tipis rapi, font tabel 10,5pt spasi 1,0, &amp; baris judul tabel berulang jika pindah halaman.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-spaces" checked>
+                        <span><strong>Bersihkan Spasi Berantakan:</strong> Hapus spasi ganda/berlebih antar kata tanpa mengubah satu pun kata, kutipan, angka, atau kalimat asli mahasiswa.</span>
+                    </label>
+                </div>
+
+                <div class="tool-action-bar">
+                    <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted);">
+                        <span>🛡️ File asli tidak tertimpa — hasil diunduh sebagai file baru <code>_Rapi.docx</code></span>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-tidy-docx" onclick="runTidyDocx()">✨ Rapikan Skripsi Sekarang</button>
+                </div>
+
+                <div id="proc-tidy" class="proc-box">
+                    <div class="proc-head">
+                        <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-tidy-text">Membaca struktur dokumen...</span></div>
+                        <span id="proc-tidy-pct">0%</span>
+                    </div>
+                    <div class="proc-track"><div class="proc-fill" id="proc-tidy-bar" style="width:10%;"></div></div>
+                </div>
+
+                <div id="result-tidy" class="result-card">
+                    <div class="result-card-top">
+                        <div class="result-info">
+                            <span class="result-check">✓</span>
+                            <div style="min-width:0;">
+                                <div class="result-title" id="result-tidy-title">Skripsi berhasil dirapikan!</div>
+                                <div class="result-meta" id="result-tidy-meta">100% teks, gambar, &amp; tabel asli dipertahankan</div>
+                            </div>
+                        </div>
+                        <div class="result-actions single-action">
+                            <button type="button" class="btn btn-success" id="btn-download-tidy">⬇ Unduh Word Rapi (.docx)</button>
+                        </div>
+                    </div>
+                    <div class="audit-pills" id="result-tidy-pills"></div>
+                </div>
+                <div id="status-tidy" class="status-box"></div>
+            </div>
+        </section>
+
+        <!-- ======================================================= -->
+        <!-- 3. PDF <-> WORD CONVERTER -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-pdf-word">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
                         <h2 class="panel-title">Konverter PDF ⇄ Word (.docx)</h2>
-                        <p class="panel-desc">Ubah file PDF teks (skripsi, jurnal, makalah) menjadi Word siap edit, atau ubah file Word (.docx) menjadi PDF ukuran A4.</p>
+                        <p class="panel-desc">Ubah file PDF teks (skripsi, jurnal, makalah) menjadi Word siap edit dengan deteksi heading &amp; daftar otomatis, atau ubah file Word (.docx) menjadi PDF ukuran A4.</p>
                     </div>
                     <span class="privacy-badge">✓ File tidak disimpan permanen</span>
                 </div>
@@ -1104,17 +1691,42 @@
                 <div id="box-pdf2docx">
                     <div class="dropzone" onclick="document.getElementById('input-pdf2docx').click()">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        <div class="dropzone-title" id="label-pdf2docx">Klik untuk pilih file PDF (.pdf)</div>
-                        <div class="dropzone-sub">PDF teks diekstrak langsung di browser (aman hingga 25 MB) lalu disusun ke .docx rapi</div>
+                        <div class="dropzone-title" id="label-pdf2docx">Klik atau seret file PDF (.pdf) ke sini</div>
+                        <div class="dropzone-sub">PDF teks diekstrak langsung di browser (aman hingga 25 MB) dengan urutan baris &amp; heading rapi</div>
                         <input type="file" id="input-pdf2docx" accept=".pdf,application/pdf" style="display:none" onchange="onSelectPdf2Docx(this)">
                     </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-                        <label style="display:inline-flex; align-items:center; gap:8px; font-size:13px; color:#334155; cursor:pointer;">
-                            <input type="checkbox" id="chk-pdf2docx-academic" checked>
-                            <span>Rapikan ke format Skripsi A4 (Times New Roman 12pt, Margin 4-4-3-3, Spasi 1,5)</span>
-                        </label>
+                    <div class="tool-action-bar">
+                        <div class="tool-action-controls">
+                            <label class="check-card" style="width:100%;">
+                                <input type="checkbox" id="chk-pdf2docx-academic" checked>
+                                <span>Rapikan ke format Skripsi A4 (Times New Roman 12pt, Margin 4-4-3-3 cm, Spasi 1,5, rata kanan-kiri)</span>
+                            </label>
+                        </div>
                         <button type="button" class="btn btn-primary" id="btn-pdf2docx" onclick="runPdfToDocx()">Konversi ke Word (.docx)</button>
+                    </div>
+
+                    <div id="proc-pdf2docx" class="proc-box">
+                        <div class="proc-head">
+                            <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-pdf2docx-text">Membaca halaman PDF...</span></div>
+                            <span id="proc-pdf2docx-pct">0%</span>
+                        </div>
+                        <div class="proc-track"><div class="proc-fill" id="proc-pdf2docx-bar" style="width:15%;"></div></div>
+                    </div>
+
+                    <div id="result-pdf2docx" class="result-card">
+                        <div class="result-card-top">
+                            <div class="result-info">
+                                <span class="result-check">✓</span>
+                                <div style="min-width:0;">
+                                    <div class="result-title" id="result-pdf2docx-title">Dokumen Word siap!</div>
+                                    <div class="result-meta" id="result-pdf2docx-meta"></div>
+                                </div>
+                            </div>
+                            <div class="result-actions single-action">
+                                <button type="button" class="btn btn-success" id="btn-download-pdf2docx">⬇ Unduh Word (.docx)</button>
+                            </div>
+                        </div>
                     </div>
                     <div id="status-pdf2docx" class="status-box"></div>
                 </div>
@@ -1123,20 +1735,56 @@
                 <div id="box-docx2pdf" style="display:none;">
                     <div class="dropzone" onclick="document.getElementById('input-docx2pdf').click()">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        <div class="dropzone-title" id="label-docx2pdf">Klik untuk pilih file Word (.docx)</div>
-                        <div class="dropzone-sub">Mendukung heading, paragraf, bold/italic, tabel, dan halaman baru (maks 4 MB)</div>
+                        <div class="dropzone-title" id="label-docx2pdf">Klik atau seret file Word (.docx) ke sini</div>
+                        <div class="dropzone-sub">Mendukung heading, paragraf, bold/italic, daftar, tabel (colspan), &amp; gambar tertanam (maks 4 MB)</div>
                         <input type="file" id="input-docx2pdf" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="onSelectDocx2Pdf(this)">
                     </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <label for="sel-docx2pdf-margin" class="form-label" style="margin:0;">Margin A4:</label>
-                            <select id="sel-docx2pdf-margin" class="form-select" style="width:auto; min-height:36px;">
+                    <div class="form-grid-2">
+                        <div>
+                            <label for="sel-docx2pdf-margin" class="form-label">Margin Kertas A4</label>
+                            <select id="sel-docx2pdf-margin" class="form-select">
                                 <option value="standard">Standar Normal (2,54 cm)</option>
                                 <option value="skripsi">Standar Skripsi (4-4-3-3 cm)</option>
                             </select>
                         </div>
+                        <div style="display:flex; align-items:flex-end;">
+                            <label class="check-card" style="width:100%;">
+                                <input type="checkbox" id="chk-docx2pdf-pagenum" checked>
+                                <span>Tambahkan nomor halaman otomatis (tengah bawah)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="tool-action-bar">
+                        <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted);">
+                            <span>Tips: File &gt; 4 MB bisa dikecilkan dulu lewat menu <strong>Kompres File → Word</strong>.</span>
+                        </div>
                         <button type="button" class="btn btn-primary" id="btn-docx2pdf" onclick="runDocxToPdf()">Konversi ke PDF (.pdf)</button>
+                    </div>
+
+                    <div id="proc-docx2pdf" class="proc-box">
+                        <div class="proc-head">
+                            <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-docx2pdf-text">Menyusun PDF A4...</span></div>
+                            <span id="proc-docx2pdf-pct">...</span>
+                        </div>
+                        <div class="proc-track"><div class="proc-fill" id="proc-docx2pdf-bar" style="width:65%;"></div></div>
+                    </div>
+
+                    <div id="result-docx2pdf" class="result-card">
+                        <div class="result-card-top">
+                            <div class="result-info">
+                                <span class="result-check">✓</span>
+                                <div style="min-width:0;">
+                                    <div class="result-title" id="result-docx2pdf-title">Dokumen PDF siap!</div>
+                                    <div class="result-meta" id="result-docx2pdf-meta"></div>
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <button type="button" class="btn btn-outline" id="btn-preview-docx2pdf">👁 Lihat PDF</button>
+                                <button type="button" class="btn btn-success" id="btn-download-docx2pdf">⬇ Unduh PDF</button>
+                            </div>
+                        </div>
                     </div>
                     <div id="status-docx2pdf" class="status-box"></div>
                 </div>
@@ -1144,69 +1792,158 @@
         </section>
 
         <!-- ======================================================= -->
-        <!-- 2. GABUNG PDF (MERGE PDF) -->
+        <!-- 4. GABUNG PDF (MERGE PDF) — PRATINJAU THUMBNAIL + PRESISI -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-merge-pdf">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
                         <h2 class="panel-title">Gabung PDF (Merge PDF)</h2>
-                        <p class="panel-desc">Satukan Cover, Lembar Pengesahan hasil scan, Bab I–V, dan Lampiran menjadi satu file PDF utuh.</p>
+                        <p class="panel-desc">Satukan Cover, Lembar Pengesahan hasil scan, Bab I–V, dan Lampiran menjadi satu file PDF utuh — dilengkapi pratinjau halaman pertama tiap file &amp; tombol cek hasil PDF langsung.</p>
                     </div>
                     <span class="privacy-badge">⚡ 100% di Browser · Tanpa Batas Ukuran</span>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-merge-pdf').click()">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
-                    <div class="dropzone-title">Klik untuk tambah file PDF (bisa pilih banyak sekaligus)</div>
-                    <div class="dropzone-sub">Atur urutan file dengan tombol ▲ / ▼ sebelum menggabungkan</div>
+                    <div class="dropzone-title">Klik atau seret file PDF ke sini (bisa pilih banyak sekaligus)</div>
+                    <div class="dropzone-sub">Urutkan file dengan ▲ / ▼ — PDF terproteksi kata sandi otomatis terdeteksi agar tidak jadi halaman kosong</div>
                     <input type="file" id="input-merge-pdf" accept=".pdf,application/pdf" multiple style="display:none" onchange="addMergePdfFiles(this)">
+                </div>
+
+                <div id="merge-pdf-summary" style="display:none; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px; font-size:12.5px; color:var(--text-secondary);">
+                    <span id="merge-pdf-summary-text" style="font-weight:600;"></span>
+                    <button type="button" class="mini-btn danger" onclick="clearMergePdf()">Hapus Semua</button>
                 </div>
 
                 <div id="merge-pdf-list" class="file-list"></div>
 
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                    <input type="text" id="merge-output-name" class="form-input" style="max-width:280px;" placeholder="Nama file hasil (cth: Skripsi_Lengkap)" value="Gabungan_Skripsi">
-                    <button type="button" class="btn btn-primary" id="btn-merge-pdf" onclick="runMergePdf()">Gabungkan &amp; Unduh PDF</button>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label" for="merge-output-name">Nama File Hasil PDF</label>
+                        <input type="text" id="merge-output-name" class="form-input" placeholder="cth: Skripsi_Lengkap" value="Gabungan_Skripsi">
+                    </div>
+                    <div style="display:flex; align-items:flex-end;">
+                        <label class="check-card" style="width:100%;">
+                            <input type="checkbox" id="merge-add-pagenum">
+                            <span>Tambahkan nomor halaman (1, 2, 3...) di tengah bawah hasil gabungan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tool-action-bar">
+                    <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted);">
+                        <span>Urutan halaman mengikuti urutan daftar file dari atas ke bawah.</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-merge-pdf" onclick="runMergePdf()">Gabungkan PDF Sekarang</button>
+                </div>
+
+                <div id="proc-merge" class="proc-box">
+                    <div class="proc-head">
+                        <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-merge-text">Menggabungkan dokumen PDF...</span></div>
+                        <span id="proc-merge-pct">0%</span>
+                    </div>
+                    <div class="proc-track"><div class="proc-fill" id="proc-merge-bar" style="width:15%;"></div></div>
+                </div>
+
+                <div id="result-merge" class="result-card">
+                    <div class="result-card-top">
+                        <div class="result-info">
+                            <span class="result-check">✓</span>
+                            <div style="min-width:0;">
+                                <div class="result-title" id="result-merge-title">PDF berhasil digabungkan!</div>
+                                <div class="result-meta" id="result-merge-meta"></div>
+                            </div>
+                        </div>
+                        <div class="result-actions">
+                            <button type="button" class="btn btn-outline" id="btn-preview-merge">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-success" id="btn-download-merge">⬇ Unduh PDF</button>
+                        </div>
+                    </div>
                 </div>
                 <div id="status-merge-pdf" class="status-box"></div>
             </div>
         </section>
 
         <!-- ======================================================= -->
-        <!-- 3. PISAH / EKSTRAK HALAMAN PDF (SPLIT PDF) -->
+        <!-- 5. PISAH / HAPUS HALAMAN PDF (VISUAL THUMBNAIL PICKER) -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-split-pdf">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2 class="panel-title">Pisah / Ambil Halaman PDF</h2>
-                        <p class="panel-desc">Potong halaman tertentu dari PDF (misalnya ambil halaman Cover saja, Bab I–III saja, atau halaman lampiran tertentu).</p>
+                        <h2 class="panel-title">Pisah / Hapus Halaman PDF</h2>
+                        <p class="panel-desc">Klik langsung halaman PDF dari pratinjau visual atau ketik rentang halaman — bisa <strong>Ambil Halaman Terpilih</strong> maupun <strong>Hapus Halaman Terpilih</strong> (misalnya hapus halaman kosong).</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser</span>
+                    <span class="privacy-badge">⚡ 100% di Browser · Pratinjau Visual</span>
+                </div>
+
+                <div class="seg-switch">
+                    <button type="button" class="seg-btn active" id="seg-split-extract" onclick="setSplitMode('extract')">Ambil Halaman Terpilih</button>
+                    <button type="button" class="seg-btn" id="seg-split-delete" onclick="setSplitMode('delete')">Hapus Halaman Terpilih</button>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-split-pdf').click()">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/></svg>
-                    <div class="dropzone-title" id="label-split-pdf">Klik untuk pilih 1 file PDF</div>
-                    <div class="dropzone-sub" id="sub-split-pdf">Jumlah total halaman akan terdeteksi otomatis</div>
+                    <div class="dropzone-title" id="label-split-pdf">Klik atau seret 1 file PDF ke sini</div>
+                    <div class="dropzone-sub" id="sub-split-pdf">Pratinjau tiap halaman otomatis muncul agar pilihan halaman 100% akurat</div>
                     <input type="file" id="input-split-pdf" accept=".pdf,application/pdf" style="display:none" onchange="onSelectSplitPdf(this)">
                 </div>
 
-                <div class="preset-row" id="split-presets" style="display:none;">
-                    <button type="button" class="preset-chip" onclick="setSplitRange('1')">Halaman 1 saja</button>
-                    <button type="button" class="preset-chip" onclick="setSplitRange('1-3')">Halaman 1–3</button>
-                    <button type="button" class="preset-chip" onclick="setSplitRange('1-5')">Halaman 1–5</button>
-                    <button type="button" class="preset-chip" onclick="setSplitRangeLast()">Halaman Terakhir</button>
+                <div id="split-controls-wrap" style="display:none;">
+                    <div class="preset-row" id="split-presets">
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('first')">Hal 1 saja</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('1-3')">Hal 1–3</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('odd')">Ganjil</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('even')">Genap</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('last')">Hal Terakhir</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('all')">Pilih Semua</button>
+                        <button type="button" class="preset-chip" onclick="selectSplitPreset('none')">Reset</button>
+                    </div>
+
+                    <div id="split-visual-grid" class="split-thumb-grid"></div>
+                    <div id="split-pill-grid" class="page-picker-grid" style="display:none;"></div>
+
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label" for="split-range-input" id="split-range-label">Halaman yang Diambil (sinkron otomatis dengan klik di atas)</label>
+                            <input type="text" id="split-range-input" class="form-input" placeholder="Contoh: 1-3, 5, 8-10" oninput="onSplitRangeInputTyped()">
+                        </div>
+                        <div>
+                            <label class="form-label" for="split-output-name">Nama File Hasil PDF</label>
+                            <input type="text" id="split-output-name" class="form-input" placeholder="cth: Bab_1_Skripsi">
+                        </div>
+                    </div>
+
+                    <div class="tool-action-bar">
+                        <div class="tool-action-controls">
+                            <span id="split-selection-summary" style="font-size:13px; font-weight:700; color:#1d4ed8;"></span>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btn-split-pdf" onclick="runSplitPdf()">Ekstrak Halaman PDF</button>
+                    </div>
                 </div>
 
-                <div class="form-grid-2">
-                    <div>
-                        <label class="form-label" for="split-range-input">Halaman yang Diambil</label>
-                        <input type="text" id="split-range-input" class="form-input" placeholder="Contoh: 1-3, 5, 8-10">
+                <div id="proc-split" class="proc-box">
+                    <div class="proc-head">
+                        <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-split-text">Memproses halaman PDF...</span></div>
+                        <span id="proc-split-pct">0%</span>
                     </div>
-                    <div style="display:flex; align-items:flex-end;">
-                        <button type="button" class="btn btn-primary" id="btn-split-pdf" style="width:100%;" onclick="runSplitPdf()">Ekstrak &amp; Unduh PDF</button>
+                    <div class="proc-track"><div class="proc-fill" id="proc-split-bar" style="width:20%;"></div></div>
+                </div>
+
+                <div id="result-split" class="result-card">
+                    <div class="result-card-top">
+                        <div class="result-info">
+                            <span class="result-check">✓</span>
+                            <div style="min-width:0;">
+                                <div class="result-title" id="result-split-title">PDF berhasil dipisahkan!</div>
+                                <div class="result-meta" id="result-split-meta"></div>
+                            </div>
+                        </div>
+                        <div class="result-actions">
+                            <button type="button" class="btn btn-outline" id="btn-preview-split">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-success" id="btn-download-split">⬇ Unduh PDF</button>
+                        </div>
                     </div>
                 </div>
                 <div id="status-split-pdf" class="status-box"></div>
@@ -1214,33 +1951,319 @@
         </section>
 
         <!-- ======================================================= -->
-        <!-- 4. JPG / PNG -> PDF A4 -->
+        <!-- 6. KOMPRES FILE 3-IN-1 (PDF / WORD .DOCX / GAMBAR) -->
+        <!-- ======================================================= -->
+        <section class="tool-panel" id="panel-compress">
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">Kompres File (PDF, Word .docx &amp; Gambar)</h2>
+                        <p class="panel-desc">Kecilkan ukuran file skripsi PDF, dokumen Word yang berat karena banyak foto, maupun gambar/scan agar lolos batas upload SIAKAD &amp; repository kampus.</p>
+                    </div>
+                    <span class="privacy-badge">⚡ 100% di Browser · Tanpa Batas 4 MB</span>
+                </div>
+
+                <div class="seg-switch">
+                    <button type="button" class="seg-btn active" id="seg-comp-pdf" onclick="setCompressMode('pdf')">Kompres PDF</button>
+                    <button type="button" class="seg-btn" id="seg-comp-docx" onclick="setCompressMode('docx')">Kompres Word (.docx)</button>
+                    <button type="button" class="seg-btn" id="seg-comp-img" onclick="setCompressMode('img')">Kompres Gambar</button>
+                </div>
+
+                <!-- 6A. KOMPRES PDF -->
+                <div id="box-comp-pdf">
+                    <div class="dropzone" onclick="document.getElementById('input-comp-pdf').click()">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                        <div class="dropzone-title" id="label-comp-pdf">Klik atau seret file PDF yang ingin dikompres</div>
+                        <div class="dropzone-sub">Cocok untuk memperkecil PDF skripsi, hasil scan lembar pengesahan, atau berkas pendaftaran SIAKAD</div>
+                        <input type="file" id="input-comp-pdf" accept=".pdf,application/pdf" style="display:none" onchange="onSelectCompPdf(this)">
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label" for="comp-pdf-level">Tingkat Kompresi PDF</label>
+                            <select id="comp-pdf-level" class="form-select">
+                                <option value="low">Sangat Ringan / SIAKAD (Ukuran paling kecil)</option>
+                                <option value="medium" selected>Seimbang (Rekomendasi — tajam &amp; hemat 50–80%)</option>
+                                <option value="high">Tajam / Siap Cetak (Kualitas tinggi)</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; align-items:flex-end;">
+                            <div style="font-size:12px; color:var(--text-muted); padding:8px 10px; background:#f8fafc; border:1px solid var(--border); border-radius:9px; width:100%;">
+                                Setiap halaman dioptimasi ukurannya dengan rasio halaman asli tetap terjaga (Portrait/Landscape).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tool-action-bar">
+                        <div class="tool-action-controls" id="comp-pdf-info" style="font-size:12.5px; color:var(--text-muted);">Pilih file PDF lalu klik Kompres.</div>
+                        <button type="button" class="btn btn-primary" id="btn-comp-pdf" onclick="runCompressPdf()">Kompres PDF Sekarang</button>
+                    </div>
+
+                    <div id="proc-comp-pdf" class="proc-box">
+                        <div class="proc-head">
+                            <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-comp-pdf-text">Mengompres PDF...</span></div>
+                            <span id="proc-comp-pdf-pct">0%</span>
+                        </div>
+                        <div class="proc-track"><div class="proc-fill" id="proc-comp-pdf-bar" style="width:10%;"></div></div>
+                    </div>
+
+                    <div id="result-comp-pdf" class="result-card">
+                        <div class="result-card-top">
+                            <div class="result-info">
+                                <span class="result-check">✓</span>
+                                <div style="min-width:0;">
+                                    <div class="result-title" id="result-comp-pdf-title">Kompresi PDF selesai!</div>
+                                    <div class="result-meta" id="result-comp-pdf-meta"></div>
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <button type="button" class="btn btn-outline" id="btn-preview-comp-pdf">👁 Lihat PDF</button>
+                                <button type="button" class="btn btn-success" id="btn-download-comp-pdf">⬇ Unduh PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="status-comp-pdf" class="status-box"></div>
+                </div>
+
+                <!-- 6B. KOMPRES WORD (.DOCX) -->
+                <div id="box-comp-docx" style="display:none;">
+                    <div class="dropzone" onclick="document.getElementById('input-comp-docx').click()">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/></svg>
+                        <div class="dropzone-title" id="label-comp-docx">Klik atau seret file Word (.docx) yang ukurannya besar</div>
+                        <div class="dropzone-sub">Mengompres semua foto/screenshot di dalam dokumen Word (aman untuk file 5–40 MB) tanpa merusak teks &amp; format</div>
+                        <input type="file" id="input-comp-docx" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="onSelectCompDocx(this)">
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label" for="comp-docx-level">Tingkat Kompresi Gambar di Word</label>
+                            <select id="comp-docx-level" class="form-select">
+                                <option value="low">Sangat Ringan (Maks 1000px · Kualitas 60%)</option>
+                                <option value="medium" selected>Seimbang — Rekomendasi (Maks 1400px · Kualitas 76%)</option>
+                                <option value="high">Tajam (Maks 1800px · Kualitas 85%)</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; align-items:flex-end;">
+                            <div style="font-size:12px; color:var(--text-muted); padding:8px 10px; background:#f8fafc; border:1px solid var(--border); border-radius:9px; width:100%;">
+                                Mengoptimasi media internal <code>word/media/*</code> + kompresi ZIP level maksimal. Teks &amp; tabel 100% aman.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tool-action-bar">
+                        <div class="tool-action-controls" id="comp-docx-info" style="font-size:12.5px; color:var(--text-muted);">Pilih file .docx lalu klik Kompres Word.</div>
+                        <button type="button" class="btn btn-primary" id="btn-comp-docx" onclick="runCompressDocx()">Kompres Word (.docx)</button>
+                    </div>
+
+                    <div id="proc-comp-docx" class="proc-box">
+                        <div class="proc-head">
+                            <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-comp-docx-text">Membuka arsip Word...</span></div>
+                            <span id="proc-comp-docx-pct">0%</span>
+                        </div>
+                        <div class="proc-track"><div class="proc-fill" id="proc-comp-docx-bar" style="width:12%;"></div></div>
+                    </div>
+
+                    <div id="result-comp-docx" class="result-card">
+                        <div class="result-card-top">
+                            <div class="result-info">
+                                <span class="result-check">✓</span>
+                                <div style="min-width:0;">
+                                    <div class="result-title" id="result-comp-docx-title">Kompresi Word selesai!</div>
+                                    <div class="result-meta" id="result-comp-docx-meta"></div>
+                                </div>
+                            </div>
+                            <div class="result-actions single-action">
+                                <button type="button" class="btn btn-success" id="btn-download-comp-docx">⬇ Unduh Word (.docx)</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="status-comp-docx" class="status-box"></div>
+                </div>
+
+                <!-- 6C. KOMPRES GAMBAR -->
+                <div id="box-comp-img" style="display:none;">
+                    <div class="dropzone" onclick="document.getElementById('input-compress-img').click()">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <div class="dropzone-title">Klik atau seret 1 atau banyak gambar (JPG, PNG, WEBP)</div>
+                        <div class="dropzone-sub">Bisa langsung pilih target batas ukuran SIAKAD (&lt; 200 KB, &lt; 500 KB, &lt; 1 MB) atau atur manual</div>
+                        <input type="file" id="input-compress-img" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="onSelectCompressImages(this)">
+                    </div>
+
+                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Target Ukuran Otomatis SIAKAD:</div>
+                    <div class="preset-row">
+                        <button type="button" class="preset-chip active" data-imgtarget="manual" onclick="setImgTargetPreset('manual', this)">Manual Slider</button>
+                        <button type="button" class="preset-chip" data-imgtarget="200" onclick="setImgTargetPreset('200', this)">Target &lt; 200 KB</button>
+                        <button type="button" class="preset-chip" data-imgtarget="500" onclick="setImgTargetPreset('500', this)">Target &lt; 500 KB</button>
+                        <button type="button" class="preset-chip" data-imgtarget="1024" onclick="setImgTargetPreset('1024', this)">Target &lt; 1 MB</button>
+                    </div>
+
+                    <div class="form-grid-2" id="comp-img-manual-controls">
+                        <div>
+                            <label class="form-label" for="compress-quality">Kualitas Kompresi: <strong id="compress-quality-val">75%</strong></label>
+                            <input type="range" id="compress-quality" min="25" max="92" value="75" style="width:100%; accent-color:#2563eb;" oninput="document.getElementById('compress-quality-val').textContent = this.value + '%'; runCompressImages();">
+                        </div>
+                        <div>
+                            <label class="form-label" for="compress-maxw">Lebar Maksimal</label>
+                            <select id="compress-maxw" class="form-select" onchange="runCompressImages()">
+                                <option value="1600" selected>1600 px (Tajam &amp; Ringan)</option>
+                                <option value="1200">1200 px (Sangat Ringan / SIAKAD)</option>
+                                <option value="900">900 px (Super Kecil)</option>
+                                <option value="0">Ukuran Asli</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="compress-results" class="file-list"></div>
+                    <div id="comp-img-bulk-bar" class="tool-action-bar" style="display:none;">
+                        <span id="comp-img-bulk-meta" style="font-size:12.5px; font-weight:600; color:#047857;"></span>
+                        <button type="button" class="btn btn-success" onclick="downloadAllCompressedImages()">⬇ Unduh Semua Gambar</button>
+                    </div>
+                    <div id="status-compress-img" class="status-box"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================= -->
+        <!-- 7. HAPUS BACKGROUND GAMBAR (TANDA TANGAN, LOGO & PAS FOTO) -->
+        <!-- ======================================================= -->
+        <section class="tool-panel" id="panel-remove-bg">
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">Hapus Background Gambar (TTD, Logo &amp; Pas Foto)</h2>
+                        <p class="panel-desc">Buat tanda tangan transparan untuk Lembar Pengesahan Word, bersihkan background logo kampus, atau ganti latar pas foto mahasiswa ke Transparan / Merah / Biru secara otomatis.</p>
+                    </div>
+                    <span class="privacy-badge">⚡ 100% di Browser · Privat</span>
+                </div>
+
+                <div class="seg-switch">
+                    <button type="button" class="seg-btn active" id="seg-rmbg-smart" onclick="setRemoveBgMode('smart')">Tanda Tangan &amp; Logo (Instan)</button>
+                    <button type="button" class="seg-btn" id="seg-rmbg-ai" onclick="setRemoveBgMode('ai')">Foto / Pas Foto (AI Otomatis)</button>
+                </div>
+
+                <div class="dropzone" onclick="document.getElementById('input-rmbg').click()">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="8.5" r="1.5"/></svg>
+                    <div class="dropzone-title" id="label-rmbg">Klik atau seret gambar (Tanda Tangan, Logo, atau Pas Foto)</div>
+                    <div class="dropzone-sub">Mendukung JPG, PNG, WEBP — langsung tampil pratinjau transparan &amp; pilihan ganti warna background</div>
+                    <input type="file" id="input-rmbg" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="onSelectRemoveBgFile(this)">
+                </div>
+
+                <!-- Kontrol Mode Instan (Tanda Tangan & Logo) -->
+                <div id="rmbg-smart-controls">
+                    <div class="form-grid-3">
+                        <div>
+                            <label class="form-label" for="rmbg-tolerance">Toleransi Warna Latar: <strong id="rmbg-tol-val">38</strong></label>
+                            <input type="range" id="rmbg-tolerance" min="8" max="110" value="38" style="width:100%; accent-color:#2563eb;" oninput="document.getElementById('rmbg-tol-val').textContent=this.value; if(rmbgSourceImg) processRemoveBgSmart();">
+                        </div>
+                        <div>
+                            <label class="form-label" for="rmbg-softness">Haluskan Tepi (Feather): <strong id="rmbg-soft-val">18</strong></label>
+                            <input type="range" id="rmbg-softness" min="0" max="50" value="18" style="width:100%; accent-color:#2563eb;" oninput="document.getElementById('rmbg-soft-val').textContent=this.value; if(rmbgSourceImg) processRemoveBgSmart();">
+                        </div>
+                        <div style="display:flex; align-items:flex-end;">
+                            <label class="check-card" style="width:100%;">
+                                <input type="checkbox" id="rmbg-ink-enhance" onchange="if(rmbgSourceImg) processRemoveBgSmart();">
+                                <span><strong>Mode Tanda Tangan:</strong> Pertajam &amp; hitamkan tinta pulpen agar bersih di Word</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kontrol Mode AI (Pas Foto / Objek) -->
+                <div id="rmbg-ai-controls" style="display:none; margin-bottom:12px;">
+                    <div style="padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-size:12.5px; color:#1e40af;">
+                        ✨ Mode AI otomatis memisahkan orang/objek dari background rumit langsung di browser (pemakaian pertama mengunduh model AI ±15 MB sekali saja). Klik <strong>Proses Hapus Background AI</strong> setelah memilih foto.
+                    </div>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <label class="form-label">Ganti Warna Latar Hasil:</label>
+                    <div class="swatch-row">
+                        <button type="button" class="swatch-btn active" data-bg="transparent" onclick="setRmbgOutputColor('transparent', this)">
+                            <span class="swatch-dot" style="background:repeating-conic-gradient(#cbd5e1 0% 25%, #fff 0% 50%) 50%/8px 8px;"></span> Transparan (PNG)
+                        </button>
+                        <button type="button" class="swatch-btn" data-bg="#db1514" onclick="setRmbgOutputColor('#db1514', this)">
+                            <span class="swatch-dot" style="background:#db1514;"></span> Merah Pas Foto
+                        </button>
+                        <button type="button" class="swatch-btn" data-bg="#0057b8" onclick="setRmbgOutputColor('#0057b8', this)">
+                            <span class="swatch-dot" style="background:#0057b8;"></span> Biru Pas Foto
+                        </button>
+                        <button type="button" class="swatch-btn" data-bg="#ffffff" onclick="setRmbgOutputColor('#ffffff', this)">
+                            <span class="swatch-dot" style="background:#ffffff;"></span> Putih
+                        </button>
+                        <label class="swatch-btn" style="padding:4px 10px;">
+                            <input type="color" id="rmbg-custom-color" value="#1e3a8a" style="width:18px; height:18px; border:none; background:none; cursor:pointer;" onchange="setRmbgOutputColor(this.value, this.parentElement)">
+                            <span>Warna Lain</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="proc-rmbg" class="proc-box">
+                    <div class="proc-head">
+                        <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-rmbg-text">Menghapus background...</span></div>
+                        <span id="proc-rmbg-pct">...</span>
+                    </div>
+                    <div class="proc-track"><div class="proc-fill" id="proc-rmbg-bar" style="width:35%;"></div></div>
+                </div>
+
+                <div id="rmbg-preview-wrap" style="display:none;">
+                    <div class="bg-preview-grid">
+                        <div class="bg-stage">
+                            <div class="bg-stage-head"><span>Gambar Asli</span><span id="rmbg-orig-dim"></span></div>
+                            <div class="bg-checker" style="background:#f8fafc;">
+                                <img id="rmbg-orig-img" alt="Asli">
+                            </div>
+                        </div>
+                        <div class="bg-stage">
+                            <div class="bg-stage-head"><span>Hasil Tanpa Background</span><span style="color:#059669;">Siap Unduh</span></div>
+                            <div class="bg-checker" id="rmbg-out-stage">
+                                <canvas id="rmbg-out-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-action-bar">
+                    <div class="tool-action-controls">
+                        <button type="button" class="btn btn-soft" id="btn-rmbg-run" onclick="runRemoveBgCurrentMode()">✨ Proses Hapus Background</button>
+                    </div>
+                    <div class="btn-row-responsive two-col-mobile">
+                        <button type="button" class="btn btn-primary" id="btn-rmbg-dl-png" onclick="downloadRemoveBg('png')" disabled>⬇ Unduh PNG</button>
+                        <button type="button" class="btn btn-outline" id="btn-rmbg-dl-jpg" onclick="downloadRemoveBg('jpg')" disabled>⬇ Unduh JPG</button>
+                    </div>
+                </div>
+                <div id="status-rmbg" class="status-box"></div>
+            </div>
+        </section>
+
+        <!-- ======================================================= -->
+        <!-- 8. JPG / PNG -> PDF A4 (DENGAN PUTAR FOTO 90° + PRATINJAU) -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-img-pdf">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
                         <h2 class="panel-title">JPG / PNG → PDF A4</h2>
-                        <p class="panel-desc">Ubah foto Lembar Pengesahan bertanda tangan, Surat Izin Penelitian, KRS, atau Kuesioner menjadi dokumen PDF A4 rapi.</p>
+                        <p class="panel-desc">Ubah foto Lembar Pengesahan bertanda tangan, Surat Izin Penelitian, KRS, atau Kuesioner menjadi dokumen PDF A4 rapi — bisa putar foto 90° &amp; atur urutan halaman.</p>
                     </div>
                     <span class="privacy-badge">⚡ 100% di Browser</span>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-img-pdf').click()">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <div class="dropzone-title">Klik untuk pilih foto JPG, PNG, atau WEBP (bisa banyak)</div>
+                    <div class="dropzone-title">Klik atau seret foto JPG, PNG, atau WEBP (bisa banyak)</div>
                     <div class="dropzone-sub">Setiap foto otomatis diposisikan proporsional di 1 halaman kertas A4</div>
                     <input type="file" id="input-img-pdf" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="addImgPdfFiles(this)">
                 </div>
 
                 <div id="img-pdf-list" class="file-list"></div>
 
-                <div class="form-grid-2">
+                <div class="form-grid-3">
                     <div>
                         <label class="form-label" for="img-pdf-orient">Orientasi Kertas A4</label>
                         <select id="img-pdf-orient" class="form-select">
                             <option value="portrait">A4 Tegak (Portrait)</option>
                             <option value="landscape">A4 Mendatar (Landscape)</option>
+                            <option value="auto">Otomatis Sesuai Foto</option>
                         </select>
                     </div>
                     <div>
@@ -1251,110 +2274,137 @@
                             <option value="0">Penuh Tanpa Margin</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="form-label" for="img-pdf-name">Nama File Hasil PDF</label>
+                        <input type="text" id="img-pdf-name" class="form-input" value="Dokumen_Gambar_A4" placeholder="cth: Lembar_Pengesahan">
+                    </div>
                 </div>
 
-                <button type="button" class="btn btn-primary" id="btn-img-pdf" onclick="runImgToPdf()">Buat &amp; Unduh PDF A4</button>
+                <div class="tool-action-bar">
+                    <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted);">
+                        <span>Klik tombol <strong>↻ Putar</strong> di daftar foto jika hasil jepretan HP miring.</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btn-img-pdf" onclick="runImgToPdf()">Buat PDF A4 Sekarang</button>
+                </div>
+
+                <div id="proc-img-pdf" class="proc-box">
+                    <div class="proc-head">
+                        <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-img-pdf-text">Menyusun foto ke PDF A4...</span></div>
+                        <span id="proc-img-pdf-pct">0%</span>
+                    </div>
+                    <div class="proc-track"><div class="proc-fill" id="proc-img-pdf-bar" style="width:15%;"></div></div>
+                </div>
+
+                <div id="result-img-pdf" class="result-card">
+                    <div class="result-card-top">
+                        <div class="result-info">
+                            <span class="result-check">✓</span>
+                            <div style="min-width:0;">
+                                <div class="result-title" id="result-img-pdf-title">PDF A4 berhasil dibuat!</div>
+                                <div class="result-meta" id="result-img-pdf-meta"></div>
+                            </div>
+                        </div>
+                        <div class="result-actions">
+                            <button type="button" class="btn btn-outline" id="btn-preview-img-pdf">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-success" id="btn-download-img-pdf">⬇ Unduh PDF</button>
+                        </div>
+                    </div>
+                </div>
                 <div id="status-img-pdf" class="status-box"></div>
             </div>
         </section>
 
         <!-- ======================================================= -->
-        <!-- 5. KOMPRES GAMBAR (SIAKAD / LAMPIRAN) -->
-        <!-- ======================================================= -->
-        <section class="tool-panel" id="panel-compress-img">
-            <div class="panel-card">
-                <div class="panel-head">
-                    <div>
-                        <h2 class="panel-title">Kompres Gambar (JPG / PNG)</h2>
-                        <p class="panel-desc">Kecilkan ukuran file foto/scan agar lolos batas upload portal kampus (SIAKAD) atau memperingan lampiran skripsi.</p>
-                    </div>
-                    <span class="privacy-badge">⚡ 100% di Browser</span>
-                </div>
-
-                <div class="dropzone" onclick="document.getElementById('input-compress-img').click()">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                    <div class="dropzone-title">Klik untuk pilih 1 atau banyak gambar</div>
-                    <div class="dropzone-sub">Lihat langsung perbandingan ukuran sebelum &amp; sesudah kompresi</div>
-                    <input type="file" id="input-compress-img" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="onSelectCompressImages(this)">
-                </div>
-
-                <div class="form-grid-2">
-                    <div>
-                        <label class="form-label" for="compress-quality">Kualitas Kompresi: <strong id="compress-quality-val">75%</strong></label>
-                        <input type="range" id="compress-quality" min="30" max="92" value="75" style="width:100%; accent-color:#2563eb;" oninput="document.getElementById('compress-quality-val').textContent = this.value + '%'; runCompressImages();">
-                    </div>
-                    <div>
-                        <label class="form-label" for="compress-maxw">Lebar Maksimal</label>
-                        <select id="compress-maxw" class="form-select" onchange="runCompressImages()">
-                            <option value="1600" selected>1600 px (Tajam &amp; Ringan)</option>
-                            <option value="1200">1200 px (Sangat Ringan / SIAKAD)</option>
-                            <option value="900">900 px (Super Kecil)</option>
-                            <option value="0">Ukuran Asli</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="compress-results" class="file-list"></div>
-                <div id="status-compress-img" class="status-box"></div>
-            </div>
-        </section>
-
-        <!-- ======================================================= -->
-        <!-- 6. KALKULATOR SAMPEL SLOVIN (BAB III) -->
+        <!-- 9. KALKULATOR SAMPEL (SLOVIN & LEMESHOW BAB III) -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-slovin">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2 class="panel-title">Kalkulator Rumus Slovin (Bab III)</h2>
-                        <p class="panel-desc">Hitung jumlah sampel minimal penelitian kuantitatif secara otomatis lengkap dengan langkah perhitungan dan paragraf siap salin ke Bab III.</p>
+                        <h2 class="panel-title">Kalkulator Sampel Penelitian (Slovin &amp; Lemeshow)</h2>
+                        <p class="panel-desc">Hitung jumlah sampel minimal penelitian kuantitatif (populasi diketahui pakai <strong>Slovin</strong>, atau populasi tidak diketahui pakai <strong>Lemeshow</strong>) lengkap dengan paragraf siap salin ke Bab III.</p>
                     </div>
-                    <span class="privacy-badge">✓ Siap Salin ke Skripsi</span>
+                    <span class="privacy-badge">✓ Siap Salin ke Bab III</span>
                 </div>
 
-                <div class="form-grid-2">
-                    <div>
-                        <label class="form-label" for="slovin-n">Jumlah Populasi (N)</label>
-                        <input type="number" id="slovin-n" class="form-input" min="2" value="350" oninput="calcSlovin()">
+                <div class="seg-switch">
+                    <button type="button" class="seg-btn active" id="seg-sample-slovin" onclick="setSampleMode('slovin')">Rumus Slovin (Populasi Diketahui)</button>
+                    <button type="button" class="seg-btn" id="seg-sample-lemeshow" onclick="setSampleMode('lemeshow')">Rumus Lemeshow (Populasi Tidak Diketahui)</button>
+                </div>
+
+                <div id="box-sample-slovin">
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label" for="slovin-n">Jumlah Populasi (N)</label>
+                            <input type="number" id="slovin-n" class="form-input" min="2" value="350" oninput="calcSample()">
+                        </div>
+                        <div>
+                            <label class="form-label" for="slovin-e">Batas Kesalahan / Margin of Error (e)</label>
+                            <select id="slovin-e" class="form-select" onchange="onSlovinErrorSelect()">
+                                <option value="0.05" selected>5% (0,05) — Standar Skripsi Umum</option>
+                                <option value="0.1">10% (0,10) — Populasi Kecil / Terbatas</option>
+                                <option value="0.01">1% (0,01) — Ketelitian Sangat Tinggi</option>
+                                <option value="custom">Kustom (Tulis Sendiri %)</option>
+                            </select>
+                            <input type="number" id="slovin-e-custom" class="form-input" style="display:none; margin-top:8px;" min="0.5" max="25" step="0.5" value="7" placeholder="Masukkan % (misal: 7)" oninput="calcSample()">
+                        </div>
                     </div>
-                    <div>
-                        <label class="form-label" for="slovin-e">Batas Kesalahan / Margin of Error (e)</label>
-                        <select id="slovin-e" class="form-select" onchange="calcSlovin()">
-                            <option value="0.05" selected>5% (0,05) — Standar Skripsi Umum</option>
-                            <option value="0.1">10% (0,10) — Populasi Kecil / Terbatas</option>
-                            <option value="0.01">1% (0,01) — Ketelitian Sangat Tinggi</option>
-                        </select>
+                </div>
+
+                <div id="box-sample-lemeshow" style="display:none;">
+                    <div class="form-grid-3">
+                        <div>
+                            <label class="form-label" for="lem-z">Tingkat Kepercayaan (Z)</label>
+                            <select id="lem-z" class="form-select" onchange="calcSample()">
+                                <option value="1.96" selected>95% (Z = 1,96 — Standar Skripsi)</option>
+                                <option value="1.645">90% (Z = 1,645)</option>
+                                <option value="2.576">99% (Z = 2,576)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="lem-p">Estimasi Maksimal Proporsi (P)</label>
+                            <input type="number" id="lem-p" class="form-input" min="0.05" max="0.95" step="0.05" value="0.5" oninput="calcSample()">
+                        </div>
+                        <div>
+                            <label class="form-label" for="lem-d">Sampling Error / Alpha (d)</label>
+                            <select id="lem-d" class="form-select" onchange="calcSample()">
+                                <option value="0.1" selected>10% (0,10 — Paling Umum, n ≈ 96/100)</option>
+                                <option value="0.05">5% (0,05 — Presisi Tinggi, n ≈ 385)</option>
+                                <option value="0.07">7% (0,07 — Menengah, n ≈ 196)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div class="slovin-result" id="slovin-output">
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <div class="slovin-head-row" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <div style="font-size:12px; font-weight:700; color:#1d4ed8; text-transform:uppercase;">Jumlah Sampel Minimal (n)</div>
+                            <div style="font-size:12px; font-weight:700; color:#1d4ed8; text-transform:uppercase;" id="sample-result-label">Jumlah Sampel Minimal (n)</div>
                             <div class="slovin-num" id="slovin-final-n">187 Responden</div>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="copySlovinParagraph()">Salin Paragraf Bab III</button>
+                        <button type="button" class="btn btn-primary" onclick="copySlovinParagraph()">📋 Salin Paragraf Bab III</button>
                     </div>
                     <div class="slovin-steps" id="slovin-steps-box"></div>
                     <div class="slovin-para" id="slovin-para-box"></div>
+                    <div id="slovin-compare-wrap"></div>
                 </div>
                 <div id="status-slovin" class="status-box"></div>
             </div>
         </section>
 
         <!-- ======================================================= -->
-        <!-- 7. HITUNG KATA & ESTIMASI HALAMAN A4 -->
+        <!-- 10. HITUNG KATA, CEK ABSTRAK & ESTIMASI HALAMAN A4 -->
         <!-- ======================================================= -->
         <section class="tool-panel" id="panel-word-count">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2 class="panel-title">Hitung Kata &amp; Estimasi Halaman Skripsi A4</h2>
-                        <p class="panel-desc">Tempel teks bab skripsimu atau unggah file <code>.txt</code>, <code>.docx</code>, atau <code>.pdf</code> untuk melihat jumlah kata, karakter, dan perkiraan halaman A4.</p>
+                        <h2 class="panel-title">Hitung Kata, Cek Abstrak &amp; Estimasi Halaman A4</h2>
+                        <p class="panel-desc">Tempel teks bab / abstrak skripsimu atau unggah file <code>.txt</code>, <code>.docx</code>, atau <code>.pdf</code> untuk melihat jumlah kata, standar panjang abstrak, kata tersering, dan perkiraan halaman A4.</p>
                     </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button type="button" class="btn btn-outline" style="padding:6px 11px; font-size:12px;" onclick="document.getElementById('input-wc-file').click()">Unggah .docx / .pdf / .txt</button>
-                        <button type="button" class="btn btn-outline" style="padding:6px 11px; font-size:12px;" onclick="clearWordCount()">Bersihkan</button>
+                    <div class="wc-head-actions" style="display:flex; gap:7px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-soft" onclick="document.getElementById('input-wc-file').click()">Unggah .docx / .pdf / .txt</button>
+                        <button type="button" class="btn btn-outline" onclick="clearWordCount()">Bersihkan</button>
                         <input type="file" id="input-wc-file" accept=".txt,.docx,.pdf" style="display:none" onchange="loadWordCountFile(this)">
                     </div>
                 </div>
@@ -1366,7 +2416,7 @@
                     <div class="stat-box">
                         <div class="stat-label">Total Kata</div>
                         <div class="stat-val" id="wc-words">0</div>
-                        <div class="stat-sub" id="wc-read-time">0 menit baca</div>
+                        <div class="stat-sub" id="wc-read-time">0 menit presentasi</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Karakter</div>
@@ -1384,8 +2434,18 @@
                         <div class="stat-sub" id="wc-pages-20">Spasi 1,5 · (0 hal spasi 2)</div>
                     </div>
                 </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <div id="wc-abstract-badge" class="abstract-badge">ℹ️ Standar abstrak skripsi Indonesia umumnya 150–250 kata.</div>
+                    <button type="button" class="btn btn-outline" style="margin-top:12px;" onclick="copyWordCountSummary()">📋 Salin Ringkasan</button>
+                </div>
+                <div id="wc-top-words-wrap" style="display:none; margin-top:12px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary);">Kata Kunci Paling Sering Muncul:</div>
+                    <div id="wc-top-words" class="top-words-wrap"></div>
+                </div>
             </div>
         </section>
+
     </main>
 
     @auth
@@ -1415,17 +2475,54 @@
             const bd = document.getElementById('ws-backdrop');
             if (bd) bd.classList.remove('open');
         }
+
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         function setStatus(id, type, msg) {
             const el = document.getElementById(id);
             if (!el) return;
+            if (!type || !msg) {
+                el.className = 'status-box';
+                el.textContent = '';
+                return;
+            }
             el.className = 'status-box ' + type;
             el.textContent = msg;
         }
 
+        function setProc(prefix, show, text, pct) {
+            const box = document.getElementById('proc-' + prefix);
+            if (!box) return;
+            box.classList.toggle('active', !!show);
+            if (!show) return;
+            const txtEl = document.getElementById('proc-' + prefix + '-text');
+            const pctEl = document.getElementById('proc-' + prefix + '-pct');
+            const barEl = document.getElementById('proc-' + prefix + '-bar');
+            if (txtEl && text !== undefined) txtEl.textContent = text;
+            if (pct !== undefined && pct !== null) {
+                const clamped = Math.max(5, Math.min(100, Math.round(pct)));
+                if (pctEl) pctEl.textContent = clamped + '%';
+                if (barEl) barEl.style.width = clamped + '%';
+            }
+        }
+
+        function hideResult(prefix) {
+            const el = document.getElementById('result-' + prefix);
+            if (el) el.classList.remove('active');
+        }
+
+        function showResultCard(prefix, title, meta) {
+            const el = document.getElementById('result-' + prefix);
+            if (!el) return;
+            const t = document.getElementById('result-' + prefix + '-title');
+            const m = document.getElementById('result-' + prefix + '-meta');
+            if (t) t.textContent = title;
+            if (m) m.textContent = meta;
+            el.classList.add('active');
+        }
+
         function formatBytes(bytes) {
-            if (!bytes) return '0 B';
+            if (!bytes && bytes !== 0) return '0 B';
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
@@ -1439,7 +2536,14 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 4000);
+            setTimeout(() => URL.revokeObjectURL(url), 6000);
+        }
+
+        function openBlobPreview(blob) {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank', 'noopener');
+            setTimeout(() => URL.revokeObjectURL(url), 90000);
         }
 
         function ensurePdfJsWorker() {
@@ -1448,10 +2552,45 @@
             }
         }
 
+        async function waitForLib(globalKey, label) {
+            for (let i = 0; i < 35; i++) {
+                if (window[globalKey]) return window[globalKey];
+                await new Promise(r => setTimeout(r, 150));
+            }
+            throw new Error(`Mesin ${label} gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.`);
+        }
+
+        function initDropzones() {
+            document.querySelectorAll('.dropzone').forEach(dz => {
+                const input = dz.querySelector('input[type="file"]');
+                if (!input) return;
+                ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
+                    e.preventDefault();
+                    dz.classList.add('dragover');
+                }));
+                ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
+                    e.preventDefault();
+                    dz.classList.remove('dragover');
+                }));
+                dz.addEventListener('drop', e => {
+                    const files = e.dataTransfer && e.dataTransfer.files;
+                    if (!files || !files.length) return;
+                    const dt = new DataTransfer();
+                    Array.from(files).forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            });
+        }
+
         // ============================================================
-        // TAB SWITCHING (+ URL HASH SUPPORT)
+        // TAB SWITCHING (+ URL HASH + SMOOTH MOBILE SCROLL)
         // ============================================================
-        function switchTool(toolId) {
+        function switchTool(toolId, userClicked = false) {
+            if (toolId === 'compress-img') {
+                toolId = 'compress';
+                setCompressMode('img');
+            }
             document.querySelectorAll('.tool-tab-card').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tool === toolId);
             });
@@ -1461,640 +2600,17 @@
             if (history.replaceState) {
                 history.replaceState(null, '', '#' + toolId);
             }
-        }
-
-        // ============================================================
-        // 1. PDF <-> WORD CONVERTER
-        // ============================================================
-        let selectedPdf2DocxFile = null;
-        let selectedDocx2PdfFile = null;
-
-        function setConvertMode(mode) {
-            document.getElementById('seg-pdf2docx').classList.toggle('active', mode === 'pdf2docx');
-            document.getElementById('seg-docx2pdf').classList.toggle('active', mode === 'docx2pdf');
-            document.getElementById('box-pdf2docx').style.display = mode === 'pdf2docx' ? 'block' : 'none';
-            document.getElementById('box-docx2pdf').style.display = mode === 'docx2pdf' ? 'block' : 'none';
-        }
-
-        function onSelectPdf2Docx(input) {
-            if (!input.files || !input.files[0]) return;
-            selectedPdf2DocxFile = input.files[0];
-            document.getElementById('label-pdf2docx').textContent = `${selectedPdf2DocxFile.name} (${formatBytes(selectedPdf2DocxFile.size)})`;
-            setStatus('status-pdf2docx', 'info', 'File PDF siap dikonversi. Klik tombol "Konversi ke Word (.docx)".');
-        }
-
-        function onSelectDocx2Pdf(input) {
-            if (!input.files || !input.files[0]) return;
-            selectedDocx2PdfFile = input.files[0];
-            document.getElementById('label-docx2pdf').textContent = `${selectedDocx2PdfFile.name} (${formatBytes(selectedDocx2PdfFile.size)})`;
-            setStatus('status-docx2pdf', 'info', 'File Word siap dikonversi. Klik tombol "Konversi ke PDF (.pdf)".');
-        }
-
-        async function extractPagesFromPdfFile(file) {
-            if (!window.pdfjsLib) throw new Error('Mesin PDF.js sedang dimuat, tunggu 2 detik lalu coba lagi.');
-            ensurePdfJsWorker();
-            const buf = await file.arrayBuffer();
-            const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
-            const pages = [];
-
-            for (let p = 1; p <= pdf.numPages; p++) {
-                const page = await pdf.getPage(p);
-                const tc = await page.getTextContent();
-                const items = tc.items || [];
-
-                // Kelompokkan item teks berdasarkan koordinat Y (baris)
-                const lines = [];
-                let currentLine = [];
-                let lastY = null;
-                for (const item of items) {
-                    const str = (item.str || '');
-                    const y = item.transform ? Math.round(item.transform[5]) : lastY;
-                    if (lastY !== null && Math.abs(y - lastY) > 6) {
-                        const joined = currentLine.join(' ').replace(/\s+/g, ' ').trim();
-                        if (joined) lines.push({ y: lastY, text: joined });
-                        currentLine = [];
-                    }
-                    if (str.trim() !== '') currentLine.push(str);
-                    lastY = y;
-                }
-                if (currentLine.length) {
-                    const joined = currentLine.join(' ').replace(/\s+/g, ' ').trim();
-                    if (joined) lines.push({ y: lastY, text: joined });
-                }
-
-                // Gabungkan baris-baris berdekatan menjadi paragraf alami
-                const paragraphs = [];
-                let paraBuf = '';
-                let prevY = null;
-                for (const ln of lines) {
-                    const gap = prevY !== null ? Math.abs(prevY - ln.y) : 0;
-                    const looksHeading = /^(?:BAB\s+[IVX]+|\d+\.\d+|DAFTAR\s+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LAMPIRAN)/i.test(ln.text);
-                    if (paraBuf && (gap > 22 || looksHeading)) {
-                        paragraphs.push(paraBuf.trim());
-                        paraBuf = ln.text;
-                    } else {
-                        paraBuf = paraBuf ? (paraBuf + ' ' + ln.text) : ln.text;
-                    }
-                    prevY = ln.y;
-                }
-                if (paraBuf.trim()) paragraphs.push(paraBuf.trim());
-                pages.push({ pageNum: p, paragraphs });
-            }
-            return pages;
-        }
-
-        async function runPdfToDocx() {
-            if (!selectedPdf2DocxFile) {
-                setStatus('status-pdf2docx', 'error', 'Pilih file PDF terlebih dahulu.');
-                return;
-            }
-            const btn = document.getElementById('btn-pdf2docx');
-            btn.disabled = true;
-            try {
-                setStatus('status-pdf2docx', 'info', 'Membaca struktur teks dari setiap halaman PDF...');
-                const pages = await extractPagesFromPdfFile(selectedPdf2DocxFile);
-                const totalParas = pages.reduce((acc, p) => acc + p.paragraphs.length, 0);
-                if (totalParas === 0) {
-                    throw new Error('PDF ini tidak memiliki lapisan teks (kemungkinan hasil scan gambar). Gunakan PDF berbasis teks.');
-                }
-
-                setStatus('status-pdf2docx', 'info', `Berhasil membaca ${pages.length} halaman. Menyusun dokumen Word (.docx)...`);
-                const res = await fetch('{{ route("tools.convert.pdfToDocx") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({
-                        filename: selectedPdf2DocxFile.name,
-                        pages,
-                        academic_format: document.getElementById('chk-pdf2docx-academic').checked
-                    })
-                });
-                if (!res.ok) {
-                    const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.message || 'Gagal menyusun file Word.');
-                }
-                const blob = await res.blob();
-                const outName = selectedPdf2DocxFile.name.replace(/\.pdf$/i, '') + '.docx';
-                triggerBlobDownload(blob, outName);
-                setStatus('status-pdf2docx', 'success', `Berhasil! File ${outName} (${pages.length} halaman) sudah diunduh.`);
-            } catch (err) {
-                setStatus('status-pdf2docx', 'error', err.message || 'Terjadi kesalahan saat konversi.');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        async function runDocxToPdf() {
-            if (!selectedDocx2PdfFile) {
-                setStatus('status-docx2pdf', 'error', 'Pilih file Word (.docx) terlebih dahulu.');
-                return;
-            }
-            if (selectedDocx2PdfFile.size > 4 * 1024 * 1024) {
-                setStatus('status-docx2pdf', 'error', 'Ukuran file .docx melebihi batas 4 MB.');
-                return;
-            }
-            const btn = document.getElementById('btn-docx2pdf');
-            btn.disabled = true;
-            try {
-                setStatus('status-docx2pdf', 'info', 'Mengonversi dokumen Word (.docx) ke PDF A4...');
-                const fd = new FormData();
-                fd.append('file', selectedDocx2PdfFile);
-                fd.append('margin', document.getElementById('sel-docx2pdf-margin').value);
-                const res = await fetch('{{ route("tools.convert.docxToPdf") }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken },
-                    body: fd
-                });
-                if (!res.ok) {
-                    const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.message || 'Gagal mengonversi ke PDF.');
-                }
-                const blob = await res.blob();
-                const outName = selectedDocx2PdfFile.name.replace(/\.docx$/i, '') + '.pdf';
-                triggerBlobDownload(blob, outName);
-                setStatus('status-docx2pdf', 'success', `Berhasil! File ${outName} sudah diunduh.`);
-            } catch (err) {
-                setStatus('status-docx2pdf', 'error', err.message || 'Terjadi kesalahan saat konversi.');
-            } finally {
-                btn.disabled = false;
+            if (userClicked && window.innerWidth <= 860) {
+                const anchor = document.getElementById('tools-active-anchor');
+                if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
         // ============================================================
-        // 2. GABUNG PDF (MERGE PDF) — 100% CLIENT-SIDE PDF-LIB
-        // ============================================================
-        let mergePdfItems = [];
-
-        async function addMergePdfFiles(input) {
-            if (!input.files || !input.files.length) return;
-            for (const f of Array.from(input.files)) {
-                let pageCount = '?';
-                try {
-                    if (window.PDFLib) {
-                        const doc = await window.PDFLib.PDFDocument.load(await f.arrayBuffer(), { ignoreEncryption: true });
-                        pageCount = doc.getPageCount();
-                    }
-                } catch (e) {}
-                mergePdfItems.push({ file: f, pages: pageCount });
-            }
-            input.value = '';
-            renderMergePdfList();
-        }
-
-        function renderMergePdfList() {
-            const wrap = document.getElementById('merge-pdf-list');
-            if (!mergePdfItems.length) {
-                wrap.innerHTML = '';
-                return;
-            }
-            wrap.innerHTML = mergePdfItems.map((it, i) => `
-                <div class="file-row">
-                    <div class="file-row-left">
-                        <span class="file-badge">PDF</span>
-                        <div style="min-width:0;">
-                            <div class="file-name">${it.file.name.replace(/</g, '&lt;')}</div>
-                            <div class="file-meta">${it.pages} halaman · ${formatBytes(it.file.size)}</div>
-                        </div>
-                    </div>
-                    <div class="file-actions">
-                        <button type="button" class="mini-btn" onclick="moveMergePdf(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
-                        <button type="button" class="mini-btn" onclick="moveMergePdf(${i}, 1)" ${i === mergePdfItems.length - 1 ? 'disabled' : ''}>▼</button>
-                        <button type="button" class="mini-btn danger" onclick="removeMergePdf(${i})">Hapus</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function moveMergePdf(i, d) {
-            const t = i + d;
-            if (t < 0 || t >= mergePdfItems.length) return;
-            [mergePdfItems[i], mergePdfItems[t]] = [mergePdfItems[t], mergePdfItems[i]];
-            renderMergePdfList();
-        }
-
-        function removeMergePdf(i) {
-            mergePdfItems.splice(i, 1);
-            renderMergePdfList();
-        }
-
-        async function runMergePdf() {
-            if (mergePdfItems.length < 2) {
-                setStatus('status-merge-pdf', 'error', 'Tambahkan minimal 2 file PDF untuk digabungkan.');
-                return;
-            }
-            if (!window.PDFLib) {
-                setStatus('status-merge-pdf', 'error', 'Library PDF sedang dimuat, coba lagi sebentar.');
-                return;
-            }
-            const btn = document.getElementById('btn-merge-pdf');
-            btn.disabled = true;
-            try {
-                setStatus('status-merge-pdf', 'info', `Menggabungkan ${mergePdfItems.length} file PDF...`);
-                const merged = await window.PDFLib.PDFDocument.create();
-                for (const item of mergePdfItems) {
-                    const src = await window.PDFLib.PDFDocument.load(await item.file.arrayBuffer(), { ignoreEncryption: true });
-                    const copied = await merged.copyPages(src, src.getPageIndices());
-                    copied.forEach(p => merged.addPage(p));
-                }
-                const bytes = await merged.save();
-                const nameBase = (document.getElementById('merge-output-name').value || 'Gabungan_PDF').trim().replace(/\.pdf$/i, '');
-                triggerBlobDownload(new Blob([bytes], { type: 'application/pdf' }), nameBase + '.pdf');
-                setStatus('status-merge-pdf', 'success', `Berhasil! ${merged.getPageCount()} halaman digabung ke ${nameBase}.pdf.`);
-            } catch (err) {
-                setStatus('status-merge-pdf', 'error', err.message || 'Gagal menggabungkan PDF.');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // ============================================================
-        // 3. PISAH PDF (SPLIT PDF)
-        // ============================================================
-        let splitPdfFile = null;
-        let splitPdfTotalPages = 0;
-
-        async function onSelectSplitPdf(input) {
-            if (!input.files || !input.files[0]) return;
-            splitPdfFile = input.files[0];
-            document.getElementById('label-split-pdf').textContent = `${splitPdfFile.name} (${formatBytes(splitPdfFile.size)})`;
-            try {
-                const doc = await window.PDFLib.PDFDocument.load(await splitPdfFile.arrayBuffer(), { ignoreEncryption: true });
-                splitPdfTotalPages = doc.getPageCount();
-                document.getElementById('sub-split-pdf').textContent = `Total ${splitPdfTotalPages} halaman terdeteksi`;
-                document.getElementById('split-presets').style.display = 'flex';
-                document.getElementById('split-range-input').value = splitPdfTotalPages >= 3 ? '1-3' : '1';
-                setStatus('status-split-pdf', 'info', `PDF dimuat (${splitPdfTotalPages} halaman). Masukkan rentang halaman lalu klik Ekstrak.`);
-            } catch (err) {
-                setStatus('status-split-pdf', 'error', 'Gagal membaca PDF. Pastikan file tidak terproteksi kata sandi.');
-            }
-        }
-
-        function setSplitRange(val) {
-            document.getElementById('split-range-input').value = val;
-        }
-        function setSplitRangeLast() {
-            if (splitPdfTotalPages > 0) document.getElementById('split-range-input').value = String(splitPdfTotalPages);
-        }
-
-        function parsePageRanges(str, maxPage) {
-            const set = new Set();
-            const parts = String(str || '').split(',');
-            for (const raw of parts) {
-                const p = raw.trim();
-                if (!p) continue;
-                if (p.includes('-')) {
-                    const [a, b] = p.split('-').map(n => parseInt(n.trim(), 10));
-                    if (!isNaN(a) && !isNaN(b)) {
-                        const start = Math.max(1, Math.min(a, b));
-                        const end = Math.min(maxPage, Math.max(a, b));
-                        for (let i = start; i <= end; i++) set.add(i - 1);
-                    }
-                } else {
-                    const n = parseInt(p, 10);
-                    if (!isNaN(n) && n >= 1 && n <= maxPage) set.add(n - 1);
-                }
-            }
-            return Array.from(set).sort((a, b) => a - b);
-        }
-
-        async function runSplitPdf() {
-            if (!splitPdfFile || !splitPdfTotalPages) {
-                setStatus('status-split-pdf', 'error', 'Pilih file PDF terlebih dahulu.');
-                return;
-            }
-            const indices = parsePageRanges(document.getElementById('split-range-input').value, splitPdfTotalPages);
-            if (!indices.length) {
-                setStatus('status-split-pdf', 'error', `Masukkan rentang halaman yang valid (1 s/d ${splitPdfTotalPages}).`);
-                return;
-            }
-            const btn = document.getElementById('btn-split-pdf');
-            btn.disabled = true;
-            try {
-                const src = await window.PDFLib.PDFDocument.load(await splitPdfFile.arrayBuffer(), { ignoreEncryption: true });
-                const out = await window.PDFLib.PDFDocument.create();
-                const copied = await out.copyPages(src, indices);
-                copied.forEach(p => out.addPage(p));
-                const bytes = await out.save();
-                const base = splitPdfFile.name.replace(/\.pdf$/i, '');
-                triggerBlobDownload(new Blob([bytes], { type: 'application/pdf' }), `${base}_hal.pdf`);
-                setStatus('status-split-pdf', 'success', `Berhasil mengekstrak ${indices.length} halaman!`);
-            } catch (err) {
-                setStatus('status-split-pdf', 'error', err.message || 'Gagal memisahkan PDF.');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // ============================================================
-        // 4. JPG / PNG -> PDF A4
-        // ============================================================
-        let imgPdfItems = [];
-
-        function addImgPdfFiles(input) {
-            if (!input.files || !input.files.length) return;
-            for (const f of Array.from(input.files)) {
-                imgPdfItems.push({ file: f, previewUrl: URL.createObjectURL(f) });
-            }
-            input.value = '';
-            renderImgPdfList();
-        }
-
-        function renderImgPdfList() {
-            const wrap = document.getElementById('img-pdf-list');
-            if (!imgPdfItems.length) { wrap.innerHTML = ''; return; }
-            wrap.innerHTML = imgPdfItems.map((it, i) => `
-                <div class="file-row">
-                    <div class="file-row-left">
-                        <img src="${it.previewUrl}" class="file-thumb" alt="Preview">
-                        <div style="min-width:0;">
-                            <div class="file-name">${it.file.name.replace(/</g, '&lt;')}</div>
-                            <div class="file-meta">Halaman ${i + 1} · ${formatBytes(it.file.size)}</div>
-                        </div>
-                    </div>
-                    <div class="file-actions">
-                        <button type="button" class="mini-btn" onclick="moveImgPdf(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
-                        <button type="button" class="mini-btn" onclick="moveImgPdf(${i}, 1)" ${i === imgPdfItems.length - 1 ? 'disabled' : ''}>▼</button>
-                        <button type="button" class="mini-btn danger" onclick="removeImgPdf(${i})">Hapus</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function moveImgPdf(i, d) {
-            const t = i + d;
-            if (t < 0 || t >= imgPdfItems.length) return;
-            [imgPdfItems[i], imgPdfItems[t]] = [imgPdfItems[t], imgPdfItems[i]];
-            renderImgPdfList();
-        }
-
-        function removeImgPdf(i) {
-            URL.revokeObjectURL(imgPdfItems[i].previewUrl);
-            imgPdfItems.splice(i, 1);
-            renderImgPdfList();
-        }
-
-        function imageFileToJpegBytes(file) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const url = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    URL.revokeObjectURL(url);
-                    canvas.toBlob(async (blob) => {
-                        if (!blob) return reject(new Error('Gagal memproses gambar.'));
-                        resolve(new Uint8Array(await blob.arrayBuffer()));
-                    }, 'image/jpeg', 0.92);
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Gagal memuat gambar ' + file.name)); };
-                img.src = url;
-            });
-        }
-
-        async function runImgToPdf() {
-            if (!imgPdfItems.length) {
-                setStatus('status-img-pdf', 'error', 'Pilih minimal 1 foto/gambar terlebih dahulu.');
-                return;
-            }
-            const btn = document.getElementById('btn-img-pdf');
-            btn.disabled = true;
-            try {
-                setStatus('status-img-pdf', 'info', `Menyusun ${imgPdfItems.length} gambar ke kertas A4...`);
-                const orient = document.getElementById('img-pdf-orient').value;
-                const margin = parseInt(document.getElementById('img-pdf-margin').value, 10) || 0;
-                const pageW = orient === 'landscape' ? 841.89 : 595.28;
-                const pageH = orient === 'landscape' ? 595.28 : 841.89;
-
-                const doc = await window.PDFLib.PDFDocument.create();
-                for (const it of imgPdfItems) {
-                    const jpgBytes = await imageFileToJpegBytes(it.file);
-                    const embedded = await doc.embedJpg(jpgBytes);
-                    const page = doc.addPage([pageW, pageH]);
-                    const maxW = pageW - margin * 2;
-                    const maxH = pageH - margin * 2;
-                    const scale = Math.min(maxW / embedded.width, maxH / embedded.height);
-                    const drawW = embedded.width * scale;
-                    const drawH = embedded.height * scale;
-                    page.drawImage(embedded, {
-                        x: (pageW - drawW) / 2,
-                        y: (pageH - drawH) / 2,
-                        width: drawW,
-                        height: drawH
-                    });
-                }
-                const bytes = await doc.save();
-                triggerBlobDownload(new Blob([bytes], { type: 'application/pdf' }), 'Dokumen_Gambar_A4.pdf');
-                setStatus('status-img-pdf', 'success', `Berhasil! ${imgPdfItems.length} halaman PDF A4 sudah diunduh.`);
-            } catch (err) {
-                setStatus('status-img-pdf', 'error', err.message || 'Gagal membuat PDF.');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // ============================================================
-        // 5. KOMPRES GAMBAR
-        // ============================================================
-        let compressSourceFiles = [];
-        let compressedOutputs = [];
-
-        function onSelectCompressImages(input) {
-            if (!input.files || !input.files.length) return;
-            compressSourceFiles = Array.from(input.files);
-            runCompressImages();
-        }
-
-        function compressOneImage(file, quality, maxWidth) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const url = URL.createObjectURL(file);
-                img.onload = () => {
-                    let w = img.naturalWidth;
-                    let h = img.naturalHeight;
-                    if (maxWidth > 0 && w > maxWidth) {
-                        h = Math.round((h * maxWidth) / w);
-                        w = maxWidth;
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, w, h);
-                    ctx.drawImage(img, 0, 0, w, h);
-                    URL.revokeObjectURL(url);
-                    canvas.toBlob((blob) => {
-                        if (!blob) return reject(new Error('Gagal kompres ' + file.name));
-                        resolve({
-                            name: file.name.replace(/\.\w+$/, '') + '_kompres.jpg',
-                            origSize: file.size,
-                            newSize: blob.size,
-                            blob,
-                            preview: URL.createObjectURL(blob)
-                        });
-                    }, 'image/jpeg', quality);
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('File bukan gambar valid.')); };
-                img.src = url;
-            });
-        }
-
-        async function runCompressImages() {
-            if (!compressSourceFiles.length) return;
-            const quality = (parseInt(document.getElementById('compress-quality').value, 10) || 75) / 100;
-            const maxW = parseInt(document.getElementById('compress-maxw').value, 10) || 0;
-            try {
-                compressedOutputs.forEach(o => URL.revokeObjectURL(o.preview));
-                compressedOutputs = [];
-                for (const f of compressSourceFiles) {
-                    compressedOutputs.push(await compressOneImage(f, quality, maxW));
-                }
-                const wrap = document.getElementById('compress-results');
-                wrap.innerHTML = compressedOutputs.map((o, i) => {
-                    const pct = o.origSize > 0 ? Math.max(0, Math.round((1 - o.newSize / o.origSize) * 100)) : 0;
-                    return `
-                        <div class="file-row">
-                            <div class="file-row-left">
-                                <img src="${o.preview}" class="file-thumb" alt="Hasil">
-                                <div style="min-width:0;">
-                                    <div class="file-name">${o.name.replace(/</g, '&lt;')}</div>
-                                    <div class="file-meta">${formatBytes(o.origSize)} → <strong style="color:#059669;">${formatBytes(o.newSize)}</strong> (hemat ${pct}%)</div>
-                                </div>
-                            </div>
-                            <div class="file-actions">
-                                <button type="button" class="btn btn-primary" style="padding:5px 11px; font-size:12px;" onclick="downloadCompressed(${i})">Unduh</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                setStatus('status-compress-img', 'success', `${compressedOutputs.length} gambar selesai dikompresi. Geser slider jika ingin ukuran lebih kecil.`);
-            } catch (err) {
-                setStatus('status-compress-img', 'error', err.message || 'Gagal mengompresi gambar.');
-            }
-        }
-
-        function downloadCompressed(i) {
-            const item = compressedOutputs[i];
-            if (item) triggerBlobDownload(item.blob, item.name);
-        }
-
-        // ============================================================
-        // 6. KALKULATOR SAMPEL SLOVIN (BAB III)
-        // ============================================================
-        let lastSlovinParagraph = '';
-
-        function calcSlovin() {
-            const N = parseFloat(document.getElementById('slovin-n').value);
-            const e = parseFloat(document.getElementById('slovin-e').value);
-            if (!N || N < 2 || !e) {
-                document.getElementById('slovin-final-n').textContent = '—';
-                document.getElementById('slovin-steps-box').textContent = 'Masukkan jumlah populasi N (minimal 2).';
-                document.getElementById('slovin-para-box').textContent = '';
-                return;
-            }
-            const e2 = e * e;
-            const ne2 = N * e2;
-            const denom = 1 + ne2;
-            const rawN = N / denom;
-            const roundedN = Math.ceil(rawN);
-            const pctLabel = Math.round(e * 100) + '%';
-
-            document.getElementById('slovin-final-n').textContent = `${roundedN.toLocaleString('id-ID')} Responden`;
-            document.getElementById('slovin-steps-box').textContent =
-                `Rumus Slovin : n = N / (1 + N × e²)\n` +
-                `Diketahui    : N = ${N.toLocaleString('id-ID')}, e = ${e} (${pctLabel})\n` +
-                `Perhitungan  : n = ${N} / (1 + ${N} × ${e}²)\n` +
-                `             : n = ${N} / (1 + ${ne2.toFixed(4)})\n` +
-                `             : n = ${N} / ${denom.toFixed(4)} = ${rawN.toFixed(2)}\n` +
-                `Pembulatan   : n = ${roundedN} responden`;
-
-            lastSlovinParagraph = `Penentuan jumlah sampel dalam penelitian ini menggunakan rumus Slovin dengan ukuran populasi sebanyak N = ${N.toLocaleString('id-ID')} dan batas toleransi kesalahan (margin of error) sebesar e = ${pctLabel} (${String(e).replace('.', ',')}). Berdasarkan hasil perhitungan n = ${N} / (1 + ${N} × (${String(e).replace('.', ',')})²) = ${rawN.toFixed(2).replace('.', ',')}, maka jumlah sampel minimal yang dibulatkan ke atas dan digunakan dalam penelitian ini adalah sebanyak ${roundedN} responden.`;
-            document.getElementById('slovin-para-box').textContent = lastSlovinParagraph;
-        }
-
-        function copySlovinParagraph() {
-            if (!lastSlovinParagraph) return;
-            navigator.clipboard.writeText(lastSlovinParagraph).then(() => {
-                setStatus('status-slovin', 'success', '✓ Paragraf perhitungan Slovin berhasil disalin! Siap ditempel ke Bab III.');
-            }).catch(() => {
-                setStatus('status-slovin', 'error', 'Gagal menyalin otomatis. Silakan blok dan salin manual.');
-            });
-        }
-
-        // ============================================================
-        // 7. HITUNG KATA & ESTIMASI HALAMAN A4
-        // ============================================================
-        function updateWordCount() {
-            const text = document.getElementById('wc-textarea').value || '';
-            const trimmed = text.trim();
-            const words = trimmed ? trimmed.split(/\s+/).filter(Boolean).length : 0;
-            const chars = text.length;
-            const charsNoSpace = text.replace(/\s/g, '').length;
-            const paras = trimmed ? trimmed.split(/\n\s*\n|\n/).filter(p => p.trim() !== '').length : 0;
-            const sentences = trimmed ? trimmed.split(/[.!?]+/).filter(s => s.trim().length > 2).length : 0;
-            const pages15 = words > 0 ? Math.max(1, Math.ceil(words / 320)) : 0;
-            const pages20 = words > 0 ? Math.max(1, Math.ceil(words / 250)) : 0;
-            const readMin = words > 0 ? Math.max(1, Math.ceil(words / 140)) : 0;
-
-            document.getElementById('wc-words').textContent = words.toLocaleString('id-ID');
-            document.getElementById('wc-read-time').textContent = `±${readMin} menit presentasi`;
-            document.getElementById('wc-chars').textContent = chars.toLocaleString('id-ID');
-            document.getElementById('wc-chars-nospace').textContent = `${charsNoSpace.toLocaleString('id-ID')} tanpa spasi`;
-            document.getElementById('wc-paras').textContent = paras.toLocaleString('id-ID');
-            document.getElementById('wc-sentences').textContent = `${sentences.toLocaleString('id-ID')} kalimat`;
-            document.getElementById('wc-pages-15').textContent = `${pages15} hal`;
-            document.getElementById('wc-pages-20').textContent = `Spasi 1,5 · (${pages20} hal spasi 2)`;
-        }
-
-        function clearWordCount() {
-            document.getElementById('wc-textarea').value = '';
-            document.getElementById('status-wc').className = 'status-box';
-            updateWordCount();
-        }
-
-        async function loadWordCountFile(input) {
-            if (!input.files || !input.files[0]) return;
-            const f = input.files[0];
-            const ext = (f.name.split('.').pop() || '').toLowerCase();
-            try {
-                setStatus('status-wc', 'info', `Membaca teks dari ${f.name}...`);
-                if (ext === 'txt') {
-                    document.getElementById('wc-textarea').value = await f.text();
-                } else if (ext === 'pdf') {
-                    const pages = await extractPagesFromPdfFile(f);
-                    document.getElementById('wc-textarea').value = pages.map(p => p.paragraphs.join('\n\n')).join('\n\n');
-                } else if (ext === 'docx') {
-                    const fd = new FormData();
-                    fd.append('file', f);
-                    const res = await fetch('{{ route("tools.extract.docxText") }}', {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrfToken },
-                        body: fd
-                    });
-                    const data = await res.json();
-                    if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membaca .docx');
-                    document.getElementById('wc-textarea').value = data.text || '';
-                } else {
-                    throw new Error('Format harus .txt, .docx, atau .pdf');
-                }
-                updateWordCount();
-                setStatus('status-wc', 'success', `Teks dari ${f.name} berhasil dimuat.`);
-            } catch (err) {
-                setStatus('status-wc', 'error', err.message || 'Gagal membaca file.');
-            }
-            input.value = '';
-        }
-
-        // ============================================================
-        // 0. GENERATOR FLOWCHART SKRIPSI (AI + EDITOR SIMBOL ISO + PNG HD)
+        // 1. GENERATOR FLOWCHART SKRIPSI (TANPA CAPTION BAWAAN DI GAMBAR)
         // ============================================================
         const FLOWCHART_PRESETS = {
             kuantitatif: {
-                caption: 'Gambar 3.1 Diagram Alur Penelitian Kuantitatif',
                 steps: [
                     { type: 'start', label: 'Mulai' },
                     { type: 'process', label: 'Identifikasi Masalah & Kajian Literatur' },
@@ -2107,7 +2623,6 @@
                 ]
             },
             kualitatif: {
-                caption: 'Gambar 3.1 Diagram Alur Penelitian Kualitatif',
                 steps: [
                     { type: 'start', label: 'Mulai' },
                     { type: 'process', label: 'Penentuan Fokus & Lokasi Penelitian' },
@@ -2119,7 +2634,6 @@
                 ]
             },
             rnd: {
-                caption: 'Gambar 3.1 Flowchart Pengembangan Sistem & Pengujian',
                 steps: [
                     { type: 'start', label: 'Mulai' },
                     { type: 'io', label: 'Pengumpulan Dataset & Analisis Kebutuhan' },
@@ -2131,7 +2645,6 @@
                 ]
             },
             kerangka: {
-                caption: 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian',
                 steps: [
                     { type: 'start', label: 'Fenomena & Permasalahan Lapangan' },
                     { type: 'process', label: 'Landasan Teori & Penelitian Terdahulu' },
@@ -2144,6 +2657,7 @@
 
         let fcSteps = JSON.parse(JSON.stringify(FLOWCHART_PRESETS.kuantitatif.steps));
         let lastFlowchartSvgString = '';
+        let lastFlowchartDims = { w: 620, h: 640 };
 
         function escapeSvgXml(s) {
             return String(s || '')
@@ -2175,7 +2689,6 @@
             const p = FLOWCHART_PRESETS[key];
             if (!p) return;
             fcSteps = JSON.parse(JSON.stringify(p.steps));
-            document.getElementById('fc-caption-input').value = p.caption;
             renderFlowchartEditor();
             renderFlowchartSvg();
         }
@@ -2219,14 +2732,14 @@
                 <div class="fc-step-row">
                     <div class="fc-step-top">
                         <span class="fc-step-num">${i + 1}</span>
-                        <select class="form-select" style="width:155px; min-height:32px; padding:4px 8px; font-size:12px;" onchange="updateFcStep(${i}, 'type', this.value)">
+                        <select class="form-select" style="flex:1; min-width:130px; min-height:32px; padding:4px 8px; font-size:12px;" onchange="updateFcStep(${i}, 'type', this.value)">
                             <option value="start" ${st.type === 'start' ? 'selected' : ''}>Mulai (Oval)</option>
                             <option value="process" ${st.type === 'process' ? 'selected' : ''}>Proses (Kotak)</option>
                             <option value="io" ${st.type === 'io' ? 'selected' : ''}>Input/Data (Jajar Genjang)</option>
                             <option value="decision" ${st.type === 'decision' ? 'selected' : ''}>Keputusan (Belah Ketupat)</option>
                             <option value="end" ${st.type === 'end' ? 'selected' : ''}>Selesai (Oval)</option>
                         </select>
-                        <div style="margin-left:auto; display:flex; gap:4px;">
+                        <div style="display:flex; gap:4px; margin-left:auto;">
                             <button type="button" class="mini-btn" onclick="moveFcStep(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
                             <button type="button" class="mini-btn" onclick="moveFcStep(${i}, 1)" ${i === fcSteps.length - 1 ? 'disabled' : ''}>▼</button>
                             <button type="button" class="mini-btn danger" onclick="deleteFcStep(${i})" ${fcSteps.length <= 2 ? 'disabled' : ''}>✕</button>
@@ -2242,52 +2755,59 @@
 
         function renderFlowchartSvg() {
             const styleKey = document.getElementById('fc-style-select')?.value || 'bw';
-            const caption = (document.getElementById('fc-caption-input')?.value || '').trim();
+            const bgMode = document.getElementById('fc-bg-select')?.value || 'white';
 
             const themes = {
                 bw: {
                     bg: '#ffffff', stroke: '#0f172a', text: '#0f172a', arrow: '#0f172a',
                     termFill: '#f8fafc', procFill: '#ffffff', ioFill: '#ffffff', decFill: '#f8fafc',
-                    branchText: '#334155', captionColor: '#0f172a'
+                    branchText: '#334155'
                 },
                 blue: {
                     bg: '#ffffff', stroke: '#1d4ed8', text: '#0f172a', arrow: '#2563eb',
                     termFill: '#dbeafe', procFill: '#eff6ff', ioFill: '#f0f9ff', decFill: '#fef3c7',
-                    branchText: '#1d4ed8', captionColor: '#0f172a'
+                    branchText: '#1d4ed8'
                 },
                 navy: {
                     bg: '#ffffff', stroke: '#1e293b', text: '#0f172a', arrow: '#1e3a8a',
                     termFill: '#1e3a8a', termText: '#ffffff', procFill: '#f8fafc', ioFill: '#eef2ff', decFill: '#e0e7ff',
-                    branchText: '#1e3a8a', captionColor: '#0f172a'
+                    branchText: '#1e3a8a'
                 }
             };
             const pal = themes[styleKey] || themes.bw;
 
             const hasDecision = fcSteps.some(s => s.type === 'decision');
-            const svgW = hasDecision ? 620 : 520;
-            const cx = hasDecision ? 235 : 260;
-            const boxW = 300;
+            const svgW = hasDecision ? 640 : 500;
+            const cx = hasDecision ? 225 : 250;
+            const boxW = 304;
             const gapY = 30;
-            let y = 26;
+            let y = 24;
 
             const nodesMeta = [];
             fcSteps.forEach((st) => {
                 const maxC = st.type === 'decision' ? 20 : (st.type === 'io' ? 28 : 32);
                 const lines = wrapFlowchartLines(st.label, maxC);
                 let h = 48;
+                let rightEdge = cx + boxW / 2;
                 if (st.type === 'start' || st.type === 'end') {
                     h = lines.length > 1 ? 52 : 44;
+                    const tw = Math.min(boxW, Math.max(170, lines[0].length * 9 + 48));
+                    rightEdge = cx + tw / 2;
                 } else if (st.type === 'decision') {
-                    h = lines.length >= 3 ? 96 : (lines.length === 2 ? 84 : 74);
+                    h = lines.length >= 3 ? 98 : (lines.length === 2 ? 86 : 74);
+                    rightEdge = cx + 132;
+                } else if (st.type === 'io') {
+                    h = Math.max(48, 22 + lines.length * 18);
+                    rightEdge = cx + boxW / 2 - 9;
                 } else {
                     h = Math.max(48, 22 + lines.length * 18);
                 }
-                nodesMeta.push({ st, lines, y, h, cy: y + h / 2, bottom: y + h });
+                nodesMeta.push({ st, lines, y, h, cy: y + h / 2, bottom: y + h, rightEdge });
                 y += h + gapY;
             });
 
-            const captionH = caption ? 34 : 10;
-            const svgH = y - gapY + 24 + captionH;
+            const svgH = y - gapY + 24;
+            lastFlowchartDims = { w: svgW, h: svgH };
 
             let shapes = '';
             nodesMeta.forEach((n, idx) => {
@@ -2297,7 +2817,7 @@
                 const txtColor = ((st.type === 'start' || st.type === 'end') && pal.termText) ? pal.termText : pal.text;
 
                 if (st.type === 'start' || st.type === 'end') {
-                    const tw = Math.min(boxW, Math.max(170, lines[0].length * 9 + 46));
+                    const tw = (n.rightEdge - cx) * 2;
                     shapes += `<rect x="${cx - tw / 2}" y="${ny}" width="${tw}" height="${h}" rx="${h / 2}" ry="${h / 2}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
                 } else if (st.type === 'io') {
                     const skew = 18;
@@ -2307,25 +2827,27 @@
                     const x4 = cx - boxW / 2;
                     shapes += `<polygon points="${x1},${ny} ${x2},${ny} ${x3},${bottom} ${x4},${bottom}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
                 } else if (st.type === 'decision') {
-                    const dw = 128;
+                    const dw = 132;
                     const pts = `${cx},${ny} ${cx + dw},${cy} ${cx},${bottom} ${cx - dw},${cy}`;
                     shapes += `<polygon points="${pts}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
 
-                    // Cabang kanan "Tidak" kembali ke langkah proses sebelumnya
-                    const loopX = cx + dw + 128;
+                    const loopX = cx + dw + 140;
                     const backIdx = Math.max(0, idx - 1);
-                    const targetY = nodesMeta[backIdx].cy;
-                    const targetRightX = cx + boxW / 2 + 2;
-                    const noTxt = st.no_label || 'Revisi / Ulangi';
+                    const targetNode = nodesMeta[backIdx];
+                    const targetY = targetNode.cy;
+                    const targetRightX = targetNode.rightEdge + 4;
+                    const noTxt = (st.no_label || 'Revisi / Ulangi').trim();
+                    const pillW = Math.min(180, Math.max(118, noTxt.length * 6.5 + 22));
+                    const pillX = Math.min(svgW - pillW - 10, loopX - pillW / 2);
+
                     shapes += `<polyline points="${cx + dw},${cy} ${loopX},${cy} ${loopX},${targetY} ${targetRightX},${targetY}" fill="none" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
                     shapes += `<text x="${cx + dw + 10}" y="${cy - 6}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Tidak</text>`;
-                    shapes += `<rect x="${loopX - 66}" y="${(cy + targetY) / 2 - 12}" width="132" height="22" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
-                    shapes += `<text x="${loopX}" y="${(cy + targetY) / 2 + 3}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.text}">${escapeSvgXml(noTxt.slice(0, 22))}</text>`;
+                    shapes += `<rect x="${pillX}" y="${(cy + targetY) / 2 - 12}" width="${pillW}" height="24" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.95"/>`;
+                    shapes += `<text x="${pillX + pillW / 2}" y="${(cy + targetY) / 2 + 3.5}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.text}">${escapeSvgXml(noTxt.slice(0, 28))}</text>`;
                 } else {
                     shapes += `<rect x="${cx - boxW / 2}" y="${ny}" width="${boxW}" height="${h}" rx="4" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
                 }
 
-                // Teks di tengah simbol
                 const lineH = 16;
                 const startTextY = cy - ((lines.length - 1) * lineH) / 2 + 4.5;
                 lines.forEach((ln, li) => {
@@ -2333,7 +2855,6 @@
                     shapes += `<text x="${cx}" y="${startTextY + li * lineH}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13" ${boldAttr} fill="${txtColor}">${escapeSvgXml(ln)}</text>`;
                 });
 
-                // Panah ke node berikutnya
                 if (idx < nodesMeta.length - 1) {
                     const nextY = nodesMeta[idx + 1].y;
                     shapes += `<line x1="${cx}" y1="${bottom}" x2="${cx}" y2="${nextY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
@@ -2343,22 +2864,22 @@
                 }
             });
 
-            if (caption) {
-                shapes += `<text x="${svgW / 2}" y="${svgH - 12}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13.5" font-weight="bold" fill="${pal.captionColor}">${escapeSvgXml(caption)}</text>`;
-            }
-
+            const bgRect = bgMode === 'transparent' ? '' : `<rect width="100%" height="100%" fill="${pal.bg}"/>`;
             lastFlowchartSvgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
                 <defs>
                     <marker id="fc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
                         <path d="M 0 1 L 10 5 L 0 9 z" fill="${pal.arrow}"/>
                     </marker>
                 </defs>
-                <rect width="100%" height="100%" fill="${pal.bg}"/>
+                ${bgRect}
                 ${shapes}
             </svg>`;
 
             const previewEl = document.getElementById('fc-svg-preview');
-            if (previewEl) previewEl.innerHTML = lastFlowchartSvgString;
+            if (previewEl) {
+                previewEl.classList.toggle('transparent-bg', bgMode === 'transparent');
+                previewEl.innerHTML = lastFlowchartSvgString;
+            }
         }
 
         async function generateFlowchartWithAi() {
@@ -2370,8 +2891,8 @@
             }
             const btn = document.getElementById('btn-fc-ai');
             btn.disabled = true;
-            btn.textContent = 'Menyusun Flowchart...';
-            setStatus('status-fc', 'info', 'AI sedang menyusun alur flowchart sesuai topik penelitianmu...');
+            setStatus('status-fc', '', '');
+            setProc('fc', true, 'AI sedang merancang alur flowchart sesuai topik penelitianmu...', 45);
             try {
                 const res = await fetch('{{ route("tools.flowchart.generate") }}', {
                     method: 'POST',
@@ -2382,56 +2903,2018 @@
                 if (!res.ok || data.status !== 'success' || !Array.isArray(data.steps)) {
                     throw new Error(data.message || 'Gagal menyusun flowchart.');
                 }
+                setProc('fc', true, 'Menggambar diagram simbol ISO...', 95);
                 fcSteps = data.steps;
-                if (data.caption) document.getElementById('fc-caption-input').value = data.caption;
                 renderFlowchartEditor();
                 renderFlowchartSvg();
+                setProc('fc', false);
                 setStatus('status-fc', 'success', `Berhasil! ${fcSteps.length} langkah flowchart siap diedit atau diunduh ke Word.`);
             } catch (err) {
+                setProc('fc', false);
                 setStatus('status-fc', 'error', err.message || 'Terjadi kesalahan saat generate flowchart.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = '✨ Buat dengan AI';
             }
+        }
+
+        function renderFlowchartToPngBlob() {
+            return new Promise((resolve, reject) => {
+                if (!lastFlowchartSvgString) return reject(new Error('Flowchart belum tersedia.'));
+                const bgMode = document.getElementById('fc-bg-select')?.value || 'white';
+                const svgBlob = new Blob([lastFlowchartSvgString], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                const img = new Image();
+                img.onload = () => {
+                    const scale = 3;
+                    const w = lastFlowchartDims.w || img.naturalWidth || 620;
+                    const h = lastFlowchartDims.h || img.naturalHeight || 640;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(w * scale);
+                    canvas.height = Math.round(h * scale);
+                    const ctx = canvas.getContext('2d');
+                    if (bgMode !== 'transparent') {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.scale(scale, scale);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Gagal membuat PNG.')), 'image/png');
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Gagal merender SVG ke PNG.')); };
+                img.src = url;
+            });
         }
 
         function downloadFlowchartSvg() {
             if (!lastFlowchartSvgString) return;
             triggerBlobDownload(new Blob([lastFlowchartSvgString], { type: 'image/svg+xml;charset=utf-8' }), 'Flowchart_Skripsi.svg');
+            setStatus('status-fc-export', 'success', '✓ File Flowchart_Skripsi.svg berhasil diunduh.');
         }
 
-        function downloadFlowchartPng() {
-            if (!lastFlowchartSvgString) return;
-            const svgBlob = new Blob([lastFlowchartSvgString], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(svgBlob);
-            const img = new Image();
-            img.onload = () => {
-                const scale = 3; // HD 3x siap cetak Microsoft Word
+        async function downloadFlowchartPng() {
+            try {
+                const blob = await renderFlowchartToPngBlob();
+                triggerBlobDownload(blob, 'Flowchart_Skripsi_HD.png');
+                setStatus('status-fc-export', 'success', '✓ File Flowchart_Skripsi_HD.png (Resolusi 3x HD) berhasil diunduh.');
+            } catch (err) {
+                setStatus('status-fc-export', 'error', err.message || 'Gagal mengunduh PNG.');
+            }
+        }
+
+        async function copyFlowchartPng() {
+            try {
+                const blob = await renderFlowchartToPngBlob();
+                if (!navigator.clipboard || !window.ClipboardItem) {
+                    throw new Error('Browser ini belum mendukung salin gambar langsung. Gunakan tombol Unduh PNG HD.');
+                }
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                setStatus('status-fc-export', 'success', '✓ Gambar Flowchart disalin ke Clipboard! Tinggal Ctrl+V / Cmd+V di Microsoft Word.');
+            } catch (err) {
+                setStatus('status-fc-export', 'error', err.message || 'Gagal menyalin gambar.');
+            }
+        }
+
+        // ============================================================
+        // 2. RAPIKAN SKRIPSI WORD (.DOCX) — 100% OOXML SURGERY (ISI UTUH)
+        // ============================================================
+        let tidyDocxFile = null;
+        let tidyDocxResultBlob = null;
+        let tidyDocxOutName = 'Skripsi_Rapi.docx';
+
+        function onSelectTidyDocx(input) {
+            if (!input.files || !input.files[0]) return;
+            const f = input.files[0];
+            if (!f.name.toLowerCase().endsWith('.docx')) {
+                setStatus('status-tidy', 'error', 'Format file harus Microsoft Word (.docx).');
+                return;
+            }
+            tidyDocxFile = f;
+            hideResult('tidy');
+            document.getElementById('label-tidy-docx').textContent = `${f.name} (${formatBytes(f.size)})`;
+            setStatus('status-tidy', 'info', 'File Word siap dirapikan. Pilih standar margin/font lalu klik "Rapikan Skripsi Sekarang".');
+        }
+
+        async function runTidyDocx() {
+            if (!tidyDocxFile) {
+                setStatus('status-tidy', 'error', 'Pilih file Word (.docx) skripsimu terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-tidy-docx');
+            btn.disabled = true;
+            hideResult('tidy');
+            setStatus('status-tidy', '', '');
+            try {
+                const JSZip = await waitForLib('JSZip', 'JSZip');
+                setProc('tidy', true, 'Membuka struktur dokumen Word (.docx)...', 15);
+                const zip = await JSZip.loadAsync(await tidyDocxFile.arrayBuffer());
+                const docXmlStr = await zip.file('word/document.xml')?.async('string');
+                if (!docXmlStr) throw new Error('File .docx tidak valid atau korup (word/document.xml tidak ditemukan).');
+
+                setProc('tidy', true, 'Menganalisis BAB, Sub-BAB, Daftar Pustaka, & Tabel...', 35);
+                const W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(docXmlStr, 'application/xml');
+                if (xmlDoc.getElementsByTagName('parsererror').length) {
+                    throw new Error('Struktur XML dokumen Word bermasalah.');
+                }
+
+                const marginVal = document.getElementById('tidy-margin').value;
+                const [fontName, fontSzStr] = document.getElementById('tidy-font').value.split('|');
+                const bodySz = parseInt(fontSzStr, 10) || 24;
+                const lineVal = document.getElementById('tidy-spacing').value || '360';
+                const optPageBreak = document.getElementById('tidy-opt-pagebreak').checked;
+                const optIndent = document.getElementById('tidy-opt-indent').checked;
+                const optTables = document.getElementById('tidy-opt-tables').checked;
+                const optSpaces = document.getElementById('tidy-opt-spaces').checked;
+
+                const marginPresets = {
+                    '4433': { top: '2268', left: '2268', bottom: '1701', right: '1701' },
+                    '3333': { top: '1701', left: '1701', bottom: '1701', right: '1701' },
+                    'normal': { top: '1440', left: '1440', bottom: '1440', right: '1440' }
+                };
+                const mar = marginPresets[marginVal] || marginPresets['4433'];
+
+                const mkW = (tag) => xmlDoc.createElementNS(W_NS, 'w:' + tag);
+                const setWAttr = (el, name, val) => el.setAttributeNS(W_NS, 'w:' + name, String(val));
+                const getDirectChild = (parent, local) => Array.from(parent.childNodes).find(n => n.nodeType === 1 && n.localName === local);
+                const ensureChild = (parent, local, prepend = false) => {
+                    let c = getDirectChild(parent, local);
+                    if (!c) {
+                        c = mkW(local);
+                        if (prepend && parent.firstChild) parent.insertBefore(c, parent.firstChild);
+                        else parent.appendChild(c);
+                    }
+                    return c;
+                };
+                const removeDirectChild = (parent, local) => {
+                    Array.from(parent.childNodes).filter(n => n.nodeType === 1 && n.localName === local).forEach(n => parent.removeChild(n));
+                };
+
+                const stats = {
+                    paragraphsTidied: 0,
+                    emptyRemoved: 0,
+                    chaptersFixed: 0,
+                    subHeadingsFixed: 0,
+                    tablesFixed: 0,
+                    bibEntries: 0,
+                    spacesCleaned: 0,
+                    imagesKept: 0
+                };
+
+                zip.forEach((relPath) => {
+                    if (/^word\/media\//i.test(relPath)) stats.imagesKept++;
+                });
+
+                const body = xmlDoc.getElementsByTagNameNS(W_NS, 'body')[0];
+                if (!body) throw new Error('Body dokumen tidak ditemukan.');
+
+                Array.from(xmlDoc.getElementsByTagNameNS(W_NS, 'sectPr')).forEach(sectPr => {
+                    const pgSz = ensureChild(sectPr, 'pgSz');
+                    setWAttr(pgSz, 'w', '11906');
+                    setWAttr(pgSz, 'h', '16838');
+                    const pgMar = ensureChild(sectPr, 'pgMar');
+                    setWAttr(pgMar, 'top', mar.top);
+                    setWAttr(pgMar, 'left', mar.left);
+                    setWAttr(pgMar, 'bottom', mar.bottom);
+                    setWAttr(pgMar, 'right', mar.right);
+                    if (!pgMar.getAttributeNS(W_NS, 'header')) setWAttr(pgMar, 'header', '709');
+                    if (!pgMar.getAttributeNS(W_NS, 'footer')) setWAttr(pgMar, 'footer', '709');
+                });
+
+                setProc('tidy', true, 'Merapikan paragraf, BAB, spasi, & menghapus halaman kosong...', 58);
+
+                const applyRunStyle = (rNode, szHalfPt, forceBold = null) => {
+                    const rPr = ensureChild(rNode, 'rPr', true);
+                    const rFonts = ensureChild(rPr, 'rFonts');
+                    setWAttr(rFonts, 'ascii', fontName);
+                    setWAttr(rFonts, 'hAnsi', fontName);
+                    setWAttr(rFonts, 'cs', fontName);
+                    setWAttr(rFonts, 'eastAsia', fontName);
+
+                    const sz = ensureChild(rPr, 'sz');
+                    setWAttr(sz, 'val', szHalfPt);
+                    const szCs = ensureChild(rPr, 'szCs');
+                    setWAttr(szCs, 'val', szHalfPt);
+
+                    const color = getDirectChild(rPr, 'color');
+                    if (color) {
+                        const cv = (color.getAttributeNS(W_NS, 'val') || '').toLowerCase();
+                        if (cv && cv !== 'auto' && cv !== '000000' && cv !== '1d4ed8') {
+                            setWAttr(color, 'val', '000000');
+                        }
+                    }
+                    removeDirectChild(rPr, 'shd');
+                    removeDirectChild(rPr, 'highlight');
+
+                    if (forceBold === true) {
+                        ensureChild(rPr, 'b');
+                    }
+                };
+
+                const cleanRunSpaces = (pNode) => {
+                    if (!optSpaces) return;
+                    Array.from(pNode.getElementsByTagNameNS(W_NS, 't')).forEach(tNode => {
+                        const orig = tNode.textContent || '';
+                        if (!orig) return;
+                        let fixed = orig.replace(/[ \u00A0]{2,}/g, ' ').replace(/\s+([,.;:!?])/g, '$1');
+                        if (fixed !== orig) {
+                            tNode.textContent = fixed;
+                            tNode.setAttribute('xml:space', 'preserve');
+                            stats.spacesCleaned++;
+                        }
+                    });
+                };
+
+                const bodyChildren = Array.from(body.childNodes).filter(n => n.nodeType === 1);
+                let inBibliography = false;
+                let seenRealContent = false;
+                let consecutiveEmpty = 0;
+
+                for (const node of bodyChildren) {
+                    if (node.localName === 'p') {
+                        const hasDrawing = node.getElementsByTagNameNS('*', 'drawing').length > 0
+                            || node.getElementsByTagNameNS('*', 'pict').length > 0
+                            || node.getElementsByTagNameNS('*', 'object').length > 0;
+                        const hasSectPr = !!getDirectChild(node, 'pPr') && !!getDirectChild(getDirectChild(node, 'pPr'), 'sectPr');
+                        const rawText = Array.from(node.getElementsByTagNameNS(W_NS, 't')).map(t => t.textContent || '').join('');
+                        const text = rawText.replace(/\s+/g, ' ').trim();
+
+                        if (!text && !hasDrawing && !hasSectPr) {
+                            const hasBrPage = Array.from(node.getElementsByTagNameNS(W_NS, 'br'))
+                                .some(b => b.getAttributeNS(W_NS, 'type') === 'page');
+                            if (optPageBreak && (hasBrPage || consecutiveEmpty >= 1 || !seenRealContent)) {
+                                body.removeChild(node);
+                                stats.emptyRemoved++;
+                                continue;
+                            }
+                            consecutiveEmpty++;
+                            continue;
+                        }
+
+                        consecutiveEmpty = 0;
+                        cleanRunSpaces(node);
+
+                        const pPr = ensureChild(node, 'pPr', true);
+                        removeDirectChild(pPr, 'shd');
+
+                        if (hasDrawing && !text) {
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', 'center');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '120');
+                            setWAttr(sp, 'after', '120');
+                            seenRealContent = true;
+                            continue;
+                        }
+
+                        const upperText = text.toUpperCase();
+                        const isMajorHeading = text.length <= 95 && /^(?:BAB\s+[IVX0-9]+|DAFTAR\s+PUSTAKA|DAFTAR\s+ISI|DAFTAR\s+TABEL|DAFTAR\s+GAMBAR|DAFTAR\s+LAMPIRAN|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LEMBAR\s+PENGESAHAN|PERNYATAAN\s+KEASLIAN|LAMPIRAN\b)/i.test(text);
+                        const isBabTitleFollowup = seenRealContent && text.length <= 75 && upperText === text && /^[A-Z0-9\s,&\-–]+$/.test(text) && text.split(' ').length <= 8 && !/^\d/.test(text);
+                        const isSubHeading = !isMajorHeading && text.length <= 120 && /^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)[A-Za-zÀ-ÿ]/.test(text);
+                        const isCaption = /^(?:Gambar|Tabel|Grafik|Bagan)\s+\d+(?:\.\d+)?/i.test(text) && text.length <= 160;
+                        const isListItem = !!getDirectChild(pPr, 'numPr') || /^(?:\d+[\.\)]\s+|[a-z][\.\)]\s+|[•\-–]\s+)/.test(text);
+
+                        if (/^DAFTAR\s+PUSTAKA/i.test(text)) {
+                            inBibliography = true;
+                        } else if (isMajorHeading && /^LAMPIRAN/i.test(text)) {
+                            inBibliography = false;
+                        }
+
+                        const runs = Array.from(node.getElementsByTagNameNS(W_NS, 'r'));
+
+                        if (isMajorHeading) {
+                            if (optPageBreak && seenRealContent) {
+                                ensureChild(pPr, 'pageBreakBefore');
+                            }
+                            ensureChild(pPr, 'keepNext');
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', 'center');
+                            removeDirectChild(pPr, 'ind');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '180');
+                            setWAttr(sp, 'line', '276');
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, Math.max(bodySz + 4, 28), true));
+                            stats.chaptersFixed++;
+                        } else if (isBabTitleFollowup) {
+                            ensureChild(pPr, 'keepNext');
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', 'center');
+                            removeDirectChild(pPr, 'ind');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '200');
+                            setWAttr(sp, 'line', '276');
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz + 2, true));
+                            stats.chaptersFixed++;
+                        } else if (isSubHeading) {
+                            ensureChild(pPr, 'keepNext');
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', 'left');
+                            removeDirectChild(pPr, 'ind');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '200');
+                            setWAttr(sp, 'after', '80');
+                            setWAttr(sp, 'line', lineVal);
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz, true));
+                            stats.subHeadingsFixed++;
+                        } else if (isCaption) {
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', 'center');
+                            removeDirectChild(pPr, 'ind');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '100');
+                            setWAttr(sp, 'after', '100');
+                            setWAttr(sp, 'line', '240');
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, Math.max(20, bodySz - 2), null));
+                        } else if (inBibliography) {
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', optIndent ? 'both' : 'left');
+                            if (optIndent) {
+                                removeDirectChild(pPr, 'ind');
+                                const ind = ensureChild(pPr, 'ind');
+                                setWAttr(ind, 'left', '709');
+                                setWAttr(ind, 'hanging', '709');
+                            }
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '120');
+                            setWAttr(sp, 'line', '260');
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz, null));
+                            stats.bibEntries++;
+                        } else if (isListItem) {
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', optIndent ? 'both' : 'left');
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '60');
+                            setWAttr(sp, 'line', lineVal);
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz, null));
+                        } else {
+                            const existingJc = getDirectChild(pPr, 'jc')?.getAttributeNS(W_NS, 'val');
+                            const keepCenter = existingJc === 'center' && text.length < 90;
+                            const jc = ensureChild(pPr, 'jc');
+                            setWAttr(jc, 'val', keepCenter ? 'center' : (optIndent ? 'both' : 'left'));
+                            if (optIndent && !keepCenter && text.length > 65) {
+                                removeDirectChild(pPr, 'ind');
+                                const ind = ensureChild(pPr, 'ind');
+                                setWAttr(ind, 'firstLine', '709');
+                            }
+                            const sp = ensureChild(pPr, 'spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '0');
+                            setWAttr(sp, 'line', lineVal);
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz, null));
+                        }
+
+                        seenRealContent = true;
+                        stats.paragraphsTidied++;
+                    } else if (node.localName === 'tbl' && optTables) {
+                        seenRealContent = true;
+                        consecutiveEmpty = 0;
+                        const tblPr = ensureChild(node, 'tblPr', true);
+                        const tblW = ensureChild(tblPr, 'tblW');
+                        setWAttr(tblW, 'w', '5000');
+                        setWAttr(tblW, 'type', 'pct');
+
+                        removeDirectChild(tblPr, 'tblBorders');
+                        const borders = mkW('tblBorders');
+                        ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].forEach(side => {
+                            const b = mkW(side);
+                            setWAttr(b, 'val', 'single');
+                            setWAttr(b, 'sz', '4');
+                            setWAttr(b, 'space', '0');
+                            setWAttr(b, 'color', '334155');
+                            borders.appendChild(b);
+                        });
+                        tblPr.appendChild(borders);
+
+                        const rows = Array.from(node.childNodes).filter(n => n.nodeType === 1 && n.localName === 'tr');
+                        rows.forEach((tr, rIdx) => {
+                            const trPr = ensureChild(tr, 'trPr', true);
+                            ensureChild(trPr, 'cantSplit');
+                            if (rIdx === 0) ensureChild(trPr, 'tblHeader');
+                            Array.from(tr.getElementsByTagNameNS(W_NS, 'p')).forEach(tp => {
+                                cleanRunSpaces(tp);
+                                const tpPr = ensureChild(tp, 'pPr', true);
+                                const sp = ensureChild(tpPr, 'spacing');
+                                setWAttr(sp, 'before', '40');
+                                setWAttr(sp, 'after', '40');
+                                setWAttr(sp, 'line', '240');
+                                setWAttr(sp, 'lineRule', 'auto');
+                                Array.from(tp.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
+                                    applyRunStyle(r, Math.max(20, bodySz - 3), rIdx === 0 ? true : null);
+                                });
+                            });
+                        });
+                        stats.tablesFixed++;
+                    }
+                }
+
+                setProc('tidy', true, 'Menyimpan kembali dokumen Word rapi (.docx)...', 82);
+                const serializer = new XMLSerializer();
+                zip.file('word/document.xml', serializer.serializeToString(xmlDoc));
+
+                const stylesXmlStr = await zip.file('word/styles.xml')?.async('string');
+                if (stylesXmlStr) {
+                    const stylesDoc = parser.parseFromString(stylesXmlStr, 'application/xml');
+                    if (!stylesDoc.getElementsByTagName('parsererror').length) {
+                        Array.from(stylesDoc.getElementsByTagNameNS(W_NS, 'rFonts')).forEach(rf => {
+                            rf.setAttributeNS(W_NS, 'w:ascii', fontName);
+                            rf.setAttributeNS(W_NS, 'w:hAnsi', fontName);
+                            rf.setAttributeNS(W_NS, 'w:cs', fontName);
+                        });
+                        zip.file('word/styles.xml', serializer.serializeToString(stylesDoc));
+                    }
+                }
+
+                tidyDocxResultBlob = await zip.generateAsync({
+                    type: 'blob',
+                    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
+                tidyDocxOutName = tidyDocxFile.name.replace(/\.docx$/i, '') + '_Rapi.docx';
+
+                setProc('tidy', true, 'Selesai!', 100);
+                setTimeout(() => setProc('tidy', false), 260);
+
+                showResultCard(
+                    'tidy',
+                    `${tidyDocxOutName} (${formatBytes(tidyDocxResultBlob.size)})`,
+                    '100% teks, angka, kutipan, tabel & gambar asli tidak diubah — hanya format dan tata letak yang dirapikan.'
+                );
+                document.getElementById('btn-download-tidy').onclick = () => triggerBlobDownload(tidyDocxResultBlob, tidyDocxOutName);
+
+                const pills = [
+                    `✓ ${stats.paragraphsTidied} Paragraf dirapikan`,
+                    `✓ ${stats.emptyRemoved} Baris/halaman kosong dihapus`,
+                    `✓ ${stats.chaptersFixed} Judul BAB ditata`,
+                    `✓ ${stats.subHeadingsFixed} Sub-BAB (Keep Next)`,
+                    `✓ ${stats.tablesFixed} Tabel pas margin`,
+                    stats.bibEntries > 0 ? `✓ ${stats.bibEntries} Daftar Pustaka (Hanging)` : null,
+                    stats.spacesCleaned > 0 ? `✓ ${stats.spacesCleaned} Spasi ganda dibersihkan` : null,
+                    `🖼️ ${stats.imagesKept} Gambar 100% utuh`
+                ].filter(Boolean);
+                document.getElementById('result-tidy-pills').innerHTML = pills.map(p => `<span class="audit-pill">${p}</span>`).join('');
+            } catch (err) {
+                setProc('tidy', false);
+                setStatus('status-tidy', 'error', err.message || 'Gagal merapikan dokumen Word.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // 3. PDF <-> WORD CONVERTER (EKSTRAKSI TERURUT Y-DESC X-ASC)
+        // ============================================================
+        let selectedPdf2DocxFile = null;
+        let selectedDocx2PdfFile = null;
+        let lastPdf2DocxBlob = null, lastPdf2DocxName = '';
+        let lastDocx2PdfBlob = null, lastDocx2PdfName = '';
+
+        function setConvertMode(mode) {
+            document.getElementById('seg-pdf2docx').classList.toggle('active', mode === 'pdf2docx');
+            document.getElementById('seg-docx2pdf').classList.toggle('active', mode === 'docx2pdf');
+            document.getElementById('box-pdf2docx').style.display = mode === 'pdf2docx' ? 'block' : 'none';
+            document.getElementById('box-docx2pdf').style.display = mode === 'docx2pdf' ? 'block' : 'none';
+        }
+
+        function onSelectPdf2Docx(input) {
+            if (!input.files || !input.files[0]) return;
+            selectedPdf2DocxFile = input.files[0];
+            hideResult('pdf2docx');
+            document.getElementById('label-pdf2docx').textContent = `${selectedPdf2DocxFile.name} (${formatBytes(selectedPdf2DocxFile.size)})`;
+            setStatus('status-pdf2docx', 'info', 'File PDF siap dikonversi. Klik tombol "Konversi ke Word (.docx)".');
+        }
+
+        function onSelectDocx2Pdf(input) {
+            if (!input.files || !input.files[0]) return;
+            selectedDocx2PdfFile = input.files[0];
+            hideResult('docx2pdf');
+            document.getElementById('label-docx2pdf').textContent = `${selectedDocx2PdfFile.name} (${formatBytes(selectedDocx2PdfFile.size)})`;
+            setStatus('status-docx2pdf', 'info', 'File Word siap dikonversi. Klik tombol "Konversi ke PDF (.pdf)".');
+        }
+
+        async function extractPagesFromPdfFile(file, onProgress) {
+            await waitForLib('pdfjsLib', 'PDF.js');
+            ensurePdfJsWorker();
+            const buf = new Uint8Array(await file.arrayBuffer());
+            const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+            const pages = [];
+
+            for (let p = 1; p <= pdf.numPages; p++) {
+                if (onProgress) onProgress(p, pdf.numPages);
+                const page = await pdf.getPage(p);
+                const viewport = page.getViewport({ scale: 1 });
+                const pageH = viewport.height || 842;
+                const tc = await page.getTextContent();
+
+                const rawItems = (tc.items || [])
+                    .filter(it => (it.str || '').trim() !== '')
+                    .map(it => ({
+                        str: it.str,
+                        x: it.transform ? it.transform[4] : 0,
+                        y: it.transform ? it.transform[5] : 0,
+                        h: Math.abs(it.height || (it.transform ? it.transform[3] : 11) || 11),
+                        bold: /bold|black|heavy|demi/i.test(it.fontName || '')
+                    }))
+                    .sort((a, b) => {
+                        if (Math.abs(b.y - a.y) > 4.5) return b.y - a.y;
+                        return a.x - b.x;
+                    });
+
+                const lines = [];
+                for (const it of rawItems) {
+                    const last = lines[lines.length - 1];
+                    if (last && Math.abs(last.y - it.y) <= 4.5) {
+                        last.parts.push(it);
+                        last.maxH = Math.max(last.maxH, it.h);
+                        if (it.bold) last.boldCount++;
+                    } else {
+                        lines.push({ y: it.y, x: it.x, maxH: it.h, boldCount: it.bold ? 1 : 0, parts: [it] });
+                    }
+                }
+
+                const cleanLines = [];
+                for (const ln of lines) {
+                    const txt = ln.parts.map(pt => pt.str).join(' ').replace(/\s+/g, ' ').trim();
+                    if (!txt) continue;
+                    const isEdgePageNum = (ln.y < 68 || ln.y > pageH - 55) && /^(?:\d{1,4}|[ivxlcdm]{1,6}|halaman\s+\d+)$/i.test(txt);
+                    if (isEdgePageNum) continue;
+                    cleanLines.push({
+                        y: ln.y,
+                        x: ln.x,
+                        maxH: ln.maxH,
+                        isBold: ln.boldCount >= Math.ceil(ln.parts.length * 0.6),
+                        text: txt
+                    });
+                }
+
+                const heights = cleanLines.map(l => l.maxH).sort((a, b) => a - b);
+                const medianH = heights.length ? heights[Math.floor(heights.length / 2)] : 11;
+
+                const blocks = [];
+                let paraBuf = '';
+                let paraType = 'paragraph';
+                let prevY = null;
+
+                const flushPara = () => {
+                    const t = paraBuf.replace(/\s+/g, ' ').trim();
+                    if (t) blocks.push({ type: paraType, text: t });
+                    paraBuf = '';
+                    paraType = 'paragraph';
+                };
+
+                for (const ln of cleanLines) {
+                    const gap = prevY !== null ? Math.abs(prevY - ln.y) : 0;
+                    const isMainHead = /^(?:BAB\s+[IVX0-9]+|DAFTAR\s+[A-Z]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LAMPIRAN)\b/i.test(ln.text)
+                        || (ln.maxH >= medianH * 1.28 && ln.text.length <= 90);
+                    const isSubHead = !isMainHead && (
+                        /^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)/.test(ln.text) && ln.text.length <= 110
+                        || (ln.isBold && ln.maxH >= medianH * 1.05 && ln.text.length <= 80 && !/[.,;]$/.test(ln.text))
+                    );
+                    const isList = !isMainHead && !isSubHead && /^(?:\d+[\.\)]\s+|[•\-–]\s+)/.test(ln.text);
+
+                    if (isMainHead || isSubHead) {
+                        flushPara();
+                        blocks.push({ type: isMainHead ? 'heading' : 'subheading', text: ln.text });
+                    } else if (isList) {
+                        flushPara();
+                        paraType = 'list';
+                        paraBuf = ln.text;
+                    } else if (paraBuf && gap > medianH * 1.9) {
+                        flushPara();
+                        paraType = 'paragraph';
+                        paraBuf = ln.text;
+                    } else if (paraBuf) {
+                        if (/[A-Za-z]-$/.test(paraBuf) && /^[a-z]/.test(ln.text)) {
+                            paraBuf = paraBuf.slice(0, -1) + ln.text;
+                        } else {
+                            paraBuf += ' ' + ln.text;
+                        }
+                    } else {
+                        paraBuf = ln.text;
+                    }
+                    prevY = ln.y;
+                }
+                flushPara();
+                pages.push({ pageNum: p, blocks, paragraphs: blocks.map(b => b.text) });
+            }
+            return pages;
+        }
+
+        async function runPdfToDocx() {
+            if (!selectedPdf2DocxFile) {
+                setStatus('status-pdf2docx', 'error', 'Pilih file PDF terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-pdf2docx');
+            btn.disabled = true;
+            hideResult('pdf2docx');
+            setStatus('status-pdf2docx', '', '');
+            try {
+                setProc('pdf2docx', true, 'Membaca teks & struktur heading PDF...', 15);
+                const pages = await extractPagesFromPdfFile(selectedPdf2DocxFile, (cur, tot) => {
+                    setProc('pdf2docx', true, `Mengekstrak halaman ${cur} dari ${tot}...`, 15 + (cur / tot) * 55);
+                });
+                const totalBlocks = pages.reduce((acc, p) => acc + p.blocks.length, 0);
+                if (totalBlocks === 0) {
+                    throw new Error('PDF ini tidak memiliki lapisan teks (kemungkinan hasil scan foto). Konversi hanya mendukung PDF berbasis teks.');
+                }
+
+                setProc('pdf2docx', true, `Menyusun dokumen Word (.docx) dari ${pages.length} halaman...`, 80);
+                const res = await fetch('{{ route("tools.convert.pdfToDocx") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        filename: selectedPdf2DocxFile.name,
+                        pages: pages.map(p => ({ pageNum: p.pageNum, blocks: p.blocks })),
+                        academic_format: document.getElementById('chk-pdf2docx-academic').checked
+                    })
+                });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.message || 'Gagal menyusun file Word.');
+                }
+                lastPdf2DocxBlob = await res.blob();
+                lastPdf2DocxName = selectedPdf2DocxFile.name.replace(/\.pdf$/i, '') + '.docx';
+                setProc('pdf2docx', true, 'Selesai!', 100);
+                setTimeout(() => setProc('pdf2docx', false), 250);
+
+                showResultCard('pdf2docx', lastPdf2DocxName, `${pages.length} halaman · ${totalBlocks} blok teks · ${formatBytes(lastPdf2DocxBlob.size)}`);
+                document.getElementById('btn-download-pdf2docx').onclick = () => triggerBlobDownload(lastPdf2DocxBlob, lastPdf2DocxName);
+                triggerBlobDownload(lastPdf2DocxBlob, lastPdf2DocxName);
+            } catch (err) {
+                setProc('pdf2docx', false);
+                setStatus('status-pdf2docx', 'error', err.message || 'Terjadi kesalahan saat konversi.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function runDocxToPdf() {
+            if (!selectedDocx2PdfFile) {
+                setStatus('status-docx2pdf', 'error', 'Pilih file Word (.docx) terlebih dahulu.');
+                return;
+            }
+            if (selectedDocx2PdfFile.size > 4 * 1024 * 1024) {
+                setStatus('status-docx2pdf', 'error', 'Ukuran file .docx melebihi 4 MB. Gunakan menu Kompres File → Word terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-docx2pdf');
+            btn.disabled = true;
+            hideResult('docx2pdf');
+            setStatus('status-docx2pdf', '', '');
+            try {
+                setProc('docx2pdf', true, 'Mengonversi dokumen Word (.docx) ke PDF A4...', 55);
+                const fd = new FormData();
+                fd.append('file', selectedDocx2PdfFile);
+                fd.append('margin', document.getElementById('sel-docx2pdf-margin').value);
+                fd.append('page_numbers', document.getElementById('chk-docx2pdf-pagenum').checked ? '1' : '0');
+                const res = await fetch('{{ route("tools.convert.docxToPdf") }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: fd
+                });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.message || 'Gagal mengonversi ke PDF.');
+                }
+                lastDocx2PdfBlob = await res.blob();
+                lastDocx2PdfName = selectedDocx2PdfFile.name.replace(/\.docx$/i, '') + '.pdf';
+                setProc('docx2pdf', true, 'Selesai!', 100);
+                setTimeout(() => setProc('docx2pdf', false), 250);
+
+                showResultCard('docx2pdf', lastDocx2PdfName, `Ukuran PDF: ${formatBytes(lastDocx2PdfBlob.size)} · Format kertas A4`);
+                document.getElementById('btn-preview-docx2pdf').onclick = () => openBlobPreview(lastDocx2PdfBlob);
+                document.getElementById('btn-download-docx2pdf').onclick = () => triggerBlobDownload(lastDocx2PdfBlob, lastDocx2PdfName);
+                triggerBlobDownload(lastDocx2PdfBlob, lastDocx2PdfName);
+            } catch (err) {
+                setProc('docx2pdf', false);
+                setStatus('status-docx2pdf', 'error', err.message || 'Terjadi kesalahan saat konversi.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // 4. GABUNG PDF (MERGE PDF) — FIXED ENCRYPTION & THUMBNAILS
+        // ============================================================
+        let mergePdfItems = [];
+        let lastMergePdfBlob = null, lastMergePdfName = 'Gabungan_Skripsi.pdf';
+
+        async function renderPdfPageThumbDataUrl(uint8Bytes, pageNum = 1, maxW = 140) {
+            try {
+                await waitForLib('pdfjsLib', 'PDF.js');
+                ensurePdfJsWorker();
+                const pdf = await window.pdfjsLib.getDocument({ data: uint8Bytes.slice() }).promise;
+                const page = await pdf.getPage(pageNum);
+                const vp0 = page.getViewport({ scale: 1 });
+                const scale = Math.min(1, maxW / (vp0.width || 595));
+                const vp = page.getViewport({ scale });
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
+                canvas.width = Math.max(1, Math.round(vp.width));
+                canvas.height = Math.max(1, Math.round(vp.height));
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.scale(scale, scale);
-                ctx.drawImage(img, 0, 0);
-                URL.revokeObjectURL(url);
-                canvas.toBlob((pngBlob) => {
-                    if (pngBlob) triggerBlobDownload(pngBlob, 'Flowchart_Skripsi_HD.png');
-                }, 'image/png');
+                await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                return canvas.toDataURL('image/jpeg', 0.72);
+            } catch (e) {
+                return '';
+            }
+        }
+
+        async function addMergePdfFiles(input) {
+            if (!input.files || !input.files.length) return;
+            setStatus('status-merge-pdf', '', '');
+            hideResult('merge');
+            try {
+                await waitForLib('PDFLib', 'PDF-Lib');
+                const rejected = [];
+                for (const f of Array.from(input.files)) {
+                    const bytes = new Uint8Array(await f.arrayBuffer());
+                    try {
+                        const doc = await window.PDFLib.PDFDocument.load(bytes);
+                        const pageCount = doc.getPageCount();
+                        const thumb = await renderPdfPageThumbDataUrl(bytes, 1, 120);
+                        mergePdfItems.push({ name: f.name, size: f.size, bytes, pages: pageCount, thumb });
+                    } catch (err) {
+                        rejected.push(f.name);
+                    }
+                }
+                if (rejected.length) {
+                    setStatus('status-merge-pdf', 'error', `File dilewati karena terenkripsi kata sandi atau korup: ${rejected.join(', ')}. Buka kuncinya dulu sebelum digabung.`);
+                }
+            } catch (err) {
+                setStatus('status-merge-pdf', 'error', err.message || 'Gagal membaca file PDF.');
+            }
+            input.value = '';
+            renderMergePdfList();
+        }
+
+        function renderMergePdfList() {
+            const wrap = document.getElementById('merge-pdf-list');
+            const sumWrap = document.getElementById('merge-pdf-summary');
+            if (!mergePdfItems.length) {
+                wrap.innerHTML = '';
+                sumWrap.style.display = 'none';
+                return;
+            }
+            const totalPages = mergePdfItems.reduce((a, b) => a + (b.pages || 0), 0);
+            sumWrap.style.display = 'flex';
+            document.getElementById('merge-pdf-summary-text').textContent = `${mergePdfItems.length} file dipilih · Total ${totalPages} halaman akan digabungkan`;
+
+            wrap.innerHTML = mergePdfItems.map((it, i) => `
+                <div class="file-row">
+                    <div class="file-row-left">
+                        ${it.thumb ? `<img src="${it.thumb}" class="file-pdf-thumb" alt="Hal 1">` : `<span class="file-badge">PDF</span>`}
+                        <div style="min-width:0;">
+                            <div class="file-name">${i + 1}. ${it.name.replace(/</g, '&lt;')}</div>
+                            <div class="file-meta">${it.pages} halaman · ${formatBytes(it.size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button type="button" class="mini-btn" onclick="moveMergePdf(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲ Naik</button>
+                        <button type="button" class="mini-btn" onclick="moveMergePdf(${i}, 1)" ${i === mergePdfItems.length - 1 ? 'disabled' : ''}>▼ Turun</button>
+                        <button type="button" class="mini-btn danger" onclick="removeMergePdf(${i})">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveMergePdf(i, d) {
+            const t = i + d;
+            if (t < 0 || t >= mergePdfItems.length) return;
+            [mergePdfItems[i], mergePdfItems[t]] = [mergePdfItems[t], mergePdfItems[i]];
+            renderMergePdfList();
+        }
+        function removeMergePdf(i) { mergePdfItems.splice(i, 1); renderMergePdfList(); }
+        function clearMergePdf() { mergePdfItems = []; hideResult('merge'); renderMergePdfList(); }
+
+        async function runMergePdf() {
+            if (mergePdfItems.length < 2) {
+                setStatus('status-merge-pdf', 'error', 'Tambahkan minimal 2 file PDF untuk digabungkan.');
+                return;
+            }
+            const btn = document.getElementById('btn-merge-pdf');
+            btn.disabled = true;
+            hideResult('merge');
+            setStatus('status-merge-pdf', '', '');
+            try {
+                await waitForLib('PDFLib', 'PDF-Lib');
+                const addPageNum = document.getElementById('merge-add-pagenum').checked;
+                const merged = await window.PDFLib.PDFDocument.create();
+                const font = addPageNum ? await merged.embedFont(window.PDFLib.StandardFonts.TimesRoman) : null;
+
+                for (let idx = 0; idx < mergePdfItems.length; idx++) {
+                    const item = mergePdfItems[idx];
+                    setProc('merge', true, `Menggabungkan file ${idx + 1} / ${mergePdfItems.length}: ${item.name}`, ((idx + 0.5) / mergePdfItems.length) * 80);
+                    const src = await window.PDFLib.PDFDocument.load(item.bytes.slice());
+                    const copied = await merged.copyPages(src, src.getPageIndices());
+                    copied.forEach(p => merged.addPage(p));
+                }
+
+                if (addPageNum && font) {
+                    const allPages = merged.getPages();
+                    allPages.forEach((pg, i) => {
+                        const { width } = pg.getSize();
+                        const label = String(i + 1);
+                        const tw = font.widthOfTextAtSize(label, 11);
+                        pg.drawText(label, { x: (width - tw) / 2, y: 24, size: 11, font, color: window.PDFLib.rgb(0.1, 0.1, 0.1) });
+                    });
+                }
+
+                setProc('merge', true, 'Menyusun file PDF akhir (kompatibilitas universal)...', 92);
+                const bytes = await merged.save({ useObjectStreams: false });
+                lastMergePdfName = (document.getElementById('merge-output-name').value || 'Gabungan_Skripsi').trim().replace(/\.pdf$/i, '') + '.pdf';
+                lastMergePdfBlob = new Blob([bytes], { type: 'application/pdf' });
+
+                setProc('merge', true, 'Selesai!', 100);
+                setTimeout(() => setProc('merge', false), 220);
+
+                showResultCard('merge', lastMergePdfName, `${merged.getPageCount()} halaman dari ${mergePdfItems.length} file · ${formatBytes(lastMergePdfBlob.size)}`);
+                document.getElementById('btn-preview-merge').onclick = () => openBlobPreview(lastMergePdfBlob);
+                document.getElementById('btn-download-merge').onclick = () => triggerBlobDownload(lastMergePdfBlob, lastMergePdfName);
+            } catch (err) {
+                setProc('merge', false);
+                setStatus('status-merge-pdf', 'error', err.message || 'Gagal menggabungkan PDF.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // 5. PISAH / HAPUS HALAMAN PDF — VISUAL THUMBNAIL + AKURAT 100%
+        // ============================================================
+        let splitPdfBytes = null;
+        let splitPdfName = '';
+        let splitPdfTotalPages = 0;
+        let splitMode = 'extract';
+        let splitSelectedSet = new Set();
+        let lastSplitPdfBlob = null, lastSplitPdfName = 'Halaman_PDF.pdf';
+
+        function setSplitMode(mode) {
+            splitMode = mode;
+            document.getElementById('seg-split-extract').classList.toggle('active', mode === 'extract');
+            document.getElementById('seg-split-delete').classList.toggle('active', mode === 'delete');
+            document.getElementById('split-range-label').textContent = mode === 'extract'
+                ? 'Halaman yang Diambil (sinkron otomatis dengan klik di atas)'
+                : 'Halaman yang Dihapus (halaman lain akan tetap disimpan)';
+            document.getElementById('btn-split-pdf').textContent = mode === 'extract'
+                ? 'Ekstrak Halaman Terpilih'
+                : 'Hapus Halaman & Simpan PDF';
+            syncSplitSelectionUi();
+        }
+
+        function setToCompactRange(nums) {
+            if (!nums.length) return '';
+            const sorted = Array.from(new Set(nums)).sort((a, b) => a - b);
+            const parts = [];
+            let start = sorted[0], prev = sorted[0];
+            for (let i = 1; i <= sorted.length; i++) {
+                if (sorted[i] === prev + 1) {
+                    prev = sorted[i];
+                } else {
+                    parts.push(start === prev ? String(start) : `${start}-${prev}`);
+                    start = prev = sorted[i];
+                }
+            }
+            return parts.join(', ');
+        }
+
+        function parsePageRanges1Based(str, maxPage) {
+            const set = new Set();
+            String(str || '').split(',').forEach(raw => {
+                const p = raw.trim();
+                if (!p) return;
+                if (p.includes('-')) {
+                    const [a, b] = p.split('-').map(n => parseInt(n.trim(), 10));
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const s = Math.max(1, Math.min(a, b));
+                        const e = Math.min(maxPage, Math.max(a, b));
+                        for (let i = s; i <= e; i++) set.add(i);
+                    }
+                } else {
+                    const n = parseInt(p, 10);
+                    if (!isNaN(n) && n >= 1 && n <= maxPage) set.add(n);
+                }
+            });
+            return set;
+        }
+
+        function syncSplitSelectionUi(updateInput = true) {
+            const arr = Array.from(splitSelectedSet).sort((a, b) => a - b);
+            if (updateInput) {
+                const inp = document.getElementById('split-range-input');
+                if (inp) inp.value = setToCompactRange(arr);
+            }
+
+            document.querySelectorAll('.split-page-card').forEach(el => {
+                const p = parseInt(el.dataset.page, 10);
+                const sel = splitSelectedSet.has(p);
+                el.classList.toggle('selected', sel);
+                el.classList.toggle('delete-mode', splitMode === 'delete');
+                const tick = el.querySelector('.split-page-tick');
+                if (tick) tick.textContent = splitMode === 'delete' ? '✕' : '✓';
+            });
+            document.querySelectorAll('.page-pill').forEach(el => {
+                const p = parseInt(el.dataset.page, 10);
+                el.classList.toggle('selected', splitSelectedSet.has(p));
+                el.classList.toggle('delete-mode', splitMode === 'delete');
+            });
+
+            const sumEl = document.getElementById('split-selection-summary');
+            if (!sumEl || !splitPdfTotalPages) return;
+            if (splitMode === 'extract') {
+                sumEl.style.color = '#1d4ed8';
+                sumEl.textContent = arr.length
+                    ? `Hasil PDF: ${arr.length} halaman diambil (${setToCompactRange(arr)})`
+                    : 'Belum ada halaman yang dipilih';
+            } else {
+                const keptCount = Math.max(0, splitPdfTotalPages - arr.length);
+                sumEl.style.color = '#b91c1c';
+                sumEl.textContent = arr.length
+                    ? `${arr.length} halaman dihapus · Sisa ${keptCount} halaman akan disimpan`
+                    : `Pilih halaman yang ingin dihapus (total ${splitPdfTotalPages} halaman)`;
+            }
+        }
+
+        function toggleSplitPage(p) {
+            if (splitSelectedSet.has(p)) splitSelectedSet.delete(p);
+            else splitSelectedSet.add(p);
+            syncSplitSelectionUi(true);
+        }
+
+        function onSplitRangeInputTyped() {
+            splitSelectedSet = parsePageRanges1Based(document.getElementById('split-range-input').value, splitPdfTotalPages);
+            syncSplitSelectionUi(false);
+        }
+
+        function selectSplitPreset(kind) {
+            splitSelectedSet.clear();
+            if (kind === 'first') splitSelectedSet.add(1);
+            else if (kind === '1-3') { for (let i = 1; i <= Math.min(3, splitPdfTotalPages); i++) splitSelectedSet.add(i); }
+            else if (kind === 'odd') { for (let i = 1; i <= splitPdfTotalPages; i += 2) splitSelectedSet.add(i); }
+            else if (kind === 'even') { for (let i = 2; i <= splitPdfTotalPages; i += 2) splitSelectedSet.add(i); }
+            else if (kind === 'last') splitSelectedSet.add(splitPdfTotalPages);
+            else if (kind === 'all') { for (let i = 1; i <= splitPdfTotalPages; i++) splitSelectedSet.add(i); }
+            syncSplitSelectionUi(true);
+        }
+
+        async function onSelectSplitPdf(input) {
+            if (!input.files || !input.files[0]) return;
+            const f = input.files[0];
+            hideResult('split');
+            setStatus('status-split-pdf', '', '');
+            try {
+                await waitForLib('PDFLib', 'PDF-Lib');
+                const bytes = new Uint8Array(await f.arrayBuffer());
+                const doc = await window.PDFLib.PDFDocument.load(bytes);
+                splitPdfBytes = bytes;
+                splitPdfName = f.name;
+                splitPdfTotalPages = doc.getPageCount();
+
+                document.getElementById('label-split-pdf').textContent = `${f.name} (${formatBytes(f.size)})`;
+                document.getElementById('sub-split-pdf').textContent = `Total ${splitPdfTotalPages} halaman terdeteksi`;
+                document.getElementById('split-output-name').value = f.name.replace(/\.pdf$/i, '') + '_pisah';
+                document.getElementById('split-controls-wrap').style.display = 'block';
+
+                splitSelectedSet = new Set();
+                for (let i = 1; i <= Math.min(3, splitPdfTotalPages); i++) splitSelectedSet.add(i);
+
+                const thumbGrid = document.getElementById('split-visual-grid');
+                const pillGrid = document.getElementById('split-pill-grid');
+
+                if (splitPdfTotalPages <= 36) {
+                    thumbGrid.style.display = 'grid';
+                    pillGrid.style.display = 'none';
+                    thumbGrid.innerHTML = Array.from({ length: splitPdfTotalPages }, (_, i) => `
+                        <div class="split-page-card" data-page="${i + 1}" onclick="toggleSplitPage(${i + 1})">
+                            <span class="split-page-tick">✓</span>
+                            <canvas id="split-thumb-cv-${i + 1}" width="110" height="145"></canvas>
+                            <div class="split-page-num">Hal. ${i + 1}</div>
+                        </div>
+                    `).join('');
+                    syncSplitSelectionUi(true);
+
+                    await waitForLib('pdfjsLib', 'PDF.js');
+                    ensurePdfJsWorker();
+                    const pdfJsDoc = await window.pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+                    for (let p = 1; p <= splitPdfTotalPages; p++) {
+                        const cv = document.getElementById('split-thumb-cv-' + p);
+                        if (!cv) break;
+                        const pg = await pdfJsDoc.getPage(p);
+                        const vp0 = pg.getViewport({ scale: 1 });
+                        const scale = Math.min(0.65, 130 / (vp0.width || 595));
+                        const vp = pg.getViewport({ scale });
+                        cv.width = Math.max(1, Math.round(vp.width));
+                        cv.height = Math.max(1, Math.round(vp.height));
+                        const ctx = cv.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, cv.width, cv.height);
+                        await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+                    }
+                } else {
+                    thumbGrid.style.display = 'none';
+                    pillGrid.style.display = 'flex';
+                    pillGrid.innerHTML = Array.from({ length: splitPdfTotalPages }, (_, i) => `
+                        <button type="button" class="page-pill" data-page="${i + 1}" onclick="toggleSplitPage(${i + 1})">${i + 1}</button>
+                    `).join('');
+                    syncSplitSelectionUi(true);
+                }
+            } catch (err) {
+                document.getElementById('split-controls-wrap').style.display = 'none';
+                setStatus('status-split-pdf', 'error', 'Gagal membuka PDF. Pastikan file tidak terproteksi kata sandi atau korup.');
+            }
+            input.value = '';
+        }
+
+        async function runSplitPdf() {
+            if (!splitPdfBytes || !splitPdfTotalPages) {
+                setStatus('status-split-pdf', 'error', 'Pilih file PDF terlebih dahulu.');
+                return;
+            }
+            let targetPages1Based = [];
+            if (splitMode === 'extract') {
+                targetPages1Based = Array.from(splitSelectedSet).sort((a, b) => a - b);
+            } else {
+                for (let i = 1; i <= splitPdfTotalPages; i++) {
+                    if (!splitSelectedSet.has(i)) targetPages1Based.push(i);
+                }
+            }
+            if (!targetPages1Based.length) {
+                setStatus('status-split-pdf', 'error', splitMode === 'extract'
+                    ? 'Pilih minimal 1 halaman yang ingin diambil.'
+                    : 'Tidak bisa menghapus semua halaman — minimal sisakan 1 halaman.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-split-pdf');
+            btn.disabled = true;
+            hideResult('split');
+            setStatus('status-split-pdf', '', '');
+            try {
+                await waitForLib('PDFLib', 'PDF-Lib');
+                setProc('split', true, `Menyalin ${targetPages1Based.length} halaman terpilih...`, 45);
+                const src = await window.PDFLib.PDFDocument.load(splitPdfBytes.slice());
+                const out = await window.PDFLib.PDFDocument.create();
+                const zeroIndices = targetPages1Based.map(p => p - 1);
+                const copied = await out.copyPages(src, zeroIndices);
+                copied.forEach(p => out.addPage(p));
+
+                setProc('split', true, 'Menyimpan file PDF hasil...', 88);
+                const outBytes = await out.save({ useObjectStreams: false });
+                const base = (document.getElementById('split-output-name').value || 'Halaman_PDF').trim().replace(/\.pdf$/i, '');
+                lastSplitPdfName = base + '.pdf';
+                lastSplitPdfBlob = new Blob([outBytes], { type: 'application/pdf' });
+
+                setProc('split', true, 'Selesai!', 100);
+                setTimeout(() => setProc('split', false), 220);
+
+                showResultCard(
+                    'split',
+                    lastSplitPdfName,
+                    `${targetPages1Based.length} halaman (${setToCompactRange(targetPages1Based)}) · ${formatBytes(lastSplitPdfBlob.size)}`
+                );
+                document.getElementById('btn-preview-split').onclick = () => openBlobPreview(lastSplitPdfBlob);
+                document.getElementById('btn-download-split').onclick = () => triggerBlobDownload(lastSplitPdfBlob, lastSplitPdfName);
+            } catch (err) {
+                setProc('split', false);
+                setStatus('status-split-pdf', 'error', err.message || 'Gagal memisahkan PDF.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // 6. KOMPRES FILE 3-IN-1 (PDF / WORD .DOCX / GAMBAR)
+        // ============================================================
+        function setCompressMode(mode) {
+            ['pdf', 'docx', 'img'].forEach(m => {
+                document.getElementById('seg-comp-' + m).classList.toggle('active', m === mode);
+                document.getElementById('box-comp-' + m).style.display = m === mode ? 'block' : 'none';
+            });
+        }
+
+        // --- 6A. KOMPRES PDF ---
+        let compPdfFile = null;
+        let lastCompPdfBlob = null, lastCompPdfName = 'Kompres.pdf';
+
+        function onSelectCompPdf(input) {
+            if (!input.files || !input.files[0]) return;
+            compPdfFile = input.files[0];
+            hideResult('comp-pdf');
+            document.getElementById('label-comp-pdf').textContent = `${compPdfFile.name} (${formatBytes(compPdfFile.size)})`;
+            document.getElementById('comp-pdf-info').textContent = `Ukuran asli: ${formatBytes(compPdfFile.size)} — siap dikompres.`;
+            setStatus('status-comp-pdf', '', '');
+        }
+
+        async function runCompressPdf() {
+            if (!compPdfFile) {
+                setStatus('status-comp-pdf', 'error', 'Pilih file PDF terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-comp-pdf');
+            btn.disabled = true;
+            hideResult('comp-pdf');
+            setStatus('status-comp-pdf', '', '');
+            try {
+                await waitForLib('pdfjsLib', 'PDF.js');
+                await waitForLib('PDFLib', 'PDF-Lib');
+                ensurePdfJsWorker();
+
+                const level = document.getElementById('comp-pdf-level').value;
+                const cfg = level === 'low'
+                    ? { scale: 1.05, quality: 0.48 }
+                    : (level === 'high' ? { scale: 1.65, quality: 0.78 } : { scale: 1.35, quality: 0.64 });
+
+                setProc('comp-pdf', true, 'Membuka file PDF...', 8);
+                const rawBytes = new Uint8Array(await compPdfFile.arrayBuffer());
+                const pdfJsDoc = await window.pdfjsLib.getDocument({ data: rawBytes }).promise;
+                const outDoc = await window.PDFLib.PDFDocument.create();
+
+                const total = pdfJsDoc.numPages;
+                for (let p = 1; p <= total; p++) {
+                    setProc('comp-pdf', true, `Mengompres halaman ${p} dari ${total}...`, 10 + (p / total) * 80);
+                    const pg = await pdfJsDoc.getPage(p);
+                    const origVp = pg.getViewport({ scale: 1 });
+                    const renderVp = pg.getViewport({ scale: cfg.scale });
+
+                    const cv = document.createElement('canvas');
+                    cv.width = Math.max(1, Math.round(renderVp.width));
+                    cv.height = Math.max(1, Math.round(renderVp.height));
+                    const ctx = cv.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, cv.width, cv.height);
+                    await pg.render({ canvasContext: ctx, viewport: renderVp }).promise;
+
+                    const jpgBlob = await new Promise(res => cv.toBlob(res, 'image/jpeg', cfg.quality));
+                    const jpgBytes = new Uint8Array(await jpgBlob.arrayBuffer());
+                    const embedded = await outDoc.embedJpg(jpgBytes);
+                    const outPage = outDoc.addPage([origVp.width, origVp.height]);
+                    outPage.drawImage(embedded, { x: 0, y: 0, width: origVp.width, height: origVp.height });
+                }
+
+                setProc('comp-pdf', true, 'Menyimpan PDF hasil kompresi...', 94);
+                const finalBytes = await outDoc.save({ useObjectStreams: false });
+                lastCompPdfBlob = new Blob([finalBytes], { type: 'application/pdf' });
+                lastCompPdfName = compPdfFile.name.replace(/\.pdf$/i, '') + '_kompres.pdf';
+
+                setProc('comp-pdf', true, 'Selesai!', 100);
+                setTimeout(() => setProc('comp-pdf', false), 220);
+
+                const savedPct = compPdfFile.size > 0 ? Math.round((1 - lastCompPdfBlob.size / compPdfFile.size) * 100) : 0;
+                const diffTxt = savedPct >= 0
+                    ? `${formatBytes(compPdfFile.size)} → ${formatBytes(lastCompPdfBlob.size)} (Hemat ${savedPct}%)`
+                    : `${formatBytes(compPdfFile.size)} → ${formatBytes(lastCompPdfBlob.size)} (PDF teks asli sudah sangat ringan — coba tingkat Sangat Ringan)`;
+
+                showResultCard('comp-pdf', lastCompPdfName, `${total} halaman · ${diffTxt}`);
+                document.getElementById('btn-preview-comp-pdf').onclick = () => openBlobPreview(lastCompPdfBlob);
+                document.getElementById('btn-download-comp-pdf').onclick = () => triggerBlobDownload(lastCompPdfBlob, lastCompPdfName);
+            } catch (err) {
+                setProc('comp-pdf', false);
+                setStatus('status-comp-pdf', 'error', err.message || 'Gagal mengompres PDF.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // --- 6B. KOMPRES WORD (.DOCX) — 100% CLIENT-SIDE JSZIP ---
+        let compDocxFile = null;
+        let lastCompDocxBlob = null, lastCompDocxName = 'Kompres.docx';
+
+        function onSelectCompDocx(input) {
+            if (!input.files || !input.files[0]) return;
+            const f = input.files[0];
+            if (!f.name.toLowerCase().endsWith('.docx')) {
+                setStatus('status-comp-docx', 'error', 'Format file harus .docx.');
+                return;
+            }
+            compDocxFile = f;
+            hideResult('comp-docx');
+            document.getElementById('label-comp-docx').textContent = `${f.name} (${formatBytes(f.size)})`;
+            document.getElementById('comp-docx-info').textContent = `Ukuran asli: ${formatBytes(f.size)} — siap dikompres.`;
+            setStatus('status-comp-docx', '', '');
+        }
+
+        function recompressMediaBlob(blob, ext, maxW, quality) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                img.onload = () => {
+                    let w = img.naturalWidth, h = img.naturalHeight;
+                    if (maxW > 0 && w > maxW) {
+                        h = Math.round((h * maxW) / w);
+                        w = maxW;
+                    }
+                    const cv = document.createElement('canvas');
+                    cv.width = Math.max(1, w);
+                    cv.height = Math.max(1, h);
+                    const ctx = cv.getContext('2d');
+                    const isPng = ext === 'png';
+                    if (!isPng) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, cv.width, cv.height);
+                    }
+                    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+                    URL.revokeObjectURL(url);
+                    cv.toBlob(outBlob => {
+                        if (outBlob && outBlob.size < blob.size) resolve(outBlob);
+                        else resolve(null);
+                    }, isPng ? 'image/png' : 'image/jpeg', isPng ? undefined : quality);
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+                img.src = url;
+            });
+        }
+
+        async function runCompressDocx() {
+            if (!compDocxFile) {
+                setStatus('status-comp-docx', 'error', 'Pilih file Word (.docx) terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-comp-docx');
+            btn.disabled = true;
+            hideResult('comp-docx');
+            setStatus('status-comp-docx', '', '');
+            try {
+                const JSZip = await waitForLib('JSZip', 'JSZip');
+                const level = document.getElementById('comp-docx-level').value;
+                const cfg = level === 'low'
+                    ? { maxW: 1000, quality: 0.60 }
+                    : (level === 'high' ? { maxW: 1800, quality: 0.85 } : { maxW: 1400, quality: 0.76 });
+
+                setProc('comp-docx', true, 'Membuka arsip dokumen Word...', 12);
+                const zip = await JSZip.loadAsync(await compDocxFile.arrayBuffer());
+                const mediaPaths = [];
+                zip.forEach((relPath, entry) => {
+                    if (!entry.dir && /^word\/media\/.+\.(jpe?g|png)$/i.test(relPath)) {
+                        mediaPaths.push(relPath);
+                    }
+                });
+
+                let compressedImgCount = 0;
+                for (let i = 0; i < mediaPaths.length; i++) {
+                    const p = mediaPaths[i];
+                    setProc('comp-docx', true, `Mengompres gambar ${i + 1} / ${mediaPaths.length}...`, 15 + ((i + 1) / Math.max(1, mediaPaths.length)) * 68);
+                    const ext = p.split('.').pop().toLowerCase();
+                    const origBlob = await zip.file(p).async('blob');
+                    const smaller = await recompressMediaBlob(origBlob, ext, cfg.maxW, cfg.quality);
+                    if (smaller) {
+                        zip.file(p, await smaller.arrayBuffer());
+                        compressedImgCount++;
+                    }
+                }
+
+                setProc('comp-docx', true, 'Mengemas ulang dokumen .docx dengan kompresi maksimal...', 90);
+                lastCompDocxBlob = await zip.generateAsync({
+                    type: 'blob',
+                    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 9 }
+                });
+                lastCompDocxName = compDocxFile.name.replace(/\.docx$/i, '') + '_kompres.docx';
+
+                setProc('comp-docx', true, 'Selesai!', 100);
+                setTimeout(() => setProc('comp-docx', false), 220);
+
+                const pct = compDocxFile.size > 0 ? Math.max(0, Math.round((1 - lastCompDocxBlob.size / compDocxFile.size) * 100)) : 0;
+                showResultCard(
+                    'comp-docx',
+                    lastCompDocxName,
+                    `${formatBytes(compDocxFile.size)} → ${formatBytes(lastCompDocxBlob.size)} (Hemat ${pct}%) · ${compressedImgCount}/${mediaPaths.length} gambar dioptimasi`
+                );
+                document.getElementById('btn-download-comp-docx').onclick = () => triggerBlobDownload(lastCompDocxBlob, lastCompDocxName);
+            } catch (err) {
+                setProc('comp-docx', false);
+                setStatus('status-comp-docx', 'error', err.message || 'Gagal mengompres Word (.docx).');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // --- 6C. KOMPRES GAMBAR (DENGAN TARGET UKURAN SIAKAD) ---
+        let compressSourceFiles = [];
+        let compressedOutputs = [];
+        let imgTargetKbPreset = 'manual';
+
+        function setImgTargetPreset(val, btnEl) {
+            imgTargetKbPreset = val;
+            document.querySelectorAll('[data-imgtarget]').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            document.getElementById('comp-img-manual-controls').style.opacity = val === 'manual' ? '1' : '0.55';
+            if (compressSourceFiles.length) runCompressImages();
+        }
+
+        function onSelectCompressImages(input) {
+            if (!input.files || !input.files.length) return;
+            compressSourceFiles = Array.from(input.files);
+            runCompressImages();
+        }
+
+        function renderCanvasToJpegBlob(img, maxWidth, quality) {
+            return new Promise((resolve, reject) => {
+                let w = img.naturalWidth, h = img.naturalHeight;
+                if (maxWidth > 0 && w > maxWidth) {
+                    h = Math.round((h * maxWidth) / w);
+                    w = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, w);
+                canvas.height = Math.max(1, h);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Gagal memproses gambar.')), 'image/jpeg', quality);
+            });
+        }
+
+        function loadImageFromFile(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('File bukan gambar valid: ' + file.name)); };
+                img.src = url;
+            });
+        }
+
+        async function compressOneImageSmart(file) {
+            const img = await loadImageFromFile(file);
+            let blob = null;
+            if (imgTargetKbPreset === 'manual') {
+                const quality = (parseInt(document.getElementById('compress-quality').value, 10) || 75) / 100;
+                const maxW = parseInt(document.getElementById('compress-maxw').value, 10) || 0;
+                blob = await renderCanvasToJpegBlob(img, maxW, quality);
+            } else {
+                const targetBytes = parseInt(imgTargetKbPreset, 10) * 1024;
+                const steps = [
+                    { w: 1600, q: 0.85 }, { w: 1600, q: 0.72 }, { w: 1400, q: 0.62 },
+                    { w: 1200, q: 0.52 }, { w: 1000, q: 0.45 }, { w: 800, q: 0.38 }, { w: 680, q: 0.30 }
+                ];
+                for (const st of steps) {
+                    blob = await renderCanvasToJpegBlob(img, st.w, st.q);
+                    if (blob.size <= targetBytes) break;
+                }
+            }
+            return {
+                name: file.name.replace(/\.\w+$/, '') + '_kompres.jpg',
+                origSize: file.size,
+                newSize: blob.size,
+                blob,
+                preview: URL.createObjectURL(blob)
             };
-            img.onerror = () => { URL.revokeObjectURL(url); };
-            img.src = url;
+        }
+
+        async function runCompressImages() {
+            if (!compressSourceFiles.length) return;
+            try {
+                compressedOutputs.forEach(o => URL.revokeObjectURL(o.preview));
+                compressedOutputs = [];
+                for (const f of compressSourceFiles) {
+                    compressedOutputs.push(await compressOneImageSmart(f));
+                }
+                const wrap = document.getElementById('compress-results');
+                wrap.innerHTML = compressedOutputs.map((o, i) => {
+                    const pct = o.origSize > 0 ? Math.max(0, Math.round((1 - o.newSize / o.origSize) * 100)) : 0;
+                    return `
+                        <div class="file-row">
+                            <div class="file-row-left">
+                                <img src="${o.preview}" class="file-thumb" alt="Hasil">
+                                <div style="min-width:0;">
+                                    <div class="file-name">${o.name.replace(/</g, '&lt;')}</div>
+                                    <div class="file-meta">${formatBytes(o.origSize)} → <strong style="color:#059669;">${formatBytes(o.newSize)}</strong> (hemat ${pct}%)</div>
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button type="button" class="btn btn-primary" style="min-height:34px; padding:5px 12px; font-size:12px;" onclick="downloadCompressed(${i})">⬇ Unduh</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const totOrig = compressedOutputs.reduce((a, b) => a + b.origSize, 0);
+                const totNew = compressedOutputs.reduce((a, b) => a + b.newSize, 0);
+                const totPct = totOrig > 0 ? Math.max(0, Math.round((1 - totNew / totOrig) * 100)) : 0;
+                const bulkBar = document.getElementById('comp-img-bulk-bar');
+                bulkBar.style.display = compressedOutputs.length > 0 ? 'flex' : 'none';
+                document.getElementById('comp-img-bulk-meta').textContent = `${compressedOutputs.length} gambar selesai · Total ${formatBytes(totOrig)} → ${formatBytes(totNew)} (Hemat ${totPct}%)`;
+                setStatus('status-compress-img', '', '');
+            } catch (err) {
+                setStatus('status-compress-img', 'error', err.message || 'Gagal mengompresi gambar.');
+            }
+        }
+
+        function downloadCompressed(i) {
+            const item = compressedOutputs[i];
+            if (item) triggerBlobDownload(item.blob, item.name);
+        }
+        function downloadAllCompressedImages() {
+            compressedOutputs.forEach((o, idx) => {
+                setTimeout(() => triggerBlobDownload(o.blob, o.name), idx * 180);
+            });
+        }
+
+        // ============================================================
+        // 7. HAPUS BACKGROUND GAMBAR (INSTAN TTD/LOGO & AI PAS FOTO)
+        // ============================================================
+        let rmbgMode = 'smart';
+        let rmbgSourceFile = null;
+        let rmbgSourceImg = null;
+        let rmbgTransparentCanvas = null;
+        let rmbgOutputBg = 'transparent';
+
+        function setRemoveBgMode(mode) {
+            rmbgMode = mode;
+            document.getElementById('seg-rmbg-smart').classList.toggle('active', mode === 'smart');
+            document.getElementById('seg-rmbg-ai').classList.toggle('active', mode === 'ai');
+            document.getElementById('rmbg-smart-controls').style.display = mode === 'smart' ? 'block' : 'none';
+            document.getElementById('rmbg-ai-controls').style.display = mode === 'ai' ? 'block' : 'none';
+            document.getElementById('btn-rmbg-run').textContent = mode === 'ai'
+                ? '✨ Proses Hapus Background (AI)'
+                : '✨ Proses Hapus Background';
+        }
+
+        async function onSelectRemoveBgFile(input) {
+            if (!input.files || !input.files[0]) return;
+            rmbgSourceFile = input.files[0];
+            setStatus('status-rmbg', '', '');
+            document.getElementById('label-rmbg').textContent = `${rmbgSourceFile.name} (${formatBytes(rmbgSourceFile.size)})`;
+            try {
+                rmbgSourceImg = await loadImageFromFile(rmbgSourceFile);
+                const origEl = document.getElementById('rmbg-orig-img');
+                origEl.src = URL.createObjectURL(rmbgSourceFile);
+                document.getElementById('rmbg-orig-dim').textContent = `${rmbgSourceImg.naturalWidth} × ${rmbgSourceImg.naturalHeight} px`;
+                document.getElementById('rmbg-preview-wrap').style.display = 'block';
+                if (rmbgMode === 'smart') {
+                    processRemoveBgSmart();
+                } else {
+                    setStatus('status-rmbg', 'info', 'Foto dimuat. Klik "Proses Hapus Background (AI)" untuk memisahkan subjek.');
+                }
+            } catch (err) {
+                setStatus('status-rmbg', 'error', err.message || 'Gagal memuat gambar.');
+            }
+        }
+
+        function renderRmbgComposite() {
+            if (!rmbgTransparentCanvas) return;
+            const outCv = document.getElementById('rmbg-out-canvas');
+            outCv.width = rmbgTransparentCanvas.width;
+            outCv.height = rmbgTransparentCanvas.height;
+            const ctx = outCv.getContext('2d');
+            ctx.clearRect(0, 0, outCv.width, outCv.height);
+            if (rmbgOutputBg !== 'transparent') {
+                ctx.fillStyle = rmbgOutputBg;
+                ctx.fillRect(0, 0, outCv.width, outCv.height);
+            }
+            ctx.drawImage(rmbgTransparentCanvas, 0, 0);
+            document.getElementById('btn-rmbg-dl-png').disabled = false;
+            document.getElementById('btn-rmbg-dl-jpg').disabled = false;
+        }
+
+        function setRmbgOutputColor(color, btnEl) {
+            rmbgOutputBg = color;
+            document.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderRmbgComposite();
+        }
+
+        function processRemoveBgSmart() {
+            if (!rmbgSourceImg) return;
+            const tol = parseInt(document.getElementById('rmbg-tolerance').value, 10) || 38;
+            const soft = parseInt(document.getElementById('rmbg-softness').value, 10) || 18;
+            const inkEnhance = document.getElementById('rmbg-ink-enhance').checked;
+
+            const maxDim = 1600;
+            let w = rmbgSourceImg.naturalWidth, h = rmbgSourceImg.naturalHeight;
+            if (Math.max(w, h) > maxDim) {
+                const sc = maxDim / Math.max(w, h);
+                w = Math.round(w * sc);
+                h = Math.round(h * sc);
+            }
+
+            const cv = document.createElement('canvas');
+            cv.width = w;
+            cv.height = h;
+            const ctx = cv.getContext('2d');
+            ctx.drawImage(rmbgSourceImg, 0, 0, w, h);
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const d = imgData.data;
+
+            const samplePoints = [
+                [2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3],
+                [Math.floor(w / 2), 2], [2, Math.floor(h / 2)]
+            ];
+            let br = 0, bg = 0, bb = 0, cnt = 0;
+            for (const [sx, sy] of samplePoints) {
+                const idx = (Math.max(0, Math.min(h - 1, sy)) * w + Math.max(0, Math.min(w - 1, sx))) * 4;
+                if (d[idx + 3] > 200) {
+                    br += d[idx]; bg += d[idx + 1]; bb += d[idx + 2]; cnt++;
+                }
+            }
+            if (cnt > 0) { br /= cnt; bg /= cnt; bb /= cnt; } else { br = 255; bg = 255; bb = 255; }
+
+            const colorDist = (idx) => {
+                const dr = d[idx] - br, dg = d[idx + 1] - bg, db = d[idx + 2] - bb;
+                return Math.sqrt(dr * dr + dg * dg + db * db);
+            };
+
+            if (inkEnhance) {
+                for (let i = 0; i < d.length; i += 4) {
+                    const dist = colorDist(i);
+                    const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                    const effDist = Math.min(dist, (255 - lum) * 1.35);
+                    if (effDist <= tol) {
+                        d[i + 3] = 0;
+                    } else if (effDist < tol + soft + 15) {
+                        const a = Math.round(((effDist - tol) / (soft + 15)) * 255);
+                        d[i + 3] = Math.min(d[i + 3], a);
+                        d[i] = 15; d[i + 1] = 23; d[i + 2] = 42;
+                    } else {
+                        d[i] = 15; d[i + 1] = 23; d[i + 2] = 42;
+                    }
+                }
+            } else {
+                const visited = new Uint8Array(w * h);
+                const queue = new Int32Array(w * h);
+                let head = 0, tail = 0;
+                const thresh = tol + soft;
+
+                const tryPush = (x, y) => {
+                    const p = y * w + x;
+                    if (visited[p]) return;
+                    const dist = colorDist(p * 4);
+                    if (dist <= thresh) {
+                        visited[p] = 1;
+                        queue[tail++] = p;
+                    }
+                };
+                for (let x = 0; x < w; x++) { tryPush(x, 0); tryPush(x, h - 1); }
+                for (let y = 0; y < h; y++) { tryPush(0, y); tryPush(w - 1, y); }
+
+                while (head < tail) {
+                    const p = queue[head++];
+                    const x = p % w, y = (p - x) / w;
+                    const idx = p * 4;
+                    const dist = colorDist(idx);
+                    if (dist <= tol) {
+                        d[idx + 3] = 0;
+                    } else {
+                        const ratio = (dist - tol) / Math.max(1, soft);
+                        d[idx + 3] = Math.round(d[idx + 3] * Math.max(0, Math.min(1, ratio)));
+                    }
+                    if (x > 0) tryPush(x - 1, y);
+                    if (x < w - 1) tryPush(x + 1, y);
+                    if (y > 0) tryPush(x, y - 1);
+                    if (y < h - 1) tryPush(x, y + 1);
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+            rmbgTransparentCanvas = cv;
+            renderRmbgComposite();
+            setStatus('status-rmbg', 'success', '✓ Background berhasil dihapus! Geser slider Toleransi/Haluskan Tepi jika perlu, lalu unduh PNG/JPG.');
+        }
+
+        async function runRemoveBgCurrentMode() {
+            if (!rmbgSourceFile || !rmbgSourceImg) {
+                setStatus('status-rmbg', 'error', 'Pilih gambar terlebih dahulu.');
+                return;
+            }
+            if (rmbgMode === 'smart') {
+                processRemoveBgSmart();
+                return;
+            }
+
+            const btn = document.getElementById('btn-rmbg-run');
+            btn.disabled = true;
+            setStatus('status-rmbg', '', '');
+            setProc('rmbg', true, 'Memuat model AI pemisah subjek (pertama kali ±15 MB)...', 25);
+            try {
+                const mod = await import('https://esm.sh/@imgly/background-removal@1.4.5');
+                const removeBackground = mod.removeBackground || mod.default;
+                if (typeof removeBackground !== 'function') throw new Error('Modul AI tidak tersedia.');
+
+                const resultBlob = await removeBackground(rmbgSourceFile, {
+                    progress: (key, cur, tot) => {
+                        const pct = tot > 0 ? Math.min(95, Math.round((cur / tot) * 100)) : 55;
+                        setProc('rmbg', true, 'AI sedang memisahkan subjek dari latar belakang...', Math.max(25, pct));
+                    }
+                });
+
+                const outImg = await loadImageFromFile(resultBlob);
+                const cv = document.createElement('canvas');
+                cv.width = outImg.naturalWidth;
+                cv.height = outImg.naturalHeight;
+                cv.getContext('2d').drawImage(outImg, 0, 0);
+                rmbgTransparentCanvas = cv;
+                renderRmbgComposite();
+
+                setProc('rmbg', true, 'Selesai!', 100);
+                setTimeout(() => setProc('rmbg', false), 220);
+                setStatus('status-rmbg', 'success', '✓ AI berhasil menghapus latar belakang! Pilih warna Merah/Biru/Transparan lalu unduh.');
+            } catch (err) {
+                setProc('rmbg', false);
+                processRemoveBgSmart();
+                setStatus('status-rmbg', 'info', 'Model AI sedang tidak dapat diunduh dari CDN — beralih otomatis ke mode Instan. Kamu bisa atur slider Toleransi di mode Tanda Tangan & Logo.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function downloadRemoveBg(fmt) {
+            const outCv = document.getElementById('rmbg-out-canvas');
+            if (!outCv || !rmbgTransparentCanvas) return;
+            const base = (rmbgSourceFile ? rmbgSourceFile.name.replace(/\.\w+$/, '') : 'Gambar') + '_nobg';
+            if (fmt === 'jpg') {
+                const tmp = document.createElement('canvas');
+                tmp.width = outCv.width;
+                tmp.height = outCv.height;
+                const ctx = tmp.getContext('2d');
+                ctx.fillStyle = rmbgOutputBg === 'transparent' ? '#ffffff' : rmbgOutputBg;
+                ctx.fillRect(0, 0, tmp.width, tmp.height);
+                ctx.drawImage(rmbgTransparentCanvas, 0, 0);
+                tmp.toBlob(b => b && triggerBlobDownload(b, base + '.jpg'), 'image/jpeg', 0.94);
+            } else {
+                outCv.toBlob(b => b && triggerBlobDownload(b, base + '.png'), 'image/png');
+            }
+        }
+
+        // ============================================================
+        // 8. JPG / PNG -> PDF A4 (DENGAN PUTAR 90° & PRATINJAU HASIL)
+        // ============================================================
+        let imgPdfItems = [];
+        let lastImgPdfBlob = null, lastImgPdfName = 'Dokumen_Gambar_A4.pdf';
+
+        function addImgPdfFiles(input) {
+            if (!input.files || !input.files.length) return;
+            hideResult('img-pdf');
+            for (const f of Array.from(input.files)) {
+                imgPdfItems.push({ file: f, previewUrl: URL.createObjectURL(f), rotate: 0 });
+            }
+            input.value = '';
+            renderImgPdfList();
+        }
+
+        function renderImgPdfList() {
+            const wrap = document.getElementById('img-pdf-list');
+            if (!imgPdfItems.length) { wrap.innerHTML = ''; return; }
+            wrap.innerHTML = imgPdfItems.map((it, i) => `
+                <div class="file-row">
+                    <div class="file-row-left">
+                        <img src="${it.previewUrl}" class="file-thumb" style="transform:rotate(${it.rotate}deg);" alt="Preview">
+                        <div style="min-width:0;">
+                            <div class="file-name">${it.file.name.replace(/</g, '&lt;')}</div>
+                            <div class="file-meta">Halaman ${i + 1} · Putar ${it.rotate}° · ${formatBytes(it.file.size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button type="button" class="mini-btn" onclick="rotateImgPdf(${i})" title="Putar 90°">↻ Putar</button>
+                        <button type="button" class="mini-btn" onclick="moveImgPdf(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                        <button type="button" class="mini-btn" onclick="moveImgPdf(${i}, 1)" ${i === imgPdfItems.length - 1 ? 'disabled' : ''}>▼</button>
+                        <button type="button" class="mini-btn danger" onclick="removeImgPdf(${i})">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function rotateImgPdf(i) {
+            if (!imgPdfItems[i]) return;
+            imgPdfItems[i].rotate = (imgPdfItems[i].rotate + 90) % 360;
+            renderImgPdfList();
+        }
+        function moveImgPdf(i, d) {
+            const t = i + d;
+            if (t < 0 || t >= imgPdfItems.length) return;
+            [imgPdfItems[i], imgPdfItems[t]] = [imgPdfItems[t], imgPdfItems[i]];
+            renderImgPdfList();
+        }
+        function removeImgPdf(i) {
+            URL.revokeObjectURL(imgPdfItems[i].previewUrl);
+            imgPdfItems.splice(i, 1);
+            renderImgPdfList();
+        }
+
+        function imageFileToRotatedJpegBytes(file, rotateDeg) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    const rad = (rotateDeg * Math.PI) / 180;
+                    const swap = rotateDeg === 90 || rotateDeg === 270;
+                    const cw = swap ? img.naturalHeight : img.naturalWidth;
+                    const ch = swap ? img.naturalWidth : img.naturalHeight;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = cw;
+                    canvas.height = ch;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, cw, ch);
+                    ctx.translate(cw / 2, ch / 2);
+                    ctx.rotate(rad);
+                    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) return reject(new Error('Gagal memproses gambar.'));
+                        resolve({ bytes: new Uint8Array(await blob.arrayBuffer()), width: cw, height: ch });
+                    }, 'image/jpeg', 0.92);
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Gagal memuat gambar ' + file.name)); };
+                img.src = url;
+            });
+        }
+
+        async function runImgToPdf() {
+            if (!imgPdfItems.length) {
+                setStatus('status-img-pdf', 'error', 'Pilih minimal 1 foto/gambar terlebih dahulu.');
+                return;
+            }
+            const btn = document.getElementById('btn-img-pdf');
+            btn.disabled = true;
+            hideResult('img-pdf');
+            setStatus('status-img-pdf', '', '');
+            try {
+                await waitForLib('PDFLib', 'PDF-Lib');
+                const orient = document.getElementById('img-pdf-orient').value;
+                const margin = parseInt(document.getElementById('img-pdf-margin').value, 10) || 0;
+                const doc = await window.PDFLib.PDFDocument.create();
+
+                for (let i = 0; i < imgPdfItems.length; i++) {
+                    const it = imgPdfItems[i];
+                    setProc('img-pdf', true, `Menyusun foto ${i + 1} dari ${imgPdfItems.length}...`, ((i + 0.5) / imgPdfItems.length) * 85);
+                    const { bytes: jpgBytes, width: iw, height: ih } = await imageFileToRotatedJpegBytes(it.file, it.rotate);
+                    const embedded = await doc.embedJpg(jpgBytes);
+                    const isLand = orient === 'landscape' || (orient === 'auto' && iw > ih);
+                    const pageW = isLand ? 841.89 : 595.28;
+                    const pageH = isLand ? 595.28 : 841.89;
+                    const page = doc.addPage([pageW, pageH]);
+                    const maxW = pageW - margin * 2;
+                    const maxH = pageH - margin * 2;
+                    const scale = Math.min(maxW / embedded.width, maxH / embedded.height);
+                    const drawW = embedded.width * scale;
+                    const drawH = embedded.height * scale;
+                    page.drawImage(embedded, {
+                        x: (pageW - drawW) / 2,
+                        y: (pageH - drawH) / 2,
+                        width: drawW,
+                        height: drawH
+                    });
+                }
+
+                setProc('img-pdf', true, 'Menyimpan file PDF A4...', 95);
+                const bytes = await doc.save({ useObjectStreams: false });
+                lastImgPdfName = (document.getElementById('img-pdf-name').value || 'Dokumen_Gambar_A4').trim().replace(/\.pdf$/i, '') + '.pdf';
+                lastImgPdfBlob = new Blob([bytes], { type: 'application/pdf' });
+
+                setProc('img-pdf', true, 'Selesai!', 100);
+                setTimeout(() => setProc('img-pdf', false), 220);
+
+                showResultCard('img-pdf', lastImgPdfName, `${imgPdfItems.length} halaman A4 · ${formatBytes(lastImgPdfBlob.size)}`);
+                document.getElementById('btn-preview-img-pdf').onclick = () => openBlobPreview(lastImgPdfBlob);
+                document.getElementById('btn-download-img-pdf').onclick = () => triggerBlobDownload(lastImgPdfBlob, lastImgPdfName);
+            } catch (err) {
+                setProc('img-pdf', false);
+                setStatus('status-img-pdf', 'error', err.message || 'Gagal membuat PDF.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // 9. KALKULATOR SAMPEL (SLOVIN & LEMESHOW)
+        // ============================================================
+        let sampleMode = 'slovin';
+        let lastSlovinParagraph = '';
+
+        function setSampleMode(mode) {
+            sampleMode = mode;
+            document.getElementById('seg-sample-slovin').classList.toggle('active', mode === 'slovin');
+            document.getElementById('seg-sample-lemeshow').classList.toggle('active', mode === 'lemeshow');
+            document.getElementById('box-sample-slovin').style.display = mode === 'slovin' ? 'block' : 'none';
+            document.getElementById('box-sample-lemeshow').style.display = mode === 'lemeshow' ? 'block' : 'none';
+            calcSample();
+        }
+
+        function onSlovinErrorSelect() {
+            const sel = document.getElementById('slovin-e').value;
+            document.getElementById('slovin-e-custom').style.display = sel === 'custom' ? 'block' : 'none';
+            calcSample();
+        }
+
+        function calcSample() {
+            const cmpWrap = document.getElementById('slovin-compare-wrap');
+            if (sampleMode === 'slovin') {
+                const N = parseFloat(document.getElementById('slovin-n').value);
+                const selVal = document.getElementById('slovin-e').value;
+                const e = selVal === 'custom'
+                    ? (parseFloat(document.getElementById('slovin-e-custom').value) / 100)
+                    : parseFloat(selVal);
+
+                if (!N || N < 2 || !e || e <= 0 || e >= 1) {
+                    document.getElementById('slovin-final-n').textContent = '—';
+                    document.getElementById('slovin-steps-box').textContent = 'Masukkan populasi N (minimal 2) dan batas kesalahan valid.';
+                    document.getElementById('slovin-para-box').textContent = '';
+                    cmpWrap.innerHTML = '';
+                    return;
+                }
+                const calcOne = (err) => Math.ceil(N / (1 + N * err * err));
+                const ne2 = N * e * e;
+                const denom = 1 + ne2;
+                const rawN = N / denom;
+                const roundedN = Math.ceil(rawN);
+                const pctStr = (e * 100).toFixed(e * 100 % 1 === 0 ? 0 : 1).replace('.', ',') + '%';
+                const eComma = String(e).replace('.', ',');
+
+                document.getElementById('sample-result-label').textContent = 'Jumlah Sampel Minimal — Rumus Slovin';
+                document.getElementById('slovin-final-n').textContent = `${roundedN.toLocaleString('id-ID')} Responden`;
+                document.getElementById('slovin-steps-box').textContent =
+                    `Rumus Slovin : n = N / (1 + N × e²)\n` +
+                    `Diketahui    : N = ${N.toLocaleString('id-ID')}, e = ${eComma} (${pctStr})\n` +
+                    `Perhitungan  : n = ${N} / (1 + ${N} × (${eComma})²)\n` +
+                    `             : n = ${N} / (1 + ${ne2.toFixed(4)}) = ${N} / ${denom.toFixed(4)} = ${rawN.toFixed(2)}\n` +
+                    `Pembulatan   : n = ${roundedN} responden`;
+
+                lastSlovinParagraph = `Penentuan jumlah sampel dalam penelitian ini menggunakan rumus Slovin dengan ukuran populasi sebanyak N = ${N.toLocaleString('id-ID')} dan batas toleransi kesalahan (margin of error) sebesar e = ${pctStr} (${eComma}). Berdasarkan perhitungan n = ${N} / (1 + ${N} × (${eComma})²) = ${rawN.toFixed(2).replace('.', ',')}, maka jumlah sampel minimal yang dibulatkan ke atas dan digunakan dalam penelitian ini adalah sebanyak ${roundedN} responden.`;
+                document.getElementById('slovin-para-box').textContent = lastSlovinParagraph;
+
+                cmpWrap.innerHTML = `
+                    <table class="compare-table">
+                        <thead><tr><th>Margin Error (e)</th><th>1% (0,01)</th><th>5% (0,05)</th><th>10% (0,10)</th></tr></thead>
+                        <tbody><tr><td><strong>Sampel Minimal (n)</strong></td><td>${calcOne(0.01)} resp.</td><td><strong>${calcOne(0.05)} resp.</strong></td><td>${calcOne(0.10)} resp.</td></tr></tbody>
+                    </table>
+                `;
+            } else {
+                const Z = parseFloat(document.getElementById('lem-z').value) || 1.96;
+                const P = parseFloat(document.getElementById('lem-p').value) || 0.5;
+                const d = parseFloat(document.getElementById('lem-d').value) || 0.1;
+                const z2 = Z * Z;
+                const pq = P * (1 - P);
+                const d2 = d * d;
+                const rawN = (z2 * pq) / d2;
+                const roundedN = Math.ceil(rawN);
+                const conf = Z >= 2.5 ? '99%' : (Z >= 1.9 ? '95%' : '90%');
+
+                document.getElementById('sample-result-label').textContent = 'Jumlah Sampel Minimal — Rumus Lemeshow';
+                document.getElementById('slovin-final-n').textContent = `${roundedN.toLocaleString('id-ID')} Responden`;
+                document.getElementById('slovin-steps-box').textContent =
+                    `Rumus Lemeshow : n = (Z² × P × (1 - P)) / d²\n` +
+                    `Diketahui      : Z = ${Z} (kepercayaan ${conf}), P = ${P}, d = ${d} (${Math.round(d * 100)}%)\n` +
+                    `Perhitungan    : n = (${Z}² × ${P} × ${(1 - P).toFixed(2)}) / ${d}²\n` +
+                    `               : n = (${z2.toFixed(4)} × ${pq.toFixed(4)}) / ${d2.toFixed(4)} = ${rawN.toFixed(2)}\n` +
+                    `Pembulatan     : n = ${roundedN} responden`;
+
+                lastSlovinParagraph = `Karena jumlah populasi dalam penelitian ini tidak diketahui secara pasti, penentuan jumlah sampel menggunakan rumus Lemeshow dengan tingkat kepercayaan ${conf} (Z = ${String(Z).replace('.', ',')}), estimasi maksimal proporsi P = ${String(P).replace('.', ',')}, dan tingkat kesalahan pengambilan sampel d = ${Math.round(d * 100)}% (${String(d).replace('.', ',')}). Berdasarkan hasil perhitungan n = (${String(Z).replace('.', ',')}² × ${String(P).replace('.', ',')} × ${String((1 - P).toFixed(2)).replace('.', ',')}) / (${String(d).replace('.', ',')})² = ${rawN.toFixed(2).replace('.', ',')}, maka jumlah sampel minimal yang digunakan dalam penelitian ini adalah sebanyak ${roundedN} responden.`;
+                document.getElementById('slovin-para-box').textContent = lastSlovinParagraph;
+                cmpWrap.innerHTML = '';
+            }
+        }
+
+        function copySlovinParagraph() {
+            if (!lastSlovinParagraph) return;
+            navigator.clipboard.writeText(lastSlovinParagraph).then(() => {
+                setStatus('status-slovin', 'success', '✓ Paragraf perhitungan sampel berhasil disalin! Siap ditempel ke Bab III.');
+            }).catch(() => {
+                setStatus('status-slovin', 'error', 'Gagal menyalin otomatis. Silakan blok dan salin manual.');
+            });
+        }
+
+        // ============================================================
+        // 10. HITUNG KATA, CEK ABSTRAK & TOP KATA KUNCI
+        // ============================================================
+        const ID_STOPWORDS = new Set([
+            'yang', 'dan', 'di', 'ke', 'dari', 'pada', 'dalam', 'untuk', 'dengan', 'adalah', 'ini', 'itu',
+            'atau', 'sebagai', 'oleh', 'tidak', 'juga', 'dapat', 'akan', 'tersebut', 'bahwa', 'secara',
+            'telah', 'antara', 'serta', 'karena', 'lebih', 'seperti', 'bisa', 'saat', 'para',
+            'ada', 'bagi', 'hanya', 'agar', 'namun', 'tetapi', 'sudah', 'masih', 'maupun', 'merupakan',
+            'hasil', 'satu', 'dua', 'tiga', 'the', 'and', 'of', 'to', 'in', 'is', 'for', 'with', 'that'
+        ]);
+
+        function updateWordCount() {
+            const text = document.getElementById('wc-textarea').value || '';
+            const trimmed = text.trim();
+            const wordList = trimmed ? trimmed.split(/\s+/).filter(Boolean) : [];
+            const words = wordList.length;
+            const chars = text.length;
+            const charsNoSpace = text.replace(/\s/g, '').length;
+            const paras = trimmed ? trimmed.split(/\n\s*\n|\n/).filter(p => p.trim() !== '').length : 0;
+            const sentences = trimmed ? trimmed.split(/[.!?]+/).filter(s => s.trim().length > 2).length : 0;
+            const pages15 = words > 0 ? Math.max(1, Math.ceil(words / 320)) : 0;
+            const pages20 = words > 0 ? Math.max(1, Math.ceil(words / 250)) : 0;
+            const readMin = words > 0 ? Math.max(1, Math.ceil(words / 140)) : 0;
+
+            document.getElementById('wc-words').textContent = words.toLocaleString('id-ID');
+            document.getElementById('wc-read-time').textContent = `±${readMin} menit presentasi`;
+            document.getElementById('wc-chars').textContent = chars.toLocaleString('id-ID');
+            document.getElementById('wc-chars-nospace').textContent = `${charsNoSpace.toLocaleString('id-ID')} tanpa spasi`;
+            document.getElementById('wc-paras').textContent = paras.toLocaleString('id-ID');
+            document.getElementById('wc-sentences').textContent = `${sentences.toLocaleString('id-ID')} kalimat`;
+            document.getElementById('wc-pages-15').textContent = `${pages15} hal`;
+            document.getElementById('wc-pages-20').textContent = `Spasi 1,5 · (${pages20} hal spasi 2)`;
+
+            const absBadge = document.getElementById('wc-abstract-badge');
+            if (words === 0) {
+                absBadge.className = 'abstract-badge';
+                absBadge.textContent = 'ℹ️ Standar abstrak skripsi Indonesia umumnya 150–250 kata.';
+            } else if (words >= 150 && words <= 250) {
+                absBadge.className = 'abstract-badge ideal';
+                absBadge.textContent = `✓ Ideal untuk Abstrak Skripsi (${words} kata — masuk rentang 150–250 kata).`;
+            } else if (words < 150) {
+                absBadge.className = 'abstract-badge warn';
+                absBadge.textContent = `ℹ️ Jika ini Abstrak: kurang ${150 - words} kata lagi dari minimal 150 kata.`;
+            } else if (words <= 350) {
+                absBadge.className = 'abstract-badge warn';
+                absBadge.textContent = `⚠️ Jika ini Abstrak: melebihi 250 kata (+${words - 250} kata).`;
+            } else {
+                const avgSentence = sentences > 0 ? Math.round(words / sentences) : 0;
+                absBadge.className = 'abstract-badge ideal';
+                absBadge.textContent = `📄 Mode Naskah Bab: rata-rata ${avgSentence} kata per kalimat · ±${pages15} halaman A4.`;
+            }
+
+            const freq = {};
+            wordList.forEach(raw => {
+                const clean = raw.toLowerCase().replace(/[^a-z0-9à-ÿ-]/g, '');
+                if (clean.length >= 4 && !ID_STOPWORDS.has(clean) && !/^\d+$/.test(clean)) {
+                    freq[clean] = (freq[clean] || 0) + 1;
+                }
+            });
+            const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            const topWrap = document.getElementById('wc-top-words-wrap');
+            if (top.length >= 2) {
+                topWrap.style.display = 'block';
+                document.getElementById('wc-top-words').innerHTML = top
+                    .map(([w, c]) => `<span class="top-word-pill">${w.replace(/</g, '&lt;')} <span>×${c}</span></span>`)
+                    .join('');
+            } else {
+                topWrap.style.display = 'none';
+            }
+        }
+
+        function copyWordCountSummary() {
+            const summary = `Statistik Naskah — Total Kata: ${document.getElementById('wc-words').textContent}, Karakter: ${document.getElementById('wc-chars').textContent}, Paragraf: ${document.getElementById('wc-paras').textContent}, Estimasi Halaman A4: ${document.getElementById('wc-pages-15').textContent} (${document.getElementById('wc-pages-20').textContent}).`;
+            navigator.clipboard.writeText(summary).then(() => {
+                setStatus('status-wc', 'success', '✓ Ringkasan statistik berhasil disalin ke Clipboard.');
+            }).catch(() => {});
+        }
+
+        function clearWordCount() {
+            document.getElementById('wc-textarea').value = '';
+            setStatus('status-wc', '', '');
+            updateWordCount();
+        }
+
+        async function loadWordCountFile(input) {
+            if (!input.files || !input.files[0]) return;
+            const f = input.files[0];
+            const ext = (f.name.split('.').pop() || '').toLowerCase();
+            try {
+                setStatus('status-wc', 'info', `Membaca teks dari ${f.name}...`);
+                if (ext === 'txt') {
+                    document.getElementById('wc-textarea').value = await f.text();
+                } else if (ext === 'pdf') {
+                    const pages = await extractPagesFromPdfFile(f);
+                    document.getElementById('wc-textarea').value = pages.map(p => p.paragraphs.join('\n\n')).join('\n\n');
+                } else if (ext === 'docx') {
+                    const fd = new FormData();
+                    fd.append('file', f);
+                    const res = await fetch('{{ route("tools.extract.docxText") }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        body: fd
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membaca .docx');
+                    document.getElementById('wc-textarea').value = data.text || '';
+                } else {
+                    throw new Error('Format harus .txt, .docx, atau .pdf');
+                }
+                updateWordCount();
+                setStatus('status-wc', 'success', `Teks dari ${f.name} berhasil dimuat.`);
+            } catch (err) {
+                setStatus('status-wc', 'error', err.message || 'Gagal membaca file.');
+            }
+            input.value = '';
         }
 
         // Init
+        initDropzones();
         renderFlowchartEditor();
         renderFlowchartSvg();
-        calcSlovin();
+        calcSample();
         updateWordCount();
         const initHash = (window.location.hash || '').replace('#', '');
-        if (initHash && document.getElementById('panel-' + initHash)) {
-            switchTool(initHash);
+        if (initHash && (document.getElementById('panel-' + initHash) || initHash === 'compress-img')) {
+            switchTool(initHash, false);
         }
     </script>
 </body>

@@ -74,7 +74,8 @@ class StudentToolsController extends Controller
             . "1. Langkah pertama wajib type \"start\" (label \"Mulai\" atau fenomena awal jika Kerangka Berpikir).\n"
             . "2. Langkah terakhir wajib type \"end\" (label \"Selesai\" atau kesimpulan/luaran akhir).\n"
             . "3. Gunakan minimal 1 langkah type \"io\" (input/data/instrumen) dan maksimal 1 langkah type \"decision\" (validasi/uji kelayakan/akurasi) dengan \"no_label\" singkat (cth: \"Revisi / Ulangi\").\n"
-            . "4. Bahasa Indonesia akademik ringkas, jelas, dan spesifik sesuai topik \"{$topic}\".";
+            . "4. Sebutkan variabel, metode, atau objek spesifik dari topik \"{$topic}\" agar tidak generik.\n"
+            . "5. Bahasa Indonesia akademik baku, ringkas, dan jelas.";
 
         $steps = [];
         try {
@@ -100,7 +101,7 @@ class StudentToolsController extends Controller
                             'label' => Str::limit($label, 72, ''),
                         ];
                         if ($type === 'decision') {
-                            $step['no_label'] = Str::limit(trim((string) ($row['no_label'] ?? 'Revisi / Ulangi')), 30, '');
+                            $step['no_label'] = Str::limit(trim((string) ($row['no_label'] ?? 'Revisi / Ulangi')), 28, '');
                         }
                         $steps[] = $step;
                     }
@@ -153,7 +154,7 @@ class StudentToolsController extends Controller
 
     /**
      * Konversi Word (.docx) -> PDF (.pdf) ukuran A4 via ZipArchive XML Parser + Dompdf
-     * Ringan, cepat, dan 100% kompatibel dengan Vercel PHP serverless tanpa LibreOffice/GD.
+     * Mendukung heading, paragraf, bold/italic/underline, list, tabel (colspan), gambar tertanam, dan nomor halaman opsional.
      */
     public function docxToPdf(Request $request)
     {
@@ -174,7 +175,7 @@ class StudentToolsController extends Controller
         $safeBase = Str::slug(substr($origName, 0, 40), '_') ?: 'Dokumen';
 
         $bodyHtml = $this->parseDocxToHtml($file->getRealPath());
-        if (trim(strip_tags($bodyHtml)) === '') {
+        if (trim(strip_tags($bodyHtml, '<img>')) === '') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Isi dokumen Word kosong atau tidak dapat dibaca.',
@@ -182,26 +183,31 @@ class StudentToolsController extends Controller
         }
 
         $marginPreset = $request->input('margin', 'standard');
+        $addPageNumbers = $request->boolean('page_numbers', false);
         $marginCss = $marginPreset === 'skripsi'
             ? '4cm 3cm 3cm 4cm'
             : '2.54cm 2.54cm 2.54cm 2.54cm';
+        $lineHeightCss = $marginPreset === 'skripsi' ? '1.5' : '1.4';
 
         $html = "<!DOCTYPE html><html lang='id'><head><meta charset='UTF-8'><style>
             @page { size: A4; margin: {$marginCss}; }
             body {
                 font-family: 'DejaVu Serif', 'Times New Roman', serif;
                 font-size: 11.5pt;
-                line-height: 1.5;
+                line-height: {$lineHeightCss};
                 color: #0f172a;
                 text-align: justify;
             }
-            h1 { font-size: 15pt; font-weight: bold; margin: 0 0 10pt 0; text-align: center; page-break-after: avoid; }
-            h2 { font-size: 13pt; font-weight: bold; margin: 14pt 0 6pt 0; text-align: left; page-break-after: avoid; }
+            h1 { font-size: 14pt; font-weight: bold; margin: 0 0 10pt 0; text-align: center; page-break-after: avoid; }
+            h2 { font-size: 12.5pt; font-weight: bold; margin: 14pt 0 6pt 0; text-align: left; page-break-after: avoid; }
             h3 { font-size: 11.5pt; font-weight: bold; margin: 10pt 0 4pt 0; text-align: left; page-break-after: avoid; }
             p { margin: 0 0 7pt 0; }
             p.align-center { text-align: center; }
             p.align-right { text-align: right; }
             p.align-left { text-align: left; }
+            p.list-item { margin: 0 0 4pt 0; padding-left: 18pt; text-indent: -10pt; }
+            .doc-img-wrap { text-align: center; margin: 10pt 0; page-break-inside: avoid; }
+            .doc-img-wrap img { max-width: 100%; max-height: 18cm; width: auto; height: auto; }
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -217,7 +223,7 @@ class StudentToolsController extends Controller
                 overflow-wrap: break-word;
                 text-align: left;
             }
-            th { background: #f1f5f9; font-weight: bold; }
+            th { background: #f1f5f9; font-weight: bold; text-align: center; }
             .page-break { page-break-before: always; }
         </style></head><body>{$bodyHtml}</body></html>";
 
@@ -228,7 +234,33 @@ class StudentToolsController extends Controller
         $dompdf->set_option('fontCache', '/tmp');
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        try {
+            $dompdf->render();
+        } catch (\Throwable $e) {
+            // Fallback jika gambar non-JPEG memicu kendala tanpa ekstensi GD
+            $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
+            $dompdf = new Dompdf();
+            $dompdf->set_option('isHtml5ParserEnabled', true);
+            $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->set_option('tempDir', '/tmp');
+            $dompdf->set_option('fontCache', '/tmp');
+            $dompdf->loadHtml($fallbackHtml);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+        }
+
+        if ($addPageNumbers) {
+            try {
+                $canvas = $dompdf->getCanvas();
+                $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+                    $font = $fontMetrics->getFont('Times-Roman', 'normal');
+                    $txt = (string) $pageNumber;
+                    $tw = $fontMetrics->getTextWidth($txt, $font, 11);
+                    $canvas->text((595.28 - $tw) / 2, 800, $txt, $font, 11, [0, 0, 0]);
+                });
+            } catch (\Throwable $e) {
+            }
+        }
 
         return response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
@@ -239,7 +271,7 @@ class StudentToolsController extends Controller
 
     /**
      * Konversi PDF -> Word (.docx) dari hasil ekstraksi halaman PDF.js di browser
-     * Mendukung PDF modern/besar tanpa kena batas ukuran payload Vercel.
+     * Mendukung blok heading, sub-heading, daftar bernomor/bullet, paragraf akademik, dan batas halaman.
      */
     public function pdfToDocx(Request $request)
     {
@@ -259,7 +291,6 @@ class StudentToolsController extends Controller
         $phpWord->setDefaultFontName('Times New Roman');
         $phpWord->setDefaultFontSize(12);
 
-        // 1 cm = 566.93 twips
         $sectionStyle = $academic
             ? [
                 'paperSize' => 'A4',
@@ -277,32 +308,38 @@ class StudentToolsController extends Controller
             ];
 
         $section = $phpWord->addSection($sectionStyle);
-        $lineSpacing = $academic ? 360 : 276; // 1.5 vs 1.15 spasi
 
         foreach ($pages as $pIdx => $page) {
             if ($pIdx > 0) {
                 $section->addPageBreak();
             }
 
-            $paragraphs = is_array($page['paragraphs'] ?? null) ? $page['paragraphs'] : [];
-            if (empty($paragraphs) && !empty($page['text'])) {
-                $paragraphs = array_values(array_filter(
-                    array_map('trim', preg_split('/\R{2,}/', (string) $page['text']))
-                ));
+            $blocks = is_array($page['blocks'] ?? null) ? $page['blocks'] : [];
+            if (empty($blocks) && is_array($page['paragraphs'] ?? null)) {
+                foreach ($page['paragraphs'] as $rawPara) {
+                    $blocks[] = ['type' => 'paragraph', 'text' => (string) $rawPara];
+                }
+            }
+            if (empty($blocks) && !empty($page['text'])) {
+                foreach (array_filter(array_map('trim', preg_split('/\R{2,}/', (string) $page['text']))) as $rawPara) {
+                    $blocks[] = ['type' => 'paragraph', 'text' => $rawPara];
+                }
             }
 
-            foreach ($paragraphs as $rawPara) {
-                $clean = trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) $rawPara));
+            foreach ($blocks as $blk) {
+                $clean = trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) ($blk['text'] ?? '')));
                 if ($clean === '') {
                     continue;
                 }
 
-                // Deteksi heading bab atau sub-bab sederhana
-                $isMainHeading = preg_match('/^(?:BAB\s+[IVX]+|DAFTAR\s+[A-Z]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LAMPIRAN)\b/i', $clean)
-                    && mb_strlen($clean) <= 90;
-                $isSubHeading = !$isMainHeading
-                    && preg_match('/^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)/', $clean)
-                    && mb_strlen($clean) <= 110;
+                $type = (string) ($blk['type'] ?? 'paragraph');
+                $isMainHeading = $type === 'heading'
+                    || (preg_match('/^(?:BAB\s+[IVX]+|DAFTAR\s+[A-Z]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LAMPIRAN)\b/i', $clean) && mb_strlen($clean) <= 95);
+                $isSubHeading = !$isMainHeading && (
+                    $type === 'subheading'
+                    || (preg_match('/^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)/', $clean) && mb_strlen($clean) <= 115)
+                );
+                $isList = !$isMainHeading && !$isSubHeading && ($type === 'list' || preg_match('/^(?:\d+[\.\)]\s+|[•\-–]\s+)/u', $clean));
 
                 if ($isMainHeading) {
                     $section->addText(
@@ -315,6 +352,17 @@ class StudentToolsController extends Controller
                         $clean,
                         ['name' => 'Times New Roman', 'size' => 12, 'bold' => true],
                         ['alignment' => Jc::LEFT, 'spaceBefore' => 140, 'spaceAfter' => 80, 'lineHeight' => 1.25]
+                    );
+                } elseif ($isList) {
+                    $section->addText(
+                        $clean,
+                        ['name' => 'Times New Roman', 'size' => 12],
+                        [
+                            'alignment' => Jc::BOTH,
+                            'spaceAfter' => 60,
+                            'lineHeight' => $academic ? 1.5 : 1.2,
+                            'indentation' => ['left' => 420, 'hanging' => 240],
+                        ]
                     );
                 } else {
                     $section->addText(
@@ -356,7 +404,7 @@ class StudentToolsController extends Controller
             return response()->json(['status' => 'error', 'message' => 'File harus berformat .docx'], 422);
         }
 
-        $html = $this->parseDocxToHtml($file->getRealPath());
+        $html = $this->parseDocxToHtml($file->getRealPath(), false);
         $text = html_entity_decode(strip_tags(str_replace(['</p>', '</h1>', '</h2>', '</h3>', '</tr>'], "\n\n", $html)), ENT_QUOTES, 'UTF-8');
         $text = preg_replace("/\n{3,}/", "\n\n", trim($text));
 
@@ -367,9 +415,9 @@ class StudentToolsController extends Controller
     }
 
     /**
-     * Parser ringan word/document.xml -> HTML bersih (Heading, Paragraf, Bold/Italic/Underline, Tabel, Page Break)
+     * Parser word/document.xml -> HTML bersih (Heading, Paragraf, Bold/Italic/Underline, List, Tabel + Colspan, Gambar Tertanam, Page Break)
      */
-    protected function parseDocxToHtml(string $filePath): string
+    protected function parseDocxToHtml(string $filePath, bool $includeImages = true): string
     {
         $zip = new \ZipArchive();
         if ($zip->open($filePath) !== true) {
@@ -377,10 +425,47 @@ class StudentToolsController extends Controller
         }
 
         $xmlContent = $zip->getFromName('word/document.xml');
-        $zip->close();
         if (!$xmlContent) {
+            $zip->close();
             return '';
         }
+
+        // Peta relasi gambar (rId -> data URI) agar logo kampus / foto lampiran di .docx ikut tampil di PDF
+        $imageMap = [];
+        if ($includeImages) {
+            $relsXml = $zip->getFromName('word/_rels/document.xml.rels');
+            if ($relsXml) {
+                $relsDom = new \DOMDocument();
+                $prevErr = libxml_use_internal_errors(true);
+                $relsDom->loadXML($relsXml);
+                libxml_clear_errors();
+                libxml_use_internal_errors($prevErr);
+
+                $hasGd = extension_loaded('gd') && function_exists('imagecreatefrompng');
+                foreach ($relsDom->getElementsByTagName('Relationship') as $rel) {
+                    $type = (string) $rel->getAttribute('Type');
+                    if (!str_contains($type, '/image')) {
+                        continue;
+                    }
+                    $rId = (string) $rel->getAttribute('Id');
+                    $target = ltrim((string) $rel->getAttribute('Target'), '/');
+                    $mediaPath = str_starts_with($target, 'word/') ? $target : 'word/' . $target;
+                    $imgBytes = $zip->getFromName($mediaPath);
+                    if (!$imgBytes || strlen($imgBytes) > 2 * 1024 * 1024) {
+                        continue;
+                    }
+                    $ext = strtolower(pathinfo($mediaPath, PATHINFO_EXTENSION));
+                    $isJpeg = in_array($ext, ['jpg', 'jpeg'], true) || str_starts_with($imgBytes, "\xFF\xD8\xFF");
+                    if ($isJpeg) {
+                        $imageMap[$rId] = 'data:image/jpeg;base64,' . base64_encode($imgBytes);
+                    } elseif ($hasGd && in_array($ext, ['png', 'gif', 'webp'], true)) {
+                        $mime = $ext === 'png' ? 'image/png' : ($ext === 'gif' ? 'image/gif' : 'image/webp');
+                        $imageMap[$rId] = "data:{$mime};base64," . base64_encode($imgBytes);
+                    }
+                }
+            }
+        }
+        $zip->close();
 
         $dom = new \DOMDocument();
         $prevErr = libxml_use_internal_errors(true);
@@ -390,6 +475,8 @@ class StudentToolsController extends Controller
 
         $xpath = new \DOMXPath($dom);
         $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+        $xpath->registerNamespace('a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
+        $xpath->registerNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
 
         $body = $xpath->query('/w:document/w:body')->item(0);
         if (!$body) {
@@ -399,16 +486,16 @@ class StudentToolsController extends Controller
         $html = '';
         foreach ($body->childNodes as $node) {
             if ($node->localName === 'p') {
-                $html .= $this->renderWordParagraphNode($xpath, $node);
+                $html .= $this->renderWordParagraphNode($xpath, $node, $imageMap);
             } elseif ($node->localName === 'tbl') {
-                $html .= $this->renderWordTableNode($xpath, $node);
+                $html .= $this->renderWordTableNode($xpath, $node, $imageMap);
             }
         }
 
         return $html;
     }
 
-    protected function renderWordParagraphNode(\DOMXPath $xpath, \DOMNode $pNode): string
+    protected function renderWordParagraphNode(\DOMXPath $xpath, \DOMNode $pNode, array $imageMap = []): string
     {
         $styleId = '';
         $styleNode = $xpath->query('.//w:pPr/w:pStyle/@w:val', $pNode)->item(0);
@@ -422,8 +509,19 @@ class StudentToolsController extends Controller
             $align = strtolower(trim($jcNode->nodeValue));
         }
 
+        $isListPara = $xpath->query('./w:pPr/w:numPr', $pNode)->length > 0;
         $hasPageBreak = $xpath->query('.//w:br[@w:type="page"]', $pNode)->length > 0
             || $xpath->query('.//w:pPr/w:pageBreakBefore', $pNode)->length > 0;
+
+        $imgsHtml = '';
+        if (!empty($imageMap)) {
+            foreach ($xpath->query('.//a:blip/@r:embed', $pNode) as $embedAttr) {
+                $rId = (string) $embedAttr->nodeValue;
+                if (isset($imageMap[$rId])) {
+                    $imgsHtml .= "<div class='doc-img-wrap'><img src='{$imageMap[$rId]}' alt='Gambar Dokumen'></div>";
+                }
+            }
+        }
 
         $runsHtml = '';
         foreach ($xpath->query('./w:r | ./w:hyperlink/w:r', $pNode) as $runNode) {
@@ -459,17 +557,21 @@ class StudentToolsController extends Controller
 
         $prefix = $hasPageBreak ? "<div class='page-break'></div>" : '';
         if (trim(strip_tags($runsHtml)) === '') {
-            return $prefix;
+            return $prefix . $imgsHtml;
         }
 
         if (str_contains($styleId, 'heading1') || $styleId === 'title') {
-            return "{$prefix}<h1>{$runsHtml}</h1>";
+            return "{$prefix}{$imgsHtml}<h1>{$runsHtml}</h1>";
         }
         if (str_contains($styleId, 'heading2')) {
-            return "{$prefix}<h2>{$runsHtml}</h2>";
+            return "{$prefix}{$imgsHtml}<h2>{$runsHtml}</h2>";
         }
         if (str_contains($styleId, 'heading3')) {
-            return "{$prefix}<h3>{$runsHtml}</h3>";
+            return "{$prefix}{$imgsHtml}<h3>{$runsHtml}</h3>";
+        }
+
+        if ($isListPara) {
+            return "{$prefix}{$imgsHtml}<p class='list-item'>&bull;&nbsp;{$runsHtml}</p>";
         }
 
         $alignClass = match ($align) {
@@ -479,10 +581,10 @@ class StudentToolsController extends Controller
             default => '',
         };
 
-        return "{$prefix}<p{$alignClass}>{$runsHtml}</p>";
+        return "{$prefix}{$imgsHtml}<p{$alignClass}>{$runsHtml}</p>";
     }
 
-    protected function renderWordTableNode(\DOMXPath $xpath, \DOMNode $tblNode): string
+    protected function renderWordTableNode(\DOMXPath $xpath, \DOMNode $tblNode, array $imageMap = []): string
     {
         $rows = $xpath->query('./w:tr', $tblNode);
         if ($rows->length === 0) {
@@ -494,14 +596,19 @@ class StudentToolsController extends Controller
             $html .= '<tr>';
             $tag = $rIdx === 0 ? 'th' : 'td';
             foreach ($xpath->query('./w:tc', $trNode) as $tcNode) {
+                $gridSpanNode = $xpath->query('./w:tcPr/w:gridSpan/@w:val', $tcNode)->item(0);
+                $colspanAttr = ($gridSpanNode && (int) $gridSpanNode->nodeValue > 1)
+                    ? " colspan='" . (int) $gridSpanNode->nodeValue . "'"
+                    : '';
+
                 $cellParts = [];
                 foreach ($xpath->query('./w:p', $tcNode) as $pNode) {
-                    $pTxt = trim(strip_tags($this->renderWordParagraphNode($xpath, $pNode), '<strong><em><u><br>'));
+                    $pTxt = trim(strip_tags($this->renderWordParagraphNode($xpath, $pNode, $imageMap), '<strong><em><u><br><img>'));
                     if ($pTxt !== '') {
                         $cellParts[] = $pTxt;
                     }
                 }
-                $html .= "<{$tag}>" . implode('<br>', $cellParts) . "</{$tag}>";
+                $html .= "<{$tag}{$colspanAttr}>" . implode('<br>', $cellParts) . "</{$tag}>";
             }
             $html .= '</tr>';
         }

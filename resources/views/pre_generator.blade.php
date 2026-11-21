@@ -2562,7 +2562,7 @@
                     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                 </svg>
                 <span style="flex: 1;">Tools Mahasiswa</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">8</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">10</span>
             </a>
 
             <div class="nav-group-title">Akun &amp; Bonus</div>
@@ -2633,24 +2633,16 @@
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <button type="button" class="breadcrumb-back" onclick="openTab('dashboard', 'Dashboard')"
-                    title="Kembali ke Dashboard">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                </button>
-                <span>Workspace</span>
-                <span>›</span>
-                <span class="breadcrumb-current" id="breadcrumb-label">Dashboard</span>
+                <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" onclick="openTab('dashboard', 'Dashboard'); return false;"
+                    style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 14px; text-decoration: none;">
+                    <img src="/images/logo.svg" alt="SkripsiLab AI" style="width: 24px; height: 24px; border-radius: 6px; display: block;">
+                    <span>SkripsiLab AI</span>
+                </a>
+                <span class="breadcrumb-current" id="breadcrumb-label" style="display: none;">Dashboard</span>
             </div>
 
             <div class="topbar-right">
                 <input type="hidden" id="global-model" value="auto">
-                <button type="button" class="token-pill" onclick="openTab('account', 'Akun Saya')"
-                    title="Status Langganan Mahasiswa">
-                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
-                    <span style="font-weight: 600; color: var(--text-main);">Paket Aktif</span>
-                </button>
             </div>
         </header>
 
