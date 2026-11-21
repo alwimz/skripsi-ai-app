@@ -1673,7 +1673,7 @@
                 </li>
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
-                <li><a href="#tools-gratis" class="nav-link">Tools Gratis</a></li>
+                <li><a href="#tools-gratis" class="nav-link">Tools</a></li>
                 <li><a href="#fitur-lengkap" class="nav-link">Semua Modul</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
@@ -2140,119 +2140,119 @@
             </div>
         </section>
 
-        <!-- Section 3B: 10 Tools Mahasiswa Gratis (Bisa Dipakai Langsung Tanpa Login) -->
+        <!-- Section 3B: 10 Tools Mahasiswa Gratis (Penjelasan Modul Tools — sama seperti Semua Modul) -->
         <section id="tools-gratis" class="section">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-label">100% Gratis · Tanpa Perlu Login</span>
-                    <h2 class="section-title">10 Tools Mahasiswa Siap Pakai</h2>
-                    <p class="section-desc">Semua alat harian yang paling sering dibutuhkan saat menyusun proposal, skripsi, dan berkas SIAKAD — gratis, cepat, dan langsung bisa digunakan sekarang juga.</p>
+                    <span class="section-label">Gratis di Workspace · 10 Alat Akademik</span>
+                    <h2 class="section-title">10 Tools Mahasiswa Lengkap dalam Satu Tempat</h2>
+                    <p class="section-desc">Semua alat harian yang paling sering dibutuhkan saat menyusun proposal, skripsi, dan berkas SIAKAD — tersedia gratis begitu kamu masuk ke Workspace SkripsiLab AI.</p>
                 </div>
 
                 <div class="tools-showcase-grid">
-                    <a href="{{ route('tools.hub') }}#flowchart" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">AI</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="5" rx="2.5"/><path d="M12 7v3"/><rect x="5" y="10" width="14" height="5" rx="1"/><path d="M12 15v3"/><rect x="7" y="18" width="10" height="4" rx="2"/></svg>
                         </span>
                         <div class="tool-sc-title">Flowchart Skripsi AI</div>
-                        <div class="tool-sc-desc">Buat diagram alur penelitian &amp; kerangka berpikir otomatis lalu unduh PNG HD/SVG.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), &amp; alur sistem otomatis lalu unduh PNG HD/SVG.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#flowchart' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#tidy-docx" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Baru</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z"/></svg>
                         </span>
                         <div class="tool-sc-title">Rapikan Skripsi Word</div>
-                        <div class="tool-sc-desc">Tata margin 4-4-3-3, font, spasi, BAB &amp; tabel file .docx tanpa mengubah 1 kata pun isi.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Tata ulang margin 4-4-3-3, font, spasi, pindah halaman BAB &amp; tabel file .docx tanpa mengubah 1 kata pun isi.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#tidy-docx' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#pdf-word" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M12 12l3 3-3 3"/></svg>
                         </span>
                         <div class="tool-sc-title">Konversi PDF ⇄ Word</div>
-                        <div class="tool-sc-desc">Ubah PDF skripsi/jurnal jadi Word (.docx) siap edit, atau Word ke PDF A4 rapi.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Ubah PDF skripsi/jurnal jadi Word (.docx) siap edit, atau ubah file Word ke PDF ukuran A4 rapi.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#pdf-word' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#merge-pdf" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="10" rx="1.5"/><path d="M7 13v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4"/></svg>
                         </span>
                         <div class="tool-sc-title">Gabung PDF</div>
-                        <div class="tool-sc-desc">Satukan Cover, Lembar Pengesahan, Bab I–V &amp; Lampiran dengan pratinjau halaman.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Satukan Cover, Lembar Pengesahan, Bab I–V &amp; Lampiran jadi 1 PDF utuh dengan pratinjau halaman.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#merge-pdf' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#split-pdf" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                         </span>
                         <div class="tool-sc-title">Pisah &amp; Hapus PDF</div>
-                        <div class="tool-sc-desc">Klik langsung halaman PDF dari pratinjau visual untuk ambil atau hapus halaman tertentu.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Klik langsung halaman PDF dari pratinjau visual untuk mengambil atau menghapus halaman tertentu.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#split-pdf' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#compress" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">3-in-1</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                         </span>
                         <div class="tool-sc-title">Kompres PDF, Word &amp; Foto</div>
-                        <div class="tool-sc-desc">Kecilkan ukuran PDF, Word (.docx) berat, &amp; gambar agar lolos batas upload SIAKAD.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Kecilkan ukuran PDF, file Word (.docx) berat, &amp; gambar agar lolos batas upload portal SIAKAD.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#compress' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#remove-bg" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Baru</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="8.5" r="1.5"/></svg>
                         </span>
                         <div class="tool-sc-title">Hapus Background</div>
-                        <div class="tool-sc-desc">Buat tanda tangan transparan Word, bersihkan logo, &amp; ganti latar pas foto merah/biru.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Buat tanda tangan transparan Word, bersihkan logo kampus, &amp; ganti latar pas foto merah/biru.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#remove-bg' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#img-pdf" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </span>
                         <div class="tool-sc-title">JPG / PNG → PDF A4</div>
-                        <div class="tool-sc-desc">Gabungkan foto berkas, surat izin, atau scan lembar pengesahan jadi PDF A4 rapi.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Gabungkan foto berkas, surat izin, atau scan lembar pengesahan jadi dokumen PDF A4 rapi.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#img-pdf' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#slovin" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Bab III</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
                         </span>
                         <div class="tool-sc-title">Kalkulator Slovin &amp; Lemeshow</div>
-                        <div class="tool-sc-desc">Hitung sampel minimal otomatis lengkap dengan langkah &amp; paragraf siap salin Bab III.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <div class="tool-sc-desc">Hitung sampel minimal otomatis lengkap dengan langkah &amp; paragraf siap salin ke Bab III.</div>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#slovin' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
 
-                    <a href="{{ route('tools.hub') }}#word-count" class="tool-showcase-card">
+                    <div class="tool-showcase-card">
                         <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>
                         </span>
                         <div class="tool-sc-title">Hitung Kata &amp; Cek Abstrak</div>
                         <div class="tool-sc-desc">Cek batas 150–250 kata abstrak, kata kunci tersering, &amp; estimasi halaman A4 dari .docx/.pdf.</div>
-                        <span class="tool-sc-cta">Buka Tool →</span>
-                    </a>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#word-count' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                    </div>
                 </div>
 
                 <div class="tools-showcase-footer">
-                    <a href="{{ route('tools.hub') }}" class="btn btn-primary">Buka Semua 10 Tools Mahasiswa Gratis →</a>
+                    <a href="{{ auth()->check() ? route('tools.hub') : route('register') }}" class="btn btn-primary">{{ auth()->check() ? 'Buka Semua 10 Tools Mahasiswa →' : 'Daftar Gratis & Gunakan Semua Tools →' }}</a>
                 </div>
             </div>
         </section>
