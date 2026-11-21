@@ -3992,6 +3992,10 @@ ATURAN REVISI (SANGAT KETAT):
         // Escape karakter HTML dulu (biarkan entitas &#770;/&#772; yang baru disisipkan)
         $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
 
+        // Konversi markdown **bold** dan *italic* menjadi tag HTML rapi (istilah asing miring standar skripsi)
+        $escaped = preg_replace('/\*\*([^*\n]+?)\*\*/u', '<strong>$1</strong>', $escaped);
+        $escaped = preg_replace('/(?<![A-Za-z0-9*])\*([^*\n]+?)\*(?![A-Za-z0-9*])/u', '<em>$1</em>', $escaped);
+
         // Ubah subskrip Unicode menjadi tag <sub> agar tajam di Times New Roman
         $subMap = [
             '₀' => '0', '₁' => '1', '₂' => '2', '₃' => '3', '₄' => '4',
@@ -4185,8 +4189,30 @@ ATURAN REVISI (SANGAT KETAT):
         $flushCodeOrFlowchart = function () use (&$html, &$codeLines, $judul, $content, &$pendingFigureCaption) {
             if (empty($codeLines))
                 return;
+            // Hapus baris kosong di awal/akhir blok kode/diagram dan normalisasi indentasi bersama
+            while (!empty($codeLines) && trim($codeLines[0]) === '') {
+                array_shift($codeLines);
+            }
+            while (!empty($codeLines) && trim($codeLines[count($codeLines) - 1]) === '') {
+                array_pop($codeLines);
+            }
+            if (empty($codeLines))
+                return;
+
+            $nonEmptyIndents = [];
+            foreach ($codeLines as $cl) {
+                if (trim($cl) !== '') {
+                    $nonEmptyIndents[] = strlen($cl) - strlen(ltrim($cl, ' '));
+                }
+            }
+            $minIndent = !empty($nonEmptyIndents) ? min($nonEmptyIndents) : 0;
+            if ($minIndent > 0) {
+                $codeLines = array_map(fn($cl) => strlen($cl) >= $minIndent ? substr($cl, $minIndent) : ltrim($cl), $codeLines);
+            }
+
             $rawCode = implode("\n", $codeLines);
-            $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
+            $hasBoxDrawing = (bool) preg_match('/[┌┐└┘─│├┤┬┴┼═║╔╗╚╝╠╣╦╩╬►▼▲◄]/u', $rawCode);
+            $isFlowchart = !$hasBoxDrawing && (str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || preg_match('/\[.+?\]/', $rawCode));
 
             if ($isFlowchart) {
                 $isBab2 = str_contains($content, 'BAB II') || str_contains($content, 'TINJAUAN PUSTAKA') || str_contains($content, '2.1 Landasan Teori') || str_contains($content, 'Kerangka Berpikir') || str_contains($content, 'Kerangka Pemikiran');
@@ -4220,7 +4246,17 @@ ATURAN REVISI (SANGAT KETAT):
                     $html .= "</div>";
                 }
             } else {
-                $html .= "<pre style='background:#f8fafc; border:1pt solid #cbd5e1; border-radius:4pt; padding:8pt 12pt; font-size:9.5pt; font-family:monospace; line-height:1.4; white-space:pre-wrap; word-break:break-all; margin:10pt 0;'>" . e($rawCode) . "</pre>";
+                // Diagram box-drawing Unicode / blok kode: wajib pakai DejaVu Sans Mono agar karakter ┌─┐│└┘►▼ tidak jadi '???', rata kiri (bukan justify), dan utuh 1 halaman
+                $maxLineLen = max(array_map(fn($l) => mb_strlen($l, 'UTF-8'), $codeLines));
+                $preFontSize = $maxLineLen > 78 ? '6.6pt' : ($maxLineLen > 66 ? '7.5pt' : ($maxLineLen > 54 ? '8.3pt' : '9pt'));
+                $wrapStyle = $hasBoxDrawing ? 'white-space:pre; overflow:hidden;' : 'white-space:pre-wrap; word-break:break-word;';
+                $html .= "<div style='margin:12pt 0 14pt 0; page-break-inside:avoid; break-inside:avoid;'>";
+                $html .= "<pre style=\"background:#f8fafc; border:0.8pt solid #cbd5e1; border-radius:4pt; padding:10pt 12pt; font-size:{$preFontSize}; font-family:'DejaVu Sans Mono', monospace; text-align:left; text-indent:0; line-height:1.28; {$wrapStyle} margin:0; color:#0f172a;\">" . e($rawCode) . "</pre>";
+                if (!empty($pendingFigureCaption)) {
+                    $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:6pt; text-align:center; text-indent:0; color:#000000; page-break-before:avoid;'>" . e($pendingFigureCaption) . "</div>";
+                    $pendingFigureCaption = '';
+                }
+                $html .= "</div>";
             }
             $codeLines = [];
         };
@@ -4242,7 +4278,8 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
             if ($inCode) {
-                $codeLines[] = $trimmed;
+                // Pertahankan spasi awal (indentasi) agar diagram 2D & box-drawing tidak bergeser
+                $codeLines[] = rtrim(str_replace("\t", '    ', $line));
                 continue;
             }
 
@@ -4329,7 +4366,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $html .= "<ol style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
                     $inOl = true;
                 }
-                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
+                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[1])));
                 $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
@@ -4344,14 +4381,14 @@ ATURAN REVISI (SANGAT KETAT):
                     $html .= "<ul style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
                     $inUl = true;
                 }
-                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
+                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[1])));
                 $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
             // Paragraf ilmiah baku atau Rumus Matematika Standalone
             $closeLists();
-            $cleanP = trim(preg_replace('/^(\*{1,2}|#+\s*)+|(\*{1,2})+$/', '', $trimmed));
+            $cleanP = trim(preg_replace('/^#+\s+/', '', $trimmed));
             if ($cleanP !== '') {
                 $cleanP = $this->formatAcademicMathText($cleanP);
                 if ($this->isStandaloneFormula($cleanP)) {
@@ -5585,12 +5622,11 @@ ATURAN REVISI (SANGAT KETAT):
         $tglBulanIndo = $this->formatIndonesianDate('month_year');
 
         $makeDotLeaderRow = function (string $label, string $page, int $level = 1): string {
-            $pad = $level === 1 ? '0' : '22pt';
+            $pad = $level === 1 ? '0' : '20pt';
             $weight = $level === 1 ? 'bold' : 'normal';
-            return "<table style='width:100%; border-collapse:collapse; margin-bottom:4pt; font-size:12pt; line-height:1.35;'><tr>"
-                . "<td style='padding:0 6pt 0 {$pad}; font-weight:{$weight}; border:none; white-space:nowrap;'>" . e($label) . "</td>"
-                . "<td style='width:100%; border:none; border-bottom:1pt dotted #64748b; padding:0;'>&nbsp;</td>"
-                . "<td style='padding:0 0 0 6pt; text-align:right; font-weight:{$weight}; border:none; white-space:nowrap; width:34pt;'>" . e($page) . "</td>"
+            return "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin-bottom:5pt; font-size:11.5pt; line-height:1.35;'><tr>"
+                . "<td style='width:91%; padding:0 8pt 3pt {$pad}; font-weight:{$weight}; text-align:left; vertical-align:bottom; border:none; border-bottom:0.75pt dotted #94a3b8; word-wrap:break-word; overflow-wrap:break-word;'>" . e($label) . "</td>"
+                . "<td style='width:9%; padding:0 0 3pt 6pt; text-align:right; vertical-align:bottom; font-weight:{$weight}; border:none; border-bottom:0.75pt dotted #94a3b8; white-space:nowrap;'>" . e($page) . "</td>"
                 . "</tr></table>";
         };
 
@@ -5867,6 +5903,8 @@ ATURAN REVISI (SANGAT KETAT):
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->set_option('isRemoteEnabled', false);
+        $dompdf->set_option('tempDir', '/tmp');
+        $dompdf->set_option('fontCache', '/tmp');
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         try {
@@ -5877,6 +5915,8 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
+            $dompdf->set_option('tempDir', '/tmp');
+            $dompdf->set_option('fontCache', '/tmp');
             $dompdf->loadHtml($fallbackHtml);
             $dompdf->setPaper('A4');
             $dompdf->render();
