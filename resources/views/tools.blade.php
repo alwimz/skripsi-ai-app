@@ -2133,19 +2133,26 @@
                 </div>
 
                 <div class="seg-switch">
-                    <button type="button" class="seg-btn active" id="seg-rmbg-smart" onclick="setRemoveBgMode('smart')">Tanda Tangan &amp; Logo (Instan)</button>
-                    <button type="button" class="seg-btn" id="seg-rmbg-ai" onclick="setRemoveBgMode('ai')">Foto / Pas Foto (AI Otomatis)</button>
+                    <button type="button" class="seg-btn active" id="seg-rmbg-ai" onclick="setRemoveBgMode('ai')">✨ Hapus Background AI (Otomatis · Semua Gambar)</button>
+                    <button type="button" class="seg-btn" id="seg-rmbg-smart" onclick="setRemoveBgMode('smart')">Tanda Tangan &amp; Logo (Latar Polos)</button>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-rmbg').click()">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="8.5" r="1.5"/></svg>
-                    <div class="dropzone-title" id="label-rmbg">Klik atau seret gambar (Tanda Tangan, Logo, atau Pas Foto)</div>
-                    <div class="dropzone-sub">Mendukung JPG, PNG, WEBP — langsung tampil pratinjau transparan &amp; pilihan ganti warna background</div>
+                    <div class="dropzone-title" id="label-rmbg">Klik atau seret gambar (Foto, Pas Foto, Produk, Logo, atau Tanda Tangan)</div>
+                    <div class="dropzone-sub">Mendukung JPG, PNG, WEBP — langsung dihapus background-nya otomatis oleh AI di browser</div>
                     <input type="file" id="input-rmbg" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="onSelectRemoveBgFile(this)">
                 </div>
 
-                <!-- Kontrol Mode Instan (Tanda Tangan & Logo) -->
-                <div id="rmbg-smart-controls">
+                <!-- Kontrol Mode AI (Default — Semua Foto, Pas Foto, Produk & Objek Rumit) -->
+                <div id="rmbg-ai-controls" style="margin-bottom:12px;">
+                    <div style="padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-size:12.5px; color:#1e40af;">
+                        ✨ <strong>Mode AI Otomatis (ISNet / RMBG):</strong> Memisahkan subjek, orang, pas foto, maupun objek rumit dari latar belakang langsung di browser. Pemakaian pertama mengunduh model AI sekali saja (tersimpan otomatis di cache browser).
+                    </div>
+                </div>
+
+                <!-- Kontrol Mode Latar Polos (Khusus Tanda Tangan / Logo Latar Putih) -->
+                <div id="rmbg-smart-controls" style="display:none;">
                     <div class="form-grid-3">
                         <div>
                             <label class="form-label" for="rmbg-tolerance">Toleransi Warna Latar: <strong id="rmbg-tol-val">38</strong></label>
@@ -2161,13 +2168,6 @@
                                 <span><strong>Mode Tanda Tangan:</strong> Pertajam &amp; hitamkan tinta pulpen agar bersih di Word</span>
                             </label>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Kontrol Mode AI (Pas Foto / Objek) -->
-                <div id="rmbg-ai-controls" style="display:none; margin-bottom:12px;">
-                    <div style="padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-size:12.5px; color:#1e40af;">
-                        ✨ Mode AI otomatis memisahkan orang/objek dari background rumit langsung di browser (pemakaian pertama mengunduh model AI ±15 MB sekali saja). Klik <strong>Proses Hapus Background AI</strong> setelah memilih foto.
                     </div>
                 </div>
 
@@ -2220,7 +2220,7 @@
 
                 <div class="tool-action-bar">
                     <div class="tool-action-controls">
-                        <button type="button" class="btn btn-soft" id="btn-rmbg-run" onclick="runRemoveBgCurrentMode()">✨ Proses Hapus Background</button>
+                        <button type="button" class="btn btn-soft" id="btn-rmbg-run" onclick="runRemoveBgCurrentMode()">✨ Proses Ulang dengan AI</button>
                     </div>
                     <div class="btn-row-responsive two-col-mobile">
                         <button type="button" class="btn btn-primary" id="btn-rmbg-dl-png" onclick="downloadRemoveBg('png')" disabled>⬇ Unduh PNG</button>
@@ -4323,13 +4323,15 @@
         }
 
         // ============================================================
-        // 7. HAPUS BACKGROUND GAMBAR (INSTAN TTD/LOGO & AI PAS FOTO)
+        // 7. HAPUS BACKGROUND GAMBAR (DUAL-ENGINE AI OTOMATIS + TTD/LOGO)
         // ============================================================
-        let rmbgMode = 'smart';
+        let rmbgMode = 'ai';
         let rmbgSourceFile = null;
         let rmbgSourceImg = null;
         let rmbgTransparentCanvas = null;
         let rmbgOutputBg = 'transparent';
+        let rmbgImglyFn = null;
+        let rmbgTransformersCache = null;
 
         function setRemoveBgMode(mode) {
             rmbgMode = mode;
@@ -4338,13 +4340,23 @@
             document.getElementById('rmbg-smart-controls').style.display = mode === 'smart' ? 'block' : 'none';
             document.getElementById('rmbg-ai-controls').style.display = mode === 'ai' ? 'block' : 'none';
             document.getElementById('btn-rmbg-run').textContent = mode === 'ai'
-                ? '✨ Proses Hapus Background (AI)'
+                ? '✨ Proses Ulang dengan AI'
                 : '✨ Proses Hapus Background';
+            if (rmbgSourceImg) {
+                if (mode === 'smart') {
+                    processRemoveBgSmart();
+                } else {
+                    runRemoveBgCurrentMode();
+                }
+            }
         }
 
         async function onSelectRemoveBgFile(input) {
             if (!input.files || !input.files[0]) return;
             rmbgSourceFile = input.files[0];
+            rmbgTransparentCanvas = null;
+            document.getElementById('btn-rmbg-dl-png').disabled = true;
+            document.getElementById('btn-rmbg-dl-jpg').disabled = true;
             setStatus('status-rmbg', '', '');
             document.getElementById('label-rmbg').textContent = `${rmbgSourceFile.name} (${formatBytes(rmbgSourceFile.size)})`;
             try {
@@ -4353,10 +4365,15 @@
                 origEl.src = URL.createObjectURL(rmbgSourceFile);
                 document.getElementById('rmbg-orig-dim').textContent = `${rmbgSourceImg.naturalWidth} × ${rmbgSourceImg.naturalHeight} px`;
                 document.getElementById('rmbg-preview-wrap').style.display = 'block';
+                const outCv = document.getElementById('rmbg-out-canvas');
+                outCv.width = Math.min(800, rmbgSourceImg.naturalWidth);
+                outCv.height = Math.min(800, rmbgSourceImg.naturalHeight);
+                outCv.getContext('2d').clearRect(0, 0, outCv.width, outCv.height);
+
                 if (rmbgMode === 'smart') {
                     processRemoveBgSmart();
                 } else {
-                    setStatus('status-rmbg', 'info', 'Foto dimuat. Klik "Proses Hapus Background (AI)" untuk memisahkan subjek.');
+                    await runRemoveBgCurrentMode();
                 }
             } catch (err) {
                 setStatus('status-rmbg', 'error', err.message || 'Gagal memuat gambar.');
@@ -4386,6 +4403,23 @@
             renderRmbgComposite();
         }
 
+        function cleanFaintAlphaHalo(canvas) {
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imgData.data;
+            let transparentCount = 0;
+            for (let i = 3; i < d.length; i += 4) {
+                if (d[i] < 16) {
+                    d[i] = 0;
+                    transparentCount++;
+                } else if (d[i] < 128) {
+                    transparentCount++;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            return (transparentCount / (canvas.width * canvas.height)) * 100;
+        }
+
         function processRemoveBgSmart() {
             if (!rmbgSourceImg) return;
             const tol = parseInt(document.getElementById('rmbg-tolerance').value, 10) || 38;
@@ -4408,24 +4442,33 @@
             const imgData = ctx.getImageData(0, 0, w, h);
             const d = imgData.data;
 
-            const samplePoints = [
+            // Kumpulkan beberapa sampel warna tepi agar tidak kacau bila 4 sudut berbeda warna
+            const borderSeeds = [];
+            const seedCoords = [
                 [2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3],
-                [Math.floor(w / 2), 2], [2, Math.floor(h / 2)]
+                [Math.floor(w / 2), 2], [Math.floor(w / 2), h - 3],
+                [2, Math.floor(h / 2)], [w - 3, Math.floor(h / 2)]
             ];
-            let br = 0, bg = 0, bb = 0, cnt = 0;
-            for (const [sx, sy] of samplePoints) {
+            for (const [sx, sy] of seedCoords) {
                 const idx = (Math.max(0, Math.min(h - 1, sy)) * w + Math.max(0, Math.min(w - 1, sx))) * 4;
                 if (d[idx + 3] > 200) {
-                    br += d[idx]; bg += d[idx + 1]; bb += d[idx + 2]; cnt++;
+                    borderSeeds.push([d[idx], d[idx + 1], d[idx + 2]]);
                 }
             }
-            if (cnt > 0) { br /= cnt; bg /= cnt; bb /= cnt; } else { br = 255; bg = 255; bb = 255; }
+            if (!borderSeeds.length) borderSeeds.push([255, 255, 255]);
 
             const colorDist = (idx) => {
-                const dr = d[idx] - br, dg = d[idx + 1] - bg, db = d[idx + 2] - bb;
-                return Math.sqrt(dr * dr + dg * dg + db * db);
+                let best = 999;
+                const r = d[idx], g = d[idx + 1], b = d[idx + 2];
+                for (let k = 0; k < borderSeeds.length; k++) {
+                    const dr = r - borderSeeds[k][0], dg = g - borderSeeds[k][1], db = b - borderSeeds[k][2];
+                    const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+                    if (dist < best) best = dist;
+                }
+                return best;
             };
 
+            let removedPx = 0;
             if (inkEnhance) {
                 for (let i = 0; i < d.length; i += 4) {
                     const dist = colorDist(i);
@@ -4433,6 +4476,7 @@
                     const effDist = Math.min(dist, (255 - lum) * 1.35);
                     if (effDist <= tol) {
                         d[i + 3] = 0;
+                        removedPx++;
                     } else if (effDist < tol + soft + 15) {
                         const a = Math.round(((effDist - tol) / (soft + 15)) * 255);
                         d[i + 3] = Math.min(d[i + 3], a);
@@ -4466,9 +4510,11 @@
                     const dist = colorDist(idx);
                     if (dist <= tol) {
                         d[idx + 3] = 0;
+                        removedPx++;
                     } else {
                         const ratio = (dist - tol) / Math.max(1, soft);
                         d[idx + 3] = Math.round(d[idx + 3] * Math.max(0, Math.min(1, ratio)));
+                        if (d[idx + 3] < 128) removedPx++;
                     }
                     if (x > 0) tryPush(x - 1, y);
                     if (x < w - 1) tryPush(x + 1, y);
@@ -4480,7 +4526,82 @@
             ctx.putImageData(imgData, 0, 0);
             rmbgTransparentCanvas = cv;
             renderRmbgComposite();
-            setStatus('status-rmbg', 'success', '✓ Background berhasil dihapus! Geser slider Toleransi/Haluskan Tepi jika perlu, lalu unduh PNG/JPG.');
+            const removedPct = (removedPx / (w * h)) * 100;
+            if (removedPct < 4) {
+                setStatus('status-rmbg', 'info', 'Background gambar ini tampak kompleks untuk mode Latar Polos. Klik tab "✨ Hapus Background AI (Otomatis)" di atas untuk pemisahan subjek yang bersih!');
+            } else {
+                setStatus('status-rmbg', 'success', `✓ Background polos berhasil dihapus (${removedPct.toFixed(0)}% area latar dibersihkan). Geser slider Toleransi jika perlu, lalu unduh PNG/JPG.`);
+            }
+        }
+
+        async function runAiWithImgly(file) {
+            if (!rmbgImglyFn) {
+                setProc('rmbg', true, 'Memuat mesin AI pemisah objek (ISNet · tersimpan di cache browser)...', 15);
+                const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
+                rmbgImglyFn = mod.removeBackground || mod.default;
+                if (typeof rmbgImglyFn !== 'function') throw new Error('Modul AI ISNet tidak tersedia.');
+            }
+            const resultBlob = await rmbgImglyFn(file, {
+                model: 'isnet_quint8',
+                device: 'cpu',
+                progress: (key, cur, tot) => {
+                    const pct = tot > 0 ? Math.min(92, Math.max(18, Math.round((cur / tot) * 90))) : 55;
+                    const label = String(key || '').includes('compute')
+                        ? 'AI sedang memisahkan subjek dari latar belakang...'
+                        : 'Mengunduh model AI (pertama kali saja, selanjutnya instan)...';
+                    setProc('rmbg', true, label, pct);
+                }
+            });
+            const outImg = await loadImageFromFile(resultBlob);
+            const cv = document.createElement('canvas');
+            cv.width = outImg.naturalWidth;
+            cv.height = outImg.naturalHeight;
+            cv.getContext('2d').drawImage(outImg, 0, 0);
+            return cv;
+        }
+
+        async function runAiWithTransformers(file) {
+            if (!rmbgTransformersCache) {
+                setProc('rmbg', true, 'Memuat model AI cadangan (BRIA RMBG-1.4)...', 25);
+                const tf = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.0/dist/transformers.min.js');
+                tf.env.allowLocalModels = false;
+                const model = await tf.AutoModel.from_pretrained('briaai/RMBG-1.4', {
+                    config: { model_type: 'custom' },
+                    dtype: 'q8'
+                });
+                const processor = await tf.AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
+                    config: {
+                        do_normalize: true, do_pad: false, do_rescale: true, do_resize: true,
+                        image_mean: [0.5, 0.5, 0.5], feature_extractor_type: 'ImageFeatureExtractor',
+                        image_std: [1, 1, 1], resample: 2, rescale_factor: 0.00392156862745098,
+                        size: { width: 1024, height: 1024 },
+                    }
+                });
+                rmbgTransformersCache = { tf, model, processor };
+            }
+            setProc('rmbg', true, 'AI RMBG-1.4 sedang memisahkan objek dari background...', 70);
+            const { tf, model, processor } = rmbgTransformersCache;
+            const objUrl = URL.createObjectURL(file);
+            try {
+                const image = await tf.RawImage.fromURL(objUrl);
+                const { pixel_values } = await processor(image);
+                const { output } = await model({ input: pixel_values });
+                const mask = await tf.RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(image.width, image.height);
+                const cv = document.createElement('canvas');
+                cv.width = image.width;
+                cv.height = image.height;
+                const ctx = cv.getContext('2d');
+                ctx.drawImage(rmbgSourceImg, 0, 0, cv.width, cv.height);
+                const imgData = ctx.getImageData(0, 0, cv.width, cv.height);
+                const px = imgData.data;
+                for (let i = 0; i < mask.data.length; i++) {
+                    px[i * 4 + 3] = mask.data[i];
+                }
+                ctx.putImageData(imgData, 0, 0);
+                return cv;
+            } finally {
+                URL.revokeObjectURL(objUrl);
+            }
         }
 
         async function runRemoveBgCurrentMode() {
@@ -4496,34 +4617,30 @@
             const btn = document.getElementById('btn-rmbg-run');
             btn.disabled = true;
             setStatus('status-rmbg', '', '');
-            setProc('rmbg', true, 'Memuat model AI pemisah subjek (pertama kali ±15 MB)...', 25);
+            setProc('rmbg', true, 'Menyiapkan AI Hapus Background di browser...', 12);
+
             try {
-                const mod = await import('https://esm.sh/@imgly/background-removal@1.4.5');
-                const removeBackground = mod.removeBackground || mod.default;
-                if (typeof removeBackground !== 'function') throw new Error('Modul AI tidak tersedia.');
+                let cv = null;
+                let engineName = 'AI ISNet';
+                try {
+                    cv = await runAiWithImgly(rmbgSourceFile);
+                } catch (primaryErr) {
+                    console.warn('Primary AI (ISNet) gagal, mencoba BRIA RMBG-1.4:', primaryErr);
+                    engineName = 'AI RMBG-1.4';
+                    cv = await runAiWithTransformers(rmbgSourceFile);
+                }
 
-                const resultBlob = await removeBackground(rmbgSourceFile, {
-                    progress: (key, cur, tot) => {
-                        const pct = tot > 0 ? Math.min(95, Math.round((cur / tot) * 100)) : 55;
-                        setProc('rmbg', true, 'AI sedang memisahkan subjek dari latar belakang...', Math.max(25, pct));
-                    }
-                });
-
-                const outImg = await loadImageFromFile(resultBlob);
-                const cv = document.createElement('canvas');
-                cv.width = outImg.naturalWidth;
-                cv.height = outImg.naturalHeight;
-                cv.getContext('2d').drawImage(outImg, 0, 0);
+                const removedPct = cleanFaintAlphaHalo(cv);
                 rmbgTransparentCanvas = cv;
                 renderRmbgComposite();
 
                 setProc('rmbg', true, 'Selesai!', 100);
-                setTimeout(() => setProc('rmbg', false), 220);
-                setStatus('status-rmbg', 'success', '✓ AI berhasil menghapus latar belakang! Pilih warna Merah/Biru/Transparan lalu unduh.');
+                setTimeout(() => setProc('rmbg', false), 250);
+                setStatus('status-rmbg', 'success', `✓ ${engineName} berhasil menghapus latar belakang (${removedPct.toFixed(0)}% area latar dibersihkan)! Pilih warna Transparan / Merah / Biru lalu unduh.`);
             } catch (err) {
                 setProc('rmbg', false);
-                processRemoveBgSmart();
-                setStatus('status-rmbg', 'info', 'Model AI sedang tidak dapat diunduh dari CDN — beralih otomatis ke mode Instan. Kamu bisa atur slider Toleransi di mode Tanda Tangan & Logo.');
+                console.error('AI Remove Background gagal:', err);
+                setStatus('status-rmbg', 'error', 'Gagal memuat model AI dari internet. Pastikan koneksi stabil lalu klik "Proses Ulang dengan AI", atau pakai mode "Tanda Tangan & Logo (Latar Polos)" untuk gambar berlatar putih.');
             } finally {
                 btn.disabled = false;
             }
