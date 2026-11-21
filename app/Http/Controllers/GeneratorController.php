@@ -29,6 +29,7 @@ class GeneratorController extends Controller
 {
     protected AIManagerService $ai;
     private array $docxTempFiles = [];
+    private array $docxFlowchartVmlMap = [];
 
     public function __construct(AIManagerService $ai)
     {
@@ -236,111 +237,308 @@ class GeneratorController extends Controller
     }
 
     /**
-     * Ambil referensi ilmiah terverifikasi dari OpenAlex untuk memperkuat sitasi naskah
+     * Format tanggal dalam Bahasa Indonesia baku (tanpa nama bulan Inggris)
+     */
+    private function formatIndonesianDate(string $mode = 'full'): string
+    {
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+        $d = (int) date('j');
+        $m = $months[(int) date('n')] ?? 'Januari';
+        $y = date('Y');
+        return $mode === 'month_year' ? "{$m} {$y}" : "{$d} {$m} {$y}";
+    }
+
+    /**
+     * Konversi angka bulat ke angka Romawi kecil (i, ii, iii, iv, ...)
+     */
+    private function toRomanLower(int $number): string
+    {
+        if ($number <= 0) {
+            return '';
+        }
+        $map = [
+            'm' => 1000, 'cm' => 900, 'd' => 500, 'cd' => 400,
+            'c' => 100, 'xc' => 90, 'l' => 50, 'xl' => 40,
+            'x' => 10, 'ix' => 9, 'v' => 5, 'iv' => 4, 'i' => 1,
+        ];
+        $result = '';
+        foreach ($map as $roman => $val) {
+            while ($number >= $val) {
+                $result .= $roman;
+                $number -= $val;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Hitung estimasi halaman dinamis per bab secara akurat (hanya bab yang sudah terisi)
+     */
+    private function computeDynamicChapterPages(Project $project, bool $isProposal = false): array
+    {
+        $chapterKeys = $isProposal ? ['bab1', 'bab2', 'bab3'] : ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
+        $map = [];
+        $curPage = 1;
+
+        foreach ($chapterKeys as $k) {
+            $text = trim(strip_tags((string) ($project->{$k . '_content'} ?? '')));
+            if ($text !== '') {
+                $pages = max(1, (int) ceil(mb_strlen($text) / 2200));
+                $map[$k] = ['start' => $curPage, 'count' => $pages, 'end' => $curPage + $pages - 1];
+                $curPage += $pages;
+            } else {
+                $map[$k] = ['start' => $curPage, 'count' => 0, 'end' => $curPage];
+            }
+        }
+
+        $dpText = trim(strip_tags((string) ($project->daftar_pustaka ?? '')));
+        $dpPages = $dpText !== '' ? max(1, (int) ceil(mb_strlen($dpText) / 2000)) : 1;
+        $map['daftar_pustaka'] = ['start' => $curPage, 'count' => $dpPages, 'end' => $curPage + $dpPages - 1];
+        $curPage += $dpPages;
+        $map['next_page'] = $curPage;
+
+        return $map;
+    }
+
+    /**
+     * Ambil referensi ilmiah terverifikasi dari OpenAlex & Crossref sesuai aturan sitasi proyek (tahun_min, asal, SINTA/Scopus)
      */
     private function fetchVerifiedReferencesForProject(Project $project): array
     {
         $refs = [];
+        $seenTitles = [];
         try {
-            $cleanWords = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $project->judul);
-            $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4));
+            $cleanWords = preg_replace('/[^a-zA-Z0-9\s]/', ' ', (string) $project->judul);
+            $stop = ['pengaruh', 'analisis', 'implementasi', 'penerapan', 'hubungan', 'terhadap', 'pada', 'dalam', 'dengan', 'menggunakan', 'studi', 'kasus', 'untuk', 'yang', 'dari', 'dan', 'atau', 'siswa', 'kelas'];
+            $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4 && !in_array(strtolower($w), $stop)));
+            if (empty($words)) {
+                $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4));
+            }
             $query = implode(' ', array_slice($words, 0, 6));
-            if (empty($query))
+            if (empty($query)) {
                 return [];
+            }
 
             $meta = $this->getProjectMeta($project);
-            $tahunMin = !empty($meta['sitasi']['tahun_min']) ? (string)$meta['sitasi']['tahun_min'] : '2023';
+            $sitasi = $meta['sitasi'] ?? [];
+            $tahunMin = !empty($sitasi['tahun_min']) ? max(2015, min(2026, (int) $sitasi['tahun_min'])) : 2023;
+            $asal = strtolower((string) ($sitasi['asal'] ?? 'indonesia + internasional'));
+            $wantId = str_contains($asal, 'indonesia') || str_contains($asal, 'nasional') || str_contains($asal, 'semua');
+            $wantInt = str_contains($asal, 'internasional') || str_contains($asal, 'global') || str_contains($asal, 'semua') || !$wantId;
+
             $filterDate = "from_publication_date:{$tahunMin}-01-01,to_publication_date:2026-12-31";
+            $headers = ['User-Agent' => 'SkripsiAI-Academic/2.1 (mailto:support@skripsi-ai.app)'];
 
-            $res = Http::timeout(8)->get('https://api.openalex.org/works', [
-                'search' => $query,
-                'filter' => $filterDate,
-                'per-page' => 15,
-            ]);
+            $formatOpenAlex = function ($w) use ($tahunMin, &$seenTitles): ?string {
+                $title = trim((string) ($w['title'] ?? ''));
+                if ($title === '' || isset($seenTitles[strtolower($title)])) {
+                    return null;
+                }
+                $year = (int) ($w['publication_year'] ?? 0);
+                if ($year < $tahunMin || $year > 2026) {
+                    return null;
+                }
+                $seenTitles[strtolower($title)] = true;
 
-            if ($res->successful()) {
-                foreach ($res->json()['results'] ?? [] as $w) {
-                    $title = trim($w['title'] ?? '');
-                    if (empty($title))
-                        continue;
-                    $authors = [];
-                    foreach (array_slice($w['authorships'] ?? [], 0, 2) as $a) {
-                        if (!empty($a['author']['display_name'])) {
-                            $parts = explode(' ', trim($a['author']['display_name']));
-                            $authors[] = end($parts);
-                        }
+                $authorships = $w['authorships'] ?? [];
+                $inTextAuthors = [];
+                $apaAuthors = [];
+                foreach (array_slice($authorships, 0, 3) as $a) {
+                    $full = trim((string) ($a['author']['display_name'] ?? ''));
+                    if ($full === '') continue;
+                    $parts = preg_split('/\s+/', $full);
+                    $last = array_pop($parts);
+                    $inTextAuthors[] = $last;
+                    $initials = '';
+                    foreach ($parts as $p) {
+                        if ($p !== '') $initials .= strtoupper(mb_substr($p, 0, 1)) . '. ';
                     }
-                    $authorLabel = !empty($authors) ? implode(' & ', $authors) : 'Peneliti';
-                    if (count($w['authorships'] ?? []) > 2)
-                        $authorLabel = $authors[0] . ' et al.';
-                    $year = $w['publication_year'] ?? 2023;
-                    if ($year > 2024)
-                        $year = 2024;
-                    $venue = $w['primary_location']['source']['display_name'] ?? 'Jurnal Ilmiah Terakreditasi';
-                    $doi = !empty($w['doi']) ? $w['doi'] : '';
-                    $refs[] = "{$authorLabel} ({$year}) - \"{$title}\" [{$venue}]" . ($doi ? " {$doi}" : "");
+                    $apaAuthors[] = trim($last . ($initials !== '' ? ', ' . trim($initials) : ''));
+                }
+                if (empty($inTextAuthors)) {
+                    return null;
+                }
+                $inText = count($authorships) > 2
+                    ? $inTextAuthors[0] . ' et al.'
+                    : (count($inTextAuthors) === 2 ? $inTextAuthors[0] . ' & ' . $inTextAuthors[1] : $inTextAuthors[0]);
+                $apaAuthStr = count($apaAuthors) > 1
+                    ? implode(', ', array_slice($apaAuthors, 0, -1)) . ', & ' . end($apaAuthors)
+                    : $apaAuthors[0];
+
+                $venue = trim((string) ($w['primary_location']['source']['display_name'] ?? ''));
+                if ($venue === '') {
+                    $venue = 'Jurnal Ilmiah Terakreditasi';
+                }
+                $bib = $w['biblio'] ?? [];
+                $vol = trim((string) ($bib['volume'] ?? ''));
+                $iss = trim((string) ($bib['issue'] ?? ''));
+                $fp = trim((string) ($bib['first_page'] ?? ''));
+                $lp = trim((string) ($bib['last_page'] ?? ''));
+                $bibStr = '';
+                if ($vol !== '') {
+                    $bibStr .= ", {$vol}" . ($iss !== '' ? "({$iss})" : '');
+                }
+                if ($fp !== '') {
+                    $bibStr .= ", {$fp}" . ($lp !== '' && $lp !== $fp ? "-{$lp}" : '');
+                }
+                $doi = trim((string) ($w['doi'] ?? ''));
+                return "[Sitasi: {$inText} ({$year})] {$apaAuthStr} ({$year}). {$title}. {$venue}{$bibStr}." . ($doi !== '' ? " {$doi}" : '');
+            };
+
+            if ($wantId) {
+                $resId = Http::timeout(8)->withHeaders($headers)->get('https://api.openalex.org/works', [
+                    'search' => $query,
+                    'filter' => $filterDate . ',language:id',
+                    'per-page' => $wantInt ? 8 : 14,
+                ]);
+                if ($resId->successful()) {
+                    foreach ($resId->json()['results'] ?? [] as $w) {
+                        $line = $formatOpenAlex($w);
+                        if ($line) $refs[] = $line;
+                    }
+                }
+            }
+
+            if ($wantInt || count($refs) < 6) {
+                $resInt = Http::timeout(8)->withHeaders($headers)->get('https://api.openalex.org/works', [
+                    'search' => $query,
+                    'filter' => $filterDate,
+                    'per-page' => 12,
+                ]);
+                if ($resInt->successful()) {
+                    foreach ($resInt->json()['results'] ?? [] as $w) {
+                        $line = $formatOpenAlex($w);
+                        if ($line) $refs[] = $line;
+                    }
+                }
+            }
+
+            // Fallback Crossref jika hasil OpenAlex kurang dari 5
+            if (count($refs) < 5) {
+                $cr = Http::timeout(8)->withHeaders($headers)->get('https://api.crossref.org/works', [
+                    'query' => $query,
+                    'filter' => "from-pub-date:{$tahunMin}-01-01,until-pub-date:2026-12-31",
+                    'rows' => 8,
+                    'select' => 'title,author,container-title,published,volume,issue,page,DOI',
+                ]);
+                if ($cr->successful()) {
+                    foreach ($cr->json()['message']['items'] ?? [] as $item) {
+                        $title = trim((string) ($item['title'][0] ?? ''));
+                        $year = (int) ($item['published']['date-parts'][0][0] ?? 0);
+                        if ($title === '' || $year < $tahunMin || $year > 2026 || isset($seenTitles[strtolower($title)])) {
+                            continue;
+                        }
+                        $seenTitles[strtolower($title)] = true;
+                        $authors = $item['author'] ?? [];
+                        $inTextList = [];
+                        $apaList = [];
+                        foreach (array_slice($authors, 0, 3) as $a) {
+                            $fam = trim((string) ($a['family'] ?? ''));
+                            $giv = trim((string) ($a['given'] ?? ''));
+                            if ($fam === '') continue;
+                            $inTextList[] = $fam;
+                            $init = $giv !== '' ? strtoupper(mb_substr($giv, 0, 1)) . '.' : '';
+                            $apaList[] = trim($fam . ($init !== '' ? ', ' . $init : ''));
+                        }
+                        if (empty($inTextList)) continue;
+                        $inText = count($authors) > 2 ? $inTextList[0] . ' et al.' : (count($inTextList) === 2 ? $inTextList[0] . ' & ' . $inTextList[1] : $inTextList[0]);
+                        $apaStr = count($apaList) > 1 ? implode(', ', array_slice($apaList, 0, -1)) . ', & ' . end($apaList) : $apaList[0];
+                        $venue = trim((string) ($item['container-title'][0] ?? 'Jurnal Ilmiah Bereputasi'));
+                        $vol = trim((string) ($item['volume'] ?? ''));
+                        $iss = trim((string) ($item['issue'] ?? ''));
+                        $page = trim((string) ($item['page'] ?? ''));
+                        $bib = ($vol !== '' ? ", {$vol}" . ($iss !== '' ? "({$iss})" : '') : '') . ($page !== '' ? ", {$page}" : '');
+                        $doi = !empty($item['DOI']) ? 'https://doi.org/' . $item['DOI'] : '';
+                        $refs[] = "[Sitasi: {$inText} ({$year})] {$apaStr} ({$year}). {$title}. {$venue}{$bib}." . ($doi !== '' ? " {$doi}" : '');
+                    }
                 }
             }
         } catch (Throwable $e) {
-            Log::warning('OpenAlex project grounding skipped: ' . $e->getMessage());
+            Log::warning('Verified reference lookup skipped: ' . $e->getMessage());
         }
-        return $refs;
+        return array_slice($refs, 0, 15);
     }
 
     /**
-     * Ekstrak daftar isi terstruktur dari isi bab proyek
+     * Ekstrak daftar isi terstruktur dari isi bab proyek (dinamis & dibedakan Proposal vs Skripsi)
      */
     private function extractTocItemsForProject(Project $project, bool $isProposal = false): array
     {
-        $items = [
-            ['label' => 'HALAMAN JUDUL', 'page' => '', 'level' => 1],
-            ['label' => 'LEMBAR PENGESAHAN', 'page' => 'i', 'level' => 1],
-            ['label' => 'PERNYATAAN KEASLIAN', 'page' => 'ii', 'level' => 1],
-            ['label' => 'ABSTRAK', 'page' => 'iii', 'level' => 1],
-            ['label' => 'ABSTRACT', 'page' => 'iv', 'level' => 1],
-            ['label' => 'KATA PENGANTAR', 'page' => 'v', 'level' => 1],
-            ['label' => 'DAFTAR ISI', 'page' => 'vi', 'level' => 1],
-        ];
+        $hasTables = !empty($this->extractTablesForProject($project, $isProposal));
+        $hasFigures = !empty($this->extractFiguresForProject($project, $isProposal));
 
+        $items = [
+            ['label' => 'HALAMAN JUDUL', 'page' => 'i', 'level' => 1],
+        ];
+        $romanIdx = 2;
+
+        if ($isProposal) {
+            $items[] = ['label' => 'LEMBAR PERSETUJUAN PROPOSAL', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'KATA PENGANTAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'DAFTAR ISI', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+        } else {
+            $items[] = ['label' => 'LEMBAR PENGESAHAN', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'SURAT PERNYATAAN KEASLIAN', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'ABSTRAK', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'ABSTRACT', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'KATA PENGANTAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $items[] = ['label' => 'DAFTAR ISI', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+        }
+
+        if ($hasTables) {
+            $items[] = ['label' => 'DAFTAR TABEL', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+        }
+        if ($hasFigures) {
+            $items[] = ['label' => 'DAFTAR GAMBAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+        }
+
+        $pageMap = $this->computeDynamicChapterPages($project, $isProposal);
         $chapters = [
             'bab1' => ['num' => 'I', 'title' => 'PENDAHULUAN'],
             'bab2' => ['num' => 'II', 'title' => 'TINJAUAN PUSTAKA'],
             'bab3' => ['num' => 'III', 'title' => 'METODOLOGI PENELITIAN'],
         ];
         if (!$isProposal) {
-            $chapters['bab4'] = ['num' => 'IV', 'title' => 'HASIL DAN PEMBAHASAN'];
+            $chapters['bab4'] = ['num' => 'IV', 'title' => 'HASIL PENELITIAN DAN PEMBAHASAN'];
             $chapters['bab5'] = ['num' => 'V', 'title' => 'PENUTUP'];
         }
 
-        $pageNum = 1;
         foreach ($chapters as $key => $info) {
             $content = trim((string) ($project->{$key . '_content'} ?? ''));
-            if (empty($content))
+            if (empty($content) || empty($pageMap[$key]['count'])) {
                 continue;
+            }
 
+            $basePage = $pageMap[$key]['start'];
+            $chapPages = $pageMap[$key]['count'];
             $items[] = [
                 'label' => "BAB {$info['num']} {$info['title']}",
-                'page' => (string) $pageNum,
+                'page' => (string) $basePage,
                 'level' => 1,
             ];
 
             $lines = explode("\n", str_replace(['<p>', '</p>', '<br>', '<br/>'], "\n", $content));
-            foreach ($lines as $line) {
+            $totalLines = max(1, count($lines));
+            foreach ($lines as $lIdx => $line) {
                 $clean = trim(strip_tags($line));
-                if (preg_match('/^(\d+\.\d+)\s+(.+)$/', $clean, $m)) {
+                if (preg_match('/^(\d+\.\d+)\.?\s+(.+)$/', $clean, $m)) {
+                    $subPage = $basePage + (int) floor(($lIdx / $totalLines) * $chapPages);
+                    $subPage = min($pageMap[$key]['end'], max($basePage, $subPage));
                     $items[] = [
                         'label' => $m[1] . ' ' . trim($m[2]),
-                        'page' => (string) $pageNum,
+                        'page' => (string) $subPage,
                         'level' => 2,
                     ];
-                    $pageNum++;
                 }
             }
-            $pageNum = max($pageNum + 1, $pageNum);
         }
 
         if (!empty(trim((string) $project->daftar_pustaka))) {
-            $items[] = ['label' => 'DAFTAR PUSTAKA', 'page' => (string) $pageNum, 'level' => 1];
+            $items[] = ['label' => 'DAFTAR PUSTAKA', 'page' => (string) ($pageMap['daftar_pustaka']['start'] ?? 1), 'level' => 1];
         }
 
         return $items;
@@ -349,23 +547,21 @@ class GeneratorController extends Controller
     private function extractTablesForProject(Project $project, bool $isProposal = false): array
     {
         $tables = [];
-        $chapters = [
-            'bab1' => ['num' => 1, 'basePage' => 1],
-            'bab2' => ['num' => 2, 'basePage' => 6],
-            'bab3' => ['num' => 3, 'basePage' => 18],
-        ];
-        if (!$isProposal) {
-            $chapters['bab4'] = ['num' => 4, 'basePage' => 32];
-            $chapters['bab5'] = ['num' => 5, 'basePage' => 46];
-        }
+        $pageMap = $this->computeDynamicChapterPages($project, $isProposal);
+        $chapters = $isProposal ? ['bab1', 'bab2', 'bab3'] : ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
 
-        foreach ($chapters as $key => $info) {
+        foreach ($chapters as $key) {
             $content = (string) ($project->{$key . '_content'} ?? '');
-            if (empty(trim($content)))
+            if (empty(trim($content)) || empty($pageMap[$key]['count'])) {
                 continue;
+            }
 
+            $basePage = $pageMap[$key]['start'];
+            $chapPages = $pageMap[$key]['count'];
             $lines = explode("\n", $content);
+            $totalLines = max(1, count($lines));
             $inCode = false;
+            $seen = [];
 
             foreach ($lines as $lIdx => $line) {
                 $trimmed = trim(strip_tags($line));
@@ -378,14 +574,15 @@ class GeneratorController extends Controller
                 }
                 if (preg_match('/^(?:\*{1,2}|<strong[^>]*>)?Tabel\s+(\d+\.\d+[\w\.\-]*)\s*[:\-\s]*(.*?)(?:\*{1,2}|<\/strong>)?$/i', $trimmed, $m)) {
                     $rawTitle = trim(ltrim($m[2], ":- \t"));
-                    // Abaikan jika baris ini adalah kalimat analisis/pembahasan dalam paragraf, bukan judul tabel
-                    if (mb_strlen($rawTitle) > 80 || preg_match('/memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i', $rawTitle)) {
+                    if (mb_strlen($rawTitle) > 95 || preg_match('/memperlihatkan|menunjukkan|dapat dilihat|mengindikasikan|menyajikan|mereduksi|berkontribusi|berdasarkan tabel|terlihat pada|membuktikan|menjelaskan|menerangkan|diperoleh|dihasilkan/i', $rawTitle)) {
                         continue;
                     }
                     $num = $m[1];
+                    if (isset($seen[$num])) continue;
+                    $seen[$num] = true;
                     $title = $rawTitle ?: "Tabel {$num}";
-                    $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
-                    $tables[] = ['label' => "Tabel {$num} {$title}", 'page' => $estPage];
+                    $estPage = min($pageMap[$key]['end'], $basePage + (int) floor(($lIdx / $totalLines) * $chapPages));
+                    $tables[] = ['label' => "Tabel {$num} {$title}", 'page' => (string) $estPage];
                 }
             }
         }
@@ -396,49 +593,416 @@ class GeneratorController extends Controller
     private function extractFiguresForProject(Project $project, bool $isProposal = false): array
     {
         $figures = [];
-        $chapters = [
-            'bab1' => ['num' => 1, 'basePage' => 1],
-            'bab2' => ['num' => 2, 'basePage' => 6],
-            'bab3' => ['num' => 3, 'basePage' => 18],
-        ];
-        if (!$isProposal) {
-            $chapters['bab4'] = ['num' => 4, 'basePage' => 32];
-            $chapters['bab5'] = ['num' => 5, 'basePage' => 46];
-        }
+        $pageMap = $this->computeDynamicChapterPages($project, $isProposal);
+        $chapters = $isProposal ? ['bab1', 'bab2', 'bab3'] : ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
+        $seen = [];
 
-        foreach ($chapters as $key => $info) {
+        foreach ($chapters as $key) {
             $content = (string) ($project->{$key . '_content'} ?? '');
-            if (empty(trim($content)))
+            if (empty(trim($content)) || empty($pageMap[$key]['count'])) {
                 continue;
-
-            // Kerangka Berpikir di Bab 2
-            if ($key === 'bab2' && (str_contains($content, 'Kerangka') || str_contains($content, 'kerangka') || str_contains($content, '-->') || str_contains($content, '```'))) {
-                $figures[] = ['label' => 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', 'page' => (string) ($info['basePage'] + 4)];
             }
 
-            // Flowchart di Bab 3
-            if ($key === 'bab3' && (str_contains($content, 'Flowchart') || str_contains($content, 'flowchart') || str_contains($content, 'Alur') || str_contains($content, '-->') || str_contains($content, '```'))) {
-                $figures[] = ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => (string) ($info['basePage'] + 3)];
-            }
-
+            $basePage = $pageMap[$key]['start'];
+            $chapPages = $pageMap[$key]['count'];
             $lines = explode("\n", $content);
+            $totalLines = max(1, count($lines));
+
+            $foundExplicitInChapter = false;
             foreach ($lines as $lIdx => $line) {
                 $trimmed = trim(strip_tags($line));
-                if (preg_match('/^Gambar\s+(\d+\.\d+[\w\.\-]*)\s*(.*)$/i', $trimmed, $m)) {
-                    $num = $m[1];
-                    if ($num !== '2.1' && $num !== '3.1') {
-                        $title = trim(ltrim($m[2], ":- \t")) ?: "Gambar {$num}";
-                        $estPage = (string) ($info['basePage'] + (int) floor($lIdx / 45));
-                        $figures[] = ['label' => "Gambar {$num} {$title}", 'page' => $estPage];
+                if (preg_match('/^(?:\*{1,2}|<strong[^>]*>)?(?:Gambar|Bagan)\s+(\d+\.\d+[\w\.\-]*)\s*[:\-\s]*(.*?)(?:\*{1,2}|<\/strong>)?$/i', $trimmed, $m)) {
+                    $rawTitle = trim(ltrim($m[2], ":- \t"));
+                    if (mb_strlen($rawTitle) > 95 || preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan alur/i', $rawTitle)) {
+                        continue;
                     }
+                    $num = $m[1];
+                    if (isset($seen[$num])) continue;
+                    $seen[$num] = true;
+                    $foundExplicitInChapter = true;
+                    $title = $rawTitle ?: "Gambar {$num}";
+                    $estPage = min($pageMap[$key]['end'], $basePage + (int) floor(($lIdx / $totalLines) * $chapPages));
+                    $figures[] = ['label' => "Gambar {$num} {$title}", 'page' => (string) $estPage];
+                }
+            }
+
+            // Hanya tambahkan default jika bab berisi blok diagram kode tapi belum ada caption eksplisit
+            if (!$foundExplicitInChapter && str_contains($content, '```')) {
+                if ($key === 'bab2' && !isset($seen['2.1'])) {
+                    $seen['2.1'] = true;
+                    $figures[] = ['label' => 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian', 'page' => (string) min($pageMap[$key]['end'], $basePage + max(0, $chapPages - 1))];
+                } elseif ($key === 'bab3' && !isset($seen['3.1'])) {
+                    $seen['3.1'] = true;
+                    $figures[] = ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => (string) min($pageMap[$key]['end'], $basePage + max(0, $chapPages - 1))];
                 }
             }
         }
 
-        return !empty($figures) ? $figures : [
-            ['label' => 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian', 'page' => '18'],
-            ['label' => 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian', 'page' => '28'],
-        ];
+        return $figures;
+    }
+
+    /**
+     * Klasifikasi simbol flowchart standar ANSI / ISO 5807 berdasarkan fungsi tahapan
+     */
+    private function classifyFlowchartNode(string $nodeText, int $idx, int $total, bool $isFramework, int $decisionIdx): string
+    {
+        if ($isFramework) {
+            return 'framework';
+        }
+        $lower = strtolower(trim($nodeText));
+        if ($idx === 0 || $idx === $total - 1 || preg_match('/^(mulai|start|selesai|end|finish)$/i', $lower)) {
+            return 'terminator';
+        }
+        if ($decisionIdx >= 0 && $idx === $decisionIdx) {
+            return 'decision';
+        }
+        if (preg_match('/dataset|pengumpulan|input|output|korpus|kuesioner|angket|wawancara|observasi|scraping|crawling|dokumentasi|penyusunan\s+laporan|laporan\s+hasil/i', $lower)) {
+            return 'io';
+        }
+        if (preg_match('/pra-pemrosesan|preprocessing|sub-proses|ekstraksi\s+fitur|pembobotan|tf-idf|uji\s+coba|uji\s+validitas|uji\s+reliabilitas|uji\s+prasyarat|uji\s+asumsi|triangulasi|perancangan\s+sistem|tokeniz|stemming/i', $lower)) {
+            return 'subprocess';
+        }
+        return 'process';
+    }
+
+    /**
+     * Pecah teks panjang menjadi baris-baris rapi agar muat di dalam kotak/simbol diagram
+     */
+    private function wrapDiagramLines(string $text, int $maxChars = 34, int $maxLines = 3): array
+    {
+        $clean = trim(preg_replace('/\s+/', ' ', $text));
+        if ($clean === '') {
+            return [''];
+        }
+        $words = explode(' ', $clean);
+        $lines = [];
+        $current = '';
+        foreach ($words as $w) {
+            if ($current === '') {
+                $current = $w;
+            } elseif (mb_strlen($current . ' ' . $w) <= $maxChars) {
+                $current .= ' ' . $w;
+            } else {
+                $lines[] = $current;
+                $current = $w;
+                if (count($lines) >= $maxLines - 1) {
+                    // Gabungkan sisa kata di baris terakhir dengan batas aman
+                    break;
+                }
+            }
+        }
+        if ($current !== '') {
+            $lines[] = $current;
+        }
+        // Jika masih ada sisa kata yang terpotong karena maxLines
+        $joined = implode(' ', $lines);
+        if (mb_strlen($joined) < mb_strlen($clean) && !empty($lines)) {
+            $lastIdx = count($lines) - 1;
+            $remaining = trim(mb_substr($clean, mb_strlen(implode(' ', array_slice($lines, 0, $lastIdx)))));
+            $lines[$lastIdx] = mb_strlen($remaining) > $maxChars + 4
+                ? rtrim(mb_substr($remaining, 0, $maxChars + 1)) . '...'
+                : $remaining;
+        }
+        return $lines;
+    }
+
+    /**
+     * Bangun Diagram Flowchart / Kerangka Berpikir SVG Vektor Murni Standar ANSI (100% Bebas GD, Tajam di PDF Dompdf)
+     */
+    private function buildFlowchartSvg(array $nodes, bool $isFramework = false): string
+    {
+        $total = count($nodes);
+        if ($total === 0) {
+            return '';
+        }
+
+        // Cari maksimal 1 node Decision utama untuk flowchart (bukan kerangka berpikir)
+        $decisionIdx = -1;
+        if (!$isFramework && $total >= 5) {
+            foreach ($nodes as $idx => $nt) {
+                if ($idx > 1 && $idx < $total - 1 && preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji\s+hipotesis|kelayakan|layak|\?/i', $nt)) {
+                    $decisionIdx = $idx;
+                    break;
+                }
+            }
+        }
+
+        $w = 560;
+        $cx = 265; // Sedikit ke kiri jika ada decision loopback di kanan
+        if ($decisionIdx < 0) {
+            $cx = 280;
+        }
+        $gap = 24;
+        $y = 12;
+        $layouts = [];
+
+        foreach ($nodes as $idx => $rawNode) {
+            $text = $this->formatAcademicMathText($rawNode);
+            $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
+            $maxChars = match ($type) {
+                'terminator' => 22,
+                'decision' => 24,
+                'io' => 36,
+                'subprocess' => 36,
+                'framework' => 46,
+                default => 40,
+            };
+            $lines = $this->wrapDiagramLines($text, $maxChars, 3);
+            $lineCount = count($lines);
+
+            if ($type === 'terminator') {
+                $boxW = 180;
+                $boxH = max(34, $lineCount * 14 + 14);
+            } elseif ($type === 'decision') {
+                $boxW = 244;
+                $boxH = max(72, $lineCount * 14 + 34);
+            } elseif ($type === 'framework') {
+                $boxW = 410;
+                $boxH = max(44, $lineCount * 15 + 18);
+            } else {
+                $boxW = 330;
+                $boxH = max(38, $lineCount * 15 + 16);
+            }
+
+            $layouts[] = [
+                'type' => $type,
+                'lines' => $lines,
+                'x' => (int) round($cx - $boxW / 2),
+                'y' => $y,
+                'w' => $boxW,
+                'h' => $boxH,
+                'cy' => (int) round($y + $boxH / 2),
+            ];
+            $y += $boxH + ($type === 'decision' ? $gap + 8 : $gap);
+        }
+
+        $totalH = $y - $gap + 14;
+        $svgParts = [];
+        $svgParts[] = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{$w}\" height=\"{$totalH}\" viewBox=\"0 0 {$w} {$totalH}\">";
+        $svgParts[] = "<rect x=\"0\" y=\"0\" width=\"{$w}\" height=\"{$totalH}\" fill=\"#ffffff\"/>";
+
+        foreach ($layouts as $idx => $item) {
+            $x = $item['x'];
+            $iy = $item['y'];
+            $bw = $item['w'];
+            $bh = $item['h'];
+            $cy = $item['cy'];
+            $type = $item['type'];
+            $lines = $item['lines'];
+
+            if ($type === 'terminator') {
+                $rx = (int) round($bh / 2);
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" rx=\"{$rx}\" ry=\"{$rx}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.6\"/>";
+            } elseif ($type === 'io') {
+                $skew = 20;
+                $pts = ($x + $skew) . ",{$iy} " . ($x + $bw) . ",{$iy} " . ($x + $bw - $skew) . "," . ($iy + $bh) . " {$x}," . ($iy + $bh);
+                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+            } elseif ($type === 'subprocess') {
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+                $svgParts[] = "<line x1=\"" . ($x + 14) . "\" y1=\"{$iy}\" x2=\"" . ($x + 14) . "\" y2=\"" . ($iy + $bh) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
+                $svgParts[] = "<line x1=\"" . ($x + $bw - 14) . "\" y1=\"{$iy}\" x2=\"" . ($x + $bw - 14) . "\" y2=\"" . ($iy + $bh) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
+            } elseif ($type === 'decision') {
+                $pts = "{$cx},{$iy} " . ($x + $bw) . ",{$cy} {$cx}," . ($iy + $bh) . " {$x},{$cy}";
+                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.5\"/>";
+
+                // Cabang Loopback "Tidak" di sisi kanan mengarah ke tahapan sebelumnya
+                $targetIdx = max(1, $idx - 2);
+                $targetBox = $layouts[$targetIdx] ?? $layouts[max(0, $idx - 1)];
+                $loopX = min($w - 22, $x + $bw + 66);
+                $targetRightX = $targetBox['x'] + $targetBox['w'];
+                $targetCy = $targetBox['cy'];
+
+                $svgParts[] = "<line x1=\"" . ($x + $bw) . "\" y1=\"{$cy}\" x2=\"{$loopX}\" y2=\"{$cy}\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
+                $svgParts[] = "<line x1=\"{$loopX}\" y1=\"{$cy}\" x2=\"{$loopX}\" y2=\"{$targetCy}\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
+                $svgParts[] = "<line x1=\"{$loopX}\" y1=\"{$targetCy}\" x2=\"" . ($targetRightX + 6) . "\" y2=\"{$targetCy}\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
+                $svgParts[] = "<polygon points=\"" . ($targetRightX + 7) . "," . ($targetCy - 4) . " " . ($targetRightX + 7) . "," . ($targetCy + 4) . " {$targetRightX},{$targetCy}\" fill=\"#000000\"/>";
+                $svgParts[] = "<text x=\"" . ($x + $bw + 8) . "\" y=\"" . ($cy - 5) . "\" font-family=\"Times-Roman, serif\" font-size=\"9.5\" font-weight=\"bold\" fill=\"#000000\">Tidak</text>";
+            } else {
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+            }
+
+            // Teks terpusat vertikal dan horizontal di dalam simbol
+            $fontSize = ($type === 'decision') ? 9.5 : 10.5;
+            $lineH = ($type === 'decision') ? 13 : 14.5;
+            $isBold = ($type === 'terminator');
+            $startTextY = $cy - ((count($lines) - 1) * $lineH / 2) + 3.5;
+
+            foreach ($lines as $li => $lt) {
+                $ty = round($startTextY + $li * $lineH, 1);
+                $displayLine = $type === 'terminator' ? strtoupper($lt) : $lt;
+                $weightAttr = $isBold ? ' font-weight="bold"' : '';
+                $escaped = htmlspecialchars($displayLine, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+                $svgParts[] = "<text x=\"{$cx}\" y=\"{$ty}\" text-anchor=\"middle\" font-family=\"Times-Roman, serif\" font-size=\"{$fontSize}\"{$weightAttr} fill=\"#000000\">{$escaped}</text>";
+            }
+
+            // Panah vertikal ke node berikutnya
+            if ($idx < $total - 1) {
+                $nextY = $layouts[$idx + 1]['y'];
+                $fromY = $iy + $bh;
+                $svgParts[] = "<line x1=\"{$cx}\" y1=\"{$fromY}\" x2=\"{$cx}\" y2=\"" . ($nextY - 6) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
+                $svgParts[] = "<polygon points=\"" . ($cx - 4.5) . "," . ($nextY - 7) . " " . ($cx + 4.5) . "," . ($nextY - 7) . " {$cx},{$nextY}\" fill=\"#000000\"/>";
+                if ($type === 'decision') {
+                    $svgParts[] = "<text x=\"" . ($cx + 8) . "\" y=\"" . round(($fromY + $nextY) / 2 + 3) . "\" font-family=\"Times-Roman, serif\" font-size=\"9.5\" font-weight=\"bold\" fill=\"#000000\">Ya</text>";
+                }
+            }
+        }
+
+        $svgParts[] = "</svg>";
+        return implode('', $svgParts);
+    }
+
+    /**
+     * Bangun Flowchart Vektor Asli Word (OOXML VML Shapes) dengan Simbol ANSI Lengkap & Editable di Microsoft Word (Bebas GD)
+     */
+    private function buildFlowchartWordVml(array $nodes, bool $isFramework = false): string
+    {
+        $total = count($nodes);
+        if ($total === 0) {
+            return '';
+        }
+
+        $decisionIdx = -1;
+        if (!$isFramework && $total >= 5) {
+            foreach ($nodes as $idx => $nt) {
+                if ($idx > 1 && $idx < $total - 1 && preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji\s+hipotesis|kelayakan|layak|\?/i', $nt)) {
+                    $decisionIdx = $idx;
+                    break;
+                }
+            }
+        }
+
+        $w = 560;
+        $cx = ($decisionIdx >= 0) ? 265 : 280;
+        $gap = 24;
+        $y = 10;
+        $layouts = [];
+
+        foreach ($nodes as $idx => $rawNode) {
+            $text = $this->formatAcademicMathText($rawNode);
+            $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
+            $maxChars = match ($type) {
+                'terminator' => 22,
+                'decision' => 22,
+                'io' => 34,
+                'subprocess' => 34,
+                'framework' => 44,
+                default => 38,
+            };
+            $lines = $this->wrapDiagramLines($text, $maxChars, 3);
+            $lineCount = count($lines);
+
+            if ($type === 'terminator') {
+                $boxW = 180;
+                $boxH = max(36, $lineCount * 15 + 16);
+            } elseif ($type === 'decision') {
+                $boxW = 244;
+                $boxH = max(76, $lineCount * 15 + 36);
+            } elseif ($type === 'framework') {
+                $boxW = 410;
+                $boxH = max(46, $lineCount * 15 + 18);
+            } else {
+                $boxW = 330;
+                $boxH = max(40, $lineCount * 15 + 16);
+            }
+
+            $layouts[] = [
+                'type' => $type,
+                'text' => $type === 'terminator' ? strtoupper($text) : $text,
+                'lines' => $lines,
+                'x' => (int) round($cx - $boxW / 2),
+                'y' => $y,
+                'w' => $boxW,
+                'h' => $boxH,
+                'cy' => (int) round($y + $boxH / 2),
+            ];
+            $y += $boxH + ($type === 'decision' ? $gap + 8 : $gap);
+        }
+
+        $totalH = $y - $gap + 12;
+        $displayW = 400; // pt (muat sempurna dalam lebar halaman A4 margin 4-3 cm = 14 cm ≈ 397pt)
+        $displayH = round($totalH * ($displayW / $w), 1);
+        // Pastikan tinggi tidak melebihi 1 halaman A4 (maksimal ~560pt agar caption di bawah ikut muat)
+        if ($displayH > 540) {
+            $scaleDown = 540 / $displayH;
+            $displayH = 540;
+            $displayW = round($displayW * $scaleDown, 1);
+        }
+
+        $makeTextBox = function (array $lines, bool $bold = false, int $szHalfPt = 20): string {
+            $bTag = $bold ? '<w:b/>' : '';
+            $paras = '';
+            foreach ($lines as $ln) {
+                $esc = htmlspecialchars($ln, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+                $paras .= '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>' . $bTag . '<w:color w:val="000000"/><w:sz w:val="' . $szHalfPt . '"/><w:szCs w:val="' . $szHalfPt . '"/></w:rPr><w:t xml:space="preserve">' . $esc . '</w:t></w:r></w:p>';
+            }
+            return '<v:textbox style="mso-fit-shape-to-text:f" inset="4pt,2pt,4pt,2pt"><w:txbxContent>' . $paras . '</w:txbxContent></v:textbox>';
+        };
+
+        $shapes = [];
+        $uid = substr(md5(uniqid('', true)), 0, 6);
+
+        foreach ($layouts as $idx => $item) {
+            $x = $item['x'];
+            $iy = $item['y'];
+            $bw = $item['w'];
+            $bh = $item['h'];
+            $cy = $item['cy'];
+            $type = $item['type'];
+            $lines = $item['lines'];
+            $idAttr = "fc_{$uid}_{$idx}";
+
+            if ($type === 'terminator') {
+                $upperLines = array_map('strtoupper', $lines);
+                $shapes[] = "<v:roundrect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" arcsize=\"0.5\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.3pt\">" . $makeTextBox($upperLines, true, 20) . "</v:roundrect>";
+            } elseif ($type === 'io') {
+                // Jajar genjang (Parallelogram)
+                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"330,100\" path=\"m 22,0 l 330,0 l 308,100 l 0,100 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:shape>";
+            } elseif ($type === 'subprocess') {
+                // Kotak Predefined Process + 2 garis vertikal ganda kiri kanan
+                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:rect>";
+                $lx1 = $x + 14;
+                $lx2 = $x + $bw - 14;
+                $by = $iy + $bh;
+                $shapes[] = "<v:line from=\"{$lx1},{$iy}\" to=\"{$lx1},{$by}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"/>";
+                $shapes[] = "<v:line from=\"{$lx2},{$iy}\" to=\"{$lx2},{$by}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"/>";
+            } elseif ($type === 'decision') {
+                // Belah ketupat (Diamond)
+                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"244,100\" path=\"m 122,0 l 244,50 l 122,100 l 0,50 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.2pt\">" . $makeTextBox($lines, false, 18) . "</v:shape>";
+
+                // Panah loopback "Tidak" di sisi kanan
+                $targetIdx = max(1, $idx - 2);
+                $targetBox = $layouts[$targetIdx] ?? $layouts[max(0, $idx - 1)];
+                $loopX = min($w - 20, $x + $bw + 64);
+                $targetRightX = $targetBox['x'] + $targetBox['w'];
+                $targetCy = $targetBox['cy'];
+                $rightX = $x + $bw;
+
+                $shapes[] = "<v:line from=\"{$rightX},{$cy}\" to=\"{$loopX},{$cy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"/>";
+                $shapes[] = "<v:line from=\"{$loopX},{$cy}\" to=\"{$loopX},{$targetCy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"/>";
+                $shapes[] = "<v:line from=\"{$loopX},{$targetCy}\" to=\"{$targetRightX},{$targetCy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"><v:stroke endarrow=\"classic\"/></v:line>";
+                $lblX = $rightX + 4;
+                $lblY = $cy - 18;
+                $shapes[] = "<v:rect style=\"position:absolute;left:{$lblX};top:{$lblY};width:52;height:18\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Tidak'], true, 17) . "</v:rect>";
+            } else {
+                // Kotak Proses / Kerangka Berpikir
+                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:rect>";
+            }
+
+            // Panah vertikal ke node berikutnya
+            if ($idx < $total - 1) {
+                $fromY = $iy + $bh;
+                $nextY = $layouts[$idx + 1]['y'];
+                $shapes[] = "<v:line from=\"{$cx},{$fromY}\" to=\"{$cx},{$nextY}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"><v:stroke endarrow=\"classic\"/></v:line>";
+                if ($type === 'decision') {
+                    $yaX = $cx + 4;
+                    $yaY = $fromY + 2;
+                    $shapes[] = "<v:rect style=\"position:absolute;left:{$yaX};top:{$yaY};width:34;height:18\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Ya'], true, 17) . "</v:rect>";
+                }
+            }
+        }
+
+        $groupXml = "<v:group id=\"fcgrp_{$uid}\" style=\"width:{$displayW}pt;height:{$displayH}pt\" coordorigin=\"0,0\" coordsize=\"{$w},{$totalH}\">" . implode('', $shapes) . "</v:group>";
+        return '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="80" w:after="60"/><w:keepNext/></w:pPr><w:r><w:pict>' . $groupXml . '</w:pict></w:r></w:p>';
     }
 
     private function renderKerangkaPemikiranPng(string $rawCode, string $judul): ?string
@@ -1192,6 +1756,14 @@ Syarat:
                 ?? $work['host_venue']['display_name']
                 ?? ($scopeLabel === 'Indonesia' ? 'Jurnal Ilmiah Nasional (Sinta)' : 'International Open-Access Journal');
 
+            $bib = $work['biblio'] ?? [];
+            $vol = trim((string) ($bib['volume'] ?? ''));
+            $iss = trim((string) ($bib['issue'] ?? ''));
+            $fp = trim((string) ($bib['first_page'] ?? ''));
+            $lp = trim((string) ($bib['last_page'] ?? ''));
+            $bibPart = ($vol !== '' ? ", {$vol}" . ($iss !== '' ? "({$iss})" : '') : '')
+                . ($fp !== '' ? ", {$fp}" . ($lp !== '' && $lp !== $fp ? "-{$lp}" : '') : '');
+
             $pdfUrl = $work['open_access']['oa_url']
                 ?? $work['primary_location']['pdf_url']
                 ?? $work['primary_location']['landing_page_url']
@@ -1207,19 +1779,19 @@ Syarat:
                 'year' => (string) $year,
                 'pdf_url' => $pdfUrl,
                 'doi_url' => $doiUrl,
-                'citation' => "{$authorStr} ({$year}). {$title}. {$venue}. " . ($work['doi'] ?? ''),
+                'citation' => "{$authorStr} ({$year}). {$title}. {$venue}{$bibPart}. " . ($work['doi'] ?? ''),
                 'scope' => $scopeLabel,
                 'is_real_oa' => true,
             ];
         };
 
         try {
-            $headers = ['User-Agent' => 'SkripsiAI-Academic/2.0 (mailto:support@skripsi-ai.app)'];
+            $headers = ['User-Agent' => 'SkripsiAI-Academic/2.1 (mailto:support@skripsi-ai.app)'];
 
             if ($scope === 'all' || $scope === 'id') {
                 $oaId = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                     'search' => $keyword,
-                    'filter' => 'from_publication_date:2019-01-01,language:id',
+                    'filter' => 'from_publication_date:2021-01-01,to_publication_date:2026-12-31,language:id',
                     'per-page' => $scope === 'id' ? 10 : 5,
                 ]);
                 if ($oaId->successful()) {
@@ -1232,7 +1804,7 @@ Syarat:
                 if (count($journalsId) < 3) {
                     $oaIdFallback = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                         'search' => $keyword . ' Indonesia',
-                        'filter' => 'from_publication_date:2019-01-01',
+                        'filter' => 'from_publication_date:2021-01-01,to_publication_date:2026-12-31',
                         'per-page' => 5,
                     ]);
                     if ($oaIdFallback->successful()) {
@@ -1248,7 +1820,7 @@ Syarat:
             if ($scope === 'all' || $scope === 'int') {
                 $oaInt = Http::timeout(10)->withHeaders($headers)->get('https://api.openalex.org/works', [
                     'search' => $keyword,
-                    'filter' => 'from_publication_date:2019-01-01,language:en',
+                    'filter' => 'from_publication_date:2021-01-01,to_publication_date:2026-12-31,language:en',
                     'per-page' => $scope === 'int' ? 10 : 5,
                 ]);
                 if ($oaInt->successful()) {
@@ -1313,11 +1885,11 @@ Syarat:
         ) {
             try {
                 $prompt = "PERAN: Pustakawan Akademik & Kurator Jurnal Ilmiah SINTA & Scopus.
-TUGAS: Berikan daftar referensi jurnal ilmiah ASLI dan NYATA yang benar-benar pernah terbit (2019-2024) dan terindeks di Google Scholar / SINTA / Scopus / IEEE / ScienceDirect terkait kata kunci: '{$keyword}'.
+TUGAS: Berikan daftar referensi jurnal ilmiah ASLI dan NYATA yang benar-benar pernah terbit (2021-2026) dan terindeks di Google Scholar / SINTA / Scopus / IEEE / ScienceDirect terkait kata kunci: '{$keyword}'.
 ATURAN KETAT:
-1. DILARANG KERAS mengarang/halusinasi judul fiktif atau tahun masa depan. Tahun terbit MAKSIMAL 2024.
+1. DILARANG KERAS mengarang/halusinasi judul fiktif atau tahun di atas 2026. Tahun terbit WAJIB antara 2021 hingga 2026.
 2. Seluruh artikel harus nyata dan dapat ditemukan di SINTA Kemdikbud / Garuda / Google Scholar dengan DOI atau link nyata.
-3. Format WAJIB per baris: Kategori(Indonesia/Internasional)|Judul Artikel Nyata|Nama Penulis|Nama Jurnal Ilmiah Terakreditasi|Tahun Terbit(2019-2024)|Link/DOI Asli
+3. Format WAJIB per baris: Kategori(Indonesia/Internasional)|Judul Artikel Nyata|Nama Penulis|Nama Jurnal Ilmiah Terakreditasi|Tahun Terbit(2021-2026)|Link/DOI Asli
 4. Berikan masing-masing 4 artikel Indonesia dan 4 artikel Internasional tanpa nomor urut dan tanpa teks pembuka/penutup.";
 
                 $content = $this->ai->generateText($prompt, $model);
@@ -1331,8 +1903,8 @@ ATURAN KETAT:
                         $jTitle = trim(preg_replace('/^[\d\.\-\s]+/', '', $parts[1]));
                         $jAuthor = trim($parts[2]);
                         $jVenue = trim($parts[3]);
-                        $rawYear = isset($parts[4]) ? (int) preg_replace('/\D/', '', $parts[4]) : 2023;
-                        $jYear = (string) min(2024, max(2019, $rawYear ?: 2023));
+                        $rawYear = isset($parts[4]) ? (int) preg_replace('/\D/', '', $parts[4]) : 2024;
+                        $jYear = (string) min(2026, max(2021, $rawYear ?: 2024));
                         $rawLink = isset($parts[5]) ? trim($parts[5]) : '';
                         $doiLink = (str_starts_with($rawLink, 'http') || str_starts_with($rawLink, '10.'))
                             ? (str_starts_with($rawLink, 'http') ? $rawLink : 'https://doi.org/' . $rawLink)
@@ -1456,7 +2028,7 @@ Pertanyaan Mahasiswa:
     {
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
-        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string) $sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
@@ -1498,17 +2070,18 @@ KONTEKS PENELITIAN:
 PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 {$skillRules}
 
-ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
-1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan \"Kondisi ideal dalam...\", \"Di era digital / era globalisasi saat ini...\", \"Perkembangan teknologi yang pesat...\", \"Tidak dapat dipungkiri bahwa...\", \"Memegang peranan krusial...\", atau \"Merupakan tonggak penting...\").
-2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: \"Data dikumpulkan melalui kuesioner...\", \"Analisis regresi linier dilakukan untuk...\"), hindari suara orang pertama (saya, penulis, kami).
-3. Kedalaman Materi: Tulis setiap sub-bab secara padat, proporsional, dan komprehensif (2-4 paragraf ilmiah berbobot per sub-bab penjelasan atau format poin terstruktur) agar seluruh sub-bab dari awal hingga akhir tersusun lengkap tanpa terputus di tengah jalan.
-4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR NYATA):
-   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Pratama ({$tahunMin}) atau (Wijaya et al., 2024)).
+ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA):
+1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan 'Kondisi ideal dalam...', 'Di era digital / era globalisasi saat ini...', 'Perkembangan teknologi yang pesat...', 'Tidak dapat dipungkiri bahwa...', 'Memegang peranan krusial...', atau 'Merupakan tonggak penting...').
+2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: 'Data dikumpulkan melalui penyebaran kuesioner...', 'Analisis regresi linier dilakukan untuk...'), hindari suara orang pertama (saya, penulis, kami).
+3. Kedalaman Materi & Standar Ketebalan Skripsi S1 Nasional (Mantar Riset AI / Skripsita Standard):
+   - Tuliskan setiap bab secara SANGAT MENDALAM, KOMPREHENSIF, ELABORATIF, DAN EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG KERAS membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas!
+   - Uraikan setiap argumentasi, konsep, dimensi variabel, landasan teori, dan implikasi secara tuntas dalam beberapa paragraf ilmiah panjang yang berbobot.
+4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR ASLI):
+   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Wijaya et al. (2024)).
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
-   - DILARANG KERAS MENGARANG ATAU MEMBUAT SUMBER/PENULIS/JURNAL FIKTIF! Setiap nama peneliti, tahun, judul publikasi, dan nama jurnal ilmiah yang dikutip WAJIB berasal dari literatur ilmiah asli yang benar-benar terbit di jurnal nasional (SINTA/Garuda/Kemdikbud) atau internasional (Scopus/IEEE/Elsevier/Springer/OpenAlex).
-   - Pada Tabel Penelitian Terdahulu (Bab II): Cantumkan tepat 3 penelitian terdahulu yang ASLI dan RELEVAN dengan topik penelitian ini, mencakup nama peneliti riil, tahun publikasi riil ({$tahunMin}-2026), judul artikel riil, metode/algoritma, metrik hasil/akurasi terukur, dan celah penelitian (research gap).
-   - Di Bab I (1.1 Latar Belakang Paragraf 1): Wajib mencantumkan minimal 1 sitasi jurnal ilmiah riil mutakhir ({$tahunMin}-2026) yang memperkuat urgensi fenomena atau objek yang diteliti.
-   - Sumber referensi: Mengutamakan artikel jurnal ilmiah bereputasi ({$sumberArr}) yang terindeks dan mutakhir. Setiap kutipan harus sesuai dengan literatur nyata agar mahasiswa tidak perlu lagi repot mengatur Mendeley.
+   - DILARANG KERAS MENGARANG ATAU MEMBUAT SUMBER/PENULIS/JURNAL FIKTIF! Setiap nama peneliti, tahun, judul publikasi, dan nama jurnal ilmiah yang dikutip WAJIB berasal dari literatur ilmiah asli yang benar-benar terbit di jurnal nasional (SINTA/Garuda/Kemdikbud) atau internasional (Scopus/IEEE/Elsevier/Springer/OpenAlex) atau laporan otoritas data resmi (BPS, Kemendikbudristek, APJII, We Are Social / DataReportal). DILARANG menulis contoh nama fiktif seperti 'Pratama dan Pamungkas' atau 'Nahdhudin'!
+   - Di Bab I (Latar Belakang): Prioritaskan kutipan dari 'REFERENSI JURNAL ILMIAH TERVERIFIKASI' di atas dan data resmi institusi.
+   - Pada Tabel Penelitian Terdahulu (Bab II): Cantumkan 3-5 penelitian terdahulu yang ASLI dan RELEVAN dengan topik judul '{$project->judul}', mencakup nama peneliti riil, tahun publikasi riil ({$tahunMin}-2026), judul artikel riil, metode/desain, metrik hasil terukur, dan celah penelitian (research gap).
 5. Standar Rumus & Notasi Statistik (DILARANG KODE LATEX MENTAH):
    - DILARANG KERAS menghasilkan sintaks LaTeX mentah seperti \\frac{}{}, \\hat{}, {,}, \\approx, atau tanda dollar \$ ... \$.
    - Tuliskan rumus dalam teks akademik bersih:
@@ -1534,7 +2107,7 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 
         $sitasi = $meta['sitasi'] ?? [];
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
-        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string) $sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
         $bahasa = $sitasi['bahasa'] ?? 'Indonesia';
         $sumberArr = is_array($sitasi['sumber'] ?? null) ? implode(', ', $sitasi['sumber']) : 'Umum, Terindeks Sinta';
@@ -1670,6 +2243,11 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
             || str_contains($metodeLower, 'normatif')
             || str_contains($metodeLower, 'pustaka');
 
+        $isPengaruh = str_contains($judulLower, 'pengaruh')
+            || str_contains($judulLower, 'hubungan')
+            || str_contains($judulLower, 'dampak')
+            || str_contains($judulLower, 'korelasi');
+
         // Deteksi Tahap Proposal vs Skripsi Lengkap
         $isProposal = str_contains(strtolower($meta['tahap_pengerjaan'] ?? ''), 'proposal')
             || str_contains(strtolower($meta['jenis_penelitian'] ?? ''), 'proposal')
@@ -1677,14 +2255,14 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 
         $tahapKaryaPrompt = $isProposal
             ? "\n=== TAHAP DOKUMEN: PROPOSAL SKRIPSI (BAB I–III) ===\n" .
-              "- Naskah yang disusun adalah RANCANGAN PROPOSAL PENELITIAN (belum pelaksanaan di lapangan).\n" .
-              "- Khusus pada Bab III (Metodologi): Gunakan kalimat berorientasi rencana masa depan ('Penelitian ini akan dilaksanakan di...', 'Populasi dalam penelitian ini direncanakan sebanyak...', 'Data akan dikumpulkan dengan instrumen...').\n" .
-              "- Proposal fokus pada kejelasan latar belakang masalah, ketajaman teori/pustaka, dan ketepatan rancangan metode.\n"
+            "- Naskah yang disusun adalah RANCANGAN PROPOSAL PENELITIAN (belum pelaksanaan di lapangan).\n" .
+            "- Khusus pada Bab III (Metodologi): Gunakan kalimat berorientasi rencana masa depan ('Penelitian ini akan dilaksanakan di...', 'Populasi dalam penelitian ini direncanakan sebanyak...', 'Data akan dikumpulkan dengan instrumen...').\n" .
+            "- Proposal fokus pada kejelasan latar belakang masalah, ketajaman teori/pustaka, dan ketepatan rancangan metode.\n"
             : "\n=== TAHAP DOKUMEN: SKRIPSI LENGKAP (BAB I–V) ===\n" .
-              "- Naskah yang disusun adalah LAPORAN SKRIPSI LENGKAP HASIL PENELITIAN TERUJI (penelitian telah selesai dilaksanakan).\n" .
-              "- Khusus pada Bab III: Gunakan kalimat pelaporan ilmiah yang telah dilaksanakan ('Penelitian ini telah dilaksanakan di...', 'Data dikumpulkan melalui...', 'Populasi penelitian berjumlah...').\n" .
-              "- Bab IV wajib menyajikan data temuan nyata dalam tabel statistik/komputasi, pengujian hipotesis terukur, dan pembahasan mendalam.\n" .
-              "- Bab V wajib menyajikan kesimpulan yang menjawab seluruh rumusan masalah Bab I secara konkret serta rekomendasi saran praktis dan teoretis.\n";
+            "- Naskah yang disusun adalah LAPORAN SKRIPSI LENGKAP HASIL PENELITIAN TERUJI (penelitian telah selesai dilaksanakan).\n" .
+            "- Khusus pada Bab III: Gunakan kalimat pelaporan ilmiah yang telah dilaksanakan ('Penelitian ini telah dilaksanakan di...', 'Data dikumpulkan melalui...', 'Populasi penelitian berjumlah...').\n" .
+            "- Bab IV wajib menyajikan data temuan nyata dalam tabel statistik/komputasi, pengujian hipotesis terukur, dan pembahasan mendalam.\n" .
+            "- Bab V wajib menyajikan kesimpulan yang menjawab seluruh rumusan masalah Bab I secara konkret serta rekomendasi saran praktis dan teoretis.\n";
 
         // Parameter Olah Data Penelitian Riil Mahasiswa (Jika Diberikan)
         $dataRiilPrompt = "";
@@ -1712,13 +2290,13 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
 
         $context = "";
         if ($bab == 'bab2')
-            $context = "KONTEKS BAB 1: " . Str::limit(strip_tags($project->bab1_content), 1500);
+            $context = "KONTEKS BAB I (PERTAHANKAN BENANG MERAH RUMUSAN MASALAH & VARIABEL):\n" . Str::limit(strip_tags((string) $project->bab1_content), 3500);
         elseif ($bab == 'bab3')
-            $context = "KONTEKS BAB 1 & 2: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab2_content), 1500);
+            $context = "KONTEKS BAB I & BAB II (PERTAHANKAN KONSISTENSI VARIABEL, INDIKATOR & HIPOTESIS):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\n" . Str::limit(strip_tags((string) $project->bab2_content), 1800);
         elseif ($bab == 'bab4')
-            $context = "KONTEKS BAB 1 & 3: " . Str::limit(strip_tags($project->bab1_content . ' ' . $project->bab3_content), 1800);
+            $context = "KONTEKS BAB I & BAB III (JAWAB SEMUA RUMUSAN MASALAH & GUNAKAN METODE/SAMPEL BAB III):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\n" . Str::limit(strip_tags((string) $project->bab3_content), 2000);
         elseif ($bab == 'bab5') {
-            $context = "HASIL PENELITIAN BAB 4: " . Str::limit(strip_tags($project->bab4_content), 1800);
+            $context = "RUMUSAN MASALAH BAB I:\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\nHASIL PENELITIAN BAB IV:\n" . Str::limit(strip_tags((string) $project->bab4_content), 2800);
             $allText = $project->bab1_content . " " . $project->bab2_content . " " . $project->bab3_content . " " . $project->bab4_content;
             $citationsList = $this->extractInTextCitations($allText);
             $citationsStr = !empty($citationsList) ? implode("\n- ", $citationsList) : "- Tidak ada sitasi terdeteksi";
@@ -1729,56 +2307,141 @@ ATURAN PENULISAN AKADEMIK (SANGAT KETAT):
         // Bab II Sesuai Rumpun Ilmu & WAJIB KERANGKA BERPIKIR DISESUAIKAN DENGAN JUDUL & JURUSAN
         $bab2Prompt = match (true) {
             $isInformatika => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG INFORMATIKA / ILMU KOMPUTER / SISTEM CERDAS.
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG INFORMATIKA / ILMU KOMPUTER / SISTEM CERDAS (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
-2.1 Landasan Teori (Uraikan konsep dasar topik judul, Text Preprocessing [Case Folding, Cleaning, Tokenizing, Slang Normalization, Stopwords Removal, Stemming Sastrawi], Pembobotan Kata [TF-IDF], Teori dan Rumus Matematis Algoritma Naive Bayes/SVM/Machine Learning yang dipakai, serta Teori Confusion Matrix).
-2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 penelitian terdahulu dari jurnal bereputasi 5 tahun terakhir 2020-2024 yang paling relevan dengan '{$project->judul}'. Sajikan dalam narasi ringkas diikuti TABEL sintesis perbandingan tepat 3 baris:
+2.1 Landasan Teori (Uraikan secara mendalam konsep dasar topik judul, Text/Data Preprocessing [Case Folding, Cleaning, Tokenizing, Slang Normalization, Stopwords Removal, Stemming], Ekstraksi/Pembobotan Fitur [TF-IDF / Feature Engineering], Teori & Rumus Matematis Algoritma yang digunakan dalam teks Unicode bersih, serta Teori Evaluasi Kinerja / Confusion Matrix).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 penelitian terdahulu ASLI dari jurnal bereputasi SINTA/Scopus periode {$tahunMin}-2026 yang paling relevan dengan '{$project->judul}'. Sajikan dalam narasi kritis diikuti TABEL sintesis perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
 | No | Peneliti & Tahun | Judul Penelitian | Metode / Algoritma | Hasil / Akurasi | Persamaan, Perbedaan & Celah Penelitian |
-Batasi default tepat 3 penelitian agar padat, proporsional, dan tidak memenuhi lembar kertas; mahasiswa dapat menambah penelitian lebih lanjut melalui menu Revisi Sub-Bab jika dibutuhkan). Lalu berikan 1-2 paragraf sintesis posisi riset dan kebaruan (novelty) penelitian ini dibandingkan riset terdahulu.
-2.3 Kerangka Pemikiran (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur logika pemecahan masalah komputasi dari fenomena gap/data mentah di lapangan, landasan teori pendukung, proses preprocessing, pemodelan algoritma, hingga evaluasi akurasi.
-Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN di bawah narasi dalam blok kode:
+Diakhiri 2 paragraf sintesis posisi riset dan kebaruan/novelty penelitian ini).
+2.3 Kerangka Pemikiran (Uraikan alur logika pemecahan masalah komputasi dari fenomena gap di lapangan, landasan teori, prapemrosesan data, pemodelan algoritma, hingga evaluasi kinerja.
+Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN dalam blok kode vertikal:
 Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 ```
-[Permasalahan: Urgensi & Masalah Nyata pada '{$project->judul}']
+[Permasalahan Empiris pada '{$project->judul}']
 ↓
-[Landasan Teori: Konsep Algoritma & Teori Preprocessing Teks]
+[Landasan Teori: Konsep Algoritma & Teori Pengolahan Data]
 ↓
-[Pendekatan Komputasi: Ekstraksi Fitur TF-IDF & Klasifikasi Machine Learning]
+[Pendekatan Komputasi: Prapemrosesan, Ekstraksi Fitur & Pemodelan]
 ↓
 [Evaluasi & Pengujian: Confusion Matrix (Akurasi, Presisi, Recall, F1)]
 ↓
-[Hasil yang Diharapkan: Model Klasifikasi Teruji dengan Performa Optimal]
+[Hasil yang Diharapkan: Model Teruji dengan Performa Optimal]
 ```
 ).
-2.4 Batasan Kinerja / Hipotesis Penelitian (Kemukakan ekspektasi performa model komputasi yang dirumuskan secara tegas).",
+2.4 Batasan Kinerja / Hipotesis Penelitian (Kemukakan ekspektasi performa model atau hipotesis penelitian secara tegas).",
 
             $isEkonomi => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG EKONOMI / MANAJEMEN / AKUNTANSI.
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG EKONOMI / MANAJEMEN / AKUNTANSI (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
-2.1 Landasan Teori (Uraikan Grand Theory [misal Agency Theory / TAM / RBV / Signaling Theory], Middle Theory, dan Applied Theory, serta definisi konseptual dan indikator variabel penelitian secara komprehensif).
-2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal bereputasi SINTA/Scopus 5 tahun terakhir dalam format narasi ringkas dan TABEL sintesis perbandingan tepat 3 baris:
-| No | Peneliti & Tahun | Judul Penelitian | Variabel / Metode | Hasil Penelitian | Perbedaan dengan Penelitian Ini |
-Batasi default tepat 3 penelitian agar terstruktur dan proporsional). Diikuti 1-2 paragraf perbandingan dan gap penelitian.
-2.3 Kerangka Konseptual (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan hubungan keterkaitan logis antarvariabel independen terhadap variabel dependen berdasarkan landasan teori.
-Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL di bawah narasi dalam blok kode:
-Gambar 2.1 Diagram Jalur Kerangka Konseptual Penelitian
+2.1 Landasan Teori (Uraikan Grand Theory [misal Agency Theory / TAM / TPB / RBV / Signaling Theory], Middle Theory, Applied Theory, definisi konseptual menurut para ahli, dimensi, faktor determinan, dan indikator pengukuran setiap variabel penelitian).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal bereputasi SINTA/Scopus periode {$tahunMin}-2026 dalam narasi kritis diikuti TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Variabel & Metode | Hasil Penelitian | Persamaan & Perbedaan (Research Gap) |
+Diikuti 2 paragraf analisis kesenjangan riset).
+2.3 Kerangka Konseptual (Uraikan hubungan kausalitas antarvariabel independen terhadap variabel dependen/mediasi berdasarkan landasan teori.
+Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL dalam blok kode vertikal:
+Gambar 2.1 Bagan Kerangka Konseptual Penelitian
 ```
-[Variabel Independen (X1)] ──┐
-                             ├──> [Variabel Dependen (Y)]
-[Variabel Independen (X2)] ──┘
+[Fenomena Bisnis & Masalah Empiris pada '{$project->judul}']
+↓
+[Grand Theory & Kajian Variabel Independen (X) serta Dependen (Y)]
+↓
+[Pengujian Empiris: Survei / Laporan Keuangan & Analisis Statistik]
+↓
+[Pembuktian Pengaruh Signifikan & Implikasi Manajerial]
 ```
 ).
-2.4 Pengembangan Hipotesis (Rumuskan hipotesis penelitian H1, H2, H3 secara eksplisit dengan argumen teoretis pendukung).",
+2.4 Pengembangan Hipotesis (Rumuskan hipotesis H1, H2, H3 dst. secara eksplisit dengan argumentasi teoretis dan empiris pendukung).",
 
-            $isPendidikan => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN / KEGURUAN (FKIP / TARBIYAH).
+            $isHukum => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG ILMU HUKUM / SYARIAH (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
-2.1 Landasan Teori (Hakikat pembelajaran, model/metode pembelajaran yang diuji, karakteristik hasil belajar/keterampilan siswa, materi ajar).
-2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal pendidikan bereputasi SINTA 5 tahun terakhir dalam format narasi ringkas dan TABEL komparasi tepat 3 baris: No | Peneliti & Tahun | Judul | Model / Metode | Temuan / Peningkatan | Posisi Penelitian Ini. Batasi default tepat 3 penelitian terdahulu agar padat dan terstruktur).
-2.3 Kerangka Berpikir Tindakan (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur pemikiran dari kondisi awal rendahnya hasil belajar/keaktifan siswa, penerapan tindakan inovasi pembelajaran, hingga kondisi akhir peningkatan hasil belajar.
+2.1 Tinjauan Umum dan Landasan Yuridis (Teori Hukum Utama [Teori Kepastian Hukum, Keadilan, Kemanfaatan, Perlindungan Hukum], asas-asas hukum, serta telaah peraturan perundang-undangan/pasal-pasal relevan di Indonesia).
+2.2 Tinjauan Pustaka Terdahulu / Keaslian Penelitian (Cantumkan 3-5 jurnal hukum terakreditasi SINTA periode {$tahunMin}-2026 diikuti TABEL perbandingan:
+Tabel 2.1 Perbandingan Penelitian Hukum Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Pendekatan Yuridis | Fokus & Temuan | Perbedaan & Kebaruan |
+).
+2.3 Kerangka Pemikiran / Kerangka Konseptual Yuridis (Uraikan penalaran hukum dari norma/das Sollen, realitas penegakan hukum/das Sein, analisis perundang-undangan, hingga konstruksi hukum ideal.
+Sajikan diagram dalam blok kode vertikal:
+Gambar 2.1 Bagan Kerangka Pemikiran Yuridis
+```
+[Permasalahan Hukum & Kesenjangan Norma (Das Sollen vs Das Sein)]
+↓
+[Landasan Yuridis: Peraturan Perundang-Undangan & Teori Hukum]
+↓
+[Analisis Yuridis Normatif / Empiris & Sinkronisasi Regulasi]
+↓
+[Konstruksi Solusi Hukum & Kepastian Perlindungan Hukum]
+```
+).",
+
+            $isPsikologi || $isKomunikasiSosial => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PSIKOLOGI / ILMU KOMUNIKASI / SOSIAL POLITIK (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT:
+2.1 Landasan Teori (Uraikan Grand Theory bidang terkait, definisi konseptual tiap variabel menurut 3-4 tokoh/ahli, aspek/dimensi psikologis atau sosial, faktor pembentuk, serta dinamika keterkaitan antarvariabel).
+2.2 Penelitian Terdahulu (Cantumkan 3-5 jurnal bereputasi SINTA/Scopus periode {$tahunMin}-2026 diikuti TABEL perbandingan:
+Tabel 2.1 Matriks Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Variabel & Metode | Hasil Utama | Celah Penelitian |
+).
+2.3 Kerangka Berpikir Penelitian (Uraikan alur penalaran deduktif dan sajikan diagram vertikal:
+Gambar 2.1 Bagan Kerangka Berpikir Penelitian
+```
+[Fenomena Sosial / Psikologis pada '{$project->judul}']
+↓
+[Tinjauan Teoretis & Dimensi Variabel Penelitian]
+↓
+[Pengumpulan Data Empiris & Analisis Statistik / Kualitatif]
+↓
+[Temuan Empiris & Kontribusi Keilmuan]
+```
+).
+2.4 Hipotesis / Proposisi Penelitian.",
+
+            ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) PENELITIAN KUANTITATIF (PENGARUH / HUBUNGAN ANTARVARIABEL).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT SELURUH SUB-BAB SECARA MENDALAM DAN KOMPREHENSIF (MINIMAL 1800 - 2500 KATA):
+2.1 Landasan Teori
+Uraikan secara komprehensif (minimal 10-15 paragraf panjang):
+a. Teori Variabel Bebas (X): Pengertian menurut 3-4 ahli, aspek dan dimensi, faktor pendorong, serta indikator pengukurannya.
+b. Teori Variabel Terikat (Y): Pengertian menurut 3-4 ahli, indikator capaian, faktor internal & eksternal yang mempengaruhi, dan tolok ukur evaluasi.
+c. Pengaruh Teoretis Variabel X terhadap Variabel Y: Elaborasi mendalam alur kausalitas bagaimana intensitas variabel bebas mempengaruhi capaian variabel terikat.
+2.2 Penelitian Terdahulu
+Uraikan komparasi kritis 3-5 penelitian terdahulu dari jurnal bereputasi SINTA periode {$tahunMin}-2026 yang relevan dengan '{$project->judul}', diikuti TABEL komparasi terstruktur:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Variabel & Metode | Hasil / Temuan Utama | Persamaan, Perbedaan & Celah Penelitian (Research Gap) |
+Diakhiri sintesis 2 paragraf mengenai posisi penelitian dan kebaruan (novelty) riset ini.
+2.3 Kerangka Berpikir / Kerangka Konseptual
+Uraikan alur penalaran logis deduktif dari kondisi fenomena empiris, landasan teoretis variabel X dan Y, pendekatan metodologis pengujian statistik, hingga luaran hasil.
+Lalu WAJIB sajikan DIAGRAM KERANGKA BERPIKIR dalam blok kode:
+Gambar 2.1 Bagan Kerangka Berpikir Penelitian
+```
+[Kondisi Empiris: Masalah Nyata pada '{$project->judul}']
+↓
+[Kajian Teoretis: Teori Variabel Bebas (X) & Teori Variabel Terikat (Y)]
+↓
+[Pendekatan Metodologi: Penyusunan Angket, Uji Validitas & Analisis Regresi]
+↓
+[Hasil: Terujinya Pengaruh Signifikan Variabel X terhadap Variabel Y]
+```
+2.4 Hipotesis Penelitian
+Rumuskan hipotesis penelitian secara tegas (H1: Terdapat pengaruh yang signifikan... beserta hipotesis statistik H0 dan Ha).",
+
+            $isPendidikan => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN / KEGURUAN (FKIP / TARBIYAH) (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT:
+2.1 Landasan Teori (Hakikat pembelajaran, model/metode/media pembelajaran yang diuji, karakteristik hasil belajar/keterampilan siswa, materi ajar, dan indikator ketercapaian).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal pendidikan bereputasi SINTA periode {$tahunMin}-2026 dalam narasi kritis dan TABEL komparasi:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Model / Metode | Temuan / Peningkatan | Posisi Penelitian Ini |
+).
+2.3 Kerangka Berpikir Tindakan (Uraikan alur pemikiran dari kondisi awal rendahnya hasil belajar/keaktifan siswa, penerapan tindakan inovasi pembelajaran, hingga kondisi akhir peningkatan hasil belajar.
 Lalu WAJIB sajikan DIAGRAM KERANGKA BERPIKIR dalam blok kode:
 Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran
 ```
@@ -1794,32 +2457,39 @@ Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran
 2.4 Hipotesis Tindakan / Hipotesis Statistik.",
 
             $isKesehatan => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG KESEHATAN / FARMASI / KEPERAWATAN / KEDOKTERAN.
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG KESEHATAN / FARMASI / KEPERAWATAN / KEDOKTERAN (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
-2.1 Landasan Teori (Patofisiologi, senyawa aktif/intervensi medis, mekanisme biologis, tolok ukur klinis).
-2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 jurnal bereputasi terkait 5 tahun terakhir dalam format narasi ringkas dan TABEL perbandingan tepat 3 baris. Batasi default tepat 3 penelitian agar terstruktur dan proporsional).
-2.3 Kerangka Konseptual (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur keterkaitan antara agen/faktor intervensi, mekanisme respon seluler/klinis, hingga efek terapi/luaran kesehatan pasien.
+2.1 Landasan Teori (Patofisiologi/etiologi, senyawa aktif atau intervensi klinis/asuhan keperawatan, mekanisme biologis/fisiologis, standar Kemenkes/WHO, dan tolok ukur klinis).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal kesehatan bereputasi SINTA/PubMed/Scopus periode {$tahunMin}-2026 diikuti TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Desain & Sampel | Hasil Klinis (p-value / OR) | Celah Penelitian |
+).
+2.3 Kerangka Konseptual (Uraikan alur keterkaitan antara agen/faktor intervensi, mekanisme respon biologis/klinis, hingga efek terapi/luaran kesehatan pasien.
 Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL dalam blok kode:
 Gambar 2.1 Diagram Kerangka Konseptual Penelitian
 ```
-[Faktor Intervensi / Senyawa Aktif / Asuhan Klinis Sesuai Judul]
+[Faktor Intervensi / Paparan / Asuhan Klinis Sesuai Judul]
 ↓
 [Mekanisme Biologis / Fisiologis / Edukasi Kesehatan]
 ↓
-[Luaran Klinis: Penurunan Gejala, Efektivitas Terapi & Peningkatan Kualitas Hidup]
+[Pengukuran Parameter Klinis & Uji Statistik Bivariat]
+↓
+[Luaran Klinis: Penurunan Gejala, Efektivitas Terapi & Kualitas Hidup]
 ```
 ).
 2.4 Hipotesis Penelitian.",
 
             default => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) secara komprehensif berstandar skripsi S1 nasional Indonesia.
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) secara komprehensif berstandar skripsi S1 nasional Indonesia (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
 2.1 Landasan Teori (Grand theory, teori pendukung, definisi ahli, dan dimensi/indikator operasional).
-2.2 Penelitian Terdahulu (WAJIB batasi default tepat 3 penelitian jurnal bereputasi 2020-2024 terkait dalam format narasi ringkas dan TABEL perbandingan tepat 3 baris:
-| No | Peneliti & Tahun | Judul Penelitian | Metode yang Digunakan | Hasil / Temuan | Celah Penelitian |. Batasi default tepat 3 penelitian agar padat dan proporsional).
-2.3 Kerangka Pemikiran (WAJIB sesuaikan dengan judul '{$project->judul}'. Uraikan alur pemikiran ilmiah dari gejala fenomena, landasan konsep teori, analisis kritis, hingga perumusan solusi teruji.
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 penelitian jurnal bereputasi periode {$tahunMin}-2026 terkait dalam format narasi kritis dan TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Metode yang Digunakan | Hasil / Temuan | Celah Penelitian |
+).
+2.3 Kerangka Pemikiran (Uraikan alur pemikiran ilmiah dari gejala fenomena, landasan konsep teori, analisis kritis, hingga perumusan solusi teruji.
 Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN dalam blok kode:
 Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 ```
@@ -1835,80 +2505,278 @@ Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 2.4 Hipotesis / Proposisi Penelitian."
         };
 
-        // Bab III Sesuai Rumpun Ilmu (Flowchart Sistem & Metodologi Valid)
+        // Bab III Sesuai Rumpun Ilmu (WAJIB Flowchart Vertikal Standar ANSI & Metodologi Valid di SEMUA Jurusan)
         $bab3Prompt = match (true) {
             $isInformatika => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KOMPUTASI / INFORMATIKA).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KOMPUTASI / INFORMATIKA) secara mendalam (MINIMAL 1800 - 2500 KATA).
 WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
 3.1 Desain Penelitian & Alur Sistem (Flowchart)
-Sajikan penjelasan terperinci dan GAMBARKAN BAGAN ALUR (FLOWCHART SISTEM) menggunakan diagram alur berbasis teks/kotak yang rapi di dalam blok kode, contoh:
+Uraikan desain penelitian secara sistematis dan WAJIB sajikan BAGAN ALUR (FLOWCHART SISTEM) dalam blok kode vertikal standar ANSI:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
 ```
-[Mulai] --> [Pengumpulan Dataset] --> [Text Preprocessing]
-             |--> Case Folding, Cleaning, Tokenizing
-             |--> Normalisasi Slang & Stopword Removal
-             |--> Stemming (Algoritma Sastrawi)
-             V
-[Pembobotan TF-IDF] --> [Data Splitting 80:20]
-             V
-[Pelatihan Model Naive Bayes] --> [Pengujian Data Uji]
-             V
-[Evaluasi: Confusion Matrix (Akurasi, Presisi, Recall, F1)] --> [Selesai]
+[Mulai]
+↓
+[Pengumpulan Dataset Sesuai Objek '{$project->judul}']
+↓
+[Pra-Pemrosesan Data (Case Folding, Cleaning, Tokenizing, Stopword, Stemming)]
+↓
+[Pembobotan Fitur TF-IDF / Ekstraksi Fitur]
+↓
+[Pembagian Data: Training 80% dan Testing 20%]
+↓
+[Pelatihan dan Pengujian Model Algoritma]
+↓
+[Evaluasi Kinerja: Confusion Matrix (Akurasi, Presisi, Recall, F1-Score)]
+↓
+[Penyusunan Laporan Hasil dan Analisis Kesalahan]
+↓
+[Selesai]
 ```
 Jelaskan setiap tahapan bagan alur di atas secara terperinci.
-3.2 Sumber dan Teknik Pengumpulan Dataset (Jelaskan sumber data, teknik crawling/scraping API, kata kunci pencarian, periode penarikan data, dan total volume korpus data).
-3.3 Tahapan Pra-Pemrosesan Data (Text Preprocessing) (Jelaskan mekanisme kerja Case Folding, Cleaning, Tokenizing, Slang Normalization dengan kamus baku, Filtering/Stopword Removal, dan Stemming Sastrawi).
-3.4 Pembobotan Fitur dan Pembagian Data (Jabarkan rumus pembobotan TF-IDF dan rasio pembagian dataset latih dan uji, misal 80:20 atau 10-Fold Cross Validation).
-3.5 Pemodelan Algoritma Klasifikasi (Tuliskan rumus matematis Teorema Bayes: P(C|X) = P(X|C)P(C) / P(X) beserta penjelasan prior probability, likelihood, dan Laplace Smoothing).
-3.6 Metrik Evaluasi Kinerja (Rumuskan Confusion Matrix [TP, TN, FP, FN] serta rumus perhitungan Akurasi, Precision, Recall, dan F1-Score).",
+3.2 Sumber dan Teknik Pengumpulan Dataset (Jelaskan sumber data, teknik crawling/scraping/API, kata kunci, periode penarikan data, dan total volume dataset).
+3.3 Tahapan Pra-Pemrosesan Data (Jabarkan mekanisme kerja setiap tahap prapemrosesan data secara terperinci dan sajikan Tabel 3.1 Tahapan Prapemrosesan Data).
+3.4 Pembobotan Fitur dan Pembagian Data (Jabarkan rumus pembobotan fitur dalam teks Unicode bersih dan rasio pembagian dataset latih/uji atau K-Fold Cross Validation).
+3.5 Pemodelan Algoritma (Tuliskan rumus matematis algoritma utama dalam teks Unicode bersih beserta penjelasan parameter dan mekanisme pelatihannya).
+3.6 Metrik Evaluasi Kinerja (Sajikan Tabel 3.2 Struktur Confusion Matrix [TP, TN, FP, FN] serta rumus perhitungan Akurasi, Precision, Recall, dan F1-Score).",
 
             $isEkonomi => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN BISNIS / EKONOMI KUANTITATIF).
-3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN BISNIS / EKONOMI KUANTITATIF) secara mendalam (MINIMAL 1800 - 2500 KATA).
+3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal beserta Flowchart Prosedur Penelitian):
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Kajian Teori '{$project->judul}']
+↓
+[Pengumpulan Data Kuesioner / Laporan Keuangan]
+↓
+[Uji Validitas dan Reliabilitas Instrumen]
+↓
+[Uji Asumsi Klasik (Normalitas, Multikolinearitas, Heteroskedastisitas)]
+↓
+[Analisis Regresi Linier Berganda / SEM-PLS]
+↓
+[Evaluasi & Uji Hipotesis (Uji t, Uji F, R²)]
+↓
+[Penyusunan Laporan Hasil & Rekomendasi Manajerial]
+↓
+[Selesai]
+```
 3.2 Lokasi, Objek, dan Waktu Penelitian.
-3.3 Populasi dan Penentuan Sampel (Teknik sampling, rumus Slovin / Hair et al.).
-3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan TABEL Operasional Variabel dengan kolom: Variabel | Dimensi/Indikator | Butir Pernyataan | Skala Pengukuran [Likert 1-5]).
-3.5 Teknik dan Instrumen Pengumpulan Data (Kuesioner / Data Sekunder Laporan Keuangan).
-3.6 Uji Instrumen Penelitian (Uji Validitas Corrected Item-Total Correlation dan Uji Reliabilitas Cronbach's Alpha > 0.60).
-3.7 Teknik Analisis Data & Uji Hipotesis (Uji Asumsi Klasik: Normalitas, Multikolinearitas, Heteroskedastisitas; dan Analisis Regresi Linier Berganda / SEM-PLS: Uji t, Uji F, Koefisien Determinasi R-Square).",
+3.3 Populasi dan Penentuan Sampel (Teknik sampling, rumus Slovin / Hair et al. dengan perhitungan lengkap).
+3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan Tabel 3.1 Operasionalisasi Variabel dengan kolom: | Variabel | Definisi Operasional | Dimensi | Indikator | Skala Pengukuran |).
+3.5 Teknik dan Instrumen Pengumpulan Data (Kuesioner skala Likert 1-5 / Data Sekunder).
+3.6 Uji Kualitas Instrumen Penelitian (Uji Validitas Pearson Product Moment dan Uji Reliabilitas Cronbach's Alpha > 0,60).
+3.7 Teknik Analisis Data & Uji Hipotesis (Uji Asumsi Klasik dan Analisis Regresi Linier Berganda / SEM-PLS lengkap dengan rumus Unicode bersih).",
+
+            $isHukum => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN HUKUM) secara mendalam (MINIMAL 1600 - 2200 KATA).
+3.1 Jenis dan Pendekatan Penelitian (Yuridis Normatif / Yuridis Empiris, Pendekatan Perundang-undangan [Statute Approach], Pendekatan Konseptual [Conceptual Approach], dan Pendekatan Kasus [Case Approach]).
+3.2 Lokasi dan Waktu Penelitian (jika empiris) atau Bahan Hukum Penelitian (Bahan Hukum Primer, Bahan Hukum Sekunder, Bahan Hukum Tersier — sajikan Tabel 3.1 Klasifikasi Bahan Hukum).
+3.3 Teknik Pengumpulan Bahan Hukum / Data Lapangan (Studi Kepustakaan & Wawancara Informan).
+3.4 Teknik Analisis Bahan Hukum (Interpretasi Gramatikal, Sistematis, Teleologis, dan Penalaran Deduktif Silogisme Hukum).
+3.5 Alur Prosedur Penelitian Hukum:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Hukum
+```
+[Mulai]
+↓
+[Identifikasi Isu Hukum pada '{$project->judul}']
+↓
+[Pengumpulan Bahan Hukum Primer, Sekunder & Tersier]
+↓
+[Inventarisasi dan Klasifikasi Norma Perundang-Undangan]
+↓
+[Analisis Yuridis & Sinkronisasi Hukum]
+↓
+[Validasi dan Evaluasi Kesesuaian Norma terhadap Fakta]
+↓
+[Penyusunan Preskripsi dan Kesimpulan Hukum]
+↓
+[Selesai]
+```",
+
+            $isKesehatan => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KESEHATAN / KLINIS) secara mendalam (MINIMAL 1600 - 2200 KATA).
+3.1 Desain Penelitian (Observasional Analitik Cross-Sectional / Case-Control / Eksperimental Klinis).
+3.2 Tempat dan Waktu Penelitian.
+3.3 Populasi, Sampel, dan Teknik Sampling (Populasi target & terjangkau, rumus penentuan besar sampel Lemeshow/Slovin, Kriteria Inklusi & Kriteria Eksklusi).
+3.4 Variabel Penelitian dan Definisi Operasional (WAJIB sajikan Tabel 3.1 Definisi Operasional Variabel: | Variabel | Definisi Operasional | Alat Ukur | Cara Ukur | Hasil Ukur | Skala |).
+3.5 Instrumen, Etika Penelitian (Informed Consent, Anonymity, Confidentiality, Ethical Clearance), dan Prosedur Pengumpulan Data:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Klinis
+```
+[Mulai]
+↓
+[Pengurusan Ethical Clearance & Izin Lokasi]
+↓
+[Seleksi Responden Berdasarkan Kriteria Inklusi & Eksklusi]
+↓
+[Pengumpulan Data Klinis / Kuesioner & Pengukuran Variabel]
+↓
+[Pengolahan Data (Editing, Coding, Entry, Cleaning)]
+↓
+[Analisis Univariat & Bivariat (Chi-Square / Uji-t / Mann-Whitney)]
+↓
+[Evaluasi Signifikansi Klinis (p-value < 0,05 & Odds Ratio)]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```
+3.6 Pengolahan dan Teknik Analisis Data (Univariat & Bivariat).",
+
+            ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUANTITATIF ASOSIATIF / KAUSAL) secara mendalam (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
+3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal).
+3.2 Tempat dan Waktu Penelitian (Deskripsi lokasi setting penelitian dan jadwal pelaksanaan).
+3.3 Populasi dan Penentuan Sampel (Populasi target, teknik sampling, serta perhitungan ukuran sampel menggunakan rumus Slovin / Taro Yamane secara lengkap langkah demi langkah).
+3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan Tabel 3.1 Kisi-kisi Operasionalisasi Variabel dengan kolom: | Variabel | Konsep Teori | Dimensi | Indikator Empiris | Nomor Butir | Skala Pengukuran |).
+3.5 Teknik dan Instrumen Pengumpulan Data (Kuesioner/Angket Skala Likert dan Dokumentasi Nilai).
+3.6 Uji Instrumen Penelitian:
+a. Uji Validitas Butir Instrumen (Tuliskan rumus korelasi Pearson Product Moment r-hitung vs r-tabel).
+b. Uji Reliabilitas Instrumen (Tuliskan rumus Alpha Cronbach dengan kriteria reliabel > 0,60).
+3.7 Teknik Analisis Data & Uji Prasyarat:
+a. Analisis Statistik Deskriptif (Mean, Median, Modus, Standar Deviasi, Distribusi Frekuensi).
+b. Uji Prasyarat Analisis (Uji Normalitas Kolmogorov-Smirnov dan Uji Linearitas).
+c. Uji Hipotesis (Analisis Regresi Linier: Rumus Persamaan Regresi Ŷ = a + bX, Uji t Parsial, Koefisien Determinasi R²).
+3.8 Prosedur Penelitian (Flowchart Prosedur Penelitian)
+Uraikan penjelasan setiap tahapan prosedur penelitian dan GAMBARKAN BAGAN ALUR (FLOWCHART PROSEDUR PENELITIAN) di dalam blok kode:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Studi Kepustakaan '{$project->judul}']
+↓
+[Pengumpulan Data Angket & Dokumentasi Lapangan]
+↓
+[Uji Coba Instrumen: Validitas & Reliabilitas]
+↓
+[Uji Prasyarat Analisis: Normalitas & Linearitas]
+↓
+[Analisis Regresi Linier & Pengujian Statistik]
+↓
+[Evaluasi & Uji Hipotesis (Signifikansi p < 0,05)]
+↓
+[Penyusunan Laporan Hasil & Rekomendasi]
+↓
+[Selesai]
+```
+Jelaskan alur prosedur di atas secara rinci.",
 
             $isPendidikan => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN PENDIDIKAN / QUASI-EKSPERIMEN).
-3.1 Desain Penelitian (Nonequivalent Pretest-Posttest Control Group Design).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN PENDIDIKAN / QUASI-EKSPERIMEN / PTK) secara mendalam (MINIMAL 1800 - 2400 KATA).
+3.1 Desain Penelitian (Nonequivalent Pretest-Posttest Control Group Design / PTK Siklus I-II).
 3.2 Tempat dan Waktu Penelitian.
 3.3 Populasi dan Sampel (Kelas eksperimen vs kelas kontrol).
-3.4 Variabel Penelitian dan Definisi Operasional.
+3.4 Variabel Penelitian dan Definisi Operasional (Sajikan Tabel 3.1 Kisi-kisi Instrumen & Variabel).
 3.5 Instrumen Pengumpulan Data (Tes kognitif pretest-posttest dan lembar observasi).
 3.6 Uji Coba Instrumen (Uji Validitas Butir, Reliabilitas KR-20/Cronbach, Tingkat Kesukaran, Daya Beda).
-3.7 Teknik Analisis Data (Uji Normalitas, Homogenitas, Uji Hipotesis Independent Sample t-test, dan Skor N-Gain).",
+3.7 Teknik Analisis Data (Uji Normalitas, Homogenitas, Uji Hipotesis Independent Sample t-test, dan Skor N-Gain).
+3.8 Prosedur Penelitian:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Pendidikan
+```
+[Mulai]
+↓
+[Observasi Awal & Penyusunan Perangkat Pembelajaran]
+↓
+[Uji Validitas & Reliabilitas Instrumen Tes]
+↓
+[Pelaksanaan Pretest & Pengumpulan Data Awal]
+↓
+[Penerapan Perlakuan / Tindakan Model Pembelajaran]
+↓
+[Pelaksanaan Posttest & Observasi Kelas]
+↓
+[Evaluasi & Uji Hipotesis (Uji-t & N-Gain Score)]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```",
 
             $isRnD => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENGEMBANGAN SISTEM / R&D).
-3.1 Model Pengembangan Sistem (SDLC Waterfall / Agile / Prototyping).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENGEMBANGAN SISTEM / R&D) secara mendalam (MINIMAL 1800 - 2400 KATA).
+3.1 Model Pengembangan Sistem (SDLC Waterfall / Agile / Prototyping / ADDIE / Borg & Gall) disertai Diagram Alur:
+Gambar 3.1 Diagram Alur (Flowchart) Pengembangan Sistem
+```
+[Mulai]
+↓
+[Pengumpulan Data Kebutuhan (Wawancara & Observasi)]
+↓
+[Analisis Kebutuhan Fungsional & Non-Fungsional]
+↓
+[Perancangan Sistem (Arsitektur, UML, ERD, UI/UX)]
+↓
+[Implementasi Kode Program & Basis Data]
+↓
+[Evaluasi & Pengujian Sistem (Black-Box & SUS/UAT)]
+↓
+[Penyusunan Dokumentasi & Laporan Akhir]
+↓
+[Selesai]
+```
 3.2 Waktu dan Tempat Penelitian.
 3.3 Teknik Pengumpulan Data (Wawancara, Observasi, Studi Pustaka).
-3.4 Analisis Kebutuhan Sistem (Kebutuhan Fungsional & Kebutuhan Non-Fungsional).
+3.4 Analisis Kebutuhan Sistem (Sajikan Tabel 3.1 Analisis Kebutuhan Fungsional & Non-Fungsional).
 3.5 Perancangan Sistem (Arsitektur Sistem, Use Case Diagram, Activity Diagram, ERD Basis Data, Wireframe Antarmuka).
-3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Testing / SUS).",
+3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Testing / System Usability Scale).",
 
             $isKualitatif => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUALITATIF).
-3.1 Pendekatan dan Jenis Penelitian.
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUALITATIF) secara mendalam (MINIMAL 1600 - 2200 KATA).
+3.1 Pendekatan dan Jenis Penelitian (Deskriptif Kualitatif / Studi Kasus / Fenomenologi).
 3.2 Lokasi dan Waktu Penelitian.
-3.3 Fokus Penelitian.
-3.4 Sumber Data dan Teknik Pemilihan Informan (Purposive Sampling).
+3.3 Fokus Penelitian (Sajikan Tabel 3.1 Matriks Fokus dan Indikator Penelitian).
+3.4 Sumber Data dan Teknik Pemilihan Informan (Purposive Sampling / Snowball Sampling).
 3.5 Teknik Pengumpulan Data (Observasi Partisipatif, Wawancara Mendalam, Dokumentasi).
-3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi Sumber dan Triangulasi Teknik).
-3.7 Teknik Analisis Data (Kondensasi Data, Penyajian Data, dan Penarikan Kesimpulan Miles & Huberman).",
+3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi Sumber, Triangulasi Teknik, Triangulasi Waktu).
+3.7 Teknik Analisis Data (Kondensasi Data, Penyajian Data, dan Penarikan Kesimpulan Model Miles, Huberman & Saldana) beserta Diagram Alur:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Kualitatif
+```
+[Mulai]
+↓
+[Pra-Lapangan & Penentuan Informan Kunci]
+↓
+[Pengumpulan Data (Observasi, Wawancara Mendalam, Dokumentasi)]
+↓
+[Kondensasi Data & Kategorisasi Tema (Coding)]
+↓
+[Pemeriksaan Keabsahan Data (Triangulasi Sumber & Teknik)]
+↓
+[Validasi Kecukupan dan Kejenuhan Data]
+↓
+[Penyajian Data & Penarikan Kesimpulan]
+↓
+[Selesai]
+```",
 
             default => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) secara lengkap berstandar S1.
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN) secara lengkap berstandar S1 (MINIMAL 1600 - 2200 KATA).
 3.1 Jenis dan Desain Penelitian.
 3.2 Lokasi dan Waktu Penelitian.
 3.3 Populasi dan Sampel Penelitian.
-3.4 Definisi Operasional dan Pengukuran Variabel (Sajikan TABEL Indikator Variabel).
+3.4 Definisi Operasional dan Pengukuran Variabel (Sajikan Tabel 3.1 Indikator Operasionalisasi Variabel).
 3.5 Teknik Pengumpulan Data.
 3.6 Uji Keabsahan / Instrumen Data.
-3.7 Teknik Analisis Data dan Prosedur Pengujian."
+3.7 Teknik Analisis Data dan Prosedur Penelitian:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Kajian Literatur]
+↓
+[Pengumpulan Data Lapangan / Instrumen Penelitian]
+↓
+[Uji Validitas & Keabsahan Data]
+↓
+[Pengolahan dan Analisis Data Penelitian]
+↓
+[Evaluasi & Pengujian Hipotesis / Tujuan]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```"
         };
 
         // Bab IV Sesuai Rumpun Ilmu (Tabel Pengujian, Confusion Matrix / Regresi, Pembahasan Kritis)
@@ -1930,6 +2798,21 @@ WAJIB MEMUAT TABEL STATISTIK LENGKAP:
 4.4 Hasil Uji Asumsi Klasik (Sajikan TABEL Uji Normalitas, Multikolinearitas [Tolerance & VIF], dan Heteroskedastisitas).
 4.5 Hasil Analisis Regresi Linier Berganda & Uji Hipotesis (Sajikan TABEL Ringkasan Regresi: Nilai R, R-Square, Adjusted R-Square, TABEL Uji F ANOVA, dan TABEL Uji Parsial t [Koefisien B, t-hitung, Nilai Sig]).
 4.6 Pembahasan Hasil Penelitian (Bahas secara kritis penerimaan/penolakan masing-masing hipotesis H1, H2, H3 dengan membandingkan terhadap teori pendukung dan temuan penelitian terdahulu).",
+
+            ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KUANTITATIF).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT TABEL DATA STATISTIK LENGKAP DAN PEMBAHASAN MENDALAM (MINIMAL 1500 - 2500 KATA):
+4.1 Gambaran Umum Lokasi dan Karakteristik Responden (Sajikan TABEL Demografi Responden: Jenis Kelamin, Usia, Kelas/Latar Belakang).
+4.2 Deskripsi Data Variabel Penelitian (Sajikan TABEL Statistik Deskriptif Variabel X dan Variabel Y: N, Skor Minimum, Maksimum, Mean, Standar Deviasi, serta TABEL Kategori Distribusi Frekuensi).
+4.3 Hasil Uji Kualitas Instrumen (Sajikan TABEL Hasil Uji Validitas r-hitung > r-tabel dan TABEL Uji Reliabilitas Cronbach's Alpha > 0,60).
+4.4 Hasil Uji Prasyarat Analisis (Sajikan TABEL Hasil Uji Normalitas Kolmogorov-Smirnov dan TABEL Uji Linearitas).
+4.5 Hasil Analisis Regresi Linier dan Uji Hipotesis:
+a. Sajikan TABEL Ringkasan Model Regresi (Nilai Korelasi R dan Koefisien Determinasi R-Square / R²).
+b. Sajikan TABEL Uji Koefisien Regresi (Konstanta a, Koefisien Regresi b, nilai t-hitung, dan nilai signifikansi p-value / Sig.).
+c. Tuliskan persamaan regresi yang terbentuk secara jelas: Ŷ = a + bX beserta interpretasi maknanya.
+4.6 Pembahasan Hasil Penelitian (Bahas secara kritis dan mendalam minimal 6-8 paragraf: konfrontasikan temuan angka empiris dengan teori Bab II dan temuan penelitian terdahulu, implikasi hasil terhadap responden, serta faktor-faktor pemicu temuan tersebut).
+4.7 Keterbatasan Penelitian (Uraikan kendala metodologis atau lingkup yang dihadapi selama penelitian).",
 
             $isPendidikan => "
 TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN PENDIDIKAN).
@@ -1980,39 +2863,48 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
             ? "PERHATIAN PENTING: MAHASISWA MEMILIKI STRUKTUR SUB-BAB KUSTOM DARI KAMPUSNYA (LIHAT DI ATAS). AI WAJIB MENGIKUTI STRUKTUR KUSTOM TERSEBUT SECARA PERSIS, BUKAN STRUKTUR STANDAR DEFAULT!\n"
             : "";
 
+        $sistematikaScope = $isProposal ? 'Bab I hingga Bab III (Proposal Skripsi)' : 'Bab I hingga Bab V (Skripsi Lengkap)';
         return match ($bab) {
-            'bab1' => $master . "\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n" . "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara komprehensif berstandar skripsi S1 nasional Indonesia.
-{$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH 7 SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
-1.1 Latar Belakang Masalah (Uraikan 3-4 paragraf ilmiah berbobot. ATURAN WAJIB SITASI ILMIAH: Paragraf pertama (pembuka) WAJIB langsung mencantumkan sitasi ilmiah resmi/jurnal bereputasi/laporan otoritas kredibel (contoh: Kemendikbudristek/BSKAP, BPS, UNESCO, atau pakar utama bidang ilmu terkait). DILARANG menulis paragraf pembuka yang hampa tanpa rujukan atau diawali klise AI seperti 'Kondisi ideal dalam...'. Setiap paragraf berikutnya wajib memuat 1-3 sitasi jurnal bereputasi terkait fenomena gap, data empiris, dan penelitian pendukung).
-1.2 Identifikasi Masalah (Tuliskan 3-5 poin permasalahan konkret yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.).
-1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara tegas dalam 2-4 poin: batasan variabel/algoritma, objek/sampel, periode data, dan lingkungan implementasi).
-1.4 Rumusan Masalah (Tuliskan 2-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras dengan batasan masalah).
-1.5 Tujuan Penelitian (Tuliskan 2-4 butir pernyataan tujuan operasional yang menjawab langsung setiap butir Rumusan Masalah).
-1.6 Manfaat Penelitian (Uraikan ke dalam dua bagian terpisah yang jelas: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi industri, kampus, dan peneliti selanjutnya).
-1.7 Sistematika Penulisan (Uraikan ringkasan isi Bab I hingga Bab V secara terstruktur).\n" : "") . "
+            'bab1' => $master . "\n{$tahapKaryaPrompt}\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n" . "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara MENDALAM, KOMPREHENSIF, DAN EKSTENSIF (STANDAR SKRIPSI S1 NASIONAL PERGURUAN TINGGI INDONESIA, MINIMAL 1800 - 2500 KATA).
+{$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
+1.1 Latar Belakang Masalah (Wajib ditulis secara MENDALAM dan KOMPREHENSIF minimal 7-10 PARAGRAF PANJANG menggunakan pola PIRAMIDA TERBALIK lengkap):
+- Paragraf 1-2: Landasan normatif, regulasi nasional (Undang-Undang, Permendikbud / regulasi terkait), dan konteks ideal makro terkait topik '{$project->judul}'. Paragraf pembuka WAJIB langsung mencantumkan rujukan ilmiah riil/otoritas data resmi (seperti Kemendikbudristek/BSKAP, BPS, UNESCO, atau We Are Social/DataReportal) serta referensi terverifikasi di atas.
+- Paragraf 3-4: Fenomena empiris dan data kuantitatif nyata di lapangan / objek penelitian terkait kondisi responden dan intensitas masalah.
+- Paragraf 5-6: Masalah spesifik yang teramati dan analisis kesenjangan (research gap) antara kondisi ideal (das Sollen) dengan realitas di lapangan (das Sein).
+- Paragraf 7-8: Analisis komparatif hasil penelitian terdahulu (tahun {$tahunMin}-2026) dan alasan mengapa pendekatan/solusi dalam penelitian ini mutlak dibutuhkan.
+- Paragraf 9-10: Penegasan urgensi solusi, kebaruan (novelty), dan justifikasi ilmiah mengapa penelitian ini penting untuk diselesaikan.
+1.2 Identifikasi Masalah (Tuliskan 5-7 butir permasalahan konkret dan mendalam yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.).
+1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara tegas dalam 3-5 poin: batasan variabel, subjek/sampel, periode waktu, dan lokasi penelitian).
+1.4 Rumusan Masalah (Tuliskan 3-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras dengan topik).
+1.5 Tujuan Penelitian (Tuliskan Tujuan Umum dan Tujuan Khusus yang menjawab langsung setiap butir Rumusan Masalah).
+1.6 Manfaat Penelitian (Uraikan secara komprehensif ke dalam: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi subjek/responden, bagi praktisi/instansi, dan bagi peneliti selanjutnya).
+1.7 Keaslian Penelitian (Uraikan poin pembeda riset ini dari riset-riset sebelumnya).
+1.8 Sistematika Penulisan (Uraikan ringkasan isi {$sistematikaScope} secara terperinci).\n" : "") . "
 " . (!empty($meta['data_awal']) ? "WAJIB: Masukkan data awal penelitian mahasiswa ('{$meta['data_awal']}') secara eksplisit ke dalam Latar Belakang Masalah (1.1) sebagai bukti fenomena nyata!\n" : "") . "
 INSTRUKSI MUTLAK:
 - Seluruh sub-bab HARUS ditulis lengkap tuntas dalam satu kali respons ini. DILARANG berhenti di tengah jalan!
+- Tuliskan dengan paragraf-paragraf akademik panjang yang padat analisis (target 1800-2500 kata). DILARANG membuat ringkasan pendek!
 - Langsung mulai dari sub-bab pertama tanpa kata pengantar AI.",
 
-            'bab2' => $master . "\n$context\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab2Prompt}\n
+            'bab2' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab2Prompt}\n
 {$customStructureNote}
 INSTRUKSI MUTLAK:
-- Seluruh sub-bab dan TABEL PENELITIAN TERDAHULU HARUS ditulis lengkap tuntas tanpa terpotong.
+- Seluruh sub-bab, TABEL PENELITIAN TERDAHULU, dan DIAGRAM KERANGKA BERPIKIR HARUS ditulis lengkap tuntas tanpa terpotong.
+- Tahun terbit semua penelitian terdahulu WAJIB antara {$tahunMin}-2026.
 - Langsung mulai dari sub-bab pertama tanpa kata pengantar AI.",
 
-            'bab3' => $master . "\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab3Prompt}\n
+            'bab3' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab3Prompt}\n
 {$customStructureNote}
 INSTRUKSI MUTLAK:
-- Tulis seluruh sub-bab secara tuntas. Jika bidang informatika/komputer, WAJIB sertakan diagram alur flowchart sistem dan rumus matematis algoritma.",
+- Tulis seluruh sub-bab secara tuntas, wajib sertakan DIAGRAM ALUR (FLOWCHART) dalam blok kode vertikal `[Tahap]` dipisahkan panah `↓`, serta tabel operasional/instrumen yang rapi.",
 
-            'bab4' => $master . "\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab4Prompt}\n
+            'bab4' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab4Prompt}\n
 {$customStructureNote}
 INSTRUKSI MUTLAK:
-- WAJIB menyajikan TABEL pengolahan data empiris (Tabel Confusion Matrix & Metrik Akurasi untuk Informatika, atau Tabel Regresi & Asumsi Klasik untuk Ekonomi) beserta perhitungan rumus langkah demi langkah.",
+- WAJIB menyajikan TABEL pengolahan data empiris lengkap dengan nomor judul (Tabel 4.1, Tabel 4.2, dst.) beserta perhitungan rumus Unicode bersih dan pembahasan kritis mendalam.",
 
-            'bab5' => $master . "\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab5Prompt}",
+            'bab5' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab5Prompt}",
 
             default => $master
         };
@@ -2099,18 +2991,22 @@ INSTRUKSI MUTLAK:
             $cleanContent = $this->cleanTextKeepFormat($content);
             $cleanContent = $this->processChapterContent($cleanContent, $chapter);
 
+            $sitasiMeta = $meta['sitasi'] ?? [];
+            $tahunMinCh = !empty($sitasiMeta['tahun_min']) ? (string) $sitasiMeta['tahun_min'] : '2023';
+            $gayaSitasiCh = $sitasiMeta['gaya'] ?? 'APA 7th';
+
             if ($chapter === 'bab5') {
                 if (str_contains($cleanContent, '===DAFTAR PUSTAKA===')) {
                     $parts = explode('===DAFTAR PUSTAKA===', $cleanContent, 2);
                     $project->bab5_content = trim($parts[0]);
-                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''));
+                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
                 } elseif (preg_match('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent)) {
                     $parts = preg_split('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent, 2);
                     $project->bab5_content = trim($parts[0]);
-                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''));
+                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
@@ -2124,15 +3020,17 @@ INSTRUKSI MUTLAK:
                     try {
                         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content);
                         if (strlen($allText) > 500) {
-                            $sitasi = $meta['sitasi'] ?? [];
-                            $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
-                            $tahunMin = $sitasi['tahun_min'] ?? '2021';
-                            $dpPrompt = "Tulis DAFTAR PUSTAKA gaya {$gayaSitasi} berdasarkan sitasi nama penulis dan tahun yang dikutip pada naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\n" .
+                            $citationsList = $this->extractInTextCitations($allText);
+                            $citBlock = !empty($citationsList)
+                                ? "DAFTAR SITASI ASLI YANG MUNCUL DI NASKAH (WAJIB DIBUATKAN BIBLIOGRAFINYA):\n- " . implode("\n- ", $citationsList) . "\n"
+                                : "";
+                            $dpPrompt = "Tulis DAFTAR PUSTAKA gaya {$gayaSitasiCh} berdasarkan sitasi nama penulis dan tahun yang dikutip pada naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\n" .
+                                $citBlock .
                                 (!empty($meta['referensi_khusus']) ? "REFERENSI WAJIB UNGGAHAN MAHASISWA (WAJIB MASUK):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n" : "") .
-                                "Tahun penerbitan minimal: {$tahunMin}.\n" .
-                                "ATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (A-Z) TANPA kalimat pembuka/pengantar seperti 'Berikut adalah daftar pustaka...'.\n2. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap referensi WAJIB memiliki judul artikel ilmiah lengkap dan spesifik, nama jurnal nyata, volume, nomor, dan halaman spesifik (contoh: 14(2), 112-125).\n3. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 5500);
+                                "Tahun penerbitan WAJIB minimal tahun {$tahunMinCh} dan maksimal 2026 (DILARANG di bawah {$tahunMinCh}).\n" .
+                                "ATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (urut A-Z) TANPA kalimat pembuka/pengantar.\n2. DILARANG menulis placeholder. Setiap referensi WAJIB memiliki nama penulis, tahun ({$tahunMinCh}-2026), judul artikel ilmiah spesifik, nama jurnal nyata, volume(nomor), halaman, dan DOI/URL.\n3. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 6000);
                             $dpRaw = $this->ai->generateText($dpPrompt, $model);
-                            $cleanedDp = $this->cleanDaftarPustaka($dpRaw);
+                            $cleanedDp = $this->cleanDaftarPustaka($dpRaw, $tahunMinCh);
                             if (!empty($cleanedDp)) {
                                 $project->daftar_pustaka = $cleanedDp;
                             }
@@ -2373,10 +3271,14 @@ ATURAN REVISI (SANGAT KETAT):
 
         if ($request->chapter === 'identity') {
             $meta = $this->getProjectMeta($project);
-            if ($request->filled('nama')) $meta['nama'] = trim($request->input('nama'));
-            if ($request->filled('nim')) $meta['nim'] = trim($request->input('nim'));
-            if ($request->filled('kampus')) $meta['kampus'] = trim($request->input('kampus'));
-            if ($request->filled('fakultas')) $meta['fakultas'] = trim($request->input('fakultas'));
+            if ($request->filled('nama'))
+                $meta['nama'] = trim($request->input('nama'));
+            if ($request->filled('nim'))
+                $meta['nim'] = trim($request->input('nim'));
+            if ($request->filled('kampus'))
+                $meta['kampus'] = trim($request->input('kampus'));
+            if ($request->filled('fakultas'))
+                $meta['fakultas'] = trim($request->input('fakultas'));
             if ($request->filled('prodi')) {
                 $meta['prodi'] = trim($request->input('prodi'));
                 $project->prodi = trim($request->input('prodi'));
@@ -2451,6 +3353,8 @@ ATURAN REVISI (SANGAT KETAT):
         $inCode = false;
         $codeLines = [];
         $tableBuffer = [];
+        $pendingTableCaption = '';
+        $pendingFigureCaption = '';
 
         $closeLists = function () use (&$html, &$inOl, &$inUl) {
             if ($inOl) {
@@ -2463,70 +3367,110 @@ ATURAN REVISI (SANGAT KETAT):
             }
         };
 
-        $flushTable = function () use (&$html, &$tableBuffer) {
+        $flushTable = function () use (&$html, &$tableBuffer, &$pendingTableCaption) {
             if (empty($tableBuffer))
                 return;
             $rows = [];
             foreach ($tableBuffer as $tLine) {
                 $raw = trim($tLine);
-                // Ekstraksi sel tabel markdown secara presisi tanpa memangkas sel kosong di awal
-                if (str_starts_with($raw, '|') && str_ends_with($raw, '|')) {
-                    $inner = substr($raw, 1, -1);
-                    if (preg_match('/^[\s\-:|]+$/', $inner))
-                        continue;
-                    $cells = array_map('trim', explode('|', $inner));
-                    if (!empty($cells)) {
-                        $rows[] = $cells;
-                    }
+                $inner = $raw;
+                if (str_starts_with($inner, '|')) {
+                    $inner = substr($inner, 1);
+                }
+                if (str_ends_with($inner, '|')) {
+                    $inner = substr($inner, 0, -1);
+                }
+                if (preg_match('/^[\s\-:|]+$/', $inner)) {
+                    continue;
+                }
+                $cells = array_map('trim', explode('|', $inner));
+                if (count($cells) >= 2) {
+                    $rows[] = $cells;
                 }
             }
             if (!empty($rows)) {
-                $colCount = count($rows[0]);
+                $maxCols = max(array_map('count', $rows));
+                if (count($rows[0]) < $maxCols) {
+                    $diff = $maxCols - count($rows[0]);
+                    for ($d = 0; $d < $diff; $d++) {
+                        array_unshift($rows[0], 'Kategori');
+                    }
+                }
+                foreach ($rows as &$r) {
+                    while (count($r) < $maxCols) {
+                        $r[] = '-';
+                    }
+                    if (count($r) > $maxCols) {
+                        $r = array_slice($r, 0, $maxCols);
+                    }
+                }
+                unset($r);
+
+                $colCount = $maxCols;
                 $isFirstColNo = preg_match('/^(no|no\.?|#)$/i', trim($rows[0][0] ?? ''));
 
-                // Distribusi lebar kolom cerdas: jika kolom 1 bukan nomor urut (misal: Variabel, Model, Kategori), berikan ruang proporsional
+                // Distribusi lebar kolom cerdas untuk SEMUA jumlah kolom (2 sampai 10+ kolom)
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = $isFirstColNo ? ['5%', '18%', '22%', '18%', '17%', '20%'] : ['16%', '20%', '20%', '16%', '14%', '14%'];
+                    $colWidths = $isFirstColNo ? ['6%', '18%', '22%', '18%', '16%', '20%'] : ['16%', '20%', '20%', '16%', '14%', '14%'];
                 } elseif ($colCount === 5) {
-                    // Contoh Operasionalisasi Variabel: Variabel (20%), Definisi (30%), Dimensi (16%), Indikator (22%), Skala (12%)
-                    $colWidths = $isFirstColNo ? ['5%', '22%', '24%', '25%', '24%'] : ['20%', '30%', '16%', '22%', '12%'];
+                    $colWidths = $isFirstColNo ? ['6%', '22%', '24%', '24%', '24%'] : ['20%', '30%', '16%', '22%', '12%'];
                 } elseif ($colCount === 4) {
-                    $colWidths = $isFirstColNo ? ['6%', '32%', '32%', '30%'] : ['25%', '25%', '25%', '25%'];
+                    $colWidths = $isFirstColNo ? ['7%', '31%', '31%', '31%'] : ['25%', '25%', '25%', '25%'];
                 } elseif ($colCount === 3) {
                     $colWidths = $isFirstColNo ? ['8%', '46%', '46%'] : ['34%', '33%', '33%'];
                 } elseif ($colCount === 2) {
-                    $colWidths = ['40%', '60%'];
+                    $colWidths = ['38%', '62%'];
+                } else {
+                    if ($isFirstColNo && $colCount > 1) {
+                        $rem = round(94 / ($colCount - 1), 2);
+                        $colWidths[] = '6%';
+                        for ($i = 1; $i < $colCount; $i++) {
+                            $colWidths[] = $rem . '%';
+                        }
+                    } else {
+                        $eq = round(100 / max(1, $colCount), 2);
+                        for ($i = 0; $i < $colCount; $i++) {
+                            $colWidths[] = $eq . '%';
+                        }
+                    }
                 }
 
-                $avoidSplit = count($rows) <= 4 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
-                $fontSize = ($colCount >= 5) ? '8.5pt' : '9.5pt';
-                $headerSize = ($colCount >= 5) ? '9pt' : '10pt';
-                $lineHeight = '1.35';
-                $cellPadding = ($colCount >= 5) ? '5pt 6pt' : '6pt 8pt';
+                $avoidSplit = count($rows) <= 5 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
+                $fontSize = ($colCount >= 6) ? '8.5pt' : (($colCount === 5) ? '9pt' : '10pt');
+                $headerSize = ($colCount >= 6) ? '9pt' : (($colCount === 5) ? '9.5pt' : '10pt');
+                $lineHeight = '1.2';
+                $cellPadding = ($colCount >= 5) ? '4.5pt 5pt' : '5pt 7pt';
+                $totalRows = count($rows);
 
-                $html .= "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin:10pt 0 16pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; {$avoidSplit}'>";
+                if (!empty($pendingTableCaption)) {
+                    $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:12pt; margin-bottom:4pt; text-align:left; text-indent:0; line-height:1.25; page-break-after:avoid; break-after:avoid;'>" . e($pendingTableCaption) . "</div>";
+                    $pendingTableCaption = '';
+                }
+
+                // Standar Tabel Skripsi Indonesia & APA 7th (Open Table: TANPA garis vertikal, garis atas-bawah header + penutup bawah)
+                $html .= "<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin:4pt 0 12pt 0; font-size:{$fontSize}; font-family:\"Times New Roman\", serif; border-top:1.5pt solid #000000; border-bottom:1.5pt solid #000000; border-left:none; border-right:none; {$avoidSplit}'>";
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
-                    $isLastRow = ($rIdx === count($rows) - 1);
+                    $isLast = ($rIdx === $totalRows - 1);
                     if ($isHeader) {
                         $html .= "<thead style='display:table-header-group;'><tr style='background:#ffffff; page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1.2pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border-top:1.5pt solid #000000; border-bottom:1pt solid #000000; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word; background:#ffffff;'>" . e($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
-                        $rowBorderBottom = $isLastRow ? "border-bottom:1.5pt solid #000000;" : "border-bottom:0.75pt solid #000000;";
+                        $rowBorderBottom = $isLast ? '1.5pt solid #000000' : '0.4pt solid #cccccc';
                         $html .= "<tr style='page-break-inside:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $isNum = ($cIdx === 0 && preg_match('/^\d+$/', $cleanCol));
-                            $isMetric = preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCol);
+                            $isMetric = preg_match('/^[\d\s,.\-%—\(\)<>]+$/', $cleanCol);
                             $align = ($isNum || $isMetric) ? 'center' : 'left';
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; {$rowBorderBottom} border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</td>";
+                            $html .= "<td style='{$wStyle} padding:{$cellPadding}; text-align:{$align}; vertical-align:top; border-top:none; border-bottom:{$rowBorderBottom}; border-left:none; border-right:none; line-height:{$lineHeight}; font-size:{$fontSize}; word-wrap:break-word; overflow-wrap:break-word;'>" . e($cleanCol) . "</td>";
                         }
                         $html .= "</tr>";
                     }
@@ -2536,16 +3480,19 @@ ATURAN REVISI (SANGAT KETAT):
             $tableBuffer = [];
         };
 
-        $flushCodeOrFlowchart = function () use (&$html, &$codeLines, $judul) {
+        $flushCodeOrFlowchart = function () use (&$html, &$codeLines, $judul, $content, &$pendingFigureCaption) {
             if (empty($codeLines))
                 return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
             if ($isFlowchart) {
-                $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
-                $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
-                $alreadyHasCaption = preg_match('/Gambar\s+\d+\.\d+.*?<\/div>\s*$/i', trim($html));
+                $isBab2 = str_contains($content, 'BAB II') || str_contains($content, 'TINJAUAN PUSTAKA') || str_contains($content, '2.1 Landasan Teori') || str_contains($content, 'Kerangka Berpikir') || str_contains($content, 'Kerangka Pemikiran');
+                $isFramework = $isBab2 || str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena') || str_contains($pendingFigureCaption, '2.1') || str_contains(strtolower($pendingFigureCaption), 'kerangka');
+                $caption = !empty($pendingFigureCaption)
+                    ? $pendingFigureCaption
+                    : ($isFramework ? 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian');
+                $pendingFigureCaption = '';
 
                 // Ekstraksi node dinamis akademik
                 preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
@@ -2562,31 +3509,16 @@ ATURAN REVISI (SANGAT KETAT):
                     }
                 }
                 if (!empty($validNodes)) {
-                    $html .= "<div class='academic-flowchart' style='margin:14pt auto 18pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
-                    if (!$alreadyHasCaption) {
-                        $html .= "<div style='font-size:11pt; font-weight:bold; margin-bottom:8pt; text-align:center; color:#000000;'>" . e($caption) . "</div>";
-                    }
-                    $nodeCount = count($validNodes);
-                    foreach ($validNodes as $nIdx => $cleanNode) {
-                        $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-
-                        if ($isSE) {
-                            $html .= "<div style='width:140pt; padding:6pt 16pt; border:1.5pt solid #000000; border-radius:999px; background:#f8fafc; font-size:10pt; color:#000000; font-weight:bold; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto;'>" . e(strtoupper($cleanNode)) . "</div>";
-                        } elseif ($isFramework) {
-                            $html .= "<div style='width:360pt; max-width:95%; padding:8pt 14pt; border:1.2pt solid #000000; background:#ffffff; font-size:10pt; color:#000000; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto; box-sizing:border-box;'><span style='font-weight:bold;'>" . e($cleanNode) . "</span></div>";
-                        } else {
-                            $html .= "<div style='width:340pt; max-width:92%; padding:8pt 14pt; border:1.2pt solid #000000; background:#ffffff; font-size:10pt; color:#000000; font-family:\"Times New Roman\", serif; text-align:center; margin:0 auto; box-sizing:border-box;'>" . e($cleanNode) . "</div>";
-                        }
-
-                        if ($nIdx < $nodeCount - 1) {
-                            // Panah presisi DejaVu Sans (bawaan resmi Dompdf, tajam & tidak berubah jadi kotak hitam)
-                            $html .= "<div style='font-family:DejaVu Sans, sans-serif; font-size:14pt; line-height:1; color:#000000; text-align:center; margin:2.5pt auto 3.5pt;'>&#8595;</div>";
-                        }
-                    }
+                    $svg = $this->buildFlowchartSvg($validNodes, $isFramework);
+                    $svgB64 = base64_encode($svg);
+                    $html .= "<div class='academic-flowchart' style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                    $html .= "<img src='data:image/svg+xml;base64,{$svgB64}' style='width:395pt; max-width:100%; height:auto; display:block; margin:0 auto;'>";
+                    // Standar Skripsi Indonesia: Judul Gambar WAJIB diletakkan di BAWAH gambar
+                    $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:6pt; text-align:center; text-indent:0; color:#000000; page-break-before:avoid;'>" . e($caption) . "</div>";
                     $html .= "</div>";
                 }
             } else {
-                $html .= "<pre style='background:#f8fafc; border:1pt solid #cbd5e1; border-radius:4pt; padding:8pt 12pt; font-size:10pt; font-family:monospace; line-height:1.45; white-space:pre-wrap; word-break:break-all; margin:10pt 0;'>" . e($rawCode) . "</pre>";
+                $html .= "<pre style='background:#f8fafc; border:1pt solid #cbd5e1; border-radius:4pt; padding:8pt 12pt; font-size:9.5pt; font-family:monospace; line-height:1.4; white-space:pre-wrap; word-break:break-all; margin:10pt 0;'>" . e($rawCode) . "</pre>";
             }
             $codeLines = [];
         };
@@ -2618,37 +3550,52 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // Buffer tabel markdown
-            if (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|')) {
+            // Buffer tabel markdown (menerima baris dengan | di ujung ATAU minimal 2 pemisah |)
+            $isMdTableRow = (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|'))
+                || (substr_count($trimmed, '|') >= 2 && !preg_match('/^P\(/i', $trimmed));
+            if ($isMdTableRow) {
                 $closeLists();
                 $tableBuffer[] = $trimmed;
                 continue;
             } else {
                 $flushTable();
+                if (!empty($pendingTableCaption)) {
+                    $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:12pt; margin-bottom:4pt; text-align:left; text-indent:0; page-break-after:avoid;'>" . e($pendingTableCaption) . "</div>";
+                    $pendingTableCaption = '';
+                }
             }
 
-            // Judul Tabel / Gambar / Bagan
-            if (preg_match('/^(?:Tabel|Gambar|Bagan)\s+\d+\.\d+/i', $trimmed)) {
+            // Jika sebelumnya ada caption gambar tapi baris berikutnya bukan blok kode diagram
+            if (!empty($pendingFigureCaption) && !preg_match('/^(?:Gambar|Bagan)\s+\d+\.\d+/i', $trimmed)) {
+                $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:10pt; margin-bottom:6pt; text-align:center; text-indent:0;'>" . e($pendingFigureCaption) . "</div>";
+                $pendingFigureCaption = '';
+            }
+
+            // Judul Tabel (Disimpan agar langsung menempel di atas tabel tanpa terpisah halaman)
+            if (preg_match('/^(?:\*{1,2}|<b>)?Tabel\s+\d+\.\d+/i', $trimmed)) {
                 $closeLists();
-                $align = str_starts_with(strtolower($trimmed), 'tabel') ? 'left' : 'center';
                 $cleanCap = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
-                $html .= "<div style='font-size:11pt; font-weight:bold; margin-top:14pt; margin-bottom:4pt; text-align:{$align}; text-indent:0; page-break-after:avoid;'>" . e($cleanCap) . "</div>";
-                continue;
+                if (mb_strlen($cleanCap) <= 130 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $cleanCap)) {
+                    $pendingTableCaption = $cleanCap;
+                    continue;
+                }
             }
 
-            // Normalisasi sub-bab tanpa titik: "A Latar Belakang" -> "A. Latar Belakang"
-            if (preg_match('/^([A-Z])\s+([A-Z][a-zA-Z\s]+)/', $trimmed, $m)) {
-                $trimmed = $m[1] . '. ' . $m[2];
-            }
-            if (preg_match('/^(\d+)\s+([A-Z][a-zA-Z\s]+)/', $trimmed, $m)) {
-                $trimmed = $m[1] . '. ' . $m[2];
-            }
-
-            // Sub-bab utama (A. ..., 1.1 ..., ## ...)
-            if (preg_match('/^(?:##\s+|[A-Z]\.\s+|\d+\.\d+\.?\s+)(.+)$/', $trimmed, $m)) {
+            // Judul Gambar / Bagan (Disimpan untuk diletakkan di BAWAH diagram sesuai standar skripsi)
+            if (preg_match('/^(?:\*{1,2}|<b>)?(?:Gambar|Bagan)\s+\d+\.\d+/i', $trimmed)) {
                 $closeLists();
-                $clean = trim(preg_replace('/^(\*{1,2}|#+\s*|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
-                $html .= "<h3 style='font-size:12pt; font-weight:bold; margin-top:16pt; margin-bottom:6pt; text-align:left; text-indent:0; page-break-after:avoid; break-after:avoid;'>" . e($clean) . "</h3>";
+                $cleanCap = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
+                if (mb_strlen($cleanCap) <= 130 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $cleanCap)) {
+                    $pendingFigureCaption = $cleanCap;
+                    continue;
+                }
+            }
+
+            // Keterangan Sumber Tabel / Gambar
+            if (preg_match('/^(?:\*{1,2}|_)?Sumber\s*:/i', $trimmed)) {
+                $closeLists();
+                $cleanSrc = trim(preg_replace('/^(\*{1,2}|_|<i>)+|(\*{1,2}|_|<\/i>)+$/i', '', $trimmed));
+                $html .= "<p style='font-size:10pt; font-style:italic; text-indent:0; text-align:left; margin:-6pt 0 10pt 0; line-height:1.25;'>" . e($cleanSrc) . "</p>";
                 continue;
             }
 
@@ -2657,6 +3604,14 @@ ATURAN REVISI (SANGAT KETAT):
                 $closeLists();
                 $clean = trim(preg_replace('/^(\*{1,2}|#+\s*|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
                 $html .= "<h4 style='font-size:12pt; font-weight:bold; margin-top:10pt; margin-bottom:4pt; text-align:left; text-indent:0; page-break-after:avoid; break-after:avoid;'>" . e($clean) . "</h4>";
+                continue;
+            }
+
+            // Sub-bab utama (A. ..., 1.1 ..., ## ...)
+            if (preg_match('/^(?:##\s+|[A-Z]\.\s+|\d+\.\d+\.?\s+)(.+)$/', $trimmed, $m)) {
+                $closeLists();
+                $clean = trim(preg_replace('/^(\*{1,2}|#+\s*|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
+                $html .= "<h3 style='font-size:12pt; font-weight:bold; margin-top:14pt; margin-bottom:6pt; text-align:left; text-indent:0; page-break-after:avoid; break-after:avoid;'>" . e($clean) . "</h3>";
                 continue;
             }
 
@@ -2670,7 +3625,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $html .= "<ol style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
                     $inOl = true;
                 }
-                $cleanLi = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1]));
+                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
                 $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($cleanLi) . "</li>";
                 continue;
             }
@@ -2685,7 +3640,7 @@ ATURAN REVISI (SANGAT KETAT):
                     $html .= "<ul style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
                     $inUl = true;
                 }
-                $cleanLi = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1]));
+                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $m[1])));
                 $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . e($cleanLi) . "</li>";
                 continue;
             }
@@ -2696,9 +3651,9 @@ ATURAN REVISI (SANGAT KETAT):
             if ($cleanP !== '') {
                 $cleanP = $this->formatAcademicMathText($cleanP);
                 if ($this->isStandaloneFormula($cleanP)) {
-                    $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:\"Times New Roman\", serif; font-style:normal; line-height:1.6;'>" . e($cleanP) . "</p>";
+                    $html .= "<p style='text-align:center; text-indent:0; margin:10pt 0; font-size:12pt; font-family:\"Times New Roman\", serif; font-style:normal; line-height:1.5;'>" . e($cleanP) . "</p>";
                 } else {
-                    $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 8pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
+                    $html .= "<p style='text-indent:1.27cm; text-align:justify; line-height:1.5; margin:0 0 6pt 0; orphans:3; widows:3; page-break-inside:auto;'>" . e($cleanP) . "</p>";
                 }
             }
         }
@@ -2716,72 +3671,120 @@ ATURAN REVISI (SANGAT KETAT):
 
         $tableBuffer = [];
         $currentTableCaption = '';
+        $currentFigureCaption = '';
         $flushTable = function () use (&$tableBuffer, &$currentTableCaption, $section) {
             if (empty($tableBuffer))
                 return;
             $rows = [];
             foreach ($tableBuffer as $tLine) {
                 $raw = trim($tLine);
-                if (str_starts_with($raw, '|') && str_ends_with($raw, '|')) {
-                    $inner = substr($raw, 1, -1);
-                    if (preg_match('/^[\s\-:|]+$/', $inner))
-                        continue;
-                    $cells = array_map('trim', explode('|', $inner));
-                    if (!empty($cells)) {
-                        $rows[] = $cells;
-                    }
+                $inner = $raw;
+                if (str_starts_with($inner, '|')) {
+                    $inner = substr($inner, 1);
+                }
+                if (str_ends_with($inner, '|')) {
+                    $inner = substr($inner, 0, -1);
+                }
+                if (preg_match('/^[\s\-:|]+$/', $inner)) {
+                    continue;
+                }
+                $cells = array_map('trim', explode('|', $inner));
+                if (count($cells) >= 2) {
+                    $rows[] = $cells;
                 }
             }
             if (!empty($rows)) {
                 $maxCols = max(array_map('count', $rows));
 
-                // Jika baris header memiliki kolom lebih sedikit dari body (contoh confusion matrix 2 kolom vs 3 kolom)
                 if (count($rows[0]) < $maxCols) {
                     $diff = $maxCols - count($rows[0]);
                     for ($d = 0; $d < $diff; $d++) {
-                        array_unshift($rows[0], 'Kategori Aktual \ Prediksi');
+                        array_unshift($rows[0], 'Kategori');
                     }
                 }
 
-                // Tambahkan judul tabel di atas tabel
+                // Judul tabel diletakkan di ATAS tabel dengan keepNext agar tidak terpisah halaman
                 if (!empty($currentTableCaption)) {
                     $section->addText(
                         $currentTableCaption,
                         ['name' => 'Times New Roman', 'size' => 11, 'bold' => true],
-                        ['alignment' => Jc::LEFT, 'spaceBefore' => 120, 'spaceAfter' => 60]
+                        ['alignment' => Jc::LEFT, 'spaceBefore' => 140, 'spaceAfter' => 60, 'lineHeight' => 1.15, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]
                     );
                 }
 
-                $colWidthTwips = max(1300, (int) round(9200 / max(1, $maxCols)));
+                $isFirstColNo = preg_match('/^(no|no\.?|#)$/i', trim($rows[0][0] ?? ''));
+                $totalWidthTwips = 7940; // ~14 cm (A4 21cm - 4cm kiri - 3cm kanan)
+                $noColW = 680;
+                $otherColW = $isFirstColNo && $maxCols > 1
+                    ? max(950, (int) round(($totalWidthTwips - $noColW) / ($maxCols - 1)))
+                    : max(1000, (int) round($totalWidthTwips / max(1, $maxCols)));
+
+                // Standar Tabel Skripsi APA 7th (Open Table: TANPA garis vertikal, garis atas & bawah horizontal bersih)
                 $table = $section->addTable([
-                    'borderColor' => '000000',
-                    'borderSize' => 6,
-                    'cellMarginTop' => 80,
-                    'cellMarginBottom' => 80,
-                    'cellMarginLeft' => 100,
-                    'cellMarginRight' => 100,
-                    'alignment' => Jc::CENTER
+                    'borderTopSize' => 12,
+                    'borderTopColor' => '000000',
+                    'borderBottomSize' => 12,
+                    'borderBottomColor' => '000000',
+                    'borderLeftSize' => 0,
+                    'borderLeftColor' => 'FFFFFF',
+                    'borderRightSize' => 0,
+                    'borderRightColor' => 'FFFFFF',
+                    'borderInsideVSize' => 0,
+                    'borderInsideVColor' => 'FFFFFF',
+                    'borderInsideHSize' => 4,
+                    'borderInsideHColor' => 'CCCCCC',
+                    'cellMarginTop' => 60,
+                    'cellMarginBottom' => 60,
+                    'cellMarginLeft' => 80,
+                    'cellMarginRight' => 80,
+                    'alignment' => Jc::CENTER,
                 ]);
+
+                $totalRows = count($rows);
                 foreach ($rows as $rIdx => $rowCells) {
-                    $tRow = $table->addRow();
+                    $isHeader = ($rIdx === 0);
+                    $isLast = ($rIdx === $totalRows - 1);
+                    $tRow = $table->addRow(null, [
+                        'tblHeader' => $isHeader,
+                        'cantSplit' => true,
+                    ]);
                     while (count($rowCells) < $maxCols) {
                         $rowCells[] = '-';
                     }
+                    if (count($rowCells) > $maxCols) {
+                        $rowCells = array_slice($rowCells, 0, $maxCols);
+                    }
                     foreach ($rowCells as $cIdx => $cellText) {
-                        $isHeader = ($rIdx === 0);
                         $cleanCell = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $cellText));
                         $cleanCell = $this->formatAcademicMathText($cleanCell);
-                        $thisColWidth = ($cIdx === 0 && preg_match('/^(no\.?|#)$/i', $cleanCell)) ? 720 : $colWidthTwips;
+                        $thisColWidth = ($isFirstColNo && $cIdx === 0) ? $noColW : $otherColW;
 
-                        $cell = $tRow->addCell($thisColWidth, [
-                            'bgColor' => $isHeader ? 'F1F5F9' : 'FFFFFF',
-                            'valign' => 'center'
-                        ]);
-                        $align = ($isHeader || preg_match('/^[\d\s,.\-%—\(\)]+$/', $cleanCell) || preg_match('/^(tp|fp|fn|tn)$/i', $cleanCell)) ? Jc::CENTER : Jc::LEFT;
+                        $cellStyle = [
+                            'bgColor' => 'FFFFFF',
+                            'valign' => $isHeader ? 'center' : 'top',
+                            'borderLeftStyle' => 'none',
+                            'borderRightStyle' => 'none',
+                        ];
+                        if ($isHeader) {
+                            $cellStyle['borderTopStyle'] = 'single';
+                            $cellStyle['borderTopSize'] = 12;
+                            $cellStyle['borderTopColor'] = '000000';
+                            $cellStyle['borderBottomStyle'] = 'single';
+                            $cellStyle['borderBottomSize'] = 8;
+                            $cellStyle['borderBottomColor'] = '000000';
+                        } elseif ($isLast) {
+                            $cellStyle['borderBottomStyle'] = 'single';
+                            $cellStyle['borderBottomSize'] = 12;
+                            $cellStyle['borderBottomColor'] = '000000';
+                        }
+
+                        $cell = $tRow->addCell($thisColWidth, $cellStyle);
+                        $align = ($isHeader || ($isFirstColNo && $cIdx === 0) || preg_match('/^[\d\s,.\-%—\(\)<>]+$/', $cleanCell) || preg_match('/^(tp|fp|fn|tn)$/i', $cleanCell)) ? Jc::CENTER : Jc::LEFT;
+                        $fontSize = ($maxCols >= 6) ? 9 : 10;
                         $cell->addText(
                             $cleanCell,
-                            ['name' => 'Times New Roman', 'size' => 10, 'bold' => $isHeader],
-                            ['alignment' => $align, 'spaceAfter' => 0]
+                            ['name' => 'Times New Roman', 'size' => $fontSize, 'bold' => $isHeader],
+                            ['alignment' => $align, 'lineHeight' => 1.05, 'spaceBefore' => 0, 'spaceAfter' => 0, 'indentation' => ['firstLine' => 0]]
                         );
                     }
                 }
@@ -2793,18 +3796,18 @@ ATURAN REVISI (SANGAT KETAT):
 
         $codeLines = [];
         $inCode = false;
-        $flushCodeOrFlowchart = function () use (&$codeLines, $section, $project) {
+        $flushCodeOrFlowchart = function () use (&$codeLines, $section, $project, &$currentFigureCaption, $htmlContent) {
             if (empty($codeLines))
                 return;
             $rawCode = implode("\n", $codeLines);
             $isFlowchart = str_contains($rawCode, '-->') || str_contains($rawCode, '->') || str_contains($rawCode, '↓') || str_contains($rawCode, 'V') || preg_match('/\[.+?\]/', $rawCode);
 
             if ($isFlowchart) {
-                $judul = $project ? (string) ($project->judul ?? '') : '';
-                $isFramework = str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena');
-                $caption = $isFramework ? 'Gambar 2.1 Bagan Kerangka Pemikiran Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian';
+                $isBab2 = str_contains($htmlContent, '2.1 Landasan Teori') || str_contains($htmlContent, 'Kerangka Berpikir') || str_contains($htmlContent, 'Kerangka Pemikiran');
+                $isFramework = $isBab2 || str_contains($rawCode, 'Permasalahan') || str_contains($rawCode, 'Landasan Teori') || str_contains($rawCode, 'Kerangka Pemikiran') || str_contains($rawCode, 'Fenomena') || str_contains($currentFigureCaption, '2.1') || str_contains(strtolower($currentFigureCaption), 'kerangka');
+                $caption = !empty($currentFigureCaption) ? $currentFigureCaption : ($isFramework ? 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian' : 'Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian');
+                $currentFigureCaption = '';
 
-                // Ekstraksi node dinamis akademik untuk tabel Word terpadu editable
                 preg_match_all('/\[(.*?)\]/', $rawCode, $nodeMatches);
                 $nodes = !empty($nodeMatches[1]) ? $nodeMatches[1] : array_filter(array_map('trim', $codeLines), fn($l) => !empty($l) && !str_starts_with($l, 'graph') && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $l) && !preg_match('/^\+[-+]+\+$/', $l));
                 if (!empty($nodes)) {
@@ -2820,93 +3823,18 @@ ATURAN REVISI (SANGAT KETAT):
                         }
                     }
                     if (!empty($cleanNodes)) {
-                        $nodeCount = count($cleanNodes);
-                        // Mulai di halaman baru jika diagram memiliki banyak node agar utuh 1 halaman & tidak terpotong
-                        if ($nodeCount >= 7) {
-                            $section->addPageBreak();
-                        }
-                        $section->addText($caption, ['name' => 'Times New Roman', 'size' => 11, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 120]);
+                        // Sisipkan placeholder VML Vector Flowchart Standar ANSI yang diinjeksi menjadi Native Word Shapes saat postProcessDocxOutline
+                        $placeholder = '[[FLOWCHART_VML_' . count($this->docxFlowchartVmlMap) . ']]';
+                        $this->docxFlowchartVmlMap[$placeholder] = $this->buildFlowchartWordVml($cleanNodes, $isFramework);
+                        $section->addText($placeholder, ['name' => 'Times New Roman', 'size' => 10], ['alignment' => Jc::CENTER, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]);
 
-                        foreach ($cleanNodes as $nIdx => $cleanNode) {
-                            $isSE = in_array(strtolower($cleanNode), ['mulai', 'start', 'selesai', 'end', 'finish']);
-
-                            // Lebar seragam (tidak berundak seperti tangga)
-                            if ($isSE) {
-                                $boxWidth = Converter::cmToTwip(6.0);
-                            } elseif ($isFramework) {
-                                $boxWidth = Converter::cmToTwip(12.5);
-                            } else {
-                                $boxWidth = Converter::cmToTwip(11.5);
-                            }
-
-                            // Konfigurasi border tunggal bersih sesuai standar skripsi akademik (tanpa border ganda)
-                            $cellStyle = [
-                                'bgColor' => $isSE ? 'F8FAFC' : 'FFFFFF',
-                                'borderColor' => '000000',
-                                'borderSize' => 8,
-                                'borderStyle' => 'single',
-                                'borderTopStyle' => 'single',
-                                'borderBottomStyle' => 'single',
-                                'borderLeftStyle' => 'single',
-                                'borderRightStyle' => 'single',
-                                'cellMarginTop' => 70,
-                                'cellMarginBottom' => 70,
-                                'cellMarginLeft' => 140,
-                                'cellMarginRight' => 140,
-                                'valign' => 'center'
-                            ];
-
-                            // Setiap box adalah tabel 1-sel independen terpisah agar tidak bergabung jadi 1 tabel garis bergaris di Word
-                            $boxTable = $section->addTable(['alignment' => Jc::CENTER]);
-                            $boxRow = $boxTable->addRow(Converter::cmToTwip(0.7), ['cantSplit' => true]);
-                            $boxCell = $boxRow->addCell($boxWidth, $cellStyle);
-
-                            if ($isSE) {
-                                $boxCell->addText(strtoupper($cleanNode), [
-                                    'name' => 'Times New Roman',
-                                    'size' => 10.5,
-                                    'bold' => true,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                            } elseif ($isFramework) {
-                                $fTitles = [
-                                    0 => 'TAHAP 1: KONDISI EMPIRIS / MASALAH PENELITIAN',
-                                    1 => 'TAHAP 2: LANDASAN TEORI & SINTESIS PUSTAKA',
-                                    2 => 'TAHAP 3: PENDEKATAN METODOLOGI & ANALISIS DATA',
-                                    3 => 'TAHAP 4: LUARAN HASIL PENELITIAN & REKOMENDASI'
-                                ];
-                                $fTitle = $fTitles[$nIdx] ?? ('TAHAP ' . ($nIdx + 1) . ': FOKUS PENELITIAN');
-                                $boxCell->addText($fTitle, [
-                                    'name' => 'Times New Roman',
-                                    'size' => 9,
-                                    'bold' => true,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 20]);
-                                $boxCell->addText($this->formatAcademicMathText($cleanNode), [
-                                    'name' => 'Times New Roman',
-                                    'size' => 10,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                            } else {
-                                $boxCell->addText($this->formatAcademicMathText($cleanNode), [
-                                    'name' => 'Times New Roman',
-                                    'size' => 10,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 0, 'spaceAfter' => 0]);
-                            }
-
-                            if ($nIdx < $nodeCount - 1) {
-                                // Paragraf tanda panah independen di antara kotak yang memisahkan masing-masing box
-                                $section->addText('↓', [
-                                    'name' => 'Times New Roman',
-                                    'size' => 12,
-                                    'bold' => true,
-                                    'color' => '000000'
-                                ], ['alignment' => Jc::CENTER, 'spaceBefore' => 25, 'spaceAfter' => 25]);
-                            }
-                        }
+                        // Standar Skripsi Indonesia: Judul Gambar WAJIB di BAWAH gambar
+                        $section->addText(
+                            $caption,
+                            ['name' => 'Times New Roman', 'size' => 11, 'bold' => true],
+                            ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 160, 'lineHeight' => 1.15, 'indentation' => ['firstLine' => 0]]
+                        );
                     }
-                    $section->addTextBreak(1);
                 }
             } else {
                 $section->addText($rawCode, ['name' => 'Courier New', 'size' => 9.5], ['indentation' => ['left' => 360], 'spaceAfter' => 80]);
@@ -2918,9 +3846,12 @@ ATURAN REVISI (SANGAT KETAT):
             $cleanLine = trim(strip_tags($line));
 
             // Simpan atau tangkap caption tabel
-            if (preg_match('/^Tabel\s+\d+\.\d+[\w\.\-]*\s*(.*)$/i', $cleanLine)) {
-                $currentTableCaption = $cleanLine;
-                continue;
+            if (preg_match('/^(?:\*{1,2})?Tabel\s+\d+\.\d+[\w\.\-]*\s*(.*?)(?:\*{1,2})?$/i', $cleanLine)) {
+                $cleanCap = trim(preg_replace('/^(\*{1,2})+|(\*{1,2})+$/', '', $cleanLine));
+                if (mb_strlen($cleanCap) <= 130 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $cleanCap)) {
+                    $currentTableCaption = $cleanCap;
+                    continue;
+                }
             }
 
             // Handle Code Blocks / Flowcharts
@@ -2945,33 +3876,55 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // Buffer baris tabel markdown
-            if (str_starts_with($cleanLine, '|') && str_ends_with($cleanLine, '|')) {
+            // Buffer baris tabel markdown (menerima pipe penuh atau minimal 2 pemisah |)
+            $isMdTableRow = (str_starts_with($cleanLine, '|') && str_ends_with($cleanLine, '|'))
+                || (substr_count($cleanLine, '|') >= 2 && !preg_match('/^P\(/i', $cleanLine));
+            if ($isMdTableRow) {
                 $tableBuffer[] = $cleanLine;
                 continue;
             } else {
                 $flushTable();
+                if (!empty($currentTableCaption)) {
+                    $section->addText(
+                        $currentTableCaption,
+                        ['bold' => true, 'name' => 'Times New Roman', 'size' => 11],
+                        ['alignment' => Jc::LEFT, 'spaceBefore' => 140, 'spaceAfter' => 60, 'indentation' => ['firstLine' => 0]]
+                    );
+                    $currentTableCaption = '';
+                }
             }
 
             // Bersihkan tanda markdown untuk pencocokan heading
             $unmarked = trim(preg_replace('/^(\*{1,2}|#+\s*|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $cleanLine));
 
+            if (!empty($currentFigureCaption) && !preg_match('/^(?:Gambar|Bagan)\s+\d+\.\d+/i', $unmarked) && !str_starts_with($cleanLine, '```')) {
+                $section->addText(
+                    $currentFigureCaption,
+                    ['bold' => true, 'name' => 'Times New Roman', 'size' => 11],
+                    ['alignment' => Jc::CENTER, 'spaceBefore' => 140, 'spaceAfter' => 60, 'indentation' => ['firstLine' => 0]]
+                );
+                $currentFigureCaption = '';
+            }
+
+            // Keterangan Sumber Tabel / Gambar
+            if (preg_match('/^Sumber\s*:/i', $unmarked)) {
+                $section->addText(
+                    $unmarked,
+                    ['name' => 'Times New Roman', 'size' => 10, 'italic' => true],
+                    ['alignment' => Jc::LEFT, 'lineHeight' => 1.15, 'spaceBefore' => 0, 'spaceAfter' => 120, 'indentation' => ['firstLine' => 0]]
+                );
+            }
             // Heading Level 3: 2.1.1, 2.1.2, 1.6.1, dst.
-            if (preg_match('/^(\d+\.\d+\.\d+[\s\.:\-\)][^\n<]+)/i', $unmarked, $m3) || preg_match('/^\d+\.\s+(Manfaat|Tujuan)\s+[A-Za-z]+/i', $unmarked, $m3)) {
+            elseif (preg_match('/^(\d+\.\d+\.\d+[\s\.:\-\)][^\n<]+)/i', $unmarked, $m3) || preg_match('/^\d+\.\s+(Manfaat|Tujuan)\s+[A-Za-z]+/i', $unmarked, $m3)) {
                 $section->addTitle($unmarked, 3);
             }
             // Heading Level 2: 1.1, 1.2, 2.1, 3.1, dst.
             elseif (preg_match('/^(\d+\.\d+[\s\.:\-\)][^\n<]+)/i', $unmarked, $m2) || preg_match('/^([A-Z]\.[\s\.:\-\)][^\n<]+)/', $unmarked, $ma)) {
                 $section->addTitle($unmarked, 2);
             }
-            // Judul Tabel / Gambar / Bagan
-            elseif (preg_match('/^(?:Tabel|Gambar|Bagan)\s+\d+\.\d+/i', $unmarked)) {
-                $align = str_starts_with(strtolower($unmarked), 'tabel') ? Jc::LEFT : Jc::CENTER;
-                $section->addText(
-                    $unmarked,
-                    ['bold' => true, 'name' => 'Times New Roman', 'size' => 11],
-                    ['alignment' => $align, 'spaceBefore' => 140, 'spaceAfter' => 60, 'indentation' => ['firstLine' => 0]]
-                );
+            // Judul Gambar / Bagan (Disimpan untuk diletakkan di BAWAH diagram flowchart)
+            elseif (preg_match('/^(?:Gambar|Bagan)\s+\d+\.\d+/i', $unmarked) && mb_strlen($unmarked) <= 130 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $unmarked)) {
+                $currentFigureCaption = $unmarked;
             }
             // Poin bernomor: 1. 2. dst.
             elseif (preg_match('/^\d+\.\s+/', $unmarked)) {
@@ -3193,6 +4146,7 @@ ATURAN REVISI (SANGAT KETAT):
 
     private function createPhpWordDocument($project, Request $request, ?string $logoPath = null, array $meta = [])
     {
+        $this->docxFlowchartVmlMap = [];
         $phpWord = new PhpWord();
         Settings::setOutputEscapingEnabled(true);
         $phpWord->setDefaultFontName('Times New Roman');
@@ -3207,42 +4161,51 @@ ATURAN REVISI (SANGAT KETAT):
         $defaultJenis = str_contains($tahap, 'proposal') ? 'PROPOSAL SKRIPSI' : 'SKRIPSI';
 
         $nama = $request->input('nama') ?: ($meta['nama'] ?? 'NAMA MAHASISWA');
-        $npm = $request->input('npm') ?: ($meta['nim'] ?? 'NIM / NPM');
+        $npm = $request->input('npm') ?: ($meta['nim'] ?? '');
         $kampus = $request->input('kampus') ?: ($meta['kampus'] ?? 'UNIVERSITAS');
         $fakultas = $request->input('fakultas') ?: ($meta['fakultas'] ?? '');
         $jenisDokumen = strtoupper($request->input('jenis_dokumen', $defaultJenis));
         $isProposal = str_contains($jenisDokumen, 'PROPOSAL');
+        $tglFullIndo = $this->formatIndonesianDate('full');
+        $tglBulanIndo = $this->formatIndonesianDate('month_year');
 
         $phpWord->setDefaultParagraphStyle([
             'lineHeight' => 1.5,
-            'spaceAfter' => Converter::pointToTwip(0)
+            'spaceAfter' => Converter::pointToTwip(0),
         ]);
 
-        $phpWord->addTitleStyle(1, ['name' => 'Times New Roman', 'size' => 14, 'bold' => true], ['alignment' => Jc::CENTER, 'spaceAfter' => 240, 'indentation' => ['firstLine' => 0]]);
-        $phpWord->addTitleStyle(2, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'spaceBefore' => 140, 'spaceAfter' => 100, 'indentation' => ['firstLine' => 0]]);
-        $phpWord->addTitleStyle(3, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'spaceBefore' => 100, 'spaceAfter' => 60, 'indentation' => ['firstLine' => 0]]);
+        $phpWord->addTitleStyle(1, ['name' => 'Times New Roman', 'size' => 14, 'bold' => true], ['alignment' => Jc::CENTER, 'lineHeight' => 1.25, 'spaceBefore' => 0, 'spaceAfter' => 240, 'indentation' => ['firstLine' => 0]]);
+        $phpWord->addTitleStyle(2, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'lineHeight' => 1.5, 'spaceBefore' => 160, 'spaceAfter' => 80, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]);
+        $phpWord->addTitleStyle(3, ['name' => 'Times New Roman', 'size' => 12, 'bold' => true], ['alignment' => Jc::LEFT, 'lineHeight' => 1.5, 'spaceBefore' => 100, 'spaceAfter' => 60, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]);
 
-        $sectionStyle = [
+        $baseSectionStyle = [
             'pageSizeW' => Converter::cmToTwip(21.0),
             'pageSizeH' => Converter::cmToTwip(29.7),
             'marginTop' => Converter::cmToTwip($marginTop),
             'marginLeft' => Converter::cmToTwip($marginLeft),
             'marginBottom' => Converter::cmToTwip($marginBottom),
-            'marginRight' => Converter::cmToTwip($marginRight)
+            'marginRight' => Converter::cmToTwip($marginRight),
+            'headerHeight' => Converter::cmToTwip(1.5),
+            'footerHeight' => Converter::cmToTwip(1.5),
         ];
 
-        $section = $phpWord->addSection($sectionStyle);
-        $center = ['alignment' => Jc::CENTER, 'indentation' => ['firstLine' => 0]];
-        $bold14 = ['bold' => true, 'size' => 14];
-        $bold12 = ['bold' => true, 'size' => 12];
+        $center = ['alignment' => Jc::CENTER, 'lineHeight' => 1.25, 'indentation' => ['firstLine' => 0]];
+        $bold14 = ['bold' => true, 'size' => 14, 'name' => 'Times New Roman'];
+        $bold12 = ['bold' => true, 'size' => 12, 'name' => 'Times New Roman'];
 
-        // --- HALAMAN SAMPUL (COVER) ---
-        $section->addText($jenisDokumen, $bold14, $center);
-        $section->addTextBreak(1);
-        $section->addText(strtoupper($project->judul), $bold14, $center);
-        $section->addTextBreak(1);
-        $section->addText("Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . $project->prodi, ['size' => 11], $center);
-        $section->addTextBreak(1);
+        // =====================================================================
+        // SECTION 1: HALAMAN SAMPUL (COVER) — TANPA NOMOR HALAMAN (DIHITUNG i)
+        // =====================================================================
+        $coverSection = $phpWord->addSection($baseSectionStyle);
+        $coverSection->addText($jenisDokumen, $bold14, $center);
+        $coverSection->addTextBreak(1);
+        $coverSection->addText(strtoupper($project->judul), $bold14, $center);
+        $coverSection->addTextBreak(1);
+        $subCoverText = $isProposal
+            ? "Diajukan untuk Memenuhi Persyaratan Seminar Proposal Skripsi pada Program Studi " . $project->prodi
+            : "Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . $project->prodi;
+        $coverSection->addText($subCoverText, ['size' => 11, 'name' => 'Times New Roman'], $center);
+        $coverSection->addTextBreak(2);
 
         $defaultLogoFile = public_path('images/default_emblem.jpg');
         $resolvedLogo = ($logoPath && file_exists($logoPath)) ? $logoPath : null;
@@ -3252,7 +4215,7 @@ ATURAN REVISI (SANGAT KETAT):
                 $clean = preg_replace('#^data:image/[^;]+;base64,#i', '', trim($rawLogoB64));
                 $decoded = @base64_decode($clean);
                 if (!empty($decoded) && strlen($decoded) > 60) {
-                    $tmpLogo = tempnam(sys_get_temp_dir(), 'wlogo_') . '.png';
+                    $tmpLogo = tempnam(sys_get_temp_dir(), 'wlogo_') . '.jpg';
                     if (@file_put_contents($tmpLogo, $decoded)) {
                         $resolvedLogo = $tmpLogo;
                         $this->docxTempFiles[] = $tmpLogo;
@@ -3266,142 +4229,165 @@ ATURAN REVISI (SANGAT KETAT):
 
         if ($resolvedLogo && file_exists($resolvedLogo)) {
             try {
-                $section->addImage($resolvedLogo, [
-                    'width' => 95,
-                    'height' => 95,
+                $coverSection->addImage($resolvedLogo, [
+                    'width' => 100,
+                    'height' => 100,
                     'alignment' => Jc::CENTER,
                 ]);
             } catch (Throwable $e) {
             }
         }
 
-        $section->addTextBreak(1);
-        $section->addText("OLEH:", $bold12, $center);
-        $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single'], $center);
+        $coverSection->addTextBreak(2);
+        $coverSection->addText("OLEH:", $bold12, $center);
+        $coverSection->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single', 'size' => 12, 'name' => 'Times New Roman'], $center);
         if (!empty($npm)) {
-            $section->addText("NIM: " . $npm, $bold12, $center);
+            $coverSection->addText("NIM: " . $npm, $bold12, $center);
         }
-        $section->addTextBreak(2);
-        $section->addText(strtoupper("PROGRAM STUDI " . $project->prodi), $bold14, $center);
+        $coverSection->addTextBreak(3);
+        $coverSection->addText(strtoupper("PROGRAM STUDI " . $project->prodi), $bold14, $center);
         if (!empty($fakultas)) {
-            $section->addText(strtoupper($fakultas), $bold14, $center);
+            $coverSection->addText(strtoupper($fakultas), $bold14, $center);
         }
-        $section->addText(strtoupper($kampus), $bold14, $center);
-        $section->addText(date('Y'), $bold14, $center);
-        $section->addPageBreak();
+        $coverSection->addText(strtoupper($kampus), $bold14, $center);
+        $coverSection->addText(date('Y'), $bold14, $center);
 
-        // --- LEMBAR PENGESAHAN ---
-        $section->addTitle("LEMBAR PENGESAHAN", 1);
-        $section->addTextBreak(1);
+        // =====================================================================
+        // SECTION 2: BAGIAN DEPAN — NOMOR HALAMAN ROMAWI KECIL (ii, iii, iv, ...)
+        // =====================================================================
+        $frontStyle = array_merge($baseSectionStyle, [
+            'pageNumberingStart' => 2,
+        ]);
+        $section = $phpWord->addSection($frontStyle);
+        $frontFooter = $section->addFooter();
+        $frontFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
+
+        // --- LEMBAR PERSETUJUAN (PROPOSAL) / PENGESAHAN (SKRIPSI) ---
+        $section->addTitle($isProposal ? "LEMBAR PERSETUJUAN PROPOSAL" : "LEMBAR PENGESAHAN", 1);
         $section->addText(strtoupper($project->judul), $bold12, $center);
         $section->addTextBreak(1);
-        $section->addText("Disusun Oleh: " . strtoupper($nama) . ($npm ? " (" . $npm . ")" : ""), ['size' => 11], $center);
+        $section->addText("Disusun Oleh: " . strtoupper($nama) . ($npm ? " (NIM: " . $npm . ")" : ""), ['size' => 11], $center);
         $section->addTextBreak(1);
+        $pengesahanBody = $isProposal
+            ? "Proposal skripsi ini telah diperiksa dan disetujui oleh Dosen Pembimbing untuk diseminarkan pada Seminar Proposal Penelitian Program Studi " . $project->prodi . ($fakultas ? ", " . $fakultas : "") . ($kampus ? ", " . $kampus : "") . "."
+            : "Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian Skripsi pada Program Studi " . $project->prodi . ($fakultas ? ", " . $fakultas : "") . ($kampus ? ", " . $kampus : "") . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.";
         $section->addText(
-            "Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian " . $jenisDokumen . " pada Program Studi " . $project->prodi . ($fakultas ? ", " . $fakultas : "") . ($kampus ? ", " . $kampus : "") . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.",
-            ['name' => 'Times New Roman', 'size' => 11],
+            $pengesahanBody,
+            ['name' => 'Times New Roman', 'size' => 11.5],
             ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 200]
         );
         $section->addTextBreak(1);
 
-        $table = $section->addTable(['alignment' => Jc::CENTER]);
-        $row = $table->addRow();
-        $cell1 = $row->addCell(Converter::cmToTwip(7.5));
+        $sigTable = $section->addTable(['alignment' => Jc::CENTER, 'borderSize' => 0, 'borderColor' => 'FFFFFF']);
+        $sigRow = $sigTable->addRow();
+        $cell1 = $sigRow->addCell(Converter::cmToTwip(7.0));
         $cell1->addText("Dosen Pembimbing I", ['size' => 11], $center);
         $cell1->addTextBreak(3);
         $cell1->addText("( __________________________ )", ['size' => 11], $center);
-        $cell1->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
+        $cell1->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '555555'], $center);
 
-        $cell2 = $row->addCell(Converter::cmToTwip(7.5));
+        $cell2 = $sigRow->addCell(Converter::cmToTwip(7.0));
         $cell2->addText("Dosen Pembimbing II", ['size' => 11], $center);
         $cell2->addTextBreak(3);
         $cell2->addText("( __________________________ )", ['size' => 11], $center);
-        $cell2->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
+        $cell2->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '555555'], $center);
 
         $section->addTextBreak(2);
         $section->addText("Mengetahui,", ['size' => 11], $center);
         $section->addText("Ketua Program Studi " . $project->prodi, ['size' => 11], $center);
         $section->addTextBreak(3);
         $section->addText("( __________________________ )", ['size' => 11], $center);
-        $section->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '666666'], $center);
-        $section->addPageBreak();
+        $section->addText("NIP/NIDN.", ['size' => 9.5, 'color' => '555555'], $center);
 
-        // --- SURAT PERNYATAAN KEASLIAN ---
-        $section->addTitle("SURAT PERNYATAAN KEASLIAN", 1);
-        $section->addTextBreak(1);
-        $section->addText("Saya yang bertanda tangan di bawah ini:", ['size' => 11], ['alignment' => Jc::BOTH]);
-        $section->addText("Nama Mahasiswa\t: " . $nama, ['bold' => true, 'size' => 11], ['indentation' => ['left' => 360]]);
-        $section->addText("NIM / NPM\t: " . $npm, ['size' => 11], ['indentation' => ['left' => 360]]);
-        $section->addText("Program Studi\t: " . $project->prodi, ['size' => 11], ['indentation' => ['left' => 360]]);
-        if (!empty($fakultas)) {
-            $section->addText("Fakultas\t: " . $fakultas, ['size' => 11], ['indentation' => ['left' => 360]]);
+        // Hanya SKRIPSI LENGKAP yang mencantumkan Surat Pernyataan Keaslian & Abstrak Hasil
+        if (!$isProposal) {
+            $section->addPageBreak();
+            // --- SURAT PERNYATAAN KEASLIAN ---
+            $section->addTitle("SURAT PERNYATAAN KEASLIAN", 1);
+            $section->addText("Saya yang bertanda tangan di bawah ini:", ['size' => 11.5], ['alignment' => Jc::BOTH, 'spaceAfter' => 80]);
+            $idTable = $section->addTable(['borderSize' => 0, 'borderColor' => 'FFFFFF']);
+            $idRows = [
+                ['Nama Mahasiswa', $nama, true],
+                ['NIM / NPM', $npm ?: '-', false],
+                ['Program Studi', $project->prodi, false],
+            ];
+            if (!empty($fakultas)) {
+                $idRows[] = ['Fakultas', $fakultas, false];
+            }
+            foreach ($idRows as $ir) {
+                $r = $idTable->addRow();
+                $r->addCell(Converter::cmToTwip(3.8))->addText($ir[0], ['size' => 11.5], ['lineHeight' => 1.35, 'spaceAfter' => 20]);
+                $r->addCell(Converter::cmToTwip(10.0))->addText(': ' . $ir[1], ['size' => 11.5, 'bold' => $ir[2]], ['lineHeight' => 1.35, 'spaceAfter' => 20]);
+            }
+            $section->addTextBreak(1);
+            $section->addText(
+                "Menyatakan dengan sesungguhnya bahwa skripsi berjudul \"" . $project->judul . "\" ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.",
+                ['name' => 'Times New Roman', 'size' => 11.5],
+                ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+            );
+            $section->addText(
+                "Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.",
+                ['name' => 'Times New Roman', 'size' => 11.5],
+                ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 200]
+            );
+            $section->addText(($kampus ? $kampus . ", " : "") . $tglFullIndo, ['size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+            $section->addText("Yang membuat pernyataan,", ['size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+            $section->addText("[ Materai Rp 10.000 ]", ['size' => 8.5, 'color' => '666666'], ['alignment' => Jc::RIGHT, 'spaceBefore' => 120, 'spaceAfter' => 120]);
+            $section->addTextBreak(1);
+            $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single', 'size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+            $section->addText("NIM. " . ($npm ?: '-'), ['size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+
+            $section->addPageBreak();
+            // --- ABSTRAK (BAHASA INDONESIA — STANDAR 1 SPASI) ---
+            $section->addTitle("ABSTRAK", 1);
+            $section->addText(strtoupper($project->judul), $bold12, $center);
+            $section->addText("Oleh: " . $nama . ($npm ? " (NIM: " . $npm . ")" : ""), ['size' => 11], $center);
+            $section->addText("Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['size' => 10.5, 'color' => '333333'], $center);
+            $section->addTextBreak(1);
+            $section->addText(
+                "Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan menyelesaikan permasalahan pada topik \"" . $project->judul . "\". Metode penelitian yang diterapkan adalah " . ($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " melalui prosedur pengumpulan, pengolahan, dan pengujian data empiris secara sistematis. Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur, memberikan evaluasi kinerja yang valid, serta menghasilkan kontribusi teoretis dan praktis bagi pengembangan keilmuan pada Program Studi " . $project->prodi . ".",
+                ['name' => 'Times New Roman', 'size' => 11.5],
+                ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 140]
+            );
+            $section->addText("Kata Kunci: " . $project->prodi . ", " . ($project->metode_penelitian ?: 'Metode Penelitian') . ", Analisis Empiris, Skripsi.", ['bold' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
+
+            $section->addPageBreak();
+            // --- ABSTRACT (ENGLISH — STANDAR 1 SPASI ITALIC) ---
+            $section->addTitle("ABSTRACT", 1);
+            $section->addText(strtoupper($project->judul), ['bold' => true, 'italic' => true, 'size' => 12], $center);
+            $section->addText("By: " . $nama . ($npm ? " (Student ID: " . $npm . ")" : ""), ['italic' => true, 'size' => 11], $center);
+            $section->addText("Department of " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['italic' => true, 'size' => 10.5, 'color' => '333333'], $center);
+            $section->addTextBreak(1);
+            $section->addText(
+                "This study aims to investigate, analyze, and resolve the empirical problems addressed in \"" . $project->judul . "\". Employing a structured " . ($project->metode_penelitian ?: 'scientific') . " methodology, this research systematically collects, processes, and evaluates empirical data. The findings demonstrate that the implemented approach effectively addresses all research questions, provides verifiable evaluation outcomes, and contributes both theoretical insights and practical implications to the field of " . $project->prodi . ".",
+                ['name' => 'Times New Roman', 'italic' => true, 'size' => 11.5],
+                ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 140]
+            );
+            $section->addText("Keywords: " . $project->prodi . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
         }
-        $section->addTextBreak(1);
-        $section->addText(
-            "Menyatakan dengan sesungguhnya bahwa " . strtolower($jenisDokumen) . " berjudul \"" . $project->judul . "\" ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.",
-            ['name' => 'Times New Roman', 'size' => 11],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
-        );
-        $section->addText(
-            "Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.",
-            ['name' => 'Times New Roman', 'size' => 11],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 160]
-        );
-        $section->addText(($kampus ? $kampus . ", " : "") . date('d F Y'), ['size' => 11], ['alignment' => Jc::RIGHT]);
-        $section->addText("Yang membuat pernyataan,", ['size' => 11], ['alignment' => Jc::RIGHT]);
-        $section->addText("[ Materai Rp 10.000 ]", ['size' => 8.5, 'color' => '666666'], ['alignment' => Jc::RIGHT]);
-        $section->addTextBreak(2);
-        $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single', 'size' => 11], ['alignment' => Jc::RIGHT]);
-        $section->addText("NIM. " . $npm, ['size' => 11], ['alignment' => Jc::RIGHT]);
-        $section->addPageBreak();
-
-        // --- ABSTRAK (BAHASA INDONESIA) ---
-        $section->addTitle("ABSTRAK", 1);
-        $section->addTextBreak(1);
-        $section->addText(strtoupper($project->judul), $bold12, $center);
-        $section->addText("Oleh: " . $nama . ($npm ? " (NIM: " . $npm . ")" : ""), ['size' => 10.5], $center);
-        $section->addText("Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['size' => 10, 'color' => '444444'], $center);
-        $section->addTextBreak(1);
-        $section->addText(
-            "Penelitian ini bertujuan untuk menginvestigasi dan menyelesaikan permasalahan pada topik \"" . $project->judul . "\". Metode penelitian yang diterapkan adalah " . ($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " dengan prosedur sistematis dan terukur. Hasil penelitian menunjukkan bahwa pendekatan yang dirumuskan mampu memberikan solusi teruji, tolok ukur kinerja yang solid, serta kontribusi empiris bagi pengembangan ilmu pengetahuan dan praktik pada bidang " . $project->prodi . ".",
-            ['name' => 'Times New Roman', 'size' => 11],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
-        );
-        $section->addText("Kata Kunci: " . $project->prodi . ", " . ($project->metode_penelitian ?: 'Metode Penelitian') . ", Evaluasi Kinerja, Skripsi S1.", ['bold' => true, 'size' => 11], ['alignment' => Jc::BOTH]);
-        $section->addPageBreak();
-
-        // --- ABSTRACT (ENGLISH) ---
-        $section->addTitle("ABSTRACT", 1);
-        $section->addTextBreak(1);
-        $section->addText(strtoupper($project->judul), ['bold' => true, 'italic' => true, 'size' => 12], $center);
-        $section->addText("By: " . $nama . ($npm ? " (Student ID: " . $npm . ")" : ""), ['italic' => true, 'size' => 10.5], $center);
-        $section->addText("Department of " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['italic' => true, 'size' => 10, 'color' => '444444'], $center);
-        $section->addTextBreak(1);
-        $section->addText(
-            "This study aims to investigate and address the empirical challenges in \"" . $project->judul . "\". Utilizing a scientific methodology in " . ($project->metode_penelitian ?: 'scientific inquiry') . ", this research systematically collects and analyzes relevant data. The results demonstrate that the proposed method effectively accomplishes the research objectives, yields verifiable benchmark performance, and delivers valuable contributions to both academic literature and practical applications in " . $project->prodi . ".",
-            ['name' => 'Times New Roman', 'italic' => true, 'size' => 11],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
-        );
-        $section->addText("Keywords: " . $project->prodi . ", Empirical Research, Performance Evaluation, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH]);
-        $section->addPageBreak();
 
         // --- KATA PENGANTAR ---
+        $section->addPageBreak();
         $section->addTitle("KATA PENGANTAR", 1);
+        $kpSyarat = $isProposal
+            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
+            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
         $section->addText(
-            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan {$jenisDokumen} yang berjudul \"" . $project->judul . "\" dapat diselesaikan sebagai salah satu syarat akademik pada Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
+            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " yang berjudul \"" . $project->judul . "\" dapat " . $kpSyarat . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
             ['name' => 'Times New Roman', 'size' => 12],
             ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
         );
         $section->addText(
-            "Penulis menyadari bahwa penyusunan karya ilmiah ini masih terbuka terhadap saran dan masukan konstruktif demi penyempurnaan di masa mendatang. Semoga dokumen ini memberikan manfaat bagi pengembangan ilmu pengetahuan dan pihak yang membutuhkan.",
+            "Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.",
             ['name' => 'Times New Roman', 'size' => 12],
             ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 240]
         );
-        $section->addText($kampus . ", " . date('F Y'), ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT]);
-        $section->addText("Penulis (" . $nama . ")", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT]);
-        $section->addPageBreak();
+        $section->addText(($kampus ? $kampus . ", " : "") . $tglBulanIndo, ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addTextBreak(2);
+        $section->addText("Penulis", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
 
         // --- DAFTAR ISI RAPI (DOT LEADER TAB STOP) ---
+        $section->addPageBreak();
         $section->addTitle("DAFTAR ISI", 1);
         $printableWidthTwips = Converter::cmToTwip(max(10.0, 21.0 - $marginLeft - $marginRight));
         $tocItems = $this->extractTocItemsForProject($project, $isProposal);
@@ -3410,8 +4396,8 @@ ATURAN REVISI (SANGAT KETAT):
             $pStyle = [
                 'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
                 'indentation' => ['left' => $isLvl1 ? 0 : 420, 'firstLine' => 0],
-                'spaceAfter' => $isLvl1 ? 80 : 40,
-                'lineHeight' => 1.35,
+                'spaceAfter' => $isLvl1 ? 70 : 35,
+                'lineHeight' => 1.25,
             ];
             $fStyle = [
                 'name' => 'Times New Roman',
@@ -3420,59 +4406,46 @@ ATURAN REVISI (SANGAT KETAT):
             ];
             $section->addText($item['label'] . "\t" . $item['page'], $fStyle, $pStyle);
         }
-        $section->addPageBreak();
 
-        // --- DAFTAR TABEL (DINAMIS OTOMATIS) ---
-        $section->addTitle("DAFTAR TABEL", 1);
+        // --- DAFTAR TABEL (HANYA JIKA ADA TABEL NYATA DI NASKAH) ---
         $tabelsDocx = $this->extractTablesForProject($project, $isProposal);
-        foreach ($tabelsDocx as $tbl) {
-            $pStyle = [
-                'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
-                'spaceAfter' => 60,
-                'lineHeight' => 1.35,
-            ];
-            $section->addText($tbl['label'] . "\t" . $tbl['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+        if (!empty($tabelsDocx)) {
+            $section->addPageBreak();
+            $section->addTitle("DAFTAR TABEL", 1);
+            foreach ($tabelsDocx as $tbl) {
+                $pStyle = [
+                    'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
+                    'spaceAfter' => 60,
+                    'lineHeight' => 1.25,
+                ];
+                $section->addText($tbl['label'] . "\t" . $tbl['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+            }
         }
-        $section->addPageBreak();
 
-        // --- DAFTAR GAMBAR (DINAMIS HANYA GAMBAR NYATA) ---
-        $section->addTitle("DAFTAR GAMBAR", 1);
+        // --- DAFTAR GAMBAR (HANYA JIKA ADA GAMBAR / DIAGRAM NYATA DI NASKAH) ---
         $gambarsDocx = $this->extractFiguresForProject($project, $isProposal);
-        foreach ($gambarsDocx as $gbr) {
-            $pStyle = [
-                'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
-                'spaceAfter' => 60,
-                'lineHeight' => 1.35,
-            ];
-            $section->addText($gbr['label'] . "\t" . $gbr['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+        if (!empty($gambarsDocx)) {
+            $section->addPageBreak();
+            $section->addTitle("DAFTAR GAMBAR", 1);
+            foreach ($gambarsDocx as $gbr) {
+                $pStyle = [
+                    'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
+                    'spaceAfter' => 60,
+                    'lineHeight' => 1.25,
+                ];
+                $section->addText($gbr['label'] . "\t" . $gbr['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
+            }
         }
-        $section->addPageBreak();
 
-        // --- DAFTAR LAMPIRAN (HEADING 1) ---
-        $section->addTitle("DAFTAR LAMPIRAN", 1);
-        $lampiranBase = $isProposal ? 36 : 53;
-        $lampiransDocx = [
-            ['label' => 'Lampiran 1 Surat Keputusan & Izin Penelitian Kampus', 'page' => (string) $lampiranBase],
-            ['label' => 'Lampiran 2 Sampel Data Mentah & Instrumen Penelitian', 'page' => (string) ($lampiranBase + 2)],
-            ['label' => 'Lampiran 3 Tabel Lengkap Hasil Uji Statistik & Parameter', 'page' => (string) ($lampiranBase + 4)],
-            ['label' => 'Lampiran 4 Dokumentasi Pelaksanaan & Log Bimbingan Skripsi', 'page' => (string) ($lampiranBase + 6)],
-        ];
-        foreach ($lampiransDocx as $lmp) {
-            $pStyle = [
-                'tabs' => [new Tab('right', $printableWidthTwips, 'dot')],
-                'spaceAfter' => 60,
-                'lineHeight' => 1.35,
-            ];
-            $section->addText($lmp['label'] . "\t" . $lmp['page'], ['name' => 'Times New Roman', 'size' => 12], $pStyle);
-        }
-        $section->addPageBreak();
-
+        // =====================================================================
+        // SECTION 3+: BAB UTAMA (RESET ANGKA ARAB 1; AWAL BAB TENGAH BAWAH, LANJUTAN KANAN ATAS)
+        // =====================================================================
         $chapters = [
             'bab1' => 'PENDAHULUAN',
             'bab2' => 'TINJAUAN PUSTAKA',
             'bab3' => 'METODOLOGI PENELITIAN',
-            'bab4' => 'HASIL DAN PEMBAHASAN',
-            'bab5' => 'PENUTUP'
+            'bab4' => 'HASIL PENELITIAN DAN PEMBAHASAN',
+            'bab5' => 'PENUTUP',
         ];
         if ($isProposal) {
             $chapters = [
@@ -3483,27 +4456,63 @@ ATURAN REVISI (SANGAT KETAT):
         }
 
         $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
+        $isFirstMainSection = true;
 
         foreach ($chapters as $k => $v) {
             if ($htmlContent = $project->{$k . '_content'}) {
-                if ($k != 'bab1')
-                    $section = $phpWord->addSection($sectionStyle);
+                $chapStyle = $baseSectionStyle;
+                if ($isFirstMainSection) {
+                    $chapStyle['pageNumberingStart'] = 1;
+                    $isFirstMainSection = false;
+                }
+                $section = $phpWord->addSection($chapStyle);
 
-                $section->addTitle("BAB " . $nums[$k] . " " . strtoupper($v), 1);
-                $section->addTextBreak(1);
+                // Standar Skripsi Indonesia:
+                // - Halaman pertama Bab: nomor halaman di TENGAH BAWAH
+                // - Halaman lanjutan Bab: nomor halaman di KANAN ATAS
+                $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
+                $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
+                $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
+                $firstHeader->addText('', ['size' => 1]);
+
+                $contHeader = $section->addHeader();
+                $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
+                $contFooter = $section->addFooter();
+                $contFooter->addText('', ['size' => 1]);
+
+                // Judul BAB 2 baris resmi standar skripsi Indonesia (BAB I \n PENDAHULUAN)
+                $section->addTitle("BAB " . $nums[$k] . "\n" . strtoupper($v), 1);
 
                 $this->parseAndAddContent($section, $htmlContent, $project);
-                $section->addPageBreak();
             }
         }
 
-        $section->addTitle("DAFTAR PUSTAKA", 1);
         $dpContent = trim($project->daftar_pustaka ?? '');
         if (!empty($dpContent)) {
-            $refs = explode("\n", $dpContent);
+            $dpStyle = $baseSectionStyle;
+            if ($isFirstMainSection) {
+                $dpStyle['pageNumberingStart'] = 1;
+            }
+            $section = $phpWord->addSection($dpStyle);
+            $firstFooter = $section->addFooter(\PhpOffice\PhpWord\Element\Header::FIRST);
+            $firstFooter->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::CENTER]);
+            $firstHeader = $section->addHeader(\PhpOffice\PhpWord\Element\Header::FIRST);
+            $firstHeader->addText('', ['size' => 1]);
+            $contHeader = $section->addHeader();
+            $contHeader->addPreserveText('{PAGE}', ['name' => 'Times New Roman', 'size' => 11, 'color' => '000000'], ['alignment' => Jc::RIGHT]);
+            $contFooter = $section->addFooter();
+            $contFooter->addText('', ['size' => 1]);
+
+            $section->addTitle("DAFTAR PUSTAKA", 1);
+            $refs = explode("\n", str_replace(["\r\n", "\r"], "\n", $dpContent));
             foreach ($refs as $ref) {
                 if (trim($ref)) {
-                    $section->addText(trim($ref), ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::BOTH, 'indentation' => ['left' => 720, 'hanging' => 720], 'spaceAfter' => 80]);
+                    // Standar APA 7th Skripsi: spasi 1,0 di dalam 1 entri, jarak antar entri 8pt, hanging indent 1,27 cm (720 twips)
+                    $section->addText(
+                        trim($ref),
+                        ['name' => 'Times New Roman', 'size' => 12],
+                        ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['left' => 720, 'hanging' => 720], 'spaceBefore' => 0, 'spaceAfter' => 140]
+                    );
                 }
             }
         }
@@ -3575,7 +4584,7 @@ ATURAN REVISI (SANGAT KETAT):
         try {
             $zip = new ZipArchive();
             if ($zip->open($docxPath) === true) {
-                // 1. Modifikasi word/document.xml untuk menyematkan outline level
+                // 1. Modifikasi word/document.xml untuk menyematkan outline level, VML Vector Flowchart, dan format angka Romawi Bagian Depan
                 $docXml = $zip->getFromName('word/document.xml');
                 if ($docXml) {
                     $docXml = preg_replace_callback('/<w:pPr>(.*?)<\/w:pPr>/s', function ($m) {
@@ -3591,6 +4600,26 @@ ATURAN REVISI (SANGAT KETAT):
                         }
                         return $m[0];
                     }, $docXml);
+
+                    // Ubah format penomoran halaman Bagian Depan (w:start="2") menjadi angka Romawi kecil (ii, iii, iv, ...)
+                    $docXml = preg_replace('/<w:pgNumType\s+w:start="2"\s*\/>/', '<w:pgNumType w:fmt="lowerRoman" w:start="2"/>', $docXml);
+                    // Pastikan format penomoran halaman Bab I (w:start="1") memakai angka Arab (decimal)
+                    $docXml = preg_replace('/<w:pgNumType\s+w:start="1"\s*\/>/', '<w:pgNumType w:fmt="decimal" w:start="1"/>', $docXml);
+
+                    // Sisipkan Native Word VML Vector Flowchart untuk setiap placeholder
+                    if (!empty($this->docxFlowchartVmlMap)) {
+                        foreach ($this->docxFlowchartVmlMap as $placeholder => $vmlParagraphXml) {
+                            $quoted = preg_quote($placeholder, '/');
+                            $docXml = preg_replace(
+                                '/<w:p\b[^>]*>(?:(?!<\/w:p>).)*?' . $quoted . '(?:(?!<\/w:p>).)*?<\/w:p>/s',
+                                str_replace(['\\', '$'], ['\\\\', '\\$'], $vmlParagraphXml),
+                                $docXml,
+                                1
+                            );
+                        }
+                        $this->docxFlowchartVmlMap = [];
+                    }
+
                     $zip->addFromString('word/document.xml', $docXml);
                 }
 
@@ -3708,34 +4737,45 @@ ATURAN REVISI (SANGAT KETAT):
             $logoHtml = "<div style='margin: 18px auto; width:90px; height:90px; border:2px solid #000; border-radius:50%; text-align:center; line-height:86px; font-weight:bold; font-size:10pt; letter-spacing:1px; color:#000;'>UNIVERSITAS</div>";
         }
 
+        $tglFullIndo = $this->formatIndonesianDate('full');
+        $tglBulanIndo = $this->formatIndonesianDate('month_year');
+
+        $makeDotLeaderRow = function (string $label, string $page, int $level = 1): string {
+            $pad = $level === 1 ? '0' : '22pt';
+            $weight = $level === 1 ? 'bold' : 'normal';
+            return "<table style='width:100%; border-collapse:collapse; margin-bottom:4pt; font-size:12pt; line-height:1.35;'><tr>"
+                . "<td style='padding:0 6pt 0 {$pad}; font-weight:{$weight}; border:none; white-space:nowrap;'>" . e($label) . "</td>"
+                . "<td style='width:100%; border:none; border-bottom:1pt dotted #64748b; padding:0;'>&nbsp;</td>"
+                . "<td style='padding:0 0 0 6pt; text-align:right; font-weight:{$weight}; border:none; white-space:nowrap; width:34pt;'>" . e($page) . "</td>"
+                . "</tr></table>";
+        };
+
         $tocRowsHtml = '';
         foreach ($this->extractTocItemsForProject($project, $isProposal) as $item) {
-            $pad = ($item['level'] ?? 1) === 1 ? '0' : '22px';
-            $weight = ($item['level'] ?? 1) === 1 ? 'bold' : 'normal';
-            $tocRowsHtml .= "<div style='display:table; width:100%; margin-bottom:5px; font-weight:{$weight};'>
-                <span style='display:table-cell; padding-left:{$pad};'>" . e($item['label']) . "</span>
-                <span style='display:table-cell; text-align:right; width:50px;'>" . e($item['page']) . "</span>
-            </div>";
+            $tocRowsHtml .= $makeDotLeaderRow((string) ($item['label'] ?? ''), (string) ($item['page'] ?? ''), (int) ($item['level'] ?? 1));
         }
 
         $html = "<html><head><style>
             @page { size: A4; margin: {$marginTop}cm {$marginRight}cm {$marginBottom}cm {$marginLeft}cm; }
-            body { font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt; }
-            h1,h2 { text-align:center; font-weight:bold; font-size:14pt; }
+            body { font-family:'Times New Roman', serif; text-align:justify; line-height:1.5; font-size:12pt; color:#000000; }
+            h1,h2 { text-align:center; font-weight:bold; font-size:14pt; line-height:1.3; margin:0 0 16pt 0; }
             h3,h4 { font-weight:bold; font-size:12pt; }
-            p { text-indent: 1.27cm; margin: 0 0 8px 0; }
+            p { text-indent: 1.27cm; margin: 0 0 6pt 0; }
             .cover p { text-indent:0; text-align:center; }
             .cover { position:relative; height:100%; text-align:center; }
             .cover-bottom { position:absolute; bottom:0; left:0; right:0; text-align:center; font-weight:bold; font-size:12.5pt; line-height:1.35; }
+            .page-break { page-break-before: always; }
         </style></head><body>";
 
-        // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA)
-        // Margin 4-4-3-3 cm presisi sesuai standar akademik perguruan tinggi Indonesia
+        // 1. HALAMAN JUDUL (COVER RESMI PROPORSIONAL A4 INDONESIA — TANPA NOMOR HALAMAN)
+        $subCoverPdf = $isProposal
+            ? "Diajukan untuk Memenuhi Persyaratan Seminar Proposal Skripsi pada Program Studi " . e($project->prodi)
+            : "Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi);
         $html .= "<div class='cover'>
             <div style='text-align:center;'>
                 <div style='font-size:14pt; font-weight:bold; letter-spacing:1px; line-height:1.2; text-transform:uppercase;'>{$jenisDokumen}</div>
                 <div style='font-size:13pt; font-weight:bold; margin-top:16pt; margin-bottom:12pt; line-height:1.35; text-transform:uppercase; max-width:440pt; margin-left:auto; margin-right:auto;'>" . e($project->judul) . "</div>
-                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi " . e($project->prodi) . "</div>
+                <div style='font-size:11pt; line-height:1.35; max-width:420pt; margin:0 auto;'>{$subCoverPdf}</div>
             </div>
 
             <div style='text-align:center; margin-top:55pt;'>
@@ -3756,174 +4796,148 @@ ATURAN REVISI (SANGAT KETAT):
             </div>
         </div>";
 
-        // 2. LEMBAR PENGESAHAN
-        $html .= "<div style='page-break-before:always; text-align:center;'>
-            <h2>LEMBAR PENGESAHAN</h2>
+        // 2. LEMBAR PERSETUJUAN (PROPOSAL) / PENGESAHAN (SKRIPSI)
+        $pengesahanTitle = $isProposal ? 'LEMBAR PERSETUJUAN PROPOSAL' : 'LEMBAR PENGESAHAN';
+        $pengesahanPara = $isProposal
+            ? "Proposal skripsi ini telah diperiksa dan disetujui oleh Dosen Pembimbing untuk diseminarkan pada Seminar Proposal Penelitian Program Studi " . e($project->prodi) . ($fakultas ? ', ' . e($fakultas) : '') . ($kampus ? ', ' . e($kampus) : '') . "."
+            : "Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian Skripsi pada Program Studi " . e($project->prodi) . ($fakultas ? ', ' . e($fakultas) : '') . ($kampus ? ', ' . e($kampus) : '') . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.";
+        $html .= "<div class='page-break' style='text-align:center;'>
+            <h2>{$pengesahanTitle}</h2>
             <div style='font-size:12pt; margin:16pt 0 10pt; font-weight:bold; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
-            <div style='margin-bottom:16pt; font-size:11pt;'>Disusun Oleh: <u>" . strtoupper(e($nama)) . "</u> (" . e($npm) . ")</div>
-            <p style='text-indent:1.27cm; line-height:1.5; font-size:11pt;'>Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian " . e($jenisDokumen) . " pada Program Studi " . e($project->prodi) . ", " . ($fakultas ? e($fakultas) . ', ' : '') . e($kampus) . ", dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.</p>
+            <div style='margin-bottom:16pt; font-size:11pt;'>Disusun Oleh: <u>" . strtoupper(e($nama)) . "</u>" . ($npm ? " (NIM: " . e($npm) . ")" : "") . "</div>
+            <p style='text-indent:1.27cm; line-height:1.5; font-size:11.5pt;'>{$pengesahanPara}</p>
             <div style='margin-top:28pt; width:100%;'>
                 <div style='float:left; width:48%; text-align:center; font-size:11pt;'>
                     <div>Dosen Pembimbing I</div>
-                    <div style='height:50pt;'></div>
+                    <div style='height:52pt;'></div>
                     <div>( __________________________ )</div>
-                    <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+                    <div style='font-size:9.5pt; color:#555;'>NIP/NIDN.</div>
                 </div>
                 <div style='float:right; width:48%; text-align:center; font-size:11pt;'>
                     <div>Dosen Pembimbing II</div>
-                    <div style='height:50pt;'></div>
+                    <div style='height:52pt;'></div>
                     <div>( __________________________ )</div>
-                    <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+                    <div style='font-size:9.5pt; color:#555;'>NIP/NIDN.</div>
                 </div>
                 <div style='clear:both;'></div>
             </div>
-            <div style='margin-top:24pt; text-align:center; font-size:11pt;'>
+            <div style='margin-top:26pt; text-align:center; font-size:11pt;'>
                 <div>Mengetahui,</div>
                 <div>Ketua Program Studi " . e($project->prodi) . "</div>
-                <div style='height:48pt;'></div>
+                <div style='height:50pt;'></div>
                 <div>( __________________________ )</div>
-                <div style='font-size:9.5pt; color:#666;'>NIP/NIDN.</div>
+                <div style='font-size:9.5pt; color:#555;'>NIP/NIDN.</div>
             </div>
-        </div>
-        <div style='page-break-after:always;'></div>";
+        </div>";
 
-        // 3. SURAT PERNYATAAN KEASLIAN
-        $html .= "<div style='text-align:center;'>
-            <h2>SURAT PERNYATAAN KEASLIAN</h2>
-        </div>
-        <div style='margin-top:16pt; font-size:11pt; line-height:1.5;'>
-            <p style='text-indent:0;'>Saya yang bertanda tangan di bawah ini:</p>
-            <table style='width:100%; margin:8pt 0 12pt 16pt; font-size:11pt; border-collapse:collapse;'>
-                <tr><td style='width:120pt; border:none; padding:2pt 0;'>Nama Mahasiswa</td><td style='border:none; padding:2pt 0;'>: <strong>" . e($nama) . "</strong></td></tr>
-                <tr><td style='border:none; padding:2pt 0;'>NIM / NPM</td><td style='border:none; padding:2pt 0;'>: " . e($npm) . "</td></tr>
-                <tr><td style='border:none; padding:2pt 0;'>Program Studi</td><td style='border:none; padding:2pt 0;'>: " . e($project->prodi) . "</td></tr>
-                <tr><td style='border:none; padding:2pt 0;'>Fakultas</td><td style='border:none; padding:2pt 0;'>: " . e($fakultas) . "</td></tr>
-            </table>
-            <p>Menyatakan dengan sesungguhnya bahwa " . strtolower(e($jenisDokumen)) . " berjudul <strong>\"" . e($project->judul) . "\"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.</p>
-            <p>Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.</p>
-            <div style='margin-top:24pt; float:right; width:190pt; text-align:center; font-size:11pt;'>
-                <div>" . ($kampus ? e($kampus) . ", " : "") . date('d F Y') . "</div>
-                <div style='margin-top:3pt;'>Yang membuat pernyataan,</div>
-                <div style='margin-top:8pt; font-size:8.5pt; color:#666;'>[ Materai Rp 10.000 ]</div>
-                <div style='height:36pt;'></div>
-                <div><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                <div>NIM. " . e($npm) . "</div>
-            </div>
-            <div style='clear:both;'></div>
-        </div>
-        <div style='page-break-after:always;'></div>";
+        // 3 & 4. SURAT PERNYATAAN KEASLIAN & ABSTRAK (HANYA UNTUK SKRIPSI LENGKAP, BUKAN PROPOSAL)
+        if (!$isProposal) {
+            $html .= "<div class='page-break'>
+                <h2>SURAT PERNYATAAN KEASLIAN</h2>
+                <div style='margin-top:16pt; font-size:11.5pt; line-height:1.5;'>
+                    <p style='text-indent:0;'>Saya yang bertanda tangan di bawah ini:</p>
+                    <table style='width:100%; margin:8pt 0 14pt 16pt; font-size:11.5pt; border-collapse:collapse;'>
+                        <tr><td style='width:120pt; border:none; padding:2pt 0;'>Nama Mahasiswa</td><td style='border:none; padding:2pt 0;'>: <strong>" . e($nama) . "</strong></td></tr>
+                        <tr><td style='border:none; padding:2pt 0;'>NIM / NPM</td><td style='border:none; padding:2pt 0;'>: " . e($npm ?: '-') . "</td></tr>
+                        <tr><td style='border:none; padding:2pt 0;'>Program Studi</td><td style='border:none; padding:2pt 0;'>: " . e($project->prodi) . "</td></tr>
+                        " . ($fakultas ? "<tr><td style='border:none; padding:2pt 0;'>Fakultas</td><td style='border:none; padding:2pt 0;'>: " . e($fakultas) . "</td></tr>" : "") . "
+                    </table>
+                    <p>Menyatakan dengan sesungguhnya bahwa skripsi berjudul <strong>\"" . e($project->judul) . "\"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.</p>
+                    <p>Seluruh kutipan, data, dan pemikiran yang bersumber dari pihak lain telah dicantumkan dalam daftar pustaka sesuai dengan etika ilmiah. Apabila di kemudian hari terbukti terdapat plagiarisme, saya bersedia menerima sanksi akademik sesuai aturan yang berlaku.</p>
+                    <div style='margin-top:24pt; float:right; width:200pt; text-align:center; font-size:11.5pt; line-height:1.3;'>
+                        <div>" . ($kampus ? e($kampus) . ", " : "") . $tglFullIndo . "</div>
+                        <div style='margin-top:3pt;'>Yang membuat pernyataan,</div>
+                        <div style='margin-top:10pt; font-size:8.5pt; color:#666;'>[ Materai Rp 10.000 ]</div>
+                        <div style='height:34pt;'></div>
+                        <div><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
+                        <div>NIM. " . e($npm ?: '-') . "</div>
+                    </div>
+                    <div style='clear:both;'></div>
+                </div>
+            </div>";
 
-        // 4. ABSTRAK (BAHASA INDONESIA) & ABSTRACT (ENGLISH)
-        $html .= "<div style='text-align:center;'>
-            <h2>ABSTRAK</h2>
-            <div style='font-size:11.5pt; font-weight:bold; margin-top:8pt; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
-            <div style='font-size:10.5pt; margin-top:4pt;'>Oleh: " . e($nama) . " (NIM: " . e($npm) . ")</div>
-            <div style='font-size:10pt; color:#444; margin-bottom:12pt;'>Program Studi " . e($project->prodi) . ", " . e($kampus) . "</div>
-        </div>
-        <div style='font-size:11pt; line-height:1.45;'>
-            <p>Penelitian ini bertujuan untuk menginvestigasi dan menyelesaikan permasalahan pada topik \"" . e($project->judul) . "\". Metode penelitian yang diterapkan adalah " . e($project->metode_penelitian) . " dengan prosedur sistematis dan terukur. Hasil penelitian menunjukkan bahwa pendekatan yang dirumuskan mampu memberikan solusi teruji, tolok ukur kinerja yang solid, serta kontribusi empiris bagi pengembangan ilmu pengetahuan dan praktik pada bidang " . e($project->prodi) . ".</p>
-            <p style='text-indent:0; margin-top:8pt;'><strong>Kata Kunci:</strong> " . e($project->prodi) . ", " . e($project->metode_penelitian) . ", Evaluasi Kinerja, Skripsi S1.</p>
-        </div>
-        <div style='page-break-after:always;'></div>
+            // ABSTRAK INDONESIA (1 SPASI)
+            $html .= "<div class='page-break'>
+                <h2>ABSTRAK</h2>
+                <div style='text-align:center;'>
+                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($project->judul) . "</div>
+                    <div style='font-size:10.5pt; margin-top:4pt;'>Oleh: " . e($nama) . ($npm ? " (NIM: " . e($npm) . ")" : "") . "</div>
+                    <div style='font-size:10pt; color:#333; margin-bottom:14pt;'>Program Studi " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . "</div>
+                </div>
+                <div style='font-size:11.5pt; line-height:1.15;'>
+                    <p style='line-height:1.15;'>Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan menyelesaikan permasalahan pada topik \"" . e($project->judul) . "\". Metode penelitian yang diterapkan adalah " . e($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " melalui prosedur pengumpulan, pengolahan, dan pengujian data empiris secara sistematis. Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur, memberikan evaluasi kinerja yang valid, serta menghasilkan kontribusi teoretis dan praktis bagi pengembangan keilmuan pada Program Studi " . e($project->prodi) . ".</p>
+                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Kata Kunci:</strong> " . e($project->prodi) . ", " . e($project->metode_penelitian ?: 'Metode Penelitian') . ", Analisis Empiris, Skripsi.</p>
+                </div>
+            </div>";
 
-        <div style='text-align:center;'>
-            <h2>ABSTRACT</h2>
-            <div style='font-size:11.5pt; font-weight:bold; margin-top:8pt; font-style:italic; line-height:1.35; text-transform:uppercase;'>" . e($project->judul) . "</div>
-            <div style='font-size:10.5pt; margin-top:4pt;'>By: " . e($nama) . " (Student ID: " . e($npm) . ")</div>
-            <div style='font-size:10pt; color:#444; margin-bottom:12pt;'>Department of " . e($project->prodi) . ", " . e($kampus) . "</div>
-        </div>
-        <div style='font-size:11pt; line-height:1.45; font-style:italic;'>
-            <p>This study aims to investigate and address the empirical challenges in \"" . e($project->judul) . "\". Utilizing a scientific methodology in " . e($project->metode_penelitian) . ", this research systematically collects and analyzes relevant data. The results demonstrate that the proposed method effectively accomplishes the research objectives, yields verifiable benchmark performance, and delivers valuable contributions to both academic literature and practical applications in " . e($project->prodi) . ".</p>
-            <p style='text-indent:0; margin-top:8pt;'><strong>Keywords:</strong> " . e($project->prodi) . ", Empirical Research, Performance Evaluation, Undergraduate Thesis.</p>
-        </div>
-        <div style='page-break-after:always;'></div>";
+            // ABSTRACT ENGLISH (1 SPASI ITALIC)
+            $html .= "<div class='page-break'>
+                <h2>ABSTRACT</h2>
+                <div style='text-align:center; font-style:italic;'>
+                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($project->judul) . "</div>
+                    <div style='font-size:10.5pt; margin-top:4pt;'>By: " . e($nama) . ($npm ? " (Student ID: " . e($npm) . ")" : "") . "</div>
+                    <div style='font-size:10pt; color:#333; margin-bottom:14pt;'>Department of " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . "</div>
+                </div>
+                <div style='font-size:11.5pt; line-height:1.15; font-style:italic;'>
+                    <p style='line-height:1.15;'>This study aims to investigate, analyze, and resolve the empirical problems addressed in \"" . e($project->judul) . "\". Employing a structured " . e($project->metode_penelitian ?: 'scientific') . " methodology, this research systematically collects, processes, and evaluates empirical data. The findings demonstrate that the implemented approach effectively addresses all research questions, provides verifiable evaluation outcomes, and contributes both theoretical insights and practical implications to the field of " . e($project->prodi) . ".</p>
+                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Keywords:</strong> " . e($project->prodi) . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.</p>
+                </div>
+            </div>";
+        }
 
         // 5. KATA PENGANTAR
-        $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
+        $kpPdfSyarat = $isProposal
+            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
+            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
+        $html .= "<div class='page-break'>
             <h2>KATA PENGANTAR</h2>
-            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan {$jenisDokumen} berjudul \"" . e($project->judul) . "\" dapat diselesaikan pada Program Studi " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
-            <p>Penyusunan naskah ini diajukan sebagai salah satu syarat akademik guna menyelesaikan studi Program Sarjana (S1). Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, dosen pembimbing, dosen penguji, serta keluarga tercinta atas bimbingan dan doa yang tiada henti.</p>
-            <div style='margin-top:24pt; float:right; width:190pt; text-align:center; font-size:11pt;'>
-                <div>" . ($kampus ? e($kampus) . ", " : "") . date('F Y') . "</div>
-                <div style='height:36pt;'></div>
-                <div><u><strong>" . strtoupper(e($nama)) . "</strong></u></div>
-                <div>Penulis</div>
+            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " berjudul \"" . e($project->judul) . "\" dapat {$kpPdfSyarat}" . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
+            <p>Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.</p>
+            <div style='margin-top:26pt; float:right; width:200pt; text-align:center; font-size:12pt; line-height:1.3;'>
+                <div>" . ($kampus ? e($kampus) . ", " : "") . $tglBulanIndo . "</div>
+                <div style='height:44pt;'></div>
+                <div><strong>Penulis</strong></div>
             </div>
             <div style='clear:both;'></div>
         </div>";
 
-        // 6. DAFTAR ISI
-        $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
+        // 6. DAFTAR ISI (DENGAN DOT LEADER)
+        $html .= "<div class='page-break'>
             <h2>DAFTAR ISI</h2>
-            <div style='margin-top:16px;'>{$tocRowsHtml}</div>
+            <div style='margin-top:12pt;'>{$tocRowsHtml}</div>
         </div>";
 
-        // 7. DAFTAR TABEL
+        // 7. DAFTAR TABEL (HANYA JIKA ADA TABEL NYATA)
         $pdfTables = $this->extractTablesForProject($project, $isProposal);
-        $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
-            <h2>DAFTAR TABEL</h2>
-            <div style='margin-top:16px;'>";
         if (!empty($pdfTables)) {
+            $html .= "<div class='page-break'>
+                <h2>DAFTAR TABEL</h2>
+                <div style='margin-top:12pt;'>";
             foreach ($pdfTables as $tItem) {
-                $html .= "<div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>" . e($tItem['label']) . "</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>" . e($tItem['page']) . "</span>
-                </div>";
+                $html .= $makeDotLeaderRow((string) $tItem['label'], (string) $tItem['page'], 1);
             }
-        } else {
-            $html .= "<div style='text-align:center; color:#64748b; font-style:italic; padding:15px 0;'>(Tidak ada tabel dalam naskah penelitian)</div>";
+            $html .= "</div></div>";
         }
-        $html .= "</div>
-        </div>";
 
-        // 8. DAFTAR GAMBAR
+        // 8. DAFTAR GAMBAR (HANYA JIKA ADA GAMBAR / DIAGRAM NYATA)
         $pdfFigures = $this->extractFiguresForProject($project, $isProposal);
-        $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
-            <h2>DAFTAR GAMBAR</h2>
-            <div style='margin-top:16px;'>";
         if (!empty($pdfFigures)) {
+            $html .= "<div class='page-break'>
+                <h2>DAFTAR GAMBAR</h2>
+                <div style='margin-top:12pt;'>";
             foreach ($pdfFigures as $fItem) {
-                $html .= "<div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>" . e($fItem['label']) . "</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>" . e($fItem['page']) . "</span>
-                </div>";
+                $html .= $makeDotLeaderRow((string) $fItem['label'], (string) $fItem['page'], 1);
             }
-        } else {
-            $html .= "<div style='text-align:center; color:#64748b; font-style:italic; padding:15px 0;'>(Tidak ada gambar dalam naskah penelitian)</div>";
+            $html .= "</div></div>";
         }
-        $html .= "</div>
-        </div>";
 
-        // 9. DAFTAR LAMPIRAN
-        $lampiranBase = $isProposal ? 36 : 53;
-        $html .= "<div style='page-break-before:always; page-break-after:always; page-break-inside:avoid;'>
-            <h2>DAFTAR LAMPIRAN</h2>
-            <div style='margin-top:16px;'>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>{$lampiranBase}</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>" . ($lampiranBase + 2) . "</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>" . ($lampiranBase + 4) . "</span>
-                </div>
-                <div style='display:table; width:100%; font-size:12pt; line-height:1.45; margin-bottom:8px;'>
-                    <span style='display:table-cell;'>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span>
-                    <span style='display:table-cell; text-align:right; width:50px;'>" . ($lampiranBase + 6) . "</span>
-                </div>
-            </div>
-        </div>";
-
+        // BAB UTAMA (SETIAP BAB DIAWALI PAGE BREAK SATU KALI — BEBAS HALAMAN KOSONG)
         $chapters = [
             'bab1' => 'PENDAHULUAN',
             'bab2' => 'TINJAUAN PUSTAKA',
             'bab3' => 'METODOLOGI PENELITIAN',
-            'bab4' => 'HASIL DAN PEMBAHASAN',
-            'bab5' => 'PENUTUP'
+            'bab4' => 'HASIL PENELITIAN DAN PEMBAHASAN',
+            'bab5' => 'PENUTUP',
         ];
         if ($isProposal) {
             $chapters = [
@@ -3936,19 +4950,26 @@ ATURAN REVISI (SANGAT KETAT):
         $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
         foreach ($chapters as $k => $v) {
             if ($c = $project->{$k . '_content'}) {
+                $html .= "<div class='page-break'>";
                 $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
                 $html .= $this->formatAcademicContentForPdf($c, (string) ($project->judul ?? ''));
-                $html .= "<div style='page-break-after:always;'></div>";
+                $html .= "</div>";
             }
         }
 
-        $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
-        $dpLines = explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $project->daftar_pustaka));
-        foreach ($dpLines as $dpl) {
-            $trimDpl = trim($dpl);
-            if ($trimDpl !== '') {
-                $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.5; font-size:12pt;'>" . e($trimDpl) . "</p>";
+        $dpTrimmed = trim((string) $project->daftar_pustaka);
+        if ($dpTrimmed !== '') {
+            $html .= "<div class='page-break'>";
+            $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
+            $dpLines = explode("\n", str_replace(["\r\n", "\r"], "\n", $dpTrimmed));
+            foreach ($dpLines as $dpl) {
+                $trimDpl = trim($dpl);
+                if ($trimDpl !== '') {
+                    // Standar APA 7th: 1 spasi dalam 1 entri, jarak 8pt antar entri, hanging indent 1,27 cm
+                    $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . e($trimDpl) . "</p>";
+                }
             }
+            $html .= "</div>";
         }
         $html .= "</body></html>";
 
@@ -3961,9 +4982,7 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf->render();
         } catch (\Throwable $e) {
             Log::warning('Dompdf render fallback triggered: ' . $e->getMessage());
-            // Fallback aman bebas crash: bersihkan seluruh <img> dan flowchart divs jika terjadi kendala rendering
             $fallbackHtml = preg_replace('/<img[^>]*>/i', '', $html);
-            $fallbackHtml = preg_replace('/<div class=[\'"]academic-flowchart[\'"].*?<\/div>/is', '', $fallbackHtml);
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
@@ -3972,15 +4991,75 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf->render();
         }
 
+        // Penomoran Halaman Standar Skripsi Indonesia Presisi:
+        // - Halaman 1 (Cover): Tanpa nomor halaman
+        // - Halaman Bagian Depan (2 s/d sebelum BAB I): Angka Romawi kecil (ii, iii, iv, ...) di TENGAH BAWAH
+        // - Halaman Isi Utama (BAB I s/d DAFTAR PUSTAKA): Reset mulai Angka Arab 1
+        //   * Halaman awal tiap BAB / DAFTAR PUSTAKA: TENGAH BAWAH
+        //   * Halaman lanjutan dalam BAB: KANAN ATAS
         try {
             $canvas = $dompdf->getCanvas();
-            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
-                if ($pageNumber > 1) {
-                    $font = $fontMetrics->getFont('Times-Roman', 'normal');
-                    $canvas->text(297, 804, (string) $pageNumber, $font, 10, [0.15, 0.15, 0.15]);
+            $cpdf = $canvas->get_cpdf();
+            $bab1Page = null;
+            $chapterStartPages = [];
+            $pIdx = 0;
+            foreach ($cpdf->objects as $obj) {
+                if (($obj['t'] ?? '') === 'page') {
+                    $pIdx++;
+                    $rawStream = '';
+                    foreach (($obj['info']['contents'] ?? []) as $cid) {
+                        $rawStream .= (string) ($cpdf->objects[$cid]['c'] ?? '');
+                    }
+                    // Deteksi heading halaman pembuka BAB (di luar Daftar Isi)
+                    $isTocOrFront = str_contains($rawStream, '(DAFTAR ISI)') || str_contains($rawStream, '(DAFTAR TABEL)') || str_contains($rawStream, '(DAFTAR GAMBAR)');
+                    if (!$isTocOrFront && $pIdx >= 2) {
+                        if ($bab1Page === null && preg_match('/\(BAB I\)/', $rawStream)) {
+                            $bab1Page = $pIdx;
+                            $chapterStartPages[$pIdx] = true;
+                        } elseif (preg_match('/\(BAB (?:I|II|III|IV|V)\)/', $rawStream) || str_contains($rawStream, '(DAFTAR PUSTAKA)')) {
+                            $chapterStartPages[$pIdx] = true;
+                        }
+                    }
+                }
+            }
+            if ($bab1Page === null) {
+                $bab1Page = $pIdx + 1;
+            }
+
+            $rightEdgeX = 595.28 - ($marginRight * 28.3465) - 18;
+            $topY = max(28, ($marginTop * 28.3465) - 34);
+            $bottomY = 841.89 - max(32, ($marginBottom * 28.3465) - 24);
+
+            $toRoman = function (int $n): string {
+                return $this->toRomanLower($n);
+            };
+
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($bab1Page, $chapterStartPages, $rightEdgeX, $topY, $bottomY, $toRoman) {
+                if ($pageNumber <= 1) {
+                    return; // Halaman Sampul (Cover) tanpa nomor halaman
+                }
+                $font = $fontMetrics->getFont('Times-Roman', 'normal');
+                $size = 11;
+                if ($pageNumber < $bab1Page) {
+                    // Bagian Depan: Angka Romawi kecil (ii, iii, iv, ...) di tengah bawah
+                    $roman = $toRoman($pageNumber);
+                    $tw = $fontMetrics->getTextWidth($roman, $font, $size);
+                    $canvas->text((595.28 - $tw) / 2, $bottomY, $roman, $font, $size, [0, 0, 0]);
+                } else {
+                    // Bagian Utama: Reset angka Arab mulai dari 1 pada BAB I
+                    $arabic = (string) ($pageNumber - $bab1Page + 1);
+                    $tw = $fontMetrics->getTextWidth($arabic, $font, $size);
+                    if (!empty($chapterStartPages[$pageNumber])) {
+                        // Halaman awal BAB / DAFTAR PUSTAKA: tengah bawah
+                        $canvas->text((595.28 - $tw) / 2, $bottomY, $arabic, $font, $size, [0, 0, 0]);
+                    } else {
+                        // Halaman lanjutan: kanan atas
+                        $canvas->text($rightEdgeX - $tw + 18, $topY, $arabic, $font, $size, [0, 0, 0]);
+                    }
                 }
             });
         } catch (\Throwable $e) {
+            Log::warning('PDF page numbering script error: ' . $e->getMessage());
         }
 
         $inline = $request->boolean('inline');
@@ -4167,6 +5246,7 @@ ATURAN REVISI (SANGAT KETAT):
         $path = '/tmp/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
+        $this->postProcessDocxOutline($path);
 
         foreach ($this->docxTempFiles as $tmp) {
             if ($tmp && file_exists($tmp)) {
@@ -4175,9 +5255,6 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $this->docxTempFiles = [];
 
-        if ($logoPath && file_exists($logoPath)) {
-            @unlink($logoPath);
-        }
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
@@ -4301,20 +5378,15 @@ ATURAN REVISI (SANGAT KETAT):
                 }
             }
             if (!empty($project->daftar_pustaka)) {
-                $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
-                $dpLines = explode("
-", str_replace(["
-",
-                        "
-"
-                    ], "
-", (string) $project->daftar_pustaka));
+                $html .= "<div style='page-break-before:always;'><h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>DAFTAR PUSTAKA</h2>";
+                $dpLines = explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $project->daftar_pustaka));
                 foreach ($dpLines as $dpl) {
                     $trimDpl = trim($dpl);
                     if ($trimDpl !== '') {
-                        $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.5; font-size:12pt;'>" . e($trimDpl) . "</p>";
+                        $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . e($trimDpl) . "</p>";
                     }
                 }
+                $html .= "</div>";
             }
             $html .= "</body></html>";
 
@@ -4338,8 +5410,14 @@ ATURAN REVISI (SANGAT KETAT):
 
             try {
                 $canvas = $dompdf->getCanvas();
-                $font = $dompdf->getFontMetrics()->getFont('Times-Roman', 'normal');
-                $canvas->page_text(297, 804, "{PAGE_NUM}", $font, 10, [0.15, 0.15, 0.15]);
+                $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+                    if ($pageNumber > 1) {
+                        $font = $fontMetrics->getFont('Times-Roman', 'normal');
+                        $label = (string) ($pageNumber - 1);
+                        $tw = $fontMetrics->getTextWidth($label, $font, 11);
+                        $canvas->text((595.28 - $tw) / 2, 795, $label, $font, 11, [0, 0, 0]);
+                    }
+                });
             } catch (\Throwable $e) {
             }
 
@@ -4355,6 +5433,7 @@ ATURAN REVISI (SANGAT KETAT):
         $path = '/tmp/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
+        $this->postProcessDocxOutline($path);
 
         foreach ($this->docxTempFiles as $tmp) {
             if ($tmp && file_exists($tmp)) {
@@ -4363,9 +5442,6 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $this->docxTempFiles = [];
 
-        if ($logoPath && file_exists($logoPath)) {
-            @unlink($logoPath);
-        }
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
@@ -4376,7 +5452,7 @@ ATURAN REVISI (SANGAT KETAT):
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
         $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
-        $tahunMin = !empty($sitasi['tahun_min']) ? (string)$sitasi['tahun_min'] : '2023';
+        $tahunMin = !empty($sitasi['tahun_min']) ? (string) $sitasi['tahun_min'] : '2023';
         $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
 
         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
@@ -4802,35 +5878,35 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
             }
             unset($s);
 
-        foreach ($slidesArray as &$s) {
-            if (isset($s['title']))
-                $s['title'] = trim(str_replace(['**', '*'], '', $s['title']));
-            if (isset($s['subtitle']))
-                $s['subtitle'] = trim(str_replace(['**', '*'], '', $s['subtitle']));
-            if (isset($s['bullets']) && is_array($s['bullets'])) {
-                $s['bullets'] = array_values(array_filter(array_map(function ($b) {
-                    return trim(str_replace(['**', '*'], '', $b));
-                }, $s['bullets'])));
+            foreach ($slidesArray as &$s) {
+                if (isset($s['title']))
+                    $s['title'] = trim(str_replace(['**', '*'], '', $s['title']));
+                if (isset($s['subtitle']))
+                    $s['subtitle'] = trim(str_replace(['**', '*'], '', $s['subtitle']));
+                if (isset($s['bullets']) && is_array($s['bullets'])) {
+                    $s['bullets'] = array_values(array_filter(array_map(function ($b) {
+                        return trim(str_replace(['**', '*'], '', $b));
+                    }, $s['bullets'])));
+                }
             }
-        }
 
-        return response()->json([
-            'status' => 'success',
-            'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
-            'slides_data' => $slidesArray,
-            'cover_meta' => $coverMeta,
-        ]);
-    } catch (\Throwable $e) {
-        // JANGAN lempar error yang memunculkan alert 'Gagal menyusun slide PPT.'
-        // Selalu fallback ke 9 slide terstruktur akademik agar pengalaman pengguna selalu mulus!
-        $fallbackSlides = $buildDefaultSlides($docTitle, $projProdi);
-        return response()->json([
-            'status' => 'success',
-            'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
-            'slides_data' => $fallbackSlides,
-            'cover_meta' => $coverMeta,
-        ]);
-    }
+            return response()->json([
+                'status' => 'success',
+                'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
+                'slides_data' => $slidesArray,
+                'cover_meta' => $coverMeta,
+            ]);
+        } catch (\Throwable $e) {
+            // JANGAN lempar error yang memunculkan alert 'Gagal menyusun slide PPT.'
+            // Selalu fallback ke slide terstruktur akademik sejumlah $slideCount agar pengalaman pengguna selalu mulus!
+            $fallbackSlides = $buildDefaultSlides($docTitle, $projProdi, $slideCount);
+            return response()->json([
+                'status' => 'success',
+                'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
+                'slides_data' => $fallbackSlides,
+                'cover_meta' => $coverMeta,
+            ]);
+        }
     }
 
     public function simulateDefense(Request $request)

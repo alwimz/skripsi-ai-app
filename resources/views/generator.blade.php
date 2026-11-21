@@ -771,20 +771,27 @@
         .paper-editor table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11pt;
-            line-height: 1.45;
+            font-size: 10.5pt;
+            line-height: 1.25;
             font-family: "Times New Roman", Georgia, serif;
-            margin: 10px 0 18px;
+            margin: 6px 0 16px;
             table-layout: auto;
             background: #ffffff;
             color: #000000;
+            border-top: 1.8px solid #000000;
+            border-bottom: 1.8px solid #000000;
+            border-left: none;
+            border-right: none;
         }
 
         .paper-editor th,
         .paper-editor td {
-            border: 1px solid #000000;
-            padding: 7px 12px;
-            vertical-align: middle;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 0.6px solid #cbd5e1;
+            padding: 6px 10px;
+            vertical-align: top;
             text-align: left;
             text-indent: 0 !important;
             word-break: normal;
@@ -794,15 +801,21 @@
             box-sizing: border-box;
         }
 
+        .paper-editor tr:last-child td {
+            border-bottom: 1.8px solid #000000;
+        }
+
         .paper-editor th {
             background: #ffffff;
             font-weight: 700;
             color: #000000;
             text-align: center;
-            font-size: 11pt;
-            border: 1px solid #000000;
-            border-top: 2px solid #000000;
-            border-bottom: 2px solid #000000;
+            vertical-align: middle;
+            font-size: 10.5pt;
+            border-top: 1.8px solid #000000;
+            border-bottom: 1.2px solid #000000;
+            border-left: none;
+            border-right: none;
         }
 
         /* Sitasi Biru Hyperlink Alami Akademik (Sesuai Standar Naskah Digital) */
@@ -2207,8 +2220,28 @@
             const citeText = el.getAttribute('data-cite') || el.innerText.trim();
             const author = el.getAttribute('data-author') || '';
             const year = el.getAttribute('data-year') || '';
+            const fullRaw = (citeText + ' ' + author + ' ' + year).toLowerCase();
 
             // Cari di daftar pustaka apakah ada entri yang cocok
+            // 1. Pemetaan langsung laporan otoritas statistik & lembaga resmi nasional / global
+            if (fullRaw.includes('we are social') || fullRaw.includes('meltwater') || fullRaw.includes('datareportal')) {
+                window.open('https://datareportal.com/reports/digital-2024-indonesia', '_blank', 'noopener,noreferrer');
+                return;
+            }
+            if (fullRaw.includes('bps') || fullRaw.includes('badan pusat statistik')) {
+                window.open('https://www.bps.go.id', '_blank', 'noopener,noreferrer');
+                return;
+            }
+            if (fullRaw.includes('apjii')) {
+                window.open('https://apjii.or.id/survei', '_blank', 'noopener,noreferrer');
+                return;
+            }
+            if (fullRaw.includes('kemendikbud') || fullRaw.includes('kemdikbud') || fullRaw.includes('bskap')) {
+                window.open('https://kemdikbud.go.id', '_blank', 'noopener,noreferrer');
+                return;
+            }
+
+            // 2. Cari di daftar pustaka apakah ada entri yang cocok dengan URL / DOI asli
             const dpText = chapterContents.daftar_pustaka || '';
             const lines = dpText.split(/\n+/);
 
@@ -2247,17 +2280,38 @@
                 return;
             }
 
-            // B. Jika ada judul artikel spesifik, cari langsung dengan tanda kutip di Google Scholar
-            if (pubTitle && pubTitle.length >= 10) {
-                const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent('"' + pubTitle + '"')}`;
-                window.open(scholarUrl, '_blank', 'noopener,noreferrer');
-                return;
+            // B. Cari DOI resmi melalui Crossref API secara real-time, fallback ke Google Scholar
+            const searchKeyword = (pubTitle && pubTitle.length >= 10) ? pubTitle : `${primaryAuthor || author} ${year}`;
+            const cleanQuery = (pubTitle && pubTitle.length >= 10) ? `"${pubTitle}"` : `"${author || primaryAuthor}" ${year || ''}`.trim();
+            const scholarFallbackUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(cleanQuery)}`;
+
+            const targetWin = window.open('about:blank', '_blank');
+            if (targetWin) {
+                try {
+                    targetWin.document.write('<html><head><title>Membuka Jurnal Ilmiah Asli...</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8fafc;color:#334155;text-align:center;}</style></head><body><div><div style="font-size:16px;font-weight:600;margin-bottom:8px;">Menghubungkan ke Repositori Jurnal Ilmiah Resmi...</div><div style="font-size:13px;color:#64748b;">Mencari DOI terverifikasi untuk kutipan: <i>' + escapeHtml(author || citeText) + '</i></div></div></body></html>');
+                } catch (e) {}
             }
 
-            // C. Fallback: pencarian bersih nama peneliti + tahun di Google Scholar
-            const cleanQuery = `"${author || primaryAuthor}" ${year || ''}`.trim();
-            const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(cleanQuery)}`;
-            window.open(scholarUrl, '_blank', 'noopener,noreferrer');
+            fetch(`https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(searchKeyword)}&rows=1`)
+                .then(res => res.json())
+                .then(data => {
+                    const item = data?.message?.items?.[0];
+                    const resolvedUrl = (item && item.DOI)
+                        ? `https://doi.org/${item.DOI}`
+                        : ((item && item.URL) ? item.URL : scholarFallbackUrl);
+                    if (targetWin && !targetWin.closed) {
+                        targetWin.location.href = resolvedUrl;
+                    } else {
+                        window.open(resolvedUrl, '_blank', 'noopener,noreferrer');
+                    }
+                })
+                .catch(() => {
+                    if (targetWin && !targetWin.closed) {
+                        targetWin.location.href = scholarFallbackUrl;
+                    } else {
+                        window.open(scholarFallbackUrl, '_blank', 'noopener,noreferrer');
+                    }
+                });
         }
 
         function isStandaloneFormula(line) {
@@ -2282,25 +2336,56 @@
             let inCode = false;
             let codeBuffer = '';
             let tableRows = [];
+            let pendingTableCaption = '';
+            let pendingFigureCaption = '';
 
             const flushLists = () => {
                 if (inUl) { html += '</ul>'; inUl = false; }
                 if (inOl) { html += '</ol>'; inOl = false; }
             };
             const flushTable = () => {
-                if (!inTable || tableRows.length === 0) { inTable = false; tableRows = []; return; }
-                html += '<div class="table-wrap"><table class="academic-table">';
-                tableRows.forEach((cols, idx) => {
-                    if (idx === 1 && cols.every((c) => /^[:\-\s]+$/.test(c))) return;
+                if (!inTable || tableRows.length === 0) {
+                    if (pendingTableCaption) {
+                        html += pendingTableCaption;
+                        pendingTableCaption = '';
+                    }
+                    inTable = false;
+                    tableRows = [];
+                    return;
+                }
+                const cleanRows = tableRows.filter((cols, idx) => !(idx === 1 && cols.every((c) => /^[:\-\s]+$/.test(c))));
+                if (cleanRows.length === 0) {
+                    inTable = false;
+                    tableRows = [];
+                    return;
+                }
+                const maxCols = Math.max(...cleanRows.map(r => r.length));
+                if (cleanRows[0].length < maxCols) {
+                    while (cleanRows[0].length < maxCols) cleanRows[0].unshift('Kategori');
+                }
+                let tHtml = '<div class="table-wrap"><table class="academic-table">';
+                cleanRows.forEach((rawCols, idx) => {
+                    const cols = [...rawCols];
+                    while (cols.length < maxCols) cols.push('-');
                     const tag = idx === 0 ? 'th' : 'td';
-                    html += '<tr>' + cols.map((c, colIdx) => {
+                    if (idx === 0) tHtml += '<thead>';
+                    if (idx === 1) tHtml += '<tbody>';
+                    tHtml += '<tr>' + cols.slice(0, maxCols).map((c, colIdx) => {
                         const trimmed = c.trim();
-                        const isNum = /^[0-9\.,\s\(\)\%\-\/]+$/.test(trimmed) && trimmed.length < 20;
-                        const align = idx === 0 ? 'center' : (colIdx === 0 && !isNum ? 'left' : (isNum ? 'center' : 'left'));
+                        const isNum = /^[0-9\.,\s\(\)\%\-\/<>]+$/.test(trimmed) && trimmed.length < 22;
+                        const align = idx === 0 ? 'center' : ((colIdx === 0 && /^\d+$/.test(trimmed)) || isNum ? 'center' : 'left');
                         return `<${tag} style="text-align:${align};">${formatInlineMarkdown(c, true)}</${tag}>`;
                     }).join('') + '</tr>';
+                    if (idx === 0) tHtml += '</thead>';
                 });
-                html += '</table></div>';
+                if (cleanRows.length > 1) tHtml += '</tbody>';
+                tHtml += '</table></div>';
+                if (pendingTableCaption) {
+                    html += `<div class="academic-table-container" style="page-break-inside: avoid; margin: 14px 0 18px;">${pendingTableCaption}${tHtml}</div>`;
+                    pendingTableCaption = '';
+                } else {
+                    html += tHtml;
+                }
                 inTable = false;
                 tableRows = [];
             };
@@ -2313,7 +2398,12 @@
                     flushLists();
                     flushTable();
                     if (inCode) {
-                        html += renderAcademicDiagramHtml(codeBuffer.trim());
+                        const diagHtml = renderAcademicDiagramHtml(codeBuffer.trim());
+                        const figCap = pendingFigureCaption
+                            ? `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:center; margin:6px 0 16px; font-size:11pt; color:#000000;">${pendingFigureCaption}</p>`
+                            : '';
+                        pendingFigureCaption = '';
+                        html += `<div style="page-break-inside: avoid;">${diagHtml}${figCap}</div>`;
                         inCode = false;
                         codeBuffer = '';
                     } else {
@@ -2332,14 +2422,21 @@
                     flushTable();
                     return;
                 }
-                if (line.startsWith('|') && line.endsWith('|')) {
+                const isMdTableRow = (line.startsWith('|') && line.endsWith('|')) || ((line.match(/\|/g) || []).length >= 2 && !/^P\(/i.test(line));
+                if (isMdTableRow) {
                     flushLists();
                     inTable = true;
-                    const cells = line.slice(1, -1).split('|').map((c) => c.trim());
+                    const inner = line.replace(/^\|/, '').replace(/\|$/, '');
+                    const cells = inner.split('|').map((c) => c.trim());
                     tableRows.push(cells);
                     return;
                 } else if (inTable) {
                     flushTable();
+                }
+
+                if (pendingFigureCaption && !/^(?:Gambar|Bagan)\s+\d+\.\d+/i.test(line)) {
+                    html += `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:center; margin:12px 0 6px; font-size:11pt; color:#000000;">${pendingFigureCaption}</p>`;
+                    pendingFigureCaption = '';
                 }
 
                 if (isDaftarPustaka) {
@@ -2378,9 +2475,18 @@
                     if (inUl) { html += '</ul>'; inUl = false; }
                     if (!inOl) { html += '<ol>'; inOl = true; }
                     html += `<li>${formatInlineMarkdown(normLine.replace(/^\d+\.\s+/, ''))}</li>`;
-                } else if (/^(?:Tabel|Gambar|Bagan)\s+\d+\.\d+/i.test(normLine)) {
+                } else if (/^Sumber\s*:/i.test(normLine)) {
                     flushLists();
-                    html += `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:left; margin:14px 0 6px; font-size:11pt; color:#0f172a;">${formatInlineMarkdown(normLine)}</p>`;
+                    flushTable();
+                    html += `<p style="text-indent:0; font-style:italic; font-size:10pt; margin:-8px 0 12px; color:#334155;">${formatInlineMarkdown(normLine)}</p>`;
+                } else if (/^Tabel\s+\d+\.\d+/i.test(normLine) && normLine.length <= 130 && !/menunjukkan bahwa|dapat dilihat|memperlihatkan/i.test(normLine)) {
+                    flushLists();
+                    flushTable();
+                    pendingTableCaption = `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:left; margin:12px 0 4px; font-size:11pt; color:#000000;">${formatInlineMarkdown(normLine)}</p>`;
+                } else if (/^(?:Gambar|Bagan)\s+\d+\.\d+/i.test(normLine) && normLine.length <= 130 && !/menunjukkan bahwa|dapat dilihat|memperlihatkan/i.test(normLine)) {
+                    flushLists();
+                    flushTable();
+                    pendingFigureCaption = formatInlineMarkdown(normLine);
                 } else if (isStandaloneFormula(normLine)) {
                     flushLists();
                     html += `<p class="academic-formula" style="text-align:center !important; text-indent:0 !important; font-family:'Times New Roman', serif; font-size:12.5pt; margin:16px 0; padding:4px 8px; font-style:normal; line-height:1.6; color:#0f172a;">${formatInlineMarkdown(normLine)}</p>`;
@@ -2417,187 +2523,169 @@
         function renderAcademicDiagramHtml(rawCode) {
             if (!rawCode || !rawCode.trim()) return '';
             const clean = rawCode.trim();
-            const isFlowchart = clean.includes('-->') || clean.includes('->') || clean.includes('↓') || clean.includes('V') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing/i.test(clean);
-            const isFramework = clean.includes('Permasalahan') || clean.includes('Landasan Teori') || clean.includes('Kerangka') || clean.includes('Fenomena') || clean.includes('Bagan') || clean.includes('Masalah') || /kerangka\s*pemikiran/i.test(clean);
-
-            const projJudul = (typeof projectMeta !== 'undefined' && projectMeta && projectMeta.judul) ? projectMeta.judul.trim() : 'Topik Penelitian';
-
-            if (isFramework) {
-                let nodes = [];
-                // Tangkap kurung siku termasuk multi-line
-                const matches = [...clean.matchAll(/\[([\s\S]*?)\]/g)];
-                if (matches.length >= 3) {
-                    nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
-                }
-                if (nodes.length < 3) {
-                    const rawLines = clean.split(/\n|↓|-->|->/);
-                    for (let l of rawLines) {
-                        let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').replace(/\[|\]/g, '').trim();
-                        if (t.length >= 6 && !/^[+\-=_|~#\s]+$/.test(t) && !/^\+[-+]+\+$/.test(t) && !t.toLowerCase().startsWith('gambar') && !t.toLowerCase().startsWith('bagan')) {
-                            nodes.push(t);
-                        }
-                    }
-                }
-
-                // Fallback dinamis otomatis sesuai judul skripsi mahasiswa, BUKAN teks hardcode Naive Bayes
-                const def1 = 'Kondisi Empiris & Gap Masalah: Kesenjangan nyata di lapangan dan urgensi penelitian terkait ' + projJudul + ' yang membutuhkan kajian ilmiah terstruktur.';
-                const def2 = 'Landasan Teori & Kajian Pustaka: Grand theory, konsep operasional variabel, dan sintesis temuan penelitian terdahulu yang relevan sebagai landasan teoretis.';
-                const def3 = 'Pendekatan Metodologi & Analisis Data: Pengumpulan data empiris melalui instrumen teruji, uji instrumen, dan pengujian hipotesis secara sistematis.';
-                const def4 = 'Hasil & Luaran yang Diharapkan: Pembuktian hipotesis secara empiris, kesimpulan ilmiah yang valid, serta rekomendasi solutif bagi pihak terkait.';
-
-                const tier1 = nodes[0] || def1;
-                const tier2 = nodes[1] || def2;
-                const tier3 = nodes[2] || def3;
-                const tier4 = nodes[3] || def4;
-
-                return `
-                    <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 2.1 Bagan Kerangka Pemikiran Penelitian</p>
-
-                        <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
-                            <!-- TAHAP 1 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">KONDISI EMPIRIS / MASALAH PENELITIAN</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier1)}</div>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column; align-items: center; margin: 3px 0;">
-                                <div style="width: 1.5px; height: 18px; background: #000000;"></div>
-                                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
-                            </div>
-
-                            <!-- TAHAP 2 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">LANDASAN TEORI &amp; SINTESIS RISET TERDAHULU</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier2)}</div>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column; align-items: center; margin: 3px 0;">
-                                <div style="width: 1.5px; height: 18px; background: #000000;"></div>
-                                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
-                            </div>
-
-                            <!-- TAHAP 3 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">PENDEKATAN METODOLOGI &amp; PEMODELAN SISTEM</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier3)}</div>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column; align-items: center; margin: 3px 0;">
-                                <div style="width: 1.5px; height: 18px; background: #000000;"></div>
-                                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
-                            </div>
-
-                            <!-- TAHAP 4 -->
-                            <div style="width: 100%; border: 1.5px solid #000000; background: #ffffff; padding: 12px 16px; text-align: center; box-sizing: border-box;">
-                                <div style="font-weight: 700; font-size: 11pt; text-transform: uppercase; margin-bottom: 4px; color: #000000;">LUARAN HASIL PENELITIAN &amp; SOLUSI PRAKTIS</div>
-                                <div style="font-size: 11pt; line-height: 1.45; text-align: justify; text-indent: 0; color: #000000;">${escapeHtml(tier4)}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            const isFlowchartLike = clean.includes('-->') || clean.includes('->') || clean.includes('↓') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing|kerangka/i.test(clean);
+            if (!isFlowchartLike) {
+                return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
             }
 
-            if (isFlowchart) {
-                // Pra-bersihkan kode dari label meta penjelasan simbol agar tidak diekstrak menjadi node kotak terpisah
-                const sanitizedClean = clean
-                    .replace(/\[\s*(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)[^\]]*\]/gi, '')
-                    .replace(/\[\/\s*|\s*\/\]/g, '');
+            const projJudul = (typeof projectTitle !== 'undefined' && projectTitle) ? projectTitle.trim() : 'Topik Penelitian';
+            const sanitizedClean = clean
+                .replace(/\[\s*(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)[^\]]*\]/gi, '')
+                .replace(/\[\/\s*|\s*\/\]/g, '');
 
-                let nodes = [];
-                const matches = [...sanitizedClean.matchAll(/\[(.*?)\]/g)];
-                if (matches.length >= 3) {
-                    nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim()).filter(t => t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t));
-                }
-                if (nodes.length < 3) {
-                    const rawLines = sanitizedClean.split('\n');
-                    const filtered = [];
-                    for (let l of rawLines) {
-                        let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').trim();
-                        if (t.length >= 3 && !/^[+\-=_|~#\s]+$/.test(t) && !/^\+[-+]+\+$/.test(t) && !t.startsWith('graph') && !t.startsWith('flowchart')) {
-                            filtered.push(t);
-                        }
+            let nodes = [];
+            const matches = [...sanitizedClean.matchAll(/\[([\s\S]*?)\]/g)];
+            if (matches.length >= 2) {
+                nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim())
+                    .filter(t => t.length >= 2 && !/^[+\-=_|~#\s]+$/.test(t));
+            }
+            if (nodes.length < 2) {
+                const rawLines = sanitizedClean.split(/\n|↓|-->|->/);
+                for (let l of rawLines) {
+                    let t = l.replace(/^[-*•\d\.\s\>Vv↓|]+/, '').replace(/[|]+$/, '').replace(/\[|\]/g, '').trim();
+                    if (t.length >= 4 && !/^[+\-=_|~#\s]+$/.test(t) && !/^\+[-+]+\+$/.test(t) && !t.toLowerCase().startsWith('gambar') && !t.toLowerCase().startsWith('bagan')) {
+                        nodes.push(t);
                     }
-                    if (filtered.length >= 3) nodes = filtered;
                 }
+            }
+            nodes = nodes.filter(n => {
+                const lower = n.toLowerCase().trim();
+                if (/^(?:simbol\s+data|data\s*\/\s*input|sub-proses|predefined\s+process|proses\s+sistem|proses|keputusan|decision|terminator)$/i.test(lower)) return false;
+                return lower.length >= 2;
+            });
 
-                // Filter final: buang node yang hanya berisikan nama tipe simbol flowchart
-                nodes = nodes.filter(n => {
-                    const lower = n.toLowerCase().trim();
-                    if (/^(?:simbol\s+data|data\s*\/\s*input|sub-proses|predefined\s+process|proses\s+sistem|proses|keputusan|decision|terminator)$/i.test(lower)) return false;
-                    return lower.length >= 3;
-                });
+            const hasStartEnd = nodes.some(n => /^(mulai|start|selesai|finish|end)$/i.test(n.trim())) || /mulai|flowchart|prosedur/i.test(clean);
+            const isFramework = !hasStartEnd && (/kerangka|bagan|konseptual|pemikiran|kondisi\s*awal|tindakan|permasalahan|landasan\s*teori/i.test(clean) || nodes.length <= 4);
 
-                if (nodes.length < 5) {
+            const arrowHtml = `
+                <div style="display: flex; flex-direction: column; align-items: center; margin: 2px 0;">
+                    <div style="width: 1.5px; height: 16px; background: #000000;"></div>
+                    <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
+                </div>
+            `;
+
+            // A. BAGAN KERANGKA BERPIKIR / KONSEPTUAL (BAB II)
+            if (isFramework) {
+                if (nodes.length < 2) {
                     nodes = [
-                        'Mulai',
-                        'Pengumpulan Dataset Komentar TikTok via Scraping / API',
-                        'Pra-Pemrosesan Teks (Case Folding, Cleaning, Tokenizing, Normalisasi Slang, Stopword Removal, Stemming)',
-                        'Pelabelan Sentimen & Pembobotan Fitur TF-IDF',
-                        'Pembagian Dataset (Data Latih 80% : Data Uji 20%)',
-                        'Pelatihan Model Klasifikasi Menggunakan Algoritma Naive Bayes',
-                        'Evaluasi Kinerja Model: Confusion Matrix (Akurasi, Presisi, Recall, F1)',
-                        'Penyusunan Laporan Hasil & Rekomendasi',
-                        'Selesai'
+                        'Kondisi Empiris: Permasalahan nyata dan kesenjangan fenomena terkait ' + projJudul,
+                        'Landasan Teoretis: Kajian grand theory, dimensi variabel, dan sintesis riset terdahulu',
+                        'Pendekatan Metodologis: Pengumpulan data empiris, uji validitas instrumen, dan analisis data terstruktur',
+                        'Luaran Penelitian: Pembuktian hipotesis ilmiah dan rekomendasi solutif'
                     ];
                 }
-
-                const arrowHtml = `
-                    <div style="display: flex; flex-direction: column; align-items: center; margin: 3px 0;">
-                        <div style="width: 1.5px; height: 18px; background: #000000;"></div>
-                        <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
-                    </div>
-                `;
-
-                let flowContent = '';
-                const decIdx = nodes.findIndex(n => /evaluasi|confusion|akurasi|validasi|memenuhi|uji/i.test(n) && !/mulai|start/i.test(n));
-
+                let frameworkContent = '';
                 nodes.forEach((nodeText, idx) => {
-                    const isFirst = idx === 0 || /mulai|start/i.test(nodeText);
-                    const isLast = idx === nodes.length - 1 || /selesai|finish|end/i.test(nodeText);
-                    const isDecision = idx === decIdx;
-
                     let cleanLabel = nodeText.replace(/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/g, '').trim();
-                    cleanLabel = cleanLabel.replace(/\[\s*(PROSES SISTEM|SIMBOL DATA|SUB-PROSES|EVALUASI|PREDEFINED PROCESS)[^\]]*\]/gi, '').trim();
-                    cleanLabel = cleanLabel.replace(/^(\s*───\s*|\s*—\s*)+|(\s*───\s*|\s*—\s*)+$/g, '').trim();
-
-                    if (isFirst || isLast) {
-                        flowContent += `
-                            <div style="display: inline-block; min-width: 140px; padding: 7px 32px; border: 1.8px solid #000000; border-radius: 999px; background: #f8fafc; font-weight: 700; font-size: 11pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
-                                ${escapeHtml(cleanLabel || (isFirst ? 'MULAI' : 'SELESAI'))}
-                            </div>
-                        `;
-                    } else if (isDecision) {
-                        flowContent += `
-                            <div style="width: 360px; max-width: 92%; padding: 10px 18px; border: 1.8px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: 700; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
-                                ${escapeHtml(cleanLabel)}
-                            </div>
-                        `;
-                    } else {
-                        flowContent += `
-                            <div style="width: 360px; max-width: 92%; padding: 9px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 11pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
-                                ${escapeHtml(cleanLabel)}
-                            </div>
-                        `;
-                    }
-
-                    if (idx < nodes.length - 1) {
-                        flowContent += arrowHtml;
-                    }
+                    frameworkContent += `
+                        <div style="width: 100%; max-width: 520px; border: 1.5px solid #000000; background: #ffffff; padding: 10px 16px; text-align: center; box-sizing: border-box;">
+                            <div style="font-size: 10.5pt; line-height: 1.35; color: #000000;">${escapeHtml(cleanLabel)}</div>
+                        </div>
+                    `;
+                    if (idx < nodes.length - 1) frameworkContent += arrowHtml;
                 });
 
                 return `
-                    <div class="academic-figure-container" style="margin: 20px auto; max-width: 680px; background: transparent; padding: 12px 16px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <p style="font-size: 11pt; font-weight: 700; margin-bottom: 16px; color: #000000; text-indent: 0 !important; text-align: center;">Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian</p>
-
+                    <div class="academic-figure-container" style="margin: 18px auto; max-width: 640px; background: transparent; padding: 8px 12px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
                         <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
-                            ${flowContent}
+                            ${frameworkContent}
                         </div>
                     </div>
                 `;
             }
 
-            return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
+            // B. FLOWCHART PROSEDUR PENELITIAN STANDAR ANSI (BAB III)
+            if (nodes.length < 3) {
+                nodes = [
+                    'Mulai',
+                    'Identifikasi Masalah & Kajian Literatur: ' + projJudul,
+                    'Pengumpulan Data & Instrumen Penelitian',
+                    'Pra-Pemrosesan Data & Uji Instrumen',
+                    'Analisis Data & Pemodelan',
+                    'Evaluasi Kinerja & Pengujian Hipotesis',
+                    'Penyusunan Laporan Hasil & Rekomendasi',
+                    'Selesai'
+                ];
+            }
+
+            const decIdx = nodes.length >= 5
+                ? nodes.findIndex((n, i) => i > 1 && i < nodes.length - 1 && /evaluasi|confusion|akurasi|validasi|memenuhi|uji\s*hipotesis|kelayakan|layak|\?/i.test(n))
+                : -1;
+
+            let flowContent = '';
+            nodes.forEach((nodeText, idx) => {
+                let cleanLabel = nodeText.replace(/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/g, '').trim();
+                cleanLabel = cleanLabel.replace(/\[\s*(PROSES SISTEM|SIMBOL DATA|SUB-PROSES|EVALUASI|PREDEFINED PROCESS)[^\]]*\]/gi, '').trim();
+                cleanLabel = cleanLabel.replace(/^(\s*───\s*|\s*—\s*)+|(\s*───\s*|\s*—\s*)+$/g, '').trim();
+
+                const isFirst = idx === 0 || /^(mulai|start)$/i.test(cleanLabel);
+                const isLast = idx === nodes.length - 1 || /^(selesai|finish|end)$/i.test(cleanLabel);
+                const isDecision = idx === decIdx;
+                const isData = !isFirst && !isLast && !isDecision && /dataset|pengumpulan|input|output|korpus|kuesioner|angket|wawancara|observasi|scraping|crawling|dokumentasi|laporan\s+hasil/i.test(cleanLabel);
+                const isSubProcess = !isFirst && !isLast && !isDecision && !isData && /pra-pemrosesan|preprocessing|sub-proses|ekstraksi\s+fitur|pembobotan|tf-idf|uji\s+coba|uji\s+validitas|uji\s+reliabilitas|uji\s+prasyarat|uji\s+asumsi|triangulasi|perancangan\s+sistem/i.test(cleanLabel);
+
+                if (isFirst || isLast) {
+                    // TERMINATOR: Kapsul Oval
+                    flowContent += `
+                        <div style="display: inline-block; min-width: 150px; padding: 7px 32px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 10.5pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
+                            ${escapeHtml(cleanLabel || (isFirst ? 'MULAI' : 'SELESAI'))}
+                        </div>
+                    `;
+                } else if (isData) {
+                    // DATA / INPUT-OUTPUT: Jajar Genjang (Parallelogram)
+                    flowContent += `
+                        <div style="display: inline-block; width: 360px; max-width: 90%; padding: 8px 22px; border: 1.5px solid #000000; background: #ffffff; transform: skewX(-14deg); box-sizing: border-box;">
+                            <div style="transform: skewX(14deg); font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000;">
+                                ${escapeHtml(cleanLabel)}
+                            </div>
+                        </div>
+                    `;
+                } else if (isSubProcess) {
+                    // PREDEFINED PROCESS / SUB-PROSES: Garis ganda vertikal kiri & kanan
+                    flowContent += `
+                        <div style="width: 360px; max-width: 92%; padding: 8px 22px; border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; border-left: 5px double #000000; border-right: 5px double #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
+                            ${escapeHtml(cleanLabel)}
+                        </div>
+                    `;
+                } else if (isDecision) {
+                    // DECISION: Belah Ketupat SVG asli dengan label Ya / Tidak
+                    flowContent += `
+                        <div style="position: relative; width: 100%; max-width: 500px; margin: 2px auto; display: flex; justify-content: center; align-items: center;">
+                            <div style="position: relative; width: 250px; height: 92px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="250" height="92" viewBox="0 0 250 92" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                    <polygon points="125,2 248,46 125,90 2,46" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+                                </svg>
+                                <div style="position: relative; z-index: 2; font-family: 'Times New Roman', serif; font-size: 9.5pt; text-align: center; line-height: 1.25; padding: 0 34px; color: #000000;">
+                                    ${escapeHtml(cleanLabel)}
+                                </div>
+                            </div>
+                            <div style="position: absolute; right: 24px; top: 34px; font-size: 9.5pt; font-weight: 700; font-family: 'Times New Roman', serif; color: #000000;">Tidak → Ulangi</div>
+                        </div>
+                    `;
+                } else {
+                    // PROSES STANDAR: Persegi Panjang
+                    flowContent += `
+                        <div style="width: 360px; max-width: 92%; padding: 8px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
+                            ${escapeHtml(cleanLabel)}
+                        </div>
+                    `;
+                }
+
+                if (idx < nodes.length - 1) {
+                    if (isDecision) {
+                        flowContent += `<div style="font-size: 9.5pt; font-weight: 700; font-family: 'Times New Roman', serif; color: #000000; line-height: 1;">Ya</div>`;
+                    }
+                    flowContent += arrowHtml;
+                }
+            });
+
+            return `
+                <div class="academic-figure-container" style="margin: 18px auto; max-width: 640px; background: transparent; padding: 8px 12px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
+                    <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
+                        ${flowContent}
+                    </div>
+                </div>
+            `;
         }
 
         function computeDocumentPagination() {
@@ -2752,19 +2840,50 @@
                 { key: 'bab5', num: 'V', title: 'BAB V PENUTUP' }
             ];
 
-            const tocRows = [];
+            const toRoman = (n) => {
+                const map = [['x', 10], ['ix', 9], ['v', 5], ['iv', 4], ['i', 1]];
+                let res = '';
+                let num = n;
+                for (const [r, v] of map) {
+                    while (num >= v) { res += r; num -= v; }
+                }
+                return res;
+            };
 
-            // Bagian Awal Standar Akademik Indonesia (Front Matter)
-            tocRows.push({ title: 'HALAMAN JUDUL', page: '', isMain: true, isSub: false });
-            tocRows.push({ title: 'LEMBAR PENGESAHAN', page: 'i', isMain: true, isSub: false });
-            tocRows.push({ title: 'SURAT PERNYATAAN KEASLIAN', page: 'ii', isMain: true, isSub: false });
-            tocRows.push({ title: 'ABSTRAK (BAHASA INDONESIA)', page: 'iii', isMain: true, isSub: false });
-            tocRows.push({ title: 'ABSTRACT (ENGLISH)', page: 'iv', isMain: true, isSub: false });
-            tocRows.push({ title: 'KATA PENGANTAR', page: 'v', isMain: true, isSub: false });
-            tocRows.push({ title: 'DAFTAR ISI', page: 'vi', isMain: true, isSub: false });
-            tocRows.push({ title: 'DAFTAR TABEL', page: 'vii', isMain: true, isSub: false });
-            tocRows.push({ title: 'DAFTAR GAMBAR', page: 'viii', isMain: true, isSub: false });
-            tocRows.push({ title: 'DAFTAR LAMPIRAN', page: 'ix', isMain: true, isSub: false });
+            const daftarTabelList = extractTablesForDocument();
+            const daftarGambarList = extractFiguresForDocument();
+
+            const tocRows = [];
+            let romanCur = 2;
+            tocRows.push({ title: 'HALAMAN JUDUL', page: 'i', isMain: true, isSub: false });
+            const pgPengesahan = toRoman(romanCur++);
+            tocRows.push({ title: allowBab45 ? 'LEMBAR PENGESAHAN' : 'LEMBAR PERSETUJUAN PROPOSAL', page: pgPengesahan, isMain: true, isSub: false });
+
+            let pgPernyataan = '', pgAbstrak = '', pgAbstract = '';
+            if (allowBab45) {
+                pgPernyataan = toRoman(romanCur++);
+                pgAbstrak = toRoman(romanCur++);
+                pgAbstract = toRoman(romanCur++);
+                tocRows.push({ title: 'SURAT PERNYATAAN KEASLIAN', page: pgPernyataan, isMain: true, isSub: false });
+                tocRows.push({ title: 'ABSTRAK', page: pgAbstrak, isMain: true, isSub: false });
+                tocRows.push({ title: 'ABSTRACT', page: pgAbstract, isMain: true, isSub: false });
+            }
+
+            const pgKataPengantar = toRoman(romanCur++);
+            const pgDaftarIsi = toRoman(romanCur++);
+            tocRows.push({ title: 'KATA PENGANTAR', page: pgKataPengantar, isMain: true, isSub: false });
+            tocRows.push({ title: 'DAFTAR ISI', page: pgDaftarIsi, isMain: true, isSub: false });
+
+            let pgDaftarTabel = '';
+            if (daftarTabelList.length > 0) {
+                pgDaftarTabel = toRoman(romanCur++);
+                tocRows.push({ title: 'DAFTAR TABEL', page: pgDaftarTabel, isMain: true, isSub: false });
+            }
+            let pgDaftarGambar = '';
+            if (daftarGambarList.length > 0) {
+                pgDaftarGambar = toRoman(romanCur++);
+                tocRows.push({ title: 'DAFTAR GAMBAR', page: pgDaftarGambar, isMain: true, isSub: false });
+            }
 
             chaptersDef.forEach((ch) => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
@@ -2812,15 +2931,13 @@
                 return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
             }).join('');
 
-            const daftarTabelList = extractTablesForDocument();
-            const daftarTabelHtml = daftarTabelList.length > 0 
+            const daftarTabelHtml = daftarTabelList.length > 0
                 ? daftarTabelList.map(t => `<div class="toc-row main"><span>${escapeHtml(t.title)}</span><span class="toc-dots"></span><span class="toc-page">${t.page}</span></div>`).join('')
-                : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada tabel dalam naskah penelitian)</div>';
+                : '';
 
-            const daftarGambarList = extractFiguresForDocument();
             const daftarGambarHtml = daftarGambarList.length > 0
                 ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
-                : '<div style="text-align:center; color:#64748b; font-style:italic; padding:20px;">(Tidak ada gambar dalam naskah penelitian)</div>';
+                : '';
 
             const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
               <circle cx="60" cy="60" r="56" stroke="#000000" stroke-width="2.5" fill="#ffffff"/>
@@ -2838,13 +2955,96 @@
                 ? `<img src="${logo}" alt="Logo Kampus" class="cover-logo-img" onerror="this.outerHTML = DEFAULT_ACADEMIC_SEAL_SVG;">`
                 : DEFAULT_ACADEMIC_SEAL_SVG;
 
+            const coverSub = allowBab45
+                ? `Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}`
+                : `Diajukan untuk Memenuhi Persyaratan Seminar Proposal Skripsi pada Program Studi ${escapeHtml(projectProdi)}`;
+            const pengesahanHeading = allowBab45 ? 'LEMBAR PENGESAHAN' : 'LEMBAR PERSETUJUAN PROPOSAL';
+            const pengesahanBody = allowBab45
+                ? `Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian SKRIPSI pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}, dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.`
+                : `Proposal skripsi ini telah diperiksa dan disetujui oleh Dosen Pembimbing untuk diseminarkan pada Seminar Proposal Penelitian Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}.`;
+
+            const skripsiOnlySheets = allowBab45 ? `
+        <!-- SURAT PERNYATAAN KEASLIAN -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
+                <p style="text-indent: 0; margin-top: 24px; font-size: 11.5pt;">Saya yang bertanda tangan di bawah ini:</p>
+                <div style="margin: 14px 0 20px 24px; font-size: 11.5pt; line-height: 1.8;">
+                    <div>Nama Mahasiswa &nbsp;: <strong>${escapeHtml(nama)}</strong></div>
+                    <div>NIM / NPM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(nim || '-')}</div>
+                    <div>Program Studi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(projectProdi)}</div>
+                    <div>Fakultas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(fakultas || '-')}</div>
+                </div>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
+                    Menyatakan dengan sesungguhnya bahwa skripsi berjudul <strong>"${escapeHtml(projectTitle)}"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.
+                </p>
+                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 12px;">
+                    Seluruh ide, kutipan, dan data yang bersumber dari karya pihak lain telah disitasi dan dicantumkan secara bertanggung jawab dalam daftar pustaka. Apabila di kemudian hari ditemukan bukti plagiarisme, saya bersedia menerima sanksi pencabutan gelar akademik dan sanksi hukum sesuai ketentuan yang berlaku.
+                </p>
+
+                <div style="margin-top: 40px; float: right; width: 220px; text-align: center; font-size: 11pt;">
+                    <div>${escapeHtml(kampus)}, ${tahun}</div>
+                    <div style="margin-top: 4px;">Yang membuat pernyataan,</div>
+                    <div style="margin-top: 14px; font-size: 9pt; color: #94a3b8; border: 1px dashed #cbd5e1; padding: 6px; border-radius: 4px; display: inline-block;">Materai Rp 10.000</div>
+                    <div style="height: 48px;"></div>
+                    <div><u><strong>${escapeHtml(nama)}</strong></u></div>
+                    ${nim ? `<div>NIM. ${escapeHtml(nim)}</div>` : ''}
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="sheet-footer">${pgPernyataan}</div>
+        </div>
+
+        <!-- ABSTRAK (BAHASA INDONESIA — 1 SPASI) -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">ABSTRAK</div>
+                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.3; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px;">
+                    Oleh: ${escapeHtml(nama)} (NIM: ${escapeHtml(nim || '-')})<br>
+                    Program Studi ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
+                </div>
+                <p style="text-align: justify; line-height: 1.15; font-size: 11pt; text-indent: 1.27cm;">
+                    Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan memecahkan permasalahan pada topik <em>"${escapeHtml(projectTitle)}"</em>. Menggunakan metode penelitian ${escapeHtml(projectMeta.metode || 'ilmiah terstruktur')}, penelitian ini mengumpulkan dan memproses data empiris lapangan secara sistematis. Hasil pengujian menunjukkan bahwa implementasi metode mampu menjawab rumusan masalah secara komprehensif, memberikan evaluasi kinerja yang valid, serta berkontribusi nyata bagi pengembangan keilmuan pada bidang ${escapeHtml(projectProdi)}.
+                </p>
+                <div style="font-size: 11pt; margin-top: 14px; line-height: 1.15;">
+                    <strong>Kata Kunci:</strong> ${escapeHtml(projectProdi)}, ${escapeHtml(projectMeta.metode || 'Analisis Empiris')}, Evaluasi Kinerja, Skripsi.
+                </div>
+            </div>
+            <div class="sheet-footer">${pgAbstrak}</div>
+        </div>
+
+        <!-- ABSTRACT (ENGLISH — 1 SPASI ITALIC) -->
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                <div class="front-heading">ABSTRACT</div>
+                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.3; font-style: italic; text-transform: uppercase;">
+                    ${escapeHtml(projectTitle)}
+                </div>
+                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px; font-style: italic;">
+                    By: ${escapeHtml(nama)} (Student ID: ${escapeHtml(nim || '-')})<br>
+                    Department of ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
+                </div>
+                <p style="text-align: justify; line-height: 1.15; font-size: 11pt; text-indent: 1.27cm; font-style: italic;">
+                    This research aims to investigate, analyze, and resolve the empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes empirical data. The findings demonstrate that the implemented approach effectively addresses the research questions, yields verifiable evaluation outcomes, and contributes valuable insights to both academic literature and practical applications.
+                </p>
+                <div style="font-size: 11pt; margin-top: 14px; font-style: italic; line-height: 1.15;">
+                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
+                </div>
+            </div>
+            <div class="sheet-footer">${pgAbstract}</div>
+        </div>
+            ` : '';
+
             return `
         <!-- 1. HALAMAN JUDUL (COVER) -->
         <div class="a4-sheet cover-sheet" contenteditable="true" spellcheck="false">
             <div class="cover-top-block">
                 <div class="cover-kind">${docKind}</div>
                 <div class="cover-title">${escapeHtml(projectTitle)}</div>
-                <div class="cover-sub">Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi ${escapeHtml(projectProdi)}</div>
+                <div class="cover-sub">${coverSub}</div>
             </div>
             <div class="cover-logo-box" onclick="document.getElementById('sidebar-logo-upload').click()" title="Klik untuk ganti logo kampus" style="cursor: pointer;">
                 ${logoMarkup}
@@ -2862,10 +3062,10 @@
             </div>
         </div>
 
-        <!-- 2. LEMBAR PENGESAHAN -->
+        <!-- 2. LEMBAR PERSETUJUAN / PENGESAHAN -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
-                <div class="front-heading">LEMBAR PENGESAHAN</div>
+                <div class="front-heading">${pengesahanHeading}</div>
                 <div style="text-align: center; margin: 18px 0; font-weight: 700; font-size: 13pt; line-height: 1.4; text-transform: uppercase;">
                     ${escapeHtml(projectTitle)}
                 </div>
@@ -2873,7 +3073,7 @@
                     Disusun Oleh: <u><strong>${escapeHtml(nama)}</strong></u> ${nim ? `(NIM: ${escapeHtml(nim)})` : ''}
                 </div>
                 <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
-                    Telah diuji dan dipertahankan di hadapan Tim Dewan Penguji Ujian ${docKind} pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}, dan dinyatakan telah memenuhi seluruh persyaratan akademik kelulusan.
+                    ${pengesahanBody}
                 </p>
 
                 <div style="margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: center; font-size: 11pt;">
@@ -2899,154 +3099,59 @@
                     <div style="font-size: 10pt; color: #64748b; margin-top: 2px;">NIP / NIDN.</div>
                 </div>
             </div>
-            <div class="sheet-footer">i</div>
+            <div class="sheet-footer">${pgPengesahan}</div>
         </div>
 
-        <!-- 3. SURAT PERNYATAAN KEASLIAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">SURAT PERNYATAAN KEASLIAN</div>
-                <p style="text-indent: 0; margin-top: 24px; font-size: 11.5pt;">Saya yang bertanda tangan di bawah ini:</p>
-                <div style="margin: 14px 0 20px 24px; font-size: 11.5pt; line-height: 1.8;">
-                    <div>Nama Mahasiswa &nbsp;: <strong>${escapeHtml(nama)}</strong></div>
-                    <div>NIM / NPM &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(nim || '-')}</div>
-                    <div>Program Studi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(projectProdi)}</div>
-                    <div>Fakultas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${escapeHtml(fakultas || '-')}</div>
-                </div>
-                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
-                    Menyatakan dengan sesungguhnya bahwa ${docKind} berjudul <strong>"${escapeHtml(projectTitle)}"</strong> ini adalah murni hasil karya penelitian, pemikiran, dan penulisan mandiri saya sendiri. Karya ini belum pernah diajukan untuk memperoleh gelar akademik di perguruan tinggi mana pun, dan bebas dari unsur plagiarisme atau fabrikasi data.
-                </p>
-                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 12px;">
-                    Seluruh ide, kutipan, dan data yang bersumber dari karya pihak lain telah disitasi dan dicantumkan secara bertanggung jawab dalam daftar pustaka. Apabila di kemudian hari ditemukan bukti plagiarisme, saya bersedia menerima sanksi pencabutan gelar akademik dan sanksi hukum sesuai ketentuan yang berlaku.
-                </p>
+        ${skripsiOnlySheets}
 
-                <div style="margin-top: 40px; float: right; width: 220px; text-align: center; font-size: 11pt;">
-                    <div>${escapeHtml(kampus)}, ${tahun}</div>
-                    <div style="margin-top: 4px;">Yang membuat pernyataan,</div>
-                    <div style="margin-top: 14px; font-size: 9pt; color: #94a3b8; border: 1px dashed #cbd5e1; padding: 6px; border-radius: 4px; display: inline-block;">Materai Rp 10.000</div>
-                    <div style="height: 48px;"></div>
-                    <div><u><strong>${escapeHtml(nama)}</strong></u></div>
-                    ${nim ? `<div>NIM. ${escapeHtml(nim)}</div>` : ''}
-                </div>
-                <div style="clear: both;"></div>
-            </div>
-            <div class="sheet-footer">ii</div>
-        </div>
-
-        <!-- 4. ABSTRAK (BAHASA INDONESIA) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">ABSTRAK</div>
-                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; text-transform: uppercase;">
-                    ${escapeHtml(projectTitle)}
-                </div>
-                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px;">
-                    Oleh: ${escapeHtml(nama)} (NIM: ${escapeHtml(nim || '-')})<br>
-                    Program Studi ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
-                </div>
-                <p style="text-align: justify; line-height: 1.5; font-size: 11pt; text-indent: 1.27cm;">
-                    Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan memecahkan permasalahan pada topik <em>"${escapeHtml(projectTitle)}"</em>. Menggunakan metode penelitian ${escapeHtml(projectMeta.metode || 'kuantitatif dan komputasi')} yang terstruktur, penelitian ini mengumpulkan dan memproses data empiris lapangan secara sistematis. Hasil pengujian menunjukkan bahwa implementasi metode mampu menjawab rumusan masalah secara komprehensif, memberikan akurasi atau tolok ukur terukur, serta berkontribusi nyata bagi pengembangan keilmuan dan kebutuhan praktis pada bidang ${escapeHtml(projectProdi)}.
-                </p>
-                <div style="font-size: 11pt; margin-top: 14px;">
-                    <strong>Kata Kunci:</strong> ${escapeHtml(projectProdi)}, ${escapeHtml(projectMeta.metode || 'Analisis Empiris')}, Evaluasi Kinerja, Standar Skripsi S1.
-                </div>
-            </div>
-            <div class="sheet-footer">iii</div>
-        </div>
-
-        <!-- 5. ABSTRACT (ENGLISH) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">ABSTRACT</div>
-                <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.35; font-style: italic; text-transform: uppercase;">
-                    ${escapeHtml(projectTitle)}
-                </div>
-                <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px; font-style: italic;">
-                    By: ${escapeHtml(nama)} (Student ID: ${escapeHtml(nim || '-')})<br>
-                    Department of ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
-                </div>
-                <p style="text-align: justify; line-height: 1.5; font-size: 11pt; text-indent: 1.27cm; font-style: italic;">
-                    This research aims to investigate, analyze, and resolve the academic and empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes field data. The experimental results demonstrate that the proposed method effectively addresses the research questions, yields verifiable benchmark performance, and delivers valuable empirical contributions to both theoretical frameworks and practical implementations.
-                </p>
-                <div style="font-size: 11pt; margin-top: 14px; font-style: italic;">
-                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
-                </div>
-            </div>
-            <div class="sheet-footer">iv</div>
-        </div>
-
-        <!-- 6. KATA PENGANTAR -->
+        <!-- KATA PENGANTAR -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">KATA PENGANTAR</div>
                 <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 18px;">
-                    Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyelesaikan naskah ${docKind} yang berjudul <strong>"${escapeHtml(projectTitle)}"</strong> dengan baik dan lancar.
+                    Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyusun naskah ${docKind.toLowerCase()} yang berjudul <strong>"${escapeHtml(projectTitle)}"</strong> dengan baik.
                 </p>
                 <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
-                    Penyusunan naskah ini diajukan sebagai salah satu syarat akademik guna menyelesaikan studi Program Sarjana (S1) pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}. Penulis menyadari sepenuhnya bahwa penyusunan naskah ini tidak lepas dari bimbingan, arahan, dan dukungan moril dari berbagai pihak. Oleh karena itu, pada kesempatan ini penulis menyampaikan rasa hormat dan terima kasih yang sebesar-besarnya kepada:
+                    Penyusunan naskah ini diajukan pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}. Penulis menyampaikan rasa hormat dan terima kasih yang sebesar-besarnya kepada pimpinan universitas, dekan, ketua program studi, dosen pembimbing, seluruh staf pengajar, serta keluarga tercinta atas bimbingan dan dukungan yang telah diberikan.
                 </p>
-                <ol style="margin: 12px 0 16px 28px; line-height: 1.7; font-size: 11pt;">
-                    <li>Rektor ${escapeHtml(kampus)} beserta jajaran pimpinan universitas;</li>
-                    <li>Dekan ${fakultas ? escapeHtml(fakultas) : 'Fakultas'} yang telah memberikan fasilitas dan kesempatan belajar;</li>
-                    <li>Ketua Program Studi ${escapeHtml(projectProdi)} yang senantiasa membimbing dan mengarahkan jalannya perkuliahan;</li>
-                    <li>Dosen Pembimbing yang telah meluangkan waktu dan pemikiran dengan penuh kesabaran dalam membimbing penulisan skripsi ini;</li>
-                    <li>Seluruh Dosen dan Staf Pengajar Program Studi ${escapeHtml(projectProdi)};</li>
-                    <li>Kedua orang tua dan keluarga tercinta atas doa yang tiada henti, kasih sayang, dan pengorbanan yang tulus.</li>
-                </ol>
-                <div style="margin-top: 30px; float: right; width: 200px; text-align: center; font-size: 11pt;">
+                <div style="margin-top: 36px; float: right; width: 200px; text-align: center; font-size: 11pt;">
                     <div>${escapeHtml(kampus)}, ${tahun}</div>
                     <div style="height: 44px;"></div>
                     <div><strong>Penulis</strong></div>
                 </div>
                 <div style="clear: both;"></div>
             </div>
-            <div class="sheet-footer">v</div>
+            <div class="sheet-footer">${pgKataPengantar}</div>
         </div>
 
-        <!-- 7. DAFTAR ISI -->
+        <!-- DAFTAR ISI -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR ISI</div>
                 <div class="toc-list">${tocHtml}</div>
             </div>
-            <div class="sheet-footer">vi</div>
+            <div class="sheet-footer">${pgDaftarIsi}</div>
         </div>
 
-        <!-- 8. DAFTAR TABEL -->
+        ${daftarTabelList.length > 0 ? `
+        <!-- DAFTAR TABEL -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR TABEL</div>
-                <div class="toc-list" style="margin-top: 20px;">
-                    ${daftarTabelHtml}
-                </div>
+                <div class="toc-list" style="margin-top: 20px;">${daftarTabelHtml}</div>
             </div>
-            <div class="sheet-footer">vii</div>
-        </div>
+            <div class="sheet-footer">${pgDaftarTabel}</div>
+        </div>` : ''}
 
-        <!-- 9. DAFTAR GAMBAR -->
+        ${daftarGambarList.length > 0 ? `
+        <!-- DAFTAR GAMBAR -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">DAFTAR GAMBAR</div>
-                <div class="toc-list" style="margin-top: 20px;">
-                    ${daftarGambarHtml}
-                </div>
+                <div class="toc-list" style="margin-top: 20px;">${daftarGambarHtml}</div>
             </div>
-            <div class="sheet-footer">viii</div>
-        </div>
-
-        <!-- 10. DAFTAR LAMPIRAN -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">DAFTAR LAMPIRAN</div>
-                <div class="toc-list" style="margin-top: 20px;">
-                    <div class="toc-row main"><span>Lampiran 1 Surat Keputusan &amp; Izin Penelitian Kampus</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage}</span></div>
-                    <div class="toc-row main"><span>Lampiran 2 Sampel Data Mentah &amp; Instrumen Penelitian</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 2}</span></div>
-                    <div class="toc-row main"><span>Lampiran 3 Tabel Lengkap Hasil Uji Statistik &amp; Parameter</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 4}</span></div>
-                    <div class="toc-row main"><span>Lampiran 4 Dokumentasi Pelaksanaan &amp; Log Bimbingan Skripsi</span><span class="toc-dots"></span><span class="toc-page">${pageMap.lampiran.startPage + 6}</span></div>
-                </div>
-            </div>
-            <div class="sheet-footer">ix</div>
-        </div>
+            <div class="sheet-footer">${pgDaftarGambar}</div>
+        </div>` : ''}
     `;
         }
 

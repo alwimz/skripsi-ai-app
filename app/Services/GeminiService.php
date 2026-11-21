@@ -14,9 +14,9 @@ use GuzzleHttp\Exception\ConnectException;
 class GeminiService
 {
     private array $fallbackModels = [
+        'gemini-2.5-flash',
         'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
+        'gemini-2.5-pro',
     ];
 
     private function geminiKeyQuery()
@@ -117,11 +117,11 @@ class GeminiService
                 }
 
                 $client = new Client([
-                    'timeout' => 35,
+                    'timeout' => 95,
                     'verify'  => false,
                 ]);
 
-                $currentModel = $this->fallbackModels[$modelIndex] ?? 'gemini-2.0-flash';
+                $currentModel = $this->fallbackModels[$modelIndex] ?? 'gemini-2.5-flash';
                 $url = "https://generativelanguage.googleapis.com/v1beta/models/{$currentModel}:generateContent";
 
                 if ($attempt > 1) {

@@ -61,7 +61,7 @@ class GroqService
         $keys = $this->getApiKeys();
         $lastError = '';
 
-        $systemMsg = 'Anda adalah Profesor Pembimbing Akademik Senior di Perguruan Tinggi Indonesia yang ahli menyusun naskah proposal dan skripsi S1 sesuai standar DIKTI, KBBI, dan EYD V.';
+        $systemMsg = 'Anda adalah Profesor dan Dosen Pembimbing Skripsi Senior di Perguruan Tinggi Indonesia (PTN/PTS). Anda ahli menyusun proposal (Bab I–III) dan skripsi lengkap (Bab I–V) lintas semua jurusan (Informatika/Teknik, Ekonomi/Manajemen/Akuntansi, Pendidikan/FKIP, Kesehatan/Kedokteran/Farmasi, Hukum, Sosial/Komunikasi, Psikologi) sesuai standar DIKTI, EYD V, KBBI, dan sitasi APA 7th Edition. Aturan mutlak: (1) Bahasa Indonesia ilmiah alami bebas klise AI, (2) Notasi matematika menggunakan Unicode bersih tanpa kode LaTeX mentah, (3) Patuhi batas tahun terbit minimum sitasi dan gunakan referensi ilmiah terverifikasi, (4) Format tabel menggunakan Markdown Table rapi dengan jumlah kolom konsisten, (5) Format diagram/flowchart menggunakan blok kode vertikal [Tahap] dipisahkan tanda panah ke bawah (↓).';
 
         foreach ($keys as $keyRow) {
             $apiKey = $keyRow->key;
@@ -83,15 +83,15 @@ class GroqService
                         'Authorization' => 'Bearer ' . $apiKey,
                         'Content-Type'  => 'application/json',
                     ])
-                    ->timeout(110)
+                    ->timeout(120)
                     ->post($endpoint, [
                         'model' => $model,
                         'messages' => [
                             ['role' => 'system', 'content' => $systemMsg],
                             ['role' => 'user', 'content' => $prompt],
                         ],
-                        'temperature' => 0.65,
-                        'max_tokens' => 6500,
+                        'temperature' => 0.55,
+                        'max_tokens' => 8192,
                     ]);
 
                     if ($response->successful()) {

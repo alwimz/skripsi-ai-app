@@ -88,37 +88,28 @@ class AIManagerService
      */
     public function generateText(string $prompt, string $model = 'auto'): string
     {
-        $hasGemini = !empty(config('services.gemini.key')) || !empty(env('GEMINI_API_KEY'));
-        if (!$hasGemini) {
+        if ($model === 'gemini') {
             try {
-                $hasGemini = \Illuminate\Support\Facades\DB::table('api_keys')->where('is_active', true)->where(function($q) {
-                    $q->where('key', 'like', 'AIza%')->orWhere('key', 'like', 'AQ.%');
-                })->exists();
-            } catch (\Throwable $e) {}
-        }
-
-        if (!$hasGemini || $model === 'deepseek' || $model === 'groq') {
-            try {
-                return $this->groq->generateText($prompt);
-            } catch (Exception $dsEx) {
-                Log::warning('DeepSeek gagal, mencoba Gemini & Backup AI: ' . $dsEx->getMessage());
+                return $this->gemini->generateText($prompt);
+            } catch (Exception $geminiEx) {
+                Log::warning('Gemini gagal, mencoba fallback ke DeepSeek: ' . $geminiEx->getMessage());
                 try {
-                    return $this->gemini->generateText($prompt);
-                } catch (Exception $geminiEx) {
+                    return $this->groq->generateText($prompt);
+                } catch (Exception $dsEx) {
                     return $this->generateFreeFallback($prompt);
                 }
             }
         }
 
-        // Default ('auto' atau 'gemini'): Prioritas Gemini -> Fallback DeepSeek -> Fallback Free AI
+        // Default ('auto', 'deepseek', 'groq'): Prioritas DeepSeek -> Fallback Gemini -> Fallback Free AI
         try {
-            return $this->gemini->generateText($prompt);
-        } catch (Exception $geminiEx) {
-            Log::warning('Gemini gagal, mencoba fallback ke DeepSeek: ' . $geminiEx->getMessage());
+            return $this->groq->generateText($prompt);
+        } catch (Exception $dsEx) {
+            Log::warning('DeepSeek gagal, mencoba Gemini & Backup AI: ' . $dsEx->getMessage());
             try {
-                return $this->groq->generateText($prompt);
-            } catch (Exception $dsEx) {
-                Log::warning('DeepSeek juga gagal, menggunakan Free AI Fallback: ' . $dsEx->getMessage());
+                return $this->gemini->generateText($prompt);
+            } catch (Exception $geminiEx) {
+                Log::warning('Gemini juga gagal, menggunakan Free AI Fallback: ' . $geminiEx->getMessage());
                 return $this->generateFreeFallback($prompt);
             }
         }
