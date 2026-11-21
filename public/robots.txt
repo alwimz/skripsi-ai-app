@@ -1,11 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /tools
 Allow: /login
 Allow: /register
 Allow: /sample/download/
 Disallow: /app/
 Disallow: /project/
-Disallow: /tools/
+Disallow: /tools/convert/
 Disallow: /chat/
 Disallow: /api-key/
 Disallow: /reward/

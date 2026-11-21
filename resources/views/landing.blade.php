@@ -1594,6 +1594,7 @@
                 </li>
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
+                <li><a href="{{ route('tools.hub') }}" class="nav-link">Tools</a></li>
                 <li><a href="#fitur-lengkap" class="nav-link">Semua Modul</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
@@ -1625,6 +1626,8 @@
                 A4 <span>→</span></a>
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp;
                 Skripsi <span>→</span></a>
+            <a href="{{ route('tools.hub') }}" class="mobile-nav-link" onclick="closeLandingMobileNav()">Tools Mahasiswa
+                (PDF ⇄ Word, dll.) <span>→</span></a>
             <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab
                 AI
                 <span>→</span></a>

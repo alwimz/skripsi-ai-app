@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StudentToolsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,7 @@ Route::get('/sitemap.xml', function () {
     $today = now()->toDateString();
     $urls = [
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
+        ['loc' => $baseUrl . '/tools', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/register', 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/login', 'priority' => '0.7', 'changefreq' => 'monthly'],
     ];
@@ -45,6 +47,12 @@ Route::get('/sitemap.xml', function () {
 })->name('sitemap');
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
 Route::get('/galeri/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
+
+// 1B. HUB TOOLS MAHASISWA PUBLIK (PDF <-> WORD, GABUNG/PISAH PDF, SLOVIN, HITUNG KATA)
+Route::get('/tools', [StudentToolsController::class, 'index'])->name('tools.hub');
+Route::post('/tools/convert/docx-to-pdf', [StudentToolsController::class, 'docxToPdf'])->name('tools.convert.docxToPdf');
+Route::post('/tools/convert/pdf-to-docx', [StudentToolsController::class, 'pdfToDocx'])->name('tools.convert.pdfToDocx');
+Route::post('/tools/convert/extract-docx-text', [StudentToolsController::class, 'extractDocxText'])->name('tools.extract.docxText');
 
 // 2. AUTHENTICATION (Login, Register, Logout)
 Route::middleware('guest')->group(function () {
