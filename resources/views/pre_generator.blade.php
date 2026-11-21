@@ -1878,8 +1878,74 @@
             .form-input,
             .form-select,
             .form-textarea {
-                font-size: 16px;
-                min-height: 46px;
+                font-size: 13px !important;
+                min-height: 38px !important;
+                padding: 8px 11px !important;
+                border-radius: 9px !important;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            input[type="file"].form-input {
+                font-size: 12px !important;
+                padding: 7px 9px !important;
+            }
+
+            .form-textarea {
+                min-height: 80px !important;
+            }
+
+            .form-label {
+                font-size: 12px !important;
+                margin-bottom: 5px !important;
+            }
+
+            .form-group,
+            .form-row {
+                margin-bottom: 12px !important;
+                gap: 10px !important;
+            }
+
+            .responsive-grid-2,
+            .responsive-grid-3,
+            .responsive-grid-title-logo {
+                gap: 10px !important;
+            }
+
+            .page-subtitle {
+                font-size: 13px !important;
+                margin-bottom: 18px !important;
+            }
+
+            .btn-primary {
+                min-height: 38px;
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .btn-outline {
+                min-height: 34px;
+                padding: 6px 11px;
+                font-size: 12.5px;
+            }
+
+            #label-target-proposal,
+            #label-target-full {
+                padding: 11px 12px !important;
+                gap: 8px !important;
+                flex-wrap: wrap !important;
+            }
+
+            #title-target-proposal,
+            #title-target-full {
+                font-size: 13px !important;
+            }
+
+            #badge-target-proposal,
+            #badge-target-full {
+                font-size: 10.5px !important;
+                padding: 2px 8px !important;
+                white-space: nowrap !important;
             }
 
             .topbar {
@@ -1924,11 +1990,15 @@
             }
 
             .breadcrumb-current {
-                max-width: 120px;
+                max-width: 100%;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 font-weight: 700;
+            }
+
+            .page-content {
+                padding: 18px 12px 64px;
             }
 
             .page-title {
@@ -1936,7 +2006,30 @@
             }
 
             .card {
-                padding: 16px;
+                padding: 15px 14px;
+                border-radius: 14px;
+            }
+
+            .ppt-identity-box {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .ppt-slide-count-head {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 6px !important;
+            }
+
+            .ppt-slide-count-controls {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+
+            #ppt-select-slide-count {
+                width: 100% !important;
             }
 
             .card-header-bar {
@@ -2011,20 +2104,28 @@
                 white-space: nowrap;
             }
 
-            /* Interactive PPT Studio 16:9 Canvas di Layar Lebar & HP */
+            /* Interactive PPT Studio Canvas di HP — Anti-Terpotong & Tetap Rapi */
             .ppt-canvas,
             #fs-slide-canvas {
                 width: 100% !important;
-                aspect-ratio: 16 / 9 !important;
-                min-height: auto !important;
+                aspect-ratio: auto !important;
+                min-height: 240px !important;
                 height: auto !important;
                 max-height: none !important;
-                padding: 10px 14px !important;
+                padding: 18px 14px 16px !important;
                 box-sizing: border-box !important;
                 overflow: hidden !important;
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: space-between !important;
+                justify-content: flex-start !important;
+                gap: 8px !important;
+            }
+
+            .ppt-canvas > div,
+            #fs-slide-canvas > div {
+                height: auto !important;
+                justify-content: flex-start !important;
+                gap: 6px !important;
             }
 
             .ppt-theme-royal_academic {
@@ -2032,14 +2133,14 @@
             }
 
             .ppt-theme-royal_academic::before {
-                width: 6px !important;
+                width: 7px !important;
             }
 
             #slide-campus-badge,
             #fs-slide-campus-badge {
-                font-size: 8.5px !important;
-                padding: 2px 7px !important;
-                margin-bottom: 2px !important;
+                font-size: 9px !important;
+                padding: 3px 8px !important;
+                margin-bottom: 0 !important;
             }
 
             #slide-campus-badge img,
@@ -2050,43 +2151,51 @@
 
             #slide-section-label,
             #fs-slide-section {
-                font-size: 8px !important;
-                padding: 2px 6px !important;
+                font-size: 9px !important;
+                padding: 3px 8px !important;
             }
 
             #slide-counter-label,
             #fs-slide-num-tag {
-                font-size: 9px !important;
+                font-size: 10px !important;
             }
 
-            /* Slide 1 Cover Autoscaling */
+            /* Slide 1 Cover di HP — Lengkap Tanpa Terpotong */
             .ppt-cover-title-text {
-                font-size: clamp(9.5px, 2.7vw, 13px) !important;
-                line-height: 1.2 !important;
-                margin-bottom: 2px !important;
+                font-size: 13.5px !important;
+                line-height: 1.3 !important;
+                max-width: 100% !important;
+                margin: 4px auto 0 !important;
             }
 
             .ppt-cover-title-text.ppt-title-long {
-                font-size: clamp(8.5px, 2.4vw, 11.5px) !important;
-                line-height: 1.18 !important;
+                font-size: 12.5px !important;
+                line-height: 1.28 !important;
+            }
+
+            .ppt-cover-divider {
+                width: 52px !important;
+                height: 2.5px !important;
+                margin: 6px auto 4px !important;
             }
 
             .ppt-cover-oleh-box {
-                margin-top: 3px !important;
-                line-height: 1.15 !important;
+                padding: 6px 14px !important;
+                margin: 4px auto 6px !important;
+                line-height: 1.25 !important;
             }
 
             .ppt-cover-oleh-tag {
-                font-size: 8px !important;
+                font-size: 8.5px !important;
             }
 
             .ppt-cover-author-name {
-                font-size: 10px !important;
-                margin-top: 1px !important;
+                font-size: 11.5px !important;
+                margin-top: 2px !important;
             }
 
             .ppt-cover-nim {
-                font-size: 8.5px !important;
+                font-size: 9.5px !important;
                 margin-top: 1px !important;
             }
 
@@ -2100,50 +2209,61 @@
             .ppt-pembimbing-grid {
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                gap: 6px !important;
+                width: 100% !important;
+                gap: 8px !important;
             }
 
             .ppt-pembimbing-card {
-                padding: 4px 6px !important;
-                border-radius: 6px !important;
+                padding: 7px 9px !important;
+                border-radius: 8px !important;
             }
 
             .ppt-pembimbing-label {
-                font-size: 8px !important;
-                margin-bottom: 1px !important;
+                font-size: 8.5px !important;
+                margin-bottom: 3px !important;
             }
 
             .ppt-pembimbing-name {
-                font-size: 9px !important;
-                line-height: 1.15 !important;
+                font-size: 10px !important;
+                line-height: 1.3 !important;
             }
 
-            /* Slides 2-9 Autoscaling */
+            .ppt-cover-footer-inst {
+                font-size: 9.5px !important;
+                margin-top: 8px !important;
+                padding-top: 6px !important;
+            }
+
+            /* Slides 2-12 di HP — Kartu Poin Rapi & Mudah Dibaca */
             #slide-title-edit,
             #fs-slide-title {
-                font-size: clamp(10.5px, 2.9vw, 15px) !important;
-                line-height: 1.2 !important;
-                margin-bottom: 3px !important;
+                font-size: 15px !important;
+                line-height: 1.28 !important;
+                margin-bottom: 4px !important;
             }
 
             #slide-subtitle-edit,
             #fs-slide-subtitle {
-                font-size: clamp(8.5px, 2.2vw, 10.5px) !important;
-                margin-bottom: 3px !important;
+                font-size: 11.5px !important;
+                line-height: 1.38 !important;
+                margin-bottom: 8px !important;
             }
 
-            #slide-bullets-edit,
-            #fs-slide-bullets {
-                font-size: clamp(8px, 2.1vw, 10px) !important;
-                line-height: 1.3 !important;
-                gap: 2px !important;
-                padding-left: 14px !important;
+            .ppt-canvas #slide-bullets-edit,
+            .ppt-canvas #fs-slide-bullets,
+            .ppt-canvas #slide-bullets-edit.ppt-bullets-two-col,
+            .ppt-canvas #fs-slide-bullets.ppt-bullets-two-col {
+                grid-template-columns: 1fr !important;
+                gap: 6px !important;
+                padding-left: 0 !important;
             }
 
-            #slide-bullets-edit li,
-            #fs-slide-bullets li {
-                margin: 0 !important;
-                padding: 1px 0 !important;
+            .ppt-canvas #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
+            .ppt-canvas #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
+                font-size: 11.5px !important;
+                line-height: 1.42 !important;
+                padding: 7px 10px !important;
+                border-radius: 8px !important;
             }
 
             #ppt-slideshow-modal {
@@ -2907,8 +3027,15 @@
                             <div class="responsive-grid-title-logo"
                                 style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <label class="form-label">Judul Proposal / Skripsi <span
-                                            class="req">*</span></label>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                        <label for="input-project-judul" class="form-label" style="margin-bottom: 0;">Judul Proposal / Skripsi <span
+                                                class="req">*</span></label>
+                                        <button type="button" onclick="openTab('titles', 'Cari Judul')"
+                                            style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                            <span>Belum punya judul? Cari Judul AI →</span>
+                                        </button>
+                                    </div>
                                     <textarea name="judul" id="input-project-judul" class="form-textarea"
                                         style="min-height: 92px;"
                                         placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)"
@@ -3272,8 +3399,20 @@
                     </button>
                 </div>
 
-                <!-- STEP 1: Pilih Skripsi atau Upload File -->
+                <!-- STEP 1: PPT Saya + Pilih Skripsi atau Upload File -->
                 <div id="ppt-view-step-1">
+                    <!-- PPT Saya (Tersimpan Otomatis — Bisa Dilihat, Diedit & Diunduh Ulang Kapan Saja) -->
+                    <div class="card-flush" id="saved-ppts-card" style="margin-bottom: 18px;">
+                        <div class="card-header-bar">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>PPT Saya</span>
+                                <span class="count-badge" id="saved-ppts-count">0</span>
+                            </div>
+                            <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);">Tersimpan otomatis setelah generate</span>
+                        </div>
+                        <div id="saved-ppts-list"></div>
+                    </div>
+
                     <div class="card-flush" style="margin-bottom: 18px;">
                         <div class="card-header-bar">
                             <div>Pilih dari Proyek Saya <span class="count-badge">{{ $history->count() }}</span></div>
@@ -3328,7 +3467,7 @@
                         </div>
 
                         <!-- Form Identitas Mahasiswa, Pembimbing, dan Penguji untuk Slide Cover Sidang -->
-                        <div
+                        <div class="ppt-identity-box"
                             style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
                             <div
                                 style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
@@ -3414,24 +3553,24 @@
 
                             <!-- Pilihan Jumlah Slide Sidang (6 - 12 Slide) -->
                             <div style="margin-top: 14px; background: #ffffff; padding: 14px 16px; border: 1.5px solid #bfdbfe; border-radius: 12px; box-shadow: 0 1px 3px rgba(37,99,235,0.06);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <label for="ppt-input-slide-count" style="font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                                <div class="ppt-slide-count-head" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                    <label for="ppt-input-slide-count" style="font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 7px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink: 0;">
                                             <rect x="2" y="3" width="20" height="14" rx="2" />
                                             <line x1="8" y1="21" x2="16" y2="21" />
                                             <line x1="12" y1="17" x2="12" y2="21" />
                                         </svg>
-                                        Jumlah Slide Presentasi Sidang
+                                        <span>Jumlah Slide Presentasi Sidang</span>
                                     </label>
-                                    <span id="ppt-slide-count-badge" style="font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">
-                                        8 Slide (Ringkas & Padat)
+                                    <span id="ppt-slide-count-badge" style="font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; display: inline-flex; align-items: center;">
+                                        8 Slide (Ringkas &amp; Padat)
                                     </span>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="ppt-slide-count-controls" style="display: flex; align-items: center; gap: 12px;">
                                     <input type="range" id="ppt-input-slide-count" min="6" max="12" value="8" step="1"
-                                        style="flex: 1; accent-color: var(--primary); cursor: pointer;"
+                                        style="flex: 1; width: 100%; accent-color: var(--primary); cursor: pointer;"
                                         oninput="updateSlideCountUI(this.value)">
-                                    <select id="ppt-select-slide-count" class="form-select" style="width: 135px; font-size: 12.5px; font-weight: 600;"
+                                    <select id="ppt-select-slide-count" class="form-select" style="width: 135px; font-size: 13px; font-weight: 600;"
                                         onchange="updateSlideCountUI(this.value)">
                                         <option value="6">6 Slide</option>
                                         <option value="7">7 Slide</option>
@@ -3471,14 +3610,13 @@
                 <div id="ppt-view-step-3" style="display: none;">
                     <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
                     <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
-                        <div
-                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div>
-                                <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain
-                                    Template Slide</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Tersedia tema Basic klasik
-                                    maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</span>
+                                    <span id="ppt-autosave-status" style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 9px; border-radius: 999px; white-space: nowrap;">✓ Tersimpan di PPT Saya</span>
                                 </div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Tersedia tema Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.</div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah
@@ -3490,7 +3628,7 @@
                                 </button>
                                 <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 13px;"
                                     onclick="openPptGridPreviewStep()">
-                                    Preview Semua & Unduh (.pptx) →
+                                    Preview Semua &amp; Unduh (.pptx) →
                                 </button>
                             </div>
                         </div>
@@ -5597,14 +5735,25 @@
                         penguji_1: u1El ? u1El.value.trim() : '',
                         penguji_2: u2El ? u2El.value.trim() : '',
                     };
+                    if (data.saved_ppt && data.saved_ppt.id) {
+                        activeSavedPptId = data.saved_ppt.id;
+                        upsertSavedPptLocal(data.saved_ppt);
+                    } else {
+                        activeSavedPptId = null;
+                        scheduleAutoSavePptDeck(true);
+                    }
                     currentSlideIdx = 0;
                     renderCurrentSlide();
                     setPptStep(3);
                 } else {
                     applyClientFallbackPptSlides();
+                    activeSavedPptId = null;
+                    scheduleAutoSavePptDeck(true);
                 }
             } catch (e) {
                 applyClientFallbackPptSlides();
+                activeSavedPptId = null;
+                scheduleAutoSavePptDeck(true);
             } finally {
                 hideLoadingCard('ppt-loading-box');
                 btn.disabled = false;
@@ -5859,6 +6008,7 @@
                 if (bullets.length) s.bullets = bullets;
             }
             s.speaker_notes = document.getElementById('slide-notes-edit').value;
+            scheduleAutoSavePptDeck();
         }
 
         function prevSlide() {
@@ -5889,6 +6039,7 @@
             });
             currentSlideIdx = pptSlides.length - 1;
             renderCurrentSlide();
+            scheduleAutoSavePptDeck();
         }
 
         function setPptTheme(theme, btn) {
@@ -5904,7 +6055,206 @@
             if (gridView && gridView.style.display === 'block') {
                 renderPptGridPreview();
             }
+            scheduleAutoSavePptDeck();
         }
+
+        // =========================================================================
+        // PPT SAYA (RIWAYAT PPT TERSIMPAN — BISA DILIHAT, DIEDIT & DIUNDUH ULANG)
+        // =========================================================================
+        const PPT_LOCAL_STORAGE_KEY = 'skripsilab_saved_ppts_{{ $user->id }}';
+        const PPT_THEME_LABELS = {
+            royal_academic: 'Royal Blue',
+            sidang_crimson: 'Sidang Crimson',
+            canva_editorial: 'Cream Editorial',
+            emerald_executive: 'Emerald Botanical',
+            swiss_minimal: 'Swiss Minimal',
+            basic_navy: 'Basic Navy',
+            basic_white: 'Basic Putih',
+            maroon_prestige: 'Maroon Prestige',
+            tech_dark: 'Dark Tech',
+            pastel_lavender: 'Lavender',
+            nordic_teal: 'Nordic Teal',
+            warm_terracotta: 'Terracotta',
+            classic_gold: 'Oxford Navy Gold'
+        };
+        let savedPptDecks = @json($savedPpts ?? []);
+        let activeSavedPptId = null;
+        let pptAutoSaveTimer = null;
+
+        (function hydrateSavedPptsFromLocal() {
+            try {
+                const raw = localStorage.getItem(PPT_LOCAL_STORAGE_KEY);
+                const localList = raw ? JSON.parse(raw) : [];
+                if (Array.isArray(localList) && localList.length) {
+                    const existingIds = new Set(savedPptDecks.map(d => String(d.id)));
+                    localList.forEach(item => {
+                        if (item && item.slides_data && item.slides_data.length && !existingIds.has(String(item.id))) {
+                            savedPptDecks.push(item);
+                        }
+                    });
+                }
+            } catch (e) {}
+        })();
+
+        function persistSavedPptsToLocal() {
+            try {
+                const compact = savedPptDecks.slice(0, 15).map(d => ({
+                    id: d.id,
+                    project_id: d.project_id || null,
+                    title: d.title,
+                    theme: d.theme || 'royal_academic',
+                    slide_count: (d.slides_data || []).length || d.slide_count || 8,
+                    slides_data: d.slides_data || [],
+                    cover_meta: Object.assign({}, d.cover_meta || {}, { logo_base64: '' }),
+                    updated_at_human: d.updated_at_human || 'baru saja'
+                }));
+                localStorage.setItem(PPT_LOCAL_STORAGE_KEY, JSON.stringify(compact));
+            } catch (e) {}
+        }
+
+        function upsertSavedPptLocal(deck) {
+            if (!deck || !deck.slides_data || !deck.slides_data.length) return;
+            const idx = savedPptDecks.findIndex(d => String(d.id) === String(deck.id));
+            if (idx >= 0) {
+                savedPptDecks.splice(idx, 1);
+            }
+            savedPptDecks.unshift(deck);
+            persistSavedPptsToLocal();
+            renderSavedPptsList();
+        }
+
+        function renderSavedPptsList() {
+            const listEl = document.getElementById('saved-ppts-list');
+            const countEl = document.getElementById('saved-ppts-count');
+            if (!listEl) return;
+            if (countEl) countEl.textContent = String(savedPptDecks.length);
+
+            if (!savedPptDecks.length) {
+                listEl.innerHTML = `<div style="padding: 18px 20px; font-size: 13px; color: var(--text-muted); text-align: center;">Belum ada PPT tersimpan. Pilih proyek skripsimu atau unggah file di bawah untuk membuat PPT Sidang pertamamu — hasilnya akan otomatis tersimpan di sini.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = savedPptDecks.map((deck, idx) => {
+                const themeName = PPT_THEME_LABELS[deck.theme] || 'Royal Blue';
+                const slideCnt = (deck.slides_data || []).length || deck.slide_count || 8;
+                const timeLabel = deck.updated_at_human || 'Tersimpan';
+                return `
+                    <div class="project-row" style="cursor: default; gap: 12px;">
+                        <div class="project-row-left" style="cursor: pointer;" onclick="openSavedPptDeck(${idx}, false)">
+                            <div style="min-width: 0; width: 100%;">
+                                <div class="project-row-title">${escapeHtml(deck.title || 'Presentasi Sidang Skripsi')}</div>
+                                <div class="project-row-meta">
+                                    <span style="color: var(--primary); font-weight: 600;">${slideCnt} Slide</span>
+                                    · Tema ${escapeHtml(themeName)}
+                                    · ${escapeHtml(timeLabel)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-row-action" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn-outline" style="padding: 6px 11px; min-height: 32px; font-size: 12px;" onclick="openSavedPptDeck(${idx}, false)">Lihat &amp; Edit</button>
+                            <button type="button" class="btn-primary" style="padding: 6px 11px; min-height: 32px; font-size: 12px;" onclick="openSavedPptDeck(${idx}, true)">Unduh .pptx</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 9px; min-height: 32px; font-size: 12px; color: #dc2626; border-color: #fecaca;" onclick="deleteSavedPptDeck(${idx})" title="Hapus PPT">Hapus</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openSavedPptDeck(idx, autoDownload) {
+            const deck = savedPptDecks[idx];
+            if (!deck || !Array.isArray(deck.slides_data) || !deck.slides_data.length) return;
+            activeSavedPptId = typeof deck.id === 'number' ? deck.id : null;
+            selectedPptProject = {
+                id: deck.project_id || null,
+                title: deck.title || 'Presentasi Sidang Skripsi',
+                prodi: (deck.cover_meta && deck.cover_meta.prodi) || ''
+            };
+            pptSlides = JSON.parse(JSON.stringify(deck.slides_data));
+            pptCoverMeta = Object.assign({}, deck.cover_meta || {});
+            uploadedPptLogoBase64 = pptCoverMeta.logo_base64 || '';
+            currentSlideIdx = 0;
+
+            const chosenTheme = deck.theme || 'royal_academic';
+            const chipBtn = document.querySelector(`.theme-chip[onclick*="'${chosenTheme}'"]`);
+            currentPptTheme = chosenTheme;
+            renderCurrentSlide();
+            setPptTheme(chosenTheme, chipBtn);
+            setPptStep(3);
+
+            if (autoDownload) {
+                setTimeout(() => downloadPptxFile(), 120);
+            }
+        }
+
+        async function deleteSavedPptDeck(idx) {
+            const deck = savedPptDecks[idx];
+            if (!deck) return;
+            if (!confirm('Hapus PPT sidang ini dari daftar PPT Saya?')) return;
+            savedPptDecks.splice(idx, 1);
+            if (String(activeSavedPptId) === String(deck.id)) activeSavedPptId = null;
+            persistSavedPptsToLocal();
+            renderSavedPptsList();
+            if (typeof deck.id === 'number') {
+                try {
+                    await fetch(`/tools/ppt/${deck.id}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': csrfToken }
+                    });
+                } catch (e) {}
+            }
+        }
+
+        function scheduleAutoSavePptDeck(immediate) {
+            if (!Array.isArray(pptSlides) || !pptSlides.length) return;
+            const statusEl = document.getElementById('ppt-autosave-status');
+            if (statusEl) statusEl.textContent = 'Menyimpan ke PPT Saya...';
+            clearTimeout(pptAutoSaveTimer);
+            pptAutoSaveTimer = setTimeout(async () => {
+                const safeMeta = Object.assign({}, pptCoverMeta || {});
+                if (safeMeta.logo_base64) {
+                    safeMeta.logo_base64 = String(safeMeta.logo_base64).replace(/^data:image\/[^;]+;base64,/i, '');
+                }
+                const title = (selectedPptProject && selectedPptProject.title) || (pptSlides[0] && pptSlides[0].title) || 'Presentasi Sidang Skripsi';
+                try {
+                    const res = await fetch("{{ route('tools.ppt.save') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({
+                            id: activeSavedPptId,
+                            project_id: selectedPptProject ? selectedPptProject.id : null,
+                            title: title,
+                            theme: currentPptTheme || 'royal_academic',
+                            slides_data: pptSlides,
+                            cover_meta: safeMeta
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.status === 'success' && data.saved_ppt) {
+                        activeSavedPptId = data.saved_ppt.id;
+                        upsertSavedPptLocal(data.saved_ppt);
+                        if (statusEl) statusEl.textContent = '✓ Tersimpan di PPT Saya';
+                        return;
+                    }
+                } catch (e) {}
+                // Fallback simpan lokal
+                const localId = activeSavedPptId || ('local_' + Date.now());
+                upsertSavedPptLocal({
+                    id: localId,
+                    project_id: selectedPptProject ? selectedPptProject.id : null,
+                    title: title,
+                    theme: currentPptTheme || 'royal_academic',
+                    slide_count: pptSlides.length,
+                    slides_data: JSON.parse(JSON.stringify(pptSlides)),
+                    cover_meta: Object.assign({}, pptCoverMeta || {}),
+                    updated_at_human: 'baru saja'
+                });
+                if (statusEl) statusEl.textContent = '✓ Tersimpan di PPT Saya';
+            }, immediate ? 80 : 650);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSavedPptsList();
+        });
 
         function openPptGridPreviewStep() {
             syncCurrentSlideEdit();

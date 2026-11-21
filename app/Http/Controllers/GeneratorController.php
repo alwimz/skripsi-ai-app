@@ -1537,7 +1537,157 @@ class GeneratorController extends Controller
             $apiKeys = collect([]);
         }
 
-        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity'));
+        $savedPpts = $this->getSavedPptsForUser($user->id);
+
+        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts'));
+    }
+
+    private function ensureSavedPptsTable(): bool
+    {
+        try {
+            if (!Schema::hasTable('saved_ppts')) {
+                Schema::create('saved_ppts', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->unsignedBigInteger('user_id')->index();
+                    $table->unsignedBigInteger('project_id')->nullable()->index();
+                    $table->string('title', 500);
+                    $table->string('theme', 64)->default('royal_academic');
+                    $table->unsignedSmallInteger('slide_count')->default(8);
+                    $table->longText('slides_json');
+                    $table->longText('cover_meta_json')->nullable();
+                    $table->timestamps();
+                });
+            }
+            return true;
+        } catch (Throwable $e) {
+            Log::warning('ensureSavedPptsTable notice: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function getSavedPptsForUser(int $userId): array
+    {
+        if (!$this->ensureSavedPptsTable()) {
+            return [];
+        }
+        try {
+            $rows = DB::table('saved_ppts')
+                ->where('user_id', $userId)
+                ->orderBy('updated_at', 'desc')
+                ->limit(30)
+                ->get();
+
+            $list = [];
+            foreach ($rows as $row) {
+                $slides = json_decode((string) $row->slides_json, true);
+                if (!is_array($slides) || empty($slides)) {
+                    continue;
+                }
+                $coverMeta = json_decode((string) ($row->cover_meta_json ?? '{}'), true) ?: [];
+                $list[] = [
+                    'id' => (int) $row->id,
+                    'project_id' => $row->project_id ? (int) $row->project_id : null,
+                    'title' => (string) $row->title,
+                    'theme' => (string) ($row->theme ?: 'royal_academic'),
+                    'slide_count' => count($slides),
+                    'slides_data' => $slides,
+                    'cover_meta' => $coverMeta,
+                    'updated_at' => (string) $row->updated_at,
+                    'updated_at_human' => \Carbon\Carbon::parse($row->updated_at)->diffForHumans(),
+                ];
+            }
+            return $list;
+        } catch (Throwable $e) {
+            Log::warning('getSavedPptsForUser notice: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    private function persistSavedPptRecord(int $userId, ?int $projectId, string $title, array $slides, array $coverMeta, string $theme = 'royal_academic', ?int $deckId = null): ?array
+    {
+        if (!$this->ensureSavedPptsTable()) {
+            return null;
+        }
+        try {
+            $now = now();
+            $cleanTitle = Str::limit(trim($title) ?: 'Presentasi Sidang Skripsi', 480, '');
+            $payload = [
+                'project_id' => $projectId,
+                'title' => $cleanTitle,
+                'theme' => preg_replace('/[^a-z0-9_]/i', '', $theme) ?: 'royal_academic',
+                'slide_count' => count($slides),
+                'slides_json' => json_encode($slides, JSON_UNESCAPED_UNICODE),
+                'cover_meta_json' => json_encode($coverMeta, JSON_UNESCAPED_UNICODE),
+                'updated_at' => $now,
+            ];
+
+            if ($deckId) {
+                $exists = DB::table('saved_ppts')->where('id', $deckId)->where('user_id', $userId)->exists();
+                if ($exists) {
+                    DB::table('saved_ppts')->where('id', $deckId)->where('user_id', $userId)->update($payload);
+                    $finalId = $deckId;
+                } else {
+                    $finalId = DB::table('saved_ppts')->insertGetId(array_merge($payload, [
+                        'user_id' => $userId,
+                        'created_at' => $now,
+                    ]));
+                }
+            } else {
+                $finalId = DB::table('saved_ppts')->insertGetId(array_merge($payload, [
+                    'user_id' => $userId,
+                    'created_at' => $now,
+                ]));
+            }
+
+            return [
+                'id' => (int) $finalId,
+                'project_id' => $projectId,
+                'title' => $cleanTitle,
+                'theme' => $payload['theme'],
+                'slide_count' => count($slides),
+                'slides_data' => $slides,
+                'cover_meta' => $coverMeta,
+                'updated_at' => $now->toDateTimeString(),
+                'updated_at_human' => 'baru saja',
+            ];
+        } catch (Throwable $e) {
+            Log::warning('persistSavedPptRecord notice: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function savePptDeck(Request $request)
+    {
+        $slides = $request->input('slides_data');
+        if (!is_array($slides) || empty($slides)) {
+            return response()->json(['status' => 'error', 'message' => 'Data slide kosong.'], 422);
+        }
+        $deckId = $request->filled('id') ? (int) $request->input('id') : null;
+        $projectId = $request->filled('project_id') ? (int) $request->input('project_id') : null;
+        $title = trim((string) $request->input('title', 'Presentasi Sidang Skripsi'));
+        $theme = trim((string) $request->input('theme', 'royal_academic'));
+        $coverMeta = is_array($request->input('cover_meta')) ? $request->input('cover_meta') : [];
+
+        // Jika logo dikirim tanpa prefix data:image, pulihkan menjadi JPEG data URI
+        if (!empty($coverMeta['logo_base64']) && !str_starts_with($coverMeta['logo_base64'], 'data:image/') && !str_starts_with($coverMeta['logo_base64'], 'http')) {
+            $coverMeta['logo_base64'] = 'data:image/jpeg;base64,' . $coverMeta['logo_base64'];
+        }
+
+        $saved = $this->persistSavedPptRecord(Auth::id(), $projectId, $title, $slides, $coverMeta, $theme, $deckId);
+        if (!$saved) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan PPT ke database.'], 500);
+        }
+
+        return response()->json(['status' => 'success', 'saved_ppt' => $saved]);
+    }
+
+    public function deletePptDeck($id)
+    {
+        if (!$this->ensureSavedPptsTable()) {
+            return response()->json(['status' => 'error', 'message' => 'Tabel PPT tidak tersedia.'], 500);
+        }
+        DB::table('saved_ppts')->where('id', (int) $id)->where('user_id', Auth::id())->delete();
+        return response()->json(['status' => 'success']);
     }
 
     public function addApiKey(Request $request)
@@ -6621,21 +6771,30 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
                 }
             }
 
+            $finalTitle = $docTitle ?: 'Presentasi Sidang Skripsi';
+            $projIdForSave = $request->filled('project_id') ? (int) $request->input('project_id') : null;
+            $savedDeck = $this->persistSavedPptRecord(Auth::id(), $projIdForSave, $finalTitle, $slidesArray, $coverMeta, 'royal_academic');
+
             return response()->json([
                 'status' => 'success',
-                'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
+                'title' => $finalTitle,
                 'slides_data' => $slidesArray,
                 'cover_meta' => $coverMeta,
+                'saved_ppt' => $savedDeck,
             ]);
         } catch (\Throwable $e) {
             // JANGAN lempar error yang memunculkan alert 'Gagal menyusun slide PPT.'
             // Selalu fallback ke slide terstruktur akademik sejumlah $slideCount agar pengalaman pengguna selalu mulus!
+            $finalTitle = $docTitle ?: 'Presentasi Sidang Skripsi';
             $fallbackSlides = $buildDefaultSlides($docTitle, $projProdi, $slideCount);
+            $projIdForSave = $request->filled('project_id') ? (int) $request->input('project_id') : null;
+            $savedDeck = $this->persistSavedPptRecord(Auth::id(), $projIdForSave, $finalTitle, $fallbackSlides, $coverMeta, 'royal_academic');
             return response()->json([
                 'status' => 'success',
-                'title' => $docTitle ?: 'Presentasi Sidang Skripsi',
+                'title' => $finalTitle,
                 'slides_data' => $fallbackSlides,
                 'cover_meta' => $coverMeta,
+                'saved_ppt' => $savedDeck,
             ]);
         }
     }

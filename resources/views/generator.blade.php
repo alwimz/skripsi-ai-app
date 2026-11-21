@@ -1429,7 +1429,7 @@
             .olah-input,
             .revisi-select,
             .revisi-textarea {
-                font-size: 16px;
+                font-size: 13.5px;
             }
         }
 

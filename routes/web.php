@@ -96,6 +96,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tools/generate-proposal', [GeneratorController::class, 'generateProposal'])->name('tools.proposal');
     Route::post('/tools/paraphrase', [GeneratorController::class, 'paraphraseText'])->name('tools.paraphrase');
     Route::post('/tools/generate-ppt', [GeneratorController::class, 'generatePpt'])->name('tools.ppt');
+    Route::post('/tools/ppt/save', [GeneratorController::class, 'savePptDeck'])->name('tools.ppt.save');
+    Route::delete('/tools/ppt/{id}', [GeneratorController::class, 'deletePptDeck'])->name('tools.ppt.delete');
     Route::post('/tools/simulate-defense', [GeneratorController::class, 'simulateDefense'])->name('tools.defense');
     Route::post('/chat/ask', [GeneratorController::class, 'askAi'])->name('chat.ask');
 });
