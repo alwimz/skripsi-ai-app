@@ -113,18 +113,54 @@
         }
 
         .back-link {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 9px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1d4ed8;
             text-decoration: none;
             margin-bottom: 10px;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
         }
 
         .back-link:hover {
-            text-decoration: underline;
+            background: #dbeafe;
+            border-color: #93c5fd;
+            text-decoration: none;
+        }
+
+        .topbar-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 34px;
+            padding: 0 11px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .topbar-back-btn:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+
+        .topbar-back-btn .back-label-short {
+            display: none;
         }
 
         .project-title-side {
@@ -1272,6 +1308,23 @@
 
             .topbar-brand-label {
                 font-size: 13px !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .topbar-back-btn {
+                height: 32px;
+                padding: 0 9px;
+                font-size: 12px;
+            }
+
+            .topbar-back-btn .back-label-full {
+                display: none;
+            }
+
+            .topbar-back-btn .back-label-short {
+                display: inline;
             }
 
             .topbar-actions {
@@ -1429,8 +1482,104 @@
             .olah-input,
             .revisi-select,
             .revisi-textarea {
-                font-size: 16px;
                 font-size: 13.5px;
+            }
+        }
+
+        /* Lampiran Tersimpan Responsive Card */
+        .lampiran-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .lampiran-item-main {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .lampiran-item-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .lampiran-item-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
+
+        .lampiran-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 3px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .lampiran-type-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 600;
+            font-size: 10.5px;
+        }
+
+        .lampiran-filename {
+            display: block;
+            margin-top: 3px;
+            font-size: 11.5px;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .lampiran-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        #lampiran-file-status > div {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        @media (max-width: 640px) {
+            .lampiran-list-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 11px 12px;
+            }
+
+            .lampiran-item-actions {
+                justify-content: flex-end;
+                padding-top: 8px;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .lampiran-item-actions .btn-top {
+                height: 30px;
+                font-size: 12px;
             }
         }
 
@@ -1511,13 +1660,14 @@
 
         <aside class="studio-sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('app.create') }}#projects" class="back-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="15 18 9 12 15 6" />
+                <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="back-link">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
                     </svg>
-                    <span>Kembali ke Proyek</span>
+                    <span>Kembali ke Proyek Saya</span>
                 </a>
-                <span class="project-mode-badge" style="margin-top: 6px;">
+                <span class="project-mode-badge" style="margin-top: 2px;">
                     {{ $isProposal ? 'Proposal (Bab I–III)' : 'Skripsi Penuh (Bab I–V)' }}
                 </span>
             </div>
@@ -1534,7 +1684,7 @@
 
             <nav class="sidebar-nav" aria-label="Navigasi Bab Skripsi">
                 <div class="nav-section-label">Struktur Naskah</div>
-                <button type="button" class="nav-item" id="nav-item-all" onclick="selectChapterView('all')"
+                <button type="button" class="nav-item active" id="nav-item-all" onclick="selectChapterView('all')"
                     style="margin-bottom: 6px; background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); border: 1px solid #bfdbfe;">
                     <span class="nav-item-left">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
@@ -1568,7 +1718,7 @@
                         style="font-size: 10px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 999px; align-self: center;">Lengkap</span>
                 </button>
                 @foreach ($chapterTitles as $key => $label)
-                    <button type="button" class="nav-item {{ $key === 'bab1' ? 'active' : '' }}" id="nav-item-{{ $key }}"
+                    <button type="button" class="nav-item" id="nav-item-{{ $key }}"
                         onclick="selectChapterView('{{ $key }}')">
                         <span class="nav-item-left">
                             <span class="nav-item-text">{{ $label }}</span>
@@ -1729,13 +1879,21 @@
 
         <main class="studio-main">
             <header class="studio-topbar">
-                <div class="topbar-left">
+                <div class="topbar-left" style="min-width: 0;">
                     <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar"
                         title="Buka/Tutup Sidebar">☰</button>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="topbar-back-btn"
+                        title="Kembali ke daftar Proyek Saya">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        <span class="back-label-full">Kembali ke Proyek</span>
+                        <span class="back-label-short">Proyek</span>
+                    </a>
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
                         <span class="topbar-brand-label"
-                            style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace
-                            Penulisan</span>
+                            style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace</span>
                     </div>
                 </div>
 
@@ -1765,7 +1923,7 @@
             <div class="canvas-scroll">
                 <div class="chapter-bar" id="chapter-bar">
                     <div style="flex: 1; min-width: 220px;">
-                        <div class="chapter-bar-title" id="active-chapter-title">BAB I · PENDAHULUAN</div>
+                        <div class="chapter-bar-title" id="active-chapter-title">NASKAH LENGKAP SKRIPSI (FULL DOCUMENT)</div>
                         <div class="chapter-bar-sub" id="active-chapter-sub" style="display: none;"></div>
                     </div>
                     <div class="chapter-bar-actions"
@@ -1988,7 +2146,7 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         let allowBab45 = !isProposalMode;
-        let activeView = 'bab1';
+        let activeView = 'all';
         let isDirty = false;
         let currentReviseMode = 'content';
 
@@ -4623,24 +4781,24 @@
 
             const listHtml = itemsWithPages.length > 0
                 ? itemsWithPages.map((item, idx) => `
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; flex-wrap:wrap;">
-                        <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                    <div class="lampiran-list-item">
+                        <div class="lampiran-item-main">
                             ${item.image_base64
-                                ? `<img src="${item.image_base64}" style="width:42px; height:42px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; flex-shrink:0;">`
+                                ? `<img src="${item.image_base64}" alt="${escapeHtml(item.label)}" style="width:42px; height:42px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; flex-shrink:0;">`
                                 : `<div style="width:42px; height:42px; border-radius:6px; background:#dbeafe; color:#1d4ed8; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">L${idx + 1}</div>`}
-                            <div style="min-width:0;">
-                                <div style="font-size:13.5px; font-weight:700; color:#0f172a;">${escapeHtml(item.label)}</div>
-                                <div style="font-size:11.5px; color:#64748b; margin-top:2px;">
-                                    ${item.image_base64 ? 'Gambar / Dokumen Visual' : 'Teks / Tabel Lampiran'}
-                                    ${item.file_name ? ' · ' + escapeHtml(item.file_name) : ''}
-                                    · Est. Hal. ${item.page}
+                            <div class="lampiran-item-body">
+                                <div class="lampiran-item-title">${escapeHtml(item.label)}</div>
+                                <div class="lampiran-item-meta">
+                                    <span class="lampiran-type-pill">${item.image_base64 ? 'Gambar' : 'Teks / Tabel'}</span>
+                                    <span>Est. Hal. ${item.page}</span>
                                 </div>
+                                ${item.file_name ? `<div class="lampiran-filename" title="${escapeHtml(item.file_name)}">${escapeHtml(item.file_name)}</div>` : ''}
                             </div>
                         </div>
-                        <div style="display:flex; gap:6px; flex-shrink:0;">
-                            <button type="button" class="btn-top" style="height:30px; padding:0 8px;" onclick="moveLampiranItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Naikkan urutan">▲</button>
-                            <button type="button" class="btn-top" style="height:30px; padding:0 8px;" onclick="moveLampiranItem(${idx}, 1)" ${idx === itemsWithPages.length - 1 ? 'disabled' : ''} title="Turunkan urutan">▼</button>
-                            <button type="button" class="btn-top" style="height:30px; padding:0 10px; color:#dc2626; border-color:#fecaca;" onclick="deleteLampiranItem(${idx})">Hapus</button>
+                        <div class="lampiran-item-actions">
+                            <button type="button" class="btn-top" style="height:30px; padding:0 9px;" onclick="moveLampiranItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Naikkan urutan">▲</button>
+                            <button type="button" class="btn-top" style="height:30px; padding:0 9px;" onclick="moveLampiranItem(${idx}, 1)" ${idx === itemsWithPages.length - 1 ? 'disabled' : ''} title="Turunkan urutan">▼</button>
+                            <button type="button" class="btn-top" style="height:30px; padding:0 11px; color:#dc2626; border-color:#fecaca;" onclick="deleteLampiranItem(${idx})">Hapus</button>
                         </div>
                     </div>
                 `).join('')
@@ -4704,7 +4862,7 @@
         updateLampiranSidebarBadge();
         updateOlahDataIndicator();
         updateProgressUI();
-        selectChapterView('bab1');
+        selectChapterView('all');
     </script>
 </body>
 

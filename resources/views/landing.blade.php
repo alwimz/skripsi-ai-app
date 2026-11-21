@@ -1083,25 +1083,11 @@
 
         /* Footer */
         .footer {
-            padding: 36px 0 32px;
+            padding: 28px 0;
             background: var(--bg-subtle);
             font-size: 13px;
             color: var(--text-muted);
             border-top: 1px solid var(--border);
-        }
-
-        .footer-seo-summary {
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            font-size: 12.5px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-        }
-
-        .footer-seo-summary strong {
-            color: var(--text-primary);
-            font-weight: 600;
         }
 
         .footer-inner {
@@ -1109,7 +1095,7 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
         @media (max-width: 960px) {
@@ -1989,16 +1975,15 @@
                 </div>
 
                 <div class="cta-banner" style="margin-top: 44px;">
-                    <h2>Siap Susun Proposal &amp; Skripsi Otomatis dengan AI?</h2>
-                    <p>Mulai di <strong>SkripsiLab AI</strong> untuk menyusun Bab 1–5 otomatis dengan referensi ilmiah
-                        &amp; jurnal asli ber-DOI, PPT sidang 13 tema, dan simulasi sidang.</p>
+                    <h2>Susun Proposal &amp; Skripsi Lebih Cepat</h2>
+                    <p>Otomatis berbasis AI dengan referensi ilmiah &amp; jurnal asli ber-DOI dalam satu workspace.</p>
                     <div class="hero-cta">
                         @auth
                             <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka
                                 Workspace Saya →</a>
                         @else
-                            <a href="{{ route('register') }}" class="btn btn-primary">Mulai Gratis Sekarang →</a>
-                            <a href="{{ route('login') }}" class="btn btn-outline">Sudah Punya Akun? Masuk</a>
+                            <a href="{{ route('register') }}" class="btn btn-primary">Mulai Gratis →</a>
+                            <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                         @endauth
                     </div>
                 </div>
@@ -2008,21 +1993,14 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-seo-summary">
-                <strong>SkripsiLab AI</strong> — workspace penulisan proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis
-                menggunakan AI dengan <strong>referensi ilmiah dan jurnal asli ber-DOI</strong>, Daftar Pustaka APA 7th,
-                ekspor Word &amp; PDF margin 4-4-3-3, PPT sidang, hingga simulasi sidang.
+        <div class="container footer-inner">
+            <div class="brand" style="font-size: 15px;">
+                <img src="/images/logo.svg" alt="SkripsiLab AI"
+                    style="width: 26px; height: 26px; border-radius: 6px; display: block;">
+                SkripsiLab AI
             </div>
-            <div class="footer-inner">
-                <div class="brand" style="font-size: 15px;">
-                    <img src="/images/logo.svg" alt="SkripsiLab AI"
-                        style="width: 26px; height: 26px; border-radius: 6px; display: block;">
-                    SkripsiLab AI
-                </div>
-                <div>&copy; {{ date('Y') }} SkripsiLab AI &bull; Demo by Muh Alwi Syahrir &bull; Workspace penulisan
-                    akademik AI mahasiswa Indonesia.</div>
-            </div>
+            <div>&copy; {{ date('Y') }} SkripsiLab AI &bull; Proposal &amp; skripsi otomatis AI dengan referensi jurnal
+                asli.</div>
         </div>
     </footer>
 
