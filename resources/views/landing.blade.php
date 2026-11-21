@@ -442,6 +442,22 @@
             background: var(--primary-soft);
             color: var(--primary-hover);
         }
+        .mobile-nav-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .mobile-nav-actions.single {
+            grid-template-columns: 1fr;
+        }
+        .mobile-nav-actions .btn {
+            width: 100%;
+            min-height: 42px;
+            font-size: 13.5px;
+        }
 
         /* Hero Section */
         .hero {
@@ -1063,14 +1079,41 @@
         }
 
         @media (max-width: 640px) {
-            .container { padding: 0 16px; }
-            .hero { padding: 48px 0 40px; }
-            .section { padding: 48px 0; }
+            .container { padding: 0 14px; }
+            .navbar { height: 60px; }
+            .mobile-nav-drawer { top: 60px; }
+            .nav-inner { gap: 8px; }
+            .brand { font-size: 15.5px; gap: 8px; }
+            .brand img { width: 28px !important; height: 28px !important; }
+            .nav-actions { gap: 6px; }
+            .nav-login-desktop { display: none !important; }
+            .nav-actions .btn {
+                min-height: 36px;
+                padding: 7px 12px;
+                font-size: 12.5px;
+                border-radius: 9px;
+            }
+            .nav-mobile-toggle {
+                width: 36px;
+                height: 36px;
+                border-radius: 9px;
+                flex-shrink: 0;
+            }
+            .hero { padding: 38px 0 34px; }
+            .hero-eyebrow { font-size: 11.5px; padding: 4px 11px; }
+            .hero-trust-strip { gap: 7px; margin-top: 20px; }
+            .hero-trust-pill { font-size: 11.5px; padding: 5px 10px; }
+            .section { padding: 44px 0; }
             .sample-grid { grid-template-columns: 1fr; }
             .features-grid { grid-template-columns: 1fr; }
             .sf-paper-area { padding: 12px; }
             .sf-a4-paper { padding: 22px 16px; font-size: 11pt; }
-            .btn { padding: 8px 12px; font-size: 12.5px; }
+            .btn { padding: 9px 14px; font-size: 13px; }
+        }
+
+        @media (max-width: 440px) {
+            .hero-cta { flex-direction: column; align-items: stretch; }
+            .hero-cta .btn { width: 100%; }
         }
     </style>
 </head>
@@ -1170,13 +1213,13 @@
 
             <div class="nav-actions">
                 @auth
-                    <a href="{{ route('app.create') }}" class="btn btn-primary">Buka Workspace</a>
+                    <a href="{{ route('app.create') }}" class="btn btn-primary">Workspace</a>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-ghost">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai Sekarang</a>
+                    <a href="{{ route('login') }}" class="btn btn-ghost nav-login-desktop">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Mulai</a>
                 @endauth
                 <button type="button" class="nav-mobile-toggle" id="landing-mobile-toggle" aria-expanded="false" aria-controls="landing-mobile-drawer" aria-label="Buka menu navigasi" onclick="toggleLandingMobileNav()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
             </div>
         </div>
@@ -1188,6 +1231,16 @@
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp; Skripsi <span>→</span></a>
             <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab <span>→</span></a>
             <a href="#faq" class="mobile-nav-link" onclick="closeLandingMobileNav()">Pertanyaan Umum (FAQ) <span>→</span></a>
+            @auth
+                <div class="mobile-nav-actions single">
+                    <a href="{{ route('app.create') }}" class="btn btn-primary" onclick="closeLandingMobileNav()">Buka Workspace →</a>
+                </div>
+            @else
+                <div class="mobile-nav-actions">
+                    <a href="{{ route('login') }}" class="btn btn-outline" onclick="closeLandingMobileNav()">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary" onclick="closeLandingMobileNav()">Daftar Gratis</a>
+                </div>
+            @endauth
         </div>
     </nav>
 
