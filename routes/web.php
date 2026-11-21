@@ -48,11 +48,12 @@ Route::get('/sitemap.xml', function () {
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
 Route::get('/galeri/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
 
-// 1B. HUB TOOLS MAHASISWA PUBLIK (PDF <-> WORD, GABUNG/PISAH PDF, SLOVIN, HITUNG KATA)
+// 1B. HUB TOOLS MAHASISWA PUBLIK (PDF <-> WORD, FLOWCHART AI, GABUNG/PISAH PDF, SLOVIN, HITUNG KATA)
 Route::get('/tools', [StudentToolsController::class, 'index'])->name('tools.hub');
 Route::post('/tools/convert/docx-to-pdf', [StudentToolsController::class, 'docxToPdf'])->name('tools.convert.docxToPdf');
 Route::post('/tools/convert/pdf-to-docx', [StudentToolsController::class, 'pdfToDocx'])->name('tools.convert.pdfToDocx');
 Route::post('/tools/convert/extract-docx-text', [StudentToolsController::class, 'extractDocxText'])->name('tools.extract.docxText');
+Route::post('/tools/flowchart/generate', [StudentToolsController::class, 'generateFlowchart'])->name('tools.flowchart.generate');
 
 // 2. AUTHENTICATION (Login, Register, Logout)
 Route::middleware('guest')->group(function () {

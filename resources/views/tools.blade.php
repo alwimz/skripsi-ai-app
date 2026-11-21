@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Tools Mahasiswa Gratis — PDF ke Word, Gabung PDF, Slovin &amp; Hitung Kata | SkripsiLab AI</title>
+    <title>Tools Mahasiswa Gratis — Flowchart AI, PDF ke Word, Gabung PDF &amp; Slovin | SkripsiLab AI</title>
     <meta name="description"
-        content="Kumpulan tools mahasiswa gratis dari SkripsiLab AI: konversi PDF ke Word &amp; Word ke PDF, gabung PDF, pisah halaman PDF, JPG ke PDF A4, kompres gambar, kalkulator Slovin Bab 3, dan hitung kata skripsi.">
+        content="Kumpulan 8 tools mahasiswa gratis dari SkripsiLab AI: generator flowchart skripsi otomatis AI (unduh PNG HD/SVG), konversi PDF ke Word &amp; Word ke PDF, gabung &amp; pisah PDF, JPG ke PDF A4, kompres gambar, kalkulator Slovin Bab 3, dan hitung kata.">
     <meta name="keywords"
-        content="tools mahasiswa gratis, pdf ke word gratis, word ke pdf online, gabung pdf skripsi, pisah halaman pdf, jpg ke pdf a4, kompres gambar siakad, kalkulator slovin bab 3, hitung kata skripsi, skripsilab ai">
+        content="buat flowchart skripsi otomatis, generator flowchart ai, diagram alur penelitian bab 3, tools mahasiswa gratis, pdf ke word gratis, word ke pdf online, gabung pdf skripsi, pisah halaman pdf, jpg ke pdf a4, kompres gambar siakad, kalkulator slovin bab 3, hitung kata skripsi, skripsilab ai">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/tools') }}">
     <meta name="theme-color" content="#2563eb">
@@ -499,6 +499,79 @@
             color: var(--primary);
         }
 
+        /* Flowchart Studio Split Layout */
+        .fc-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: 18px;
+            align-items: start;
+        }
+        .fc-ai-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .fc-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            max-height: 430px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .fc-step-row {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 9px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .fc-step-top {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fc-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .fc-preview-shell {
+            background: #f1f5f9;
+            border: 1px solid var(--border-strong);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .fc-preview-paper {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+            min-height: 360px;
+        }
+        .fc-preview-paper svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
         .footer {
             border-top: 1px solid var(--border);
             padding: 20px 0;
@@ -506,6 +579,10 @@
             color: var(--text-muted);
             text-align: center;
             background: #ffffff;
+        }
+
+        @media (max-width: 860px) {
+            .fc-layout { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 720px) {
@@ -545,16 +622,24 @@
 
     <section class="tools-hero">
         <div class="container">
-            <div class="hero-eyebrow">7 Alat Produktivitas Akademik · 100% Gratis</div>
+            <div class="hero-eyebrow">8 Alat Produktivitas Akademik · 100% Gratis</div>
             <h1>Tools Mahasiswa SkripsiLab AI</h1>
-            <p>Konversi PDF ⇄ Word, gabung &amp; pisah PDF, ubah foto ke PDF A4, kompres gambar SIAKAD, hitung sampel Slovin Bab III, hingga penghitung kata skripsi dalam satu tempat.</p>
+            <p>Buat flowchart skripsi otomatis pakai AI, konversi PDF ⇄ Word, gabung &amp; pisah PDF, ubah foto ke PDF A4, kompres gambar SIAKAD, hitung sampel Slovin Bab III, hingga penghitung kata skripsi.</p>
         </div>
     </section>
 
     <main class="container">
-        <!-- Grid Pemilih 7 Tools -->
+        <!-- Grid Pemilih 8 Tools -->
         <div class="tools-nav-grid" role="tablist" aria-label="Pilih Tool Mahasiswa">
-            <button type="button" class="tool-tab-card active" data-tool="pdf-word" onclick="switchTool('pdf-word')">
+            <button type="button" class="tool-tab-card active" data-tool="flowchart" onclick="switchTool('flowchart')">
+                <span class="tool-tab-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="5" rx="2.5"/><path d="M12 7v3"/><rect x="5" y="10" width="14" height="5" rx="1"/><path d="M12 15v3"/><rect x="7" y="18" width="10" height="4" rx="2"/></svg>
+                </span>
+                <span class="tool-tab-name">Flowchart Skripsi</span>
+                <span class="tool-tab-sub">AI + Unduh PNG HD</span>
+            </button>
+
+            <button type="button" class="tool-tab-card" data-tool="pdf-word" onclick="switchTool('pdf-word')">
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M12 12l3 3-3 3"/></svg>
                 </span>
@@ -612,9 +697,88 @@
         </div>
 
         <!-- ======================================================= -->
+        <!-- 0. GENERATOR FLOWCHART SKRIPSI & PROPOSAL (AI + VISUAL) -->
+        <!-- ======================================================= -->
+        <section class="tool-panel active" id="panel-flowchart">
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">Generator Flowchart Skripsi &amp; Proposal</h2>
+                        <p class="panel-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), atau flowchart sistem secara otomatis dengan AI — edit simbol standar ISO lalu unduh PNG HD siap tempel ke Word.</p>
+                    </div>
+                    <span class="privacy-badge">✨ Otomatis AI · Siap Tempel Word</span>
+                </div>
+
+                <div class="fc-layout">
+                    <!-- Kolom Kiri: Generator AI + Template + Editor Langkah -->
+                    <div>
+                        <div class="fc-ai-box">
+                            <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">✨ Buat Langkah Otomatis Pakai AI</div>
+                            <div style="margin-bottom:8px;">
+                                <label class="form-label" for="fc-ai-topic">Judul Skripsi / Topik Penelitian</label>
+                                <input type="text" id="fc-ai-topic" class="form-input" placeholder="cth: Klasifikasi Sentimen Komentar TikTok Menggunakan Naive Bayes">
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:190px; min-height:38px;">
+                                    <option value="prosedur">Prosedur Penelitian (Bab III)</option>
+                                    <option value="kerangka">Kerangka Berpikir (Bab II)</option>
+                                    <option value="sistem">Alur Sistem / Aplikasi (IT &amp; R&amp;D)</option>
+                                    <option value="analisis">Alur Pengumpulan &amp; Analisis Data</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" id="btn-fc-ai" onclick="generateFlowchartWithAi()">✨ Buat dengan AI</button>
+                            </div>
+                            <div id="status-fc" class="status-box"></div>
+                        </div>
+
+                        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Template Cepat 1-Klik:</div>
+                        <div class="preset-row">
+                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kuantitatif')">Kuantitatif (Survei)</button>
+                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kualitatif')">Kualitatif</button>
+                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('rnd')">R&amp;D / Sistem IT</button>
+                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kerangka')">Kerangka Berpikir</button>
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0 8px;">
+                            <span style="font-size:12.5px; font-weight:700; color:var(--text-main);">Edit Langkah &amp; Simbol Flowchart</span>
+                            <button type="button" class="mini-btn" style="color:var(--primary); border-color:var(--primary-border);" onclick="addFlowchartStep()">+ Tambah Langkah</button>
+                        </div>
+
+                        <div id="fc-steps-editor" class="fc-steps-list"></div>
+                    </div>
+
+                    <!-- Kolom Kanan: Pratinjau SVG Tajam + Opsi Gaya & Unduh -->
+                    <div>
+                        <div class="form-grid-2" style="margin-bottom:10px;">
+                            <div>
+                                <label class="form-label" for="fc-style-select">Gaya Warna Skripsi</label>
+                                <select id="fc-style-select" class="form-select" style="min-height:38px;" onchange="renderFlowchartSvg()">
+                                    <option value="bw" selected>Hitam-Putih Resmi (Siap Cetak)</option>
+                                    <option value="blue">Biru Akademik Modern</option>
+                                    <option value="navy">Navy Elegan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="fc-caption-input">Keterangan Gambar (Bawah)</label>
+                                <input type="text" id="fc-caption-input" class="form-input" style="min-height:38px;" value="Gambar 3.1 Diagram Alur Prosedur Penelitian" oninput="renderFlowchartSvg()">
+                            </div>
+                        </div>
+
+                        <div class="fc-preview-shell">
+                            <div class="fc-preview-paper" id="fc-svg-preview"></div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+                                <button type="button" class="btn btn-primary" style="flex:1;" onclick="downloadFlowchartPng()">⬇ Unduh PNG HD (Siap Tempel Word)</button>
+                                <button type="button" class="btn btn-outline" onclick="downloadFlowchartSvg()">⬇ Unduh SVG</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================= -->
         <!-- 1. PDF <-> WORD CONVERTER -->
         <!-- ======================================================= -->
-        <section class="tool-panel active" id="panel-pdf-word">
+        <section class="tool-panel" id="panel-pdf-word">
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
@@ -1600,7 +1764,344 @@
             input.value = '';
         }
 
+        // ============================================================
+        // 0. GENERATOR FLOWCHART SKRIPSI (AI + EDITOR SIMBOL ISO + PNG HD)
+        // ============================================================
+        const FLOWCHART_PRESETS = {
+            kuantitatif: {
+                caption: 'Gambar 3.1 Diagram Alur Penelitian Kuantitatif',
+                steps: [
+                    { type: 'start', label: 'Mulai' },
+                    { type: 'process', label: 'Identifikasi Masalah & Kajian Literatur' },
+                    { type: 'process', label: 'Perumusan Hipotesis & Penyusunan Kuesioner' },
+                    { type: 'io', label: 'Pengumpulan Data Sampel Responden' },
+                    { type: 'decision', label: 'Uji Validitas & Reliabilitas Terpenuhi?', no_label: 'Revisi Kuesioner' },
+                    { type: 'process', label: 'Uji Asumsi Klasik & Analisis Regresi / SEM' },
+                    { type: 'process', label: 'Pembahasan Hasil & Penarikan Kesimpulan' },
+                    { type: 'end', label: 'Selesai' }
+                ]
+            },
+            kualitatif: {
+                caption: 'Gambar 3.1 Diagram Alur Penelitian Kualitatif',
+                steps: [
+                    { type: 'start', label: 'Mulai' },
+                    { type: 'process', label: 'Penentuan Fokus & Lokasi Penelitian' },
+                    { type: 'io', label: 'Wawancara Mendalam, Observasi & Dokumentasi' },
+                    { type: 'process', label: 'Reduksi Data & Penyajian Temuan Lapangan' },
+                    { type: 'decision', label: 'Data Jenuh & Terverifikasi (Triangulasi)?', no_label: 'Gali Data Lanjutan' },
+                    { type: 'process', label: 'Interpretasi Makna & Penarikan Kesimpulan' },
+                    { type: 'end', label: 'Selesai' }
+                ]
+            },
+            rnd: {
+                caption: 'Gambar 3.1 Flowchart Pengembangan Sistem & Pengujian',
+                steps: [
+                    { type: 'start', label: 'Mulai' },
+                    { type: 'io', label: 'Pengumpulan Dataset & Analisis Kebutuhan' },
+                    { type: 'process', label: 'Perancangan Arsitektur & Pra-Pemrosesan Data' },
+                    { type: 'process', label: 'Implementasi Sistem / Pelatihan Model' },
+                    { type: 'decision', label: 'Hasil Uji Kelayakan / Akurasi Optimal?', no_label: 'Evaluasi & Perbaikan' },
+                    { type: 'io', label: 'Dokumentasi Hasil & Laporan Skripsi' },
+                    { type: 'end', label: 'Selesai' }
+                ]
+            },
+            kerangka: {
+                caption: 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian',
+                steps: [
+                    { type: 'start', label: 'Fenomena & Permasalahan Lapangan' },
+                    { type: 'process', label: 'Landasan Teori & Penelitian Terdahulu' },
+                    { type: 'io', label: 'Identifikasi Variabel Independen & Dependen' },
+                    { type: 'process', label: 'Pengujian Empiris & Analisis Data' },
+                    { type: 'end', label: 'Temuan Ilmiah & Rekomendasi Solusi' }
+                ]
+            }
+        };
+
+        let fcSteps = JSON.parse(JSON.stringify(FLOWCHART_PRESETS.kuantitatif.steps));
+        let lastFlowchartSvgString = '';
+
+        function escapeSvgXml(s) {
+            return String(s || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function wrapFlowchartLines(text, maxChars) {
+            const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+            if (!words.length) return [''];
+            const lines = [];
+            let cur = '';
+            for (const w of words) {
+                const candidate = cur ? (cur + ' ' + w) : w;
+                if (candidate.length > maxChars && cur) {
+                    lines.push(cur);
+                    cur = w;
+                } else {
+                    cur = candidate;
+                }
+            }
+            if (cur) lines.push(cur);
+            return lines.slice(0, 3);
+        }
+
+        function loadFlowchartPreset(key) {
+            const p = FLOWCHART_PRESETS[key];
+            if (!p) return;
+            fcSteps = JSON.parse(JSON.stringify(p.steps));
+            document.getElementById('fc-caption-input').value = p.caption;
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function addFlowchartStep() {
+            const insertAt = Math.max(0, fcSteps.length - 1);
+            fcSteps.splice(insertAt, 0, { type: 'process', label: 'Tahap Penelitian Baru' });
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function updateFcStep(idx, field, val) {
+            if (!fcSteps[idx]) return;
+            fcSteps[idx][field] = val;
+            if (field === 'type') {
+                if (val === 'decision' && !fcSteps[idx].no_label) fcSteps[idx].no_label = 'Revisi / Ulangi';
+                renderFlowchartEditor();
+            }
+            renderFlowchartSvg();
+        }
+
+        function moveFcStep(idx, dir) {
+            const t = idx + dir;
+            if (t < 0 || t >= fcSteps.length) return;
+            [fcSteps[idx], fcSteps[t]] = [fcSteps[t], fcSteps[idx]];
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function deleteFcStep(idx) {
+            if (fcSteps.length <= 2) return;
+            fcSteps.splice(idx, 1);
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function renderFlowchartEditor() {
+            const wrap = document.getElementById('fc-steps-editor');
+            if (!wrap) return;
+            wrap.innerHTML = fcSteps.map((st, i) => `
+                <div class="fc-step-row">
+                    <div class="fc-step-top">
+                        <span class="fc-step-num">${i + 1}</span>
+                        <select class="form-select" style="width:155px; min-height:32px; padding:4px 8px; font-size:12px;" onchange="updateFcStep(${i}, 'type', this.value)">
+                            <option value="start" ${st.type === 'start' ? 'selected' : ''}>Mulai (Oval)</option>
+                            <option value="process" ${st.type === 'process' ? 'selected' : ''}>Proses (Kotak)</option>
+                            <option value="io" ${st.type === 'io' ? 'selected' : ''}>Input/Data (Jajar Genjang)</option>
+                            <option value="decision" ${st.type === 'decision' ? 'selected' : ''}>Keputusan (Belah Ketupat)</option>
+                            <option value="end" ${st.type === 'end' ? 'selected' : ''}>Selesai (Oval)</option>
+                        </select>
+                        <div style="margin-left:auto; display:flex; gap:4px;">
+                            <button type="button" class="mini-btn" onclick="moveFcStep(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                            <button type="button" class="mini-btn" onclick="moveFcStep(${i}, 1)" ${i === fcSteps.length - 1 ? 'disabled' : ''}>▼</button>
+                            <button type="button" class="mini-btn danger" onclick="deleteFcStep(${i})" ${fcSteps.length <= 2 ? 'disabled' : ''}>✕</button>
+                        </div>
+                    </div>
+                    <input type="text" class="form-input" style="min-height:34px; padding:6px 10px; font-size:12.5px;" value="${escapeSvgXml(st.label)}" placeholder="Tulis label langkah..." oninput="updateFcStep(${i}, 'label', this.value)">
+                    ${st.type === 'decision' ? `
+                        <input type="text" class="form-input" style="min-height:32px; padding:5px 9px; font-size:11.5px; background:#fffbeb; border-color:#fde68a;" value="${escapeSvgXml(st.no_label || 'Revisi / Ulangi')}" placeholder="Label cabang 'Tidak' (cth: Revisi Kuesioner)" oninput="updateFcStep(${i}, 'no_label', this.value)">
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderFlowchartSvg() {
+            const styleKey = document.getElementById('fc-style-select')?.value || 'bw';
+            const caption = (document.getElementById('fc-caption-input')?.value || '').trim();
+
+            const themes = {
+                bw: {
+                    bg: '#ffffff', stroke: '#0f172a', text: '#0f172a', arrow: '#0f172a',
+                    termFill: '#f8fafc', procFill: '#ffffff', ioFill: '#ffffff', decFill: '#f8fafc',
+                    branchText: '#334155', captionColor: '#0f172a'
+                },
+                blue: {
+                    bg: '#ffffff', stroke: '#1d4ed8', text: '#0f172a', arrow: '#2563eb',
+                    termFill: '#dbeafe', procFill: '#eff6ff', ioFill: '#f0f9ff', decFill: '#fef3c7',
+                    branchText: '#1d4ed8', captionColor: '#0f172a'
+                },
+                navy: {
+                    bg: '#ffffff', stroke: '#1e293b', text: '#0f172a', arrow: '#1e3a8a',
+                    termFill: '#1e3a8a', termText: '#ffffff', procFill: '#f8fafc', ioFill: '#eef2ff', decFill: '#e0e7ff',
+                    branchText: '#1e3a8a', captionColor: '#0f172a'
+                }
+            };
+            const pal = themes[styleKey] || themes.bw;
+
+            const hasDecision = fcSteps.some(s => s.type === 'decision');
+            const svgW = hasDecision ? 620 : 520;
+            const cx = hasDecision ? 235 : 260;
+            const boxW = 300;
+            const gapY = 30;
+            let y = 26;
+
+            const nodesMeta = [];
+            fcSteps.forEach((st) => {
+                const maxC = st.type === 'decision' ? 20 : (st.type === 'io' ? 28 : 32);
+                const lines = wrapFlowchartLines(st.label, maxC);
+                let h = 48;
+                if (st.type === 'start' || st.type === 'end') {
+                    h = lines.length > 1 ? 52 : 44;
+                } else if (st.type === 'decision') {
+                    h = lines.length >= 3 ? 96 : (lines.length === 2 ? 84 : 74);
+                } else {
+                    h = Math.max(48, 22 + lines.length * 18);
+                }
+                nodesMeta.push({ st, lines, y, h, cy: y + h / 2, bottom: y + h });
+                y += h + gapY;
+            });
+
+            const captionH = caption ? 34 : 10;
+            const svgH = y - gapY + 24 + captionH;
+
+            let shapes = '';
+            nodesMeta.forEach((n, idx) => {
+                const { st, lines, y: ny, h, cy, bottom } = n;
+                const fill = (st.type === 'start' || st.type === 'end') ? pal.termFill
+                    : (st.type === 'io' ? pal.ioFill : (st.type === 'decision' ? pal.decFill : pal.procFill));
+                const txtColor = ((st.type === 'start' || st.type === 'end') && pal.termText) ? pal.termText : pal.text;
+
+                if (st.type === 'start' || st.type === 'end') {
+                    const tw = Math.min(boxW, Math.max(170, lines[0].length * 9 + 46));
+                    shapes += `<rect x="${cx - tw / 2}" y="${ny}" width="${tw}" height="${h}" rx="${h / 2}" ry="${h / 2}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                } else if (st.type === 'io') {
+                    const skew = 18;
+                    const x1 = cx - boxW / 2 + skew;
+                    const x2 = cx + boxW / 2;
+                    const x3 = cx + boxW / 2 - skew;
+                    const x4 = cx - boxW / 2;
+                    shapes += `<polygon points="${x1},${ny} ${x2},${ny} ${x3},${bottom} ${x4},${bottom}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                } else if (st.type === 'decision') {
+                    const dw = 128;
+                    const pts = `${cx},${ny} ${cx + dw},${cy} ${cx},${bottom} ${cx - dw},${cy}`;
+                    shapes += `<polygon points="${pts}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+
+                    // Cabang kanan "Tidak" kembali ke langkah proses sebelumnya
+                    const loopX = cx + dw + 128;
+                    const backIdx = Math.max(0, idx - 1);
+                    const targetY = nodesMeta[backIdx].cy;
+                    const targetRightX = cx + boxW / 2 + 2;
+                    const noTxt = st.no_label || 'Revisi / Ulangi';
+                    shapes += `<polyline points="${cx + dw},${cy} ${loopX},${cy} ${loopX},${targetY} ${targetRightX},${targetY}" fill="none" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
+                    shapes += `<text x="${cx + dw + 10}" y="${cy - 6}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Tidak</text>`;
+                    shapes += `<rect x="${loopX - 66}" y="${(cy + targetY) / 2 - 12}" width="132" height="22" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                    shapes += `<text x="${loopX}" y="${(cy + targetY) / 2 + 3}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.text}">${escapeSvgXml(noTxt.slice(0, 22))}</text>`;
+                } else {
+                    shapes += `<rect x="${cx - boxW / 2}" y="${ny}" width="${boxW}" height="${h}" rx="4" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                }
+
+                // Teks di tengah simbol
+                const lineH = 16;
+                const startTextY = cy - ((lines.length - 1) * lineH) / 2 + 4.5;
+                lines.forEach((ln, li) => {
+                    const boldAttr = (st.type === 'start' || st.type === 'end') ? 'font-weight="bold"' : '';
+                    shapes += `<text x="${cx}" y="${startTextY + li * lineH}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13" ${boldAttr} fill="${txtColor}">${escapeSvgXml(ln)}</text>`;
+                });
+
+                // Panah ke node berikutnya
+                if (idx < nodesMeta.length - 1) {
+                    const nextY = nodesMeta[idx + 1].y;
+                    shapes += `<line x1="${cx}" y1="${bottom}" x2="${cx}" y2="${nextY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
+                    if (st.type === 'decision') {
+                        shapes += `<text x="${cx + 8}" y="${bottom + 17}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Ya</text>`;
+                    }
+                }
+            });
+
+            if (caption) {
+                shapes += `<text x="${svgW / 2}" y="${svgH - 12}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13.5" font-weight="bold" fill="${pal.captionColor}">${escapeSvgXml(caption)}</text>`;
+            }
+
+            lastFlowchartSvgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+                <defs>
+                    <marker id="fc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                        <path d="M 0 1 L 10 5 L 0 9 z" fill="${pal.arrow}"/>
+                    </marker>
+                </defs>
+                <rect width="100%" height="100%" fill="${pal.bg}"/>
+                ${shapes}
+            </svg>`;
+
+            const previewEl = document.getElementById('fc-svg-preview');
+            if (previewEl) previewEl.innerHTML = lastFlowchartSvgString;
+        }
+
+        async function generateFlowchartWithAi() {
+            const topic = (document.getElementById('fc-ai-topic').value || '').trim();
+            const kind = document.getElementById('fc-ai-kind').value;
+            if (topic.length < 5) {
+                setStatus('status-fc', 'error', 'Tuliskan judul skripsi atau topik penelitian terlebih dahulu (minimal 5 karakter).');
+                return;
+            }
+            const btn = document.getElementById('btn-fc-ai');
+            btn.disabled = true;
+            btn.textContent = 'Menyusun Flowchart...';
+            setStatus('status-fc', 'info', 'AI sedang menyusun alur flowchart sesuai topik penelitianmu...');
+            try {
+                const res = await fetch('{{ route("tools.flowchart.generate") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ topic, kind })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success' || !Array.isArray(data.steps)) {
+                    throw new Error(data.message || 'Gagal menyusun flowchart.');
+                }
+                fcSteps = data.steps;
+                if (data.caption) document.getElementById('fc-caption-input').value = data.caption;
+                renderFlowchartEditor();
+                renderFlowchartSvg();
+                setStatus('status-fc', 'success', `Berhasil! ${fcSteps.length} langkah flowchart siap diedit atau diunduh ke Word.`);
+            } catch (err) {
+                setStatus('status-fc', 'error', err.message || 'Terjadi kesalahan saat generate flowchart.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Buat dengan AI';
+            }
+        }
+
+        function downloadFlowchartSvg() {
+            if (!lastFlowchartSvgString) return;
+            triggerBlobDownload(new Blob([lastFlowchartSvgString], { type: 'image/svg+xml;charset=utf-8' }), 'Flowchart_Skripsi.svg');
+        }
+
+        function downloadFlowchartPng() {
+            if (!lastFlowchartSvgString) return;
+            const svgBlob = new Blob([lastFlowchartSvgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            img.onload = () => {
+                const scale = 3; // HD 3x siap cetak Microsoft Word
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.scale(scale, scale);
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(url);
+                canvas.toBlob((pngBlob) => {
+                    if (pngBlob) triggerBlobDownload(pngBlob, 'Flowchart_Skripsi_HD.png');
+                }, 'image/png');
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); };
+            img.src = url;
+        }
+
         // Init
+        renderFlowchartEditor();
+        renderFlowchartSvg();
         calcSlovin();
         updateWordCount();
         const initHash = (window.location.hash || '').replace('#', '');

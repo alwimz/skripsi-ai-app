@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AIManagerService;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -12,9 +13,131 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 
 class StudentToolsController extends Controller
 {
+    protected AIManagerService $ai;
+
+    public function __construct(AIManagerService $ai)
+    {
+        $this->ai = $ai;
+    }
+
     public function index()
     {
         return view('tools');
+    }
+
+    /**
+     * Generate langkah-langkah Flowchart Skripsi / Proposal terstruktur menggunakan AI
+     */
+    public function generateFlowchart(Request $request)
+    {
+        $request->validate([
+            'topic' => 'required|string|max:300',
+            'kind' => 'nullable|string|in:prosedur,kerangka,sistem,analisis',
+        ]);
+
+        $topic = trim((string) $request->input('topic'));
+        $kind = (string) $request->input('kind', 'prosedur');
+
+        $kindLabelMap = [
+            'prosedur' => 'Flowchart Prosedur / Tahapan Penelitian (Bab III)',
+            'kerangka' => 'Bagan Kerangka Berpikir / Konseptual (Bab II)',
+            'sistem' => 'Flowchart Alur Kerja Sistem / Aplikasi (R&D / Informatika)',
+            'analisis' => 'Flowchart Pengumpulan & Analisis Data Penelitian',
+        ];
+        $kindLabel = $kindLabelMap[$kind] ?? $kindLabelMap['prosedur'];
+
+        $captionMap = [
+            'prosedur' => 'Gambar 3.1 Diagram Alur Prosedur Penelitian',
+            'kerangka' => 'Gambar 2.1 Bagan Kerangka Berpikir Penelitian',
+            'sistem' => 'Gambar 3.2 Flowchart Alur Kerja Sistem yang Diusulkan',
+            'analisis' => 'Gambar 3.1 Alur Pengumpulan dan Analisis Data',
+        ];
+        $defaultCaption = $captionMap[$kind] ?? 'Gambar 3.1 Diagram Alur Penelitian';
+
+        $prompt = "Buat rancangan {$kindLabel} untuk judul/topik skripsi mahasiswa Indonesia berikut:\n"
+            . "Topik: \"{$topic}\"\n\n"
+            . "Kembalikan HANYA JSON array valid berisi 6 sampai 8 objek langkah berurutan (TANPA markdown ```json, TANPA penjelasan tambahan).\n"
+            . "Format tiap objek:\n"
+            . "{\"type\": \"start|io|process|decision|end\", \"label\": \"Teks singkat maksimal 55 karakter\", \"no_label\": \"opsional khusus type decision\"}\n\n"
+            . "Aturan wajib:\n"
+            . "1. Langkah pertama wajib type \"start\" (label \"Mulai\" atau fenomena awal jika Kerangka Berpikir).\n"
+            . "2. Langkah terakhir wajib type \"end\" (label \"Selesai\" atau kesimpulan/luaran akhir).\n"
+            . "3. Gunakan minimal 1 langkah type \"io\" (input/data/instrumen) dan maksimal 1 langkah type \"decision\" (validasi/uji kelayakan/akurasi) dengan \"no_label\" singkat (cth: \"Revisi / Ulangi\").\n"
+            . "4. Bahasa Indonesia akademik ringkas, jelas, dan spesifik sesuai topik \"{$topic}\".";
+
+        $steps = [];
+        try {
+            $raw = trim((string) $this->ai->generateText($prompt, 'auto'));
+            $raw = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $raw);
+            if (preg_match('/\[[\s\S]*\]/', $raw, $m)) {
+                $decoded = json_decode($m[0], true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $row) {
+                        if (!is_array($row)) {
+                            continue;
+                        }
+                        $type = strtolower(trim((string) ($row['type'] ?? 'process')));
+                        if (!in_array($type, ['start', 'io', 'process', 'decision', 'end'], true)) {
+                            $type = 'process';
+                        }
+                        $label = trim((string) ($row['label'] ?? ''));
+                        if ($label === '') {
+                            continue;
+                        }
+                        $step = [
+                            'type' => $type,
+                            'label' => Str::limit($label, 72, ''),
+                        ];
+                        if ($type === 'decision') {
+                            $step['no_label'] = Str::limit(trim((string) ($row['no_label'] ?? 'Revisi / Ulangi')), 30, '');
+                        }
+                        $steps[] = $step;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback deterministik di bawah
+        }
+
+        if (count($steps) < 4) {
+            $shortTopic = Str::limit($topic, 38, '');
+            if ($kind === 'kerangka') {
+                $steps = [
+                    ['type' => 'start', 'label' => 'Fenomena & Masalah Penelitian'],
+                    ['type' => 'process', 'label' => 'Kajian Teori & Penelitian Terdahulu'],
+                    ['type' => 'io', 'label' => 'Identifikasi Variabel: ' . $shortTopic],
+                    ['type' => 'process', 'label' => 'Pengumpulan & Pengolahan Data Empiris'],
+                    ['type' => 'process', 'label' => 'Analisis Hubungan / Evaluasi Model'],
+                    ['type' => 'end', 'label' => 'Temuan, Simpulan & Rekomendasi'],
+                ];
+            } elseif ($kind === 'sistem') {
+                $steps = [
+                    ['type' => 'start', 'label' => 'Mulai'],
+                    ['type' => 'io', 'label' => 'Input Data / Kebutuhan Pengguna'],
+                    ['type' => 'process', 'label' => 'Pra-Pemrosesan & Validasi Input'],
+                    ['type' => 'process', 'label' => 'Pemrosesan Inti: ' . $shortTopic],
+                    ['type' => 'decision', 'label' => 'Hasil Pengujian Sesuai Target?', 'no_label' => 'Perbaikan / Tuning'],
+                    ['type' => 'io', 'label' => 'Tampilkan Output & Laporan Hasil'],
+                    ['type' => 'end', 'label' => 'Selesai'],
+                ];
+            } else {
+                $steps = [
+                    ['type' => 'start', 'label' => 'Mulai'],
+                    ['type' => 'process', 'label' => 'Identifikasi Masalah & Studi Literatur'],
+                    ['type' => 'io', 'label' => 'Pengumpulan Data: ' . $shortTopic],
+                    ['type' => 'decision', 'label' => 'Data Valid & Reliabel?', 'no_label' => 'Revisi Instrumen'],
+                    ['type' => 'process', 'label' => 'Pengolahan & Analisis Data Penelitian'],
+                    ['type' => 'process', 'label' => 'Pembahasan Hasil & Penarikan Kesimpulan'],
+                    ['type' => 'end', 'label' => 'Selesai'],
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'caption' => $defaultCaption,
+            'steps' => array_slice($steps, 0, 10),
+        ]);
     }
 
     /**
