@@ -1305,6 +1305,11 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     <span>Parafrase</span>
                 </a>
+                <a href="{{ route('app.create', ['tab' => 'plagiarism']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                    <span style="flex:1;">Cek Plagiasi</span>
+                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#eff6ff; color:#2563eb;">Baru</span>
+                </a>
                 <a href="{{ route('app.create', ['tab' => 'qa']) }}" class="ws-nav-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
                     <span>Dosen AI</span>

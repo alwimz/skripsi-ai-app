@@ -5,6 +5,7 @@ use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentToolsController;
+use App\Http\Controllers\PlagiarismController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tools/solve-question', [GeneratorController::class, 'solveQuestion'])->name('tools.solve');
     Route::post('/tools/generate-proposal', [GeneratorController::class, 'generateProposal'])->name('tools.proposal');
     Route::post('/tools/paraphrase', [GeneratorController::class, 'paraphraseText'])->name('tools.paraphrase');
+    Route::post('/tools/plagiarism/check', [PlagiarismController::class, 'check'])->name('tools.plagiarism.check');
+    Route::post('/tools/plagiarism/report-pdf', [PlagiarismController::class, 'downloadReportPdf'])->name('tools.plagiarism.pdf');
     Route::post('/tools/generate-ppt', [GeneratorController::class, 'generatePpt'])->name('tools.ppt');
     Route::post('/tools/ppt/save', [GeneratorController::class, 'savePptDeck'])->name('tools.ppt.save');
     Route::delete('/tools/ppt/{id}', [GeneratorController::class, 'deletePptDeck'])->name('tools.ppt.delete');

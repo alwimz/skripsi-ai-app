@@ -2457,6 +2457,156 @@
                 padding: 8px 14px 8px 12px !important;
             }
         }
+
+        /* =========================================================
+           CEK PLAGIASI (SIMILARITY CHECKER ALA TURNITIN)
+        ========================================================= */
+        .plag-mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .plag-mode-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .plag-mode-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        }
+
+        .plag-filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 12.5px;
+            color: #334155;
+        }
+
+        .plag-filters-row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .plag-filters-row input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 15px;
+            height: 15px;
+        }
+
+        .plag-report-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.95fr);
+            gap: 18px;
+            margin-top: 18px;
+            align-items: start;
+        }
+
+        .plag-doc-viewer {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 22px;
+            font-size: 14px;
+            line-height: 1.85;
+            color: var(--text-main);
+            text-align: justify;
+            max-height: 620px;
+            overflow-y: auto;
+        }
+
+        .plag-sent-hl {
+            padding: 2px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .plag-sent-hl:hover {
+            filter: brightness(0.95);
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+        }
+
+        .plag-sent-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 800;
+            vertical-align: middle;
+            margin-right: 4px;
+            line-height: 1;
+        }
+
+        .plag-score-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .plag-big-pct {
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .plag-src-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .plag-src-item:last-child {
+            border-bottom: none;
+        }
+
+        .plag-inline-editor {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 960px) {
+            .plag-report-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -2547,6 +2697,15 @@
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                 </svg>
                 <span>Parafrase</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-plagiarism" onclick="openTab('plagiarism', 'Cek Plagiasi')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M9 12l2 2 4-4" />
+                </svg>
+                <span style="flex: 1;">Cek Plagiasi</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">Baru</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-qa" onclick="openTab('qa', 'Dosen AI')">
@@ -4190,6 +4349,194 @@
             </section>
 
             <!-- ========================================================= -->
+            <!-- 7B. TAB CEK PLAGIASI (SIMILARITY CHECKER ALA TURNITIN) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-plagiarism">
+                <div class="page-eyebrow">Pre-Check Kemiripan · Ala Turnitin</div>
+                <h1 class="page-title">Cek Plagiasi &amp; Kemiripan Naskah</h1>
+                <p class="page-subtitle">Periksa kemiripan kalimat secara nyata terhadap database jurnal ilmiah terbuka
+                    (OpenAlex, Crossref), Wikipedia, web, maupun dokumen rujukan — lengkap highlight warna, 1-klik parafrase,
+                    dan laporan PDF.</p>
+
+                <div class="card">
+                    <div class="plag-mode-tabs" role="tablist">
+                        <button type="button" class="plag-mode-btn active" id="plag-tab-text" onclick="setPlagInputMode('text')">📝 Tempel Teks</button>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-file" onclick="setPlagInputMode('file')">📄 Upload .docx / .pdf</button>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-project" onclick="setPlagInputMode('project')">🎓 Pilih Proyek Saya</button>
+                    </div>
+
+                    <!-- Mode 1: Tempel Teks -->
+                    <div id="plag-box-text">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label class="form-label">Judul Dokumen (opsional, untuk header laporan PDF)</label>
+                            <input type="text" id="plag-doc-title" class="form-input" placeholder="Contoh: Bab I Pendahuluan — Analisis Sentimen TikTok">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Naskah yang Ingin Diperiksa <span class="req">*</span></label>
+                            <textarea id="plag-text-input" class="form-textarea" style="min-height: 170px;"
+                                placeholder="Tempelkan paragraf atau bab skripsi yang ingin dicek kemiripannya di sini (minimal 15 kata)..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Mode 2: Upload File .docx / .pdf / .txt -->
+                    <div id="plag-box-file" style="display: none;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Pilih File Skripsi / Proposal (.docx, .pdf, atau .txt) <span class="req">*</span></label>
+                            <input type="file" id="plag-file-input" class="form-input" accept=".docx,.pdf,.txt" onchange="onPlagFileSelected(this)">
+                            <div id="plag-file-info" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                                Mendukung file Word (<code>.docx</code>), PDF (<code>.pdf</code>), dan Teks (<code>.txt</code>) hingga 8 MB.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode 3: Pilih Proyek Tersimpan -->
+                    <div id="plag-box-project" style="display: none;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Pilih Proyek Skripsi / Proposal Tersimpan <span class="req">*</span></label>
+                            <select id="plag-project-select" class="form-select">
+                                <option value="">-- Pilih proyek dari Workspace --</option>
+                                @foreach($history as $item)
+                                    <option value="{{ $item->id }}">{{ \Illuminate\Support\Str::limit($item->judul, 95) }}</option>
+                                @endforeach
+                            </select>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                                Sistem otomatis membaca isi Bab I–V dari proyek pilihanmu untuk diperiksa kemiripannya.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Turnitin -->
+                    <div class="plag-filters-row">
+                        <label>
+                            <input type="checkbox" id="plag-ex-bib" checked>
+                            <span>Kecualikan Daftar Pustaka</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="plag-ex-quotes" checked>
+                            <span>Kecualikan Kutipan (&ldquo;...&rdquo;)</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="plag-ex-small" checked>
+                            <span>Abaikan Kecocokan &lt; 6 Kata</span>
+                        </label>
+                    </div>
+
+                    <!-- Opsional: Bandingkan 2 Dokumen -->
+                    <details style="margin-top: 12px; border: 1px dashed #cbd5e1; border-radius: 9px; padding: 10px 14px; background: #ffffff;">
+                        <summary style="cursor: pointer; font-size: 12.5px; font-weight: 600; color: #334155;">
+                            + Opsional: Bandingkan dengan Dokumen / Jurnal Referensi Lokal (Cek 1-vs-1)
+                        </summary>
+                        <div style="margin-top: 10px;">
+                            <input type="file" id="plag-compare-file" class="form-input" accept=".docx,.pdf,.txt" style="margin-bottom: 8px;">
+                            <textarea id="plag-compare-text" class="form-textarea" style="min-height: 85px;"
+                                placeholder="Atau tempelkan teks artikel/jurnal sumber di sini untuk membandingkan langsung 100% kalimatmu dengan sumber tersebut..."></textarea>
+                        </div>
+                    </details>
+
+                    <div class="card-footer-bar">
+                        <span class="footer-meta">ALGORITMA SHINGLING &amp; SPAN MATCHING · OPENALEX + CROSSREF + WIKIPEDIA + WEB</span>
+                        <button type="button" id="btn-plag-check" class="btn-primary" onclick="handlePlagiarismCheck()">
+                            🛡️ Cek Plagiasi Sekarang →
+                        </button>
+                    </div>
+                </div>
+
+                <div id="plag-loading-box" style="display: none; margin-top: 16px;"></div>
+
+                <!-- HASIL LAPORAN SIMILARITY ALA TURNITIN -->
+                <div id="plag-result-wrap" style="display: none;">
+                    <div class="plag-report-grid">
+                        <!-- Kolom Kiri: Naskah Berwarna + 1-Klik Parafrase Inline -->
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                <div>
+                                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Naskah dengan Penandaan Kemiripan</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Klik kalimat berwarna mana saja untuk langsung <strong>Parafrase 1-Klik</strong> menurunkan skor.</div>
+                                </div>
+                                <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="copyUpdatedPlagDoc(this)">
+                                    📋 Salin Naskah Terbaru
+                                </button>
+                            </div>
+
+                            <div id="plag-doc-viewer" class="plag-doc-viewer"></div>
+
+                            <!-- Kotak Parafrase Inline saat pengguna klik kalimat yang ditandai -->
+                            <div id="plag-inline-editor" class="plag-inline-editor" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #1e40af;" id="plag-inline-meta">Kalimat Terdeteksi Mirip</div>
+                                    <button type="button" class="btn-outline" style="padding: 3px 9px; font-size: 11.5px;" onclick="document.getElementById('plag-inline-editor').style.display='none';">Tutup</button>
+                                </div>
+                                <div id="plag-inline-orig" style="font-size: 13px; color: #334155; background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6;"></div>
+                                <div id="plag-inline-source-link" style="font-size: 12px; color: #475569; margin-bottom: 10px;"></div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button type="button" class="btn-primary" id="btn-plag-inline-para" style="padding: 7px 14px; font-size: 12.5px;" onclick="paraphraseFlaggedSentence()">
+                                        ✨ Parafrase Otomatis Kalimat Ini
+                                    </button>
+                                </div>
+                                <div id="plag-inline-result-box" style="display: none; margin-top: 10px;">
+                                    <label class="form-label" style="font-size: 12px; color: #047857;">Hasil Parafrase (Bisa diedit sebelum diterapkan):</label>
+                                    <textarea id="plag-inline-new-text" class="form-textarea" style="min-height: 75px; font-size: 13px;"></textarea>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button type="button" class="btn-primary" style="background: #059669; padding: 6px 14px; font-size: 12.5px;" onclick="applyParaphrasedSentence()">
+                                            ✓ Terapkan &amp; Perbarui Skor
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Similarity Index & Daftar Sumber Cocok -->
+                        <div class="plag-score-card">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); text-transform: uppercase;">Similarity Index</span>
+                                <span id="plag-status-pill" style="font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;">-</span>
+                            </div>
+
+                            <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px;">
+                                <div id="plag-big-pct" class="plag-big-pct">0%</div>
+                                <div style="font-size: 12px; color: var(--text-muted);" id="plag-word-summary">0 kata diperiksa</div>
+                            </div>
+
+                            <!-- Breakdown Sumber -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                                    <div id="plag-acad-pct" style="font-size: 15px; font-weight: 700; color: #1d4ed8;">0%</div>
+                                    <div style="font-size: 10.5px; color: var(--text-muted);">Jurnal Ilmiah</div>
+                                </div>
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                                    <div id="plag-web-pct" style="font-size: 15px; font-weight: 700; color: #7c3aed;">0%</div>
+                                    <div style="font-size: 10.5px; color: var(--text-muted);">Internet / Web</div>
+                                </div>
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                                    <div id="plag-local-pct" style="font-size: 15px; font-weight: 700; color: #0d9488;">0%</div>
+                                    <div style="font-size: 10.5px; color: var(--text-muted);">Pembanding</div>
+                                </div>
+                            </div>
+
+                            <div style="font-size: 12px; color: #475569; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
+                                <span>Keragaman Kosakata (TTR)</span>
+                                <strong id="plag-ttr-val">0%</strong>
+                            </div>
+
+                            <button type="button" class="btn-primary btn-full" id="btn-plag-pdf" onclick="downloadPlagiarismPdf()" style="margin-bottom: 16px;">
+                                ⬇ Unduh Laporan PDF (Ala Turnitin)
+                            </button>
+
+                            <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between;">
+                                <span>Sumber Cocok (Match Overview)</span>
+                                <span id="plag-src-count" style="color: var(--text-muted); font-weight: 600;">0 sumber</span>
+                            </div>
+                            <div id="plag-sources-list" style="max-height: 300px; overflow-y: auto;"></div>
+
+                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+                                ℹ️ <strong>Pre-Check Similarity:</strong> Menggunakan pencocokan frasa Shingling terhadap database jurnal terbuka (OpenAlex, Crossref), Wikipedia &amp; web untuk membantu menurunkan kemiripan sebelum submit Turnitin resmi kampus.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
             <!-- 8. TAB DOSEN AI (INTERACTIVE CHAT & BIMBINGAN 24 JAM) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-qa">
@@ -4727,6 +5074,7 @@
                 'defense': 'Simulasi Sidang',
                 'journals': 'Cari Jurnal',
                 'paraphrase': 'Parafrase',
+                'plagiarism': 'Cek Plagiasi',
                 'qa': 'Dosen AI',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
@@ -7174,6 +7522,351 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Kirim</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+            }
+        }
+
+        // ============================================================
+        // CEK PLAGIASI (SIMILARITY CHECKER ALA TURNITIN)
+        // ============================================================
+        let plagInputMode = 'text';
+        let plagCurrentReport = null;
+        let plagSelectedSentenceIdx = null;
+        let plagPdfJsPromise = null;
+
+        function setPlagInputMode(mode) {
+            plagInputMode = mode;
+            ['text', 'file', 'project'].forEach(m => {
+                const btn = document.getElementById('plag-tab-' + m);
+                const box = document.getElementById('plag-box-' + m);
+                if (btn) btn.classList.toggle('active', m === mode);
+                if (box) box.style.display = (m === mode) ? 'block' : 'none';
+            });
+        }
+
+        function onPlagFileSelected(input) {
+            const info = document.getElementById('plag-file-info');
+            if (input.files && input.files[0] && info) {
+                const f = input.files[0];
+                info.innerHTML = `File siap diperiksa: <strong>${escapeHtml(f.name)}</strong> (${(f.size / 1024).toFixed(1)} KB)`;
+            }
+        }
+
+        async function extractPdfTextInBrowser(file) {
+            if (!plagPdfJsPromise) {
+                plagPdfJsPromise = import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs').then(mod => {
+                    mod.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+                    return mod;
+                });
+            }
+            const pdfjsLib = await plagPdfJsPromise;
+            const buf = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            const maxPages = Math.min(pdf.numPages, 40);
+            let out = [];
+            for (let p = 1; p <= maxPages; p++) {
+                const page = await pdf.getPage(p);
+                const tc = await page.getTextContent();
+                const pageText = tc.items.map(it => it.str || '').join(' ');
+                if (pageText.trim()) out.push(pageText.trim());
+            }
+            return out.join('\n\n');
+        }
+
+        async function handlePlagiarismCheck() {
+            const btn = document.getElementById('btn-plag-check');
+            const loadBox = document.getElementById('plag-loading-box');
+            const resWrap = document.getElementById('plag-result-wrap');
+
+            const fd = new FormData();
+            fd.append('exclude_bibliography', document.getElementById('plag-ex-bib')?.checked ? '1' : '0');
+            fd.append('exclude_quotes', document.getElementById('plag-ex-quotes')?.checked ? '1' : '0');
+            fd.append('exclude_small_matches', document.getElementById('plag-ex-small')?.checked ? '1' : '0');
+
+            if (plagInputMode === 'text') {
+                const txt = (document.getElementById('plag-text-input')?.value || '').trim();
+                if (txt.length < 80) {
+                    alert('Tempelkan minimal 1 paragraf (80 karakter / ~15 kata) agar dapat diperiksa kemiripannya.');
+                    return;
+                }
+                fd.append('text', txt);
+                fd.append('doc_title', (document.getElementById('plag-doc-title')?.value || '').trim() || 'Naskah Skripsi');
+            } else if (plagInputMode === 'file') {
+                const fInput = document.getElementById('plag-file-input');
+                if (!fInput || !fInput.files || !fInput.files[0]) {
+                    alert('Pilih file .docx, .pdf, atau .txt terlebih dahulu.');
+                    return;
+                }
+                const f = fInput.files[0];
+                fd.append('doc_title', f.name.replace(/\.[^.]+$/, ''));
+                if (f.name.toLowerCase().endsWith('.pdf')) {
+                    try {
+                        btn.disabled = true;
+                        showAiLoadingBox('plag-loading-box', 'Mengekstrak teks PDF...', 'Membaca isi halaman PDF di browser...');
+                        const pdfTxt = await extractPdfTextInBrowser(f);
+                        if (pdfTxt && pdfTxt.trim().length >= 80) {
+                            fd.append('text', pdfTxt);
+                        } else {
+                            fd.append('file', f);
+                        }
+                    } catch (pdfErr) {
+                        fd.append('file', f);
+                    }
+                } else {
+                    fd.append('file', f);
+                }
+            } else if (plagInputMode === 'project') {
+                const pid = document.getElementById('plag-project-select')?.value;
+                if (!pid) {
+                    alert('Pilih proyek skripsi atau proposal yang ingin diperiksa.');
+                    return;
+                }
+                fd.append('project_id', pid);
+            }
+
+            // Opsional: Dokumen pembanding lokal
+            const cmpFileInput = document.getElementById('plag-compare-file');
+            const cmpText = (document.getElementById('plag-compare-text')?.value || '').trim();
+            if (cmpFileInput && cmpFileInput.files && cmpFileInput.files[0]) {
+                const cf = cmpFileInput.files[0];
+                if (cf.name.toLowerCase().endsWith('.pdf')) {
+                    try {
+                        const cTxt = await extractPdfTextInBrowser(cf);
+                        if (cTxt && cTxt.trim().length >= 40) fd.append('compare_text', cTxt);
+                        else fd.append('compare_file', cf);
+                    } catch (e) {
+                        fd.append('compare_file', cf);
+                    }
+                } else {
+                    fd.append('compare_file', cf);
+                }
+            } else if (cmpText.length >= 40) {
+                fd.append('compare_text', cmpText);
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Memeriksa Kemiripan...';
+            if (resWrap) resWrap.style.display = 'none';
+            document.getElementById('plag-inline-editor').style.display = 'none';
+            showAiLoadingBox('plag-loading-box', 'Memeriksa Kemiripan Naskah (Ala Turnitin)...', 'Membandingkan frasa naskah dengan OpenAlex, Crossref, Wikipedia & Web secara paralel...');
+
+            try {
+                const res = await fetch("{{ route('tools.plagiarism.check') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: fd
+                });
+                const data = await res.json();
+                hideAiLoadingBox('plag-loading-box');
+
+                if (res.ok && data.status === 'success' && data.report) {
+                    plagCurrentReport = data.report;
+                    renderPlagiarismReport(plagCurrentReport);
+                    if (resWrap) {
+                        resWrap.style.display = 'block';
+                        resWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else {
+                    alert(data.message || 'Gagal memeriksa kemiripan naskah.');
+                }
+            } catch (err) {
+                hideAiLoadingBox('plag-loading-box');
+                alert('Terjadi kesalahan jaringan saat memeriksa plagiasi. Silakan coba lagi.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🛡️ Cek Plagiasi Sekarang →';
+            }
+        }
+
+        function renderPlagiarismReport(rep) {
+            const overall = Number(rep.overall_score || 0);
+            const pctEl = document.getElementById('plag-big-pct');
+            const pillEl = document.getElementById('plag-status-pill');
+
+            let scoreColor = '#059669';
+            let pillBg = '#ecfdf5';
+            let pillColor = '#047857';
+            if (overall > 25) {
+                scoreColor = '#dc2626'; pillBg = '#fef2f2'; pillColor = '#b91c1c';
+            } else if (overall > 15) {
+                scoreColor = '#d97706'; pillBg = '#fffbeb'; pillColor = '#b45309';
+            }
+
+            if (pctEl) {
+                pctEl.textContent = overall.toFixed(1) + '%';
+                pctEl.style.color = scoreColor;
+            }
+            if (pillEl) {
+                pillEl.textContent = rep.status_label || 'Selesai';
+                pillEl.style.background = pillBg;
+                pillEl.style.color = pillColor;
+            }
+
+            const wSum = document.getElementById('plag-word-summary');
+            if (wSum) {
+                wSum.textContent = `${rep.checked_words || 0} kata dicek · ${rep.matched_words || 0} kata mirip`;
+            }
+            document.getElementById('plag-acad-pct').textContent = Number(rep.academic_score || 0).toFixed(1) + '%';
+            document.getElementById('plag-web-pct').textContent = Number(rep.web_score || 0).toFixed(1) + '%';
+            document.getElementById('plag-local-pct').textContent = Number(rep.local_score || 0).toFixed(1) + '%';
+            document.getElementById('plag-ttr-val').textContent = Number(rep.lexical_diversity || 0).toFixed(1) + '%';
+
+            // Render dokumen dengan highlight warna persis Turnitin
+            const viewer = document.getElementById('plag-doc-viewer');
+            if (viewer) {
+                let html = '';
+                (rep.sentences || []).forEach((s, i) => {
+                    const safeText = escapeHtml(s.text || '');
+                    if (s.is_heading) {
+                        html += `<div style="font-weight:700; color:#0f172a; margin:12px 0 4px;">${safeText}</div>`;
+                    } else if (s.matched && s.color) {
+                        const tip = `Mirip ${s.match_percent}% (${s.contiguous_words} kata berurutan) · Sumber [${s.source_number}]: ${escapeHtml(s.source_title || '')}`;
+                        html += `<span class="plag-sent-hl" data-sidx="${i}" title="${tip}" onclick="openPlagInlineParaphrase(${i})" style="background:${s.color.bg}; border-bottom-color:${s.color.border};"><span class="plag-sent-num" style="background:${s.color.badge};">${s.source_number}</span>${safeText}</span> `;
+                    } else if (s.paraphrased) {
+                        html += `<span style="background:#ecfdf5; border-bottom:2px solid #10b981; padding:2px 4px; border-radius:4px;" title="Sudah diparafrase">${safeText}</span> `;
+                    } else {
+                        html += `${safeText} `;
+                    }
+                });
+                viewer.innerHTML = html || '<div style="color:#64748b;">Tidak ada teks untuk ditampilkan.</div>';
+            }
+
+            // Render daftar sumber cocok
+            const srcList = document.getElementById('plag-sources-list');
+            const srcCount = document.getElementById('plag-src-count');
+            const sources = rep.sources || [];
+            if (srcCount) srcCount.textContent = `${sources.length} sumber`;
+            if (srcList) {
+                if (!sources.length) {
+                    srcList.innerHTML = `<div style="padding:14px; text-align:center; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:9px; font-size:12.5px; color:#047857;">
+                        ✓ Tidak ditemukan kemiripan signifikan pada jurnal ilmiah terbuka &amp; web!
+                    </div>`;
+                } else {
+                    srcList.innerHTML = sources.map(src => {
+                        const linkHtml = src.url
+                            ? `<a href="${escapeHtml(src.url)}" target="_blank" rel="noopener" style="font-size:11.5px; color:#2563eb; text-decoration:underline; word-break:break-all;">Buka Sumber ↗</a>`
+                            : `<span style="font-size:11.5px; color:#64748b;">Dokumen Pembanding Lokal</span>`;
+                        return `
+                            <div class="plag-src-item">
+                                <span class="plag-sent-num" style="background:${src.color.badge}; margin-top:2px; flex-shrink:0;">${src.number}</span>
+                                <div style="flex:1; min-width:0;">
+                                    <div style="font-size:12.5px; font-weight:700; color:#0f172a; line-height:1.35;">${escapeHtml(src.title)}</div>
+                                    <div style="font-size:11px; color:#64748b; margin-top:2px;">${escapeHtml(src.origin)}${src.year ? ' · ' + src.year : ''} · ${src.matched_sentences} kalimat</div>
+                                    <div style="margin-top:3px;">${linkHtml}</div>
+                                </div>
+                                <div style="font-size:13.5px; font-weight:800; color:${src.color.badge}; flex-shrink:0;">${Number(src.percent).toFixed(1)}%</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        function openPlagInlineParaphrase(idx) {
+            if (!plagCurrentReport || !plagCurrentReport.sentences[idx]) return;
+            plagSelectedSentenceIdx = idx;
+            const s = plagCurrentReport.sentences[idx];
+            const box = document.getElementById('plag-inline-editor');
+            document.getElementById('plag-inline-meta').textContent = `Sumber [${s.source_number}] · Kemiripan ${s.match_percent}% (${s.contiguous_words} kata berurutan)`;
+            document.getElementById('plag-inline-orig').textContent = s.text;
+            const srcLinkEl = document.getElementById('plag-inline-source-link');
+            srcLinkEl.innerHTML = s.source_url
+                ? `Mirip dengan: <strong>${escapeHtml(s.source_title || '')}</strong> — <a href="${escapeHtml(s.source_url)}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">Lihat Sumber ↗</a>`
+                : `Mirip dengan: <strong>${escapeHtml(s.source_title || 'Sumber terdeteksi')}</strong>`;
+            document.getElementById('plag-inline-result-box').style.display = 'none';
+            document.getElementById('plag-inline-new-text').value = '';
+            box.style.display = 'block';
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function paraphraseFlaggedSentence() {
+            if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
+            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
+            const btn = document.getElementById('btn-plag-inline-para');
+            btn.disabled = true;
+            btn.textContent = 'Memparafrase kalimat...';
+            try {
+                const res = await fetch("{{ route('tools.paraphrase') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: JSON.stringify({ text: s.text, style: 'natural', model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.result) {
+                    document.getElementById('plag-inline-new-text').value = data.result.trim();
+                    document.getElementById('plag-inline-result-box').style.display = 'block';
+                } else {
+                    alert(data.message || 'Gagal memparafrase kalimat.');
+                }
+            } catch (e) {
+                alert('Gagal menghubungi layanan parafrase.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Parafrase Otomatis Kalimat Ini';
+            }
+        }
+
+        function applyParaphrasedSentence() {
+            if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
+            const newTxt = (document.getElementById('plag-inline-new-text')?.value || '').trim();
+            if (!newTxt) return;
+            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
+            const removedWords = Math.round((s.word_count || 0) * Math.min(1, Math.max(0.35, (s.match_percent || 0) / 100)));
+            s.text = newTxt;
+            s.matched = false;
+            s.match_percent = 0;
+            s.paraphrased = true;
+
+            // Perbarui estimasi skor similarity secara langsung setelah kalimat diparafrase
+            plagCurrentReport.matched_words = Math.max(0, (plagCurrentReport.matched_words || 0) - removedWords);
+            const denom = Math.max(1, plagCurrentReport.checked_words || 1);
+            plagCurrentReport.overall_score = Math.round((plagCurrentReport.matched_words / denom) * 1000) / 10;
+            if (plagCurrentReport.overall_score <= 15) {
+                plagCurrentReport.status_label = 'Aman · Lolos Standar Kampus (< 15%)';
+            } else if (plagCurrentReport.overall_score <= 25) {
+                plagCurrentReport.status_label = 'Cukup Aman · Periksa Kalimat Berwarna (15–25%)';
+            }
+
+            document.getElementById('plag-inline-editor').style.display = 'none';
+            renderPlagiarismReport(plagCurrentReport);
+        }
+
+        function copyUpdatedPlagDoc(btn) {
+            if (!plagCurrentReport || !plagCurrentReport.sentences) return;
+            const fullText = plagCurrentReport.sentences.map(s => s.is_heading ? ('\n\n' + s.text + '\n') : s.text).join(' ').replace(/\s+\n/g, '\n').trim();
+            navigator.clipboard.writeText(fullText).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✓ Naskah Tersalin!';
+                setTimeout(() => btn.textContent = orig, 1800);
+            });
+        }
+
+        async function downloadPlagiarismPdf() {
+            if (!plagCurrentReport) return;
+            const btn = document.getElementById('btn-plag-pdf');
+            const orig = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Menyiapkan Laporan PDF...';
+            try {
+                const res = await fetch("{{ route('tools.plagiarism.pdf') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ report: plagCurrentReport })
+                });
+                if (!res.ok) throw new Error('Gagal membuat PDF.');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Laporan_Similarity_SkripsiLab.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+            } catch (e) {
+                alert('Gagal mengunduh laporan PDF.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = orig;
             }
         }
     </script>
