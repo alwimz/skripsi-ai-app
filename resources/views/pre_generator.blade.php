@@ -2462,14 +2462,16 @@
            CEK PLAGIASI (SIMILARITY CHECKER ALA TURNITIN)
         ========================================================= */
         .plag-mode-tabs {
-            display: inline-flex;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 4px;
             padding: 4px;
             background: #f1f5f9;
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 11px;
             margin-bottom: 16px;
-            flex-wrap: wrap;
+            width: 100%;
+            max-width: 520px;
         }
 
         .plag-mode-btn {
@@ -2478,11 +2480,22 @@
             color: var(--text-muted);
             font-size: 12.5px;
             font-weight: 600;
-            padding: 7px 14px;
-            border-radius: 7px;
+            padding: 8px 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
             transition: all 0.15s ease;
+        }
+
+        .plag-mode-btn svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
         }
 
         .plag-mode-btn.active {
@@ -2496,7 +2509,7 @@
             flex-wrap: wrap;
             gap: 10px 18px;
             margin-top: 12px;
-            padding: 10px 14px;
+            padding: 11px 14px;
             background: #f8fafc;
             border: 1px solid var(--border);
             border-radius: 9px;
@@ -2516,6 +2529,43 @@
             accent-color: var(--primary);
             width: 15px;
             height: 15px;
+            flex-shrink: 0;
+        }
+
+        .plag-compare-toggle {
+            margin-top: 12px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: #ffffff;
+        }
+
+        .plag-compare-toggle summary {
+            cursor: pointer;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            list-style: none;
+        }
+
+        .plag-compare-toggle summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .plag-error-banner {
+            display: none;
+            margin-top: 12px;
+            padding: 11px 14px;
+            border-radius: 9px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.5;
         }
 
         .plag-report-grid {
@@ -2537,6 +2587,7 @@
             text-align: justify;
             max-height: 620px;
             overflow-y: auto;
+            word-break: break-word;
         }
 
         .plag-sent-hl {
@@ -2582,6 +2633,13 @@
             letter-spacing: -0.03em;
         }
 
+        .plag-breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
         .plag-src-item {
             display: flex;
             align-items: flex-start;
@@ -2602,9 +2660,57 @@
             border-radius: 10px;
         }
 
+        .plag-btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
         @media (max-width: 960px) {
             .plag-report-grid {
                 grid-template-columns: 1fr;
+            }
+            .plag-score-card {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .plag-mode-tabs {
+                max-width: 100%;
+                gap: 3px;
+                padding: 3px;
+            }
+            .plag-mode-btn {
+                flex-direction: column;
+                gap: 4px;
+                font-size: 11.5px;
+                padding: 8px 4px;
+                white-space: normal;
+                text-align: center;
+                line-height: 1.2;
+            }
+            .plag-filters-row {
+                flex-direction: column;
+                gap: 9px;
+                padding: 10px 12px;
+            }
+            .plag-doc-viewer {
+                padding: 14px;
+                font-size: 13.5px;
+                line-height: 1.75;
+                text-align: left;
+                max-height: 460px;
+            }
+            .plag-score-card {
+                padding: 15px;
+            }
+            .plag-big-pct {
+                font-size: 36px;
+            }
+            .plag-breakdown-grid {
+                gap: 6px;
             }
         }
     </style>
@@ -4360,9 +4466,18 @@
 
                 <div class="card">
                     <div class="plag-mode-tabs" role="tablist">
-                        <button type="button" class="plag-mode-btn active" id="plag-tab-text" onclick="setPlagInputMode('text')">📝 Tempel Teks</button>
-                        <button type="button" class="plag-mode-btn" id="plag-tab-file" onclick="setPlagInputMode('file')">📄 Upload .docx / .pdf</button>
-                        <button type="button" class="plag-mode-btn" id="plag-tab-project" onclick="setPlagInputMode('project')">🎓 Pilih Proyek Saya</button>
+                        <button type="button" class="plag-mode-btn active" id="plag-tab-text" onclick="setPlagInputMode('text')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            <span>Tempel Teks</span>
+                        </button>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-file" onclick="setPlagInputMode('file')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Upload File</span>
+                        </button>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-project" onclick="setPlagInputMode('project')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            <span>Proyek Saya</span>
+                        </button>
                     </div>
 
                     <!-- Mode 1: Tempel Teks -->
@@ -4373,7 +4488,7 @@
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Naskah yang Ingin Diperiksa <span class="req">*</span></label>
-                            <textarea id="plag-text-input" class="form-textarea" style="min-height: 170px;"
+                            <textarea id="plag-text-input" class="form-textarea" style="min-height: 165px;"
                                 placeholder="Tempelkan paragraf atau bab skripsi yang ingin dicek kemiripannya di sini (minimal 15 kata)..."></textarea>
                         </div>
                     </div>
@@ -4422,9 +4537,10 @@
                     </div>
 
                     <!-- Opsional: Bandingkan 2 Dokumen -->
-                    <details style="margin-top: 12px; border: 1px dashed #cbd5e1; border-radius: 9px; padding: 10px 14px; background: #ffffff;">
-                        <summary style="cursor: pointer; font-size: 12.5px; font-weight: 600; color: #334155;">
-                            + Opsional: Bandingkan dengan Dokumen / Jurnal Referensi Lokal (Cek 1-vs-1)
+                    <details class="plag-compare-toggle">
+                        <summary>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Opsional: Bandingkan dengan Dokumen / Jurnal Referensi Lokal (1-vs-1)</span>
                         </summary>
                         <div style="margin-top: 10px;">
                             <input type="file" id="plag-compare-file" class="form-input" accept=".docx,.pdf,.txt" style="margin-bottom: 8px;">
@@ -4433,10 +4549,13 @@
                         </div>
                     </details>
 
+                    <div id="plag-error-banner" class="plag-error-banner"></div>
+
                     <div class="card-footer-bar">
-                        <span class="footer-meta">ALGORITMA SHINGLING &amp; SPAN MATCHING · OPENALEX + CROSSREF + WIKIPEDIA + WEB</span>
-                        <button type="button" id="btn-plag-check" class="btn-primary" onclick="handlePlagiarismCheck()">
-                            🛡️ Cek Plagiasi Sekarang →
+                        <span class="footer-meta">SHINGLING &amp; SPAN MATCHING · OPENALEX + CROSSREF + WIKIPEDIA + WEB</span>
+                        <button type="button" id="btn-plag-check" class="btn-primary plag-btn-icon" onclick="handlePlagiarismCheck()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                            <span>Cek Plagiasi Sekarang</span>
                         </button>
                     </div>
                 </div>
@@ -4453,8 +4572,9 @@
                                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Naskah dengan Penandaan Kemiripan</div>
                                     <div style="font-size: 12px; color: var(--text-muted);">Klik kalimat berwarna mana saja untuk langsung <strong>Parafrase 1-Klik</strong> menurunkan skor.</div>
                                 </div>
-                                <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="copyUpdatedPlagDoc(this)">
-                                    📋 Salin Naskah Terbaru
+                                <button type="button" class="btn-outline plag-btn-icon" style="padding: 6px 12px; font-size: 12px;" onclick="copyUpdatedPlagDoc(this)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <span>Salin Naskah Terbaru</span>
                                 </button>
                             </div>
 
@@ -4469,16 +4589,18 @@
                                 <div id="plag-inline-orig" style="font-size: 13px; color: #334155; background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6;"></div>
                                 <div id="plag-inline-source-link" style="font-size: 12px; color: #475569; margin-bottom: 10px;"></div>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button type="button" class="btn-primary" id="btn-plag-inline-para" style="padding: 7px 14px; font-size: 12.5px;" onclick="paraphraseFlaggedSentence()">
-                                        ✨ Parafrase Otomatis Kalimat Ini
+                                    <button type="button" class="btn-primary plag-btn-icon" id="btn-plag-inline-para" style="padding: 7px 14px; font-size: 12.5px;" onclick="paraphraseFlaggedSentence()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                        <span>Parafrase Otomatis Kalimat Ini</span>
                                     </button>
                                 </div>
                                 <div id="plag-inline-result-box" style="display: none; margin-top: 10px;">
                                     <label class="form-label" style="font-size: 12px; color: #047857;">Hasil Parafrase (Bisa diedit sebelum diterapkan):</label>
                                     <textarea id="plag-inline-new-text" class="form-textarea" style="min-height: 75px; font-size: 13px;"></textarea>
                                     <div style="margin-top: 8px; display: flex; gap: 8px;">
-                                        <button type="button" class="btn-primary" style="background: #059669; padding: 6px 14px; font-size: 12.5px;" onclick="applyParaphrasedSentence()">
-                                            ✓ Terapkan &amp; Perbarui Skor
+                                        <button type="button" class="btn-primary plag-btn-icon" style="background: #059669; padding: 6px 14px; font-size: 12.5px;" onclick="applyParaphrasedSentence()">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Terapkan &amp; Perbarui Skor</span>
                                         </button>
                                     </div>
                                 </div>
@@ -4487,27 +4609,27 @@
 
                         <!-- Kolom Kanan: Similarity Index & Daftar Sumber Cocok -->
                         <div class="plag-score-card">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                                 <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); text-transform: uppercase;">Similarity Index</span>
                                 <span id="plag-status-pill" style="font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;">-</span>
                             </div>
 
-                            <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px;">
+                            <div style="display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
                                 <div id="plag-big-pct" class="plag-big-pct">0%</div>
                                 <div style="font-size: 12px; color: var(--text-muted);" id="plag-word-summary">0 kata diperiksa</div>
                             </div>
 
                             <!-- Breakdown Sumber -->
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                            <div class="plag-breakdown-grid">
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
                                     <div id="plag-acad-pct" style="font-size: 15px; font-weight: 700; color: #1d4ed8;">0%</div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Jurnal Ilmiah</div>
                                 </div>
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
                                     <div id="plag-web-pct" style="font-size: 15px; font-weight: 700; color: #7c3aed;">0%</div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Internet / Web</div>
                                 </div>
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center;">
+                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
                                     <div id="plag-local-pct" style="font-size: 15px; font-weight: 700; color: #0d9488;">0%</div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Pembanding</div>
                                 </div>
@@ -4518,8 +4640,9 @@
                                 <strong id="plag-ttr-val">0%</strong>
                             </div>
 
-                            <button type="button" class="btn-primary btn-full" id="btn-plag-pdf" onclick="downloadPlagiarismPdf()" style="margin-bottom: 16px;">
-                                ⬇ Unduh Laporan PDF (Ala Turnitin)
+                            <button type="button" class="btn-primary btn-full plag-btn-icon" id="btn-plag-pdf" onclick="downloadPlagiarismPdf()" style="margin-bottom: 16px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <span>Unduh Laporan PDF (Ala Turnitin)</span>
                             </button>
 
                             <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between;">
@@ -4528,8 +4651,9 @@
                             </div>
                             <div id="plag-sources-list" style="max-height: 300px; overflow-y: auto;"></div>
 
-                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); line-height: 1.5;">
-                                ℹ️ <strong>Pre-Check Similarity:</strong> Menggunakan pencocokan frasa Shingling terhadap database jurnal terbuka (OpenAlex, Crossref), Wikipedia &amp; web untuk membantu menurunkan kemiripan sebelum submit Turnitin resmi kampus.
+                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); line-height: 1.5; display: flex; gap: 6px; align-items: flex-start;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                <span><strong>Pre-Check Similarity:</strong> Menggunakan pencocokan frasa Shingling terhadap database jurnal terbuka (OpenAlex, Crossref), Wikipedia &amp; web untuk membantu menurunkan kemiripan sebelum submit Turnitin resmi kampus.</span>
                             </div>
                         </div>
                     </div>
@@ -7572,10 +7696,23 @@
             return out.join('\n\n');
         }
 
+        function showPlagError(msg) {
+            const box = document.getElementById('plag-error-banner');
+            if (!box) { alert(msg); return; }
+            if (!msg) {
+                box.style.display = 'none';
+                box.textContent = '';
+            } else {
+                box.style.display = 'block';
+                box.textContent = msg;
+            }
+        }
+
         async function handlePlagiarismCheck() {
             const btn = document.getElementById('btn-plag-check');
-            const loadBox = document.getElementById('plag-loading-box');
             const resWrap = document.getElementById('plag-result-wrap');
+            const defaultBtnHtml = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>Cek Plagiasi Sekarang</span>';
+            showPlagError('');
 
             const fd = new FormData();
             fd.append('exclude_bibliography', document.getElementById('plag-ex-bib')?.checked ? '1' : '0');
@@ -7585,7 +7722,7 @@
             if (plagInputMode === 'text') {
                 const txt = (document.getElementById('plag-text-input')?.value || '').trim();
                 if (txt.length < 80) {
-                    alert('Tempelkan minimal 1 paragraf (80 karakter / ~15 kata) agar dapat diperiksa kemiripannya.');
+                    showPlagError('Tempelkan minimal 1 paragraf (80 karakter / sekitar 15 kata) agar dapat diperiksa kemiripannya.');
                     return;
                 }
                 fd.append('text', txt);
@@ -7593,7 +7730,7 @@
             } else if (plagInputMode === 'file') {
                 const fInput = document.getElementById('plag-file-input');
                 if (!fInput || !fInput.files || !fInput.files[0]) {
-                    alert('Pilih file .docx, .pdf, atau .txt terlebih dahulu.');
+                    showPlagError('Pilih file .docx, .pdf, atau .txt terlebih dahulu.');
                     return;
                 }
                 const f = fInput.files[0];
@@ -7601,7 +7738,7 @@
                 if (f.name.toLowerCase().endsWith('.pdf')) {
                     try {
                         btn.disabled = true;
-                        showAiLoadingBox('plag-loading-box', 'Mengekstrak teks PDF...', 'Membaca isi halaman PDF di browser...');
+                        renderLoadingCard('plag-loading-box', 'Mengekstrak teks PDF...', 'Membaca isi halaman PDF langsung di browser...');
                         const pdfTxt = await extractPdfTextInBrowser(f);
                         if (pdfTxt && pdfTxt.trim().length >= 80) {
                             fd.append('text', pdfTxt);
@@ -7617,7 +7754,7 @@
             } else if (plagInputMode === 'project') {
                 const pid = document.getElementById('plag-project-select')?.value;
                 if (!pid) {
-                    alert('Pilih proyek skripsi atau proposal yang ingin diperiksa.');
+                    showPlagError('Pilih proyek skripsi atau proposal yang ingin diperiksa.');
                     return;
                 }
                 fd.append('project_id', pid);
@@ -7644,10 +7781,10 @@
             }
 
             btn.disabled = true;
-            btn.textContent = 'Memeriksa Kemiripan...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Memeriksa Kemiripan...</span>';
             if (resWrap) resWrap.style.display = 'none';
             document.getElementById('plag-inline-editor').style.display = 'none';
-            showAiLoadingBox('plag-loading-box', 'Memeriksa Kemiripan Naskah (Ala Turnitin)...', 'Membandingkan frasa naskah dengan OpenAlex, Crossref, Wikipedia & Web secara paralel...');
+            renderLoadingCard('plag-loading-box', 'Memeriksa Kemiripan Naskah (Ala Turnitin)...', 'Membandingkan frasa naskah dengan OpenAlex, Crossref, Wikipedia & Web secara paralel...');
 
             try {
                 const res = await fetch("{{ route('tools.plagiarism.check') }}", {
@@ -7655,8 +7792,10 @@
                     headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                     body: fd
                 });
-                const data = await res.json();
-                hideAiLoadingBox('plag-loading-box');
+                const rawBody = await res.text();
+                let data = {};
+                try { data = JSON.parse(rawBody); } catch (_) { data = { message: 'Respon server tidak valid (' + res.status + ').' }; }
+                hideLoadingCard('plag-loading-box');
 
                 if (res.ok && data.status === 'success' && data.report) {
                     plagCurrentReport = data.report;
@@ -7666,14 +7805,14 @@
                         resWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 } else {
-                    alert(data.message || 'Gagal memeriksa kemiripan naskah.');
+                    showPlagError(data.message || 'Gagal memeriksa kemiripan naskah.');
                 }
             } catch (err) {
-                hideAiLoadingBox('plag-loading-box');
-                alert('Terjadi kesalahan jaringan saat memeriksa plagiasi. Silakan coba lagi.');
+                hideLoadingCard('plag-loading-box');
+                showPlagError('Terjadi kesalahan jaringan saat memeriksa plagiasi. Silakan coba lagi.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = '🛡️ Cek Plagiasi Sekarang →';
+                btn.innerHTML = defaultBtnHtml;
             }
         }
 
@@ -7782,8 +7921,9 @@
             if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
             const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
             const btn = document.getElementById('btn-plag-inline-para');
+            const origHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.textContent = 'Memparafrase kalimat...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Memparafrase kalimat...</span>';
             try {
                 const res = await fetch("{{ route('tools.paraphrase') }}", {
                     method: 'POST',
@@ -7795,13 +7935,13 @@
                     document.getElementById('plag-inline-new-text').value = data.result.trim();
                     document.getElementById('plag-inline-result-box').style.display = 'block';
                 } else {
-                    alert(data.message || 'Gagal memparafrase kalimat.');
+                    showPlagError(data.message || 'Gagal memparafrase kalimat.');
                 }
             } catch (e) {
-                alert('Gagal menghubungi layanan parafrase.');
+                showPlagError('Gagal menghubungi layanan parafrase.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = '✨ Parafrase Otomatis Kalimat Ini';
+                btn.innerHTML = origHtml;
             }
         }
 
@@ -7834,18 +7974,18 @@
             if (!plagCurrentReport || !plagCurrentReport.sentences) return;
             const fullText = plagCurrentReport.sentences.map(s => s.is_heading ? ('\n\n' + s.text + '\n') : s.text).join(' ').replace(/\s+\n/g, '\n').trim();
             navigator.clipboard.writeText(fullText).then(() => {
-                const orig = btn.textContent;
-                btn.textContent = '✓ Naskah Tersalin!';
-                setTimeout(() => btn.textContent = orig, 1800);
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Naskah Tersalin</span>';
+                setTimeout(() => btn.innerHTML = origHtml, 1800);
             });
         }
 
         async function downloadPlagiarismPdf() {
             if (!plagCurrentReport) return;
             const btn = document.getElementById('btn-plag-pdf');
-            const orig = btn.textContent;
+            const origHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.textContent = 'Menyiapkan Laporan PDF...';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan Laporan PDF...</span>';
             try {
                 const res = await fetch("{{ route('tools.plagiarism.pdf') }}", {
                     method: 'POST',
@@ -7863,10 +8003,10 @@
                 a.remove();
                 setTimeout(() => URL.revokeObjectURL(url), 1500);
             } catch (e) {
-                alert('Gagal mengunduh laporan PDF.');
+                showPlagError('Gagal mengunduh laporan PDF.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = orig;
+                btn.innerHTML = origHtml;
             }
         }
     </script>

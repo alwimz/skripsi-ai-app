@@ -32,7 +32,7 @@
             'operatingSystem' => 'Web Browser',
             'inLanguage' => 'id-ID',
             'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
-            'description' => 'Kumpulan 10 alat produktivitas gratis untuk mahasiswa Indonesia: Flowchart Skripsi AI, Rapikan Format Skripsi Word, PDF ke Word, Gabung & Pisah PDF, Kompres PDF/Word/Gambar, Hapus Background Gambar, JPG ke PDF A4, Kalkulator Slovin & Lemeshow, dan Hitung Kata.',
+            'description' => 'Kumpulan 10 alat produktivitas gratis untuk mahasiswa Indonesia: Diagram & Flowchart AI, Rapikan Format Skripsi Word, PDF ke Word, Gabung & Pisah PDF, Kompres PDF/Word/Gambar, Hapus Background Gambar, JPG ke PDF A4, Kalkulator Slovin & Lemeshow, dan Hitung Kata.',
         ];
     @endphp
     <script type="application/ld+json">{!! json_encode($toolsSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -1396,7 +1396,7 @@
                 <span class="tool-tab-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="5" rx="2.5"/><path d="M12 7v3"/><rect x="5" y="10" width="14" height="5" rx="1"/><path d="M12 15v3"/><rect x="7" y="18" width="10" height="4" rx="2"/></svg>
                 </span>
-                <span class="tool-tab-name">Flowchart Skripsi</span>
+                <span class="tool-tab-name">Diagram &amp; Flowchart</span>
                 <span class="tool-tab-sub">AI + PNG HD &amp; SVG</span>
             </button>
 
@@ -1485,29 +1485,29 @@
             <div class="panel-card">
                 <div class="panel-head">
                     <div>
-                        <h2 class="panel-title">Generator Flowchart Skripsi &amp; Proposal</h2>
-                        <p class="panel-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), atau flowchart sistem otomatis dengan AI — edit simbol standar ISO lalu unduh PNG HD bersih (tanpa teks keterangan di dalam gambar, agar nomor Gambar di Word bisa diketik sendiri).</p>
+                        <h2 class="panel-title">Generator Diagram &amp; Flowchart Skripsi</h2>
+                        <p class="panel-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), diagram sistem, atau flowchart analisis data otomatis dengan AI — edit simbol standar ISO lalu unduh PNG HD bersih siap tempel Word.</p>
                     </div>
-                    <span class="privacy-badge">✨ Otomatis AI · Siap Tempel Word</span>
+                    <span class="privacy-badge">Otomatis AI · Siap Tempel Word</span>
                 </div>
 
                 <div class="fc-layout">
                     <!-- Kolom Kiri: AI + Preset + Editor Langkah -->
                     <div>
                         <div class="fc-ai-box">
-                            <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">✨ Buat Langkah Otomatis Pakai AI</div>
+                            <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">Buat Langkah Otomatis Pakai AI</div>
                             <div style="margin-bottom:8px;">
                                 <label class="form-label" for="fc-ai-topic">Judul Skripsi / Topik Penelitian</label>
                                 <input type="text" id="fc-ai-topic" class="form-input" placeholder="cth: Klasifikasi Sentimen Komentar TikTok Menggunakan Naive Bayes">
                             </div>
                             <div class="fc-ai-row">
-                                <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:180px;">
+                                <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:180px;" onchange="onChangeFlowchartKind(this.value)">
                                     <option value="prosedur">Prosedur Penelitian (Bab III)</option>
                                     <option value="kerangka">Kerangka Berpikir (Bab II)</option>
                                     <option value="sistem">Alur Sistem / Aplikasi (IT &amp; R&amp;D)</option>
                                     <option value="analisis">Alur Pengumpulan &amp; Analisis Data</option>
                                 </select>
-                                <button type="button" class="btn btn-primary" id="btn-fc-ai" onclick="generateFlowchartWithAi()">✨ Buat dengan AI</button>
+                                <button type="button" class="btn btn-primary" id="btn-fc-ai" onclick="generateFlowchartWithAi()">Buat dengan AI</button>
                             </div>
                             <div id="proc-fc" class="proc-box">
                                 <div class="proc-head">
@@ -2653,6 +2653,17 @@
                     { type: 'process', label: 'Pengujian Empiris & Analisis Data' },
                     { type: 'end', label: 'Temuan Ilmiah & Rekomendasi Solusi' }
                 ]
+            },
+            analisis: {
+                steps: [
+                    { type: 'start', label: 'Mulai' },
+                    { type: 'io', label: 'Pengumpulan Data Primer & Sekunder' },
+                    { type: 'process', label: 'Tabulasi, Pembersihan & Coding Data' },
+                    { type: 'decision', label: 'Uji Validitas, Reliabilitas & Asumsi Lolos?', no_label: 'Transformasi / Cek Data' },
+                    { type: 'process', label: 'Analisis Statistik / Pengujian Hipotesis' },
+                    { type: 'process', label: 'Interpretasi Hasil & Pembahasan Bab IV' },
+                    { type: 'end', label: 'Selesai' }
+                ]
             }
         };
 
@@ -2686,10 +2697,26 @@
             return lines.slice(0, 3);
         }
 
-        function loadFlowchartPreset(key) {
+        function onChangeFlowchartKind(kind) {
+            const map = {
+                prosedur: 'kuantitatif',
+                kerangka: 'kerangka',
+                sistem: 'rnd',
+                analisis: 'analisis'
+            };
+            const presetKey = map[kind] || 'kuantitatif';
+            loadFlowchartPreset(presetKey, false);
+        }
+
+        function loadFlowchartPreset(key, syncDropdown = true) {
             const p = FLOWCHART_PRESETS[key];
             if (!p) return;
             fcSteps = JSON.parse(JSON.stringify(p.steps));
+            if (syncDropdown) {
+                const kindEl = document.getElementById('fc-ai-kind');
+                const revMap = { kuantitatif: 'prosedur', kualitatif: 'prosedur', rnd: 'sistem', kerangka: 'kerangka', analisis: 'analisis' };
+                if (kindEl && revMap[key]) kindEl.value = revMap[key];
+            }
             renderFlowchartEditor();
             renderFlowchartSvg();
         }

@@ -2155,7 +2155,7 @@
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="5" rx="2.5"/><path d="M12 7v3"/><rect x="5" y="10" width="14" height="5" rx="1"/><path d="M12 15v3"/><rect x="7" y="18" width="10" height="4" rx="2"/></svg>
                         </span>
-                        <div class="tool-sc-title">Flowchart Skripsi AI</div>
+                        <div class="tool-sc-title">Diagram &amp; Flowchart AI</div>
                         <div class="tool-sc-desc">Buat diagram alur penelitian (Bab III), kerangka berpikir (Bab II), &amp; alur sistem otomatis lalu unduh PNG HD/SVG.</div>
                         <a href="{{ auth()->check() ? route('tools.hub') . '#flowchart' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
                     </div>
