@@ -1310,6 +1310,11 @@
                     <span style="flex:1;">Cek Plagiasi</span>
                     <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#eff6ff; color:#2563eb;">Baru</span>
                 </a>
+                <a href="{{ route('app.create', ['tab' => 'olahdata']) }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <span style="flex:1;">Olah Data</span>
+                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#ecfdf5; color:#059669;">SPSS</span>
+                </a>
                 <a href="{{ route('app.create', ['tab' => 'qa']) }}" class="ws-nav-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
                     <span>Dosen AI</span>
@@ -1495,23 +1500,23 @@
                     <!-- Kolom Kiri: AI + Preset + Editor Langkah -->
                     <div>
                         <div class="fc-ai-box">
-                            <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">Buat Langkah Otomatis Pakai AI</div>
+                            <div style="font-size:12.5px; font-weight:700; color:#1d4ed8; margin-bottom:8px;">Buat Diagram Otomatis Pakai AI</div>
                             <div style="margin-bottom:8px;">
                                 <label class="form-label" for="fc-ai-topic">Judul Skripsi / Topik Penelitian</label>
-                                <input type="text" id="fc-ai-topic" class="form-input" placeholder="cth: Klasifikasi Sentimen Komentar TikTok Menggunakan Naive Bayes">
+                                <input type="text" id="fc-ai-topic" class="form-input" placeholder="cth: Pengaruh Kualitas Layanan &amp; Harga terhadap Kepuasan Pelanggan">
                             </div>
                             <div class="fc-ai-row">
                                 <select id="fc-ai-kind" class="form-select" style="flex:1; min-width:180px;" onchange="onChangeFlowchartKind(this.value)">
-                                    <option value="prosedur">Prosedur Penelitian (Bab III)</option>
-                                    <option value="kerangka">Kerangka Berpikir (Bab II)</option>
-                                    <option value="sistem">Alur Sistem / Aplikasi (IT &amp; R&amp;D)</option>
-                                    <option value="analisis">Alur Pengumpulan &amp; Analisis Data</option>
+                                    <option value="prosedur">1. Flowchart Prosedur Penelitian (Bab III)</option>
+                                    <option value="kerangka">2. Diagram Kerangka Berpikir / Variabel (Bab II)</option>
+                                    <option value="sistem">3. Diagram Arsitektur Sistem &amp; Database (IT/R&amp;D)</option>
+                                    <option value="analisis">4. Pipeline Pengumpulan &amp; Analisis Data (Bab III)</option>
                                 </select>
                                 <button type="button" class="btn btn-primary" id="btn-fc-ai" onclick="generateFlowchartWithAi()">Buat dengan AI</button>
                             </div>
                             <div id="proc-fc" class="proc-box">
                                 <div class="proc-head">
-                                    <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-fc-text">Menyusun langkah flowchart...</span></div>
+                                    <div class="proc-head-left"><span class="proc-spinner"></span><span id="proc-fc-text">Menyusun diagram sesuai jenis pilihanmu...</span></div>
                                     <span id="proc-fc-pct">...</span>
                                 </div>
                                 <div class="proc-track"><div class="proc-fill" id="proc-fc-bar" style="width:65%;"></div></div>
@@ -1519,17 +1524,29 @@
                             <div id="status-fc" class="status-box"></div>
                         </div>
 
-                        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Template Cepat 1-Klik:</div>
-                        <div class="preset-row">
-                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kuantitatif')">Kuantitatif (Survei)</button>
-                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kualitatif')">Kualitatif</button>
-                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('rnd')">R&amp;D / Sistem IT</button>
-                            <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kerangka')">Kerangka Berpikir</button>
+                        <!-- Sub-opsi Bentuk Khusus Kerangka Berpikir (hanya tampil saat kind=kerangka) -->
+                        <div id="fc-kerangka-layout-bar" style="display:none; margin-bottom:10px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid var(--border);">
+                            <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Bentuk Kerangka Berpikir (Bab II):</div>
+                            <div class="preset-row" style="margin-bottom:0;">
+                                <button type="button" class="preset-chip" id="kb-btn-regresi" onclick="setKerangkaLayout('regresi')">Variabel X₁, X₂ → Y (Regresi)</button>
+                                <button type="button" class="preset-chip" id="kb-btn-mediasi" onclick="setKerangkaLayout('mediasi')">Jalur Mediasi X → Z → Y</button>
+                                <button type="button" class="preset-chip" id="kb-btn-bertingkat" onclick="setKerangkaLayout('bertingkat')">Konseptual Bertingkat / Kualitatif</button>
+                            </div>
+                        </div>
+
+                        <!-- Preset Cepat Khusus Flowchart Prosedur -->
+                        <div id="fc-prosedur-preset-bar">
+                            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Template Cepat 1-Klik:</div>
+                            <div class="preset-row">
+                                <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kuantitatif')">Kuantitatif (Survei)</button>
+                                <button type="button" class="preset-chip" onclick="loadFlowchartPreset('kualitatif')">Kualitatif</button>
+                                <button type="button" class="preset-chip" onclick="loadFlowchartPreset('rnd')">Teknik / Lab / R&amp;D</button>
+                            </div>
                         </div>
 
                         <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0 8px; gap:8px;">
-                            <span style="font-size:12.5px; font-weight:700; color:var(--text-main);">Edit Langkah &amp; Simbol ISO</span>
-                            <button type="button" class="mini-btn" style="color:var(--primary); border-color:var(--primary-border);" onclick="addFlowchartStep()">+ Tambah Langkah</button>
+                            <span style="font-size:12.5px; font-weight:700; color:var(--text-main);" id="fc-editor-heading">Edit Langkah &amp; Simbol ISO</span>
+                            <button type="button" class="mini-btn" id="btn-fc-add-item" style="color:var(--primary); border-color:var(--primary-border);" onclick="addDiagramItem()">+ Tambah Langkah</button>
                         </div>
 
                         <div id="fc-steps-editor" class="fc-steps-list"></div>
@@ -1539,11 +1556,12 @@
                     <div>
                         <div class="form-grid-2" style="margin-bottom:10px;">
                             <div>
-                                <label class="form-label" for="fc-style-select">Gaya Warna Skripsi</label>
+                                <label class="form-label" for="fc-style-select">Tema Warna Diagram</label>
                                 <select id="fc-style-select" class="form-select" onchange="renderFlowchartSvg()">
                                     <option value="bw" selected>Hitam-Putih Resmi (Siap Cetak)</option>
                                     <option value="blue">Biru Akademik Modern</option>
-                                    <option value="navy">Navy Elegan</option>
+                                    <option value="navy">Navy Eksekutif</option>
+                                    <option value="emerald">Hijau Emerald Ilmiah</option>
                                 </select>
                             </div>
                             <div>
@@ -1558,9 +1576,18 @@
                         <div class="fc-preview-shell">
                             <div class="fc-preview-paper" id="fc-svg-preview"></div>
                             <div class="fc-export-bar">
-                                <button type="button" class="btn btn-primary fc-btn-main" onclick="downloadFlowchartPng()">⬇ Unduh PNG HD</button>
-                                <button type="button" class="btn btn-soft" onclick="copyFlowchartPng()">📋 Salin Gambar</button>
-                                <button type="button" class="btn btn-outline" onclick="downloadFlowchartSvg()">⬇ Unduh SVG</button>
+                                <button type="button" class="btn btn-primary fc-btn-main" onclick="downloadFlowchartPng()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>Unduh PNG HD</span>
+                                </button>
+                                <button type="button" class="btn btn-soft" onclick="copyFlowchartPng()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <span>Salin Gambar</span>
+                                </button>
+                                <button type="button" class="btn btn-outline" onclick="downloadFlowchartSvg()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>Unduh SVG</span>
+                                </button>
                             </div>
                             <div id="status-fc-export" class="status-box"></div>
                         </div>
@@ -2608,7 +2635,7 @@
         }
 
         // ============================================================
-        // 1. GENERATOR FLOWCHART SKRIPSI (TANPA CAPTION BAWAAN DI GAMBAR)
+        // 1. GENERATOR DIAGRAM & FLOWCHART SKRIPSI (4 BENTUK BAKU + 4 TEMA)
         // ============================================================
         const FLOWCHART_PRESETS = {
             kuantitatif: {
@@ -2637,37 +2664,56 @@
             rnd: {
                 steps: [
                     { type: 'start', label: 'Mulai' },
-                    { type: 'io', label: 'Pengumpulan Dataset & Analisis Kebutuhan' },
-                    { type: 'process', label: 'Perancangan Arsitektur & Pra-Pemrosesan Data' },
-                    { type: 'process', label: 'Implementasi Sistem / Pelatihan Model' },
-                    { type: 'decision', label: 'Hasil Uji Kelayakan / Akurasi Optimal?', no_label: 'Evaluasi & Perbaikan' },
-                    { type: 'io', label: 'Dokumentasi Hasil & Laporan Skripsi' },
-                    { type: 'end', label: 'Selesai' }
-                ]
-            },
-            kerangka: {
-                steps: [
-                    { type: 'start', label: 'Fenomena & Permasalahan Lapangan' },
-                    { type: 'process', label: 'Landasan Teori & Penelitian Terdahulu' },
-                    { type: 'io', label: 'Identifikasi Variabel Independen & Dependen' },
-                    { type: 'process', label: 'Pengujian Empiris & Analisis Data' },
-                    { type: 'end', label: 'Temuan Ilmiah & Rekomendasi Solusi' }
-                ]
-            },
-            analisis: {
-                steps: [
-                    { type: 'start', label: 'Mulai' },
-                    { type: 'io', label: 'Pengumpulan Data Primer & Sekunder' },
-                    { type: 'process', label: 'Tabulasi, Pembersihan & Coding Data' },
-                    { type: 'decision', label: 'Uji Validitas, Reliabilitas & Asumsi Lolos?', no_label: 'Transformasi / Cek Data' },
-                    { type: 'process', label: 'Analisis Statistik / Pengujian Hipotesis' },
-                    { type: 'process', label: 'Interpretasi Hasil & Pembahasan Bab IV' },
+                    { type: 'io', label: 'Persiapan Material / Dataset & Analisis Kebutuhan' },
+                    { type: 'process', label: 'Perancangan Model / Mix Design / Arsitektur' },
+                    { type: 'process', label: 'Pengujian Laboratorium / Implementasi Sistem' },
+                    { type: 'decision', label: 'Hasil Uji Memenuhi Standar / Akurasi?', no_label: 'Evaluasi & Perbaikan' },
+                    { type: 'io', label: 'Analisis Hasil & Dokumentasi Laporan' },
                     { type: 'end', label: 'Selesai' }
                 ]
             }
         };
 
+        let fcCurrentKind = 'prosedur';
         let fcSteps = JSON.parse(JSON.stringify(FLOWCHART_PRESETS.kuantitatif.steps));
+        let fcKerangka = {
+            layout: 'regresi',
+            x_vars: [
+                { code: 'X1', name: 'Kualitas Layanan', indicators: 'Keandalan, Daya Tanggap, Empati' },
+                { code: 'X2', name: 'Persepsi Harga', indicators: 'Keterjangkauan, Kesesuaian Manfaat' },
+                { code: 'X3', name: 'Citra Merek', indicators: 'Kepercayaan, Reputasi' }
+            ],
+            mediator: { code: 'Z', name: 'Kepuasan Pelanggan', indicators: 'Harapan vs Kinerja' },
+            y_var: { code: 'Y', name: 'Loyalitas Pelanggan', indicators: 'Pembelian Ulang, Rekomendasi' },
+            hypotheses: ['H1', 'H2', 'H3'],
+            simultaneous: true,
+            stages: [
+                'Kondisi Awal: Fenomena & Permasalahan Lapangan',
+                'Landasan Teori & Penelitian Terdahulu yang Relevan',
+                'Penerapan Metode / Model Analisis Penelitian',
+                'Luaran: Temuan Empiris, Solusi & Rekomendasi'
+            ]
+        };
+        let fcSistem = {
+            actor: 'Pengguna / Peneliti',
+            frontend: 'Aplikasi Web / Mobile Client',
+            frontend_sub: 'Form Input, Dashboard & Laporan',
+            backend: 'Server Aplikasi & Mesin AI',
+            backend_sub: 'REST API, Validasi & Pemodelan',
+            database: 'Basis Data (MySQL)',
+            database_sub: 'Tabel Data, Dataset & Riwayat',
+            req_label: 'Input / Aksi',
+            api_label: 'HTTP Request / JSON',
+            db_label: 'Query SQL / CRUD',
+            output: 'Hasil Analisis & Laporan PDF/Word'
+        };
+        let fcAnalisis = [
+            { title: '1. Sumber Data', details: ['Data Primer (Survei / Lab)', 'Data Sekunder (Literatur)', 'Penentuan Populasi & Sampel'] },
+            { title: '2. Pengumpulan Data', details: ['Kuesioner / Uji Benda Uji', 'Observasi & Dokumentasi', 'Tabulasi & Coding Data'] },
+            { title: '3. Uji Kelayakan Data', details: ['Uji Validitas & Reliabilitas', 'Uji Normalitas & Asumsi Klasik', 'Pembersihan Outlier'] },
+            { title: '4. Analisis & Simpulan', details: ['Regresi / ANOVA / Uji Beda', 'Pengujian Hipotesis (Sig < 0,05)', 'Interpretasi Bab IV & Saran'] }
+        ];
+
         let lastFlowchartSvgString = '';
         let lastFlowchartDims = { w: 620, h: 640 };
 
@@ -2679,7 +2725,7 @@
                 .replace(/"/g, '&quot;');
         }
 
-        function wrapFlowchartLines(text, maxChars) {
+        function wrapFlowchartLines(text, maxChars, maxLines = 3) {
             const words = String(text || '').trim().split(/\s+/).filter(Boolean);
             if (!words.length) return [''];
             const lines = [];
@@ -2694,36 +2740,91 @@
                 }
             }
             if (cur) lines.push(cur);
-            return lines.slice(0, 3);
+            return lines.slice(0, maxLines);
         }
 
         function onChangeFlowchartKind(kind) {
-            const map = {
-                prosedur: 'kuantitatif',
-                kerangka: 'kerangka',
-                sistem: 'rnd',
-                analisis: 'analisis'
-            };
-            const presetKey = map[kind] || 'kuantitatif';
-            loadFlowchartPreset(presetKey, false);
-        }
+            fcCurrentKind = kind || 'prosedur';
+            const kbBar = document.getElementById('fc-kerangka-layout-bar');
+            const prBar = document.getElementById('fc-prosedur-preset-bar');
+            const heading = document.getElementById('fc-editor-heading');
+            const addBtn = document.getElementById('btn-fc-add-item');
 
-        function loadFlowchartPreset(key, syncDropdown = true) {
-            const p = FLOWCHART_PRESETS[key];
-            if (!p) return;
-            fcSteps = JSON.parse(JSON.stringify(p.steps));
-            if (syncDropdown) {
-                const kindEl = document.getElementById('fc-ai-kind');
-                const revMap = { kuantitatif: 'prosedur', kualitatif: 'prosedur', rnd: 'sistem', kerangka: 'kerangka', analisis: 'analisis' };
-                if (kindEl && revMap[key]) kindEl.value = revMap[key];
+            if (kbBar) kbBar.style.display = fcCurrentKind === 'kerangka' ? 'block' : 'none';
+            if (prBar) prBar.style.display = fcCurrentKind === 'prosedur' ? 'block' : 'none';
+
+            if (fcCurrentKind === 'kerangka') {
+                if (heading) heading.textContent = 'Edit Variabel & Hubungan Kerangka Berpikir';
+                if (addBtn) {
+                    addBtn.style.display = 'inline-flex';
+                    addBtn.textContent = fcKerangka.layout === 'bertingkat' ? '+ Tambah Tahap' : '+ Tambah Variabel X';
+                }
+                highlightKerangkaLayoutBtn();
+            } else if (fcCurrentKind === 'sistem') {
+                if (heading) heading.textContent = 'Edit Komponen Arsitektur Sistem & Database';
+                if (addBtn) addBtn.style.display = 'none';
+            } else if (fcCurrentKind === 'analisis') {
+                if (heading) heading.textContent = 'Edit Tahapan Pipeline Analisis Data';
+                if (addBtn) { addBtn.style.display = 'inline-flex'; addBtn.textContent = '+ Tambah Tahap'; }
+            } else {
+                if (heading) heading.textContent = 'Edit Langkah & Simbol ISO Flowchart';
+                if (addBtn) { addBtn.style.display = 'inline-flex'; addBtn.textContent = '+ Tambah Langkah'; }
             }
+
             renderFlowchartEditor();
             renderFlowchartSvg();
         }
 
-        function addFlowchartStep() {
-            const insertAt = Math.max(0, fcSteps.length - 1);
-            fcSteps.splice(insertAt, 0, { type: 'process', label: 'Tahap Penelitian Baru' });
+        function highlightKerangkaLayoutBtn() {
+            ['regresi', 'mediasi', 'bertingkat'].forEach(k => {
+                const b = document.getElementById('kb-btn-' + k);
+                if (!b) return;
+                const active = fcKerangka.layout === k;
+                b.style.background = active ? '#2563eb' : '';
+                b.style.color = active ? '#ffffff' : '';
+                b.style.borderColor = active ? '#2563eb' : '';
+            });
+        }
+
+        function setKerangkaLayout(layout) {
+            fcKerangka.layout = layout;
+            const addBtn = document.getElementById('btn-fc-add-item');
+            if (addBtn) addBtn.textContent = layout === 'bertingkat' ? '+ Tambah Tahap' : '+ Tambah Variabel X';
+            highlightKerangkaLayoutBtn();
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function loadFlowchartPreset(key) {
+            const p = FLOWCHART_PRESETS[key];
+            if (!p) return;
+            fcCurrentKind = 'prosedur';
+            const kindEl = document.getElementById('fc-ai-kind');
+            if (kindEl) kindEl.value = 'prosedur';
+            fcSteps = JSON.parse(JSON.stringify(p.steps));
+            onChangeFlowchartKind('prosedur');
+        }
+
+        function addDiagramItem() {
+            if (fcCurrentKind === 'prosedur') {
+                const insertAt = Math.max(0, fcSteps.length - 1);
+                fcSteps.splice(insertAt, 0, { type: 'process', label: 'Tahap Penelitian Baru' });
+            } else if (fcCurrentKind === 'kerangka') {
+                if (fcKerangka.layout === 'bertingkat') {
+                    if (fcKerangka.stages.length < 6) fcKerangka.stages.push('Tahap Konseptual Baru');
+                } else {
+                    if (fcKerangka.x_vars.length < 5) {
+                        const n = fcKerangka.x_vars.length + 1;
+                        fcKerangka.x_vars.push({ code: 'X' + n, name: 'Variabel Independen ' + n, indicators: '' });
+                        fcKerangka.hypotheses.push('H' + n);
+                    }
+                }
+            } else if (fcCurrentKind === 'analisis') {
+                if (fcAnalisis.length < 5) {
+                    const n = fcAnalisis.length + 1;
+                    fcAnalisis.push({ title: `${n}. Tahap Analisis ${n}`, details: ['Sub-kegiatan 1', 'Sub-kegiatan 2'] });
+                }
+            }
             renderFlowchartEditor();
             renderFlowchartSvg();
         }
@@ -2753,9 +2854,144 @@
             renderFlowchartSvg();
         }
 
+        function updateKerangkaX(idx, field, val) {
+            if (!fcKerangka.x_vars[idx]) return;
+            fcKerangka.x_vars[idx][field] = val;
+            renderFlowchartSvg();
+        }
+
+        function deleteKerangkaX(idx) {
+            if (fcKerangka.x_vars.length <= 1) return;
+            fcKerangka.x_vars.splice(idx, 1);
+            fcKerangka.hypotheses.splice(idx, 1);
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
+        function updateAnalisisStage(idx, field, val) {
+            if (!fcAnalisis[idx]) return;
+            if (field === 'details') {
+                fcAnalisis[idx].details = val.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 4);
+            } else {
+                fcAnalisis[idx][field] = val;
+            }
+            renderFlowchartSvg();
+        }
+
+        function deleteAnalisisStage(idx) {
+            if (fcAnalisis.length <= 2) return;
+            fcAnalisis.splice(idx, 1);
+            renderFlowchartEditor();
+            renderFlowchartSvg();
+        }
+
         function renderFlowchartEditor() {
             const wrap = document.getElementById('fc-steps-editor');
             if (!wrap) return;
+
+            if (fcCurrentKind === 'kerangka') {
+                if (fcKerangka.layout === 'bertingkat') {
+                    wrap.innerHTML = fcKerangka.stages.map((st, i) => `
+                        <div class="fc-step-row">
+                            <div class="fc-step-top">
+                                <span class="fc-step-num">${i + 1}</span>
+                                <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">Blok Konseptual ${i + 1}</span>
+                                ${fcKerangka.stages.length > 2 ? `<button type="button" class="mini-btn danger" style="margin-left:auto;" onclick="fcKerangka.stages.splice(${i},1); renderFlowchartEditor(); renderFlowchartSvg();">✕</button>` : ''}
+                            </div>
+                            <input type="text" class="form-input" style="min-height:34px; padding:6px 10px; font-size:12.5px;" value="${escapeSvgXml(st)}" oninput="fcKerangka.stages[${i}]=this.value; renderFlowchartSvg();">
+                        </div>
+                    `).join('');
+                    return;
+                }
+
+                const xHtml = fcKerangka.x_vars.map((xv, i) => `
+                    <div class="fc-step-row">
+                        <div class="fc-step-top">
+                            <span class="fc-step-num">${escapeSvgXml(xv.code || ('X' + (i + 1)))}</span>
+                            <input type="text" class="form-input" style="width:68px; min-height:30px; padding:4px 7px; font-size:12px; font-weight:700;" value="${escapeSvgXml(xv.code || ('X' + (i + 1)))}" placeholder="X1" oninput="updateKerangkaX(${i},'code',this.value)">
+                            <input type="text" class="form-input" style="width:64px; min-height:30px; padding:4px 7px; font-size:12px;" value="${escapeSvgXml(fcKerangka.hypotheses[i] || ('H' + (i + 1)))}" placeholder="H1" oninput="fcKerangka.hypotheses[${i}]=this.value; renderFlowchartSvg();">
+                            <span style="font-size:11px; color:var(--text-muted);">Variabel Bebas</span>
+                            ${fcKerangka.x_vars.length > 1 ? `<button type="button" class="mini-btn danger" style="margin-left:auto;" onclick="deleteKerangkaX(${i})">✕</button>` : ''}
+                        </div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(xv.name)}" placeholder="Nama variabel (cth: Kualitas Layanan)" oninput="updateKerangkaX(${i},'name',this.value)">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px; color:#475569;" value="${escapeSvgXml(xv.indicators || '')}" placeholder="Indikator singkat (opsional, pisahkan koma)" oninput="updateKerangkaX(${i},'indicators',this.value)">
+                    </div>
+                `).join('');
+
+                const zHtml = fcKerangka.layout === 'mediasi' ? `
+                    <div class="fc-step-row" style="border-color:#c4b5fd; background:#faf5ff;">
+                        <div class="fc-step-top">
+                            <span class="fc-step-num" style="background:#7c3aed;">Z</span>
+                            <span style="font-size:12px; font-weight:700; color:#6d28d9;">Variabel Mediasi / Intervening (Z)</span>
+                        </div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml((fcKerangka.mediator && fcKerangka.mediator.name) || 'Kepuasan Pelanggan')}" oninput="if(!fcKerangka.mediator) fcKerangka.mediator={code:'Z',name:'',indicators:''}; fcKerangka.mediator.name=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml((fcKerangka.mediator && fcKerangka.mediator.indicators) || '')}" placeholder="Indikator Z (opsional)" oninput="if(!fcKerangka.mediator) fcKerangka.mediator={code:'Z',name:'',indicators:''}; fcKerangka.mediator.indicators=this.value; renderFlowchartSvg();">
+                    </div>
+                ` : '';
+
+                const yHtml = `
+                    <div class="fc-step-row" style="border-color:#93c5fd; background:#eff6ff;">
+                        <div class="fc-step-top">
+                            <span class="fc-step-num" style="background:#1d4ed8;">Y</span>
+                            <span style="font-size:12px; font-weight:700; color:#1e40af;">Variabel Dependen / Terikat (Y)</span>
+                        </div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcKerangka.y_var.name)}" oninput="fcKerangka.y_var.name=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml(fcKerangka.y_var.indicators || '')}" placeholder="Indikator Y (opsional)" oninput="fcKerangka.y_var.indicators=this.value; renderFlowchartSvg();">
+                        ${fcKerangka.layout === 'regresi' && fcKerangka.x_vars.length >= 2 ? `
+                            <label style="display:flex; align-items:center; gap:7px; font-size:12px; color:#1e3a8a; margin-top:4px; cursor:pointer;">
+                                <input type="checkbox" ${fcKerangka.simultaneous ? 'checked' : ''} style="accent-color:#2563eb;" onchange="fcKerangka.simultaneous=this.checked; renderFlowchartSvg();">
+                                <span>Tampilkan garis panah pengaruh simultan putus-putus (Uji F)</span>
+                            </label>
+                        ` : ''}
+                    </div>
+                `;
+                wrap.innerHTML = xHtml + zHtml + yHtml;
+                return;
+            }
+
+            if (fcCurrentKind === 'sistem') {
+                wrap.innerHTML = `
+                    <div class="fc-step-row">
+                        <div class="fc-step-top"><span class="fc-step-num">1</span><span style="font-size:12px; font-weight:700;">Aktor / Pengguna Utama</span></div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcSistem.actor)}" oninput="fcSistem.actor=this.value; renderFlowchartSvg();">
+                    </div>
+                    <div class="fc-step-row">
+                        <div class="fc-step-top"><span class="fc-step-num">2</span><span style="font-size:12px; font-weight:700;">Antarmuka / Client App</span></div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcSistem.frontend)}" oninput="fcSistem.frontend=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml(fcSistem.frontend_sub)}" placeholder="Sub-label teknologi" oninput="fcSistem.frontend_sub=this.value; renderFlowchartSvg();">
+                    </div>
+                    <div class="fc-step-row">
+                        <div class="fc-step-top"><span class="fc-step-num">3</span><span style="font-size:12px; font-weight:700;">Backend / Server / Mesin Proses</span></div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcSistem.backend)}" oninput="fcSistem.backend=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml(fcSistem.backend_sub)}" placeholder="Sub-label algoritma / API" oninput="fcSistem.backend_sub=this.value; renderFlowchartSvg();">
+                    </div>
+                    <div class="fc-step-row">
+                        <div class="fc-step-top"><span class="fc-step-num">4</span><span style="font-size:12px; font-weight:700;">Basis Data (Silinder Database)</span></div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcSistem.database)}" oninput="fcSistem.database=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml(fcSistem.database_sub)}" placeholder="Sub-label tabel / storage" oninput="fcSistem.database_sub=this.value; renderFlowchartSvg();">
+                    </div>
+                    <div class="fc-step-row">
+                        <div class="fc-step-top"><span class="fc-step-num">5</span><span style="font-size:12px; font-weight:700;">Luaran / Output Sistem</span></div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml(fcSistem.output)}" oninput="fcSistem.output=this.value; renderFlowchartSvg();">
+                    </div>
+                `;
+                return;
+            }
+
+            if (fcCurrentKind === 'analisis') {
+                wrap.innerHTML = fcAnalisis.map((st, i) => `
+                    <div class="fc-step-row">
+                        <div class="fc-step-top">
+                            <span class="fc-step-num">${i + 1}</span>
+                            <input type="text" class="form-input" style="flex:1; min-height:32px; padding:4px 8px; font-size:12.5px; font-weight:600;" value="${escapeSvgXml(st.title)}" oninput="updateAnalisisStage(${i},'title',this.value)">
+                            ${fcAnalisis.length > 2 ? `<button type="button" class="mini-btn danger" onclick="deleteAnalisisStage(${i})">✕</button>` : ''}
+                        </div>
+                        <textarea class="form-input" style="min-height:58px; padding:6px 9px; font-size:11.5px; line-height:1.45; resize:vertical;" placeholder="1 baris per poin metode..." oninput="updateAnalisisStage(${i},'details',this.value)">${escapeSvgXml((st.details || []).join('\n'))}</textarea>
+                    </div>
+                `).join('');
+                return;
+            }
+
             wrap.innerHTML = fcSteps.map((st, i) => `
                 <div class="fc-step-row">
                     <div class="fc-step-top">
@@ -2781,117 +3017,407 @@
             `).join('');
         }
 
-        function renderFlowchartSvg() {
+        function getDiagramThemePalette() {
             const styleKey = document.getElementById('fc-style-select')?.value || 'bw';
-            const bgMode = document.getElementById('fc-bg-select')?.value || 'white';
-
             const themes = {
                 bw: {
-                    bg: '#ffffff', stroke: '#0f172a', text: '#0f172a', arrow: '#0f172a',
+                    bg: '#ffffff', stroke: '#0f172a', text: '#0f172a', subText: '#475569', arrow: '#0f172a',
                     termFill: '#f8fafc', procFill: '#ffffff', ioFill: '#ffffff', decFill: '#f8fafc',
-                    branchText: '#334155'
+                    accentFill: '#f1f5f9', accentStroke: '#0f172a', headerFill: '#0f172a', headerText: '#ffffff',
+                    medFill: '#f8fafc', yFill: '#f1f5f9', branchText: '#334155'
                 },
                 blue: {
-                    bg: '#ffffff', stroke: '#1d4ed8', text: '#0f172a', arrow: '#2563eb',
+                    bg: '#ffffff', stroke: '#1d4ed8', text: '#0f172a', subText: '#475569', arrow: '#2563eb',
                     termFill: '#dbeafe', procFill: '#eff6ff', ioFill: '#f0f9ff', decFill: '#fef3c7',
-                    branchText: '#1d4ed8'
+                    accentFill: '#dbeafe', accentStroke: '#2563eb', headerFill: '#1d4ed8', headerText: '#ffffff',
+                    medFill: '#f5f3ff', yFill: '#dbeafe', branchText: '#1d4ed8'
                 },
                 navy: {
-                    bg: '#ffffff', stroke: '#1e293b', text: '#0f172a', arrow: '#1e3a8a',
+                    bg: '#ffffff', stroke: '#1e293b', text: '#0f172a', subText: '#475569', arrow: '#1e3a8a',
                     termFill: '#1e3a8a', termText: '#ffffff', procFill: '#f8fafc', ioFill: '#eef2ff', decFill: '#e0e7ff',
-                    branchText: '#1e3a8a'
+                    accentFill: '#e0e7ff', accentStroke: '#1e3a8a', headerFill: '#0f172a', headerText: '#ffffff',
+                    medFill: '#eef2ff', yFill: '#dbeafe', branchText: '#1e3a8a'
+                },
+                emerald: {
+                    bg: '#ffffff', stroke: '#047857', text: '#0f172a', subText: '#475569', arrow: '#059669',
+                    termFill: '#d1fae5', procFill: '#ecfdf5', ioFill: '#f0fdf4', decFill: '#fef3c7',
+                    accentFill: '#d1fae5', accentStroke: '#059669', headerFill: '#047857', headerText: '#ffffff',
+                    medFill: '#f0fdfa', yFill: '#d1fae5', branchText: '#047857'
                 }
             };
-            const pal = themes[styleKey] || themes.bw;
+            return themes[styleKey] || themes.bw;
+        }
 
-            const hasDecision = fcSteps.some(s => s.type === 'decision');
-            const svgW = hasDecision ? 640 : 500;
-            const cx = hasDecision ? 225 : 250;
-            const boxW = 304;
-            const gapY = 30;
-            let y = 24;
+        function renderKerangkaSvg(pal) {
+            if (fcKerangka.layout === 'bertingkat') {
+                const svgW = 600;
+                const boxW = 460;
+                const cx = svgW / 2;
+                let y = 26;
+                let shapes = '';
+                fcKerangka.stages.forEach((txt, i) => {
+                    const lines = wrapFlowchartLines(txt, 44, 3);
+                    const h = Math.max(54, 24 + lines.length * 18);
+                    const fill = i === fcKerangka.stages.length - 1 ? pal.yFill : (i === 0 ? pal.accentFill : pal.procFill);
+                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="${boxW}" height="${h}" rx="6" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="8" height="${h}" rx="3" fill="${pal.headerFill}"/>`;
+                    const startY = y + h / 2 - ((lines.length - 1) * 17) / 2 + 5;
+                    lines.forEach((ln, li) => {
+                        shapes += `<text x="${cx + 4}" y="${startY + li * 17}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13.5" font-weight="${i === 0 || i === fcKerangka.stages.length - 1 ? 'bold' : 'normal'}" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                    });
+                    if (i < fcKerangka.stages.length - 1) {
+                        shapes += `<line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${y + h + 26}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                    }
+                    y += h + 30;
+                });
+                return { w: svgW, h: y - 4, shapes };
+            }
 
-            const nodesMeta = [];
-            fcSteps.forEach((st) => {
-                const maxC = st.type === 'decision' ? 20 : (st.type === 'io' ? 28 : 32);
-                const lines = wrapFlowchartLines(st.label, maxC);
-                let h = 48;
-                let rightEdge = cx + boxW / 2;
-                if (st.type === 'start' || st.type === 'end') {
-                    h = lines.length > 1 ? 52 : 44;
-                    const tw = Math.min(boxW, Math.max(170, lines[0].length * 9 + 48));
-                    rightEdge = cx + tw / 2;
-                } else if (st.type === 'decision') {
-                    h = lines.length >= 3 ? 98 : (lines.length === 2 ? 86 : 74);
-                    rightEdge = cx + 132;
-                } else if (st.type === 'io') {
-                    h = Math.max(48, 22 + lines.length * 18);
-                    rightEdge = cx + boxW / 2 - 9;
-                } else {
-                    h = Math.max(48, 22 + lines.length * 18);
-                }
-                nodesMeta.push({ st, lines, y, h, cy: y + h / 2, bottom: y + h, rightEdge });
-                y += h + gapY;
-            });
+            const xs = fcKerangka.x_vars;
+            const isMed = fcKerangka.layout === 'mediasi';
+            const boxW = isMed ? 210 : 235;
+            const boxH = 74;
+            const gapY = 24;
+            const padTop = 36;
+            const padBot = 36;
+            const totalXH = xs.length * boxH + Math.max(0, xs.length - 1) * gapY;
+            const svgW = isMed ? 860 : 720;
+            const svgH = Math.max(250, totalXH + padTop + padBot + (fcKerangka.simultaneous && !isMed && xs.length >= 2 ? 32 : 0));
 
-            const svgH = y - gapY + 24;
-            lastFlowchartDims = { w: svgW, h: svgH };
+            const xColX = 36;
+            const yColX = svgW - boxW - 36;
+            const zColX = Math.round((xColX + boxW + yColX) / 2 - boxW / 2);
+            const midY = Math.round(padTop + totalXH / 2);
 
             let shapes = '';
-            nodesMeta.forEach((n, idx) => {
-                const { st, lines, y: ny, h, cy, bottom } = n;
-                const fill = (st.type === 'start' || st.type === 'end') ? pal.termFill
-                    : (st.type === 'io' ? pal.ioFill : (st.type === 'decision' ? pal.decFill : pal.procFill));
-                const txtColor = ((st.type === 'start' || st.type === 'end') && pal.termText) ? pal.termText : pal.text;
 
-                if (st.type === 'start' || st.type === 'end') {
-                    const tw = (n.rightEdge - cx) * 2;
-                    shapes += `<rect x="${cx - tw / 2}" y="${ny}" width="${tw}" height="${h}" rx="${h / 2}" ry="${h / 2}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
-                } else if (st.type === 'io') {
-                    const skew = 18;
-                    const x1 = cx - boxW / 2 + skew;
-                    const x2 = cx + boxW / 2;
-                    const x3 = cx + boxW / 2 - skew;
-                    const x4 = cx - boxW / 2;
-                    shapes += `<polygon points="${x1},${ny} ${x2},${ny} ${x3},${bottom} ${x4},${bottom}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
-                } else if (st.type === 'decision') {
-                    const dw = 132;
-                    const pts = `${cx},${ny} ${cx + dw},${cy} ${cx},${bottom} ${cx - dw},${cy}`;
-                    shapes += `<polygon points="${pts}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
-
-                    const loopX = cx + dw + 140;
-                    const backIdx = Math.max(0, idx - 1);
-                    const targetNode = nodesMeta[backIdx];
-                    const targetY = targetNode.cy;
-                    const targetRightX = targetNode.rightEdge + 4;
-                    const noTxt = (st.no_label || 'Revisi / Ulangi').trim();
-                    const pillW = Math.min(180, Math.max(118, noTxt.length * 6.5 + 22));
-                    const pillX = Math.min(svgW - pillW - 10, loopX - pillW / 2);
-
-                    shapes += `<polyline points="${cx + dw},${cy} ${loopX},${cy} ${loopX},${targetY} ${targetRightX},${targetY}" fill="none" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
-                    shapes += `<text x="${cx + dw + 10}" y="${cy - 6}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Tidak</text>`;
-                    shapes += `<rect x="${pillX}" y="${(cy + targetY) / 2 - 12}" width="${pillW}" height="24" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.95"/>`;
-                    shapes += `<text x="${pillX + pillW / 2}" y="${(cy + targetY) / 2 + 3.5}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.text}">${escapeSvgXml(noTxt.slice(0, 28))}</text>`;
-                } else {
-                    shapes += `<rect x="${cx - boxW / 2}" y="${ny}" width="${boxW}" height="${h}" rx="4" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            // Helper gambar kotak variabel akademis bersih (dengan kode variabel + indikator opsional)
+            const drawVarBox = (x, y, w, h, code, name, ind, fill) => {
+                let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                s += `<rect x="${x + 8}" y="${y + 7}" width="${Math.max(30, String(code).length * 9 + 14)}" height="19" rx="4" fill="${pal.headerFill}"/>`;
+                s += `<text x="${x + 8 + Math.max(30, String(code).length * 9 + 14) / 2}" y="${y + 20}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.headerText}">${escapeSvgXml(code)}</text>`;
+                const nLines = wrapFlowchartLines(name, isMed ? 22 : 25, 2);
+                const nameY = ind ? (y + 39) : (y + h / 2 + (nLines.length === 1 ? 8 : 2));
+                nLines.forEach((ln, li) => {
+                    s += `<text x="${x + w / 2}" y="${nameY + li * 15}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                });
+                if (ind) {
+                    const indTxt = String(ind).length > 34 ? String(ind).slice(0, 33) + '…' : String(ind);
+                    s += `<text x="${x + w / 2}" y="${y + h - 8}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.2" font-style="italic" fill="${pal.subText}">${escapeSvgXml(indTxt)}</text>`;
                 }
+                return s;
+            };
 
-                const lineH = 16;
-                const startTextY = cy - ((lines.length - 1) * lineH) / 2 + 4.5;
-                lines.forEach((ln, li) => {
-                    const boldAttr = (st.type === 'start' || st.type === 'end') ? 'font-weight="bold"' : '';
-                    shapes += `<text x="${cx}" y="${startTextY + li * lineH}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13" ${boldAttr} fill="${txtColor}">${escapeSvgXml(ln)}</text>`;
+            // Kotak Variabel Y di kanan
+            const yBoxY = Math.round(midY - boxH / 2);
+            shapes += drawVarBox(yColX, yBoxY, boxW, boxH, fcKerangka.y_var.code || 'Y', fcKerangka.y_var.name, fcKerangka.y_var.indicators, pal.yFill);
+
+            // Kotak Variabel Mediasi Z di tengah (jika mode mediasi)
+            const zBoxY = Math.round(midY - boxH / 2);
+            if (isMed) {
+                const med = fcKerangka.mediator || { code: 'Z', name: 'Variabel Mediasi', indicators: '' };
+                shapes += drawVarBox(zColX, zBoxY, boxW, boxH, med.code || 'Z', med.name, med.indicators, pal.medFill);
+                // Panah Z -> Y
+                shapes += `<line x1="${zColX + boxW}" y1="${midY}" x2="${yColX - 4}" y2="${midY}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                const hZY = 'H' + (xs.length + 1);
+                shapes += `<rect x="${(zColX + boxW + yColX) / 2 - 15}" y="${midY - 22}" width="30" height="17" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${(zColX + boxW + yColX) / 2}" y="${midY - 10}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${hZY}</text>`;
+            }
+
+            // Kotak-kotak Variabel X di kiri + panah hipotesis
+            xs.forEach((xv, i) => {
+                const by = padTop + i * (boxH + gapY);
+                const cy = Math.round(by + boxH / 2);
+                shapes += drawVarBox(xColX, by, boxW, boxH, xv.code || ('X' + (i + 1)), xv.name, xv.indicators, pal.procFill);
+
+                const targetX = isMed ? (zColX - 4) : (yColX - 4);
+                const targetY = isMed ? midY : Math.round(yBoxY + ((i + 1) / (xs.length + 1)) * boxH);
+                shapes += `<line x1="${xColX + boxW}" y1="${cy}" x2="${targetX}" y2="${targetY}" stroke="${pal.arrow}" stroke-width="1.7" marker-end="url(#fc-arrow)"/>`;
+
+                const lx = Math.round((xColX + boxW + targetX) / 2);
+                const ly = Math.round((cy + targetY) / 2) - 8;
+                const hLbl = (fcKerangka.hypotheses[i] || ('H' + (i + 1))).trim();
+                shapes += `<rect x="${lx - 15}" y="${ly - 11}" width="30" height="17" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(hLbl)}</text>`;
+            });
+
+            // Garis Simultan putus-putus (Uji F) khusus layout regresi >= 2 variabel X
+            if (!isMed && fcKerangka.simultaneous && xs.length >= 2) {
+                const grpX = xColX - 16;
+                const grpY = padTop - 12;
+                const grpW = boxW + 32;
+                const grpH = totalXH + 24;
+                const simBottomY = grpY + grpH + 20;
+                const yMidX = yColX + boxW / 2;
+                const hSim = 'H' + (xs.length + 1) + ' (Simultan)';
+                shapes += `<rect x="${grpX}" y="${grpY}" width="${grpW}" height="${grpH}" rx="10" fill="none" stroke="${pal.arrow}" stroke-width="1.4" stroke-dasharray="6,4"/>`;
+                shapes += `<polyline points="${xColX + boxW / 2},${grpY + grpH} ${xColX + boxW / 2},${simBottomY} ${yMidX},${simBottomY} ${yMidX},${yBoxY + boxH + 4}" fill="none" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<rect x="${(xColX + boxW / 2 + yMidX) / 2 - 48}" y="${simBottomY - 11}" width="96" height="20" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${(xColX + boxW / 2 + yMidX) / 2}" y="${simBottomY + 3}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${hSim}</text>`;
+            }
+
+            // Keterangan legenda standar skripsi di pojok bawah
+            const legY = svgH - 12;
+            shapes += `<line x1="36" y1="${legY - 3}" x2="66" y2="${legY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="74" y="${legY}" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.subText}">Pengaruh Parsial</text>`;
+            if (!isMed && fcKerangka.simultaneous && xs.length >= 2) {
+                shapes += `<line x1="176" y1="${legY - 3}" x2="206" y2="${legY - 3}" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="214" y="${legY}" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.subText}">Pengaruh Simultan</text>`;
+            }
+
+            return { w: svgW, h: svgH, shapes };
+        }
+
+        function renderSistemSvg(pal) {
+            const svgW = 820;
+            const svgH = 385;
+            let shapes = '';
+
+            // 1. Aktor / User (kiri)
+            const ux = 32, uy = 68, uw = 136, uh = 136;
+            shapes += `<rect x="${ux}" y="${uy}" width="${uw}" height="${uh}" rx="10" fill="${pal.accentFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            // Stick-figure user icon
+            const ucx = ux + uw / 2;
+            shapes += `<circle cx="${ucx}" cy="${uy + 34}" r="13" fill="#ffffff" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            shapes += `<path d="M ${ucx - 20} ${uy + 76} C ${ucx - 20} ${uy + 56}, ${ucx + 20} ${uy + 56}, ${ucx + 20} ${uy + 76}" fill="none" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            const actLines = wrapFlowchartLines(fcSistem.actor, 16, 2);
+            actLines.forEach((ln, i) => {
+                shapes += `<text x="${ucx}" y="${uy + 100 + i * 16}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="12.5" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+            });
+
+            // 2. Frontend / Client App
+            const fx = 232, fy = 58, fw = 215, fh = 156;
+            shapes += `<rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="8" fill="${pal.procFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            shapes += `<rect x="${fx}" y="${fy}" width="${fw}" height="30" rx="8" fill="${pal.headerFill}"/>`;
+            shapes += `<rect x="${fx}" y="${fy + 16}" width="${fw}" height="14" fill="${pal.headerFill}"/>`;
+            shapes += `<text x="${fx + fw / 2}" y="${fy + 20}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.headerText}">CLIENT / ANTARMUKA</text>`;
+            const fLines = wrapFlowchartLines(fcSistem.frontend, 24, 2);
+            fLines.forEach((ln, i) => {
+                shapes += `<text x="${fx + fw / 2}" y="${fy + 66 + i * 18}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="13.5" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+            });
+            const fsLines = wrapFlowchartLines(fcSistem.frontend_sub, 28, 2);
+            fsLines.forEach((ln, i) => {
+                shapes += `<text x="${fx + fw / 2}" y="${fy + 114 + i * 15}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" fill="${pal.subText}">${escapeSvgXml(ln)}</text>`;
+            });
+
+            // 3. Backend / Server / Engine
+            const bx = 548, by = 58, bw = 236, bh = 156;
+            shapes += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="8" fill="${pal.procFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            shapes += `<rect x="${bx}" y="${by}" width="${bw}" height="30" rx="8" fill="${pal.headerFill}"/>`;
+            shapes += `<rect x="${bx}" y="${by + 16}" width="${bw}" height="14" fill="${pal.headerFill}"/>`;
+            shapes += `<text x="${bx + bw / 2}" y="${by + 20}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.headerText}">SERVER / PROSES INTI</text>`;
+            const bLines = wrapFlowchartLines(fcSistem.backend, 25, 2);
+            bLines.forEach((ln, i) => {
+                shapes += `<text x="${bx + bw / 2}" y="${by + 66 + i * 18}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="13.5" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+            });
+            const bsLines = wrapFlowchartLines(fcSistem.backend_sub, 30, 2);
+            bsLines.forEach((ln, i) => {
+                shapes += `<text x="${bx + bw / 2}" y="${by + 114 + i * 15}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" fill="${pal.subText}">${escapeSvgXml(ln)}</text>`;
+            });
+
+            // 4. Silinder 3D Database (bawah kanan)
+            const dx = 576, dy = 264, dw = 180, dh = 92;
+            shapes += `<path d="M ${dx} ${dy + 14} L ${dx} ${dy + dh - 14} A ${dw / 2} 14 0 0 0 ${dx + dw} ${dy + dh - 14} L ${dx + dw} ${dy + 14} Z" fill="${pal.yFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            shapes += `<ellipse cx="${dx + dw / 2}" cy="${dy + 14}" rx="${dw / 2}" ry="14" fill="${pal.accentFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            const dLines = wrapFlowchartLines(fcSistem.database, 22, 2);
+            dLines.forEach((ln, i) => {
+                shapes += `<text x="${dx + dw / 2}" y="${dy + 49 + i * 15}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="12.5" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+            });
+            shapes += `<text x="${dx + dw / 2}" y="${dy + 78}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.2" fill="${pal.subText}">${escapeSvgXml(String(fcSistem.database_sub || '').slice(0, 28))}</text>`;
+
+            // 5. Output / Laporan (bawah kiri-tengah)
+            const ox = 152, oy = 276, ow = 295, oh = 74;
+            shapes += `<rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" rx="8" fill="${pal.yFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+            shapes += `<text x="${ox + ow / 2}" y="${oy + 24}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold" fill="${pal.branchText}">OUTPUT / LUARAN SISTEM</text>`;
+            const oLines = wrapFlowchartLines(fcSistem.output, 34, 2);
+            oLines.forEach((ln, i) => {
+                shapes += `<text x="${ox + ow / 2}" y="${oy + 45 + i * 16}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+            });
+
+            // Panah-panah arus data berlabel
+            // User <-> Frontend
+            shapes += `<line x1="${ux + uw}" y1="122" x2="${fx - 4}" y2="122" stroke="${pal.arrow}" stroke-width="1.7" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<line x1="${fx}" y1="150" x2="${ux + uw + 4}" y2="150" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="${(ux + uw + fx) / 2}" y="114" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(fcSistem.req_label || 'Input')}</text>`;
+
+            // Frontend <-> Backend
+            shapes += `<line x1="${fx + fw}" y1="118" x2="${bx - 4}" y2="118" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="${(fx + fw + bx) / 2}" y="110" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(fcSistem.api_label || 'Request')}</text>`;
+            shapes += `<line x1="${bx}" y1="154" x2="${fx + fw + 4}" y2="154" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="${(fx + fw + bx) / 2}" y="170" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.subText}">Response Data</text>`;
+
+            // Backend <-> Database
+            shapes += `<line x1="${bx + bw / 2 - 14}" y1="${by + bh}" x2="${bx + bw / 2 - 14}" y2="${dy - 3}" stroke="${pal.arrow}" stroke-width="1.7" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<line x1="${bx + bw / 2 + 14}" y1="${dy}" x2="${bx + bw / 2 + 14}" y2="${by + bh + 4}" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="${bx + bw / 2 + 26}" y="${(by + bh + dy) / 2 + 4}" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(fcSistem.db_label || 'Query SQL')}</text>`;
+
+            // Frontend -> Output -> User
+            shapes += `<line x1="${fx + fw / 2}" y1="${fy + fh}" x2="${fx + fw / 2}" y2="${oy - 4}" stroke="${pal.arrow}" stroke-width="1.7" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<polyline points="${ox},${oy + oh / 2} ${ucx},${oy + oh / 2} ${ucx},${uy + uh + 4}" fill="none" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
+
+            return { w: svgW, h: svgH, shapes };
+        }
+
+        function renderAnalisisSvg(pal) {
+            const count = fcAnalisis.length;
+            const cols = count <= 4 ? count : 3;
+            const rows = Math.ceil(count / cols);
+            const cardW = cols <= 3 ? 236 : 194;
+            const cardH = 148;
+            const gapX = 32;
+            const gapY = 38;
+            const padX = 28;
+            const padY = 28;
+            const svgW = padX * 2 + cols * cardW + (cols - 1) * gapX;
+            const svgH = padY * 2 + rows * cardH + (rows - 1) * gapY;
+
+            let shapes = '';
+            fcAnalisis.forEach((st, idx) => {
+                const r = Math.floor(idx / cols);
+                const c = idx % cols;
+                const x = padX + c * (cardW + gapX);
+                const y = padY + r * (cardH + gapY);
+
+                // Card body
+                shapes += `<rect x="${x}" y="${y}" width="${cardW}" height="${cardH}" rx="8" fill="${idx === count - 1 ? pal.yFill : pal.procFill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                shapes += `<rect x="${x}" y="${y}" width="${cardW}" height="36" rx="8" fill="${pal.headerFill}"/>`;
+                shapes += `<rect x="${x}" y="${y + 22}" width="${cardW}" height="14" fill="${pal.headerFill}"/>`;
+                const tLines = wrapFlowchartLines(st.title, cols <= 3 ? 26 : 21, 1);
+                shapes += `<text x="${x + cardW / 2}" y="${y + 23}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="12" font-weight="bold" fill="${pal.headerText}">${escapeSvgXml(tLines[0])}</text>`;
+
+                // Bullet details
+                const details = (st.details || []).slice(0, 4);
+                let dy = y + 56;
+                details.forEach((dt) => {
+                    const dLines = wrapFlowchartLines('• ' + dt, cols <= 3 ? 28 : 23, 2);
+                    dLines.forEach((ln, li) => {
+                        shapes += `<text x="${x + 12}" y="${dy}" font-family="'Times New Roman', serif" font-size="11.2" fill="${pal.text}">${escapeSvgXml(li > 0 ? '  ' + ln : ln)}</text>`;
+                        dy += 14;
+                    });
+                    dy += 5;
                 });
 
-                if (idx < nodesMeta.length - 1) {
-                    const nextY = nodesMeta[idx + 1].y;
-                    shapes += `<line x1="${cx}" y1="${bottom}" x2="${cx}" y2="${nextY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
-                    if (st.type === 'decision') {
-                        shapes += `<text x="${cx + 8}" y="${bottom + 17}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Ya</text>`;
+                // Panah ke kartu berikutnya
+                if (idx < count - 1) {
+                    const nextR = Math.floor((idx + 1) / cols);
+                    if (nextR === r) {
+                        shapes += `<line x1="${x + cardW}" y1="${y + cardH / 2}" x2="${x + cardW + gapX - 4}" y2="${y + cardH / 2}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                    } else {
+                        const nx = padX + cardW / 2;
+                        const ny = y + cardH + gapY;
+                        const mid = y + cardH + gapY / 2;
+                        shapes += `<polyline points="${x + cardW / 2},${y + cardH} ${x + cardW / 2},${mid} ${nx},${mid} ${nx},${ny - 4}" fill="none" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
                     }
                 }
             });
 
+            return { w: svgW, h: svgH, shapes };
+        }
+
+        function renderFlowchartSvg() {
+            const bgMode = document.getElementById('fc-bg-select')?.value || 'white';
+            const pal = getDiagramThemePalette();
+
+            let svgW = 500, svgH = 600, shapes = '';
+
+            if (fcCurrentKind === 'kerangka') {
+                const res = renderKerangkaSvg(pal);
+                svgW = res.w; svgH = res.h; shapes = res.shapes;
+            } else if (fcCurrentKind === 'sistem') {
+                const res = renderSistemSvg(pal);
+                svgW = res.w; svgH = res.h; shapes = res.shapes;
+            } else if (fcCurrentKind === 'analisis') {
+                const res = renderAnalisisSvg(pal);
+                svgW = res.w; svgH = res.h; shapes = res.shapes;
+            } else {
+                const hasDecision = fcSteps.some(s => s.type === 'decision');
+                svgW = hasDecision ? 640 : 500;
+                const cx = hasDecision ? 225 : 250;
+                const boxW = 304;
+                const gapY = 30;
+                let y = 24;
+
+                const nodesMeta = [];
+                fcSteps.forEach((st) => {
+                    const maxC = st.type === 'decision' ? 20 : (st.type === 'io' ? 28 : 32);
+                    const lines = wrapFlowchartLines(st.label, maxC);
+                    let h = 48;
+                    let rightEdge = cx + boxW / 2;
+                    if (st.type === 'start' || st.type === 'end') {
+                        h = lines.length > 1 ? 52 : 44;
+                        const tw = Math.min(boxW, Math.max(170, lines[0].length * 9 + 48));
+                        rightEdge = cx + tw / 2;
+                    } else if (st.type === 'decision') {
+                        h = lines.length >= 3 ? 98 : (lines.length === 2 ? 86 : 74);
+                        rightEdge = cx + 132;
+                    } else if (st.type === 'io') {
+                        h = Math.max(48, 22 + lines.length * 18);
+                        rightEdge = cx + boxW / 2 - 9;
+                    } else {
+                        h = Math.max(48, 22 + lines.length * 18);
+                    }
+                    nodesMeta.push({ st, lines, y, h, cy: y + h / 2, bottom: y + h, rightEdge });
+                    y += h + gapY;
+                });
+
+                svgH = y - gapY + 24;
+
+                nodesMeta.forEach((n, idx) => {
+                    const { st, lines, y: ny, h, cy, bottom } = n;
+                    const fill = (st.type === 'start' || st.type === 'end') ? pal.termFill
+                        : (st.type === 'io' ? pal.ioFill : (st.type === 'decision' ? pal.decFill : pal.procFill));
+                    const txtColor = ((st.type === 'start' || st.type === 'end') && pal.termText) ? pal.termText : pal.text;
+
+                    if (st.type === 'start' || st.type === 'end') {
+                        const tw = (n.rightEdge - cx) * 2;
+                        shapes += `<rect x="${cx - tw / 2}" y="${ny}" width="${tw}" height="${h}" rx="${h / 2}" ry="${h / 2}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                    } else if (st.type === 'io') {
+                        const skew = 18;
+                        const x1 = cx - boxW / 2 + skew;
+                        const x2 = cx + boxW / 2;
+                        const x3 = cx + boxW / 2 - skew;
+                        const x4 = cx - boxW / 2;
+                        shapes += `<polygon points="${x1},${ny} ${x2},${ny} ${x3},${bottom} ${x4},${bottom}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                    } else if (st.type === 'decision') {
+                        const dw = 132;
+                        const pts = `${cx},${ny} ${cx + dw},${cy} ${cx},${bottom} ${cx - dw},${cy}`;
+                        shapes += `<polygon points="${pts}" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+
+                        const loopX = cx + dw + 140;
+                        const backIdx = Math.max(0, idx - 1);
+                        const targetNode = nodesMeta[backIdx];
+                        const targetY = targetNode.cy;
+                        const targetRightX = targetNode.rightEdge + 4;
+                        const noTxt = (st.no_label || 'Revisi / Ulangi').trim();
+                        const pillW = Math.min(180, Math.max(118, noTxt.length * 6.5 + 22));
+                        const pillX = Math.min(svgW - pillW - 10, loopX - pillW / 2);
+
+                        shapes += `<polyline points="${cx + dw},${cy} ${loopX},${cy} ${loopX},${targetY} ${targetRightX},${targetY}" fill="none" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fc-arrow)"/>`;
+                        shapes += `<text x="${cx + dw + 10}" y="${cy - 6}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Tidak</text>`;
+                        shapes += `<rect x="${pillX}" y="${(cy + targetY) / 2 - 12}" width="${pillW}" height="24" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.95"/>`;
+                        shapes += `<text x="${pillX + pillW / 2}" y="${(cy + targetY) / 2 + 3.5}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.text}">${escapeSvgXml(noTxt.slice(0, 28))}</text>`;
+                    } else {
+                        shapes += `<rect x="${cx - boxW / 2}" y="${ny}" width="${boxW}" height="${h}" rx="4" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                    }
+
+                    const lineH = 16;
+                    const startTextY = cy - ((lines.length - 1) * lineH) / 2 + 4.5;
+                    lines.forEach((ln, li) => {
+                        const boldAttr = (st.type === 'start' || st.type === 'end') ? 'font-weight="bold"' : '';
+                        shapes += `<text x="${cx}" y="${startTextY + li * lineH}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13" ${boldAttr} fill="${txtColor}">${escapeSvgXml(ln)}</text>`;
+                    });
+
+                    if (idx < nodesMeta.length - 1) {
+                        const nextY = nodesMeta[idx + 1].y;
+                        shapes += `<line x1="${cx}" y1="${bottom}" x2="${cx}" y2="${nextY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
+                        if (st.type === 'decision') {
+                            shapes += `<text x="${cx + 8}" y="${bottom + 17}" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">Ya</text>`;
+                        }
+                    }
+                });
+            }
+
+            lastFlowchartDims = { w: svgW, h: svgH };
             const bgRect = bgMode === 'transparent' ? '' : `<rect width="100%" height="100%" fill="${pal.bg}"/>`;
             lastFlowchartSvgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
                 <defs>
@@ -2920,7 +3446,7 @@
             const btn = document.getElementById('btn-fc-ai');
             btn.disabled = true;
             setStatus('status-fc', '', '');
-            setProc('fc', true, 'AI sedang merancang alur flowchart sesuai topik penelitianmu...', 45);
+            setProc('fc', true, 'AI sedang merancang diagram sesuai jenis & topik penelitianmu...', 45);
             try {
                 const res = await fetch('{{ route("tools.flowchart.generate") }}', {
                     method: 'POST',
@@ -2928,18 +3454,35 @@
                     body: JSON.stringify({ topic, kind })
                 });
                 const data = await res.json();
-                if (!res.ok || data.status !== 'success' || !Array.isArray(data.steps)) {
-                    throw new Error(data.message || 'Gagal menyusun flowchart.');
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal menyusun diagram.');
                 }
-                setProc('fc', true, 'Menggambar diagram simbol ISO...', 95);
-                fcSteps = data.steps;
-                renderFlowchartEditor();
-                renderFlowchartSvg();
+                setProc('fc', true, 'Menggambar diagram vektor HD...', 95);
+                fcCurrentKind = kind;
+                if (kind === 'kerangka' && data.diagram) {
+                    const d = data.diagram;
+                    fcKerangka = {
+                        layout: ['regresi', 'mediasi', 'bertingkat'].includes(d.layout) ? d.layout : 'regresi',
+                        x_vars: Array.isArray(d.x_vars) && d.x_vars.length ? d.x_vars.slice(0, 5) : fcKerangka.x_vars,
+                        mediator: d.mediator || fcKerangka.mediator,
+                        y_var: d.y_var || fcKerangka.y_var,
+                        hypotheses: Array.isArray(d.hypotheses) && d.hypotheses.length ? d.hypotheses : ['H1', 'H2', 'H3'],
+                        simultaneous: d.simultaneous !== false,
+                        stages: Array.isArray(d.stages) && d.stages.length >= 3 ? d.stages.slice(0, 6) : fcKerangka.stages
+                    };
+                } else if (kind === 'sistem' && data.diagram) {
+                    fcSistem = Object.assign({}, fcSistem, data.diagram);
+                } else if (kind === 'analisis' && Array.isArray(data.diagram) && data.diagram.length >= 2) {
+                    fcAnalisis = data.diagram.slice(0, 5);
+                } else if (Array.isArray(data.steps) && data.steps.length >= 3) {
+                    fcSteps = data.steps;
+                }
+                onChangeFlowchartKind(kind);
                 setProc('fc', false);
-                setStatus('status-fc', 'success', `Berhasil! ${fcSteps.length} langkah flowchart siap diedit atau diunduh ke Word.`);
+                setStatus('status-fc', 'success', 'Berhasil! Diagram siap diedit, ganti tema warna, atau unduh PNG HD ke Word.');
             } catch (err) {
                 setProc('fc', false);
-                setStatus('status-fc', 'error', err.message || 'Terjadi kesalahan saat generate flowchart.');
+                setStatus('status-fc', 'error', err.message || 'Terjadi kesalahan saat generate diagram.');
             } finally {
                 btn.disabled = false;
             }

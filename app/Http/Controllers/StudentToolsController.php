@@ -65,45 +65,102 @@ class StudentToolsController extends Controller
         ];
         $defaultCaption = $captionMap[$kind] ?? 'Gambar 3.1 Diagram Alur Penelitian';
 
-        $prompt = "Buat rancangan {$kindLabel} untuk judul/topik skripsi mahasiswa Indonesia berikut:\n"
-            . "Topik: \"{$topic}\"\n\n"
-            . "Kembalikan HANYA JSON array valid berisi 6 sampai 8 objek langkah berurutan (TANPA markdown ```json, TANPA penjelasan tambahan).\n"
-            . "Format tiap objek:\n"
-            . "{\"type\": \"start|io|process|decision|end\", \"label\": \"Teks singkat maksimal 55 karakter\", \"no_label\": \"opsional khusus type decision\"}\n\n"
-            . "Aturan wajib:\n"
-            . "1. Langkah pertama wajib type \"start\" (label \"Mulai\" atau fenomena awal jika Kerangka Berpikir).\n"
-            . "2. Langkah terakhir wajib type \"end\" (label \"Selesai\" atau kesimpulan/luaran akhir).\n"
-            . "3. Gunakan minimal 1 langkah type \"io\" (input/data/instrumen) dan maksimal 1 langkah type \"decision\" (validasi/uji kelayakan/akurasi) dengan \"no_label\" singkat (cth: \"Revisi / Ulangi\").\n"
-            . "4. Sebutkan variabel, metode, atau objek spesifik dari topik \"{$topic}\" agar tidak generik.\n"
-            . "5. Bahasa Indonesia akademik baku, ringkas, dan jelas.";
+        $prompt = '';
+        if ($kind === 'kerangka') {
+            $prompt = "Buat rancangan Diagram Kerangka Berpikir / Kerangka Konseptual (Bab II) untuk judul/topik skripsi mahasiswa Indonesia berikut:\n"
+                . "Topik: \"{$topic}\"\n\n"
+                . "Kembalikan HANYA JSON objek valid (TANPA markdown ```json, TANPA penjelasan tambahan) dengan struktur:\n"
+                . "{\n"
+                . "  \"layout\": \"regresi|mediasi|bertingkat\",\n"
+                . "  \"x_vars\": [{\"code\": \"X1\", \"name\": \"Nama Variabel Independen 1\", \"indicators\": \"Indikator singkat (opsional)\"}],\n"
+                . "  \"mediator\": {\"code\": \"Z\", \"name\": \"Nama Variabel Mediasi (isi null jika layout bukan mediasi)\"},\n"
+                . "  \"y_var\": {\"code\": \"Y\", \"name\": \"Nama Variabel Dependen / Output\", \"indicators\": \"Indikator singkat\"},\n"
+                . "  \"hypotheses\": [\"H1\", \"H2\", \"H3\"],\n"
+                . "  \"simultaneous\": true,\n"
+                . "  \"stages\": [\"Kondisi Awal / Fenomena\", \"Landasan Teori & Kajian\", \"Penerapan Metode / Model\", \"Hasil & Luaran Akhir\"]\n"
+                . "}\n"
+                . "Aturan: Pilih layout \"regresi\" jika ada 1-4 variabel X ke Y; \"mediasi\" jika ada variabel intervening/mediasi Z; \"bertingkat\" jika topik kualitatif/perancangan teknik/eksperimen non-variabel X-Y. Semua nama variabel wajib spesifik sesuai topik \"{$topic}\".";
+        } elseif ($kind === 'sistem') {
+            $prompt = "Buat rancangan Diagram Arsitektur Sistem / Aplikasi (IT & R&D) untuk topik skripsi:\n"
+                . "Topik: \"{$topic}\"\n\n"
+                . "Kembalikan HANYA JSON objek valid (TANPA markdown ```json) dengan struktur:\n"
+                . "{\n"
+                . "  \"actor\": \"Nama Pengguna / Aktor Utama (maks 28 karakter)\",\n"
+                . "  \"frontend\": \"Nama Antarmuka / Client App (maks 34 karakter)\",\n"
+                . "  \"frontend_sub\": \"Teknologi / fitur singkat (maks 38 karakter)\",\n"
+                . "  \"backend\": \"Nama Server / Engine / Model AI (maks 34 karakter)\",\n"
+                . "  \"backend_sub\": \"Proses inti / algoritma (maks 38 karakter)\",\n"
+                . "  \"database\": \"Nama Database / Dataset (maks 32 karakter)\",\n"
+                . "  \"database_sub\": \"Data yang disimpan (maks 36 karakter)\",\n"
+                . "  \"req_label\": \"Label panah User ke Frontend (cth: Input Data)\",\n"
+                . "  \"api_label\": \"Label panah Frontend ke Backend (cth: HTTP Request)\",\n"
+                . "  \"db_label\": \"Label panah Backend ke Database (cth: Query / Simpan)\",\n"
+                . "  \"output\": \"Hasil Akhir ke Pengguna (maks 34 karakter)\"\n"
+                . "}";
+        } elseif ($kind === 'analisis') {
+            $prompt = "Buat rancangan Diagram Pipeline Pengumpulan & Analisis Data (Bab III) untuk topik skripsi:\n"
+                . "Topik: \"{$topic}\"\n\n"
+                . "Kembalikan HANYA JSON array valid berisi 4 atau 5 objek tahap berurutan (TANPA markdown ```json):\n"
+                . "[{\"title\": \"Judul Tahap (maks 28 karakter)\", \"details\": [\"Poin metode 1\", \"Poin metode 2\", \"Poin metode 3\"]}]\n"
+                . "Sesuaikan 100% dengan bidang topik \"{$topic}\" (misal Teknik Sipil: Pengambilan Sampel Material -> Uji Lab -> Analisis Kuat Tekan -> Evaluasi SNI; Manajemen: Kuesioner -> Uji Validitas -> Regresi SPSS -> Kesimpulan).";
+        } else {
+            $prompt = "Buat rancangan {$kindLabel} untuk judul/topik skripsi mahasiswa Indonesia berikut:\n"
+                . "Topik: \"{$topic}\"\n\n"
+                . "Kembalikan HANYA JSON array valid berisi 6 sampai 8 objek langkah berurutan (TANPA markdown ```json, TANPA penjelasan tambahan).\n"
+                . "Format tiap objek:\n"
+                . "{\"type\": \"start|io|process|decision|end\", \"label\": \"Teks singkat maksimal 55 karakter\", \"no_label\": \"opsional khusus type decision\"}\n\n"
+                . "Aturan wajib:\n"
+                . "1. Langkah pertama wajib type \"start\" (label \"Mulai\").\n"
+                . "2. Langkah terakhir wajib type \"end\" (label \"Selesai\").\n"
+                . "3. Gunakan minimal 1 langkah type \"io\" dan maksimal 1 langkah type \"decision\" dengan \"no_label\" singkat.\n"
+                . "4. Sebutkan variabel, metode, atau objek spesifik dari topik \"{$topic}\" agar tidak generik.";
+        }
 
+        $diagramData = null;
         $steps = [];
         try {
             $raw = trim((string) $this->ai->generateText($prompt, 'auto'));
             $raw = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $raw);
-            if (preg_match('/\[[\s\S]*\]/', $raw, $m)) {
-                $decoded = json_decode($m[0], true);
-                if (is_array($decoded)) {
-                    foreach ($decoded as $row) {
-                        if (!is_array($row)) {
-                            continue;
+
+            if ($kind === 'kerangka' || $kind === 'sistem') {
+                if (preg_match('/\{[\s\S]*\}/', $raw, $m)) {
+                    $decoded = json_decode($m[0], true);
+                    if (is_array($decoded)) {
+                        $diagramData = $decoded;
+                    }
+                }
+            } elseif ($kind === 'analisis') {
+                if (preg_match('/\[[\s\S]*\]/', $raw, $m)) {
+                    $decoded = json_decode($m[0], true);
+                    if (is_array($decoded) && count($decoded) >= 3) {
+                        $diagramData = array_slice($decoded, 0, 5);
+                    }
+                }
+            } else {
+                if (preg_match('/\[[\s\S]*\]/', $raw, $m)) {
+                    $decoded = json_decode($m[0], true);
+                    if (is_array($decoded)) {
+                        foreach ($decoded as $row) {
+                            if (!is_array($row)) {
+                                continue;
+                            }
+                            $type = strtolower(trim((string) ($row['type'] ?? 'process')));
+                            if (!in_array($type, ['start', 'io', 'process', 'decision', 'end'], true)) {
+                                $type = 'process';
+                            }
+                            $label = trim((string) ($row['label'] ?? ''));
+                            if ($label === '') {
+                                continue;
+                            }
+                            $step = [
+                                'type' => $type,
+                                'label' => Str::limit($label, 72, ''),
+                            ];
+                            if ($type === 'decision') {
+                                $step['no_label'] = Str::limit(trim((string) ($row['no_label'] ?? 'Revisi / Ulangi')), 28, '');
+                            }
+                            $steps[] = $step;
                         }
-                        $type = strtolower(trim((string) ($row['type'] ?? 'process')));
-                        if (!in_array($type, ['start', 'io', 'process', 'decision', 'end'], true)) {
-                            $type = 'process';
-                        }
-                        $label = trim((string) ($row['label'] ?? ''));
-                        if ($label === '') {
-                            continue;
-                        }
-                        $step = [
-                            'type' => $type,
-                            'label' => Str::limit($label, 72, ''),
-                        ];
-                        if ($type === 'decision') {
-                            $step['no_label'] = Str::limit(trim((string) ($row['no_label'] ?? 'Revisi / Ulangi')), 28, '');
-                        }
-                        $steps[] = $step;
                     }
                 }
             }
@@ -111,44 +168,59 @@ class StudentToolsController extends Controller
             // Fallback deterministik di bawah
         }
 
-        if (count($steps) < 4) {
-            $shortTopic = Str::limit($topic, 38, '');
-            if ($kind === 'kerangka') {
-                $steps = [
-                    ['type' => 'start', 'label' => 'Fenomena & Masalah Penelitian'],
-                    ['type' => 'process', 'label' => 'Kajian Teori & Penelitian Terdahulu'],
-                    ['type' => 'io', 'label' => 'Identifikasi Variabel: ' . $shortTopic],
-                    ['type' => 'process', 'label' => 'Pengumpulan & Pengolahan Data Empiris'],
-                    ['type' => 'process', 'label' => 'Analisis Hubungan / Evaluasi Model'],
-                    ['type' => 'end', 'label' => 'Temuan, Simpulan & Rekomendasi'],
-                ];
-            } elseif ($kind === 'sistem') {
-                $steps = [
-                    ['type' => 'start', 'label' => 'Mulai'],
-                    ['type' => 'io', 'label' => 'Input Data / Kebutuhan Pengguna'],
-                    ['type' => 'process', 'label' => 'Pra-Pemrosesan & Validasi Input'],
-                    ['type' => 'process', 'label' => 'Pemrosesan Inti: ' . $shortTopic],
-                    ['type' => 'decision', 'label' => 'Hasil Pengujian Sesuai Target?', 'no_label' => 'Perbaikan / Tuning'],
-                    ['type' => 'io', 'label' => 'Tampilkan Output & Laporan Hasil'],
-                    ['type' => 'end', 'label' => 'Selesai'],
-                ];
-            } else {
-                $steps = [
-                    ['type' => 'start', 'label' => 'Mulai'],
-                    ['type' => 'process', 'label' => 'Identifikasi Masalah & Studi Literatur'],
-                    ['type' => 'io', 'label' => 'Pengumpulan Data: ' . $shortTopic],
-                    ['type' => 'decision', 'label' => 'Data Valid & Reliabel?', 'no_label' => 'Revisi Instrumen'],
-                    ['type' => 'process', 'label' => 'Pengolahan & Analisis Data Penelitian'],
-                    ['type' => 'process', 'label' => 'Pembahasan Hasil & Penarikan Kesimpulan'],
-                    ['type' => 'end', 'label' => 'Selesai'],
-                ];
-            }
+        $shortTopic = Str::limit($topic, 38, '');
+        if ($kind === 'kerangka' && !$diagramData) {
+            $diagramData = [
+                'layout' => 'regresi',
+                'x_vars' => [
+                    ['code' => 'X1', 'name' => 'Faktor Utama 1 (' . Str::limit($topic, 24, '') . ')', 'indicators' => 'Indikator 1, Indikator 2'],
+                    ['code' => 'X2', 'name' => 'Faktor Pendukung 2', 'indicators' => 'Indikator 3, Indikator 4'],
+                ],
+                'mediator' => null,
+                'y_var' => ['code' => 'Y', 'name' => 'Variabel Terikat / Kinerja', 'indicators' => 'Hasil & Evaluasi'],
+                'hypotheses' => ['H1', 'H2'],
+                'simultaneous' => true,
+                'stages' => ['Fenomena Lapangan', 'Kajian Teori & Literatur', 'Analisis ' . $shortTopic, 'Temuan & Rekomendasi'],
+            ];
+        } elseif ($kind === 'sistem' && !$diagramData) {
+            $diagramData = [
+                'actor' => 'Pengguna / Peneliti',
+                'frontend' => 'Antarmuka Aplikasi Web/Mobile',
+                'frontend_sub' => 'Input & Visualisasi Hasil',
+                'backend' => 'Mesin Proses: ' . Str::limit($topic, 24, ''),
+                'backend_sub' => 'API, Logika & Pemodelan',
+                'database' => 'Basis Data / Dataset',
+                'database_sub' => 'MySQL / Repositori Data',
+                'req_label' => 'Input Data',
+                'api_label' => 'Request / Proses',
+                'db_label' => 'Simpan / Query',
+                'output' => 'Laporan & Hasil Analisis',
+            ];
+        } elseif ($kind === 'analisis' && !$diagramData) {
+            $diagramData = [
+                ['title' => '1. Sumber & Objek Data', 'details' => ['Data Primer / Lapangan', 'Data Sekunder / Literatur', 'Topik: ' . Str::limit($topic, 26, '')]],
+                ['title' => '2. Pengumpulan Data', 'details' => ['Instrumen / Pengujian Lab', 'Dokumentasi & Observasi', 'Tabulasi Awal']],
+                ['title' => '3. Uji Validitas & Asumsi', 'details' => ['Pembersihan Data', 'Uji Validitas / Kalibrasi', 'Uji Asumsi Dasar']],
+                ['title' => '4. Analisis & Evaluasi', 'details' => ['Perhitungan Statistik / Model', 'Uji Hipotesis / Standar', 'Interpretasi & Kesimpulan']],
+            ];
+        } elseif ($kind === 'prosedur' && count($steps) < 4) {
+            $steps = [
+                ['type' => 'start', 'label' => 'Mulai'],
+                ['type' => 'process', 'label' => 'Identifikasi Masalah & Studi Literatur'],
+                ['type' => 'io', 'label' => 'Pengumpulan Data: ' . $shortTopic],
+                ['type' => 'decision', 'label' => 'Data Valid & Memenuhi Syarat?', 'no_label' => 'Revisi / Uji Ulang'],
+                ['type' => 'process', 'label' => 'Pengolahan & Analisis Data Penelitian'],
+                ['type' => 'process', 'label' => 'Pembahasan Hasil & Penarikan Kesimpulan'],
+                ['type' => 'end', 'label' => 'Selesai'],
+            ];
         }
 
         return response()->json([
             'status' => 'success',
+            'kind' => $kind,
             'caption' => $defaultCaption,
             'steps' => array_slice($steps, 0, 10),
+            'diagram' => $diagramData,
         ]);
     }
 

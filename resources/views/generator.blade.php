@@ -1581,6 +1581,80 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
+
+        .olah-modal-tabs {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 11px;
+            border: 1px solid #e2e8f0;
+        }
+        .olah-modal-tab {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #475569;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .olah-modal-tab.active {
+            background: #ffffff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+            box-shadow: 0 1px 4px rgba(37, 99, 235, 0.1);
+        }
+        .olah-mini-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+        }
+        .olah-mini-chip.checked {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #1d4ed8;
+        }
+        .olah-mini-tbl-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+        }
+        .olah-mini-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+            white-space: nowrap;
+        }
+        .olah-mini-tbl th {
+            background: #eff6ff;
+            color: #1e3a8a;
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #bfdbfe;
+        }
+        .olah-mini-tbl td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
     </style>
 </head>
 
@@ -1955,81 +2029,175 @@
                     style="border: none; background: #f1f5f9; width: 28px; height: 28px; border-radius: 50%; font-size: 18px; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.15s;">&times;</button>
             </div>
 
-            <!-- Preset Template Cepat -->
-            <div>
-                <div
-                    style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
-                    Pilih Template Olah Data Siap Pakai:</div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="olah-chip" onclick="applyOlahDataPreset('spss')">📊 SPSS (Regresi &amp;
-                        Asumsi)</button>
-                    <button type="button" class="olah-chip" onclick="applyOlahDataPreset('pls')">📈 SmartPLS
-                        (SEM-PLS)</button>
-                    <button type="button" class="olah-chip" onclick="applyOlahDataPreset('ml')">🤖 Machine Learning /
-                        AI</button>
-                    <button type="button" class="olah-chip" onclick="applyOlahDataPreset('eksperimen')">🧪 Eksperimen
-                        (N-Gain / T-Test)</button>
+            <!-- Switcher Tab Modal: Hitung Otomatis Valid SPSS vs Isi Manual / Preset -->
+            <div class="olah-modal-tabs">
+                <button type="button" class="olah-modal-tab active" id="proj-olah-tab-calc" onclick="switchProjOlahTab('calc')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <span>Hitung Otomatis Excel/CSV (Valid SPSS)</span>
+                </button>
+                <button type="button" class="olah-modal-tab" id="proj-olah-tab-manual" onclick="switchProjOlahTab('manual')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Form Data Olahan Bab III &amp; IV</span>
+                </button>
+            </div>
+
+            <!-- PANEL A: HITUNG OTOMATIS DARI EXCEL / CSV -->
+            <div id="proj-olah-panel-calc" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: #f8fbff; border: 1.5px dashed #93c5fd; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 12.5px; font-weight: 700; color: #0f172a;">1. Unggah Data Mentah Excel (.xlsx/.xls) atau CSV</div>
+                        <a href="{{ route('app.create', ['tab' => 'olahdata']) }}" target="_blank" style="font-size: 11.5px; font-weight: 600; color: #2563eb; text-decoration: none;">Belum punya kuesioner / template? Buka Studio Olah Data &rarr;</a>
+                    </div>
+                    <input type="file" id="proj-od-file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="olah-input" style="padding: 7px 10px; font-size: 12px;" onchange="projOdHandleFile(this)">
+                    <div id="proj-od-file-status" style="font-size: 11.5px; color: #64748b;">Baris pertama otomatis menjadi nama kolom variabel. Semua hitungan menggunakan rumus eksak setara IBM SPSS.</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">2. Pilih Jenis Uji Statistik</label>
+                        <select id="proj-od-test" class="olah-input" onchange="projOdRenderVars()">
+                            <option value="regression">Regresi Linier + Uji Asumsi Klasik Lengkap</option>
+                            <option value="validity_reliability">Uji Validitas (Pearson) &amp; Reliabilitas (Cronbach Alpha)</option>
+                            <option value="anova">One-Way ANOVA + Levene &amp; Post-Hoc (Teknik / Uji Lab)</option>
+                            <option value="ttest_ind">Independent Samples t-Test (2 Kelompok Bebas)</option>
+                            <option value="ttest_paired">Paired Samples t-Test (Pre-Test vs Post-Test)</option>
+                            <option value="correlation">Korelasi Pearson &amp; Spearman Rank</option>
+                            <option value="descriptive">Statistik Deskriptif &amp; Uji Normalitas K-S</option>
+                            <option value="chisquare">Uji Chi-Square &amp; Crosstab (Kategorik)</option>
+                            <option value="nonparam">Non-Parametrik (Mann-Whitney U / Wilcoxon)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Taraf Signifikansi (&alpha;)</label>
+                        <select id="proj-od-alpha" class="olah-input">
+                            <option value="0.05" selected>0.05 (Standar 95%)</option>
+                            <option value="0.01">0.01 (Ketat 99%)</option>
+                            <option value="0.10">0.10 (Eksploratif 90%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="proj-od-vars-box" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;"></div>
+                <div id="proj-od-err" style="display: none; padding: 8px 12px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 12px; font-weight: 600;"></div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" id="proj-od-run-btn" onclick="projOdRunCalc()"
+                        style="padding: 8px 16px; border: none; background: #059669; color: #ffffff; border-radius: 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span>Hitung Statistik Valid</span>
+                    </button>
+                </div>
+
+                <div id="proj-od-result-box" style="display: none; border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 12px; padding: 12px; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 12.5px; font-weight: 700; color: #166534;" id="proj-od-res-title">Hasil Valid Siap Diterapkan</div>
+                        <button type="button" onclick="projOdApplyToForm()"
+                            style="padding: 7px 14px; border: none; background: #2563eb; color: #ffffff; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                            Terapkan Hasil ke Form Bab III &amp; IV &rarr;
+                        </button>
+                    </div>
+                    <div id="proj-od-res-hl" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px;"></div>
+                    <div id="proj-od-res-preview" class="olah-mini-tbl-wrap"></div>
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+            <!-- PANEL B: FORM DATA OLAHAN MANUAL / PRESET -->
+            <div id="proj-olah-panel-manual" style="display: none; flex-direction: column; gap: 14px;">
+                <!-- Preset Template Cepat -->
+                <div>
+                    <div
+                        style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                        Pilih Template Olah Data Siap Pakai:</div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="olah-chip" onclick="applyOlahDataPreset('spss')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            <span>SPSS (Regresi &amp; Asumsi)</span>
+                        </button>
+                        <button type="button" class="olah-chip" onclick="applyOlahDataPreset('sipil')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
+                            <span>Teknik Sipil / Uji Lab (ANOVA)</span>
+                        </button>
+                        <button type="button" class="olah-chip" onclick="applyOlahDataPreset('pls')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            <span>SmartPLS (SEM-PLS)</span>
+                        </button>
+                        <button type="button" class="olah-chip" onclick="applyOlahDataPreset('ml')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                            <span>Machine Learning / AI</span>
+                        </button>
+                        <button type="button" class="olah-chip" onclick="applyOlahDataPreset('eksperimen')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6"/><path d="M10 3v6l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3"/></svg>
+                            <span>Eksperimen (N-Gain / t-Test)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+                        <div>
+                            <label
+                                style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Software
+                                / Metode Olah Data</label>
+                            <input type="text" id="riil-metode" class="olah-input"
+                                placeholder="cth: IBM SPSS Statistics 26 (Regresi Linier)">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Populasi
+                                / Sampel / Dataset Riil</label>
+                            <input type="text" id="riil-sampel" class="olah-input"
+                                placeholder="cth: 120 Responden Mahasiswa / 1.500 Data">
+                        </div>
+                    </div>
+
                     <div>
                         <label
-                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Software
-                            / Metode Olah Data</label>
-                        <input type="text" id="riil-metode" class="olah-input"
-                            placeholder="cth: IBM SPSS Statistics 26 (Regresi Linier)">
+                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Rumus
+                            Matematika / Statistik Wajib (Langkah demi Langkah)</label>
+                        <input type="text" id="riil-rumus" class="olah-input"
+                            placeholder="cth: Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, atau Akurasi = (TP+TN)/Total">
                     </div>
+
                     <div>
                         <label
-                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Populasi
-                            / Sampel / Dataset Riil</label>
-                        <input type="text" id="riil-sampel" class="olah-input"
-                            placeholder="cth: 120 Responden Mahasiswa / 1.500 Data">
+                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Lokasi
+                            / Objek / Sumber Data Penelitian</label>
+                        <input type="text" id="riil-lokasi" class="olah-input"
+                            placeholder="cth: Universitas Handayani / PT X / Lab Struktur Beton">
                     </div>
-                </div>
 
-                <div>
-                    <label
-                        style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Rumus
-                        Matematika / Statistik Wajib (Langkah demi Langkah)</label>
-                    <input type="text" id="riil-rumus" class="olah-input"
-                        placeholder="cth: Y = a + b1X1 + b2X2 + e, Uji t = (r√n-2)/√(1-r^2), R-Square, atau Akurasi = (TP+TN)/Total">
-                </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Nilai
+                            Metrik / Angka Riil Pengujian (Untuk Narasi &amp; Tabel Bab IV)</label>
+                        <textarea id="riil-metrik" rows="3" class="olah-input" style="resize: vertical; min-height: 72px;"
+                            placeholder="cth: Output SPSS: R-Square = 0.684, F-hitung = 45.21 (Sig 0.000 < 0.05). X1 t-hitung = 3.42 (Sig 0.001), X2 t-hitung = 4.15 (Sig 0.000). Semua lolos uji asumsi klasik."></textarea>
+                    </div>
 
-                <div>
-                    <label
-                        style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Lokasi
-                        / Objek / Sumber Data Penelitian</label>
-                    <input type="text" id="riil-lokasi" class="olah-input"
-                        placeholder="cth: Universitas Handayani / PT X / Kaggle Dataset">
-                </div>
-
-                <div>
-                    <label
-                        style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Nilai
-                        Metrik / Angka Riil Pengujian (Untuk Narasi &amp; Tabel Bab IV)</label>
-                    <textarea id="riil-metrik" rows="3" class="olah-input" style="resize: vertical; min-height: 72px;"
-                        placeholder="cth: Output SPSS: R-Square = 0.684, F-hitung = 45.21 (Sig 0.000 < 0.05). X1 t-hitung = 3.42 (Sig 0.001), X2 t-hitung = 4.15 (Sig 0.000). Semua lolos uji asumsi klasik."></textarea>
-                </div>
-
-                <div>
-                    <label
-                        style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Teknik
-                        Pengujian &amp; Kriteria Uji Hipotesis</label>
-                    <input type="text" id="riil-evaluasi" class="olah-input"
-                        placeholder="cth: Uji Asumsi Klasik (Kolmogorov-Smirnov, VIF, Glejser), Uji t parsial, Uji F simultan, R2">
+                    <div>
+                        <label
+                            style="display: block; font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Teknik
+                            Pengujian &amp; Kriteria Uji Hipotesis</label>
+                        <input type="text" id="riil-evaluasi" class="olah-input"
+                            placeholder="cth: Uji Asumsi Klasik (Kolmogorov-Smirnov, VIF, Glejser), Uji t parsial, Uji F simultan, R2">
+                    </div>
                 </div>
             </div>
 
             <div
-                style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 14px; flex-wrap: wrap;">
-                <button type="button" onclick="closeDataRiilModal()"
-                    style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;">Batal</button>
-                <button type="button" id="btn-save-data-riil" onclick="saveDataRiil()"
-                    style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px;">Simpan
-                    Data Olahan</button>
+                style="display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 14px; flex-wrap: wrap;">
+                <a href="{{ route('app.create', ['tab' => 'olahdata']) }}" target="_blank"
+                    style="font-size: 12px; font-weight: 600; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>Studio Olah Data Lengkap</span>
+                </a>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" onclick="closeDataRiilModal()"
+                        style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;">Batal</button>
+                    <button type="button" id="btn-save-data-riil" onclick="saveDataRiil()"
+                        style="padding: 9px 20px; border: none; background: #2563eb; color: #ffffff; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.25); transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px;">Simpan
+                        Data Olahan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -3742,6 +3910,13 @@
                 document.getElementById('riil-lokasi').value = 'Platform Twitter (X) / TikTok / Google Play Review';
                 document.getElementById('riil-metrik').value = 'Akurasi Keseluruhan = 88.50%, Macro Average Precision = 87.20%, Recall = 88.10%, F1-Score = 87.65%. Confusion Matrix: TP = 120, TN = 135, FP = 18, FN = 17.';
                 document.getElementById('riil-evaluasi').value = 'K-Fold Cross Validation (10-Fold), Confusion Matrix (Akurasi, Precision, Recall, F1-Score)';
+            } else if (type === 'sipil') {
+                document.getElementById('riil-metode').value = 'Uji Laboratorium SNI & One-Way ANOVA + Post-Hoc Bonferroni (Setara SPSS)';
+                document.getElementById('riil-sampel').value = '20 Benda Uji Silinder Beton (4 Variasi Campuran × 5 Ulangan, Umur 28 Hari)';
+                document.getElementById('riil-rumus').value = 'fc\' = P / A (MPa); One-Way ANOVA F = MSB / MSW; Homogenitas Levene; Post-Hoc Bonferroni';
+                document.getElementById('riil-lokasi').value = 'Laboratorium Bahan & Struktur Teknik Sipil';
+                document.getElementById('riil-metrik').value = 'Rata-rata Kuat Tekan 28 Hari: Normal 0% = 25.48 MPa, Fly Ash 10% = 28.76 MPa, Fly Ash 20% = 31.94 MPa (Optimum), Fly Ash 30% = 27.08 MPa. Uji Levene Sig. = 0.842 (Homogen). One-Way ANOVA F = 198.42 (Sig. < 0.001), Eta-Squared = 0.974.';
+                document.getElementById('riil-evaluasi').value = 'Uji Slump & Kuat Tekan SNI 1974:2011, Uji Homogenitas Levene, One-Way ANOVA (α = 0.05), dan Uji Lanjut Post-Hoc Bonferroni';
             } else if (type === 'eksperimen') {
                 document.getElementById('riil-metode').value = 'Quasi-Experimental Design (Nonequivalent Pretest-Posttest Control Group)';
                 document.getElementById('riil-sampel').value = '64 Siswa (Kelas Eksperimen n=32, Kelas Kontrol n=32)';
@@ -3750,6 +3925,247 @@
                 document.getElementById('riil-metrik').value = 'Kelas Eksperimen: Rata-rata Pretest 54.20 -> Posttest 85.50 (N-Gain 0.683 kategori Sedang-Tinggi / Efektif). Kelas Kontrol: Pretest 53.80 -> Posttest 68.20 (N-Gain 0.311). Nilai t-hitung = 5.241 (Sig 0.000 < 0.05).';
                 document.getElementById('riil-evaluasi').value = 'Uji Normalitas Shapiro-Wilk, Uji Homogenitas Levene, Independent Sample t-test, Kategori Tafsiran N-Gain Hake';
             }
+        }
+
+        let projOdDataset = { columns: [], rows: [], numeric: [], categorical: [] };
+        let projOdLastResult = null;
+
+        function switchProjOlahTab(tab) {
+            const pCalc = document.getElementById('proj-olah-panel-calc');
+            const pManual = document.getElementById('proj-olah-panel-manual');
+            const tCalc = document.getElementById('proj-olah-tab-calc');
+            const tManual = document.getElementById('proj-olah-tab-manual');
+            if (pCalc) pCalc.style.display = tab === 'calc' ? 'flex' : 'none';
+            if (pManual) pManual.style.display = tab === 'manual' ? 'flex' : 'none';
+            if (tCalc) tCalc.classList.toggle('active', tab === 'calc');
+            if (tManual) tManual.classList.toggle('active', tab === 'manual');
+        }
+
+        function projOdLoadSheetJs() {
+            if (window.XLSX) return Promise.resolve(window.XLSX);
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+                s.onload = () => window.XLSX ? resolve(window.XLSX) : reject(new Error('Library Excel gagal dimuat.'));
+                s.onerror = () => reject(new Error('Gagal memuat pembaca Excel (.xlsx). Simpan sebagai .CSV lalu unggah ulang.'));
+                document.head.appendChild(s);
+            });
+        }
+
+        function projOdParseCsv(raw) {
+            const lines = String(raw || '').replace(/^\uFEFF/, '').trim().split(/\r\n|\r|\n/).filter(l => l.trim() !== '');
+            if (lines.length < 2) return { columns: [], rows: [] };
+            const first = lines[0];
+            let delim = ',';
+            if ((first.match(/\t/g) || []).length > (first.match(/,/g) || []).length) delim = '\t';
+            else if ((first.match(/;/g) || []).length > (first.match(/,/g) || []).length) delim = ';';
+            const split = (line) => {
+                const out = []; let cur = ''; let inQ = false;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') { if (inQ && line[i + 1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+                    else if (ch === delim && !inQ) { out.push(cur.trim()); cur = ''; }
+                    else cur += ch;
+                }
+                out.push(cur.trim());
+                return out;
+            };
+            const columns = split(lines[0]).map((h, i) => h || ('Kolom_' + (i + 1)));
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                const vals = split(lines[i]);
+                const obj = {};
+                let ok = false;
+                columns.forEach((c, idx) => { const v = vals[idx] !== undefined ? vals[idx] : ''; if (v !== '') ok = true; obj[c] = v; });
+                if (ok) rows.push(obj);
+            }
+            return { columns, rows };
+        }
+
+        async function projOdHandleFile(input) {
+            const errEl = document.getElementById('proj-od-err');
+            const stEl = document.getElementById('proj-od-file-status');
+            errEl.style.display = 'none';
+            const file = input?.files?.[0];
+            if (!file) return;
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            try {
+                let columns = [], rows = [];
+                if (ext === 'xlsx' || ext === 'xls') {
+                    const XLSX = await projOdLoadSheetJs();
+                    const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+                    const arr = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+                    if (!arr || arr.length < 2) throw new Error('File Excel kosong.');
+                    columns = arr[0].map((h, i) => String(h || '').trim() || ('Kolom_' + (i + 1)));
+                    for (let i = 1; i < arr.length; i++) {
+                        if (!arr[i] || !arr[i].some(v => String(v ?? '').trim() !== '')) continue;
+                        const obj = {};
+                        columns.forEach((c, idx) => { obj[c] = arr[i][idx] !== undefined ? String(arr[i][idx]).trim() : ''; });
+                        rows.push(obj);
+                    }
+                } else {
+                    const parsed = projOdParseCsv(await file.text());
+                    columns = parsed.columns; rows = parsed.rows;
+                }
+                if (!columns.length || rows.length < 2) throw new Error('File minimal harus berisi 1 baris header dan 2 baris data.');
+                const numeric = [], categorical = [];
+                columns.forEach(col => {
+                    let nOk = 0, tot = 0;
+                    rows.slice(0, 100).forEach(r => {
+                        const s = String(r[col] ?? '').trim();
+                        if (s !== '') {
+                            tot++;
+                            const norm = s.includes(',') && !s.includes('.') ? s.replace(',', '.') : s.replace(/,/g, '');
+                            if (!isNaN(parseFloat(norm)) && isFinite(norm)) nOk++;
+                        }
+                    });
+                    if (tot > 0 && nOk / tot >= 0.7) numeric.push(col);
+                    else categorical.push(col);
+                });
+                projOdDataset = { columns, rows, numeric, categorical };
+                stEl.innerHTML = `<strong style="color:#047857;">File siap:</strong> ${escapeHtml(file.name)} (${rows.length} baris, ${numeric.length} numerik, ${categorical.length} kategorik).`;
+                projOdRenderVars();
+            } catch (e) {
+                errEl.style.display = 'block';
+                errEl.textContent = e.message || 'Gagal membaca file.';
+            }
+        }
+
+        function projOdRenderVars() {
+            const box = document.getElementById('proj-od-vars-box');
+            if (!box || !projOdDataset.columns.length) return;
+            box.style.display = 'block';
+            const test = document.getElementById('proj-od-test').value;
+            const all = projOdDataset.columns;
+            const num = projOdDataset.numeric.length ? projOdDataset.numeric : all;
+            const nonIdNum = num.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const nonIdCat = projOdDataset.categorical.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const opts = (list, sel) => list.map(c => `<option value="${escapeHtml(c)}" ${c === sel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
+
+            if (test === 'regression') {
+                const totals = nonIdNum.filter(c => /total|skor|sum/i.test(c));
+                const base = totals.length >= 2 ? totals : nonIdNum;
+                const defY = base[base.length - 1] || num[num.length - 1] || '';
+                const defXs = base.filter(c => c !== defY);
+                const chips = nonIdNum.map(c => `<label class="olah-mini-chip ${defXs.includes(c) ? 'checked' : ''}"><input type="checkbox" class="proj-od-x" value="${escapeHtml(c)}" ${defXs.includes(c) ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${escapeHtml(c)}</label>`).join('');
+                box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1.5fr; gap:10px;">
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel Y (Dependen)</label><select id="proj-od-y" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(nonIdNum.length ? nonIdNum : num, defY)}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel X (Independen)</label><div style="display:flex; flex-wrap:wrap; gap:5px;">${chips}</div></div>
+                </div>`;
+            } else if (test === 'anova' || test === 'ttest_ind') {
+                box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Kelompok / Perlakuan</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || all[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Nilai Numerik</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[0] || num[0])}</select></div>
+                </div>`;
+            } else if (test === 'ttest_paired') {
+                box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 1 (Pre-Test)</label><select id="proj-od-pa" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[0] || num[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 2 (Post-Test)</label><select id="proj-od-pb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[1] || num[1] || num[0])}</select></div>
+                </div>`;
+            } else if (test === 'chisquare') {
+                box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Baris</label><select id="proj-od-ca" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || all[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Kolom</label><select id="proj-od-cb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[1] || all[all.length - 1])}</select></div>
+                </div>`;
+            } else if (test === 'nonparam') {
+                box.innerHTML = `<div style="margin-bottom:8px;"><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Jenis Non-Parametrik</label>
+                    <select id="proj-od-np" class="olah-input" style="padding:7px 9px; font-size:12px;"><option value="mann_whitney">Mann-Whitney U (2 Kelompok)</option><option value="wilcoxon">Wilcoxon Signed-Rank (Berpasangan)</option></select></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kelompok / Kondisi 1</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || nonIdNum[0] || all[0])}</select></div>
+                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Nilai / Kondisi 2</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[1] || nonIdNum[0] || num[0])}</select></div>
+                    </div>`;
+            } else {
+                const items = test === 'validity_reliability' ? nonIdNum.filter(c => !/total|sum/i.test(c)) : nonIdNum;
+                const useList = items.length >= 2 ? items : nonIdNum;
+                const chips = nonIdNum.map(c => `<label class="olah-mini-chip ${useList.includes(c) ? 'checked' : ''}"><input type="checkbox" class="proj-od-m" value="${escapeHtml(c)}" ${useList.includes(c) ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${escapeHtml(c)}</label>`).join('');
+                box.innerHTML = `<label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:5px;">Kolom Variabel Numerik</label><div style="display:flex; flex-wrap:wrap; gap:5px;">${chips}</div>`;
+            }
+        }
+
+        async function projOdRunCalc() {
+            const errEl = document.getElementById('proj-od-err');
+            errEl.style.display = 'none';
+            if (!projOdDataset.rows.length) {
+                errEl.style.display = 'block';
+                errEl.textContent = 'Unggah file Excel (.xlsx/.xls) atau CSV terlebih dahulu.';
+                return;
+            }
+            const test = document.getElementById('proj-od-test').value;
+            const payload = {
+                columns: projOdDataset.columns,
+                rows: projOdDataset.rows,
+                test_type: test,
+                alpha: parseFloat(document.getElementById('proj-od-alpha').value || '0.05')
+            };
+            if (test === 'regression') {
+                payload.y_col = document.getElementById('proj-od-y')?.value || '';
+                payload.x_cols = Array.from(document.querySelectorAll('.proj-od-x:checked')).map(el => el.value).filter(v => v !== payload.y_col);
+            } else if (test === 'anova' || test === 'ttest_ind') {
+                payload.group_col = document.getElementById('proj-od-g')?.value || '';
+                payload.value_col = document.getElementById('proj-od-v')?.value || '';
+            } else if (test === 'ttest_paired') {
+                payload.pair_a = document.getElementById('proj-od-pa')?.value || '';
+                payload.pair_b = document.getElementById('proj-od-pb')?.value || '';
+            } else if (test === 'chisquare') {
+                payload.cat_a = document.getElementById('proj-od-ca')?.value || '';
+                payload.cat_b = document.getElementById('proj-od-cb')?.value || '';
+            } else if (test === 'nonparam') {
+                const mode = document.getElementById('proj-od-np')?.value || 'mann_whitney';
+                payload.nonparam_mode = mode;
+                if (mode === 'wilcoxon') {
+                    payload.pair_a = document.getElementById('proj-od-g')?.value || '';
+                    payload.pair_b = document.getElementById('proj-od-v')?.value || '';
+                } else {
+                    payload.group_col = document.getElementById('proj-od-g')?.value || '';
+                    payload.value_col = document.getElementById('proj-od-v')?.value || '';
+                }
+            } else {
+                payload.cols = Array.from(document.querySelectorAll('.proj-od-m:checked')).map(el => el.value);
+            }
+
+            const btn = document.getElementById('proj-od-run-btn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="btn-mini-spinner"></span><span>Menghitung...</span>';
+            try {
+                const res = await fetch("{{ route('tools.stats.analyze') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Perhitungan gagal.');
+                projOdLastResult = data.result;
+
+                const box = document.getElementById('proj-od-result-box');
+                box.style.display = 'flex';
+                document.getElementById('proj-od-res-title').textContent = data.result.title || 'Hasil Valid Siap Diterapkan';
+                document.getElementById('proj-od-res-hl').innerHTML = (data.result.highlights || []).map(h =>
+                    `<div style="background:#ffffff; border:1px solid #d1fae5; border-radius:8px; padding:7px 9px;"><div style="font-size:10px; color:#64748b; font-weight:700;">${escapeHtml(h.label)}</div><div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:2px;">${escapeHtml(h.value)}</div></div>`
+                ).join('');
+                const firstTbl = (data.result.tables || [])[0];
+                if (firstTbl) {
+                    document.getElementById('proj-od-res-preview').innerHTML = `<table class="olah-mini-tbl"><thead><tr>${firstTbl.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${firstTbl.rows.slice(0, 6).map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+                }
+            } catch (e) {
+                errEl.style.display = 'block';
+                errEl.textContent = e.message || 'Gagal menghitung statistik.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        function projOdApplyToForm() {
+            if (!projOdLastResult?.project_autofill) return;
+            const af = projOdLastResult.project_autofill;
+            document.getElementById('riil-metode').value = af.metode || '';
+            document.getElementById('riil-sampel').value = af.sampel || '';
+            document.getElementById('riil-rumus').value = af.rumus || '';
+            document.getElementById('riil-metrik').value = af.metrik || '';
+            document.getElementById('riil-evaluasi').value = af.evaluasi || '';
+            switchProjOlahTab('manual');
+            showToast('Angka valid hasil SPSS berhasil diisi ke form! Klik "Simpan Data Olahan" untuk mengunci ke Bab III & IV.', 'success');
         }
 
         function openDataRiilModal() {
@@ -3761,6 +4177,8 @@
             document.getElementById('riil-lokasi').value = researchDataRiil.lokasi || '';
             document.getElementById('riil-metrik').value = researchDataRiil.metrik || '';
             document.getElementById('riil-evaluasi').value = researchDataRiil.evaluasi || '';
+            const hasExisting = Object.values(researchDataRiil || {}).some(v => String(v || '').trim().length > 0);
+            switchProjOlahTab(hasExisting ? 'manual' : 'calc');
             m.style.display = 'flex';
         }
 

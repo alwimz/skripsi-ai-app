@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentToolsController;
 use App\Http\Controllers\PlagiarismController;
+use App\Http\Controllers\StatisticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -107,6 +108,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tools/paraphrase', [GeneratorController::class, 'paraphraseText'])->name('tools.paraphrase');
     Route::post('/tools/plagiarism/check', [PlagiarismController::class, 'check'])->name('tools.plagiarism.check');
     Route::post('/tools/plagiarism/report-pdf', [PlagiarismController::class, 'downloadReportPdf'])->name('tools.plagiarism.pdf');
+    Route::post('/tools/stats/analyze', [StatisticsController::class, 'analyze'])->name('tools.stats.analyze');
+    Route::post('/tools/stats/interpret', [StatisticsController::class, 'interpret'])->name('tools.stats.interpret');
+    Route::post('/tools/stats/instrument', [StatisticsController::class, 'generateInstrument'])->name('tools.stats.instrument');
+    Route::post('/tools/stats/report-pdf', [StatisticsController::class, 'downloadReportPdf'])->name('tools.stats.pdf');
     Route::post('/tools/generate-ppt', [GeneratorController::class, 'generatePpt'])->name('tools.ppt');
     Route::post('/tools/ppt/save', [GeneratorController::class, 'savePptDeck'])->name('tools.ppt.save');
     Route::delete('/tools/ppt/{id}', [GeneratorController::class, 'deletePptDeck'])->name('tools.ppt.delete');

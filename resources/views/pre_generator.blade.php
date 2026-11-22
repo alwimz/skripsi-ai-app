@@ -2713,6 +2713,325 @@
                 gap: 6px;
             }
         }
+
+        /* =========================================================
+           OLAH DATA STATISTIK VALID (SETARA SPSS) — STANDALONE MENU
+           ========================================================= */
+        .od-subtabs {
+            display: inline-flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 18px;
+            max-width: 100%;
+            flex-wrap: wrap;
+        }
+        .od-subtab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 15px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .od-subtab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.65);
+        }
+        .od-subtab-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            border-color: #bfdbfe;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+        }
+        .od-badge-valid {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .od-upload-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .od-dropzone {
+            border: 1.8px dashed #93c5fd;
+            background: #f8fbff;
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.16s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .od-dropzone:hover, .od-dropzone.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+        .od-sample-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .od-sample-btn {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 9px 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+        .od-sample-btn:hover {
+            border-color: #93c5fd;
+            background: #f8fbff;
+        }
+        .od-sample-btn svg {
+            width: 16px;
+            height: 16px;
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .od-sample-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.25;
+        }
+        .od-sample-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        .od-test-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .od-test-card {
+            padding: 10px 12px;
+            border-radius: 11px;
+            border: 1.5px solid var(--border);
+            background: #ffffff;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+        .od-test-card:hover {
+            border-color: #93c5fd;
+            background: #f8fbff;
+        }
+        .od-test-card.active {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+        }
+        .od-test-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .od-test-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 3px;
+            line-height: 1.35;
+        }
+        .od-var-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .od-chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 6px;
+        }
+        .od-col-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.12s;
+        }
+        .od-col-chip.checked {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: #1d4ed8;
+        }
+        .od-col-chip input {
+            margin: 0;
+            accent-color: var(--primary);
+        }
+        .od-hl-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .od-hl-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+        .od-hl-card.tone-blue { border-left: 3.5px solid #2563eb; background: #f8fbff; }
+        .od-hl-card.tone-emerald { border-left: 3.5px solid #059669; background: #f0fdf4; }
+        .od-hl-card.tone-amber { border-left: 3.5px solid #d97706; background: #fffbeb; }
+        .od-hl-card.tone-slate { border-left: 3.5px solid #64748b; }
+        .od-hl-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--text-muted);
+        }
+        .od-hl-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 4px;
+            word-break: break-word;
+        }
+        .od-table-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .od-table-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+        .od-table-wrap {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .od-spss-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.2px;
+            white-space: nowrap;
+        }
+        .od-spss-table th {
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-weight: 700;
+            text-align: left;
+            padding: 8px 10px;
+            border-top: 2px solid #1e3a8a;
+            border-bottom: 1px solid #bfdbfe;
+        }
+        .od-spss-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        .od-spss-table tr:last-child td {
+            border-bottom: 2px solid #1e3a8a;
+        }
+        .od-spss-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .od-footnote {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .od-chart-box {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+        }
+        .od-narration-box {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 16px 18px;
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: #1e293b;
+            white-space: pre-wrap;
+        }
+        .od-inst-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 0.8fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .od-reg-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+            gap: 14px;
+        }
+        @media (max-width: 900px) {
+            .od-upload-grid { grid-template-columns: 1fr; }
+            .od-test-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .od-hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .od-inst-grid, .od-reg-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .od-subtabs { width: 100%; }
+            .od-subtab-btn { flex: 1 1 100%; justify-content: center; font-size: 12.5px; padding: 9px 10px; }
+            .od-sample-row { grid-template-columns: 1fr; }
+            .od-test-grid { grid-template-columns: 1fr; }
+            .od-hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .od-hl-val { font-size: 13.5px; }
+        }
     </style>
 </head>
 
@@ -2812,6 +3131,16 @@
                 </svg>
                 <span style="flex: 1;">Cek Plagiasi</span>
                 <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">Baru</span>
+            </button>
+
+            <button type="button" class="nav-btn" id="nav-olahdata" onclick="openTab('olahdata', 'Olah Data')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M18 20V10" />
+                    <path d="M12 20V4" />
+                    <path d="M6 20v-6" />
+                </svg>
+                <span style="flex: 1;">Olah Data</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">SPSS</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-qa" onclick="openTab('qa', 'Dosen AI')">
@@ -3036,6 +3365,21 @@
                         <div>
                             <h3>Parafrase Akademik</h3>
                             <p>Ubah kalimat kutipan menjadi bahasa ilmiah baku tanpa mengubah makna.</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card" onclick="openTab('olahdata', 'Olah Data')">
+                        <div class="dash-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M18 20V10" />
+                                <path d="M12 20V4" />
+                                <path d="M6 20v-6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Olah Data Statistik (Setara SPSS)</h3>
+                            <p>Hitung Validitas, Reliabilitas, Regresi, Asumsi Klasik, ANOVA (Teknik/Lab), t-Test, Chi-Square &amp; Generator Kuesioner.</p>
                         </div>
                     </div>
 
@@ -4661,6 +5005,352 @@
             </section>
 
             <!-- ========================================================= -->
+            <!-- 7C. TAB OLAH DATA STATISTIK VALID (SETARA SPSS — SEMUA JURUSAN) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-olahdata">
+                <div class="page-eyebrow">Statistik Valid S1 &amp; S2 · Semua Jurusan</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+                    <h1 class="page-title" style="margin:0;">Olah Data Statistik (Setara SPSS)</h1>
+                    <span class="od-badge-valid">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Komputasi Deterministik · Presisi SPSS</span>
+                    </span>
+                </div>
+                <p class="page-subtitle">Solusi olah data mandiri untuk mahasiswa yang sudah punya proposal/data maupun yang belum memiliki kuesioner atau lembar uji lab. Mendukung Ekonomi, Pendidikan, Kesehatan, Sosial, IT, hingga Teknik Sipil &amp; Eksperimen Laboratorium.</p>
+
+                <!-- Sub-Tab Switcher: Sudah Punya Data vs Belum Punya Kuesioner/Form -->
+                <div class="od-subtabs" role="tablist">
+                    <button type="button" class="od-subtab-btn active" id="od-tab-btn-calc" onclick="odSwitchSubTab('calc')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                        <span>Sudah Punya Data (Hitung Statistik Valid)</span>
+                    </button>
+                    <button type="button" class="od-subtab-btn" id="od-tab-btn-inst" onclick="odSwitchSubTab('inst')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>Belum Punya Kuesioner / Form Lab (Buat + Template Excel)</span>
+                    </button>
+                </div>
+
+                <!-- SUB-TAB 1: KALKULATOR OLAH DATA VALID -->
+                <div id="od-subpane-calc">
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                            <div>
+                                <div style="font-size:14px; font-weight:700; color:var(--text-main);">1. Masukkan Data Penelitian (Excel, CSV, atau Tempel Tabel)</div>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Baris pertama otomatis dibaca sebagai nama kolom variabel (mis. <code>X1_1</code>, <code>Kuat_Tekan_MPa</code>, <code>Pretest</code>).</div>
+                            </div>
+                            <button type="button" class="btn-outline" id="od-btn-clear-data" onclick="odClearDataset()" style="display:none; padding:6px 11px; font-size:12px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                                <span>Reset Data</span>
+                            </button>
+                        </div>
+
+                        <div class="od-upload-grid">
+                            <!-- Dropzone Excel / CSV -->
+                            <div>
+                                <label class="od-dropzone" id="od-dropzone" for="od-file-input">
+                                    <div style="width:40px; height:40px; border-radius:10px; background:#dbeafe; color:#1d4ed8; display:flex; align-items:center; justify-content:center;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    </div>
+                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);">Unggah File Excel (.xlsx / .xls) atau CSV</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted);">Klik pilih berkas atau seret ke sini (maks 5.000 baris, diproses instan)</div>
+                                    <input type="file" id="od-file-input" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none;" onchange="odHandleFileUpload(this)">
+                                </label>
+
+                                <div style="margin-top:10px;">
+                                    <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Atau Coba Dataset Contoh Lintas Jurusan (1-Klik):</div>
+                                    <div class="od-sample-row">
+                                        <button type="button" class="od-sample-btn" onclick="odLoadSample('likert')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg>
+                                            <div>
+                                                <div class="od-sample-title">Kuesioner Likert (N=30)</div>
+                                                <div class="od-sample-sub">Manajemen/Pendidikan · Validitas &amp; Regresi</div>
+                                            </div>
+                                        </button>
+                                        <button type="button" class="od-sample-btn" onclick="odLoadSample('beton')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                            <div>
+                                                <div class="od-sample-title">Kuat Tekan Beton (N=20)</div>
+                                                <div class="od-sample-sub">Teknik Sipil / Uji Lab · One-Way ANOVA</div>
+                                            </div>
+                                        </button>
+                                        <button type="button" class="od-sample-btn" onclick="odLoadSample('prepost')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                            <div>
+                                                <div class="od-sample-title">Pre-Test vs Post-Test</div>
+                                                <div class="od-sample-sub">Pendidikan/Kesehatan · Paired t-Test</div>
+                                            </div>
+                                        </button>
+                                        <button type="button" class="od-sample-btn" onclick="odLoadSample('eksperimen')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6"/><path d="M10 3v6l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3"/></svg>
+                                            <div>
+                                                <div class="od-sample-title">Kontrol vs Eksperimen</div>
+                                                <div class="od-sample-sub">Kesehatan/Sains · Independent t-Test</div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tempel langsung dari Excel / Google Sheets -->
+                            <div style="display:flex; flex-direction:column;">
+                                <label class="form-label" for="od-paste-area" style="margin-bottom:6px;">Atau Tempel (Copy-Paste) Langsung dari Excel / Spreadsheet</label>
+                                <textarea id="od-paste-area" class="form-textarea" rows="6" style="flex:1; min-height:142px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px;"
+                                    placeholder="Contoh format CSV / Tab Excel:&#10;Campuran,Kuat_Tekan_MPa&#10;Normal_0%,25.4&#10;FlyAsh_10%,28.9&#10;FlyAsh_20%,31.8"></textarea>
+                                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                                    <button type="button" class="btn-outline" onclick="odLoadFromPaste()" style="padding:7px 13px; font-size:12.5px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span>Muat Tabel dari Teks</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Dataset -->
+                        <div id="od-data-preview-wrap" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
+                            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                <div style="font-size:12.5px; font-weight:700; color:var(--text-main);" id="od-data-summary-label">Dataset dimuat</div>
+                                <div style="font-size:11.5px; color:var(--text-muted);" id="od-data-col-types"></div>
+                            </div>
+                            <div class="od-table-wrap">
+                                <table class="od-spss-table" id="od-preview-table"></table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Langkah 2: Pilih Uji & Variabel -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:4px;">2. Pilih Jenis Uji Statistik &amp; Variabel</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Tersedia 9 uji parametrik &amp; non-parametrik lengkap yang umum diminta dosen pembimbing di S1 &amp; S2.</div>
+
+                        <div class="od-test-grid" id="od-test-selector">
+                            <button type="button" class="od-test-card active" data-test="regression" onclick="odSelectTest('regression')">
+                                <div class="od-test-name">Regresi Linier &amp; Asumsi Klasik</div>
+                                <div class="od-test-desc">R², Uji F, Uji t, VIF/Tolerance, Normalitas K-S, Glejser, Durbin-Watson.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="validity_reliability" onclick="odSelectTest('validity_reliability')">
+                                <div class="od-test-name">Validitas &amp; Reliabilitas</div>
+                                <div class="od-test-desc">Pearson r hitung vs r tabel, Sig., Cronbach's Alpha &amp; Alpha if Deleted.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="anova" onclick="odSelectTest('anova')">
+                                <div class="od-test-name">One-Way ANOVA + Post-Hoc</div>
+                                <div class="od-test-desc">Bandingkan ≥3 variasi perlakuan (Teknik Sipil, Lab, Eksperimen) + Levene &amp; Bonferroni.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="ttest_ind" onclick="odSelectTest('ttest_ind')">
+                                <div class="od-test-name">Independent Sample t-Test</div>
+                                <div class="od-test-desc">Uji beda 2 kelompok bebas (Kontrol vs Eksperimen) + Levene, Welch &amp; Cohen's d.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="ttest_paired" onclick="odSelectTest('ttest_paired')">
+                                <div class="od-test-name">Paired Sample t-Test</div>
+                                <div class="od-test-desc">Uji beda berpasangan Pre-Test vs Post-Test / Sebelum vs Sesudah perlakuan.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="correlation" onclick="odSelectTest('correlation')">
+                                <div class="od-test-name">Korelasi Pearson &amp; Spearman</div>
+                                <div class="od-test-desc">Matriks hubungan antar variabel parametrik (r) &amp; non-parametrik (ρ).</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="descriptive" onclick="odSelectTest('descriptive')">
+                                <div class="od-test-name">Deskriptif &amp; Normalitas</div>
+                                <div class="od-test-desc">N, Min, Max, Mean, Median, SD, Varians, Skewness, Kurtosis &amp; K-S.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="chisquare" onclick="odSelectTest('chisquare')">
+                                <div class="od-test-name">Chi-Square (χ²) &amp; Crosstab</div>
+                                <div class="od-test-desc">Uji hubungan 2 variabel kategorik (Kesehatan/Sosial) + Cramer's V.</div>
+                            </button>
+                            <button type="button" class="od-test-card" data-test="nonparam" onclick="odSelectTest('nonparam')">
+                                <div class="od-test-name">Non-Parametrik (MW / Wilcoxon)</div>
+                                <div class="od-test-desc">Alternatif uji beda jika data tidak normal: Mann-Whitney U &amp; Wilcoxon.</div>
+                            </button>
+                        </div>
+
+                        <!-- Dynamic Variable Picker -->
+                        <div class="od-var-box" id="od-var-picker">
+                            <div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>
+                        </div>
+
+                        <!-- Konteks & Alpha -->
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:14px;">
+                            <div>
+                                <label class="form-label" for="od-topic-input">Judul / Konteks Penelitian (Opsional)</label>
+                                <input type="text" id="od-topic-input" class="form-input" placeholder="cth: Pengaruh Variasi Fly Ash terhadap Kuat Tekan Beton">
+                            </div>
+                            <div>
+                                <label class="form-label" for="od-major-input">Jurusan / Bidang Ilmu</label>
+                                <input type="text" id="od-major-input" class="form-input" placeholder="cth: Teknik Sipil / Manajemen / Pendidikan / Kesehatan">
+                            </div>
+                            <div>
+                                <label class="form-label" for="od-alpha-select">Taraf Signifikansi (α)</label>
+                                <select id="od-alpha-select" class="form-select">
+                                    <option value="0.05" selected>α = 0.05 (Kepercayaan 95% · Standar Skripsi)</option>
+                                    <option value="0.01">α = 0.01 (Kepercayaan 99% · Ketat / Medis)</option>
+                                    <option value="0.10">α = 0.10 (Kepercayaan 90% · Eksploratif)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="od-error-box" style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;"></div>
+                        <div id="od-loading-box" style="display:none; margin-bottom:12px;"></div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <div style="font-size:11.5px; color:var(--text-muted);">Semua angka dihitung langsung dengan rumus matematis murni (bukan tebakan AI).</div>
+                            <button type="button" class="btn-primary" id="od-btn-run" onclick="odRunAnalysis()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <span>Hitung Statistik Valid (Setara SPSS)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hasil Analisis Statistik -->
+                    <div id="od-result-section" style="display:none;">
+                        <div class="card" style="margin-bottom:16px;">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
+                                <div>
+                                    <div style="font-size:16px; font-weight:800; color:var(--text-main);" id="od-res-title">Hasil Analisis Statistik</div>
+                                    <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;" id="od-res-subtitle"></div>
+                                </div>
+                                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                    <button type="button" class="btn-outline" onclick="odCopyTables(this)" style="padding:7px 12px; font-size:12px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        <span>Salin Tabel (Word)</span>
+                                    </button>
+                                    <button type="button" class="btn-primary" id="od-btn-pdf" onclick="odDownloadPdf()" style="padding:7px 13px; font-size:12px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        <span>Unduh Laporan PDF</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="od-hl-grid" id="od-res-highlights"></div>
+                            <div id="od-res-equation" style="display:none; padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:13px; font-weight:700; margin-bottom:14px;"></div>
+                            <div id="od-res-tables"></div>
+
+                            <!-- Grafik Statistik SVG -->
+                            <div class="od-chart-box" id="od-res-chart-wrap" style="display:none;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);" id="od-chart-title">Visualisasi Grafik</div>
+                                    <button type="button" class="btn-outline" onclick="odDownloadChartPng()" style="padding:5px 10px; font-size:11.5px;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        <span>Unduh Grafik PNG HD</span>
+                                    </button>
+                                </div>
+                                <div id="od-chart-svg-host" style="min-width:300px;"></div>
+                            </div>
+
+                            <!-- Keputusan Statistik -->
+                            <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:14px;">
+                                <div style="font-size:13px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Ringkasan Keputusan Statistik</div>
+                                <ul id="od-res-conclusions" style="margin:0 0 0 18px; padding:0; font-size:12.8px; color:var(--text-secondary); line-height:1.65;"></ul>
+                            </div>
+
+                            <!-- Narasi Interpretasi Bab IV (AI Berbasis Angka Eksak) -->
+                            <div style="border-top:1px solid var(--border-light); padding-top:14px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                    <div>
+                                        <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Narasi Interpretasi Bab IV Siap Tempel Word</div>
+                                        <div style="font-size:12px; color:var(--text-muted);">AI menerjemahkan tabel hasil hitung eksak di atas menjadi paragraf akademis baku tanpa mengubah angka satu digit pun.</div>
+                                    </div>
+                                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                        <button type="button" class="btn-primary" id="od-btn-narrate" onclick="odGenerateNarration()" style="padding:8px 14px; font-size:12.5px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                            <span>Buat Narasi Bab IV (AI)</span>
+                                        </button>
+                                        <button type="button" class="btn-outline" id="od-btn-copy-narr" onclick="odCopyNarration(this)" style="display:none; padding:8px 12px; font-size:12.5px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            <span>Salin Narasi</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="od-narr-loading" style="display:none; margin-bottom:10px;"></div>
+                                <div id="od-narr-output" class="od-narration-box" style="display:none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: BELUM PUNYA KUESIONER / LEMBAR PENCATATAN EKSPERIMEN LAB -->
+                <div id="od-subpane-inst" style="display:none;">
+                    <div class="card" style="margin-bottom:16px;">
+                        <div style="font-size:14.5px; font-weight:700; color:var(--text-main); margin-bottom:4px;">Generator Instrumen Pengumpulan Data + Template Tabulasi Excel</div>
+                        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:14px;">Belum punya kuesioner atau format tabel uji laboratorium? Susun otomatis kisi-kisi Bab III, daftar butir/parameter ukur, lalu unduh file Excel (.xlsx / .csv) kosong yang siap diisi dan diunggah langsung ke tab Hitung Statistik!</div>
+
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+                            <button type="button" class="od-test-card active" id="od-inst-mode-kuesioner" onclick="odSetInstrumentMode('kuesioner')" style="flex:1 1 240px;">
+                                <div class="od-test-name">Kuesioner Survei (Skala Likert)</div>
+                                <div class="od-test-desc">Cocok untuk Manajemen, Ekonomi, Pendidikan, Psikologi, Sosial, Komunikasi, Kesehatan Masyarakat.</div>
+                            </button>
+                            <button type="button" class="od-test-card" id="od-inst-mode-eksperimen" onclick="odSetInstrumentMode('eksperimen')" style="flex:1 1 240px;">
+                                <div class="od-test-name">Lembar Data Eksperimen / Uji Lab</div>
+                                <div class="od-test-desc">Cocok untuk Teknik Sipil (Beton/Aspal), Teknik Mesin, Pertanian, Biologi, Farmasi, Keperawatan &amp; IT.</div>
+                            </button>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-bottom:12px;">
+                            <div>
+                                <label class="form-label" for="od-inst-topic">Judul / Topik Penelitian <span style="color:#dc2626;">*</span></label>
+                                <input type="text" id="od-inst-topic" class="form-input" placeholder="cth: Pengaruh Motivasi & Disiplin Kerja terhadap Kinerja Karyawan">
+                            </div>
+                            <div>
+                                <label class="form-label" for="od-inst-major">Jurusan / Program Studi</label>
+                                <input type="text" id="od-inst-major" class="form-input" placeholder="cth: Manajemen / Teknik Sipil / Pendidikan / Kesehatan">
+                            </div>
+                        </div>
+
+                        <div class="od-inst-grid">
+                            <div>
+                                <label class="form-label" for="od-inst-vars" id="od-inst-vars-label">Daftar Variabel Penelitian (pisahkan dengan koma) <span style="color:#dc2626;">*</span></label>
+                                <input type="text" id="od-inst-vars" class="form-input" placeholder="cth: Motivasi Kerja (X1), Disiplin Kerja (X2), Kinerja Karyawan (Y)">
+                            </div>
+                            <div>
+                                <label class="form-label" for="od-inst-count" id="od-inst-count-label">Item per Variabel</label>
+                                <input type="number" id="od-inst-count" class="form-input" min="2" max="12" value="5">
+                            </div>
+                            <div>
+                                <label class="form-label" for="od-inst-scale" id="od-inst-scale-label">Skala / Satuan</label>
+                                <select id="od-inst-scale" class="form-select">
+                                    <option value="Likert 1-5 (STS - SS)">Skala Likert 1–5 (STS – SS)</option>
+                                    <option value="Likert 1-4 (STS - SS)">Skala Likert 1–4 (Tanpa Netral)</option>
+                                    <option value="Guttman (Ya = 1, Tidak = 0)">Skala Guttman (Ya / Tidak)</option>
+                                    <option value="Pengukuran Numerik / Satuan SI">Pengukuran Numerik / Lab (MPa, mm, g, s)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="od-inst-error" style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;"></div>
+                        <div id="od-inst-loading" style="display:none; margin-bottom:12px;"></div>
+
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button type="button" class="btn-primary" id="od-btn-gen-inst" onclick="odGenerateInstrument()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                <span>Buat Instrumen &amp; Template Excel</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="od-inst-result" style="display:none;" class="card">
+                        <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
+                            <div>
+                                <div style="font-size:15.5px; font-weight:800; color:var(--text-main);" id="od-inst-res-title">Instrumen Penelitian</div>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;" id="od-inst-res-meta"></div>
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                <button type="button" class="btn-outline" onclick="odCopyInstrument(this)" style="padding:7px 12px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <span>Salin Kisi-Kisi &amp; Butir</span>
+                                </button>
+                                <button type="button" class="btn-outline" onclick="odDownloadTemplateCsv()" style="padding:7px 12px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>Unduh Template .CSV</span>
+                                </button>
+                                <button type="button" class="btn-primary" onclick="odDownloadTemplateXlsx()" style="padding:7px 13px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>Unduh Template Excel (.xlsx)</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="od-inst-res-body"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
             <!-- 8. TAB DOSEN AI (INTERACTIVE CHAT & BIMBINGAN 24 JAM) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-qa">
@@ -5199,6 +5889,7 @@
                 'journals': 'Cari Jurnal',
                 'paraphrase': 'Parafrase',
                 'plagiarism': 'Cek Plagiasi',
+                'olahdata': 'Olah Data',
                 'qa': 'Dosen AI',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
@@ -8009,6 +8700,972 @@
                 btn.innerHTML = origHtml;
             }
         }
+
+        // =========================================================================
+        // OLAH DATA STATISTIK VALID (SETARA IBM SPSS — STANDALONE MENU SIDEBAR)
+        // =========================================================================
+        let odDataset = { columns: [], rows: [], title: '' };
+        let odColMeta = { numeric: [], categorical: [] };
+        let odActiveTest = 'regression';
+        let odCurrentResult = null;
+        let odCurrentNarration = '';
+        let odInstMode = 'kuesioner';
+        let odCurrentInstrument = null;
+
+        function odEscape(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function odSwitchSubTab(tab) {
+            document.getElementById('od-subpane-calc').style.display = tab === 'calc' ? 'block' : 'none';
+            document.getElementById('od-subpane-inst').style.display = tab === 'inst' ? 'block' : 'none';
+            document.getElementById('od-tab-btn-calc').classList.toggle('active', tab === 'calc');
+            document.getElementById('od-tab-btn-inst').classList.toggle('active', tab === 'inst');
+        }
+
+        function odShowError(msg) {
+            const box = document.getElementById('od-error-box');
+            if (!box) return;
+            if (!msg) {
+                box.style.display = 'none';
+                box.textContent = '';
+            } else {
+                box.style.display = 'block';
+                box.textContent = msg;
+            }
+        }
+
+        function odLoadSheetJs() {
+            if (window.XLSX) return Promise.resolve(window.XLSX);
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+                s.onload = () => window.XLSX ? resolve(window.XLSX) : reject(new Error('Library Excel gagal dimuat.'));
+                s.onerror = () => reject(new Error('Gagal memuat pembaca file Excel (.xlsx). Coba simpan sebagai .CSV lalu unggah ulang.'));
+                document.head.appendChild(s);
+            });
+        }
+
+        function odParseDelimitedText(raw) {
+            const cleaned = String(raw || '').replace(/^\uFEFF/, '').trim();
+            const lines = cleaned.split(/\r\n|\r|\n/).filter(l => l.trim() !== '');
+            if (lines.length < 2) return { columns: [], rows: [] };
+            const first = lines[0];
+            const counts = {
+                '\t': (first.match(/\t/g) || []).length,
+                ';': (first.match(/;/g) || []).length,
+                ',': (first.match(/,/g) || []).length
+            };
+            let delim = ',';
+            if (counts['\t'] >= counts[';'] && counts['\t'] >= counts[','] && counts['\t'] > 0) delim = '\t';
+            else if (counts[';'] > counts[',']) delim = ';';
+
+            const splitLine = (line) => {
+                const out = [];
+                let cur = '';
+                let inQ = false;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+                        else inQ = !inQ;
+                    } else if (ch === delim && !inQ) {
+                        out.push(cur.trim());
+                        cur = '';
+                    } else {
+                        cur += ch;
+                    }
+                }
+                out.push(cur.trim());
+                return out;
+            };
+
+            const rawHeaders = splitLine(lines[0]).map((h, i) => h || ('Kolom_' + (i + 1)));
+            const columns = rawHeaders.filter(Boolean);
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                const vals = splitLine(lines[i]);
+                const obj = {};
+                let hasVal = false;
+                columns.forEach((col, idx) => {
+                    const v = vals[idx] !== undefined ? vals[idx] : '';
+                    if (v !== '') hasVal = true;
+                    obj[col] = v;
+                });
+                if (hasVal) rows.push(obj);
+            }
+            return { columns, rows };
+        }
+
+        async function odHandleFileUpload(input) {
+            odShowError('');
+            const file = input?.files?.[0];
+            if (!file) return;
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            try {
+                if (ext === 'xlsx' || ext === 'xls') {
+                    const XLSX = await odLoadSheetJs();
+                    const buf = await file.arrayBuffer();
+                    const wb = XLSX.read(buf, { type: 'array' });
+                    const firstSheet = wb.SheetNames[0];
+                    const sheet = wb.Sheets[firstSheet];
+                    const arr = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                    if (!arr || arr.length < 2) throw new Error('Sheet Excel kosong atau hanya berisi 1 baris.');
+                    const columns = arr[0].map((h, i) => String(h || '').trim() || ('Kolom_' + (i + 1)));
+                    const rows = [];
+                    for (let i = 1; i < arr.length; i++) {
+                        const r = arr[i];
+                        if (!r || !r.some(v => String(v ?? '').trim() !== '')) continue;
+                        const obj = {};
+                        columns.forEach((c, idx) => { obj[c] = r[idx] !== undefined ? String(r[idx]).trim() : ''; });
+                        rows.push(obj);
+                    }
+                    odSetDataset(columns, rows, file.name);
+                } else {
+                    const txt = await file.text();
+                    const parsed = odParseDelimitedText(txt);
+                    if (!parsed.rows.length) throw new Error('File CSV/teks tidak memiliki baris data yang valid.');
+                    odSetDataset(parsed.columns, parsed.rows, file.name);
+                }
+            } catch (err) {
+                odShowError(err.message || 'Gagal membaca file data.');
+            }
+        }
+
+        function odLoadFromPaste() {
+            odShowError('');
+            const raw = (document.getElementById('od-paste-area')?.value || '').trim();
+            if (!raw) {
+                odShowError('Tempel data tabel (CSV atau salinan Excel) terlebih dahulu.');
+                return;
+            }
+            const parsed = odParseDelimitedText(raw);
+            if (!parsed.columns.length || parsed.rows.length < 2) {
+                odShowError('Minimal harus ada 1 baris header kolom dan 2 baris data.');
+                return;
+            }
+            odSetDataset(parsed.columns, parsed.rows, 'Data Tempel Manual');
+        }
+
+        function odClearDataset() {
+            odDataset = { columns: [], rows: [], title: '' };
+            odColMeta = { numeric: [], categorical: [] };
+            odCurrentResult = null;
+            odCurrentNarration = '';
+            document.getElementById('od-data-preview-wrap').style.display = 'none';
+            document.getElementById('od-btn-clear-data').style.display = 'none';
+            document.getElementById('od-result-section').style.display = 'none';
+            document.getElementById('od-file-input').value = '';
+            document.getElementById('od-var-picker').innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>';
+        }
+
+        function odIsNumericVal(v) {
+            const s = String(v ?? '').trim();
+            if (!s) return false;
+            const norm = s.includes(',') && !s.includes('.') ? s.replace(',', '.') : s.replace(/,/g, '');
+            return !isNaN(parseFloat(norm)) && isFinite(norm);
+        }
+
+        function odSetDataset(columns, rows, title) {
+            odDataset = { columns, rows, title: title || 'Data Penelitian' };
+            const numeric = [];
+            const categorical = [];
+            columns.forEach(col => {
+                let numCount = 0;
+                let nonEmpty = 0;
+                rows.slice(0, 120).forEach(r => {
+                    const v = String(r[col] ?? '').trim();
+                    if (v !== '') {
+                        nonEmpty++;
+                        if (odIsNumericVal(v)) numCount++;
+                    }
+                });
+                if (nonEmpty > 0 && numCount / nonEmpty >= 0.7) numeric.push(col);
+                else categorical.push(col);
+            });
+            odColMeta = { numeric, categorical };
+
+            // Render preview
+            document.getElementById('od-data-preview-wrap').style.display = 'block';
+            document.getElementById('od-btn-clear-data').style.display = 'inline-flex';
+            document.getElementById('od-data-summary-label').textContent = `${title} · ${rows.length} baris × ${columns.length} kolom`;
+            document.getElementById('od-data-col-types').textContent = `${numeric.length} kolom numerik · ${categorical.length} kolom kategorik`;
+
+            const tbl = document.getElementById('od-preview-table');
+            let html = '<thead><tr>' + columns.map(c => `<th>${odEscape(c)}</th>`).join('') + '</tr></thead><tbody>';
+            rows.slice(0, 6).forEach(r => {
+                html += '<tr>' + columns.map(c => `<td>${odEscape(r[c] ?? '')}</td>`).join('') + '</tr>';
+            });
+            if (rows.length > 6) {
+                html += `<tr><td colspan="${columns.length}" style="text-align:center; color:#64748b; font-style:italic;">... dan ${rows.length - 6} baris lainnya</td></tr>`;
+            }
+            html += '</tbody>';
+            tbl.innerHTML = html;
+
+            odRenderVarPicker();
+        }
+
+        function odLoadSample(kind) {
+            odShowError('');
+            if (kind === 'likert') {
+                const cols = ['Responden', 'X1_1', 'X1_2', 'X1_3', 'X1_4', 'X2_1', 'X2_2', 'X2_3', 'X2_4', 'Y_1', 'Y_2', 'Y_3', 'Y_4', 'X1_Total', 'X2_Total', 'Y_Total'];
+                const baseX1 = [4,2,5,4,2,5,3,2,4,5,3,4,2,5,3,2,4,5,3,4,2,4,5,2,4,5,3,4,5,3];
+                const baseX2 = [3,4,4,2,3,5,5,3,3,4,4,2,3,4,5,4,2,5,4,3,4,3,4,3,5,4,2,5,3,5];
+                const rows = baseX1.map((b1, i) => {
+                    const b2 = baseX2[i];
+                    const clamp = v => Math.max(1, Math.min(5, v));
+                    const x11 = clamp(b1), x12 = clamp(b1 + ((i % 3) === 0 ? 0 : (i % 2 ? 1 : -1))), x13 = clamp(b1), x14 = clamp(b1 + ((i % 4) === 0 ? -1 : 0));
+                    const x21 = clamp(b2), x22 = clamp(b2 + ((i % 3) === 1 ? -1 : 0)), x23 = clamp(b2), x24 = clamp(b2 + ((i % 2) === 0 ? 0 : 1));
+                    const x1Tot = x11 + x12 + x13 + x14;
+                    const x2Tot = x21 + x22 + x23 + x24;
+                    const yTarget = Math.round((x1Tot * 0.46 + x2Tot * 0.50 + ((i % 3) - 1)) / 4);
+                    const y1 = clamp(yTarget), y2 = clamp(yTarget + ((i % 5) === 0 ? -1 : 0)), y3 = clamp(yTarget), y4 = clamp(yTarget + ((i % 4) === 1 ? 1 : 0));
+                    return {
+                        Responden: 'R-' + String(i + 1).padStart(2, '0'),
+                        X1_1: x11, X1_2: x12, X1_3: x13, X1_4: x14,
+                        X2_1: x21, X2_2: x22, X2_3: x23, X2_4: x24,
+                        Y_1: y1, Y_2: y2, Y_3: y3, Y_4: y4,
+                        X1_Total: x1Tot,
+                        X2_Total: x2Tot,
+                        Y_Total: y1 + y2 + y3 + y4
+                    };
+                });
+                document.getElementById('od-topic-input').value = 'Pengaruh Motivasi Kerja (X1) dan Disiplin Kerja (X2) terhadap Kinerja Karyawan (Y)';
+                document.getElementById('od-major-input').value = 'Manajemen / Ekonomi';
+                odActiveTest = 'regression';
+                odSyncTestCardUI();
+                odSetDataset(cols, rows, 'Contoh Kuesioner Likert (N=30)');
+            } else if (kind === 'beton') {
+                const cols = ['Kode_Benda_Uji', 'Variasi_Campuran', 'Kuat_Tekan_MPa', 'Slump_cm'];
+                const rows = [
+                    { Kode_Benda_Uji: 'B-01', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.4, Slump_cm: 10.5 },
+                    { Kode_Benda_Uji: 'B-02', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 26.1, Slump_cm: 10.2 },
+                    { Kode_Benda_Uji: 'B-03', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 24.9, Slump_cm: 10.8 },
+                    { Kode_Benda_Uji: 'B-04', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.8, Slump_cm: 10.4 },
+                    { Kode_Benda_Uji: 'B-05', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.2, Slump_cm: 10.6 },
+                    { Kode_Benda_Uji: 'B-06', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.6, Slump_cm: 9.8 },
+                    { Kode_Benda_Uji: 'B-07', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 29.2, Slump_cm: 9.5 },
+                    { Kode_Benda_Uji: 'B-08', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.1, Slump_cm: 9.9 },
+                    { Kode_Benda_Uji: 'B-09', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.9, Slump_cm: 9.6 },
+                    { Kode_Benda_Uji: 'B-10', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 29.0, Slump_cm: 9.7 },
+                    { Kode_Benda_Uji: 'B-11', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.8, Slump_cm: 9.0 },
+                    { Kode_Benda_Uji: 'B-12', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 32.4, Slump_cm: 8.8 },
+                    { Kode_Benda_Uji: 'B-13', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.5, Slump_cm: 9.2 },
+                    { Kode_Benda_Uji: 'B-14', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 32.1, Slump_cm: 8.9 },
+                    { Kode_Benda_Uji: 'B-15', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.9, Slump_cm: 9.1 },
+                    { Kode_Benda_Uji: 'B-16', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.1, Slump_cm: 8.4 },
+                    { Kode_Benda_Uji: 'B-17', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 26.6, Slump_cm: 8.2 },
+                    { Kode_Benda_Uji: 'B-18', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.5, Slump_cm: 8.5 },
+                    { Kode_Benda_Uji: 'B-19', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 26.9, Slump_cm: 8.3 },
+                    { Kode_Benda_Uji: 'B-20', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.3, Slump_cm: 8.4 }
+                ];
+                document.getElementById('od-topic-input').value = 'Pengaruh Variasi Substitusi Fly Ash terhadap Kuat Tekan Beton Mutu fc 25 MPa Umur 28 Hari';
+                document.getElementById('od-major-input').value = 'Teknik Sipil';
+                odActiveTest = 'anova';
+                odSyncTestCardUI();
+                odSetDataset(cols, rows, 'Contoh Uji Kuat Tekan Beton Teknik Sipil (N=20)');
+            } else if (kind === 'prepost') {
+                const cols = ['Kode_Sampel', 'Pretest', 'Posttest'];
+                const pre = [56,62,58,64,52,60,66,54,59,63,57,61,55,65,58,60,53,62,59,64];
+                const post = [78,84,80,86,74,82,88,75,81,85,79,83,76,87,80,83,74,85,82,86];
+                const rows = pre.map((p, i) => ({ Kode_Sampel: 'S-' + String(i + 1).padStart(2, '0'), Pretest: p, Posttest: post[i] }));
+                document.getElementById('od-topic-input').value = 'Efektivitas Model Pembelajaran Berbasis Proyek terhadap Hasil Belajar Siswa';
+                document.getElementById('od-major-input').value = 'Pendidikan';
+                odActiveTest = 'ttest_paired';
+                odSyncTestCardUI();
+                odSetDataset(cols, rows, 'Contoh Pre-Test vs Post-Test (N=20)');
+            } else if (kind === 'eksperimen') {
+                const cols = ['Kode', 'Kelompok', 'Skor_Hasil', 'Status_Tuntas'];
+                const expScores = [84,88,82,90,86,85,89,83,87,91,84,86];
+                const ctrlScores = [72,75,70,74,69,76,71,73,68,75,72,74];
+                const rows = [];
+                expScores.forEach((s, i) => rows.push({ Kode: 'E-' + (i + 1), Kelompok: 'Eksperimen', Skor_Hasil: s, Status_Tuntas: s >= 75 ? 'Tuntas' : 'Belum' }));
+                ctrlScores.forEach((s, i) => rows.push({ Kode: 'K-' + (i + 1), Kelompok: 'Kontrol', Skor_Hasil: s, Status_Tuntas: s >= 75 ? 'Tuntas' : 'Belum' }));
+                document.getElementById('od-topic-input').value = 'Perbandingan Hasil Intervensi Kelompok Eksperimen dan Kelompok Kontrol';
+                document.getElementById('od-major-input').value = 'Kesehatan / Pendidikan';
+                odActiveTest = 'ttest_ind';
+                odSyncTestCardUI();
+                odSetDataset(cols, rows, 'Contoh Kontrol vs Eksperimen (N=24)');
+            }
+        }
+
+        function odSyncTestCardUI() {
+            document.querySelectorAll('#od-test-selector .od-test-card').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.test === odActiveTest);
+            });
+        }
+
+        function odSelectTest(testKey) {
+            odActiveTest = testKey;
+            odSyncTestCardUI();
+            odRenderVarPicker();
+        }
+
+        function odRenderVarPicker() {
+            const host = document.getElementById('od-var-picker');
+            if (!host) return;
+            if (!odDataset.columns.length) {
+                host.innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>';
+                return;
+            }
+
+            const allCols = odDataset.columns;
+            const numCols = odColMeta.numeric.length ? odColMeta.numeric : allCols;
+            const nonIdNum = numCols.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const nonIdCat = odColMeta.categorical.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const optHtml = (list, selectedVal) => list.map(c => `<option value="${odEscape(c)}" ${c === selectedVal ? 'selected' : ''}>${odEscape(c)}</option>`).join('');
+
+            if (odActiveTest === 'regression') {
+                // Jika ada kolom *_Total, prioritaskan untuk regresi!
+                const totalCols = nonIdNum.filter(c => /total|skor|sum/i.test(c));
+                const base = totalCols.length >= 2 ? totalCols : nonIdNum;
+                const defY = base[base.length - 1] || numCols[numCols.length - 1] || '';
+                const defXs = base.filter(c => c !== defY);
+                const chips = nonIdNum.map(c => {
+                    const checked = defXs.includes(c);
+                    return `<label class="od-col-chip ${checked ? 'checked' : ''}"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" ${checked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
+                }).join('');
+                host.innerHTML = `
+                    <div class="od-reg-grid">
+                        <div>
+                            <label class="form-label" for="od-reg-y">Variabel Dependen (Y — Terikat)</label>
+                            <select id="od-reg-y" class="form-select">${optHtml(nonIdNum.length ? nonIdNum : numCols, defY)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label">Variabel Independen (X — Bebas, pilih 1 atau lebih)</label>
+                            <div class="od-chip-list">${chips}</div>
+                        </div>
+                    </div>`;
+            } else if (odActiveTest === 'validity_reliability') {
+                const itemCols = nonIdNum.filter(c => !/total|sum/i.test(c));
+                const useCols = itemCols.length >= 2 ? itemCols : nonIdNum;
+                const chips = nonIdNum.map(c => {
+                    const checked = useCols.includes(c);
+                    return `<label class="od-col-chip ${checked ? 'checked' : ''}"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" ${checked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
+                }).join('');
+                host.innerHTML = `
+                    <label class="form-label">Pilih Kolom Butir Item Kuesioner (otomatis dikelompokkan berdasarkan prefix seperti X1_1..X1_4, Y_1..Y_4)</label>
+                    <div class="od-chip-list">${chips}</div>`;
+            } else if (odActiveTest === 'anova' || odActiveTest === 'ttest_ind') {
+                const defG = nonIdCat[0] || allCols[0] || '';
+                const defV = nonIdNum[0] || numCols[0] || '';
+                host.innerHTML = `
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label class="form-label" for="od-group-col">Kolom Kelompok / Variasi Perlakuan (Faktor)</label>
+                            <select id="od-group-col" class="form-select">${optHtml(allCols, defG)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="od-value-col">Kolom Nilai Pengukuran (Numerik)</label>
+                            <select id="od-value-col" class="form-select">${optHtml(numCols, defV)}</select>
+                        </div>
+                    </div>`;
+            } else if (odActiveTest === 'ttest_paired') {
+                const defA = nonIdNum[0] || numCols[0] || '';
+                const defB = nonIdNum[1] || numCols[1] || defA;
+                host.innerHTML = `
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (cth: Pre-Test / Sebelum)</label>
+                            <select id="od-pair-a" class="form-select">${optHtml(numCols, defA)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (cth: Post-Test / Sesudah)</label>
+                            <select id="od-pair-b" class="form-select">${optHtml(numCols, defB)}</select>
+                        </div>
+                    </div>`;
+            } else if (odActiveTest === 'chisquare') {
+                const defA = nonIdCat[0] || allCols[0] || '';
+                const defB = nonIdCat[1] || allCols[allCols.length - 1] || '';
+                host.innerHTML = `
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label class="form-label" for="od-cat-a">Variabel Kategorik Baris</label>
+                            <select id="od-cat-a" class="form-select">${optHtml(allCols, defA)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="od-cat-b">Variabel Kategorik Kolom</label>
+                            <select id="od-cat-b" class="form-select">${optHtml(allCols, defB)}</select>
+                        </div>
+                    </div>`;
+            } else if (odActiveTest === 'nonparam') {
+                const defG = nonIdCat[0] || allCols[0] || '';
+                const defV = nonIdNum[0] || numCols[0] || '';
+                const defA = nonIdNum[0] || numCols[0] || '';
+                const defB = nonIdNum[1] || numCols[1] || defA;
+                host.innerHTML = `
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label" for="od-np-mode">Pilih Jenis Uji Non-Parametrik</label>
+                        <select id="od-np-mode" class="form-select" onchange="odToggleNonparamInputs()">
+                            <option value="mann_whitney">Mann-Whitney U (2 Kelompok Bebas — Pengganti Independent t-Test)</option>
+                            <option value="wilcoxon">Wilcoxon Signed-Rank (2 Data Berpasangan — Pengganti Paired t-Test)</option>
+                        </select>
+                    </div>
+                    <div id="od-np-mw-fields" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label class="form-label" for="od-group-col">Kolom Kelompok (2 Grup)</label>
+                            <select id="od-group-col" class="form-select">${optHtml(allCols, defG)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="od-value-col">Kolom Skor / Nilai Numerik</label>
+                            <select id="od-value-col" class="form-select">${optHtml(numCols, defV)}</select>
+                        </div>
+                    </div>
+                    <div id="od-np-wx-fields" style="display:none; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (Sebelum)</label>
+                            <select id="od-pair-a" class="form-select">${optHtml(numCols, defA)}</select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (Sesudah)</label>
+                            <select id="od-pair-b" class="form-select">${optHtml(numCols, defB)}</select>
+                        </div>
+                    </div>`;
+            } else {
+                // descriptive / correlation
+                const chips = nonIdNum.map(c => `<label class="od-col-chip checked"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" checked onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
+                host.innerHTML = `
+                    <label class="form-label">Pilih Kolom Variabel Numerik yang Akan Dianalisis</label>
+                    <div class="od-chip-list">${chips}</div>`;
+            }
+        }
+
+        function odToggleNonparamInputs() {
+            const m = document.getElementById('od-np-mode')?.value || 'mann_whitney';
+            const mw = document.getElementById('od-np-mw-fields');
+            const wx = document.getElementById('od-np-wx-fields');
+            if (mw) mw.style.display = m === 'mann_whitney' ? 'grid' : 'none';
+            if (wx) wx.style.display = m === 'wilcoxon' ? 'grid' : 'none';
+        }
+
+        async function odRunAnalysis() {
+            odShowError('');
+            if (!odDataset.columns.length || !odDataset.rows.length) {
+                odShowError('Belum ada data yang dimuat. Unggah file Excel/CSV, tempel tabel, atau klik salah satu dataset contoh di atas.');
+                return;
+            }
+
+            const payload = {
+                columns: odDataset.columns,
+                rows: odDataset.rows,
+                test_type: odActiveTest,
+                alpha: parseFloat(document.getElementById('od-alpha-select')?.value || '0.05'),
+                dataset_title: (document.getElementById('od-topic-input')?.value || '').trim() || odDataset.title
+            };
+
+            if (odActiveTest === 'regression') {
+                payload.y_col = document.getElementById('od-reg-y')?.value || '';
+                payload.x_cols = Array.from(document.querySelectorAll('.od-reg-x:checked')).map(el => el.value).filter(v => v !== payload.y_col);
+                if (!payload.x_cols.length) {
+                    odShowError('Pilih minimal 1 variabel independen (X) yang berbeda dari variabel Y.');
+                    return;
+                }
+            } else if (odActiveTest === 'validity_reliability' || odActiveTest === 'descriptive' || odActiveTest === 'correlation') {
+                payload.cols = Array.from(document.querySelectorAll('.od-multi-col:checked')).map(el => el.value);
+                if (!payload.cols.length) {
+                    odShowError('Pilih minimal 1 kolom variabel numerik.');
+                    return;
+                }
+            } else if (odActiveTest === 'anova' || odActiveTest === 'ttest_ind') {
+                payload.group_col = document.getElementById('od-group-col')?.value || '';
+                payload.value_col = document.getElementById('od-value-col')?.value || '';
+            } else if (odActiveTest === 'ttest_paired') {
+                payload.pair_a = document.getElementById('od-pair-a')?.value || '';
+                payload.pair_b = document.getElementById('od-pair-b')?.value || '';
+            } else if (odActiveTest === 'chisquare') {
+                payload.cat_a = document.getElementById('od-cat-a')?.value || '';
+                payload.cat_b = document.getElementById('od-cat-b')?.value || '';
+            } else if (odActiveTest === 'nonparam') {
+                payload.nonparam_mode = document.getElementById('od-np-mode')?.value || 'mann_whitney';
+                if (payload.nonparam_mode === 'wilcoxon') {
+                    payload.pair_a = document.getElementById('od-pair-a')?.value || '';
+                    payload.pair_b = document.getElementById('od-pair-b')?.value || '';
+                } else {
+                    payload.group_col = document.getElementById('od-group-col')?.value || '';
+                    payload.value_col = document.getElementById('od-value-col')?.value || '';
+                }
+            }
+
+            const btn = document.getElementById('od-btn-run');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            renderLoadingCard('od-loading-box', 'Menghitung Statistik Deterministik (Setara SPSS)...', 'Menghitung matriks, distribusi eksak, derajat bebas, dan p-value.');
+
+            try {
+                const res = await fetch("{{ route('tools.stats.analyze') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Perhitungan gagal.');
+                }
+                odCurrentResult = data.result;
+                odCurrentNarration = '';
+                document.getElementById('od-narr-output').style.display = 'none';
+                document.getElementById('od-btn-copy-narr').style.display = 'none';
+                odRenderResult(data.result);
+            } catch (err) {
+                odShowError(err.message || 'Gagal menghitung statistik.');
+            } finally {
+                hideLoadingCard('od-loading-box');
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        function odRenderResult(result) {
+            const sec = document.getElementById('od-result-section');
+            sec.style.display = 'block';
+            document.getElementById('od-res-title').textContent = result.title || 'Hasil Analisis Statistik';
+            document.getElementById('od-res-subtitle').textContent = (result.subtitle || '') + ' · ' + (result.engine_note || '');
+
+            // Highlights
+            const hlHost = document.getElementById('od-res-highlights');
+            hlHost.innerHTML = (result.highlights || []).map(h => `
+                <div class="od-hl-card tone-${odEscape(h.tone || 'slate')}">
+                    <div class="od-hl-lbl">${odEscape(h.label)}</div>
+                    <div class="od-hl-val">${odEscape(h.value)}</div>
+                </div>`).join('');
+
+            // Equation banner
+            const eqEl = document.getElementById('od-res-equation');
+            if (result.equation) {
+                eqEl.style.display = 'block';
+                eqEl.textContent = 'Persamaan Regresi: ' + result.equation;
+            } else {
+                eqEl.style.display = 'none';
+            }
+
+            // Tables
+            const tblHost = document.getElementById('od-res-tables');
+            tblHost.innerHTML = (result.tables || []).map(tbl => {
+                const ths = (tbl.headers || []).map(h => `<th>${odEscape(h)}</th>`).join('');
+                const trs = (tbl.rows || []).map(row => '<tr>' + row.map((cell, idx) => {
+                    const txt = String(cell ?? '');
+                    let extra = '';
+                    if (/^(VALID|LOLOS|Signifikan|Berbeda Signifikan|Ada Hubungan Signifikan|Sangat Reliabel|Reliabel|Normal)/i.test(txt)) {
+                        extra = ' style="color:#047857; font-weight:700;"';
+                    } else if (/^(TIDAK VALID|TERINDIKASI|Tidak Normal|Kurang Reliabel)/i.test(txt)) {
+                        extra = ' style="color:#b91c1c; font-weight:700;"';
+                    }
+                    return `<td${extra}>${odEscape(txt)}</td>`;
+                }).join('') + '</tr>').join('');
+                const fn = tbl.footnote ? `<div class="od-footnote">${odEscape(tbl.footnote)}</div>` : '';
+                return `<div class="od-table-card">
+                    <div class="od-table-title">${odEscape(tbl.title)}</div>
+                    <div class="od-table-wrap"><table class="od-spss-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>
+                    ${fn}
+                </div>`;
+            }).join('');
+
+            // Chart
+            if (result.chart) {
+                document.getElementById('od-res-chart-wrap').style.display = 'block';
+                document.getElementById('od-chart-title').textContent = result.chart.title || 'Visualisasi Statistik';
+                document.getElementById('od-chart-svg-host').innerHTML = odBuildChartSvg(result.chart);
+            } else {
+                document.getElementById('od-res-chart-wrap').style.display = 'none';
+            }
+
+            // Conclusions
+            document.getElementById('od-res-conclusions').innerHTML = (result.conclusions || [])
+                .map(c => `<li>${odEscape(c)}</li>`).join('');
+
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function odBuildChartSvg(chart) {
+            const W = 680, H = 290, padL = 62, padR = 24, padT = 26, padB = 56;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            if (chart.type === 'scatter_fit' && Array.isArray(chart.points) && chart.points.length) {
+                const pts = chart.points;
+                const allVals = pts.flatMap(p => [p.x, p.y]);
+                let vMin = Math.min(...allVals);
+                let vMax = Math.max(...allVals);
+                if (vMax - vMin < 1e-6) { vMin -= 1; vMax += 1; }
+                const pad = (vMax - vMin) * 0.08;
+                vMin -= pad; vMax += pad;
+                const sx = v => padL + ((v - vMin) / (vMax - vMin)) * plotW;
+                const sy = v => padT + plotH - ((v - vMin) / (vMax - vMin)) * plotH;
+
+                let grid = '';
+                for (let g = 0; g <= 4; g++) {
+                    const val = vMin + (g / 4) * (vMax - vMin);
+                    const py = sy(val);
+                    grid += `<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e2e8f0" stroke-width="1"/>`;
+                    grid += `<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+                }
+                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#2563eb" fill-opacity="0.78" stroke="#ffffff" stroke-width="1"/>`).join('');
+                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
+                    <rect width="${W}" height="${H}" fill="#ffffff"/>
+                    ${grid}
+                    <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
+                    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
+                    <line x1="${sx(vMin)}" y1="${sy(vMin)}" x2="${sx(vMax)}" y2="${sy(vMax)}" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5,4"/>
+                    ${dots}
+                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Prediksi')}</text>
+                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Aktual')}</text>
+                </svg>`;
+            }
+
+            // Bar / Bar + Error Bars
+            const labels = chart.labels || [];
+            const values = (chart.values || []).map(Number);
+            const errors = (chart.errors || []).map(Number);
+            if (!labels.length) return '';
+
+            let maxV = Math.max(...values.map((v, i) => v + (errors[i] || 0)), chart.threshold || 0, 0.1);
+            let minV = Math.min(0, ...values.map((v, i) => v - (errors[i] || 0)));
+            maxV *= 1.12;
+            const range = maxV - minV || 1;
+            const sy = v => padT + plotH - ((v - minV) / range) * plotH;
+            const y0 = sy(0);
+
+            let grid = '';
+            for (let g = 0; g <= 4; g++) {
+                const val = minV + (g / 4) * range;
+                const py = sy(val);
+                grid += `<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e2e8f0" stroke-width="1"/>`;
+                grid += `<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+            }
+
+            const slotW = plotW / labels.length;
+            const barW = Math.min(58, Math.max(18, slotW * 0.56));
+            const palette = ['#2563eb', '#059669', '#0284c7', '#4f46e5', '#0d9488', '#d97706'];
+            let bars = '';
+            labels.forEach((lbl, i) => {
+                const v = values[i] || 0;
+                const cx = padL + i * slotW + slotW / 2;
+                const bx = cx - barW / 2;
+                const py = sy(v);
+                const top = Math.min(py, y0);
+                const bh = Math.max(2, Math.abs(y0 - py));
+                const color = palette[i % palette.length];
+                bars += `<rect x="${bx.toFixed(1)}" y="${top.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="${color}" fill-opacity="0.88"/>`;
+                if (errors[i] && errors[i] > 0) {
+                    const yHi = sy(v + errors[i]);
+                    const yLo = sy(v - errors[i]);
+                    bars += `<line x1="${cx.toFixed(1)}" y1="${yHi.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLo.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
+                    bars += `<line x1="${(cx - 6).toFixed(1)}" y1="${yHi.toFixed(1)}" x2="${(cx + 6).toFixed(1)}" y2="${yHi.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
+                    bars += `<line x1="${(cx - 6).toFixed(1)}" y1="${yLo.toFixed(1)}" x2="${(cx + 6).toFixed(1)}" y2="${yLo.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
+                }
+                const valY = (v >= 0 ? Math.min(top, errors[i] ? sy(v + errors[i]) : top) - 6 : top + bh + 13);
+                bars += `<text x="${cx.toFixed(1)}" y="${valY.toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f172a">${v.toFixed(2)}</text>`;
+                const shortLbl = lbl.length > 14 ? lbl.slice(0, 13) + '…' : lbl;
+                bars += `<text x="${cx.toFixed(1)}" y="${padT + plotH + 18}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#334155">${odEscape(shortLbl)}</text>`;
+            });
+
+            let threshLine = '';
+            if (chart.threshold) {
+                const ty = sy(chart.threshold);
+                threshLine = `<line x1="${padL}" y1="${ty}" x2="${W - padR}" y2="${ty}" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,4"/>
+                    <text x="${W - padR - 4}" y="${ty - 5}" text-anchor="end" font-size="10" font-weight="700" fill="#dc2626">Batas ${chart.threshold}</text>`;
+            }
+
+            return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
+                <rect width="${W}" height="${H}" fill="#ffffff"/>
+                ${grid}
+                <line x1="${padL}" y1="${y0}" x2="${W - padR}" y2="${y0}" stroke="#334155" stroke-width="1.3"/>
+                <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
+                ${bars}
+                ${threshLine}
+                <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Nilai')}</text>
+            </svg>`;
+        }
+
+        function odDownloadChartPng() {
+            const svgEl = document.getElementById('od-chart-svg');
+            if (!svgEl) return;
+            const xml = new XMLSerializer().serializeToString(svgEl);
+            const img = new Image();
+            const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1360;
+                canvas.height = 580;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'Grafik_Statistik_SkripsiLab.png';
+                a.click();
+            };
+            img.src = url;
+        }
+
+        function odCopyTables(btn) {
+            if (!odCurrentResult || !odCurrentResult.tables) return;
+            const lines = [];
+            lines.push(odCurrentResult.title || 'Hasil Olah Data Statistik');
+            if (odCurrentResult.equation) lines.push('Persamaan: ' + odCurrentResult.equation);
+            lines.push('');
+            odCurrentResult.tables.forEach(tbl => {
+                lines.push(tbl.title);
+                lines.push((tbl.headers || []).join('\t'));
+                (tbl.rows || []).forEach(r => lines.push(r.join('\t')));
+                if (tbl.footnote) lines.push('Catatan: ' + tbl.footnote);
+                lines.push('');
+            });
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Tersalin ke Clipboard</span>';
+                setTimeout(() => btn.innerHTML = orig, 1800);
+            });
+        }
+
+        async function odGenerateNarration() {
+            if (!odCurrentResult) return;
+            const btn = document.getElementById('od-btn-narrate');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            renderLoadingCard('od-narr-loading', 'Menyusun Narasi Interpretasi Bab IV...', 'Menulis pembahasan ilmiah baku dari angka eksak hasil SPSS.');
+            try {
+                const res = await fetch("{{ route('tools.stats.interpret') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        result: odCurrentResult,
+                        topic: (document.getElementById('od-topic-input')?.value || '').trim() || odDataset.title,
+                        major: (document.getElementById('od-major-input')?.value || '').trim() || 'Umum'
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun interpretasi.');
+                odCurrentNarration = data.narration || '';
+                const out = document.getElementById('od-narr-output');
+                out.style.display = 'block';
+                out.textContent = odCurrentNarration;
+                document.getElementById('od-btn-copy-narr').style.display = 'inline-flex';
+            } catch (err) {
+                odShowError(err.message || 'Gagal menghubungi layanan interpretasi AI.');
+            } finally {
+                hideLoadingCard('od-narr-loading');
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        function odCopyNarration(btn) {
+            if (!odCurrentNarration) return;
+            navigator.clipboard.writeText(odCurrentNarration).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Narasi Tersalin</span>';
+                setTimeout(() => btn.innerHTML = orig, 1800);
+            });
+        }
+
+        async function odDownloadPdf() {
+            if (!odCurrentResult) return;
+            const btn = document.getElementById('od-btn-pdf');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan PDF...</span>';
+            try {
+                const res = await fetch("{{ route('tools.stats.pdf') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ result: odCurrentResult, narration: odCurrentNarration })
+                });
+                if (!res.ok) throw new Error('Gagal membuat laporan PDF.');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Laporan_Olah_Data_SkripsiLab.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+            } catch (err) {
+                odShowError(err.message || 'Gagal mengunduh PDF.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        // --- SUB-TAB 2: GENERATOR KUESIONER / LEMBAR LAB + TEMPLATE EXCEL ---
+        function odSetInstrumentMode(mode) {
+            odInstMode = mode;
+            document.getElementById('od-inst-mode-kuesioner').classList.toggle('active', mode === 'kuesioner');
+            document.getElementById('od-inst-mode-eksperimen').classList.toggle('active', mode === 'eksperimen');
+            const vLbl = document.getElementById('od-inst-vars-label');
+            const vInp = document.getElementById('od-inst-vars');
+            const cLbl = document.getElementById('od-inst-count-label');
+            if (mode === 'eksperimen') {
+                vLbl.innerHTML = 'Parameter Pengukuran &amp; Variasi Perlakuan (pisahkan koma) <span style="color:#dc2626;">*</span>';
+                vInp.placeholder = 'cth: Kuat Tekan Beton MPa, Slump Test cm, Variasi Fly Ash 0% 10% 20% 30%';
+                cLbl.textContent = 'Ulangan per Perlakuan';
+                document.getElementById('od-inst-scale').value = 'Pengukuran Numerik / Satuan SI';
+            } else {
+                vLbl.innerHTML = 'Daftar Variabel Penelitian (pisahkan dengan koma) <span style="color:#dc2626;">*</span>';
+                vInp.placeholder = 'cth: Motivasi Kerja (X1), Disiplin Kerja (X2), Kinerja Karyawan (Y)';
+                cLbl.textContent = 'Item per Variabel';
+                document.getElementById('od-inst-scale').value = 'Likert 1-5 (STS - SS)';
+            }
+        }
+
+        async function odGenerateInstrument() {
+            const errBox = document.getElementById('od-inst-error');
+            errBox.style.display = 'none';
+            const topic = (document.getElementById('od-inst-topic')?.value || '').trim();
+            const major = (document.getElementById('od-inst-major')?.value || '').trim() || 'Umum';
+            const variables = (document.getElementById('od-inst-vars')?.value || '').trim();
+            const itemsPerVar = parseInt(document.getElementById('od-inst-count')?.value || '5', 10);
+            const scaleType = document.getElementById('od-inst-scale')?.value || 'Likert 1-5';
+
+            if (!topic || !variables) {
+                errBox.style.display = 'block';
+                errBox.textContent = 'Isi Judul/Topik Penelitian dan Daftar Variabel/Parameter terlebih dahulu.';
+                return;
+            }
+
+            const btn = document.getElementById('od-btn-gen-inst');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            renderLoadingCard('od-inst-loading', 'Menyusun Instrumen & Template Excel...', 'Membuat kisi-kisi Bab III, butir pernyataan/parameter ukur, dan struktur tabulasi siap olah.');
+
+            try {
+                const res = await fetch("{{ route('tools.stats.instrument') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ mode: odInstMode, topic, major, variables, items_per_var: itemsPerVar, scale_type: scaleType })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membuat instrumen.');
+                odCurrentInstrument = data;
+                odRenderInstrument(data);
+            } catch (err) {
+                errBox.style.display = 'block';
+                errBox.textContent = err.message || 'Terjadi kesalahan saat menyusun instrumen.';
+            } finally {
+                hideLoadingCard('od-inst-loading');
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        function odRenderInstrument(data) {
+            const inst = data.instrument || {};
+            const box = document.getElementById('od-inst-result');
+            box.style.display = 'block';
+            document.getElementById('od-inst-res-title').textContent = inst.instrument_title || 'Instrumen Penelitian';
+            document.getElementById('od-inst-res-meta').textContent = (inst.scale_guide || '') + (inst.recommended_test ? ' · Rekomendasi Uji: ' + inst.recommended_test : '');
+
+            let html = '';
+            if (data.mode === 'eksperimen') {
+                const params = inst.parameters || [];
+                html += `<div class="od-table-title">Tabel 1. Parameter Pengukuran &amp; Metode Uji Laboratorium</div>
+                    <div class="od-table-wrap" style="margin-bottom:14px;"><table class="od-spss-table">
+                        <thead><tr><th>Kode Kolom</th><th>Parameter Pengukuran</th><th>Satuan</th><th>Standar / Metode</th></tr></thead>
+                        <tbody>${params.map(p => `<tr><td><strong>${odEscape(p.code)}</strong></td><td>${odEscape(p.name)}</td><td>${odEscape(p.unit)}</td><td>${odEscape(p.method)}</td></tr>`).join('')}</tbody>
+                    </table></div>`;
+                if (Array.isArray(inst.treatments) && inst.treatments.length) {
+                    html += `<div style="margin-bottom:12px; font-size:12.5px;"><strong>Variasi Perlakuan:</strong> ${inst.treatments.map(t => `<span class="od-col-chip" style="cursor:default; margin-right:5px;">${odEscape(t)}</span>`).join('')} (${inst.replications || 5} ulangan/perlakuan)</div>`;
+                }
+                if (Array.isArray(inst.protocol_steps) && inst.protocol_steps.length) {
+                    html += `<div class="od-table-title">Prosedur Pencatatan Data</div><ol style="margin:0 0 12px 18px; font-size:12.5px; color:var(--text-secondary); line-height:1.65;">${inst.protocol_steps.map(s => `<li>${odEscape(s)}</li>`).join('')}</ol>`;
+                }
+            } else {
+                const vars = inst.variables || [];
+                html += `<div class="od-table-title">Tabel 1. Kisi-Kisi Instrumen Penelitian (Bab III)</div>
+                    <div class="od-table-wrap" style="margin-bottom:14px;"><table class="od-spss-table">
+                        <thead><tr><th>Kode</th><th>Nama Variabel</th><th>Peran</th><th>Indikator</th><th>Jumlah Butir</th></tr></thead>
+                        <tbody>${vars.map(v => `<tr><td><strong>${odEscape(v.code)}</strong></td><td>${odEscape(v.name)}</td><td>${odEscape(v.role)}</td><td>${odEscape((v.indicators || []).join(', '))}</td><td>${(v.items || []).length}</td></tr>`).join('')}</tbody>
+                    </table></div>`;
+                html += `<div class="od-table-title">Tabel 2. Daftar Butir Pernyataan Kuesioner Siap Sebar</div>
+                    <div class="od-table-wrap" style="margin-bottom:12px;"><table class="od-spss-table" style="white-space:normal;">
+                        <thead><tr><th style="width:75px;">Kode</th><th style="width:160px;">Indikator</th><th>Pernyataan Operasional</th></tr></thead>
+                        <tbody>${vars.flatMap(v => (v.items || []).map(it => `<tr><td><strong>${odEscape(it.code)}</strong></td><td>${odEscape(it.indicator)}</td><td>${odEscape(it.statement)}</td></tr>`)).join('')}</tbody>
+                    </table></div>`;
+            }
+
+            const hdrs = data.template?.headers || [];
+            html += `<div style="padding:11px 14px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; font-size:12px; color:#166534;">
+                <strong>Template Tabulasi Siap Olah:</strong> Header Excel/CSV otomatis disiapkan (<code>${odEscape(hdrs.join(', '))}</code>). Setelah responden / hasil uji lab diisikan, unggah langsung file tersebut di tab <strong>Sudah Punya Data</strong> untuk dihitung otomatis!
+            </div>`;
+            document.getElementById('od-inst-res-body').innerHTML = html;
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function odCopyInstrument(btn) {
+            if (!odCurrentInstrument) return;
+            const inst = odCurrentInstrument.instrument || {};
+            const lines = [inst.instrument_title || 'Instrumen Penelitian', inst.scale_guide || '', ''];
+            if (odCurrentInstrument.mode === 'eksperimen') {
+                lines.push('Parameter\tSatuan\tMetode');
+                (inst.parameters || []).forEach(p => lines.push(`${p.name}\t${p.unit}\t${p.method}`));
+            } else {
+                lines.push('Kode\tVariabel\tIndikator\tPernyataan');
+                (inst.variables || []).forEach(v => (v.items || []).forEach(it => lines.push(`${it.code}\t${v.name}\t${it.indicator}\t${it.statement}`)));
+            }
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Tersalin</span>';
+                setTimeout(() => btn.innerHTML = orig, 1800);
+            });
+        }
+
+        function odDownloadTemplateCsv() {
+            if (!odCurrentInstrument?.template) return;
+            const { headers, rows } = odCurrentInstrument.template;
+            const esc = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+            const csv = [headers.map(esc).join(','), ...rows.map(r => r.map(esc).join(','))].join('\r\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen_SkripsiLab.csv' : 'Template_Tabulasi_Kuesioner_SkripsiLab.csv';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1200);
+        }
+
+        async function odDownloadTemplateXlsx() {
+            if (!odCurrentInstrument?.template) return;
+            try {
+                const XLSX = await odLoadSheetJs();
+                const { headers, rows } = odCurrentInstrument.template;
+                const aoa = [headers, ...rows];
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Data_Penelitian');
+                XLSX.writeFile(wb, odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen_SkripsiLab.xlsx' : 'Template_Tabulasi_Kuesioner_SkripsiLab.xlsx');
+            } catch (e) {
+                odDownloadTemplateCsv();
+            }
+        }
+
+        // Drag & Drop support pada zona unggah Olah Data
+        (function initOdDropzone() {
+            const dz = document.getElementById('od-dropzone');
+            if (!dz) return;
+            ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.add('dragover');
+            }));
+            ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.remove('dragover');
+            }));
+            dz.addEventListener('drop', e => {
+                const file = e.dataTransfer?.files?.[0];
+                if (file) {
+                    odHandleFileUpload({ files: [file] });
+                }
+            });
+        })();
     </script>
 </body>
 

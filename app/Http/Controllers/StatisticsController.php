@@ -1,0 +1,545 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\AIManagerService;
+use App\Services\StatisticsEngineService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+
+class StatisticsController extends Controller
+{
+    protected StatisticsEngineService $engine;
+    protected AIManagerService $ai;
+
+    public function __construct(StatisticsEngineService $engine, AIManagerService $ai)
+    {
+        $this->engine = $engine;
+        $this->ai = $ai;
+    }
+
+    /**
+     * Jalankan analisis statistik deterministik setara IBM SPSS.
+     */
+    public function analyze(Request $request)
+    {
+        $columns = $request->input('columns', []);
+        $rows = $request->input('rows', []);
+        $testType = (string) $request->input('test_type', 'descriptive');
+
+        if (is_string($columns)) {
+            $columns = json_decode($columns, true) ?: [];
+        }
+        if (is_string($rows)) {
+            $rows = json_decode($rows, true) ?: [];
+        }
+
+        // Dukungan unggah file CSV langsung jika dikirim via multipart
+        if (empty($rows) && $request->hasFile('file')) {
+            [$columns, $rows] = $this->parseCsvFile($request->file('file'));
+        }
+
+        if (empty($columns) || empty($rows)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tabel kosong. Unggah file Excel (.xlsx/.csv), tempel data, atau pilih dataset contoh terlebih dahulu.',
+            ], 422);
+        }
+
+        if (count($rows) > 5000) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Maksimal 5.000 baris observasi per analisis agar komputasi tetap instan.',
+            ], 422);
+        }
+
+        $options = [
+            'alpha' => (float) $request->input('alpha', 0.05),
+            'cols' => $request->input('cols', []),
+            'x_cols' => $request->input('x_cols', []),
+            'y_col' => $request->input('y_col', ''),
+            'group_col' => $request->input('group_col', ''),
+            'value_col' => $request->input('value_col', ''),
+            'pair_a' => $request->input('pair_a', ''),
+            'pair_b' => $request->input('pair_b', ''),
+            'cat_a' => $request->input('cat_a', ''),
+            'cat_b' => $request->input('cat_b', ''),
+            'nonparam_mode' => $request->input('nonparam_mode', 'mann_whitney'),
+            'auto_group' => $request->input('auto_group', true),
+        ];
+
+        try {
+            $result = $this->engine->analyze($columns, $rows, $testType, $options);
+            $result['dataset_title'] = trim((string) $request->input('dataset_title', '')) ?: 'Data Penelitian Mahasiswa';
+
+            return response()->json([
+                'status' => 'success',
+                'result' => $result,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat menghitung statistik: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Buat Narasi Interpretasi Bab IV Akademik dari hasil hitung valid (TANPA mengubah angka!)
+     */
+    public function interpret(Request $request)
+    {
+        $result = $request->input('result');
+        if (is_string($result)) {
+            $result = json_decode($result, true);
+        }
+        if (!is_array($result) || empty($result['tables'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Belum ada hasil perhitungan statistik untuk diinterpretasikan.',
+            ], 422);
+        }
+
+        $topic = trim((string) $request->input('topic', 'Penelitian Skripsi'));
+        $major = trim((string) $request->input('major', 'Umum'));
+
+        // Ringkas seluruh tabel hasil eksak untuk dikirim ke AI
+        $tablesText = '';
+        foreach ($result['tables'] as $tbl) {
+            $tablesText .= "\n### " . ($tbl['title'] ?? 'Tabel') . "\n";
+            $tablesText .= implode(' | ', $tbl['headers'] ?? []) . "\n";
+            foreach (($tbl['rows'] ?? []) as $r) {
+                $tablesText .= implode(' | ', array_map('strval', $r)) . "\n";
+            }
+        }
+        $conclusionsText = implode("\n- ", $result['conclusions'] ?? []);
+
+        $prompt = "Anda adalah Pembimbing Statistik & Metodologi Riset Universitas di Indonesia.\n"
+            . "Tuliskan narasi **Interpretasi Hasil Pengujian Statistik untuk Bab IV Skripsi/Tesis** yang siap ditempel ke Microsoft Word.\n\n"
+            . "KONTEKS PENELITIAN:\n"
+            . "- Judul/Topik: {$topic}\n"
+            . "- Jurusan/Bidang: {$major}\n"
+            . "- Jenis Pengujian: " . ($result['title'] ?? 'Uji Statistik') . "\n"
+            . "- Keterangan: " . ($result['subtitle'] ?? '') . "\n\n"
+            . "HASIL PERHITUNGAN VALID (SETARA IBM SPSS — DILARANG KERAS MENGUBAH ATAU MENGARANG ANGKA):\n"
+            . $tablesText . "\n\n"
+            . "RINGKASAN KEPUTUSAN MATEMATIS:\n- {$conclusionsText}\n\n"
+            . "ATURAN PENULISAN KETAT:\n"
+            . "1. Setiap angka yang Anda sebut (t, F, R², r, Sig., Cronbach's Alpha, Mean, SD, VIF, DW, Chi-Square, dll.) HARUS 100% SAMA PERSIS dengan tabel di atas.\n"
+            . "2. Gunakan bahasa Indonesia ilmiah baku (EYD V, formal, objektif, orang ketiga, tanpa kata 'saya').\n"
+            . "3. Bagi menjadi 3 sub-bagian ringkas dan terstruktur: (a) Deskripsi Hasil Pengujian, (b) Pengujian Hipotesis & Makna Statistik (sebutkan kriteria α = " . ($result['alpha'] ?? 0.05) . "), dan (c) Pembahasan & Implikasi Ilmiah sesuai bidang {$major}.\n"
+            . "4. Jangan menambahkan tabel baru atau angka asumsi fiktif. Tulis langsung isi narasinya (tanpa kalimat pembuka 'Tentu, berikut...').";
+
+        try {
+            $narration = trim($this->ai->generateText($prompt));
+            return response()->json([
+                'status' => 'success',
+                'narration' => $narration,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyusun interpretasi AI: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Generator Instrumen Pengumpulan Data bagi mahasiswa yang BELUM punya kuesioner / lembar eksperimen lab.
+     * Sekaligus menghasilkan struktur kolom CSV/Excel yang langsung kompatibel dengan kalkulator Olah Data!
+     */
+    public function generateInstrument(Request $request)
+    {
+        $request->validate([
+            'mode' => 'required|in:kuesioner,eksperimen',
+            'topic' => 'required|string|max:300',
+            'major' => 'nullable|string|max:120',
+            'variables' => 'required|string|max:500',
+            'items_per_var' => 'nullable|integer|min:2|max:12',
+            'scale_type' => 'nullable|string|max:80',
+        ]);
+
+        $mode = (string) $request->input('mode');
+        $topic = trim((string) $request->input('topic'));
+        $major = trim((string) $request->input('major', 'Umum'));
+        $variables = trim((string) $request->input('variables'));
+        $itemsPerVar = (int) $request->input('items_per_var', 5);
+        $scaleType = trim((string) $request->input('scale_type', 'Likert 1-5'));
+
+        if ($mode === 'kuesioner') {
+            $prompt = "Anda adalah Pakar Metodologi Penelitian & Penyusunan Instrumen Akademik Indonesia.\n"
+                . "Mahasiswa jurusan {$major} membutuhkan **Kisi-Kisi Instrumen Bab III + Kuesioner Siap Sebar** untuk topik:\n"
+                . "Judul/Topik: \"{$topic}\"\n"
+                . "Variabel: {$variables}\n"
+                . "Jumlah butir per variabel: {$itemsPerVar} pernyataan\n"
+                . "Skala pengukuran: {$scaleType}\n\n"
+                . "KELUARKAN HANYA JSON VALID TANPA TEKS TAMBAHAN / MARKDOWN FENCE dengan struktur persis:\n"
+                . "{\n"
+                . "  \"instrument_title\": \"Kuesioner Penelitian ...\",\n"
+                . "  \"scale_guide\": \"1 = Sangat Tidak Setuju, 2 = Tidak Setuju, 3 = Netral, 4 = Setuju, 5 = Sangat Setuju\",\n"
+                . "  \"recommended_test\": \"Uji Validitas & Reliabilitas -> Uji Asumsi Klasik & Regresi Linier Berganda\",\n"
+                . "  \"variables\": [\n"
+                . "    {\n"
+                . "      \"code\": \"X1\",\n"
+                . "      \"name\": \"Nama Variabel Lengkap\",\n"
+                . "      \"role\": \"Independen / Dependen / Mediasi\",\n"
+                . "      \"indicators\": [\"Indikator 1\", \"Indikator 2\"],\n"
+                . "      \"items\": [\n"
+                . "        {\"code\": \"X1_1\", \"indicator\": \"Indikator 1\", \"statement\": \"Pernyataan operasional konkret siap dijawab responden...\"}\n"
+                . "      ]\n"
+                . "    }\n"
+                . "  ]\n"
+                . "}\n"
+                . "Pastikan setiap kode item unik dalam format KODEVAR_ANGKA (contoh: X1_1, X1_2, X2_1, Y_1) agar tabulasi Excel-nya langsung terbaca otomatis saat Uji Validitas & Reliabilitas!";
+        } else {
+            $prompt = "Anda adalah Ahli Metodologi Riset Eksperimen & Laboratorium ({$major}, Teknik Sipil, Teknik Mesin, Pertanian, Kesehatan, IT).\n"
+                . "Susun **Lembar Pencatatan Data Eksperimen / Uji Laboratorium (Observation Logsheet)** untuk topik:\n"
+                . "Judul/Topik: \"{$topic}\"\n"
+                . "Faktor Perlakuan & Parameter Ukur: {$variables}\n"
+                . "Jumlah ulangan / sampel per perlakuan: {$itemsPerVar}\n\n"
+                . "KELUARKAN HANYA JSON VALID TANPA TEKS TAMBAHAN / MARKDOWN FENCE dengan struktur persis:\n"
+                . "{\n"
+                . "  \"instrument_title\": \"Lembar Pencatatan Data Uji Laboratorium / Eksperimen ...\",\n"
+                . "  \"scale_guide\": \"Catat hasil pengukuran aktual sesuai satuan standar (mis. MPa, mm, gram, detik, %).\",\n"
+                . "  \"recommended_test\": \"One-Way ANOVA + Uji Homogenitas Levene & Post-Hoc Bonferroni\",\n"
+                . "  \"treatments\": [\"Perlakuan_A\", \"Perlakuan_B\", \"Perlakuan_C\"],\n"
+                . "  \"replications\": {$itemsPerVar},\n"
+                . "  \"parameters\": [\n"
+                . "    {\"code\": \"Kuat_Tekan_MPa\", \"name\": \"Kuat Tekan Beton 28 Hari\", \"unit\": \"MPa\", \"method\": \"Compression Testing Machine (SNI 1974:2011)\"}\n"
+                . "  ],\n"
+                . "  \"protocol_steps\": [\"Langkah pencatatan 1\", \"Langkah pencatatan 2\", \"Langkah pencatatan 3\"]\n"
+                . "}\n"
+                . "Pastikan kode parameter singkat tanpa spasi (pakai underscore) agar langsung menjadi header tabel Excel/CSV yang siap diolah dengan One-Way ANOVA / t-Test / Regresi.";
+        }
+
+        $parsed = null;
+        try {
+            $raw = $this->ai->generateText($prompt);
+            $parsed = $this->extractJsonObject($raw);
+        } catch (\Throwable $e) {
+            $parsed = null;
+        }
+
+        if (!is_array($parsed)) {
+            $parsed = $this->buildFallbackInstrument($mode, $topic, $major, $variables, $itemsPerVar, $scaleType);
+        }
+
+        // Bangun header & baris kosong template Excel/CSV yang langsung kompatibel dengan Kalkulator Olah Data
+        [$headers, $templateRows] = $this->buildTemplateSheet($mode, $parsed, $itemsPerVar);
+
+        return response()->json([
+            'status' => 'success',
+            'mode' => $mode,
+            'instrument' => $parsed,
+            'template' => [
+                'headers' => $headers,
+                'rows' => $templateRows,
+            ],
+        ]);
+    }
+
+    /**
+     * Ekspor Laporan Hasil Olah Data Statistik ke PDF A4 (Gaya Laporan Output SPSS & APA).
+     */
+    public function downloadReportPdf(Request $request)
+    {
+        $result = $request->input('result');
+        if (is_string($result)) {
+            $result = json_decode($result, true);
+        }
+        $narration = trim((string) $request->input('narration', ''));
+
+        if (!is_array($result) || empty($result['tables'])) {
+            return response()->json(['status' => 'error', 'message' => 'Data laporan statistik tidak valid.'], 422);
+        }
+
+        $title = e((string) ($result['title'] ?? 'Laporan Hasil Olah Data Statistik'));
+        $subtitle = e((string) ($result['subtitle'] ?? ''));
+        $datasetTitle = e((string) ($result['dataset_title'] ?? 'Data Penelitian'));
+        $computedAt = e((string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB'));
+        $userName = e(Auth::user()->name ?? 'Mahasiswa');
+
+        $hlHtml = '';
+        if (!empty($result['highlights'])) {
+            $hlHtml .= '<table class="hl-table"><tr>';
+            foreach ($result['highlights'] as $h) {
+                $hlHtml .= '<td><div class="hl-lbl">' . e((string) ($h['label'] ?? '')) . '</div>'
+                    . '<div class="hl-val">' . e((string) ($h['value'] ?? '-')) . '</div></td>';
+            }
+            $hlHtml .= '</tr></table>';
+        }
+
+        $tablesHtml = '';
+        foreach ($result['tables'] as $tbl) {
+            $tablesHtml .= '<div class="tbl-title">' . e((string) ($tbl['title'] ?? 'Tabel')) . '</div>';
+            $tablesHtml .= '<table class="stat-table"><thead><tr>';
+            foreach (($tbl['headers'] ?? []) as $th) {
+                $tablesHtml .= '<th>' . e((string) $th) . '</th>';
+            }
+            $tablesHtml .= '</tr></thead><tbody>';
+            foreach (($tbl['rows'] ?? []) as $tr) {
+                $tablesHtml .= '<tr>';
+                foreach ($tr as $idx => $cell) {
+                    $align = $idx === 0 ? 'left' : 'right';
+                    $tablesHtml .= '<td style="text-align:' . $align . ';">' . e((string) $cell) . '</td>';
+                }
+                $tablesHtml .= '</tr>';
+            }
+            $tablesHtml .= '</tbody></table>';
+            if (!empty($tbl['footnote'])) {
+                $tablesHtml .= '<div class="tbl-note">' . e((string) $tbl['footnote']) . '</div>';
+            }
+        }
+
+        $conclusionsHtml = '';
+        if (!empty($result['conclusions'])) {
+            $conclusionsHtml .= '<div class="sec-title">Ringkasan Keputusan Statistik</div><ul class="conc-list">';
+            foreach ($result['conclusions'] as $c) {
+                $conclusionsHtml .= '<li>' . e((string) $c) . '</li>';
+            }
+            $conclusionsHtml .= '</ul>';
+        }
+
+        $narrationHtml = '';
+        if ($narration !== '') {
+            $safeNarr = nl2br(e($narration));
+            $narrationHtml = '<div class="sec-title">Narasi Interpretasi Bab IV</div><div class="narr-box">' . $safeNarr . '</div>';
+        }
+
+        $html = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><style>'
+            . '@page { margin: 16mm 15mm 16mm 15mm; }'
+            . 'body { font-family: DejaVu Sans, sans-serif; color: #0f172a; font-size: 9pt; line-height: 1.5; }'
+            . '.header { border-bottom: 2px solid #1d4ed8; padding-bottom: 10px; margin-bottom: 14px; }'
+            . '.brand { font-size: 13pt; font-weight: 700; color: #1d4ed8; }'
+            . '.sub { font-size: 8.2pt; color: #475569; margin-top: 3px; }'
+            . '.hl-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; background: #f8fafc; }'
+            . '.hl-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }'
+            . '.hl-lbl { font-size: 7.2pt; text-transform: uppercase; color: #64748b; font-weight: 700; }'
+            . '.hl-val { font-size: 10.5pt; font-weight: 700; color: #0f172a; margin-top: 2px; }'
+            . '.tbl-title { font-size: 9.2pt; font-weight: 700; color: #0f172a; margin: 14px 0 5px; }'
+            . '.stat-table { width: 100%; border-collapse: collapse; font-size: 7.8pt; }'
+            . '.stat-table th { background: #eff6ff; color: #1e3a8a; border-top: 1.5px solid #1e3a8a; border-bottom: 1px solid #93c5fd; padding: 6px 5px; text-align: left; font-weight: 700; }'
+            . '.stat-table td { border-bottom: 1px solid #e2e8f0; padding: 5px 5px; color: #1e293b; }'
+            . '.stat-table tr:last-child td { border-bottom: 1.5px solid #1e3a8a; }'
+            . '.tbl-note { font-size: 7.5pt; color: #475569; font-style: italic; margin-top: 4px; }'
+            . '.sec-title { font-size: 10pt; font-weight: 700; color: #1e293b; border-left: 3.5px solid #2563eb; padding-left: 8px; margin: 16px 0 8px; }'
+            . '.conc-list { margin: 0 0 10px 18px; padding: 0; font-size: 8.6pt; }'
+            . '.conc-list li { margin-bottom: 4px; }'
+            . '.narr-box { border: 1px solid #e2e8f0; background: #ffffff; padding: 10px 12px; text-align: justify; font-size: 8.8pt; line-height: 1.6; }'
+            . '.footer-note { margin-top: 16px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 7.4pt; color: #64748b; }'
+            . '</style></head><body>'
+            . '<div class="header">'
+            . '<div class="brand">SkripsiLab AI — ' . $title . '</div>'
+            . '<div class="sub">Dataset: <strong>' . $datasetTitle . '</strong> · Peneliti: ' . $userName . ' · Waktu Hitung: ' . $computedAt . '</div>'
+            . ($subtitle !== '' ? '<div class="sub">' . $subtitle . '</div>' : '')
+            . '</div>'
+            . $hlHtml
+            . $tablesHtml
+            . $conclusionsHtml
+            . $narrationHtml
+            . '<div class="footer-note">Verifikasi Matematis: Seluruh koefisien, statistik uji (t, F, r, χ², U, Z), derajat bebas, dan p-value dihitung menggunakan mesin numerik deterministik berpresisi tinggi (setara IBM SPSS Statistics).</div>'
+            . '</body></html>';
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $slug = Str::slug(Str::limit((string) ($result['dataset_title'] ?? 'statistik'), 40, '')) ?: 'statistik';
+        return response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Laporan_Olah_Data_' . $slug . '.pdf"',
+        ]);
+    }
+
+    // =========================================================================
+    // HELPERS
+    // =========================================================================
+
+    private function parseCsvFile($file): array
+    {
+        if (!$file || !$file->isValid()) {
+            return [[], []];
+        }
+        $raw = (string) file_get_contents($file->getRealPath());
+        $raw = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+        $lines = preg_split('/\r\n|\r|\n/', trim($raw));
+        if (!$lines || count($lines) < 2) {
+            return [[], []];
+        }
+
+        // Deteksi delimiter (; , atau tab)
+        $first = $lines[0];
+        $delim = ',';
+        $counts = [',' => substr_count($first, ','), ';' => substr_count($first, ';'), "\t" => substr_count($first, "\t")];
+        arsort($counts);
+        $top = array_key_first($counts);
+        if ($top !== null && $counts[$top] > 0) {
+            $delim = $top;
+        }
+
+        $headers = array_map(fn ($h) => trim((string) $h), str_getcsv($first, $delim));
+        $headers = array_values(array_filter($headers, fn ($h) => $h !== ''));
+        $rows = [];
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = trim($lines[$i]);
+            if ($line === '') {
+                continue;
+            }
+            $vals = str_getcsv($line, $delim);
+            $assoc = [];
+            foreach ($headers as $idx => $h) {
+                $assoc[$h] = isset($vals[$idx]) ? trim((string) $vals[$idx]) : '';
+            }
+            $rows[] = $assoc;
+        }
+        return [$headers, $rows];
+    }
+
+    private function extractJsonObject(string $raw): ?array
+    {
+        $clean = trim($raw);
+        $clean = preg_replace('/^```(?:json)?\s*/i', '', $clean);
+        $clean = preg_replace('/\s*```$/', '', (string) $clean);
+        $decoded = json_decode((string) $clean, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+        $start = strpos((string) $clean, '{');
+        $end = strrpos((string) $clean, '}');
+        if ($start !== false && $end !== false && $end > $start) {
+            $slice = substr((string) $clean, $start, $end - $start + 1);
+            $decoded = json_decode($slice, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        return null;
+    }
+
+    private function buildFallbackInstrument(string $mode, string $topic, string $major, string $variables, int $itemsPerVar, string $scaleType): array
+    {
+        $parts = array_values(array_filter(array_map('trim', preg_split('/[,;\n]+/', $variables))));
+        if (empty($parts)) {
+            $parts = ['Variabel X1', 'Variabel Y'];
+        }
+
+        if ($mode === 'eksperimen') {
+            $params = [];
+            foreach ($parts as $idx => $p) {
+                $code = Str::slug($p, '_');
+                if ($code === '') {
+                    $code = 'Parameter_' . ($idx + 1);
+                }
+                $params[] = [
+                    'code' => $code,
+                    'name' => $p,
+                    'unit' => 'Satuan Ukur',
+                    'method' => 'Pengukuran Laboratorium / Alat Ukur Terkalibrasi',
+                ];
+            }
+            return [
+                'instrument_title' => "Lembar Pencatatan Data Eksperimen: {$topic}",
+                'scale_guide' => 'Catat hasil pengukuran numerik riil untuk setiap perlakuan dan ulangan sampel.',
+                'recommended_test' => 'One-Way ANOVA + Uji Homogenitas Levene & Post-Hoc Bonferroni',
+                'treatments' => ['Kontrol_0%', 'Variasi_1', 'Variasi_2', 'Variasi_3'],
+                'replications' => max(3, $itemsPerVar),
+                'parameters' => $params,
+                'protocol_steps' => [
+                    'Siapkan benda uji / sampel sesuai variasi perlakuan dan beri kode identifikasi.',
+                    'Lakukan pengujian sesuai standar (SNI / ASTM / SOP Lab) dengan alat terkalibrasi.',
+                    'Catat angka hasil pengukuran pada template Excel/CSV, lalu unggah kembali ke tab Olah Data.',
+                ],
+            ];
+        }
+
+        $varBlocks = [];
+        $count = count($parts);
+        foreach ($parts as $idx => $vName) {
+            $isLast = ($idx === $count - 1 && $count >= 2);
+            $code = $isLast ? 'Y' : ('X' . ($idx + 1));
+            $items = [];
+            for ($k = 1; $k <= $itemsPerVar; $k++) {
+                $items[] = [
+                    'code' => "{$code}_{$k}",
+                    'indicator' => "Indikator {$k} {$vName}",
+                    'statement' => "Saya menilai aspek indikator {$k} pada {$vName} dalam konteks {$topic} telah berjalan dengan baik.",
+                ];
+            }
+            $varBlocks[] = [
+                'code' => $code,
+                'name' => $vName,
+                'role' => $isLast ? 'Dependen' : 'Independen',
+                'indicators' => ["Indikator 1 {$vName}", "Indikator 2 {$vName}"],
+                'items' => $items,
+            ];
+        }
+
+        return [
+            'instrument_title' => "Kuesioner Penelitian ({$major}): {$topic}",
+            'scale_guide' => $scaleType . ' (1 = Sangat Tidak Setuju s.d. 5 = Sangat Setuju)',
+            'recommended_test' => 'Uji Validitas & Reliabilitas -> Uji Asumsi Klasik & Regresi Linier',
+            'variables' => $varBlocks,
+        ];
+    }
+
+    private function buildTemplateSheet(string $mode, array $parsed, int $itemsPerVar): array
+    {
+        if ($mode === 'eksperimen') {
+            $headers = ['Kode_Sampel', 'Perlakuan'];
+            $params = $parsed['parameters'] ?? [];
+            foreach ($params as $p) {
+                $c = preg_replace('/[^A-Za-z0-9_]/', '_', (string) ($p['code'] ?? 'Nilai_Ukur'));
+                $headers[] = $c ?: 'Nilai_Ukur';
+            }
+            if (count($headers) < 3) {
+                $headers[] = 'Hasil_Pengukuran';
+            }
+            $treatments = !empty($parsed['treatments']) ? (array) $parsed['treatments'] : ['Kontrol', 'Variasi_1', 'Variasi_2'];
+            $reps = max(3, min(15, (int) ($parsed['replications'] ?? $itemsPerVar)));
+            $rows = [];
+            $no = 1;
+            foreach ($treatments as $tr) {
+                for ($r = 1; $r <= $reps; $r++) {
+                    $row = ['S-' . str_pad((string) $no++, 2, '0', STR_PAD_LEFT), (string) $tr];
+                    for ($c = 2; $c < count($headers); $c++) {
+                        $row[] = '';
+                    }
+                    $rows[] = $row;
+                }
+            }
+            return [$headers, $rows];
+        }
+
+        // Kuesioner Likert
+        $headers = ['Responden'];
+        foreach (($parsed['variables'] ?? []) as $var) {
+            foreach (($var['items'] ?? []) as $it) {
+                $code = preg_replace('/[^A-Za-z0-9_]/', '_', (string) ($it['code'] ?? ''));
+                if ($code !== '') {
+                    $headers[] = $code;
+                }
+            }
+        }
+        $rows = [];
+        for ($i = 1; $i <= 30; $i++) {
+            $row = ['R-' . str_pad((string) $i, 2, '0', STR_PAD_LEFT)];
+            for ($c = 1; $c < count($headers); $c++) {
+                $row[] = '';
+            }
+            $rows[] = $row;
+        }
+        return [$headers, $rows];
+    }
+}
