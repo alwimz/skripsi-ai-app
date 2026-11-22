@@ -762,8 +762,16 @@ class PlagiarismCheckService
                 $out[] = $para;
                 continue;
             }
-            // Pisahkan berdasarkan tanda akhir kalimat (. ! ?) namun hindari memotong singkatan seperti "et al.", "dkk.", "No.", "Dr.", "1.2"
-            $parts = preg_split('/(?<!\b(?:dr|prof|mr|ms|no|hal|hlm|vol|pp|ed|al|dkk|dsb|dst|dll|yth|s\.kom|m\.kom|s\.pd|m\.pd|s\.e|m\.m))(?<!\d)([.!?]+)\s+(?=[A-Z0-9“"])/u', $para, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+            // Lindungi singkatan umum & angka desimal tanpa lookbehind (100% kompatibel semua versi PCRE / Vercel PHP)
+            $protected = preg_replace(
+                '/\b(dr|prof|mr|mrs|ms|no|hal|hlm|vol|pp|ed|al|dkk|dsb|dst|dll|yth|s\.kom|m\.kom|s\.pd|m\.pd|s\.e|m\.m|s\.h|m\.h)\./iu',
+                '$1__DOT__',
+                $para
+            );
+            $protected = preg_replace('/(\d)\.(\d)/', '$1__DOT__$2', (string) $protected);
+
+            $parts = preg_split('/([.!?]+)\s+(?=[A-Z0-9“"\(])/u', (string) $protected, -1, PREG_SPLIT_DELIM_CAPTURE);
             if (!$parts) {
                 $out[] = $para;
                 continue;
@@ -773,19 +781,24 @@ class PlagiarismCheckService
                 $piece = $parts[$i];
                 if (preg_match('/^[.!?]+$/', $piece)) {
                     $buf .= $piece;
-                    if (trim($buf) !== '') {
-                        $out[] = trim($buf);
+                    $restored = trim(str_replace('__DOT__', '.', $buf));
+                    if ($restored !== '') {
+                        $out[] = $restored;
                     }
                     $buf = '';
                 } else {
                     if ($buf !== '') {
-                        $out[] = trim($buf);
+                        $restored = trim(str_replace('__DOT__', '.', $buf));
+                        if ($restored !== '') {
+                            $out[] = $restored;
+                        }
                     }
                     $buf = $piece;
                 }
             }
-            if (trim($buf) !== '') {
-                $out[] = trim($buf);
+            $restored = trim(str_replace('__DOT__', '.', $buf));
+            if ($restored !== '') {
+                $out[] = $restored;
             }
         }
         return array_values(array_filter($out, fn($s) => trim($s) !== ''));
