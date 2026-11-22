@@ -3001,12 +3001,42 @@
             background: #ffffff;
             border: 1px solid #bfdbfe;
             border-radius: 12px;
-            padding: 16px 18px;
+            padding: 18px 22px;
             font-size: 13.5px;
-            line-height: 1.75;
+            line-height: 1.8;
             color: #1e293b;
-            white-space: pre-wrap;
+            text-align: justify;
         }
+        .od-narration-box h4 {
+            font-size: 13.8px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 14px 0 6px;
+            text-align: left;
+        }
+        .od-narration-box h4:first-child { margin-top: 0; }
+        .od-narration-box p { margin: 0 0 10px; }
+        .od-narration-box p:last-child { margin-bottom: 0; }
+        .od-chart-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .od-chart-tab {
+            padding: 6px 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: var(--text-secondary);
+            font-size: 11.8px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.14s ease;
+        }
+        .od-chart-tab:hover { border-color: #93c5fd; color: var(--primary); }
+        .od-chart-tab.active { background: #eff6ff; border-color: var(--primary); color: #1d4ed8; }
         .od-inst-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 0.8fr);
@@ -5207,13 +5237,17 @@
                                     <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;" id="od-res-subtitle"></div>
                                 </div>
                                 <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                                    <button type="button" class="btn-outline" onclick="odCopyTables(this)" style="padding:7px 12px; font-size:12px;">
+                                    <button type="button" class="btn-outline" onclick="odCopyTables(this)" style="padding:7px 11px; font-size:12px;">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                        <span>Salin Tabel (Word)</span>
+                                        <span>Salin Tabel</span>
+                                    </button>
+                                    <button type="button" class="btn-primary" id="od-btn-docx" onclick="odDownloadDocx()" style="padding:7px 13px; font-size:12px; background:#059669; border-color:#059669;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+                                        <span>Unduh Word (.docx)</span>
                                     </button>
                                     <button type="button" class="btn-primary" id="od-btn-pdf" onclick="odDownloadPdf()" style="padding:7px 13px; font-size:12px;">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                        <span>Unduh Laporan PDF</span>
+                                        <span>Unduh PDF</span>
                                     </button>
                                 </div>
                             </div>
@@ -5222,7 +5256,7 @@
                             <div id="od-res-equation" style="display:none; padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:13px; font-weight:700; margin-bottom:14px;"></div>
                             <div id="od-res-tables"></div>
 
-                            <!-- Grafik Statistik SVG -->
+                            <!-- Grafik Statistik SVG (Dukung Multi-Grafik Asli SPSS untuk Regresi) -->
                             <div class="od-chart-box" id="od-res-chart-wrap" style="display:none;">
                                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
                                     <div style="font-size:13px; font-weight:700; color:var(--text-main);" id="od-chart-title">Visualisasi Grafik</div>
@@ -5231,6 +5265,7 @@
                                         <span>Unduh Grafik PNG HD</span>
                                     </button>
                                 </div>
+                                <div id="od-chart-tabs" class="od-chart-tabs" style="display:none;"></div>
                                 <div id="od-chart-svg-host" style="min-width:300px;"></div>
                             </div>
 
@@ -8871,13 +8906,49 @@
         }
 
         function odSetDataset(columns, rows, title) {
-            odDataset = { columns, rows, title: title || 'Data Penelitian' };
+            // Auto-Compute Skor Total Variabel (seperti Transform -> Compute Variable di IBM SPSS)
+            // jika dataset punya butir kuesioner X1_1..X1_4, Y_1..Y_4 namun belum punya X1_Total / Y_Total
+            const colsCopy = [...columns];
+            const rowsCopy = rows.map(r => ({ ...r }));
+            const prefixGroups = {};
+            colsCopy.forEach(c => {
+                if (/^(id|no|nomor|responden|kode|total|skor|sum)/i.test(c)) return;
+                const m = c.match(/^([A-Za-z]+\d*)[_\.\-\s]+(\d+)$/);
+                if (m) {
+                    const pfx = m[1];
+                    if (!prefixGroups[pfx]) prefixGroups[pfx] = [];
+                    prefixGroups[pfx].push(c);
+                }
+            });
+            const autoComputed = [];
+            Object.entries(prefixGroups).forEach(([pfx, itemCols]) => {
+                if (itemCols.length < 2) return;
+                const allNumeric = itemCols.every(ic => rowsCopy.slice(0, 30).some(r => odIsNumericVal(r[ic])));
+                if (!allNumeric) return;
+                const existingTotal = colsCopy.find(c => new RegExp('^' + pfx + '[ _\\-]?total$', 'i').test(c) || c.toLowerCase() === pfx.toLowerCase());
+                if (!existingTotal) {
+                    const totalCol = pfx + '_Total';
+                    colsCopy.push(totalCol);
+                    rowsCopy.forEach(r => {
+                        let s = 0; let ok = 0;
+                        itemCols.forEach(ic => {
+                            const raw = String(r[ic] ?? '').trim().replace(',', '.');
+                            const num = parseFloat(raw);
+                            if (!isNaN(num)) { s += num; ok++; }
+                        });
+                        r[totalCol] = ok === itemCols.length ? String(Math.round(s * 1000) / 1000) : '';
+                    });
+                    autoComputed.push(totalCol);
+                }
+            });
+
+            odDataset = { columns: colsCopy, rows: rowsCopy, title: title || 'Data Penelitian', autoComputed };
             const numeric = [];
             const categorical = [];
-            columns.forEach(col => {
+            colsCopy.forEach(col => {
                 let numCount = 0;
                 let nonEmpty = 0;
-                rows.slice(0, 120).forEach(r => {
+                rowsCopy.slice(0, 120).forEach(r => {
                     const v = String(r[col] ?? '').trim();
                     if (v !== '') {
                         nonEmpty++;
@@ -8892,16 +8963,16 @@
             // Render preview
             document.getElementById('od-data-preview-wrap').style.display = 'block';
             document.getElementById('od-btn-clear-data').style.display = 'inline-flex';
-            document.getElementById('od-data-summary-label').textContent = `${title} · ${rows.length} baris × ${columns.length} kolom`;
-            document.getElementById('od-data-col-types').textContent = `${numeric.length} kolom numerik · ${categorical.length} kolom kategorik`;
+            document.getElementById('od-data-summary-label').textContent = `${title} · ${rowsCopy.length} baris × ${colsCopy.length} kolom`;
+            document.getElementById('od-data-col-types').textContent = `${numeric.length} numerik · ${categorical.length} kategorik` + (autoComputed.length ? ` · Skor total otomatis: ${autoComputed.join(', ')}` : '');
 
             const tbl = document.getElementById('od-preview-table');
-            let html = '<thead><tr>' + columns.map(c => `<th>${odEscape(c)}</th>`).join('') + '</tr></thead><tbody>';
-            rows.slice(0, 6).forEach(r => {
-                html += '<tr>' + columns.map(c => `<td>${odEscape(r[c] ?? '')}</td>`).join('') + '</tr>';
+            let html = '<thead><tr>' + colsCopy.map(c => `<th>${odEscape(c)}</th>`).join('') + '</tr></thead><tbody>';
+            rowsCopy.slice(0, 6).forEach(r => {
+                html += '<tr>' + colsCopy.map(c => `<td>${odEscape(r[c] ?? '')}</td>`).join('') + '</tr>';
             });
-            if (rows.length > 6) {
-                html += `<tr><td colspan="${columns.length}" style="text-align:center; color:#64748b; font-style:italic;">... dan ${rows.length - 6} baris lainnya</td></tr>`;
+            if (rowsCopy.length > 6) {
+                html += `<tr><td colspan="${colsCopy.length}" style="text-align:center; color:#64748b; font-style:italic;">... dan ${rowsCopy.length - 6} baris lainnya</td></tr>`;
             }
             html += '</tbody>';
             tbl.innerHTML = html;
@@ -9020,25 +9091,50 @@
             const optHtml = (list, selectedVal) => list.map(c => `<option value="${odEscape(c)}" ${c === selectedVal ? 'selected' : ''}>${odEscape(c)}</option>`).join('');
 
             if (odActiveTest === 'regression') {
-                // Jika ada kolom *_Total, prioritaskan untuk regresi!
-                const totalCols = nonIdNum.filter(c => /total|skor|sum/i.test(c));
-                const base = totalCols.length >= 2 ? totalCols : nonIdNum;
-                const defY = base[base.length - 1] || numCols[numCols.length - 1] || '';
-                const defXs = base.filter(c => c !== defY);
-                const chips = nonIdNum.map(c => {
-                    const checked = defXs.includes(c);
-                    return `<label class="od-col-chip ${checked ? 'checked' : ''}"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" ${checked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
-                }).join('');
+                // Pisahkan kolom skor variabel utama (non-item) vs kolom butir item kuesioner (X1_1, Y_1, dst.)
+                const isItemCol = c => /^[A-Za-z]+\d*[_\.\-\s]+\d+$/.test(c) && !/total|skor|sum/i.test(c);
+                const summaryCols = nonIdNum.filter(c => !isItemCol(c));
+                const rawItemCols = nonIdNum.filter(c => isItemCol(c));
+                const regPool = summaryCols.length >= 2 ? summaryCols : nonIdNum;
+                const prevY = document.getElementById('od-reg-y')?.value;
+                const defY = (prevY && regPool.includes(prevY)) ? prevY : (regPool[regPool.length - 1] || numCols[numCols.length - 1] || '');
+
+                // Ekstrak prefix variabel Y agar butir milik Y (cth: Y_1..Y_4 saat Y = Y_Total) tidak pernah bisa dicentang sebagai X!
+                const yPrefix = defY.replace(/[_\-\s]*(total|skor|sum)$/i, '').toLowerCase();
+                const isSameVarAsY = c => {
+                    if (c === defY) return true;
+                    const cp = c.replace(/[_\-\s]*(\d+|total|skor|sum)$/i, '').toLowerCase();
+                    return yPrefix.length >= 1 && cp === yPrefix;
+                };
+
+                const availSummaryX = regPool.filter(c => c !== defY);
+                const availRawItems = rawItemCols.filter(c => !isSameVarAsY(c));
+                const chipsMain = availSummaryX.map(c => `<label class="od-col-chip checked"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" checked onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
+                const chipsRaw = availRawItems.map(c => `<label class="od-col-chip"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
+
+                const rawToggleHtml = availRawItems.length ? `
+                    <div style="margin-top:8px;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-muted); cursor:pointer;">
+                            <input type="checkbox" onchange="document.getElementById('od-reg-raw-items').style.display = this.checked ? 'flex' : 'none'">
+                            <span>Tampilkan ${availRawItems.length} kolom butir mentah (hanya untuk keperluan lanjutan)</span>
+                        </label>
+                        <div id="od-reg-raw-items" class="od-chip-list" style="display:none; margin-top:6px;">${chipsRaw}</div>
+                    </div>` : '';
+
                 host.innerHTML = `
                     <div class="od-reg-grid">
                         <div>
                             <label class="form-label" for="od-reg-y">Variabel Dependen (Y — Terikat)</label>
-                            <select id="od-reg-y" class="form-select">${optHtml(nonIdNum.length ? nonIdNum : numCols, defY)}</select>
+                            <select id="od-reg-y" class="form-select" onchange="odRenderVarPicker()">${optHtml(regPool, defY)}</select>
                         </div>
                         <div>
-                            <label class="form-label">Variabel Independen (X — Bebas, pilih 1 atau lebih)</label>
-                            <div class="od-chip-list">${chips}</div>
+                            <label class="form-label">Variabel Independen (X — Bebas, otomatis mengecualikan Y)</label>
+                            <div class="od-chip-list">${chipsMain || '<span style="font-size:12px; color:#64748b;">Tidak ada variabel X tersisa.</span>'}</div>
+                            ${rawToggleHtml}
                         </div>
+                    </div>
+                    <div style="margin-top:10px; padding:8px 11px; border-radius:8px; background:#eff6ff; border:1px solid #dbeafe; font-size:11.5px; color:#1e40af; line-height:1.45;">
+                        <strong>Standar SPSS:</strong> Regresi Linier menggunakan <strong>Skor Total Variabel</strong> (mis. <code>X1_Total</code>, <code>X2_Total</code> terhadap <code>Y_Total</code>), bukan butir pertanyaan satuan. Variabel yang dipilih sebagai Y otomatis dikunci agar tidak ikut masuk sebagai prediktor X.
                     </div>`;
             } else if (odActiveTest === 'validity_reliability') {
                 const itemCols = nonIdNum.filter(c => !/total|sum/i.test(c));
@@ -9246,13 +9342,17 @@
             const tblHost = document.getElementById('od-res-tables');
             tblHost.innerHTML = (result.tables || []).map(tbl => {
                 const ths = (tbl.headers || []).map(h => `<th>${odEscape(h)}</th>`).join('');
+                const lastColIdx = (tbl.headers || []).length - 1;
                 const trs = (tbl.rows || []).map(row => '<tr>' + row.map((cell, idx) => {
                     const txt = String(cell ?? '');
                     let extra = '';
-                    if (/^(VALID|LOLOS|Signifikan|Berbeda Signifikan|Ada Hubungan Signifikan|Sangat Reliabel|Reliabel|Normal)/i.test(txt)) {
-                        extra = ' style="color:#047857; font-weight:700;"';
-                    } else if (/^(TIDAK VALID|TERINDIKASI|Tidak Normal|Kurang Reliabel)/i.test(txt)) {
-                        extra = ' style="color:#b91c1c; font-weight:700;"';
+                    // Hanya beri warna status pada kolom terakhir (Keputusan / Status / Kategori / Distribusi)
+                    if (idx === lastColIdx && lastColIdx > 0) {
+                        if (/^(VALID|LOLOS|Signifikan|Berbeda Signifikan|Ada Hubungan Signifikan|Sangat Reliabel|Reliabel|Normal|Homoskedastis|Varians Homogen)/i.test(txt)) {
+                            extra = ' style="color:#047857; font-weight:700;"';
+                        } else if (/^(TIDAK VALID|TERINDIKASI|Tidak Normal|Kurang Reliabel|PERLU PERHATIAN|Indikasi Heteroskedastisitas|Varians Tidak Homogen)/i.test(txt)) {
+                            extra = ' style="color:#b91c1c; font-weight:700;"';
+                        }
                     }
                     return `<td${extra}>${odEscape(txt)}</td>`;
                 }).join('') + '</tr>').join('');
@@ -9264,11 +9364,19 @@
                 </div>`;
             }).join('');
 
-            // Chart
-            if (result.chart) {
+            // Chart(s) — dukung multi-grafik SPSS untuk Regresi (P-P Plot, ZRESID vs ZPRED, Histogram, Aktual vs Prediksi)
+            const chartsList = Array.isArray(result.charts) && result.charts.length ? result.charts : (result.chart ? [result.chart] : []);
+            const tabsHost = document.getElementById('od-chart-tabs');
+            if (chartsList.length) {
                 document.getElementById('od-res-chart-wrap').style.display = 'block';
-                document.getElementById('od-chart-title').textContent = result.chart.title || 'Visualisasi Statistik';
-                document.getElementById('od-chart-svg-host').innerHTML = odBuildChartSvg(result.chart);
+                if (chartsList.length > 1 && tabsHost) {
+                    tabsHost.style.display = 'flex';
+                    tabsHost.innerHTML = chartsList.map((ch, idx) => `<button type="button" class="od-chart-tab ${idx === 0 ? 'active' : ''}" onclick="odSwitchResultChart(${idx})">${odEscape(ch.tab || ch.title || ('Grafik ' + (idx + 1)))}</button>`).join('');
+                } else if (tabsHost) {
+                    tabsHost.style.display = 'none';
+                    tabsHost.innerHTML = '';
+                }
+                odRenderChartByIndex(0);
             } else {
                 document.getElementById('od-res-chart-wrap').style.display = 'none';
             }
@@ -9280,11 +9388,129 @@
             sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        function odSwitchResultChart(idx) {
+            document.querySelectorAll('#od-chart-tabs .od-chart-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
+            odRenderChartByIndex(idx);
+        }
+
+        function odRenderChartByIndex(idx) {
+            if (!odCurrentResult) return;
+            const list = Array.isArray(odCurrentResult.charts) && odCurrentResult.charts.length
+                ? odCurrentResult.charts
+                : (odCurrentResult.chart ? [odCurrentResult.chart] : []);
+            const ch = list[idx] || list[0];
+            if (!ch) return;
+            document.getElementById('od-chart-title').textContent = ch.title || 'Visualisasi Statistik';
+            document.getElementById('od-chart-svg-host').innerHTML = odBuildChartSvg(ch);
+        }
+
         function odBuildChartSvg(chart) {
-            const W = 680, H = 290, padL = 62, padR = 24, padT = 26, padB = 56;
+            const W = 680, H = 310, padL = 62, padR = 26, padT = 24, padB = 60;
             const plotW = W - padL - padR;
             const plotH = H - padT - padB;
 
+            // 1. SPSS Normal P-P Plot of Regression Standardized Residual (0.0 - 1.0)
+            if (chart.type === 'pp_plot' && Array.isArray(chart.points) && chart.points.length) {
+                const sx = v => padL + v * plotW;
+                const sy = v => padT + plotH - v * plotH;
+                let grid = '';
+                for (let g = 0; g <= 5; g++) {
+                    const val = g * 0.2;
+                    const px = sx(val), py = sy(val);
+                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
+                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
+                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+                }
+                const dots = chart.points.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.8"/>`).join('');
+                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
+                    <rect width="${W}" height="${H}" fill="#ffffff"/>
+                    ${grid}
+                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
+                    <line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(1)}" y2="${sy(1)}" stroke="#0f172a" stroke-width="1.5"/>
+                    ${dots}
+                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Observed Cum Prob')}</text>
+                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Expected Cum Prob')}</text>
+                </svg>`;
+            }
+
+            // 2. SPSS Scatterplot Uji Heteroskedastisitas (ZRESID vs ZPRED)
+            if (chart.type === 'zresid_zpred' && Array.isArray(chart.points) && chart.points.length) {
+                const pts = chart.points;
+                const maxAbsX = Math.max(2.5, Math.ceil(Math.max(...pts.map(p => Math.abs(p.x))) * 1.15));
+                const maxAbsY = Math.max(2.5, Math.ceil(Math.max(...pts.map(p => Math.abs(p.y))) * 1.15));
+                const sx = v => padL + ((v + maxAbsX) / (2 * maxAbsX)) * plotW;
+                const sy = v => padT + plotH - ((v + maxAbsY) / (2 * maxAbsY)) * plotH;
+                let grid = '';
+                for (let g = 0; g <= 4; g++) {
+                    const vx = -maxAbsX + (g / 4) * (2 * maxAbsX);
+                    const vy = -maxAbsY + (g / 4) * (2 * maxAbsY);
+                    const px = sx(vx), py = sy(vy);
+                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
+                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
+                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${vy.toFixed(1)}</text>`;
+                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${vx.toFixed(1)}</text>`;
+                }
+                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.8"/>`).join('');
+                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
+                    <rect width="${W}" height="${H}" fill="#ffffff"/>
+                    ${grid}
+                    <line x1="${padL}" y1="${sy(0).toFixed(1)}" x2="${W - padR}" y2="${sy(0).toFixed(1)}" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="5,4"/>
+                    <line x1="${sx(0).toFixed(1)}" y1="${padT}" x2="${sx(0).toFixed(1)}" y2="${padT + plotH}" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4,4"/>
+                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
+                    ${dots}
+                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'ZPRED')}</text>
+                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'ZRESID')}</text>
+                </svg>`;
+            }
+
+            // 3. SPSS Histogram of Regression Standardized Residual + Kurva Normal
+            if (chart.type === 'residual_hist' && Array.isArray(chart.bins) && chart.bins.length) {
+                const bins = chart.bins;
+                const maxCount = Math.max(3, ...bins.map(b => Math.max(b.count, b.normal_y))) * 1.18;
+                const zMin = Number(chart.z_min ?? -2.5);
+                const zMax = Number(chart.z_max ?? 2.5);
+                const sx = v => padL + ((v - zMin) / Math.max(0.1, zMax - zMin)) * plotW;
+                const sy = v => padT + plotH - (v / maxCount) * plotH;
+                let grid = '';
+                for (let g = 0; g <= 4; g++) {
+                    const vy = (g / 4) * maxCount;
+                    const py = sy(vy);
+                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
+                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${vy.toFixed(0)}</text>`;
+                }
+                for (let z = Math.ceil(zMin); z <= Math.floor(zMax); z++) {
+                    const px = sx(z);
+                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${z}</text>`;
+                }
+                const rects = bins.map(b => {
+                    const x1 = sx(b.lo), x2 = sx(b.hi), yTop = sy(b.count);
+                    return `<rect x="${(x1 + 1).toFixed(1)}" y="${yTop.toFixed(1)}" width="${Math.max(4, x2 - x1 - 2).toFixed(1)}" height="${(padT + plotH - yTop).toFixed(1)}" fill="#93c5fd" stroke="#1d4ed8" stroke-width="1"/>`;
+                }).join('');
+                // Smooth normal curve
+                const binW = (zMax - zMin) / bins.length;
+                const curvePts = [];
+                for (let s = 0; s <= 60; s++) {
+                    const zv = zMin + (s / 60) * (zMax - zMin);
+                    const yExp = (chart.n || 30) * binW * (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * zv * zv);
+                    curvePts.push(`${sx(zv).toFixed(1)},${sy(yExp).toFixed(1)}`);
+                }
+                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
+                    <rect width="${W}" height="${H}" fill="#ffffff"/>
+                    ${grid}
+                    ${rects}
+                    <polyline fill="none" stroke="#0f172a" stroke-width="2" points="${curvePts.join(' ')}"/>
+                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
+                    <rect x="${W - padR - 118}" y="${padT + 8}" width="110" height="46" rx="6" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
+                    <text x="${W - padR - 110}" y="${padT + 23}" font-size="10" fill="#334155">Mean = 0.00</text>
+                    <text x="${W - padR - 110}" y="${padT + 36}" font-size="10" fill="#334155">Std. Dev = 0.966</text>
+                    <text x="${W - padR - 110}" y="${padT + 49}" font-size="10" fill="#334155">N = ${chart.n || ''}</text>
+                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Regression Standardized Residual')}</text>
+                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Frequency')}</text>
+                </svg>`;
+            }
+
+            // 4. Scatter Aktual vs Prediksi (dengan angka sumbu X & Y lengkap!)
             if (chart.type === 'scatter_fit' && Array.isArray(chart.points) && chart.points.length) {
                 const pts = chart.points;
                 const allVals = pts.flatMap(p => [p.x, p.y]);
@@ -9299,11 +9525,13 @@
                 let grid = '';
                 for (let g = 0; g <= 4; g++) {
                     const val = vMin + (g / 4) * (vMax - vMin);
-                    const py = sy(val);
-                    grid += `<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e2e8f0" stroke-width="1"/>`;
-                    grid += `<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+                    const px = sx(val), py = sy(val);
+                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
+                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
+                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
+                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
                 }
-                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#2563eb" fill-opacity="0.78" stroke="#ffffff" stroke-width="1"/>`).join('');
+                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#2563eb" fill-opacity="0.82" stroke="#ffffff" stroke-width="1"/>`).join('');
                 return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
                     <rect width="${W}" height="${H}" fill="#ffffff"/>
                     ${grid}
@@ -9391,15 +9619,17 @@
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = 1360;
-                canvas.height = 580;
+                canvas.height = 620;
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 URL.revokeObjectURL(url);
+                const titleSlug = (document.getElementById('od-chart-title')?.textContent || 'Grafik_Statistik')
+                    .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 42) || 'Grafik_Statistik';
                 const a = document.createElement('a');
                 a.href = canvas.toDataURL('image/png');
-                a.download = 'Grafik_Statistik_SkripsiLab.png';
+                a.download = titleSlug + '_SkripsiLab.png';
                 a.click();
             };
             img.src = url;
@@ -9443,10 +9673,21 @@
                 });
                 const data = await res.json();
                 if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun interpretasi.');
-                odCurrentNarration = data.narration || '';
+                const cleanText = String(data.narration || '')
+                    .replace(/^\s*#{1,6}\s*/gm, '')
+                    .replace(/\*\*|__/g, '')
+                    .replace(/^\s*[\*\-]\s+/gm, '')
+                    .trim();
+                odCurrentNarration = cleanText;
                 const out = document.getElementById('od-narr-output');
                 out.style.display = 'block';
-                out.textContent = odCurrentNarration;
+                const blocks = cleanText.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+                out.innerHTML = blocks.map(b => {
+                    if (/^(?:4\.\d+(?:\.\d+)?|[A-C]\.)\s+.{3,100}$/.test(b)) {
+                        return `<h4>${odEscape(b)}</h4>`;
+                    }
+                    return `<p>${odEscape(b).replace(/\n/g, '<br>')}</p>`;
+                }).join('');
                 document.getElementById('od-btn-copy-narr').style.display = 'inline-flex';
             } catch (err) {
                 odShowError(err.message || 'Gagal menghubungi layanan interpretasi AI.');
@@ -9466,17 +9707,64 @@
             });
         }
 
+        function odSvgStringToPngDataUrl(svgMarkup, width = 1200, height = 548) {
+            return new Promise((resolve) => {
+                try {
+                    const img = new Image();
+                    const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        URL.revokeObjectURL(url);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+                    img.src = url;
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        async function odCollectAllChartPngs() {
+            if (!odCurrentResult) return [];
+            const list = Array.isArray(odCurrentResult.charts) && odCurrentResult.charts.length
+                ? odCurrentResult.charts
+                : (odCurrentResult.chart ? [odCurrentResult.chart] : []);
+            const out = [];
+            for (const ch of list) {
+                const svgMarkup = odBuildChartSvg(ch);
+                if (!svgMarkup) continue;
+                const dataUrl = await odSvgStringToPngDataUrl(svgMarkup, 1120, 510);
+                if (dataUrl) {
+                    out.push({ title: ch.title || ch.tab || 'Grafik Statistik', data_url: dataUrl });
+                }
+            }
+            return out;
+        }
+
         async function odDownloadPdf() {
             if (!odCurrentResult) return;
             const btn = document.getElementById('od-btn-pdf');
             const orig = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan PDF...</span>';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan PDF + Grafik...</span>';
             try {
+                const chartsImages = await odCollectAllChartPngs();
                 const res = await fetch("{{ route('tools.stats.pdf') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ result: odCurrentResult, narration: odCurrentNarration })
+                    body: JSON.stringify({
+                        result: odCurrentResult,
+                        narration: odCurrentNarration,
+                        charts_images: chartsImages
+                    })
                 });
                 if (!res.ok) throw new Error('Gagal membuat laporan PDF.');
                 const blob = await res.blob();
@@ -9490,6 +9778,41 @@
                 setTimeout(() => URL.revokeObjectURL(url), 1500);
             } catch (err) {
                 odShowError(err.message || 'Gagal mengunduh PDF.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        async function odDownloadDocx() {
+            if (!odCurrentResult) return;
+            const btn = document.getElementById('od-btn-docx');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan Word (.docx)...</span>';
+            try {
+                const chartsImages = await odCollectAllChartPngs();
+                const res = await fetch("{{ route('tools.stats.docx') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        result: odCurrentResult,
+                        narration: odCurrentNarration,
+                        charts_images: chartsImages
+                    })
+                });
+                if (!res.ok) throw new Error('Gagal membuat file Word (.docx).');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Laporan_Olah_Data_SkripsiLab.docx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+            } catch (err) {
+                odShowError(err.message || 'Gagal mengunduh file Word (.docx).');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = orig;

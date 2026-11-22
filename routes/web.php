@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tools/stats/interpret', [StatisticsController::class, 'interpret'])->name('tools.stats.interpret');
     Route::post('/tools/stats/instrument', [StatisticsController::class, 'generateInstrument'])->name('tools.stats.instrument');
     Route::post('/tools/stats/report-pdf', [StatisticsController::class, 'downloadReportPdf'])->name('tools.stats.pdf');
+    Route::post('/tools/stats/report-docx', [StatisticsController::class, 'downloadReportDocx'])->name('tools.stats.docx');
     Route::post('/tools/generate-ppt', [GeneratorController::class, 'generatePpt'])->name('tools.ppt');
     Route::post('/tools/ppt/save', [GeneratorController::class, 'savePptDeck'])->name('tools.ppt.save');
     Route::delete('/tools/ppt/{id}', [GeneratorController::class, 'deletePptDeck'])->name('tools.ppt.delete');

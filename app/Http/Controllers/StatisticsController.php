@@ -9,6 +9,10 @@ use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\SimpleType\Jc;
+use PhpOffice\PhpWord\SimpleType\TblWidth;
 
 class StatisticsController extends Controller
 {
@@ -133,13 +137,14 @@ class StatisticsController extends Controller
             . $tablesText . "\n\n"
             . "RINGKASAN KEPUTUSAN MATEMATIS:\n- {$conclusionsText}\n\n"
             . "ATURAN PENULISAN KETAT:\n"
-            . "1. Setiap angka yang Anda sebut (t, F, R², r, Sig., Cronbach's Alpha, Mean, SD, VIF, DW, Chi-Square, dll.) HARUS 100% SAMA PERSIS dengan tabel di atas.\n"
+            . "1. Setiap angka yang Anda sebut (t, F, R², r, Sig., Cronbach's Alpha, Mean, SD, VIF, DW, Chi-Square, Shapiro-Wilk, K-S Lilliefors, dll.) HARUS 100% SAMA PERSIS dengan tabel di atas.\n"
             . "2. Gunakan bahasa Indonesia ilmiah baku (EYD V, formal, objektif, orang ketiga, tanpa kata 'saya').\n"
-            . "3. Bagi menjadi 3 sub-bagian ringkas dan terstruktur: (a) Deskripsi Hasil Pengujian, (b) Pengujian Hipotesis & Makna Statistik (sebutkan kriteria α = " . ($result['alpha'] ?? 0.05) . "), dan (c) Pembahasan & Implikasi Ilmiah sesuai bidang {$major}.\n"
-            . "4. Jangan menambahkan tabel baru atau angka asumsi fiktif. Tulis langsung isi narasinya (tanpa kalimat pembuka 'Tentu, berikut...').";
+            . "3. Bagi menjadi 3 sub-bagian ringkas bernomor bersih: 4.1.1 Deskripsi Hasil Pengujian, 4.1.2 Pengujian Hipotesis dan Asumsi Statistik (sebutkan kriteria α = " . ($result['alpha'] ?? 0.05) . "), dan 4.1.3 Pembahasan dan Implikasi Ilmiah sesuai bidang {$major}.\n"
+            . "4. DILARANG KERAS memakai simbol markdown seperti **, __, ###, *, atau bullet tanda bintang! Tulis judul sub-bab sebagai teks biasa tanpa tanda bintang, dan seluruh isi dalam paragraf narasi akademik yang mengalir rapi siap tempel langsung ke Microsoft Word.\n"
+            . "5. Jangan menambahkan tabel baru atau angka asumsi fiktif. Tulis langsung isi narasinya (tanpa kalimat pembuka 'Tentu, berikut...').";
 
         try {
-            $narration = trim($this->ai->generateText($prompt));
+            $narration = $this->cleanAcademicNarration($this->ai->generateText($prompt));
             return response()->json([
                 'status' => 'success',
                 'narration' => $narration,
@@ -150,6 +155,17 @@ class StatisticsController extends Controller
                 'message' => 'Gagal menyusun interpretasi AI: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function cleanAcademicNarration(string $raw): string
+    {
+        $txt = str_replace(["\r\n", "\r"], "\n", trim($raw));
+        // Hapus markdown headings (###, ##, #) dan tanda bold/italic (** , __ , *)
+        $txt = (string) preg_replace('/^\s*#{1,6}\s*/m', '', $txt);
+        $txt = str_replace(['**', '__'], '', $txt);
+        $txt = (string) preg_replace('/^\s*[\*\-]\s+/m', '', $txt);
+        $txt = (string) preg_replace('/\n{3,}/', "\n\n", $txt);
+        return trim($txt);
     }
 
     /**
@@ -247,7 +263,7 @@ class StatisticsController extends Controller
     }
 
     /**
-     * Ekspor Laporan Hasil Olah Data Statistik ke PDF A4 (Gaya Laporan Output SPSS & APA).
+     * Ekspor Laporan Hasil Olah Data Statistik ke PDF A4 (Gaya Laporan Output SPSS & APA) lengkap dengan Grafik & Narasi.
      */
     public function downloadReportPdf(Request $request)
     {
@@ -256,6 +272,7 @@ class StatisticsController extends Controller
             $result = json_decode($result, true);
         }
         $narration = trim((string) $request->input('narration', ''));
+        $chartsImages = $this->sanitizeChartImages($request->input('charts_images', []));
 
         if (!is_array($result) || empty($result['tables'])) {
             return response()->json(['status' => 'error', 'message' => 'Data laporan statistik tidak valid.'], 422);
@@ -279,16 +296,21 @@ class StatisticsController extends Controller
 
         $tablesHtml = '';
         foreach ($result['tables'] as $tbl) {
+            $headers = $tbl['headers'] ?? [];
+            $colAligns = $this->detectColumnAlignments($headers);
+
+            $tablesHtml .= '<div class="tbl-block">';
             $tablesHtml .= '<div class="tbl-title">' . e((string) ($tbl['title'] ?? 'Tabel')) . '</div>';
             $tablesHtml .= '<table class="stat-table"><thead><tr>';
-            foreach (($tbl['headers'] ?? []) as $th) {
-                $tablesHtml .= '<th>' . e((string) $th) . '</th>';
+            foreach ($headers as $idx => $th) {
+                $align = $colAligns[$idx] ?? 'center';
+                $tablesHtml .= '<th style="text-align:' . $align . ';">' . e((string) $th) . '</th>';
             }
             $tablesHtml .= '</tr></thead><tbody>';
             foreach (($tbl['rows'] ?? []) as $tr) {
                 $tablesHtml .= '<tr>';
                 foreach ($tr as $idx => $cell) {
-                    $align = $idx === 0 ? 'left' : 'right';
+                    $align = $colAligns[$idx] ?? 'center';
                     $tablesHtml .= '<td style="text-align:' . $align . ';">' . e((string) $cell) . '</td>';
                 }
                 $tablesHtml .= '</tr>';
@@ -296,6 +318,19 @@ class StatisticsController extends Controller
             $tablesHtml .= '</tbody></table>';
             if (!empty($tbl['footnote'])) {
                 $tablesHtml .= '<div class="tbl-note">' . e((string) $tbl['footnote']) . '</div>';
+            }
+            $tablesHtml .= '</div>';
+        }
+
+        $chartsHtml = '';
+        if (!empty($chartsImages)) {
+            $chartsHtml .= '<div class="sec-title">Visualisasi Grafik Hasil Pengujian</div>';
+            foreach ($chartsImages as $idx => $img) {
+                $num = $idx + 1;
+                $chartsHtml .= '<div class="chart-block">'
+                    . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:520px; height:auto; display:block; margin:0 auto;" />'
+                    . '<div class="chart-cap">Gambar ' . $num . '. ' . e($img['title']) . '</div>'
+                    . '</div>';
             }
         }
 
@@ -310,31 +345,48 @@ class StatisticsController extends Controller
 
         $narrationHtml = '';
         if ($narration !== '') {
-            $safeNarr = nl2br(e($narration));
-            $narrationHtml = '<div class="sec-title">Narasi Interpretasi Bab IV</div><div class="narr-box">' . $safeNarr . '</div>';
+            $cleanNarr = $this->cleanAcademicNarration($narration);
+            $paras = preg_split('/\n{2,}/', $cleanNarr) ?: [];
+            $formatted = '';
+            foreach ($paras as $p) {
+                $p = trim($p);
+                if ($p === '') {
+                    continue;
+                }
+                if (preg_match('/^(?:4\.\d+(?:\.\d+)?|[A-C]\.)\s+.{3,95}$/', $p)) {
+                    $formatted .= '<div style="font-weight:700; color:#0f172a; margin:10px 0 4px;">' . e($p) . '</div>';
+                } else {
+                    $formatted .= '<p style="margin:0 0 8px; text-align:justify;">' . nl2br(e($p)) . '</p>';
+                }
+            }
+            $narrationHtml = '<div class="sec-title">Narasi Interpretasi Bab IV</div><div class="narr-box">' . $formatted . '</div>';
         }
 
         $html = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><style>'
             . '@page { margin: 16mm 15mm 16mm 15mm; }'
-            . 'body { font-family: DejaVu Sans, sans-serif; color: #0f172a; font-size: 9pt; line-height: 1.5; }'
+            . 'body { font-family: DejaVu Sans, sans-serif; color: #0f172a; font-size: 8.8pt; line-height: 1.5; }'
             . '.header { border-bottom: 2px solid #1d4ed8; padding-bottom: 10px; margin-bottom: 14px; }'
             . '.brand { font-size: 13pt; font-weight: 700; color: #1d4ed8; }'
-            . '.sub { font-size: 8.2pt; color: #475569; margin-top: 3px; }'
+            . '.sub { font-size: 8pt; color: #475569; margin-top: 3px; }'
             . '.hl-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; background: #f8fafc; }'
             . '.hl-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }'
-            . '.hl-lbl { font-size: 7.2pt; text-transform: uppercase; color: #64748b; font-weight: 700; }'
-            . '.hl-val { font-size: 10.5pt; font-weight: 700; color: #0f172a; margin-top: 2px; }'
-            . '.tbl-title { font-size: 9.2pt; font-weight: 700; color: #0f172a; margin: 14px 0 5px; }'
-            . '.stat-table { width: 100%; border-collapse: collapse; font-size: 7.8pt; }'
-            . '.stat-table th { background: #eff6ff; color: #1e3a8a; border-top: 1.5px solid #1e3a8a; border-bottom: 1px solid #93c5fd; padding: 6px 5px; text-align: left; font-weight: 700; }'
-            . '.stat-table td { border-bottom: 1px solid #e2e8f0; padding: 5px 5px; color: #1e293b; }'
-            . '.stat-table tr:last-child td { border-bottom: 1.5px solid #1e3a8a; }'
-            . '.tbl-note { font-size: 7.5pt; color: #475569; font-style: italic; margin-top: 4px; }'
-            . '.sec-title { font-size: 10pt; font-weight: 700; color: #1e293b; border-left: 3.5px solid #2563eb; padding-left: 8px; margin: 16px 0 8px; }'
-            . '.conc-list { margin: 0 0 10px 18px; padding: 0; font-size: 8.6pt; }'
+            . '.hl-lbl { font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700; }'
+            . '.hl-val { font-size: 10pt; font-weight: 700; color: #0f172a; margin-top: 2px; }'
+            . '.tbl-block { page-break-inside: avoid; margin-bottom: 14px; }'
+            . '.tbl-title { font-size: 9pt; font-weight: 700; color: #0f172a; margin: 10px 0 5px; }'
+            . '.stat-table { width: 100%; border-collapse: collapse; font-size: 7.6pt; table-layout: auto; }'
+            . '.stat-table th { background: #eff6ff; color: #1e3a8a; border: 0.75pt solid #bfdbfe; border-top: 1.5pt solid #1e3a8a; border-bottom: 1.2pt solid #1e3a8a; padding: 6px 6px; font-weight: 700; vertical-align: middle; }'
+            . '.stat-table td { border: 0.6pt solid #cbd5e1; padding: 5px 6px; color: #1e293b; vertical-align: middle; }'
+            . '.stat-table tbody tr:nth-child(even) td { background: #f8fafc; }'
+            . '.stat-table tbody tr:last-child td { border-bottom: 1.5pt solid #1e3a8a; }'
+            . '.tbl-note { font-size: 7.3pt; color: #475569; font-style: italic; margin-top: 4px; }'
+            . '.chart-block { page-break-inside: avoid; border: 0.8pt solid #cbd5e1; padding: 10px 12px; margin-bottom: 12px; text-align: center; background: #ffffff; }'
+            . '.chart-cap { font-size: 8pt; font-weight: 700; color: #334155; margin-top: 6px; }'
+            . '.sec-title { font-size: 10pt; font-weight: 700; color: #1e293b; border-left: 3.5px solid #2563eb; padding-left: 8px; margin: 16px 0 8px; page-break-after: avoid; }'
+            . '.conc-list { margin: 0 0 10px 18px; padding: 0; font-size: 8.5pt; }'
             . '.conc-list li { margin-bottom: 4px; }'
-            . '.narr-box { border: 1px solid #e2e8f0; background: #ffffff; padding: 10px 12px; text-align: justify; font-size: 8.8pt; line-height: 1.6; }'
-            . '.footer-note { margin-top: 16px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 7.4pt; color: #64748b; }'
+            . '.narr-box { border: 1px solid #e2e8f0; background: #ffffff; padding: 10px 12px; text-align: justify; font-size: 8.8pt; line-height: 1.65; }'
+            . '.footer-note { margin-top: 14px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 7.4pt; color: #64748b; }'
             . '</style></head><body>'
             . '<div class="header">'
             . '<div class="brand">SkripsiLab AI — ' . $title . '</div>'
@@ -343,9 +395,10 @@ class StatisticsController extends Controller
             . '</div>'
             . $hlHtml
             . $tablesHtml
+            . $chartsHtml
             . $conclusionsHtml
             . $narrationHtml
-            . '<div class="footer-note">Verifikasi Matematis: Seluruh koefisien, statistik uji (t, F, r, χ², U, Z), derajat bebas, dan p-value dihitung menggunakan mesin numerik deterministik berpresisi tinggi (setara IBM SPSS Statistics).</div>'
+            . '<div class="footer-note">Verifikasi Matematis: Seluruh koefisien, statistik uji (t, F, r, χ², U, Z, Shapiro-Wilk W, K-S Lilliefors), derajat bebas, dan p-value dihitung menggunakan mesin numerik deterministik berpresisi tinggi (setara IBM SPSS Statistics).</div>'
             . '</body></html>';
 
         $options = new Options();
@@ -361,6 +414,277 @@ class StatisticsController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="Laporan_Olah_Data_' . $slug . '.pdf"',
         ]);
+    }
+
+    /**
+     * Ekspor Laporan Hasil Olah Data Statistik ke Microsoft Word (.docx) Asli & Dapat Diedit (Lengkap Tabel SPSS, Grafik HD & Narasi Bab IV).
+     */
+    public function downloadReportDocx(Request $request)
+    {
+        $result = $request->input('result');
+        if (is_string($result)) {
+            $result = json_decode($result, true);
+        }
+        $narration = trim((string) $request->input('narration', ''));
+        $chartsImages = $this->sanitizeChartImages($request->input('charts_images', []));
+
+        if (!is_array($result) || empty($result['tables'])) {
+            return response()->json(['status' => 'error', 'message' => 'Data laporan statistik tidak valid.'], 422);
+        }
+
+        $phpWord = new PhpWord();
+        $phpWord->setDefaultFontName('Times New Roman');
+        $phpWord->setDefaultFontSize(11);
+
+        // Margin standar skripsi Indonesia (A4: Kiri 4cm, Atas/Kanan/Bawah 3cm) -> 1 cm = 567 twips
+        $section = $phpWord->addSection([
+            'pageSizeW' => 11906,
+            'pageSizeH' => 16838,
+            'marginTop' => 1701,
+            'marginBottom' => 1701,
+            'marginLeft' => 2268,
+            'marginRight' => 1701,
+        ]);
+
+        $title = (string) ($result['title'] ?? 'Laporan Hasil Olah Data Statistik');
+        $subtitle = (string) ($result['subtitle'] ?? '');
+        $datasetTitle = (string) ($result['dataset_title'] ?? 'Data Penelitian');
+        $computedAt = (string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB');
+        $userName = (string) (Auth::user()->name ?? 'Mahasiswa');
+
+        // Judul Laporan
+        $section->addText(
+            $title,
+            ['name' => 'Times New Roman', 'size' => 14, 'bold' => true, 'color' => '1E3A8A'],
+            ['alignment' => Jc::CENTER, 'spaceAfter' => 80]
+        );
+        $section->addText(
+            "Dataset: {$datasetTitle} | Peneliti: {$userName} | {$computedAt}",
+            ['name' => 'Times New Roman', 'size' => 10, 'color' => '475569'],
+            ['alignment' => Jc::CENTER, 'spaceAfter' => 60]
+        );
+        if ($subtitle !== '') {
+            $section->addText(
+                $subtitle,
+                ['name' => 'Times New Roman', 'size' => 10, 'italic' => true, 'color' => '475569'],
+                ['alignment' => Jc::CENTER, 'spaceAfter' => 180]
+            );
+        }
+
+        if (!empty($result['equation'])) {
+            $section->addText(
+                'Persamaan Regresi: ' . (string) $result['equation'],
+                ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '1D4ED8'],
+                ['alignment' => Jc::CENTER, 'spaceAfter' => 180]
+            );
+        }
+
+        // Tabel-tabel Output SPSS Asli (100% Editable di Microsoft Word)
+        $tableStyle = [
+            'borderSize' => 6,
+            'borderColor' => '94A3B8',
+            'cellMarginTop' => 70,
+            'cellMarginBottom' => 70,
+            'cellMarginLeft' => 90,
+            'cellMarginRight' => 90,
+            'width' => 5000,
+            'unit' => TblWidth::PERCENT,
+        ];
+
+        foreach ($result['tables'] as $tbl) {
+            $headers = $tbl['headers'] ?? [];
+            $rows = $tbl['rows'] ?? [];
+            $colAligns = $this->detectColumnAlignments($headers);
+
+            $section->addText(
+                (string) ($tbl['title'] ?? 'Tabel'),
+                ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '0F172A'],
+                ['spaceBefore' => 160, 'spaceAfter' => 80, 'keepNext' => true]
+            );
+
+            $table = $section->addTable($tableStyle);
+            $table->addRow(null, ['tblHeader' => true, 'cantSplit' => true]);
+            foreach ($headers as $idx => $th) {
+                $jc = ($colAligns[$idx] ?? 'center') === 'left' ? Jc::START : Jc::CENTER;
+                $cell = $table->addCell(null, ['bgColor' => 'EFF6FF', 'valign' => 'center']);
+                $cell->addText(
+                    (string) $th,
+                    ['name' => 'Times New Roman', 'size' => 9.5, 'bold' => true, 'color' => '1E3A8A'],
+                    ['alignment' => $jc, 'spaceAfter' => 0]
+                );
+            }
+
+            foreach ($rows as $rIdx => $tr) {
+                $table->addRow(null, ['cantSplit' => true]);
+                $bg = ($rIdx % 2 === 1) ? 'F8FAFC' : 'FFFFFF';
+                foreach ($tr as $idx => $val) {
+                    $jc = ($colAligns[$idx] ?? 'center') === 'left' ? Jc::START : Jc::CENTER;
+                    $cell = $table->addCell(null, ['bgColor' => $bg, 'valign' => 'center']);
+                    $cell->addText(
+                        (string) $val,
+                        ['name' => 'Times New Roman', 'size' => 9.5, 'color' => '0F172A'],
+                        ['alignment' => $jc, 'spaceAfter' => 0]
+                    );
+                }
+            }
+
+            if (!empty($tbl['footnote'])) {
+                $section->addText(
+                    'Catatan: ' . (string) $tbl['footnote'],
+                    ['name' => 'Times New Roman', 'size' => 9, 'italic' => true, 'color' => '475569'],
+                    ['spaceBefore' => 60, 'spaceAfter' => 160]
+                );
+            }
+        }
+
+        // Grafik Statistik HD
+        $tempFiles = [];
+        try {
+            if (!empty($chartsImages)) {
+                $section->addText(
+                    'Visualisasi Grafik Hasil Pengujian',
+                    ['name' => 'Times New Roman', 'size' => 12, 'bold' => true, 'color' => '0F172A'],
+                    ['spaceBefore' => 200, 'spaceAfter' => 120, 'keepNext' => true]
+                );
+                foreach ($chartsImages as $idx => $img) {
+                    $rawBase64 = preg_replace('/^data:image\/png;base64,/', '', $img['data_url']);
+                    $bin = base64_decode((string) $rawBase64, true);
+                    if ($bin === false || strlen($bin) < 200) {
+                        continue;
+                    }
+                    $tmpImg = tempnam(sys_get_temp_dir(), 'odchart_') . '.png';
+                    file_put_contents($tmpImg, $bin);
+                    $tempFiles[] = $tmpImg;
+
+                    $section->addImage($tmpImg, [
+                        'width' => 415,
+                        'alignment' => Jc::CENTER,
+                        'wrappingStyle' => 'inline',
+                    ]);
+                    $section->addText(
+                        'Gambar ' . ($idx + 1) . '. ' . $img['title'],
+                        ['name' => 'Times New Roman', 'size' => 10, 'bold' => true, 'color' => '334155'],
+                        ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 180]
+                    );
+                }
+            }
+
+            // Ringkasan Keputusan Statistik
+            if (!empty($result['conclusions'])) {
+                $section->addText(
+                    'Ringkasan Keputusan Statistik',
+                    ['name' => 'Times New Roman', 'size' => 12, 'bold' => true, 'color' => '0F172A'],
+                    ['spaceBefore' => 180, 'spaceAfter' => 100, 'keepNext' => true]
+                );
+                foreach ($result['conclusions'] as $c) {
+                    $section->addListItem(
+                        (string) $c,
+                        0,
+                        ['name' => 'Times New Roman', 'size' => 11],
+                        null,
+                        ['alignment' => Jc::BOTH, 'spaceAfter' => 60, 'lineHeight' => 1.35]
+                    );
+                }
+            }
+
+            // Narasi Interpretasi Bab IV (Bersih Tanpa Markdown)
+            if ($narration !== '') {
+                $section->addText(
+                    'Narasi Interpretasi Bab IV',
+                    ['name' => 'Times New Roman', 'size' => 12, 'bold' => true, 'color' => '0F172A'],
+                    ['spaceBefore' => 220, 'spaceAfter' => 100, 'keepNext' => true]
+                );
+                $cleanNarr = $this->cleanAcademicNarration($narration);
+                $paras = preg_split('/\n{2,}/', $cleanNarr) ?: [];
+                foreach ($paras as $p) {
+                    $p = trim($p);
+                    if ($p === '') {
+                        continue;
+                    }
+                    if (preg_match('/^(?:4\.\d+(?:\.\d+)?|[A-C]\.)\s+.{3,100}$/', $p)) {
+                        $section->addText(
+                            $p,
+                            ['name' => 'Times New Roman', 'size' => 11.5, 'bold' => true, 'color' => '0F172A'],
+                            ['spaceBefore' => 140, 'spaceAfter' => 80, 'keepNext' => true]
+                        );
+                    } else {
+                        $section->addText(
+                            preg_replace('/\s*\n\s*/', ' ', $p),
+                            ['name' => 'Times New Roman', 'size' => 12, 'color' => '0F172A'],
+                            ['alignment' => Jc::BOTH, 'spaceAfter' => 120, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 567]]
+                        );
+                    }
+                }
+            }
+
+            $tmpDocx = tempnam(sys_get_temp_dir(), 'odreport_') . '.docx';
+            $tempFiles[] = $tmpDocx;
+            $writer = IOFactory::createWriter($phpWord, 'Word2007');
+            $writer->save($tmpDocx);
+            $bytes = (string) file_get_contents($tmpDocx);
+
+            $slug = Str::slug(Str::limit((string) ($result['dataset_title'] ?? 'statistik'), 40, '')) ?: 'statistik';
+            return response($bytes, 200, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'Content-Disposition' => 'attachment; filename="Laporan_Olah_Data_' . $slug . '.docx"',
+            ]);
+        } finally {
+            foreach ($tempFiles as $f) {
+                if (is_file($f)) {
+                    @unlink($f);
+                }
+            }
+        }
+    }
+
+    private function detectColumnAlignments(array $headers): array
+    {
+        $aligns = [];
+        foreach ($headers as $idx => $h) {
+            $lh = strtolower(trim((string) $h));
+            if (
+                $idx === 0
+                || str_contains($lh, 'keputusan')
+                || str_contains($lh, 'status')
+                || str_contains($lh, 'kategori')
+                || str_contains($lh, 'kriteria')
+                || str_contains($lh, 'nilai statistik')
+                || str_contains($lh, 'arah')
+                || str_contains($lh, 'distribusi')
+                || str_contains($lh, 'perbandingan')
+                || str_contains($lh, 'pasangan')
+            ) {
+                $aligns[$idx] = 'left';
+            } else {
+                $aligns[$idx] = 'center';
+            }
+        }
+        return $aligns;
+    }
+
+    private function sanitizeChartImages(mixed $rawImages): array
+    {
+        if (is_string($rawImages)) {
+            $rawImages = json_decode($rawImages, true) ?: [];
+        }
+        if (!is_array($rawImages)) {
+            return [];
+        }
+        $clean = [];
+        foreach (array_slice($rawImages, 0, 5) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $url = (string) ($item['data_url'] ?? '');
+            if (!str_starts_with($url, 'data:image/png;base64,') || strlen($url) > 2500000) {
+                continue;
+            }
+            $clean[] = [
+                'title' => trim((string) ($item['title'] ?? 'Grafik Statistik')),
+                'data_url' => $url,
+            ];
+        }
+        return $clean;
     }
 
     // =========================================================================

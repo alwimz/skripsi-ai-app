@@ -92,8 +92,10 @@ class StatisticsEngineService
             $skew = $this->sampleSkewness($vals, $mean, $sd);
             $kurt = $this->sampleExcessKurtosis($vals, $mean, $sd);
             $ks = $this->kolmogorovSmirnovNormal($vals, $mean, $sd);
-            $jb = $this->jarqueBera($vals, $mean, $sd);
-            $isNormal = $ks['sig'] >= $alpha;
+            $sw = $this->shapiroWilk($vals);
+            $useSw = ($n <= 50 && $n >= 3);
+            $primaryNormSig = $useSw ? $sw['sig'] : $ks['sig'];
+            $isNormal = $primaryNormSig >= $alpha;
 
             $tableRows[] = [
                 $col,
@@ -103,18 +105,17 @@ class StatisticsEngineService
                 $this->fmt($mean, 3),
                 $this->fmt($median, 3),
                 $this->fmt($sd, 3),
-                $this->fmt($var, 3),
                 $this->fmt($skew, 3),
                 $this->fmt($kurt, 3),
-                $this->fmt($ks['d'], 3),
-                $this->fmtP($ks['sig']),
+                $this->fmt($ks['d'], 3) . ' (' . $this->fmtLilliefors($ks['sig']) . ')',
+                $n >= 3 && $n <= 5000 ? ($this->fmt($sw['w'], 3) . ' (' . $this->fmtP($sw['sig']) . ')') : '-',
                 $isNormal ? 'Normal' : 'Tidak Normal',
             ];
 
             $chartLabels[] = $col;
             $chartMeans[] = round($mean, 3);
             $chartSds[] = round($sd, 3);
-            $summaryParts[] = "{$col} (N={$n}, Mean={$this->fmt($mean, 2)}, SD={$this->fmt($sd, 2)}, Min={$this->fmt($min, 2)}, Max={$this->fmt($max, 2)}, K-S Sig={$this->fmtP($ks['sig'])})";
+            $summaryParts[] = "{$col} (N={$n}, Mean={$this->fmt($mean, 2)}, SD={$this->fmt($sd, 2)}, K-S Lilliefors Sig={$this->fmtLilliefors($ks['sig'])}, Shapiro-Wilk W={$this->fmt($sw['w'], 3)} Sig={$this->fmtP($sw['sig'])})";
         }
 
         if (empty($tableRows)) {
@@ -122,20 +123,20 @@ class StatisticsEngineService
         }
 
         return [
-            'title' => 'Analisis Statistik Deskriptif & Uji Normalitas',
-            'subtitle' => 'Ringkasan Tendensi Sentral, Dispersi, Skewness/Kurtosis & One-Sample Kolmogorov-Smirnov',
+            'title' => 'Analisis Statistik Deskriptif & Uji Normalitas (K-S Lilliefors + Shapiro-Wilk)',
+            'subtitle' => 'Ringkasan Tendensi Sentral, Dispersi, Skewness/Kurtosis & Tests of Normality (Setara SPSS Explore)',
             'highlights' => [
                 ['label' => 'Jumlah Variabel', 'value' => (string) count($tableRows), 'tone' => 'blue'],
                 ['label' => 'Total Observasi', 'value' => (string) count($rows), 'tone' => 'slate'],
                 ['label' => 'Taraf Signifikansi (α)', 'value' => number_format($alpha, 2), 'tone' => 'slate'],
-                ['label' => 'Uji Normalitas', 'value' => 'K-S & Skew/Kurt', 'tone' => 'emerald'],
+                ['label' => 'Uji Normalitas', 'value' => 'K-S Lilliefors & Shapiro-Wilk', 'tone' => 'emerald'],
             ],
             'tables' => [
                 [
-                    'title' => 'Tabel 1. Descriptive Statistics & Uji Normalitas Kolmogorov-Smirnov',
-                    'headers' => ['Variabel', 'N', 'Min', 'Max', 'Mean', 'Median', 'Std. Dev', 'Varians', 'Skewness', 'Kurtosis', 'K-S Stat (D)', 'Asymp. Sig.', 'Distribusi'],
+                    'title' => 'Tabel 1. Descriptive Statistics & Tests of Normality (Kolmogorov-Smirnov Lilliefors & Shapiro-Wilk)',
+                    'headers' => ['Variabel', 'N', 'Min', 'Max', 'Mean', 'Median', 'Std. Dev', 'Skewness', 'Kurtosis', 'K-S Stat (Sig.)', 'Shapiro-Wilk W (Sig.)', 'Distribusi'],
                     'rows' => $tableRows,
-                    'footnote' => 'Distribusi dinyatakan normal pada α = ' . number_format($alpha, 2) . ' apabila Asymp. Sig. (2-tailed) >= ' . number_format($alpha, 2) . '. Skewness & Kurtosis dihitung dengan koreksi bias sampel (identik SPSS).',
+                    'footnote' => 'K-S menggunakan Lilliefors Significance Correction (*.200 adalah batas bawah signifikansi sejati sesuai IBM SPSS). Panduan standar: untuk N <= 50 gunakan Shapiro-Wilk; untuk N > 50 gunakan Kolmogorov-Smirnov (Lilliefors). Data normal jika Sig. >= ' . number_format($alpha, 2) . '.',
                 ],
             ],
             'chart' => [
@@ -495,8 +496,8 @@ class StatisticsEngineService
         $resMean = $this->mean($residuals);
         $resSd = $this->sampleStd($residuals, $resMean);
         $ksRes = $this->kolmogorovSmirnovNormal($residuals, $resMean, $resSd);
-        $jbRes = $this->jarqueBera($residuals, $resMean, $resSd);
-        $normPass = $ksRes['sig'] >= $alpha;
+        $swRes = $this->shapiroWilk($residuals);
+        $normPass = ($n <= 50 ? $swRes['sig'] : $ksRes['sig']) >= $alpha && $ksRes['sig'] >= $alpha;
 
         $maxVif = max($vifs);
         $minTol = $maxVif > self::EPS ? (1.0 / $maxVif) : 0.0;
@@ -528,8 +529,8 @@ class StatisticsEngineService
 
         $assumptionRows = [
             [
-                'Normalitas Residual (Kolmogorov-Smirnov)',
-                'D = ' . $this->fmt($ksRes['d'], 3) . ' | Asymp. Sig. = ' . $this->fmtP($ksRes['sig']) . ' (JB Sig. = ' . $this->fmtP($jbRes['sig']) . ')',
+                'Normalitas Residual (K-S Lilliefors & Shapiro-Wilk)',
+                'K-S D = ' . $this->fmt($ksRes['d'], 3) . ' (Sig. ' . $this->fmtLilliefors($ksRes['sig']) . ') | Shapiro-Wilk W = ' . $this->fmt($swRes['w'], 3) . ' (Sig. ' . $this->fmtP($swRes['sig']) . ')',
                 'Sig. >= ' . number_format($alpha, 2),
                 $normPass ? 'LOLOS (Residual Normal)' : 'PERLU PERHATIAN (Tidak Normal)',
             ],
@@ -548,16 +549,105 @@ class StatisticsEngineService
             [
                 'Autokorelasi (Durbin-Watson)',
                 'DW = ' . $this->fmt($dw, 3),
-                '1.50 <= DW <= 2.50 (aturan umum)',
+                '1.50 <= DW <= 2.50',
                 $autoPass ? 'LOLOS (Bebas Autokorelasi)' : 'PERLU CEK TABEL dL/dU',
             ],
         ];
 
-        // Scatter points (Actual Y vs Predicted Y_hat)
+        // 4 Grafik Asumsi Klasik & Regresi Gaya IBM SPSS
+        // 1. Standardized Predicted (ZPRED) & Standardized Residual (ZRESID)
+        $yHatMean = $this->mean($yHat);
+        $yHatSd = $this->sampleStd($yHat, $yHatMean);
+        $zPred = [];
+        $zResid = [];
+        for ($i = 0; $i < $n; $i++) {
+            $zPred[] = $yHatSd > self::EPS ? ($yHat[$i] - $yHatMean) / $yHatSd : 0.0;
+            $zResid[] = $resSd > self::EPS ? ($residuals[$i] - $resMean) / $resSd : 0.0;
+        }
+
+        // 1a. Normal P-P Plot of Regression Standardized Residual (SPSS: Expected vs Observed Cum Prob)
+        $sortedZ = $zResid;
+        sort($sortedZ);
+        $ppPts = [];
+        for ($i = 0; $i < $n; $i++) {
+            $obsCum = ($i + 0.5) / $n;
+            $expCum = $this->normalCdf($sortedZ[$i]);
+            $ppPts[] = ['x' => round($obsCum, 4), 'y' => round($expCum, 4)];
+        }
+
+        // 1b. Scatterplot Heteroskedastisitas (ZRESID vs ZPRED)
+        $zScatterPts = [];
+        for ($i = 0; $i < min($n, 200); $i++) {
+            $zScatterPts[] = ['x' => round($zPred[$i], 3), 'y' => round($zResid[$i], 3)];
+        }
+
+        // 1c. Histogram of Regression Standardized Residual
+        $zMin = min(-2.5, floor(min($zResid) * 2) / 2);
+        $zMax = max(2.5, ceil(max($zResid) * 2) / 2);
+        $binCount = max(7, min(12, (int) round(sqrt($n) + 2)));
+        $binW = ($zMax - $zMin) / $binCount;
+        $histBins = [];
+        for ($b = 0; $b < $binCount; $b++) {
+            $lo = $zMin + $b * $binW;
+            $hi = $lo + $binW;
+            $cnt = 0;
+            foreach ($zResid as $zv) {
+                if (($zv >= $lo && $zv < $hi) || ($b === $binCount - 1 && $zv <= $hi + 1e-9 && $zv >= $lo)) {
+                    $cnt++;
+                }
+            }
+            $mid = ($lo + $hi) / 2.0;
+            $normExpected = $n * $binW * (1.0 / sqrt(2.0 * M_PI)) * exp(-0.5 * $mid * $mid);
+            $histBins[] = ['lo' => round($lo, 2), 'hi' => round($hi, 2), 'mid' => round($mid, 2), 'count' => $cnt, 'normal_y' => round($normExpected, 3)];
+        }
+
+        // 1d. Aktual vs Prediksi
         $scatterPts = [];
         for ($i = 0; $i < min($n, 150); $i++) {
             $scatterPts[] = ['x' => round($yHat[$i], 3), 'y' => round($y[$i], 3)];
         }
+
+        $spssCharts = [
+            [
+                'key' => 'pp_plot',
+                'tab' => 'Normal P-P Plot (SPSS)',
+                'type' => 'pp_plot',
+                'title' => "Normal P-P Plot of Regression Standardized Residual (Dependen: {$yCol})",
+                'points' => $ppPts,
+                'x_label' => 'Observed Cum Prob',
+                'y_label' => 'Expected Cum Prob',
+            ],
+            [
+                'key' => 'zresid_zpred',
+                'tab' => 'Scatterplot ZRESID vs ZPRED',
+                'type' => 'zresid_zpred',
+                'title' => "Scatterplot Uji Heteroskedastisitas — ZRESID vs ZPRED (Dependen: {$yCol})",
+                'points' => $zScatterPts,
+                'x_label' => 'Regression Standardized Predicted Value (ZPRED)',
+                'y_label' => 'Regression Standardized Residual (ZRESID)',
+            ],
+            [
+                'key' => 'residual_hist',
+                'tab' => 'Histogram Residual',
+                'type' => 'residual_hist',
+                'title' => "Histogram of Regression Standardized Residual (N = {$n})",
+                'bins' => $histBins,
+                'n' => $n,
+                'z_min' => $zMin,
+                'z_max' => $zMax,
+                'x_label' => 'Regression Standardized Residual',
+                'y_label' => 'Frequency',
+            ],
+            [
+                'key' => 'scatter_fit',
+                'tab' => 'Aktual vs Prediksi',
+                'type' => 'scatter_fit',
+                'title' => "Aktual ({$yCol}) vs Prediksi Regresi (R² = " . $this->fmt($r2, 3) . ')',
+                'points' => $scatterPts,
+                'x_label' => 'Nilai Prediksi (Ŷ)',
+                'y_label' => "Nilai Aktual ({$yCol})",
+            ],
+        ];
 
         $regKind = $k === 1 ? 'Regresi Linier Sederhana' : 'Regresi Linier Berganda';
         $allClassicPass = $normPass && $multiPass && $glejserPass && $autoPass;
@@ -603,7 +693,7 @@ class StatisticsEngineService
                     'title' => 'Tabel 4. Ringkasan Uji Asumsi Klasik (Normalitas, Multikolinearitas, Heteroskedastisitas, Autokorelasi)',
                     'headers' => ['Jenis Uji Asumsi', 'Nilai Statistik', 'Kriteria Lolos', 'Keputusan'],
                     'rows' => $assumptionRows,
-                    'footnote' => 'Seluruh uji asumsi klasik dihitung langsung dari residual unstandardized regresi OLS.',
+                    'footnote' => 'Uji normalitas residual menggunakan Kolmogorov-Smirnov dengan Lilliefors Significance Correction (*.200 adalah batas bawah signifikansi sejati sesuai IBM SPSS 22–29) dan Shapiro-Wilk (direkomendasikan untuk N <= 50).',
                 ],
                 [
                     'title' => 'Tabel 5. Detail Uji Heteroskedastisitas Glejser (Dependen: |Residual|)',
@@ -612,25 +702,20 @@ class StatisticsEngineService
                     'footnote' => 'Bebas gejala heteroskedastisitas apabila nilai Sig. setiap variabel >= ' . number_format($alpha, 2) . '.',
                 ],
             ],
-            'chart' => [
-                'type' => 'scatter_fit',
-                'title' => "Aktual ({$yCol}) vs Prediksi Regresi (R² = " . $this->fmt($r2, 3) . ')',
-                'points' => $scatterPts,
-                'x_label' => 'Nilai Prediksi (Ŷ)',
-                'y_label' => "Nilai Aktual ({$yCol})",
-            ],
+            'chart' => $spssCharts[0],
+            'charts' => $spssCharts,
             'conclusions' => [
                 "Persamaan regresi yang terbentuk adalah {$equation}.",
                 "Nilai R Square sebesar {$this->fmt($r2, 3)} (Adjusted R² = {$this->fmt($adjR2, 3)}) menunjukkan bahwa variabel independen menjelaskan " . $this->fmt($r2 * 100, 1) . "% variasi {$yCol}, sedangkan sisanya " . $this->fmt((1 - $r2) * 100, 1) . "% dipengaruhi faktor lain di luar model.",
                 'Uji F Simultan menghasilkan F = ' . $this->fmt($fStat, 3) . ' dengan Sig. = ' . $this->fmtP($fSig) . ($fSig < $alpha ? ' (Signifikan secara simultan).' : ' (Tidak signifikan secara simultan).'),
-                'Uji Asumsi Klasik: Normalitas K-S Sig. = ' . $this->fmtP($ksRes['sig']) . ', Max VIF = ' . $this->fmt($maxVif, 2) . ', Glejser Min Sig. = ' . $this->fmtP($minGlejserP) . ', Durbin-Watson = ' . $this->fmt($dw, 3) . '.',
+                'Uji Asumsi Klasik: Normalitas K-S (Lilliefors) D = ' . $this->fmt($ksRes['d'], 3) . ' (Sig. ' . $this->fmtLilliefors($ksRes['sig']) . '), Shapiro-Wilk W = ' . $this->fmt($swRes['w'], 3) . ' (Sig. ' . $this->fmtP($swRes['sig']) . '), Max VIF = ' . $this->fmt($maxVif, 2) . ', Glejser Min Sig. = ' . $this->fmtP($minGlejserP) . ', Durbin-Watson = ' . $this->fmt($dw, 3) . '.',
             ],
             'project_autofill' => [
                 'metode' => "Analisis {$regKind} & Uji Asumsi Klasik (Setara IBM SPSS Statistics)",
                 'sampel' => "{$n} Observasi / Responden (" . count($xCols) . " Variabel Independen, 1 Dependen)",
                 'rumus' => "{$equation}; R² = SSR/SST; F = MSR/MSE; t_j = B_j / SE(B_j); VIF_j = 1 / (1 - R_j²)",
-                'metrik' => "R = {$this->fmt($rVal, 3)}, R-Square = {$this->fmt($r2, 3)} (" . $this->fmt($r2 * 100, 1) . "%), Adjusted R-Square = {$this->fmt($adjR2, 3)}, F-hitung = {$this->fmt($fStat, 3)} (Sig. {$this->fmtP($fSig)}). Koefisien Parsial: " . implode('; ', $partialSummary) . ". Asumsi Klasik: Normalitas K-S Sig. = {$this->fmtP($ksRes['sig'])}, Min Glejser Sig. = {$this->fmtP($minGlejserP)}, Durbin-Watson = {$this->fmt($dw, 3)}.",
-                'evaluasi' => 'Uji Asumsi Klasik (Kolmogorov-Smirnov, Tolerance/VIF, Glejser, Durbin-Watson), Uji t Parsial, Uji F Simultan, Koefisien Determinasi (R²)',
+                'metrik' => "R = {$this->fmt($rVal, 3)}, R-Square = {$this->fmt($r2, 3)} (" . $this->fmt($r2 * 100, 1) . "%), Adjusted R-Square = {$this->fmt($adjR2, 3)}, F-hitung = {$this->fmt($fStat, 3)} (Sig. {$this->fmtP($fSig)}). Koefisien Parsial: " . implode('; ', $partialSummary) . ". Asumsi Klasik: Normalitas K-S Lilliefors Sig. = {$this->fmtLilliefors($ksRes['sig'])}, Shapiro-Wilk W = {$this->fmt($swRes['w'], 3)} (Sig. {$this->fmtP($swRes['sig'])}), Min Glejser Sig. = {$this->fmtP($minGlejserP)}, Durbin-Watson = {$this->fmt($dw, 3)}.",
+                'evaluasi' => 'Uji Asumsi Klasik (Kolmogorov-Smirnov Lilliefors, Shapiro-Wilk, Tolerance/VIF, Glejser, Durbin-Watson), Uji t Parsial, Uji F Simultan, Koefisien Determinasi (R²)',
             ],
         ];
     }
@@ -1389,7 +1474,8 @@ class StatisticsEngineService
         $u1 = $n1 * $n2 + ($n1 * ($n1 + 1)) / 2.0 - $r1;
         $u2 = $n1 * $n2 - $u1;
         $uStat = min($u1, $u2);
-        $wStat = ($u1 <= $u2) ? $r1 : $r2;
+        // Sesuai IBM SPSS: Wilcoxon W adalah Sum of Ranks kelompok dengan rank lebih kecil (bukan yang lebih besar)
+        $wStat = ($u1 <= $u2) ? $r2 : $r1;
 
         $meanU = ($n1 * $n2) / 2.0;
         $varU = ($n1 * $n2 / 12.0) * (($n + 1.0) - $tieCorrection / max(1.0, $n * ($n - 1.0)));
@@ -2030,23 +2116,171 @@ class StatisticsEngineService
             $dMinus = abs($cdf - ($i / $n));
             $dMax = max($dMax, $dPlus, $dMinus);
         }
-        // Kolmogorov asymptotic distribution with Stephens finite-sample factor
-        $sqrtN = sqrt($n);
-        $lambda = ($sqrtN + 0.12 + 0.11 / $sqrtN) * $dMax;
-        if ($lambda < 0.2) {
-            $p = 1.0;
+        // Lilliefors Significance Correction (Dallal & Wilkinson 1986 + R nortest::lillie.test — setara IBM SPSS 22–29)
+        $p = $this->lillieforsP($dMax, $n);
+        return ['d' => $dMax, 'sig' => $p];
+    }
+
+    public function lillieforsP(float $d, int $n): float
+    {
+        if ($n < 5) {
+            return 1.0;
+        }
+        $nEff = (float) $n;
+        $dEff = $d;
+        if ($nEff > 100.0) {
+            $dEff = $d * pow($nEff / 100.0, 0.49);
+            $nEff = 100.0;
+        }
+        $p = exp(
+            -7.01256 * $dEff * $dEff * ($nEff + 2.78019)
+            + 2.99587 * $dEff * sqrt($nEff + 2.78019)
+            - 0.122119
+            + 0.974598 / sqrt($nEff)
+            + 1.67997 / $nEff
+        );
+        if ($p > 0.1) {
+            $kk = (sqrt($n) - 0.01 + 0.85 / sqrt($n)) * $d;
+            if ($kk <= 0.302) {
+                $p = 1.0;
+            } elseif ($kk <= 0.500) {
+                $p = 2.76773 - 19.828315 * $kk + 80.709644 * pow($kk, 2) - 138.55152 * pow($kk, 3) + 81.218052 * pow($kk, 4);
+            } elseif ($kk <= 0.900) {
+                $p = -4.901232 + 40.662806 * $kk - 97.490286 * pow($kk, 2) + 94.029866 * pow($kk, 3) - 32.355711 * pow($kk, 4);
+            } elseif ($kk <= 1.31) {
+                $p = 6.198765 - 19.558097 * $kk + 23.186922 * pow($kk, 2) - 12.234627 * pow($kk, 3) + 2.423045 * pow($kk, 4);
+            } else {
+                $p = 0.0;
+            }
+        }
+        return max(0.0, min(1.0, $p));
+    }
+
+    /**
+     * Shapiro-Wilk Test for Normality (Royston 1995 Algorithm AS R94 — identik R & IBM SPSS).
+     */
+    public function shapiroWilk(array $vals): array
+    {
+        $n = count($vals);
+        if ($n < 3 || $n > 5000) {
+            return ['w' => 1.0, 'sig' => 1.0];
+        }
+        $x = array_map('floatval', $vals);
+        sort($x);
+        $x0 = $x[0];
+        $rng = $x[$n - 1] - $x0;
+        if ($rng < self::EPS) {
+            return ['w' => 1.0, 'sig' => 1.0];
+        }
+        for ($i = 0; $i < $n; $i++) {
+            $x[$i] = ($x[$i] - $x0) / $rng;
+        }
+
+        $m = [];
+        $ssqM = 0.0;
+        for ($i = 0; $i < $n; $i++) {
+            $mv = $this->normalPpf(($i + 1 - 0.375) / ($n + 0.25));
+            $m[] = $mv;
+            $ssqM += $mv * $mv;
+        }
+        $u = 1.0 / sqrt($n);
+        $c1 = [0.0, 0.221157, -0.147981, -2.07119, 4.434685, -2.706056];
+        $c2 = [0.0, 0.042981, -0.293762, -1.752461, 5.682633, -3.582633];
+        $c3 = [0.5440, -0.39978, 0.025054, -0.0006714];
+        $c4 = [1.3822, -0.77857, 0.062767, -0.0020322];
+        $c5 = [-1.5861, -0.31082, -0.083751, 0.0038915];
+        $c6 = [-0.4803, -0.082676, 0.0030302];
+
+        $a = array_fill(0, $n, 0.0);
+        if ($n === 3) {
+            $a[0] = -0.70710678;
+            $a[2] = 0.70710678;
         } else {
-            $sum = 0.0;
-            for ($k = 1; $k <= 100; $k++) {
-                $term = (($k % 2 === 1) ? 1.0 : -1.0) * exp(-2.0 * $k * $k * $lambda * $lambda);
-                $sum += $term;
-                if (abs($term) < 1.0e-12) {
-                    break;
+            $a[$n - 1] = $m[$n - 1] / sqrt($ssqM) + $this->polyEval($c1, $u);
+            $a[0] = -$a[$n - 1];
+            if ($n <= 5) {
+                $phi = ($ssqM - 2.0 * $m[$n - 1] * $m[$n - 1]) / max(self::EPS, 1.0 - 2.0 * $a[$n - 1] * $a[$n - 1]);
+                for ($i = 1; $i < $n - 1; $i++) {
+                    $a[$i] = $m[$i] / sqrt($phi);
+                }
+            } else {
+                $a[$n - 2] = $m[$n - 2] / sqrt($ssqM) + $this->polyEval($c2, $u);
+                $a[1] = -$a[$n - 2];
+                $phi = ($ssqM - 2.0 * $m[$n - 1] * $m[$n - 1] - 2.0 * $m[$n - 2] * $m[$n - 2])
+                    / max(self::EPS, 1.0 - 2.0 * $a[$n - 1] * $a[$n - 1] - 2.0 * $a[$n - 2] * $a[$n - 2]);
+                for ($i = 2; $i < $n - 2; $i++) {
+                    $a[$i] = $m[$i] / sqrt($phi);
                 }
             }
-            $p = max(0.0, min(1.0, 2.0 * $sum));
         }
-        return ['d' => $dMax, 'sig' => $p];
+
+        $meanX = $this->mean($x);
+        $ssX = 0.0;
+        $num = 0.0;
+        for ($i = 0; $i < $n; $i++) {
+            $ssX += pow($x[$i] - $meanX, 2);
+            $num += $a[$i] * $x[$i];
+        }
+        $w = $ssX > self::EPS ? min(1.0, ($num * $num) / $ssX) : 1.0;
+
+        if ($n === 3) {
+            $p = (6.0 / M_PI) * (asin(sqrt($w)) - asin(sqrt(0.75)));
+        } elseif ($n <= 11) {
+            $g = $this->polyEval([-2.273, 0.459], (float) $n);
+            $mu = $this->polyEval($c3, (float) $n);
+            $sigma = exp($this->polyEval($c4, (float) $n));
+            $y = -log(max(1.0e-15, $g - log(max(1.0e-15, 1.0 - $w))));
+            $p = 1.0 - $this->normalCdf(($y - $mu) / $sigma);
+        } else {
+            $lnN = log((float) $n);
+            $mu = $this->polyEval($c5, $lnN);
+            $sigma = exp($this->polyEval($c6, $lnN));
+            $y = log(max(1.0e-15, 1.0 - $w));
+            $p = 1.0 - $this->normalCdf(($y - $mu) / $sigma);
+        }
+
+        return ['w' => $w, 'sig' => max(0.0, min(1.0, $p))];
+    }
+
+    private function polyEval(array $c, float $x): float
+    {
+        $res = 0.0;
+        for ($i = count($c) - 1; $i >= 0; $i--) {
+            $res = $res * $x + $c[$i];
+        }
+        return $res;
+    }
+
+    private function normalPpf(float $p): float
+    {
+        $a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+        $b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+        $c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+        $d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+        $pLow = 0.02425;
+        $pHigh = 1.0 - $pLow;
+        if ($p < $pLow) {
+            $q = sqrt(-2.0 * log($p));
+            return ((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5])
+                / (((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0);
+        }
+        if ($p <= $pHigh) {
+            $q = $p - 0.5;
+            $r = $q * $q;
+            return ((((($a[0] * $r + $a[1]) * $r + $a[2]) * $r + $a[3]) * $r + $a[4]) * $r + $a[5]) * $q
+                / ((((($b[0] * $r + $b[1]) * $r + $b[2]) * $r + $b[3]) * $r + $b[4]) * $r + 1.0);
+        }
+        $q = sqrt(-2.0 * log(1.0 - $p));
+        return -((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5])
+            / (((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0);
+    }
+
+    private function fmtLilliefors(float $p): string
+    {
+        if ($p >= 0.200) {
+            return '0.200*';
+        }
+        return $this->fmtP($p);
     }
 
     private function jarqueBera(array $vals, float $mean, float $sd): array

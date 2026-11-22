@@ -4043,14 +4043,16 @@
             const opts = (list, sel) => list.map(c => `<option value="${escapeHtml(c)}" ${c === sel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
 
             if (test === 'regression') {
-                const totals = nonIdNum.filter(c => /total|skor|sum/i.test(c));
-                const base = totals.length >= 2 ? totals : nonIdNum;
-                const defY = base[base.length - 1] || num[num.length - 1] || '';
-                const defXs = base.filter(c => c !== defY);
-                const chips = nonIdNum.map(c => `<label class="olah-mini-chip ${defXs.includes(c) ? 'checked' : ''}"><input type="checkbox" class="proj-od-x" value="${escapeHtml(c)}" ${defXs.includes(c) ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${escapeHtml(c)}</label>`).join('');
+                const isItem = c => /^[A-Za-z]+\d*[_\.\-\s]+\d+$/.test(c) && !/total|skor|sum/i.test(c);
+                const summary = nonIdNum.filter(c => !isItem(c));
+                const pool = summary.length >= 2 ? summary : nonIdNum;
+                const prevY = document.getElementById('proj-od-y')?.value;
+                const defY = (prevY && pool.includes(prevY)) ? prevY : (pool[pool.length - 1] || num[num.length - 1] || '');
+                const defXs = pool.filter(c => c !== defY);
+                const chips = defXs.map(c => `<label class="olah-mini-chip checked"><input type="checkbox" class="proj-od-x" value="${escapeHtml(c)}" checked onchange="this.parentElement.classList.toggle('checked', this.checked)">${escapeHtml(c)}</label>`).join('');
                 box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1.5fr; gap:10px;">
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel Y (Dependen)</label><select id="proj-od-y" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(nonIdNum.length ? nonIdNum : num, defY)}</select></div>
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel X (Independen)</label><div style="display:flex; flex-wrap:wrap; gap:5px;">${chips}</div></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel Y (Dependen)</label><select id="proj-od-y" class="olah-input" style="padding:7px 9px; font-size:12px;" onchange="projOdRenderVars()">${opts(pool, defY)}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Variabel X (Independen, otomatis bebas Y)</label><div style="display:flex; flex-wrap:wrap; gap:5px;">${chips}</div></div>
                 </div>`;
             } else if (test === 'anova' || test === 'ttest_ind') {
                 box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
