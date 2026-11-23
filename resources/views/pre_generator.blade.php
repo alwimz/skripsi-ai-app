@@ -2960,7 +2960,6 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 12.2px;
-            white-space: nowrap;
         }
         .od-spss-table th {
             background: #eff6ff;
@@ -2970,11 +2969,14 @@
             padding: 8px 10px;
             border-top: 2px solid #1e3a8a;
             border-bottom: 1px solid #bfdbfe;
+            white-space: nowrap;
         }
         .od-spss-table td {
             padding: 7px 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #1e293b;
+            white-space: normal;
+            line-height: 1.4;
         }
         .od-spss-table tr:last-child td {
             border-bottom: 2px solid #1e3a8a;
@@ -9707,7 +9709,7 @@
             });
         }
 
-        function odSvgStringToPngDataUrl(svgMarkup, width = 1200, height = 548) {
+        function odSvgStringToPngDataUrl(svgMarkup, width = 960, height = 438) {
             return new Promise((resolve) => {
                 try {
                     const img = new Image();
@@ -9722,7 +9724,8 @@
                         ctx.fillRect(0, 0, width, height);
                         ctx.drawImage(img, 0, 0, width, height);
                         URL.revokeObjectURL(url);
-                        resolve(canvas.toDataURL('image/png'));
+                        // JPEG kualitas tinggi dengan latar putih: 100% bebas GD di Dompdf Vercel & PHPWord, ukuran 5x lebih ringkas
+                        resolve(canvas.toDataURL('image/jpeg', 0.94));
                     };
                     img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
                     img.src = url;
@@ -9741,7 +9744,7 @@
             for (const ch of list) {
                 const svgMarkup = odBuildChartSvg(ch);
                 if (!svgMarkup) continue;
-                const dataUrl = await odSvgStringToPngDataUrl(svgMarkup, 1120, 510);
+                const dataUrl = await odSvgStringToPngDataUrl(svgMarkup, 960, 438);
                 if (dataUrl) {
                     out.push({ title: ch.title || ch.tab || 'Grafik Statistik', data_url: dataUrl });
                 }

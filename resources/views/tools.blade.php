@@ -1526,11 +1526,12 @@
 
                         <!-- Sub-opsi Bentuk Khusus Kerangka Berpikir (hanya tampil saat kind=kerangka) -->
                         <div id="fc-kerangka-layout-bar" style="display:none; margin-bottom:10px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid var(--border);">
-                            <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Bentuk Kerangka Berpikir (Bab II):</div>
+                            <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Bentuk Kerangka Berpikir / Paradigma Penelitian (Bab II):</div>
                             <div class="preset-row" style="margin-bottom:0;">
-                                <button type="button" class="preset-chip" id="kb-btn-regresi" onclick="setKerangkaLayout('regresi')">Variabel X₁, X₂ → Y (Regresi)</button>
-                                <button type="button" class="preset-chip" id="kb-btn-mediasi" onclick="setKerangkaLayout('mediasi')">Jalur Mediasi X → Z → Y</button>
-                                <button type="button" class="preset-chip" id="kb-btn-bertingkat" onclick="setKerangkaLayout('bertingkat')">Konseptual Bertingkat / Kualitatif</button>
+                                <button type="button" class="preset-chip" id="kb-btn-regresi" onclick="setKerangkaLayout('regresi')">Paradigma Regresi (X₁, X₂ → Y)</button>
+                                <button type="button" class="preset-chip" id="kb-btn-mediasi" onclick="setKerangkaLayout('mediasi')">Jalur Mediasi (X → Z → Y)</button>
+                                <button type="button" class="preset-chip" id="kb-btn-moderasi" onclick="setKerangkaLayout('moderasi')">Variabel Moderasi (X → Y via M)</button>
+                                <button type="button" class="preset-chip" id="kb-btn-bertingkat" onclick="setKerangkaLayout('bertingkat')">Alur Kerangka Berpikir (Semua Jurusan)</button>
                             </div>
                         </div>
 
@@ -1574,7 +1575,14 @@
                         </div>
 
                         <div class="fc-preview-shell">
-                            <div class="fc-preview-paper" id="fc-svg-preview"></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;">
+                                <span style="font-size:11.5px; font-weight:700; color:var(--text-secondary);">Pratinjau Diagram HD (Siap Tempel Word)</span>
+                                <button type="button" class="mini-btn" onclick="openFcZoomModal()" style="display:inline-flex; align-items:center; gap:5px; color:var(--primary); border-color:var(--primary-border);">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                    <span>Perbesar Pratinjau</span>
+                                </button>
+                            </div>
+                            <div class="fc-preview-paper" id="fc-svg-preview" style="cursor:zoom-in;" title="Klik untuk memperbesar diagram" onclick="openFcZoomModal()"></div>
                             <div class="fc-export-bar">
                                 <button type="button" class="btn btn-primary fc-btn-main" onclick="downloadFlowchartPng()">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -2684,14 +2692,15 @@
                 { code: 'X3', name: 'Citra Merek', indicators: 'Kepercayaan, Reputasi' }
             ],
             mediator: { code: 'Z', name: 'Kepuasan Pelanggan', indicators: 'Harapan vs Kinerja' },
+            moderator: { code: 'M', name: 'Komitmen Organisasi', indicators: 'Loyalitas, Keterikatan' },
             y_var: { code: 'Y', name: 'Loyalitas Pelanggan', indicators: 'Pembelian Ulang, Rekomendasi' },
             hypotheses: ['H1', 'H2', 'H3'],
             simultaneous: true,
             stages: [
-                'Kondisi Awal: Fenomena & Permasalahan Lapangan',
-                'Landasan Teori & Penelitian Terdahulu yang Relevan',
-                'Penerapan Metode / Model Analisis Penelitian',
-                'Luaran: Temuan Empiris, Solusi & Rekomendasi'
+                'Fenomena & Masalah: Kesenjangan kinerja atau permasalahan riil di objek penelitian',
+                'Landasan Teori: Grand theory, konsep utama & sintesis penelitian terdahulu',
+                'Pendekatan & Metode: Penentuan variabel, instrumen/uji lab & teknik analisis data',
+                'Hasil yang Diharapkan: Temuan empiris, jawaban rumusan masalah & rekomendasi'
             ]
         };
         let fcSistem = {
@@ -2776,7 +2785,7 @@
         }
 
         function highlightKerangkaLayoutBtn() {
-            ['regresi', 'mediasi', 'bertingkat'].forEach(k => {
+            ['regresi', 'mediasi', 'moderasi', 'bertingkat'].forEach(k => {
                 const b = document.getElementById('kb-btn-' + k);
                 if (!b) return;
                 const active = fcKerangka.layout === k;
@@ -2927,7 +2936,16 @@
                         <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml((fcKerangka.mediator && fcKerangka.mediator.name) || 'Kepuasan Pelanggan')}" oninput="if(!fcKerangka.mediator) fcKerangka.mediator={code:'Z',name:'',indicators:''}; fcKerangka.mediator.name=this.value; renderFlowchartSvg();">
                         <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml((fcKerangka.mediator && fcKerangka.mediator.indicators) || '')}" placeholder="Indikator Z (opsional)" oninput="if(!fcKerangka.mediator) fcKerangka.mediator={code:'Z',name:'',indicators:''}; fcKerangka.mediator.indicators=this.value; renderFlowchartSvg();">
                     </div>
-                ` : '';
+                ` : (fcKerangka.layout === 'moderasi' ? `
+                    <div class="fc-step-row" style="border-color:#fcd34d; background:#fffbeb;">
+                        <div class="fc-step-top">
+                            <span class="fc-step-num" style="background:#d97706;">M</span>
+                            <span style="font-size:12px; font-weight:700; color:#b45309;">Variabel Moderasi (M — Memperkuat/Memperlemah)</span>
+                        </div>
+                        <input type="text" class="form-input" style="min-height:33px; padding:6px 9px; font-size:12.5px;" value="${escapeSvgXml((fcKerangka.moderator && fcKerangka.moderator.name) || 'Komitmen Organisasi')}" oninput="if(!fcKerangka.moderator) fcKerangka.moderator={code:'M',name:'',indicators:''}; fcKerangka.moderator.name=this.value; renderFlowchartSvg();">
+                        <input type="text" class="form-input" style="min-height:30px; padding:4px 9px; font-size:11.5px;" value="${escapeSvgXml((fcKerangka.moderator && fcKerangka.moderator.indicators) || '')}" placeholder="Indikator M (opsional)" oninput="if(!fcKerangka.moderator) fcKerangka.moderator={code:'M',name:'',indicators:''}; fcKerangka.moderator.indicators=this.value; renderFlowchartSvg();">
+                    </div>
+                ` : '');
 
                 const yHtml = `
                     <div class="fc-step-row" style="border-color:#93c5fd; background:#eff6ff;">
@@ -3049,24 +3067,64 @@
         }
 
         function renderKerangkaSvg(pal) {
+            // Helper kotak variabel standar skripsi Indonesia (bersih, besar, tanpa badge web kecil)
+            const drawAcademicVarBox = (x, y, w, h, code, name, ind, fill) => {
+                const titleStr = code ? `${name} (${code})` : name;
+                const nLines = wrapFlowchartLines(titleStr, Math.max(18, Math.floor(w / 9.2)), 2);
+                const indLines = ind ? wrapFlowchartLines(String(ind), Math.max(24, Math.floor(w / 7.2)), 2) : [];
+                let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                if (indLines.length) {
+                    const topAreaH = nLines.length === 1 ? 34 : 46;
+                    const titleStartY = nLines.length === 1 ? (y + 23) : (y + 20);
+                    nLines.forEach((ln, li) => {
+                        s += `<text x="${x + w / 2}" y="${titleStartY + li * 16}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                    });
+                    s += `<line x1="${x + 12}" y1="${y + topAreaH}" x2="${x + w - 12}" y2="${y + topAreaH}" stroke="${pal.stroke}" stroke-opacity="0.35" stroke-width="1"/>`;
+                    const indStartY = y + topAreaH + ((h - topAreaH) - (indLines.length - 1) * 14) / 2 + 4;
+                    indLines.forEach((il, li) => {
+                        s += `<text x="${x + w / 2}" y="${indStartY + li * 14}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="11.2" font-style="italic" fill="${pal.subText}">${escapeSvgXml(il)}</text>`;
+                    });
+                } else {
+                    const startY = y + h / 2 - ((nLines.length - 1) * 17) / 2 + 5;
+                    nLines.forEach((ln, li) => {
+                        s += `<text x="${x + w / 2}" y="${startY + li * 17}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="14.5" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                    });
+                }
+                return s;
+            };
+
+            // 1. ALUR KERANGKA BERPIKIR SKRIPSI (SEMUA JURUSAN: IT, TEKNIK SIPIL, PENDIDIKAN, KUALITATIF, MANAJEMEN)
             if (fcKerangka.layout === 'bertingkat') {
-                const svgW = 600;
-                const boxW = 460;
+                const svgW = 640;
+                const boxW = 540;
                 const cx = svgW / 2;
-                let y = 26;
+                let y = 24;
                 let shapes = '';
-                fcKerangka.stages.forEach((txt, i) => {
-                    const lines = wrapFlowchartLines(txt, 44, 3);
-                    const h = Math.max(54, 24 + lines.length * 18);
+                const defaultPhaseTitles = ['FENOMENA & PERMASALAHAN', 'KAJIAN TEORI & PENDEKATAN', 'METODE & VARIABEL PENELITIAN', 'ANALISIS & PENGUJIAN', 'HASIL YANG DIHARAPKAN', 'KESIMPULAN & REKOMENDASI'];
+                fcKerangka.stages.forEach((rawTxt, i) => {
+                    const txt = String(rawTxt || '').trim();
+                    const colonIdx = txt.indexOf(':');
+                    let headTitle = defaultPhaseTitles[i] || (`TAHAP ${i + 1}`);
+                    let bodyText = txt;
+                    if (colonIdx > 2 && colonIdx < 38) {
+                        headTitle = txt.slice(0, colonIdx).trim().toUpperCase();
+                        bodyText = txt.slice(colonIdx + 1).trim();
+                    }
+                    const lines = wrapFlowchartLines(bodyText, 54, 3);
+                    const headH = 26;
+                    const bodyH = Math.max(40, 18 + lines.length * 18);
+                    const h = headH + bodyH;
                     const fill = i === fcKerangka.stages.length - 1 ? pal.yFill : (i === 0 ? pal.accentFill : pal.procFill);
-                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="${boxW}" height="${h}" rx="6" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
-                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="8" height="${h}" rx="3" fill="${pal.headerFill}"/>`;
-                    const startY = y + h / 2 - ((lines.length - 1) * 17) / 2 + 5;
+                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="${boxW}" height="${h}" rx="5" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
+                    shapes += `<rect x="${cx - boxW / 2}" y="${y}" width="${boxW}" height="${headH}" rx="4" fill="${pal.headerFill}"/>`;
+                    shapes += `<rect x="${cx - boxW / 2}" y="${y + headH - 6}" width="${boxW}" height="6" fill="${pal.headerFill}"/>`;
+                    shapes += `<text x="${cx}" y="${y + 17}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="11.5" font-weight="bold" letter-spacing="0.5" fill="${pal.headerText}">${escapeSvgXml(headTitle)}</text>`;
+                    const startY = y + headH + bodyH / 2 - ((lines.length - 1) * 18) / 2 + 5;
                     lines.forEach((ln, li) => {
-                        shapes += `<text x="${cx + 4}" y="${startY + li * 17}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13.5" font-weight="${i === 0 || i === fcKerangka.stages.length - 1 ? 'bold' : 'normal'}" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                        shapes += `<text x="${cx}" y="${startY + li * 18}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="13.5" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
                     });
                     if (i < fcKerangka.stages.length - 1) {
-                        shapes += `<line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${y + h + 26}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                        shapes += `<line x1="${cx}" y1="${y + h}" x2="${cx}" y2="${y + h + 26}" stroke="${pal.arrow}" stroke-width="1.9" marker-end="url(#fc-arrow)"/>`;
                     }
                     y += h + 30;
                 });
@@ -3075,97 +3133,205 @@
 
             const xs = fcKerangka.x_vars;
             const isMed = fcKerangka.layout === 'mediasi';
-            const boxW = isMed ? 210 : 235;
-            const boxH = 74;
-            const gapY = 24;
-            const padTop = 36;
-            const padBot = 36;
-            const totalXH = xs.length * boxH + Math.max(0, xs.length - 1) * gapY;
-            const svgW = isMed ? 860 : 720;
-            const svgH = Math.max(250, totalXH + padTop + padBot + (fcKerangka.simultaneous && !isMed && xs.length >= 2 ? 32 : 0));
+            const isMod = fcKerangka.layout === 'moderasi';
 
-            const xColX = 36;
-            const yColX = svgW - boxW - 36;
-            const zColX = Math.round((xColX + boxW + yColX) / 2 - boxW / 2);
-            const midY = Math.round(padTop + totalXH / 2);
+            // 2. VARIABEL MODERASI (X -> Y DIMODERASI M) — STANDAR SUGIYONO / GHOZALI
+            if (isMod) {
+                const boxW = 240;
+                const boxH = 82;
+                const gapY = 24;
+                const padTop = 32;
+                const totalXH = xs.length * boxH + Math.max(0, xs.length - 1) * gapY;
+                const svgW = 760;
+                const xColX = 36;
+                const yColX = svgW - boxW - 36;
+                const midX = Math.round((xColX + boxW + yColX) / 2);
+                const midY = Math.round(padTop + totalXH / 2);
+                const mBoxY = padTop + totalXH + 42;
+                const svgH = mBoxY + boxH + 42;
+                const yBoxY = Math.round(midY - boxH / 2);
 
-            let shapes = '';
+                let shapes = '';
+                shapes += drawAcademicVarBox(yColX, yBoxY, boxW, boxH, fcKerangka.y_var.code || 'Y', fcKerangka.y_var.name, fcKerangka.y_var.indicators, pal.yFill);
 
-            // Helper gambar kotak variabel akademis bersih (dengan kode variabel + indikator opsional)
-            const drawVarBox = (x, y, w, h, code, name, ind, fill) => {
-                let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${fill}" stroke="${pal.stroke}" stroke-width="1.8"/>`;
-                s += `<rect x="${x + 8}" y="${y + 7}" width="${Math.max(30, String(code).length * 9 + 14)}" height="19" rx="4" fill="${pal.headerFill}"/>`;
-                s += `<text x="${x + 8 + Math.max(30, String(code).length * 9 + 14) / 2}" y="${y + 20}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.headerText}">${escapeSvgXml(code)}</text>`;
-                const nLines = wrapFlowchartLines(name, isMed ? 22 : 25, 2);
-                const nameY = ind ? (y + 39) : (y + h / 2 + (nLines.length === 1 ? 8 : 2));
-                nLines.forEach((ln, li) => {
-                    s += `<text x="${x + w / 2}" y="${nameY + li * 15}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" fill="${pal.text}">${escapeSvgXml(ln)}</text>`;
+                xs.forEach((xv, i) => {
+                    const by = padTop + i * (boxH + gapY);
+                    const cy = Math.round(by + boxH / 2);
+                    const targetY = Math.round(yBoxY + ((i + 1) / (xs.length + 1)) * boxH);
+                    shapes += drawAcademicVarBox(xColX, by, boxW, boxH, xv.code || ('X' + (i + 1)), xv.name, xv.indicators, pal.procFill);
+                    shapes += `<line x1="${xColX + boxW}" y1="${cy}" x2="${yColX - 5}" y2="${targetY}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                    const lx = Math.round(xColX + boxW + (yColX - (xColX + boxW)) * 0.34);
+                    const ly = Math.round(cy + (targetY - cy) * 0.34) - 8;
+                    const hLbl = (fcKerangka.hypotheses[i] || ('H' + (i + 1))).trim();
+                    shapes += `<rect x="${lx - 15}" y="${ly - 12}" width="30" height="18" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                    shapes += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(hLbl)}</text>`;
                 });
-                if (ind) {
-                    const indTxt = String(ind).length > 34 ? String(ind).slice(0, 33) + '…' : String(ind);
-                    s += `<text x="${x + w / 2}" y="${y + h - 8}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="10.2" font-style="italic" fill="${pal.subText}">${escapeSvgXml(indTxt)}</text>`;
-                }
-                return s;
-            };
 
-            // Kotak Variabel Y di kanan
-            const yBoxY = Math.round(midY - boxH / 2);
-            shapes += drawVarBox(yColX, yBoxY, boxW, boxH, fcKerangka.y_var.code || 'Y', fcKerangka.y_var.name, fcKerangka.y_var.indicators, pal.yFill);
+                // Kotak Moderator M di bawah tengah + panah vertikal memotong garis tengah X -> Y
+                const mod = fcKerangka.moderator || { code: 'M', name: 'Variabel Moderasi', indicators: '' };
+                const mBoxX = Math.round(midX - boxW / 2);
+                shapes += drawAcademicVarBox(mBoxX, mBoxY, boxW, boxH, mod.code || 'M', mod.name, mod.indicators, pal.medFill);
+                shapes += `<line x1="${midX}" y1="${mBoxY}" x2="${midX}" y2="${midY + 6}" stroke="${pal.arrow}" stroke-width="1.9" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
+                const hMod = 'H' + (xs.length + 1) + ' (Moderasi)';
+                shapes += `<rect x="${midX + 10}" y="${Math.round((mBoxY + midY) / 2) - 8}" width="88" height="20" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${midX + 54}" y="${Math.round((mBoxY + midY) / 2) + 6}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${hMod}</text>`;
 
-            // Kotak Variabel Mediasi Z di tengah (jika mode mediasi)
-            const zBoxY = Math.round(midY - boxH / 2);
-            if (isMed) {
-                const med = fcKerangka.mediator || { code: 'Z', name: 'Variabel Mediasi', indicators: '' };
-                shapes += drawVarBox(zColX, zBoxY, boxW, boxH, med.code || 'Z', med.name, med.indicators, pal.medFill);
-                // Panah Z -> Y
-                shapes += `<line x1="${zColX + boxW}" y1="${midY}" x2="${yColX - 4}" y2="${midY}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
-                const hZY = 'H' + (xs.length + 1);
-                shapes += `<rect x="${(zColX + boxW + yColX) / 2 - 15}" y="${midY - 22}" width="30" height="17" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
-                shapes += `<text x="${(zColX + boxW + yColX) / 2}" y="${midY - 10}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${hZY}</text>`;
+                const legY = svgH - 12;
+                shapes += `<line x1="36" y1="${legY - 4}" x2="68" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="76" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Pengaruh Langsung</text>`;
+                shapes += `<line x1="196" y1="${legY - 4}" x2="228" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="236" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Efek Moderasi (Interaksi X × M)</text>`;
+                return { w: svgW, h: svgH, shapes };
             }
 
-            // Kotak-kotak Variabel X di kiri + panah hipotesis
+            // 3. JALUR MEDIASI (X -> Z -> Y + JALUR LANGSUNG X -> Y)
+            if (isMed) {
+                const boxW = 212;
+                const boxH = 80;
+                const gapY = 24;
+                const padTop = 58; // ruang untuk panah pengaruh langsung atas X1 -> Y
+                const padBot = 62; // ruang untuk panah pengaruh langsung bawah + legenda
+                const totalXH = xs.length * boxH + Math.max(0, xs.length - 1) * gapY;
+                const svgW = 840;
+                const svgH = Math.max(300, totalXH + padTop + padBot);
+                const xColX = 30;
+                const yColX = svgW - boxW - 30;
+                const zColX = Math.round((xColX + boxW + yColX) / 2 - boxW / 2);
+                const midY = Math.round(padTop + totalXH / 2);
+                const yBoxY = Math.round(midY - boxH / 2);
+                const zBoxY = Math.round(midY - boxH / 2);
+
+                let shapes = '';
+                shapes += drawAcademicVarBox(yColX, yBoxY, boxW, boxH, fcKerangka.y_var.code || 'Y', fcKerangka.y_var.name, fcKerangka.y_var.indicators, pal.yFill);
+                const med = fcKerangka.mediator || { code: 'Z', name: 'Variabel Mediasi', indicators: '' };
+                shapes += drawAcademicVarBox(zColX, zBoxY, boxW, boxH, med.code || 'Z', med.name, med.indicators, pal.medFill);
+
+                // Panah Z -> Y
+                shapes += `<line x1="${zColX + boxW}" y1="${midY}" x2="${yColX - 5}" y2="${midY}" stroke="${pal.arrow}" stroke-width="1.9" marker-end="url(#fc-arrow)"/>`;
+                const hZY = 'H' + (xs.length + 1);
+                shapes += `<rect x="${(zColX + boxW + yColX) / 2 - 16}" y="${midY - 24}" width="32" height="19" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${(zColX + boxW + yColX) / 2}" y="${midY - 11}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${hZY}</text>`;
+
+                // Panah X -> Z
+                xs.forEach((xv, i) => {
+                    const by = padTop + i * (boxH + gapY);
+                    const cy = Math.round(by + boxH / 2);
+                    const targetY = Math.round(zBoxY + ((i + 1) / (xs.length + 1)) * boxH);
+                    shapes += drawAcademicVarBox(xColX, by, boxW, boxH, xv.code || ('X' + (i + 1)), xv.name, xv.indicators, pal.procFill);
+                    shapes += `<line x1="${xColX + boxW}" y1="${cy}" x2="${zColX - 5}" y2="${targetY}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                    const lx = Math.round((xColX + boxW + zColX) / 2);
+                    const ly = Math.round((cy + targetY) / 2) - 8;
+                    const hLbl = (fcKerangka.hypotheses[i] || ('H' + (i + 1))).trim();
+                    shapes += `<rect x="${lx - 15}" y="${ly - 12}" width="30" height="18" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                    shapes += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(hLbl)}</text>`;
+                });
+
+                // Panah Pengaruh Langsung (Direct Effect) X1 -> Y lewat atas Z, dan X terakhir -> Y lewat bawah Z (jika >= 2 X)
+                const topRouteY = 22;
+                const xMidX = xColX + Math.round(boxW / 2);
+                const yMidX = yColX + Math.round(boxW / 2);
+                shapes += `<polyline points="${xMidX},${padTop} ${xMidX},${topRouteY} ${yMidX},${topRouteY} ${yMidX},${yBoxY - 5}" fill="none" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<rect x="${zColX + boxW / 2 - 58}" y="${topRouteY - 10}" width="116" height="20" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${zColX + boxW / 2}" y="${topRouteY + 4}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">Pengaruh Langsung (X₁→Y)</text>`;
+
+                if (xs.length >= 2) {
+                    const botRouteY = padTop + totalXH + 24;
+                    shapes += `<polyline points="${xMidX},${padTop + totalXH} ${xMidX},${botRouteY} ${yMidX},${botRouteY} ${yMidX},${yBoxY + boxH + 5}" fill="none" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
+                    const lastCode = xs[xs.length - 1].code || ('X' + xs.length);
+                    shapes += `<rect x="${zColX + boxW / 2 - 58}" y="${botRouteY - 10}" width="116" height="20" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                    shapes += `<text x="${zColX + boxW / 2}" y="${botRouteY + 4}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">Pengaruh Langsung (${escapeSvgXml(lastCode)}→Y)</text>`;
+                }
+
+                const legY = svgH - 12;
+                shapes += `<line x1="30" y1="${legY - 4}" x2="62" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="70" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Jalur Mediasi (X → Z → Y)</text>`;
+                shapes += `<line x1="238" y1="${legY - 4}" x2="270" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="278" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Pengaruh Langsung (Direct Effect X → Y)</text>`;
+                return { w: svgW, h: svgH, shapes };
+            }
+
+            // 4. PARADIGMA PENELITIAN KUANTITATIF / REGRESI (X1, X2, ... -> Y + SIMULTAN UJI F)
+            const boxW = 248;
+            const boxH = 82;
+            const gapY = 24;
+            const padTop = 34;
+            const padBot = fcKerangka.simultaneous && xs.length >= 2 ? 78 : 42;
+            const totalXH = xs.length * boxH + Math.max(0, xs.length - 1) * gapY;
+            const svgW = 740;
+            const svgH = Math.max(260, totalXH + padTop + padBot);
+
+            const xColX = 40;
+            const yColX = svgW - boxW - 34;
+            const midY = Math.round(padTop + totalXH / 2);
+            const yBoxY = Math.round(midY - boxH / 2);
+
+            let shapes = '';
+            // Kotak Variabel Y di kanan
+            shapes += drawAcademicVarBox(yColX, yBoxY, boxW, boxH, fcKerangka.y_var.code || 'Y', fcKerangka.y_var.name, fcKerangka.y_var.indicators, pal.yFill);
+
+            // Kotak-kotak Variabel X di kiri + panah parsial H1, H2, H3
             xs.forEach((xv, i) => {
                 const by = padTop + i * (boxH + gapY);
                 const cy = Math.round(by + boxH / 2);
-                shapes += drawVarBox(xColX, by, boxW, boxH, xv.code || ('X' + (i + 1)), xv.name, xv.indicators, pal.procFill);
+                shapes += drawAcademicVarBox(xColX, by, boxW, boxH, xv.code || ('X' + (i + 1)), xv.name, xv.indicators, pal.procFill);
 
-                const targetX = isMed ? (zColX - 4) : (yColX - 4);
-                const targetY = isMed ? midY : Math.round(yBoxY + ((i + 1) / (xs.length + 1)) * boxH);
-                shapes += `<line x1="${xColX + boxW}" y1="${cy}" x2="${targetX}" y2="${targetY}" stroke="${pal.arrow}" stroke-width="1.7" marker-end="url(#fc-arrow)"/>`;
+                const targetY = Math.round(yBoxY + ((i + 1) / (xs.length + 1)) * boxH);
+                shapes += `<line x1="${xColX + boxW}" y1="${cy}" x2="${yColX - 5}" y2="${targetY}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
 
-                const lx = Math.round((xColX + boxW + targetX) / 2);
+                const lx = Math.round((xColX + boxW + yColX) / 2);
                 const ly = Math.round((cy + targetY) / 2) - 8;
                 const hLbl = (fcKerangka.hypotheses[i] || ('H' + (i + 1))).trim();
-                shapes += `<rect x="${lx - 15}" y="${ly - 11}" width="30" height="17" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
-                shapes += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(hLbl)}</text>`;
+                shapes += `<rect x="${lx - 15}" y="${ly - 12}" width="30" height="18" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${lx}" y="${ly + 1}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${escapeSvgXml(hLbl)}</text>`;
             });
 
-            // Garis Simultan putus-putus (Uji F) khusus layout regresi >= 2 variabel X
-            if (!isMed && fcKerangka.simultaneous && xs.length >= 2) {
-                const grpX = xColX - 16;
-                const grpY = padTop - 12;
-                const grpW = boxW + 32;
-                const grpH = totalXH + 24;
-                const simBottomY = grpY + grpH + 20;
-                const yMidX = yColX + boxW / 2;
+            // Garis Simultan putus-putus (Uji F) — kotak rapi mengelilingi grup X, panah keluar dari bawah ke bawah Y
+            if (fcKerangka.simultaneous && xs.length >= 2) {
+                const grpX = xColX - 18;
+                const grpY = padTop - 14;
+                const grpW = boxW + 36;
+                const grpH = totalXH + 28;
+                const simBottomY = grpY + grpH + 26;
+                const yMidX = yColX + Math.round(boxW / 2);
                 const hSim = 'H' + (xs.length + 1) + ' (Simultan)';
-                shapes += `<rect x="${grpX}" y="${grpY}" width="${grpW}" height="${grpH}" rx="10" fill="none" stroke="${pal.arrow}" stroke-width="1.4" stroke-dasharray="6,4"/>`;
-                shapes += `<polyline points="${xColX + boxW / 2},${grpY + grpH} ${xColX + boxW / 2},${simBottomY} ${yMidX},${simBottomY} ${yMidX},${yBoxY + boxH + 4}" fill="none" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
-                shapes += `<rect x="${(xColX + boxW / 2 + yMidX) / 2 - 48}" y="${simBottomY - 11}" width="96" height="20" rx="4" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
-                shapes += `<text x="${(xColX + boxW / 2 + yMidX) / 2}" y="${simBottomY + 3}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" fill="${pal.branchText}">${hSim}</text>`;
+                shapes += `<rect x="${grpX}" y="${grpY}" width="${grpW}" height="${grpH}" rx="8" fill="none" stroke="${pal.arrow}" stroke-width="1.4" stroke-dasharray="6,4"/>`;
+                shapes += `<polyline points="${xColX + Math.round(boxW / 2)},${grpY + grpH} ${xColX + Math.round(boxW / 2)},${simBottomY} ${yMidX},${simBottomY} ${yMidX},${yBoxY + boxH + 5}" fill="none" stroke="${pal.arrow}" stroke-width="1.7" stroke-dasharray="6,4" marker-end="url(#fc-arrow)"/>`;
+                const lblMidX = Math.round((xColX + boxW / 2 + yMidX) / 2);
+                shapes += `<rect x="${lblMidX - 50}" y="${simBottomY - 11}" width="100" height="21" rx="3" fill="#ffffff" stroke="${pal.stroke}" stroke-width="0.9"/>`;
+                shapes += `<text x="${lblMidX}" y="${simBottomY + 4}" text-anchor="middle" font-family="'Times New Roman', serif" font-size="11.5" font-weight="bold" fill="${pal.branchText}">${hSim}</text>`;
             }
 
-            // Keterangan legenda standar skripsi di pojok bawah
+            // Legenda standar skripsi
             const legY = svgH - 12;
-            shapes += `<line x1="36" y1="${legY - 3}" x2="66" y2="${legY - 3}" stroke="${pal.arrow}" stroke-width="1.6" marker-end="url(#fc-arrow)"/>`;
-            shapes += `<text x="74" y="${legY}" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.subText}">Pengaruh Parsial</text>`;
-            if (!isMed && fcKerangka.simultaneous && xs.length >= 2) {
-                shapes += `<line x1="176" y1="${legY - 3}" x2="206" y2="${legY - 3}" stroke="${pal.arrow}" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fc-arrow)"/>`;
-                shapes += `<text x="214" y="${legY}" font-family="'Times New Roman', serif" font-size="10.5" fill="${pal.subText}">Pengaruh Simultan</text>`;
+            shapes += `<line x1="40" y1="${legY - 4}" x2="72" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.8" marker-end="url(#fc-arrow)"/>`;
+            shapes += `<text x="80" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Pengaruh Parsial</text>`;
+            if (fcKerangka.simultaneous && xs.length >= 2) {
+                shapes += `<line x1="194" y1="${legY - 4}" x2="226" y2="${legY - 4}" stroke="${pal.arrow}" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#fc-arrow)"/>`;
+                shapes += `<text x="234" y="${legY}" font-family="'Times New Roman', serif" font-size="11.5" fill="${pal.subText}">Pengaruh Simultan (Uji F)</text>`;
             }
 
             return { w: svgW, h: svgH, shapes };
+        }
+
+        function openFcZoomModal() {
+            let modal = document.getElementById('fc-zoom-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'fc-zoom-modal';
+                modal.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;';
+                modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+                modal.innerHTML = `<div style="background:#ffffff; border-radius:16px; width:100%; max-width:980px; max-height:90vh; overflow:auto; padding:20px; box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">
+                        <strong style="font-size:14.5px; color:#0f172a;">Pratinjau Penuh Diagram (Resolusi HD)</strong>
+                        <button type="button" onclick="document.getElementById('fc-zoom-modal').style.display='none'" style="border:none; background:#f1f5f9; width:30px; height:30px; border-radius:50%; font-size:18px; color:#475569; cursor:pointer;">&times;</button>
+                    </div>
+                    <div id="fc-zoom-body" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:18px; text-align:center;"></div>
+                </div>`;
+                document.body.appendChild(modal);
+            }
+            const body = document.getElementById('fc-zoom-body');
+            if (body) body.innerHTML = lastFlowchartSvgString || '';
+            modal.style.display = 'flex';
         }
 
         function renderSistemSvg(pal) {

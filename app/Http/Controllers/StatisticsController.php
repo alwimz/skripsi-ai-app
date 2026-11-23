@@ -11,8 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\SimpleType\TblWidth;
+use PhpOffice\PhpWord\Style\Table as TableStyle;
 
 class StatisticsController extends Controller
 {
@@ -326,9 +328,13 @@ class StatisticsController extends Controller
         if (!empty($chartsImages)) {
             $chartsHtml .= '<div class="sec-title">Visualisasi Grafik Hasil Pengujian</div>';
             foreach ($chartsImages as $idx => $img) {
+                // Dompdf di Vercel tanpa ekstensi GD hanya mendukung JPEG dengan aman (PNG butuh GD untuk alpha channel)
+                if ($img['ext'] === 'png' && !extension_loaded('gd')) {
+                    continue;
+                }
                 $num = $idx + 1;
                 $chartsHtml .= '<div class="chart-block">'
-                    . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:520px; height:auto; display:block; margin:0 auto;" />'
+                    . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:500px; height:auto; display:block; margin:0 auto;" />'
                     . '<div class="chart-cap">Gambar ' . $num . '. ' . e($img['title']) . '</div>'
                     . '</div>';
             }
@@ -404,10 +410,20 @@ class StatisticsController extends Controller
         $options = new Options();
         $options->set('isRemoteEnabled', false);
         $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('tempDir', sys_get_temp_dir());
         $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        try {
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+        } catch (\Throwable $e) {
+            // Fallback tanpa blok gambar jika runtime tidak mendukung dekode gambar tertentu
+            $htmlNoImg = preg_replace('/<div class="chart-block">[\s\S]*?<\/div>/', '', $html);
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml((string) $htmlNoImg, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+        }
 
         $slug = Str::slug(Str::limit((string) ($result['dataset_title'] ?? 'statistik'), 40, '')) ?: 'statistik';
         return response($dompdf->output(), 200, [
@@ -432,11 +448,22 @@ class StatisticsController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Data laporan statistik tidak valid.'], 422);
         }
 
+        // WAJIB di PHPWord: aktifkan XML escaping agar karakter '<', '>', '&' (cth: "Sig. < 0.001", "VIF < 10")
+        // tidak merusak word/document.xml saat dibuka di Microsoft Word!
+        Settings::setOutputEscapingEnabled(true);
+        Settings::setTempDir(sys_get_temp_dir());
+
+        $safeTxt = static function (mixed $v): string {
+            $s = (string) ($v ?? '');
+            return trim((string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $s));
+        };
+
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Times New Roman');
         $phpWord->setDefaultFontSize(11);
 
-        // Margin standar skripsi Indonesia (A4: Kiri 4cm, Atas/Kanan/Bawah 3cm) -> 1 cm = 567 twips
+        // Margin standar skripsi Indonesia (A4: 11906 x 16838 twips; Kiri 4cm=2268, Atas/Kanan/Bawah 3cm=1701 -> lebar konten = 7937 twips)
+        $contentWidthTwips = 7937;
         $section = $phpWord->addSection([
             'pageSizeW' => 11906,
             'pageSizeH' => 16838,
@@ -446,11 +473,11 @@ class StatisticsController extends Controller
             'marginRight' => 1701,
         ]);
 
-        $title = (string) ($result['title'] ?? 'Laporan Hasil Olah Data Statistik');
-        $subtitle = (string) ($result['subtitle'] ?? '');
-        $datasetTitle = (string) ($result['dataset_title'] ?? 'Data Penelitian');
-        $computedAt = (string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB');
-        $userName = (string) (Auth::user()->name ?? 'Mahasiswa');
+        $title = $safeTxt($result['title'] ?? 'Laporan Hasil Olah Data Statistik');
+        $subtitle = $safeTxt($result['subtitle'] ?? '');
+        $datasetTitle = $safeTxt($result['dataset_title'] ?? 'Data Penelitian');
+        $computedAt = $safeTxt($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB');
+        $userName = $safeTxt(Auth::user()->name ?? 'Mahasiswa');
 
         // Judul Laporan
         $section->addText(
@@ -473,31 +500,38 @@ class StatisticsController extends Controller
 
         if (!empty($result['equation'])) {
             $section->addText(
-                'Persamaan Regresi: ' . (string) $result['equation'],
+                'Persamaan Regresi: ' . $safeTxt($result['equation']),
                 ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '1D4ED8'],
                 ['alignment' => Jc::CENTER, 'spaceAfter' => 180]
             );
         }
 
-        // Tabel-tabel Output SPSS Asli (100% Editable di Microsoft Word)
+        // Tabel-tabel Output SPSS Asli (100% Editable, dengan lebar kolom TWIP eksplisit agar kompatibel Word macOS & Windows)
         $tableStyle = [
             'borderSize' => 6,
             'borderColor' => '94A3B8',
-            'cellMarginTop' => 70,
-            'cellMarginBottom' => 70,
-            'cellMarginLeft' => 90,
-            'cellMarginRight' => 90,
-            'width' => 5000,
-            'unit' => TblWidth::PERCENT,
+            'cellMarginTop' => 65,
+            'cellMarginBottom' => 65,
+            'cellMarginLeft' => 75,
+            'cellMarginRight' => 75,
+            'width' => $contentWidthTwips,
+            'unit' => TblWidth::TWIP,
+            'layout' => TableStyle::LAYOUT_FIXED,
         ];
 
         foreach ($result['tables'] as $tbl) {
             $headers = $tbl['headers'] ?? [];
             $rows = $tbl['rows'] ?? [];
+            $colCount = count($headers);
+            if ($colCount === 0) {
+                continue;
+            }
             $colAligns = $this->detectColumnAlignments($headers);
+            $colWidths = $this->computeWordColWidths($headers, $rows, $contentWidthTwips);
+            $fontSz = $colCount >= 9 ? 8.0 : ($colCount >= 7 ? 8.5 : 9.5);
 
             $section->addText(
-                (string) ($tbl['title'] ?? 'Tabel'),
+                $safeTxt($tbl['title'] ?? 'Tabel'),
                 ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '0F172A'],
                 ['spaceBefore' => 160, 'spaceAfter' => 80, 'keepNext' => true]
             );
@@ -506,10 +540,10 @@ class StatisticsController extends Controller
             $table->addRow(null, ['tblHeader' => true, 'cantSplit' => true]);
             foreach ($headers as $idx => $th) {
                 $jc = ($colAligns[$idx] ?? 'center') === 'left' ? Jc::START : Jc::CENTER;
-                $cell = $table->addCell(null, ['bgColor' => 'EFF6FF', 'valign' => 'center']);
+                $cell = $table->addCell($colWidths[$idx], ['bgColor' => 'EFF6FF', 'valign' => 'center']);
                 $cell->addText(
-                    (string) $th,
-                    ['name' => 'Times New Roman', 'size' => 9.5, 'bold' => true, 'color' => '1E3A8A'],
+                    $safeTxt($th),
+                    ['name' => 'Times New Roman', 'size' => $fontSz, 'bold' => true, 'color' => '1E3A8A'],
                     ['alignment' => $jc, 'spaceAfter' => 0]
                 );
             }
@@ -517,12 +551,13 @@ class StatisticsController extends Controller
             foreach ($rows as $rIdx => $tr) {
                 $table->addRow(null, ['cantSplit' => true]);
                 $bg = ($rIdx % 2 === 1) ? 'F8FAFC' : 'FFFFFF';
-                foreach ($tr as $idx => $val) {
+                for ($idx = 0; $idx < $colCount; $idx++) {
+                    $val = $tr[$idx] ?? '';
                     $jc = ($colAligns[$idx] ?? 'center') === 'left' ? Jc::START : Jc::CENTER;
-                    $cell = $table->addCell(null, ['bgColor' => $bg, 'valign' => 'center']);
+                    $cell = $table->addCell($colWidths[$idx], ['bgColor' => $bg, 'valign' => 'center']);
                     $cell->addText(
-                        (string) $val,
-                        ['name' => 'Times New Roman', 'size' => 9.5, 'color' => '0F172A'],
+                        $safeTxt($val),
+                        ['name' => 'Times New Roman', 'size' => $fontSz, 'color' => '0F172A'],
                         ['alignment' => $jc, 'spaceAfter' => 0]
                     );
                 }
@@ -530,7 +565,7 @@ class StatisticsController extends Controller
 
             if (!empty($tbl['footnote'])) {
                 $section->addText(
-                    'Catatan: ' . (string) $tbl['footnote'],
+                    'Catatan: ' . $safeTxt($tbl['footnote']),
                     ['name' => 'Times New Roman', 'size' => 9, 'italic' => true, 'color' => '475569'],
                     ['spaceBefore' => 60, 'spaceAfter' => 160]
                 );
@@ -547,22 +582,23 @@ class StatisticsController extends Controller
                     ['spaceBefore' => 200, 'spaceAfter' => 120, 'keepNext' => true]
                 );
                 foreach ($chartsImages as $idx => $img) {
-                    $rawBase64 = preg_replace('/^data:image\/png;base64,/', '', $img['data_url']);
+                    $rawBase64 = preg_replace('/^data:image\/(?:png|jpeg|jpg);base64,/', '', $img['data_url']);
                     $bin = base64_decode((string) $rawBase64, true);
                     if ($bin === false || strlen($bin) < 200) {
                         continue;
                     }
-                    $tmpImg = tempnam(sys_get_temp_dir(), 'odchart_') . '.png';
+                    $ext = $img['ext'] === 'png' ? 'png' : 'jpg';
+                    $tmpImg = sys_get_temp_dir() . '/odchart_' . uniqid('', true) . '.' . $ext;
                     file_put_contents($tmpImg, $bin);
                     $tempFiles[] = $tmpImg;
 
                     $section->addImage($tmpImg, [
-                        'width' => 415,
+                        'width' => 390,
                         'alignment' => Jc::CENTER,
                         'wrappingStyle' => 'inline',
                     ]);
                     $section->addText(
-                        'Gambar ' . ($idx + 1) . '. ' . $img['title'],
+                        'Gambar ' . ($idx + 1) . '. ' . $safeTxt($img['title']),
                         ['name' => 'Times New Roman', 'size' => 10, 'bold' => true, 'color' => '334155'],
                         ['alignment' => Jc::CENTER, 'spaceBefore' => 60, 'spaceAfter' => 180]
                     );
@@ -576,13 +612,11 @@ class StatisticsController extends Controller
                     ['name' => 'Times New Roman', 'size' => 12, 'bold' => true, 'color' => '0F172A'],
                     ['spaceBefore' => 180, 'spaceAfter' => 100, 'keepNext' => true]
                 );
-                foreach ($result['conclusions'] as $c) {
-                    $section->addListItem(
-                        (string) $c,
-                        0,
-                        ['name' => 'Times New Roman', 'size' => 11],
-                        null,
-                        ['alignment' => Jc::BOTH, 'spaceAfter' => 60, 'lineHeight' => 1.35]
+                foreach ($result['conclusions'] as $idx => $c) {
+                    $section->addText(
+                        ($idx + 1) . '. ' . $safeTxt($c),
+                        ['name' => 'Times New Roman', 'size' => 11, 'color' => '0F172A'],
+                        ['alignment' => Jc::BOTH, 'spaceAfter' => 70, 'lineHeight' => 1.35]
                     );
                 }
             }
@@ -597,7 +631,7 @@ class StatisticsController extends Controller
                 $cleanNarr = $this->cleanAcademicNarration($narration);
                 $paras = preg_split('/\n{2,}/', $cleanNarr) ?: [];
                 foreach ($paras as $p) {
-                    $p = trim($p);
+                    $p = $safeTxt($p);
                     if ($p === '') {
                         continue;
                     }
@@ -609,7 +643,7 @@ class StatisticsController extends Controller
                         );
                     } else {
                         $section->addText(
-                            preg_replace('/\s*\n\s*/', ' ', $p),
+                            (string) preg_replace('/\s*\n\s*/', ' ', $p),
                             ['name' => 'Times New Roman', 'size' => 12, 'color' => '0F172A'],
                             ['alignment' => Jc::BOTH, 'spaceAfter' => 120, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 567]]
                         );
@@ -617,7 +651,7 @@ class StatisticsController extends Controller
                 }
             }
 
-            $tmpDocx = tempnam(sys_get_temp_dir(), 'odreport_') . '.docx';
+            $tmpDocx = sys_get_temp_dir() . '/odreport_' . uniqid('', true) . '.docx';
             $tempFiles[] = $tmpDocx;
             $writer = IOFactory::createWriter($phpWord, 'Word2007');
             $writer->save($tmpDocx);
@@ -662,6 +696,32 @@ class StatisticsController extends Controller
         return $aligns;
     }
 
+    private function computeWordColWidths(array $headers, array $rows, int $totalTwips): array
+    {
+        $weights = [];
+        foreach ($headers as $idx => $h) {
+            $maxLen = mb_strlen((string) $h);
+            foreach (array_slice($rows, 0, 25) as $r) {
+                $maxLen = max($maxLen, mb_strlen((string) ($r[$idx] ?? '')));
+            }
+            $weights[$idx] = max(6, min(32, $maxLen));
+        }
+        $sum = max(1, array_sum($weights));
+        $widths = [];
+        $allocated = 0;
+        $last = count($headers) - 1;
+        foreach ($weights as $idx => $w) {
+            if ($idx === $last) {
+                $widths[$idx] = max(450, $totalTwips - $allocated);
+            } else {
+                $tw = max(450, (int) round(($w / $sum) * $totalTwips));
+                $widths[$idx] = $tw;
+                $allocated += $tw;
+            }
+        }
+        return $widths;
+    }
+
     private function sanitizeChartImages(mixed $rawImages): array
     {
         if (is_string($rawImages)) {
@@ -676,12 +736,19 @@ class StatisticsController extends Controller
                 continue;
             }
             $url = (string) ($item['data_url'] ?? '');
-            if (!str_starts_with($url, 'data:image/png;base64,') || strlen($url) > 2500000) {
+            $ext = null;
+            if (str_starts_with($url, 'data:image/jpeg;base64,') || str_starts_with($url, 'data:image/jpg;base64,')) {
+                $ext = 'jpg';
+            } elseif (str_starts_with($url, 'data:image/png;base64,')) {
+                $ext = 'png';
+            }
+            if ($ext === null || strlen($url) > 2500000) {
                 continue;
             }
             $clean[] = [
                 'title' => trim((string) ($item['title'] ?? 'Grafik Statistik')),
                 'data_url' => $url,
+                'ext' => $ext,
             ];
         }
         return $clean;
