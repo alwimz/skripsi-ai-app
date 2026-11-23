@@ -598,12 +598,12 @@
             border: 1px solid #dbe3ee;
             border-radius: 6px;
             box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
-            padding: 75px 60px 80px 75px;
-            /* Rasio standar margin skripsi 4-4-3-3 cm */
+            padding: 68px 56px 76px 72px;
+            /* Rasio presisi margin skripsi 4-4-3-3 cm & spasi 1,5 Word */
             color: #111827;
             font-family: "Times New Roman", Georgia, serif;
-            font-size: 16px;
-            line-height: 1.75;
+            font-size: 15px;
+            line-height: 1.58;
             box-sizing: border-box;
             word-break: break-word;
             display: flex;
@@ -786,7 +786,7 @@
         .paper-editor p {
             text-align: justify;
             text-indent: 36px;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
 
         .paper-editor ul,
@@ -1255,8 +1255,10 @@
             .a4-sheet {
                 width: 100% !important;
                 max-width: 100% !important;
-                min-height: auto !important;
-                padding: 28px 20px 52px 22px !important;
+                min-height: 920px !important;
+                padding: 44px 36px 68px 46px !important;
+                font-size: 14.5px !important;
+                line-height: 1.56 !important;
                 box-sizing: border-box !important;
             }
         }
@@ -2259,54 +2261,96 @@
     </div>
 
     <!-- Popover Interaktif Klik Sitasi (Buka Sumber / Ganti Sitasi Terverifikasi) -->
+    <style>
+        @keyframes citeSpinAnim { to { transform: rotate(360deg); } }
+        @keyframes citePulseBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+        .cite-spinner {
+            width: 15px; height: 15px; border-radius: 50%;
+            border: 2px solid rgba(37, 99, 235, 0.22);
+            border-top-color: #2563eb;
+            display: inline-block; flex-shrink: 0;
+            animation: citeSpinAnim 0.7s linear infinite;
+        }
+        .cite-spinner-white {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            display: inline-block; flex-shrink: 0;
+            animation: citeSpinAnim 0.7s linear infinite;
+        }
+        .cite-progress-track {
+            width: 100%; height: 4px; border-radius: 999px;
+            background: #dbeafe; overflow: hidden; margin-top: 8px;
+        }
+        .cite-progress-fill {
+            width: 42%; height: 100%; border-radius: 999px;
+            background: linear-gradient(90deg, #2563eb, #0f766e);
+            animation: citePulseBar 1.15s ease-in-out infinite;
+        }
+    </style>
     <div id="cite-action-popover"
-        style="display: none; position: fixed; z-index: 10050; width: 390px; max-width: calc(100vw - 24px); background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.22); overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
-        <div style="padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-            <div style="min-width: 0; flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span id="cite-pop-label" style="font-size: 13px; font-weight: 700; color: #1e3a8a; word-break: break-word;">Sitasi</span>
-                    <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">APA 7th</span>
+        style="display: none; position: fixed; z-index: 10050; width: 396px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); flex-direction: column; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.24); overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+        <div id="cite-pop-drag-handle" title="Tahan dan geser untuk memindahkan popup"
+            style="padding: 11px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; cursor: grab; user-select: none; flex-shrink: 0;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-top: 3px; flex-shrink: 0;"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span id="cite-pop-label" style="font-size: 13px; font-weight: 700; color: #1e3a8a; word-break: break-word;">Sitasi</span>
+                        <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">APA 7th</span>
+                    </div>
+                    <div id="cite-pop-match" style="font-size: 11.5px; color: #475569; margin-top: 4px; line-height: 1.45; max-height: 54px; overflow: hidden;"></div>
                 </div>
-                <div id="cite-pop-match" style="font-size: 11.5px; color: #475569; margin-top: 4px; line-height: 1.45; max-height: 54px; overflow: hidden;"></div>
             </div>
             <button type="button" onclick="closeCitationPopover()" aria-label="Tutup"
-                style="border: none; background: transparent; color: #64748b; cursor: pointer; padding: 2px; line-height: 1; font-size: 18px;">&times;</button>
+                style="border: none; background: transparent; color: #64748b; cursor: pointer; padding: 2px; line-height: 1; font-size: 18px; flex-shrink: 0;">&times;</button>
         </div>
 
-        <div style="padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #ffffff;">
-            <button type="button" id="cite-pop-btn-open" onclick="handlePopoverOpenSource()"
-                style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 12.5px; font-weight: 600; cursor: pointer;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                <span>Buka Sumber</span>
-            </button>
-            <button type="button" id="cite-pop-btn-replace" onclick="toggleCitationReplacePanel()"
-                style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: none; background: #2563eb; color: #ffffff; font-size: 12.5px; font-weight: 600; cursor: pointer;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                <span>Ganti Sitasi</span>
-            </button>
-        </div>
-
-        <div id="cite-replace-panel" style="display: none; border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 12px 14px;">
-            <label style="display: flex; align-items: flex-start; gap: 7px; font-size: 11.5px; color: #334155; cursor: pointer; margin-bottom: 10px; line-height: 1.4;">
-                <input type="checkbox" id="cite-adjust-sentence" checked style="margin-top: 2px; accent-color: #2563eb;">
-                <span>Sesuaikan kalimat di sekitar sitasi agar cocok dengan jurnal terverifikasi pengganti (otomatis perbarui Daftar Pustaka).</span>
-            </label>
-
-            <button type="button" id="cite-btn-auto-replace" onclick="executeCitationReplace(null)"
-                style="width: 100%; height: 36px; border: none; border-radius: 9px; background: #0f766e; color: #ffffff; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                <span>Ganti Otomatis Sesuai Pengaturan Sitasi</span>
-            </button>
-
-            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                <input type="text" id="cite-search-input" placeholder="Cari topik jurnal pengganti lain..."
-                    style="flex: 1; height: 32px; padding: 0 10px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #0f172a;"
-                    onkeydown="if(event.key==='Enter'){event.preventDefault();loadCitationCandidates();}">
-                <button type="button" onclick="loadCitationCandidates()"
-                    style="height: 32px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #334155; font-size: 11.5px; font-weight: 600; cursor: pointer;">Cari</button>
+        <div style="overflow-y: auto; flex: 1; min-height: 0;">
+            <div style="padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #ffffff;">
+                <button type="button" id="cite-pop-btn-open" onclick="handlePopoverOpenSource()"
+                    style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>Buka Sumber</span>
+                </button>
+                <button type="button" id="cite-pop-btn-replace" onclick="toggleCitationReplacePanel()"
+                    style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: none; background: #2563eb; color: #ffffff; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>Ganti Sitasi</span>
+                </button>
             </div>
 
-            <div id="cite-candidates-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
+            <div id="cite-replace-panel" style="display: none; border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 12px 14px;">
+                <label style="display: flex; align-items: flex-start; gap: 7px; font-size: 11.5px; color: #334155; cursor: pointer; margin-bottom: 10px; line-height: 1.4;">
+                    <input type="checkbox" id="cite-adjust-sentence" checked style="margin-top: 2px; accent-color: #2563eb;">
+                    <span>Sesuaikan kalimat di sekitar sitasi agar cocok dengan jurnal terverifikasi pengganti (otomatis perbarui Daftar Pustaka).</span>
+                </label>
+
+                <button type="button" id="cite-btn-auto-replace" onclick="executeCitationReplace(null)"
+                    style="width: 100%; height: 36px; border: none; border-radius: 9px; background: #0f766e; color: #ffffff; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    <span>Ganti Otomatis Sesuai Pengaturan Sitasi</span>
+                </button>
+
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <input type="text" id="cite-search-input" placeholder="Cari topik jurnal pengganti lain..."
+                        style="flex: 1; height: 32px; padding: 0 10px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #0f172a;"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();loadCitationCandidates();}">
+                    <button type="button" onclick="loadCitationCandidates()"
+                        style="height: 32px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #334155; font-size: 11.5px; font-weight: 600; cursor: pointer;">Cari</button>
+                </div>
+
+                <div id="cite-replace-loading" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 11px 12px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; color: #1e3a8a;">
+                        <span class="cite-spinner"></span>
+                        <span id="cite-replace-loading-text">Mengganti sitasi &amp; menyelaraskan kalimat...</span>
+                    </div>
+                    <div style="font-size: 11px; color: #475569; margin-top: 3px; padding-left: 24px;">Menyesuaikan dengan pengaturan sitasi &amp; memperbarui Daftar Pustaka otomatis.</div>
+                    <div class="cite-progress-track"><div class="cite-progress-fill"></div></div>
+                </div>
+
+                <div id="cite-candidates-list" style="max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
+            </div>
         </div>
     </div>
 
@@ -2769,20 +2813,85 @@
             document.getElementById('cite-candidates-list').innerHTML = '';
 
             // Tampilkan dan posisikan popover tepat di dekat sitasi tanpa terpotong layar
-            pop.style.display = 'block';
+            pop.style.display = 'flex';
             const rect = el.getBoundingClientRect();
-            const popW = Math.min(390, window.innerWidth - 24);
+            const popW = Math.min(396, window.innerWidth - 24);
             let left = rect.left;
             if (left + popW > window.innerWidth - 12) {
                 left = Math.max(12, window.innerWidth - popW - 12);
             }
             let top = rect.bottom + 8;
-            if (top + 220 > window.innerHeight && rect.top > 180) {
-                top = Math.max(12, rect.top - 165);
+            pop.style.left = `${left}px`;
+            pop.style.top = `${top}px`;
+            clampCitationPopoverToViewport();
+        }
+
+        function clampCitationPopoverToViewport() {
+            const pop = document.getElementById('cite-action-popover');
+            if (!pop || pop.style.display === 'none') return;
+            const pr = pop.getBoundingClientRect();
+            let left = pr.left;
+            let top = pr.top;
+            if (left + pr.width > window.innerWidth - 12) {
+                left = Math.max(12, window.innerWidth - pr.width - 12);
             }
+            if (left < 12) left = 12;
+            if (top + pr.height > window.innerHeight - 12) {
+                top = Math.max(12, window.innerHeight - pr.height - 12);
+            }
+            if (top < 12) top = 12;
             pop.style.left = `${left}px`;
             pop.style.top = `${top}px`;
         }
+
+        // Aktifkan geser (drag & drop) pada header popover sitasi (Desktop Mouse & Touch)
+        (function initCitationPopoverDrag() {
+            const handle = document.getElementById('cite-pop-drag-handle');
+            const pop = document.getElementById('cite-action-popover');
+            if (!handle || !pop) return;
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            const startDrag = (clientX, clientY) => {
+                dragging = true;
+                const r = pop.getBoundingClientRect();
+                offsetX = clientX - r.left;
+                offsetY = clientY - r.top;
+                handle.style.cursor = 'grabbing';
+            };
+            const moveDrag = (clientX, clientY) => {
+                if (!dragging) return;
+                const r = pop.getBoundingClientRect();
+                const maxL = Math.max(12, window.innerWidth - r.width - 12);
+                const maxT = Math.max(12, window.innerHeight - r.height - 12);
+                const nextL = Math.min(maxL, Math.max(12, clientX - offsetX));
+                const nextT = Math.min(maxT, Math.max(12, clientY - offsetY));
+                pop.style.left = `${nextL}px`;
+                pop.style.top = `${nextT}px`;
+            };
+            const endDrag = () => {
+                if (!dragging) return;
+                dragging = false;
+                handle.style.cursor = 'grab';
+            };
+
+            handle.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button')) return;
+                e.preventDefault();
+                startDrag(e.clientX, e.clientY);
+            });
+            document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+            document.addEventListener('mouseup', endDrag);
+
+            handle.addEventListener('touchstart', (e) => {
+                if (e.target.closest('button') || !e.touches[0]) return;
+                startDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: true });
+            document.addEventListener('touchmove', (e) => {
+                if (!dragging || !e.touches[0]) return;
+                moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: true });
+            document.addEventListener('touchend', endDrag);
+        })();
 
         function closeCitationPopover() {
             const pop = document.getElementById('cite-action-popover');
@@ -2816,14 +2925,7 @@
             const willOpen = repPanel.style.display === 'none';
             repPanel.style.display = willOpen ? 'block' : 'none';
             if (willOpen) {
-                // Pastikan popover tetap muat di viewport saat panel diperluas
-                const pop = document.getElementById('cite-action-popover');
-                if (pop) {
-                    const pr = pop.getBoundingClientRect();
-                    if (pr.bottom > window.innerHeight - 12) {
-                        pop.style.top = `${Math.max(12, window.innerHeight - pr.height - 16)}px`;
-                    }
-                }
+                clampCitationPopoverToViewport();
                 loadCitationCandidates();
             }
         }
@@ -2832,7 +2934,7 @@
             if (!activeCitationCtx) return;
             const listEl = document.getElementById('cite-candidates-list');
             const query = (document.getElementById('cite-search-input')?.value || '').trim();
-            listEl.innerHTML = '<div style="padding: 12px; text-align: center; font-size: 12px; color: #64748b;">Mencari jurnal terverifikasi sesuai pengaturan sitasimu...</div>';
+            listEl.innerHTML = '<div style="padding: 14px 10px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: #334155; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 9px;"><span class="cite-spinner"></span><span>Mencari jurnal terverifikasi sesuai pengaturan sitasimu...</span></div>';
 
             try {
                 const res = await fetch(`/project/${projectId}/citation/replace`, {
@@ -2881,6 +2983,7 @@
                         </div>
                     `;
                 }).join('');
+                clampCitationPopoverToViewport();
             } catch (err) {
                 listEl.innerHTML = `<div style="padding: 10px; font-size: 12px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">${escapeHtml(err.message || 'Gagal memuat kandidat.')}</div>`;
             }
@@ -2889,19 +2992,36 @@
         async function executeCitationReplace(candidateIdx) {
             if (!activeCitationCtx) return;
             const autoBtn = document.getElementById('cite-btn-auto-replace');
+            const loadingBox = document.getElementById('cite-replace-loading');
+            const loadingTxt = document.getElementById('cite-replace-loading-text');
+            const listEl = document.getElementById('cite-candidates-list');
             const origAutoHtml = autoBtn ? autoBtn.innerHTML : '';
+
+            const chosenRef = (candidateIdx !== null && candidateIdx !== undefined)
+                ? (citationCandidatesCache[candidateIdx] || null)
+                : (citationCandidatesCache[0] || null);
+            const adjustSentence = Boolean(document.getElementById('cite-adjust-sentence')?.checked);
+            const query = (document.getElementById('cite-search-input')?.value || '').trim();
+
             if (autoBtn) {
                 autoBtn.disabled = true;
-                autoBtn.innerHTML = '<span>Mengganti sitasi &amp; menyelaraskan kalimat...</span>';
+                autoBtn.style.opacity = '0.78';
+                autoBtn.innerHTML = '<span class="cite-spinner-white"></span><span>Sedang Mengganti Sitasi...</span>';
+            }
+            if (loadingBox) {
+                loadingBox.style.display = 'block';
+                if (loadingTxt) {
+                    const targetLabel = chosenRef ? `${chosenRef.in_text} (${chosenRef.year})` : 'jurnal terverifikasi baru';
+                    loadingTxt.textContent = adjustSentence
+                        ? `Mengganti ke ${targetLabel} & menyelaraskan kalimat...`
+                        : `Mengganti sitasi ke ${targetLabel}...`;
+                }
+            }
+            if (listEl) {
+                listEl.querySelectorAll('button').forEach((b) => { b.disabled = true; b.style.opacity = '0.55'; });
             }
 
             try {
-                const chosenRef = (candidateIdx !== null && candidateIdx !== undefined)
-                    ? (citationCandidatesCache[candidateIdx] || null)
-                    : (citationCandidatesCache[0] || null);
-                const adjustSentence = Boolean(document.getElementById('cite-adjust-sentence')?.checked);
-                const query = (document.getElementById('cite-search-input')?.value || '').trim();
-
                 const res = await fetch(`/project/${projectId}/citation/replace`, {
                     method: 'POST',
                     headers: {
@@ -2939,7 +3059,12 @@
             } finally {
                 if (autoBtn) {
                     autoBtn.disabled = false;
+                    autoBtn.style.opacity = '';
                     autoBtn.innerHTML = origAutoHtml;
+                }
+                if (loadingBox) loadingBox.style.display = 'none';
+                if (listEl) {
+                    listEl.querySelectorAll('button').forEach((b) => { b.disabled = false; b.style.opacity = ''; });
                 }
             }
         }
@@ -3559,34 +3684,56 @@
                     return [fullBodyHtml];
                 }
 
+                // Kalibrasi presisi sesuai halaman A4 Microsoft Word (Times New Roman 12pt, 1,5 spasi, margin 4-4-3-3 cm):
+                // ~82 karakter per baris, ~30 baris isi per halaman A4 penuh (halaman pertama Bab tetap muat ~27 baris di bawah judul BAB).
+                const CHARS_PER_LINE = 82;
+                const MAX_LINES_PER_PAGE = 30.5;
+                const estimateBlockLines = (block) => {
+                    const textLen = (block.innerText || block.textContent || '').replace(/\s+/g, ' ').trim().length;
+                    const tagName = (block.tagName || '').toLowerCase();
+                    if (block.classList && block.classList.contains('academic-chapter-header')) {
+                        return 3.6;
+                    }
+                    if (tagName === 'h1' || tagName === 'h2') {
+                        return 2.8;
+                    }
+                    if (tagName === 'h3' || tagName === 'h4') {
+                        return 2.0;
+                    }
+                    if (block.classList && block.classList.contains('academic-figure-container')) {
+                        return 12.5;
+                    }
+                    if (tagName === 'table' || (block.classList && block.classList.contains('table-wrap')) || (block.querySelector && block.querySelector('table'))) {
+                        const rows = block.querySelectorAll ? block.querySelectorAll('tr').length : 4;
+                        return Math.min(24, Math.max(5.5, rows * 1.45 + 2.2));
+                    }
+                    if (block.querySelector && block.querySelector('img')) {
+                        return 12.0;
+                    }
+                    if (tagName === 'ul' || tagName === 'ol') {
+                        const items = Array.from(block.querySelectorAll ? block.querySelectorAll('li') : []);
+                        if (items.length) {
+                            return items.reduce((sum, li) => {
+                                const len = (li.innerText || li.textContent || '').trim().length;
+                                return sum + Math.max(1, Math.ceil(len / 76)) + 0.25;
+                            }, 0.6);
+                        }
+                        return Math.max(2, Math.ceil(textLen / 76) + 0.6);
+                    }
+                    if (block.classList && block.classList.contains('dp-entry')) {
+                        return Math.max(1.5, Math.ceil(textLen / 78)) + 0.45;
+                    }
+                    return Math.max(1, Math.ceil((textLen + 8) / CHARS_PER_LINE)) + 0.4;
+                };
+
                 const pages = [];
                 let curPageBlocks = [];
-                let curPageWeight = 0;
-                // Kapasitas bobot teks standar kertas A4 akademik (~2600 karakter per halaman Times New Roman 12pt 1.5 spasi)
-                const MAX_PAGE_WEIGHT = 2600;
+                let curLines = 0;
 
                 blocks.forEach((block) => {
-                    const textLen = (block.innerText || block.textContent || '').length;
-                    const tagName = (block.tagName || '').toLowerCase();
-                    let blockWeight = textLen;
-
-                    // Bobot visual proporsional elemen tabel, bagan, gambar, list, dan heading
-                    if (tagName === 'table' || (block.classList && (block.classList.contains('academic-figure-container') || block.classList.contains('table-wrap'))) || (block.querySelector && (block.querySelector('table') || block.querySelector('img')))) {
-                        blockWeight = Math.max(textLen, 1100);
-                    } else if (tagName === 'h2' || tagName === 'h3' || tagName === 'h4' || (block.classList && block.classList.contains('academic-chapter-header'))) {
-                        blockWeight = Math.max(textLen, 160);
-                    } else if (tagName === 'ul' || tagName === 'ol') {
-                        blockWeight = Math.max(textLen, 300);
-                    } else {
-                        blockWeight = Math.max(textLen, 250);
-                    }
-
-                    // Halaman pertama memiliki judul bab besar di bagian atas, kurangi proporsional
-                    const curLimit = (pages.length === 0) ? (MAX_PAGE_WEIGHT - 450) : MAX_PAGE_WEIGHT;
-
-                    // Ganti halaman jika halaman saat ini sudah terisi penuh (minimal 1900 bobot) dan melebihi batas kapasitas
-                    if (curPageBlocks.length > 0 && curPageWeight >= 1900 && (curPageWeight + blockWeight > curLimit)) {
-                        // Hindari meletakkan heading atau caption tabel/gambar sendirian di paling bawah halaman penuh (orphan heading/caption)
+                    const blockLines = estimateBlockLines(block);
+                    // Ganti halaman jika halaman saat ini sudah terisi layak (>= 21 baris) dan blok berikutnya membuat halaman terlalu penuh
+                    if (curPageBlocks.length > 0 && curLines >= 21 && (curLines + blockLines > MAX_LINES_PER_PAGE + 2.5)) {
                         const lastBlock = curPageBlocks[curPageBlocks.length - 1];
                         const lastTag = (lastBlock.tagName || '').toLowerCase();
                         const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
@@ -3594,18 +3741,18 @@
 
                         if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
                             const orphanEl = curPageBlocks.pop();
-                            const orphanWeight = (orphanEl.innerText || orphanEl.textContent || '').length || 100;
+                            const orphanLines = estimateBlockLines(orphanEl);
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                             curPageBlocks = [orphanEl, block];
-                            curPageWeight = orphanWeight + blockWeight;
+                            curLines = orphanLines + blockLines;
                         } else {
                             pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                             curPageBlocks = [block];
-                            curPageWeight = blockWeight;
+                            curLines = blockLines;
                         }
                     } else {
                         curPageBlocks.push(block);
-                        curPageWeight += blockWeight;
+                        curLines += blockLines;
                     }
                 });
 

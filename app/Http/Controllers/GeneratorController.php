@@ -2823,9 +2823,9 @@ PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA):
 1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan 'Kondisi ideal dalam...', 'Di era digital / era globalisasi saat ini...', 'Perkembangan teknologi yang pesat...', 'Tidak dapat dipungkiri bahwa...', 'Memegang peranan krusial...', atau 'Merupakan tonggak penting...').
 2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: 'Data dikumpulkan melalui penyebaran kuesioner...', 'Analisis regresi linier dilakukan untuk...'), hindari suara orang pertama (saya, penulis, kami).
-3. Kedalaman Materi & Standar Ketebalan Skripsi S1 Nasional (Mantar Riset AI / Skripsita Standard):
-   - Tuliskan setiap bab secara SANGAT MENDALAM, KOMPREHENSIF, ELABORATIF, DAN EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG KERAS membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas!
-   - Uraikan setiap argumentasi, konsep, dimensi variabel, landasan teori, dan implikasi secara tuntas dalam beberapa paragraf ilmiah panjang yang berbobot.
+3. Kedalaman Materi & Ritme Paragraf Proporsional (STANDAR SKRIPSI S1 NASIONAL):
+   - Tuliskan setiap bab secara MENDALAM, KOMPREHENSIF, dan EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas.
+   - WAJIB JAGA PROPORSIONALITAS PARAGRAF: Setiap paragraf idealnya berisi **5–7 kalimat padat (±80–115 kata atau ±7–10 baris di halaman A4 Word)** agar dalam 1 halaman A4 muat sekitar **2,5–3 paragraf yang rapi dan enak dibaca**. DILARANG KERAS menulis 1 paragraf raksasa bertele-tele (14–20 baris) yang membuat 1 halaman hanya berisi 1–2 paragraf! Pecah gagasan berbeda ke paragraf baru yang kohesif.
 4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR ASLI):
    - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Wijaya et al. (2024)).
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
@@ -3745,9 +3745,9 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
             'bab1' => $master . "\n{$tahapKaryaPrompt}\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n" . "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara MENDALAM, KOMPREHENSIF, DAN EKSTENSIF (STANDAR SKRIPSI S1 NASIONAL PERGURUAN TINGGI INDONESIA, MINIMAL 1800 - 2500 KATA).
 {$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
-1.1 Latar Belakang Masalah (Wajib ditulis secara MENDALAM dan KOMPREHENSIF minimal 7-10 PARAGRAF PANJANG menggunakan pola PIRAMIDA TERBALIK lengkap):
-- Paragraf 1 (ATURAN WAJIB MINIMAL 1 SITASI ILMIAH!): Mulai dengan landasan normatif, regulasi nasional (Undang-Undang, Permendikbud / regulasi terkait), dan konteks ideal makro terkait topik '{$project->judul}'. PARAGRAF PERTAMA INI WAJIB MENGANDUNG MINIMAL 1 (SATU) SITASI IN-TEXT GAYA {$gayaSitasi} (contoh: Penulis (Tahun) atau (Penulis, Tahun)) YANG DIAMBIL LANGSUNG DARI BANK REFERENSI TERVERIFIKASI DI ATAS ATAU REFERENSI WAJIB MAHASISWA — dilarang keras menulis paragraf pertama tanpa sitasi ilmiah!
-- Paragraf 2: Perkuat konteks makro dengan rujukan ilmiah riil atau otoritas data resmi (seperti BPS, Kemendikbudristek/BSKAP, APJII, UNESCO, atau We Are Social/DataReportal) serta referensi terverifikasi di atas.
+1.1 Latar Belakang Masalah (Wajib ditulis secara MENDALAM dan PROPORSIONAL sebanyak 8-10 PARAGRAF RAPI masing-masing ±5-7 kalimat / ±80-115 kata agar 1 halaman A4 muat ±3 paragraf rapi, menggunakan pola PIRAMIDA TERBALIK lengkap):
+- Paragraf 1 (RINGKAS 5-7 KALIMAT & WAJIB MINIMAL 1 SITASI ILMIAH!): Mulai dengan landasan normatif, regulasi nasional (Undang-Undang/peraturan terkait), dan konteks ideal makro terkait topik '{$project->judul}'. Sisipkan minimal 1 sitasi in-text gaya {$gayaSitasi} dari bank referensi terverifikasi di atas secara ringkas dan mengalir — JANGAN dipanjangkan melebihi 7 kalimat (maksimal ±100 kata)!
+- Paragraf 2: Perkuat konteks makro dan fenomena penggunaan/perkembangan objek penelitian dengan rujukan ilmiah riil atau otoritas data resmi (BPS, Kemendikbudristek, APJII, UNESCO, atau We Are Social/DataReportal).
 - Paragraf 3-4: Fenomena empiris dan data kuantitatif nyata di lapangan / objek penelitian terkait kondisi responden dan intensitas masalah.
 - Paragraf 5-6: Masalah spesifik yang teramati dan analisis kesenjangan (research gap) antara kondisi ideal (das Sollen) dengan realitas di lapangan (das Sein).
 - Paragraf 7-8: Analisis komparatif hasil penelitian terdahulu (tahun {$tahunMin}-2026) dan alasan mengapa pendekatan/solusi dalam penelitian ini mutlak dibutuhkan.
