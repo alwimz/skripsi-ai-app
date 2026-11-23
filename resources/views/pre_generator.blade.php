@@ -2926,8 +2926,7 @@
         .od-hl-lbl {
             font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.02em;
             color: var(--text-muted);
         }
         .od-hl-val {
@@ -9754,7 +9753,7 @@
                     .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 42) || 'Grafik_Statistik';
                 const a = document.createElement('a');
                 a.href = canvas.toDataURL('image/png');
-                a.download = titleSlug + '_SkripsiLab.png';
+                a.download = titleSlug + '.png';
                 a.click();
             };
             img.src = url;
@@ -9898,7 +9897,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Laporan_Olah_Data_SkripsiLab.pdf';
+                a.download = 'Laporan_Olah_Data_Statistik.pdf';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -9934,7 +9933,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Laporan_Olah_Data_SkripsiLab.docx';
+                a.download = 'Laporan_Olah_Data_Statistik.docx';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -10078,7 +10077,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen_SkripsiLab.csv' : 'Template_Tabulasi_Kuesioner_SkripsiLab.csv';
+            a.download = odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen.csv' : 'Template_Tabulasi_Kuesioner.csv';
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 1200);
         }
@@ -10092,7 +10091,7 @@
                 const ws = XLSX.utils.aoa_to_sheet(aoa);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Data_Penelitian');
-                XLSX.writeFile(wb, odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen_SkripsiLab.xlsx' : 'Template_Tabulasi_Kuesioner_SkripsiLab.xlsx');
+                XLSX.writeFile(wb, odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen.xlsx' : 'Template_Tabulasi_Kuesioner.xlsx');
             } catch (e) {
                 odDownloadTemplateCsv();
             }

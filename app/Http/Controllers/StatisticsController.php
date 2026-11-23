@@ -424,7 +424,7 @@ class StatisticsController extends Controller
             . '.sub { font-size: 8pt; color: #475569; margin-top: 3px; }'
             . '.hl-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; background: #f8fafc; }'
             . '.hl-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }'
-            . '.hl-lbl { font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700; }'
+            . '.hl-lbl { font-size: 7.4pt; color: #64748b; font-weight: 700; }'
             . '.hl-val { font-size: 10pt; font-weight: 700; color: #0f172a; margin-top: 2px; }'
             . '.guide-box { background: #f8fafc; border: 0.75pt solid #cbd5e1; border-left: 3pt solid #2563eb; padding: 8px 10px; margin-bottom: 12px; font-size: 7.8pt; line-height: 1.5; }'
             . '.tbl-block { page-break-inside: avoid; margin-bottom: 14px; }'
@@ -444,7 +444,7 @@ class StatisticsController extends Controller
             . '.footer-note { margin-top: 14px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 7.4pt; color: #64748b; }'
             . '</style></head><body>'
             . '<div class="header">'
-            . '<div class="brand">SkripsiLab AI — ' . $title . '</div>'
+            . '<div class="brand">' . $title . '</div>'
             . '<div class="sub">Dataset: <strong>' . $datasetTitle . '</strong>' . ($majorLabel !== '' ? ' · Bidang Ilmu: <strong>' . $majorLabel . '</strong>' : '') . ' · Peneliti: ' . $userName . ' · Waktu Hitung: ' . $computedAt . '</div>'
             . ($subtitle !== '' ? '<div class="sub">' . $subtitle . '</div>' : '')
             . '</div>'
