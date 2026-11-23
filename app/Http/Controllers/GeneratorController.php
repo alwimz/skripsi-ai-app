@@ -4602,8 +4602,14 @@ ATURAN REVISI (SANGAT KETAT):
 
             $user = Auth::user();
             if ($user && $request->filled('nim')) {
-                $user->nim = trim($request->input('nim'));
-                $user->save();
+                try {
+                    if (\Illuminate\Support\Facades\Schema::hasColumn($user->getTable(), 'nim')) {
+                        $user->nim = trim($request->input('nim'));
+                        $user->save();
+                    }
+                } catch (\Throwable $e) {
+                    // Kolom nim opsional di tabel users; identitas proyek tetap tersimpan aman di citation_validation
+                }
             }
             $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
             $project->save();

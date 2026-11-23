@@ -2366,7 +2366,7 @@
     <script>
         const projectId = @json($project->id);
         const projectTitle = @json($project->judul);
-        const projectProdi = @json($project->prodi);
+        let projectProdi = @json($project->prodi);
         const projectMeta = @json($meta ?? []);
         const defaultUserName = @json(auth()->user()->name ?? 'Mahasiswa');
         const isProposalMode = @json($isProposal);
@@ -4352,7 +4352,7 @@
                         const mSampFinal = (b4Txt || b3Txt).match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|digunakan\s+dalam\s+penelitian\s+berjumlah)[^.\n]{0,40}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
                         const mSamp = mSampFinal || (b4Txt || b3Txt).match(/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
                         const sampStr = mSamp ? ` dengan melibatkan ${mSamp[1]} ${mSamp[2]}` : '';
-                        const b4Sents = b4Txt.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ÿ])|\n+/).map(s => s.replace(/\s+/g, ' ').trim());
+                        const b4Sents = b4Txt.replace(/([.!?])\s+(?=[A-ZÀ-Ÿ])/g, '$1\n').split(/\n+/).map(s => s.replace(/\s+/g, ' ').trim());
                         let bestFind = b4Sents.find(s => s.length >= 30 && s.length <= 280 && !s.startsWith('|') && /(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)/i.test(s) && /(?:\d+[,\.]\d+|\d+\s*(?:%|persen))/i.test(s) && !/dapat\s+menyesatkan|mengabaikan\s+kelas/i.test(s));
                         if (bestFind) {
                             bestFind = bestFind.replace(/^(?:Berdasarkan\s+)?Tabel\s+\d+\.\d+\s+(?:memperlihatkan|menunjukkan)\s+bahwa\s+/i, 'Hasil pengujian menunjukkan bahwa ').replace(/\.+\s*$/, '') + '.';
