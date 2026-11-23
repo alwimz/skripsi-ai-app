@@ -1255,11 +1255,17 @@
             .a4-sheet {
                 width: 100% !important;
                 max-width: 100% !important;
-                min-height: 920px !important;
-                padding: 44px 36px 68px 46px !important;
+                min-height: 0 !important;
+                aspect-ratio: 210 / 297;
+                height: auto !important;
+                padding: 46px 38px 72px 48px !important;
                 font-size: 14.5px !important;
                 line-height: 1.56 !important;
                 box-sizing: border-box !important;
+            }
+            .a4-sheet.empty-sheet,
+            .a4-sheet.empty-sheet-premium {
+                aspect-ratio: auto !important;
             }
         }
 
@@ -1349,11 +1355,13 @@
             .a4-sheet {
                 width: 100%;
                 max-width: 100%;
-                min-height: 1123px;
+                min-height: 0 !important;
+                aspect-ratio: 210 / 297;
+                height: auto !important;
                 box-sizing: border-box;
-                padding: 40px 24px 60px 28px;
-                font-size: 14px;
-                line-height: 1.65;
+                padding: 36px 24px 66px 28px !important;
+                font-size: 13.5px !important;
+                line-height: 1.55 !important;
                 border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
@@ -1972,16 +1980,6 @@
                             </svg>
                             <span>Olah Data Penelitian</span>
                         </button>
-                        <button type="button" class="btn-top" id="btn-audit-dosen" onclick="openAuditModal()"
-                            style="border-color: #cbd5e1;"
-                            title="Periksa benang merah Bab I–V, sitasi paragraf pertama, sinkronisasi Daftar Pustaka, dan kualitas bahasa sebelum bimbingan">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M9 11l3 3L22 4" />
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                            </svg>
-                            <span>Audit Dosen</span>
-                        </button>
                         <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -2350,37 +2348,6 @@
                 </div>
 
                 <div id="cite-candidates-list" style="max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Audit Pra-Bimbingan Ala Dosen Pembimbing -->
-    <div id="modal-audit-dosen" class="modal-backdrop"
-        style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
-        <div style="background: #ffffff; border-radius: 18px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; border: 1px solid #e2e8f0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px;">
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #047857; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #a7f3d0;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 3px 0;">Audit Pra-Bimbingan Ala Dosen</h3>
-                        <p style="font-size: 12.5px; color: #64748b; margin: 0; line-height: 1.45;">Pemeriksaan deterministik atas benang merah Bab I–V, sitasi paragraf pertama, sinkronisasi Daftar Pustaka, kepatuhan tahun sitasi, dan kebersihan format akademik.</p>
-                    </div>
-                </div>
-                <button type="button" onclick="closeAuditModal()" style="border: none; background: transparent; color: #64748b; cursor: pointer; font-size: 22px; line-height: 1;">&times;</button>
-            </div>
-
-            <div id="audit-modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="padding: 28px; text-align: center; color: #64748b; font-size: 13px;">Memeriksa seluruh bab dan daftar pustaka...</div>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 12px; flex-wrap: wrap; gap: 8px;">
-                <span style="font-size: 11.5px; color: #64748b;">Tip: Klik langsung sitasi biru mana pun di naskah untuk <strong>Buka Sumber</strong> atau <strong>Ganti Sitasi</strong>.</span>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="runProjectAudit()" class="btn-top" style="height: 34px; padding: 0 14px;">Periksa Ulang</button>
-                    <button type="button" onclick="closeAuditModal()" class="btn-top primary" style="height: 34px; padding: 0 16px;">Tutup</button>
-                </div>
             </div>
         </div>
     </div>
@@ -2908,7 +2875,6 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeCitationPopover();
-                closeAuditModal();
             }
         });
 

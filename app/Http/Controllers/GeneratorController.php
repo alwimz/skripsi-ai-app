@@ -948,6 +948,153 @@ class GeneratorController extends Controller
     }
 
     /**
+     * Penjaga Kualitas Otomatis Pasca-Generate:
+     * 1) Pecah paragraf raksasa (>880 karakter) di batas kalimat agar ritme halaman A4 rapi 2,5-3 paragraf/halaman.
+     * 2) Pastikan Paragraf 1 Bab I selalu memiliki minimal 1 sitasi terverifikasi sesuai pengaturan form mahasiswa.
+     * 3) Bersihkan sisa markdown/LaTeX mentah dan frasa klise pembuka AI secara otomatis.
+     */
+    private function enforceChapterQualityAutomatically(string $content, string $chapter, Project $project): string
+    {
+        if (trim($content) === '') {
+            return $content;
+        }
+
+        // 1. Bersihkan sisa LaTeX & frasa klise pembuka AI
+        $content = $this->formatAcademicMathText($content);
+        $clicheMap = [
+            '/^Di era digital saat ini,?\s+/im' => 'Dalam perkembangan teknologi digital mutakhir, ',
+            '/^Di era globalisasi saat ini,?\s+/im' => 'Dalam dinamika perkembangan global mutakhir, ',
+            '/^Tidak dapat dipungkiri bahwa\s+/im' => 'Secara empiris, ',
+            '/\bmemegang peranan krusial\b/i' => 'berperan penting',
+        ];
+        foreach ($clicheMap as $pat => $rep) {
+            $content = (string) preg_replace($pat, $rep, $content);
+        }
+
+        // 2. Pecah paragraf raksasa (>880 karakter) secara natural di batas kalimat (menghindari wall-of-text 16 baris!)
+        $lines = preg_split("/\r\n|\n/", $content) ?: [];
+        $outLines = [];
+        $inCodeBlock = false;
+        $firstBab1ParaFixed = ($chapter !== 'bab1');
+
+        foreach ($lines as $rawLine) {
+            $trim = trim($rawLine);
+            if (str_starts_with($trim, '```')) {
+                $inCodeBlock = !$inCodeBlock;
+                $outLines[] = $rawLine;
+                continue;
+            }
+            if ($inCodeBlock || $trim === '' || str_starts_with($trim, '|')) {
+                $outLines[] = $rawLine;
+                continue;
+            }
+
+            $isHeadingOrList = (bool) preg_match('/^(?:BAB\s+[IVX0-9]+|\d+\.\d+(?:\.\d+)?\.?\s+|[A-H]\.\s+|\d+[\.\)]\s+|[a-z][\.\)]\s+|Tabel\s+\d|Gambar\s+\d|Bagan\s+\d|Grafik\s+\d|Sumber\s*:)/i', $trim);
+
+            // Pastikan Paragraf 1 Bab I minimal memuat 1 sitasi terverifikasi
+            if (!$firstBab1ParaFixed && !$isHeadingOrList && mb_strlen($trim) >= 120) {
+                $firstBab1ParaFixed = true;
+                $cites = $this->extractInTextCitations($trim);
+                if (empty($cites)) {
+                    $bank = $this->getVerifiedRefsStructured($project);
+                    if (!empty($bank[0]['in_text']) && !empty($bank[0]['year'])) {
+                        $inTxt = trim((string) $bank[0]['in_text']);
+                        $yr = (string) $bank[0]['year'];
+                        $trim = rtrim($trim, '. ') . ". Urgensi kajian empiris tersebut sejalan dengan temuan {$inTxt} ({$yr}).";
+                    }
+                }
+            }
+
+            // Pecah paragraf terlalu panjang (>880 karakter) tepat di batas kalimat tengah agar proporsional (~7-10 baris Word)
+            if (!$isHeadingOrList && mb_strlen($trim) > 880) {
+                $sentences = preg_split('/(?<=[.!?])\s+(?=[A-ZÀ-Ÿ"(\d])/', $trim) ?: [$trim];
+                if (count($sentences) >= 4) {
+                    $targetHalf = mb_strlen($trim) / 2;
+                    $acc = '';
+                    $splitIdx = (int) floor(count($sentences) / 2);
+                    $bestDiff = PHP_INT_MAX;
+                    foreach ($sentences as $si => $sent) {
+                        if ($si === count($sentences) - 1) {
+                            break;
+                        }
+                        $acc .= ($acc === '' ? '' : ' ') . $sent;
+                        $diff = abs(mb_strlen($acc) - $targetHalf);
+                        if ($diff < $bestDiff && $si >= 1) {
+                            $bestDiff = $diff;
+                            $splitIdx = $si + 1;
+                        }
+                    }
+                    $part1 = trim(implode(' ', array_slice($sentences, 0, $splitIdx)));
+                    $part2 = trim(implode(' ', array_slice($sentences, $splitIdx)));
+                    if (mb_strlen($part1) >= 220 && mb_strlen($part2) >= 220) {
+                        $outLines[] = $part1;
+                        $outLines[] = '';
+                        $outLines[] = $part2;
+                        continue;
+                    }
+                }
+            }
+
+            $outLines[] = $trim;
+        }
+
+        return trim((string) preg_replace("/\n{3,}/", "\n\n", implode("\n", $outLines)));
+    }
+
+    /**
+     * Sinkronisasi otomatis entri jurnal terverifikasi (DOI asli) yang dikutip di Bab I-V ke Daftar Pustaka.
+     */
+    private function syncVerifiedDaftarPustakaAutomatically(Project $project, string $gayaSitasi, string $tahunMin): void
+    {
+        $allBody = strip_tags(
+            (string) $project->bab1_content . ' ' .
+            (string) $project->bab2_content . ' ' .
+            (string) $project->bab3_content . ' ' .
+            (string) $project->bab4_content . ' ' .
+            (string) $project->bab5_content
+        );
+        if (mb_strlen(trim($allBody)) < 100) {
+            return;
+        }
+
+        $citationsList = $this->extractInTextCitations($allBody);
+        if (empty($citationsList)) {
+            return;
+        }
+
+        [$verifiedMatched] = $this->buildVerifiedMatchedDaftarPustaka($project, $citationsList, $gayaSitasi);
+        if (empty($verifiedMatched)) {
+            return;
+        }
+
+        $currentDp = trim((string) ($project->daftar_pustaka ?? ''));
+        $dpLines = $currentDp !== ''
+            ? array_values(array_filter(array_map('trim', explode("\n", $currentDp)), fn ($l) => mb_strlen($l) >= 12))
+            : [];
+        $existingLower = strtolower(implode("\n", $dpLines));
+
+        $added = false;
+        foreach ($verifiedMatched as $vm) {
+            $doiKey = preg_match('#https?://doi\.org/[^\s]+#i', $vm, $dm)
+                ? strtolower($dm[0])
+                : strtolower(mb_substr($vm, 0, 45));
+            if ($doiKey !== '' && !str_contains($existingLower, $doiKey)) {
+                $dpLines[] = $vm;
+                $existingLower .= "\n" . strtolower($vm);
+                $added = true;
+            }
+        }
+
+        if ($added) {
+            $gayaLower = strtolower($gayaSitasi);
+            if (!str_contains($gayaLower, 'ieee') && !str_contains($gayaLower, 'vancouver')) {
+                sort($dpLines, SORT_NATURAL | SORT_FLAG_CASE);
+            }
+            $project->daftar_pustaka = implode("\n", $dpLines);
+        }
+    }
+
+    /**
      * Ekstrak daftar isi terstruktur dari isi bab proyek (dinamis & dibedakan Proposal vs Skripsi)
      */
     private function extractTocItemsForProject(Project $project, bool $isProposal = false): array
@@ -3716,11 +3863,22 @@ WAJIB MEMUAT TABEL DATA DAN ANALISIS EMPIRIS LENGKAP:
 4.4 Pembahasan Kritis Hasil Penelitian."
         };
 
+        // Hitung jumlah butir Rumusan Masalah Bab I agar Bab V 5.1 Kesimpulan otomatis tepat 1-to-1
+        $rmCountAuto = 0;
+        $b1Plain = trim(strip_tags((string) ($project->bab1_content ?? '')));
+        if ($b1Plain !== '' && preg_match('/(?:1\.4|1\.2|B\.|C\.|D\.)?\s*Rumusan\s+Masalah[^\n]*\n([\s\S]{20,1600}?)(?=\n\s*(?:1\.[3-9]|[B-H]\.\s+Tujuan|Tujuan\s+Penelitian|1\.5|Manfaat)|$)/i', $b1Plain, $mRmAuto)) {
+            preg_match_all('/^\s*(?:\d+[\.\)]|[a-z][\.\)])\s+.{10,}/m', $mRmAuto[1], $rmItemsAuto);
+            $rmCountAuto = count($rmItemsAuto[0] ?? []);
+        }
+        $rmCountRule = $rmCountAuto > 0
+            ? "WAJIB terdiri dari TEPAT {$rmCountAuto} poin bernomor (1., 2., ... {$rmCountAuto}.) yang menjawab satu per satu {$rmCountAuto} butir Rumusan Masalah pada Bab I secara presisi dan berbasis angka temuan Bab IV."
+            : "Menjawab seluruh butir rumusan masalah Bab I secara tegas dalam poin bernomor berdasarkan capaian empiris Bab IV.";
+
         // Bab V Penutup & Daftar Pustaka Lengkap & Terverifikasi (Bebas Mendeley)
         $bab5Prompt = "
 TUGAS: Tulis Isi BAB V (PENUTUP) beserta DAFTAR PUSTAKA LENGKAP & OTOMATIS (STANDAR {$gayaSitasi}).
 Sub-bab:
-5.1 Kesimpulan (Menjawab rumusan masalah Bab 1 secara tegas berdasarkan capaian empiris Bab 4. Sebutkan angka-angka capaian seperti nilai akurasi atau signifikansi regresi secara konkret).
+5.1 Kesimpulan ({$rmCountRule} Sebutkan angka-angka capaian seperti nilai akurasi, koefisien regresi, atau signifikansi secara konkret).
 5.2 Saran (Uraikan saran operasional dan saran teknis bagi penelitian lanjutan).
 
 Setelah sub-bab 5.2 selesai, buat baris baru bertuliskan persis:
@@ -3876,22 +4034,23 @@ INSTRUKSI MUTLAK:
             if ($chapter === 'bab5') {
                 if (str_contains($cleanContent, '===DAFTAR PUSTAKA===')) {
                     $parts = explode('===DAFTAR PUSTAKA===', $cleanContent, 2);
-                    $project->bab5_content = trim($parts[0]);
+                    $project->bab5_content = $this->enforceChapterQualityAutomatically(trim($parts[0]), 'bab5', $project);
                     $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh, $gayaSitasiCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
                 } elseif (preg_match('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent)) {
                     $parts = preg_split('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent, 2);
-                    $project->bab5_content = trim($parts[0]);
+                    $project->bab5_content = $this->enforceChapterQualityAutomatically(trim($parts[0]), 'bab5', $project);
                     $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh, $gayaSitasiCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
                 } else {
-                    $project->bab5_content = $cleanContent;
+                    $project->bab5_content = $this->enforceChapterQualityAutomatically($cleanContent, 'bab5', $project);
                 }
             } else {
+                $cleanContent = $this->enforceChapterQualityAutomatically($cleanContent, $chapter, $project);
                 $project->{$chapter . '_content'} = $cleanContent;
                 // Ekstrak sitasi otomatis ke daftar pustaka sementara saat Bab III selesai (Proposal) atau jika daftar pustaka masih kosong
                 if ((empty($project->daftar_pustaka) && in_array($chapter, ['bab1', 'bab2', 'bab3'])) || $chapter === 'bab3') {
@@ -3922,6 +4081,9 @@ INSTRUKSI MUTLAK:
                     }
                 }
             }
+
+            // Sinkronisasi otomatis 1-to-1 entri jurnal terverifikasi (DOI asli) ke Daftar Pustaka setiap kali bab selesai disusun
+            $this->syncVerifiedDaftarPustakaAutomatically($project, $gayaSitasiCh, $tahunMinCh);
 
             $project->save();
 
