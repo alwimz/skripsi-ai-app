@@ -8094,40 +8094,127 @@ PANDUAN PENULISAN JAWABAN (ATURAN KETAT):
     public function paraphraseText(Request $request)
     {
         $request->validate([
-            'text' => 'required|string|min:15',
+            'text' => 'required|string|min:15|max:15000',
             'style' => 'nullable|string',
+            'intensity' => 'nullable|string',
+            'preserve_terms' => 'nullable|string|max:500',
         ]);
 
-        $style = $request->input('style', 'academic');
-        $model = $request->input('model', 'auto');
+        $rawText = trim((string) $request->input('text'));
+        $style = (string) $request->input('style', 'natural');
+        $intensity = strtolower((string) $request->input('intensity', 'sedang'));
+        $preserveTerms = trim((string) $request->input('preserve_terms', ''));
+        $model = (string) $request->input('model', 'auto');
 
         $styleInstruction = match ($style) {
-            'natural' => 'Ubah struktur kalimat aktif/pasif dan gunakan sinonim akademik agar lebih mengalir alami serta menurunkan tingkat kemiripan teks tanpa mengubah makna ilmiah maupun sitasi dalam kurung.',
-            'concise' => 'Padatkan dan ringkas kalimat agar lebih lugas, efektif, dan sesuai kaidah EYD V serta KBBI.',
-            'expand' => 'Perluas penjelasan akademik dengan menambahkan elaborasi logis dan kohesi antar-kalimat.',
-            default => 'Tulis ulang dengan gaya Bahasa Indonesia Ilmiah Baku (Standar Skripsi & Jurnal) yang koheren dan tetap mempertahankan sitasi.'
+            'natural' => 'Ubah struktur kalimat secara mendalam (pembalikan klausa aktif/pasif, reorganisasi alur gagasan, dan variasi kosakata akademik presisi) agar menurunkan kemiripan Turnitin semaksimal mungkin tanpa mengubah makna ilmiah.',
+            'passive' => 'Ubah menjadi kalimat pasif ilmiah baku standar Bab III & Bab IV skripsi Indonesia (hindari kata ganti orang pertama seperti penulis/peneliti/saya/kami).',
+            'humanize' => 'Tulis ulang menjadi prosa akademik yang sangat natural, mengalir seperti tulisan peneliti manusia, dan bebaskan total dari klise AI ("Di era digital", "memegang peranan krusial", "tidak dapat dipungkiri").',
+            'concise' => 'Padatkan dan ringkas kalimat agar lebih lugas, hemat kata, dan tajam sesuai kaidah EYD V & KBBI tanpa membuang fakta maupun angka.',
+            'expand' => 'Kembangkan dan elaborasi kalimat dengan penjelasan konseptual, kata hubung transisional yang kuat, dan kedalaman analisis ilmiah.',
+            default => 'Tulis ulang dengan gaya Bahasa Indonesia Ilmiah Baku (Standar Skripsi & Jurnal SINTA/Scopus) sesuai EYD V dan KBBI yang koheren.'
         };
 
-        $prompt = "PERAN: Anda adalah Editor Bahasa Ilmiah (KBBI & EYD V).
-TUGAS: Parafrase teks akademik berikut.
-INSTRUKSI: {$styleInstruction}
-Pertahankan seluruh sitasi nama penulis dan tahun dalam kurung. Langsung berikan teks hasil parafrase tanpa kalimat pembuka.
+        $intensityInstruction = match ($intensity) {
+            'ringan' => 'Intensitas RINGAN: perbaiki diksi agar baku dan ubah seperlunya sambil menjaga urutan gagasan asli (~25–40% perubahan frasa).',
+            'maksimal' => 'Intensitas MAKSIMAL (Anti-Turnitin Ketat): rombak total struktur kalimat dan hindari mengulang 4 kata berurutan dari teks asli jika bukan istilah teknis terkunci (~65–85% perubahan frasa).',
+            default => 'Intensitas SEDANG (Seimbang): ubah struktur kalimat dan padanan sinonim ilmiah secara seimbang agar natural sekaligus aman dari deteksi kesamaan (~45–65% perubahan frasa).'
+        };
+
+        $preserveRule = $preserveTerms !== ''
+            ? "\n- ISTILAH / VARIABEL TERKUNCI WAJIB DIPERTAHANKAN PERSIS (jangan diterjemahkan/diubah): {$preserveTerms}"
+            : '';
+
+        // Deteksi sitasi dalam teks asli agar bisa divalidasi keterjagaannya
+        preg_match_all('/\((?:[A-Z][A-Za-z\s&.,\-]{1,45},?\s*)?(?:19|20)\d{2}[a-z]?(?:,\s*hlm\.?\s*\d+)?\)|\b[A-Z][A-Za-z\-]+(?:\s+(?:et\s+al\.|dkk\.|&|dan)\s+[A-Z]?[A-Za-z\.]*|\s+et\s+al\.)?\s*\((?:19|20)\d{2}[a-z]?\)|\[\d+(?:,\s*\d+)*\]/u', $rawText, $citMatches);
+        $detectedCitations = array_values(array_unique(array_filter(array_map('trim', $citMatches[0] ?? []))));
+
+        $prompt = "PERAN: Anda adalah Editor Bahasa Akademik Senior & Pakar Parafrase Anti-Plagiarisme (KBBI & EYD V).
+TUGAS: Lakukan parafrase tingkat lanjut pada naskah akademik di bawah ini.
+
+ATURAN WAJIB:
+- Gaya Penulisan: {$styleInstruction}
+- Tingkat Perubahan: {$intensityInstruction}
+- PERTAHANKAN 100% seluruh sitasi in-text (nama penulis dan tahun seperti '(Wijaya, 2024)' atau 'Apandi et al. (2025)' atau '[1]'), seluruh angka empiris, persentase, nama metode statistik, dan notasi rumus tanpa mengubah 1 digit pun.{$preserveRule}
+- DILARANG menggunakan kalimat pembuka/penutup AI ('Berikut hasil parafrase...'), tanda pagar markdown, atau tanda bintang (**). Langsung keluarkan teks hasil parafrase yang siap tempel.
 
 TEKS ASLI:
 \"\"\"
-{$request->text}
+{$rawText}
 \"\"\"";
 
         try {
-            $result = $this->ai->generateText($prompt, $model);
+            $result = trim((string) $this->ai->generateText($prompt, $model));
+            $result = (string) preg_replace('/^(?:Berikut(?:\s+adalah)?\s+hasil\s+parafrase[^:\n]*:\s*\n*)/i', '', $result);
+            $result = trim((string) preg_replace('/\*\*([^*\n]+?)\*\*/', '$1', $result));
+
+            // Hitung metrik perbandingan 3-gram secara deterministik
+            $normalizeWords = static function (string $s): array {
+                $clean = mb_strtolower((string) preg_replace('/[^\p{L}\p{N}\s]+/u', ' ', strip_tags($s)));
+                $parts = preg_split('/\s+/u', trim($clean)) ?: [];
+                return array_values(array_filter($parts, fn($w) => $w !== ''));
+            };
+            $origWords = $normalizeWords($rawText);
+            $resWords = $normalizeWords($result);
+
+            $ngramSimilarity = 0.0;
+            if (count($origWords) >= 3 && count($resWords) >= 3) {
+                $origTrigrams = [];
+                for ($i = 0; $i <= count($origWords) - 3; $i++) {
+                    $origTrigrams[$origWords[$i] . ' ' . $origWords[$i + 1] . ' ' . $origWords[$i + 2]] = true;
+                }
+                $matchCount = 0;
+                $totalResTrigrams = max(1, count($resWords) - 2);
+                for ($i = 0; $i < $totalResTrigrams; $i++) {
+                    $tri = $resWords[$i] . ' ' . $resWords[$i + 1] . ' ' . $resWords[$i + 2];
+                    if (isset($origTrigrams[$tri])) {
+                        $matchCount++;
+                    }
+                }
+                $ngramSimilarity = round(($matchCount / $totalResTrigrams) * 100, 1);
+            } else {
+                similar_text(mb_strtolower($rawText), mb_strtolower($result), $pct);
+                $ngramSimilarity = round($pct, 1);
+            }
+
+            $preservedCount = 0;
+            foreach ($detectedCitations as $dc) {
+                if (str_contains($result, $dc) || (preg_match('/(?:19|20)\d{2}/', $dc, $ym) && preg_match('/^[A-Za-z]+/', $dc, $am) && stripos($result, $am[0]) !== false && str_contains($result, $ym[0]))) {
+                    $preservedCount++;
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
-                'result' => trim($result),
+                'result' => $result,
+                'metrics' => [
+                    'original_words' => count($origWords),
+                    'result_words' => count($resWords),
+                    'ngram_similarity' => $ngramSimilarity,
+                    'uniqueness_score' => round(max(0.0, 100.0 - $ngramSimilarity), 1),
+                    'citations_detected' => count($detectedCitations),
+                    'citations_preserved' => $preservedCount,
+                ],
             ]);
         } catch (Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
         }
+    }
+
+    public function getProjectChaptersText($id)
+    {
+        $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'judul' => $project->judul,
+            'chapters' => [
+                'bab1' => trim(strip_tags((string) ($project->bab1_content ?? ''))),
+                'bab2' => trim(strip_tags((string) ($project->bab2_content ?? ''))),
+                'bab3' => trim(strip_tags((string) ($project->bab3_content ?? ''))),
+                'bab4' => trim(strip_tags((string) ($project->bab4_content ?? ''))),
+                'bab5' => trim(strip_tags((string) ($project->bab5_content ?? ''))),
+            ],
+        ]);
     }
 
     public function generatePpt(Request $request)

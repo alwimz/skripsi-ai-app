@@ -1808,6 +1808,11 @@
                 grid-template-columns: 1fr !important;
             }
 
+            .target-choice-card {
+                padding: 12px 14px !important;
+                gap: 8px !important;
+            }
+
             .theme-card-grid {
                 display: grid !important;
                 grid-template-columns: repeat(3, 1fr) !important;
@@ -3211,6 +3216,14 @@
             </button>
 
             <div class="nav-group-title">Bantuan &amp; Pengembang</div>
+            <a href="{{ route('panduan.index') }}" target="_blank" rel="noopener" class="nav-btn" style="text-decoration: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+                <span style="flex: 1;">Panduan Lengkap</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">7</span>
+            </a>
             <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')"
                 style="color: #0284c7;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -3615,33 +3628,29 @@
                                 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">
                                 Pilih Target Penulisan <span class="req">*</span></div>
                             <div class="responsive-grid-2"
-                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <label id="label-target-proposal"
-                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                                <label id="label-target-proposal" class="target-choice-card"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 15px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
                                         <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)"
-                                            checked style="accent-color: var(--primary);"
+                                            checked style="accent-color: var(--primary); flex-shrink: 0;"
                                             onchange="updateTargetStyle(this)">
                                         <span id="title-target-proposal"
-                                            style="font-size: 14px; font-weight: 700; color: var(--primary);">Proposal
-                                            Skripsi (Bab 1–3)</span>
+                                            style="font-size: 13.5px; font-weight: 700; color: var(--primary); line-height: 1.35;">Proposal Skripsi (Bab 1–3)</span>
                                     </div>
                                     <span id="badge-target-proposal"
-                                        style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #dbeafe; color: #1d4ed8;">Seminar
-                                        Proposal</span>
+                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; flex-shrink: 0;">Seminar Proposal</span>
                                 </label>
-                                <label id="label-target-full"
-                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                <label id="label-target-full" class="target-choice-card"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 15px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
                                         <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)"
-                                            style="accent-color: var(--primary);" onchange="updateTargetStyle(this)">
+                                            style="accent-color: var(--primary); flex-shrink: 0;" onchange="updateTargetStyle(this)">
                                         <span id="title-target-full"
-                                            style="font-size: 14px; font-weight: 700; color: var(--text-main);">Full
-                                            Skripsi Lengkap (Bab 1–5)</span>
+                                            style="font-size: 13.5px; font-weight: 700; color: var(--text-main); line-height: 1.35;">Full Skripsi Lengkap (Bab 1–5)</span>
                                     </div>
                                     <span id="badge-target-full"
-                                        style="font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">Sidang
-                                        Akhir</span>
+                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; white-space: nowrap; flex-shrink: 0;">Sidang Akhir</span>
                                 </label>
                             </div>
                         </div>
@@ -3651,8 +3660,16 @@
                             <div class="responsive-grid-title-logo"
                                 style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <label class="form-label">Judul Proposal / Skripsi <span
-                                            class="req">*</span></label>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                                        <label class="form-label" style="margin-bottom: 0;">Judul Proposal / Skripsi <span
+                                                class="req">*</span></label>
+                                        <button type="button" onclick="openTab('titles', 'Cari Judul')"
+                                            style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: all 0.15s;"
+                                            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                            <span>Belum punya judul? Cari Judul dulu →</span>
+                                        </button>
+                                    </div>
                                     <textarea name="judul" id="input-project-judul" class="form-textarea"
                                         style="min-height: 92px;"
                                         placeholder="Gunakan judul yang sesuai dengan fokus penelitianmu (cth: Pengaruh Literasi Digital dan Regulasi Diri terhadap Kesiapan Kerja Mahasiswa...)"
@@ -3876,6 +3893,8 @@
                                 </select>
                             </div>
 
+                            <label class="form-label">Sumber referensi</label>
+                            <div class="responsive-grid-3"
                             <label class="form-label">Sumber referensi <span class="req">*</span> <span
                                     style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-left: 4px;">(Pilih minimal 1)</span></label>
                             @php $oldSumberRef = is_array(old('sumber_referensi')) ? old('sumber_referensi') : []; @endphp
@@ -3883,6 +3902,7 @@
                                 style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                                 <label
                                     style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" checked
                                     <input type="checkbox" name="sumber_referensi[]" value="Umum"
                                         {{ in_array('Umum', $oldSumberRef, true) ? 'checked' : '' }}
                                         onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
@@ -3891,6 +3911,7 @@
                                 </label>
                                 <label
                                     style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked
                                     <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta"
                                         {{ in_array('Terindeks Sinta', $oldSumberRef, true) ? 'checked' : '' }}
                                         onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
@@ -4826,50 +4847,154 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 7. TAB PARAFRASE ONLINE -->
+            <!-- 7. TAB PARAFRASE AKADEMIK PRO (ANTI-TURNITIN & DIFF CHECK) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-paraphrase">
-                <div class="page-eyebrow">Penulisan Akademik</div>
-                <h1 class="page-title">Parafrase Online</h1>
-                <p class="page-subtitle">Tulis ulang paragraf kutipan menjadi bahasa ilmiah yang natural sesuai kaidah
-                    KBBI &amp; EYD V tanpa menghilangkan sitasi.</p>
+                <div class="page-eyebrow">Penulisan Akademik · Anti-Plagiarisme</div>
+                <h1 class="page-title">Parafrase Akademik Pro</h1>
+                <p class="page-subtitle">Ubah struktur kalimat untuk menurunkan kemiripan Turnitin tanpa merusak sitasi, angka statistik, maupun makna ilmiah sesuai KBBI &amp; EYD V.</p>
 
                 <div class="card">
-                    <div class="form-group">
-                        <label class="form-label">Gaya Parafrase</label>
-                        <select id="para-style" class="form-select">
-                            <option value="academic">Akademik Standar (Bahasa Baku Skripsi)</option>
-                            <option value="natural">Ubah Struktur Kalimat (Turunkan Kemiripan Turnitin)</option>
-                            <option value="concise">Ringkas &amp; Padat</option>
-                            <option value="expand">Perluas Penjelasan Ilmiah</option>
-                        </select>
+                    <!-- Sumber Input Switcher -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                        <div class="plag-mode-tabs" style="margin-bottom: 0;" role="tablist">
+                            <button type="button" class="plag-mode-btn active" id="para-src-btn-text" onclick="setParaSourceMode('text')">Tulis / Tempel Teks</button>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-file" onclick="setParaSourceMode('file')">Impor dari File (.docx/.pdf/.txt)</button>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-project" onclick="setParaSourceMode('project')">Ambil dari Proyek Bab I–V</button>
+                        </div>
+                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="resetParaphraseStudio()">Reset</button>
+                    </div>
+
+                    <!-- Impor dari File -->
+                    <div id="para-import-file-box" style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px dashed var(--border); border-radius: 10px;">
+                        <label class="form-label">Pilih File Skripsi / Referensi (.docx, .pdf, atau .txt)</label>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" id="para-file-input" class="form-input" accept=".docx,.pdf,.txt" style="flex: 1; min-width: 220px; padding: 7px 10px; font-size: 13px;" onchange="importFileToParaphrase(this)">
+                        </div>
+                        <div id="para-file-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Teks hasil ekstraksi langsung dimuat ke kotak di bawah (maks 15.000 karakter).</div>
+                    </div>
+
+                    <!-- Impor dari Proyek -->
+                    <div id="para-import-proj-box" style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;">
+                        <div class="form-row" style="margin-bottom: 0;">
+                            <div>
+                                <label class="form-label">Pilih Proyek Skripsi / Proposal</label>
+                                <select id="para-proj-select" class="form-select">
+                                    <option value="">-- Pilih proyek --</option>
+                                    @foreach($history as $item)
+                                        <option value="{{ $item->id }}">{{ \Illuminate\Support\Str::limit($item->judul, 85) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Pilih Bab yang Ingin Dimuat</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <select id="para-proj-bab" class="form-select" style="flex: 1;">
+                                        <option value="bab1">Bab I — Pendahuluan</option>
+                                        <option value="bab2">Bab II — Tinjauan Pustaka</option>
+                                        <option value="bab3">Bab III — Metodologi</option>
+                                        <option value="bab4">Bab IV — Hasil &amp; Pembahasan</option>
+                                        <option value="bab5">Bab V — Penutup</option>
+                                    </select>
+                                    <button type="button" id="btn-load-para-proj" class="btn-outline" style="white-space: nowrap;" onclick="importProjectBabToParaphrase()">Muat Teks</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opsi Gaya, Intensitas, & Istilah Terkunci -->
+                    <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label class="form-label">Mode Parafrase</label>
+                            <select id="para-style" class="form-select">
+                                <option value="natural" selected>Anti-Turnitin (Rombak Struktur Kalimat)</option>
+                                <option value="academic">Ilmiah Baku (Standar EYD V &amp; KBBI)</option>
+                                <option value="passive">Kalimat Pasif Ilmiah (Bab III &amp; IV)</option>
+                                <option value="humanize">Humanizer Natural (Bebas Gaya Kaku AI)</option>
+                                <option value="concise">Ringkas &amp; Padat</option>
+                                <option value="expand">Elaborasi Ilmiah Mendalam</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Intensitas Perubahan</label>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="ringan" onclick="setParaIntensity('ringan', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center;">Ringan</button>
+                                <button type="button" class="btn-outline para-int-btn active" data-intensity="sedang" onclick="setParaIntensity('sedang', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 700;">Sedang</button>
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="maksimal" onclick="setParaIntensity('maksimal', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center;">Maksimal</button>
+                            </div>
+                            <input type="hidden" id="para-intensity" value="sedang">
+                        </div>
+                        <div>
+                            <label class="form-label">Istilah / Variabel Terkunci <span class="opt">(opsional)</span></label>
+                            <input type="text" id="para-preserve-terms" class="form-input" placeholder="cth: Naive Bayes, TF-IDF, turnover intention">
+                        </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Teks Asli <span class="req">*</span></label>
-                        <textarea id="para-input" class="form-textarea"
-                            placeholder="Tempelkan paragraf yang ingin diparafrase di sini..."></textarea>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Naskah / Paragraf Asli <span class="req">*</span></label>
+                            <span id="para-input-counter" style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">0 kata · 0 karakter</span>
+                        </div>
+                        <textarea id="para-input" class="form-textarea" style="min-height: 155px; line-height: 1.65;"
+                            oninput="updateParaCounter()"
+                            placeholder="Tempelkan paragraf yang ingin diparafrase di sini (maks 15.000 karakter)..."></textarea>
                     </div>
 
                     <div class="card-footer-bar">
-                        <span class="footer-meta">SITASI DALAM KURUNG TETAP DIPERTAHANKAN</span>
+                        <span class="footer-meta">SITASI IN-TEXT, ANGKA &amp; RUMUS OTOMATIS TERKUNCI</span>
                         <button type="button" id="btn-paraphrase" class="btn-primary"
                             onclick="handleParaphrase()">Parafrase Sekarang →</button>
                     </div>
                 </div>
 
-                <div id="para-loading-box" style="display: none;"></div>
+                <div id="para-loading-box" style="display: none; margin-top: 16px;"></div>
 
+                <!-- Hasil Parafrase Lengkap + Metrik & Diff -->
                 <div id="para-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                        <span class="form-label" style="margin-bottom: 0;">Hasil Parafrase</span>
-                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
-                            onclick="navigator.clipboard.writeText(document.getElementById('para-output').innerText); alert('Hasil parafrase disalin!');">Salin
-                            Teks</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); margin-bottom: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="form-label" style="margin-bottom: 0; font-size: 14px;">Hasil Parafrase</span>
+                            <span id="para-metric-uniqueness" style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #dcfce7; color: #166534;">Keunikan -%</span>
+                            <span id="para-metric-sim" style="font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #eff6ff; color: #1d4ed8;">Kemiripan tersisa -%</span>
+                            <span id="para-metric-words" style="font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">0 → 0 kata</span>
+                            <span id="para-metric-cites" style="display: none; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f0fdf4; color: #15803d;">0 sitasi terjaga</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn-outline" id="para-view-clean-btn" style="padding: 5px 11px; font-size: 12px; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 600;" onclick="switchParaResultView('clean')">Hasil Bersih</button>
+                            <button type="button" class="btn-outline" id="para-view-diff-btn" style="padding: 5px 11px; font-size: 12px;" onclick="switchParaResultView('diff')">Bandingkan Perubahan</button>
+                        </div>
                     </div>
-                    <div id="para-output"
-                        style="font-size: 14px; line-height: 1.75; color: var(--text-main); white-space: pre-wrap;">
+
+                    <!-- View 1: Editable clean result -->
+                    <div id="para-view-clean">
+                        <textarea id="para-output" class="form-textarea" style="min-height: 170px; font-size: 14px; line-height: 1.75; color: var(--text-main); background: #fff;"></textarea>
+                    </div>
+
+                    <!-- View 2: Side-by-side Diff Highlight -->
+                    <div id="para-view-diff" style="display: none;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+                            <span style="display: inline-block; padding: 1px 6px; background: #dcfce7; color: #166534; border-radius: 4px; font-weight: 600;">Hijau</span> = frasa/kata baru hasil parafrase &nbsp;·&nbsp;
+                            <span style="display: inline-block; padding: 1px 6px; background: #fee2e2; color: #991b1b; border-radius: 4px; text-decoration: line-through;">Merah</span> = kata asli yang diganti
+                        </div>
+                        <div class="responsive-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                            <div style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #fafafa;">
+                                <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Teks Asli</div>
+                                <div id="para-diff-orig" style="font-size: 13.5px; line-height: 1.75; color: #334155;"></div>
+                            </div>
+                            <div style="padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff;">
+                                <div style="font-size: 11.5px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; margin-bottom: 6px;">Hasil Parafrase Baru</div>
+                                <div id="para-diff-new" style="font-size: 13.5px; line-height: 1.75; color: #0f172a;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer-bar" style="margin-top: 14px;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="copyParaphraseResult(this)">Salin Teks</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="downloadParaphraseTxt()">Unduh .txt</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="reParaphraseOutput()">Parafrase Ulang ↻</button>
+                        </div>
+                        <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="sendParaphraseToPlagiarism()">Cek Kemiripan Turnitin →</button>
                     </div>
                 </div>
             </section>
@@ -8311,31 +8436,257 @@
         }
 
         // =====================================================================
-        // 5. PARAFRASE & DISKUSI (DENGAN ANIMASI LOADING)
+        // 5. PARAFRASE AKADEMIK PRO (DIFF HIGHLIGHT, FILE/PROYEK IMPORT, & METRIK)
         // =====================================================================
+        function setParaSourceMode(mode) {
+            ['text', 'file', 'project'].forEach(m => {
+                const btn = document.getElementById('para-src-btn-' + m);
+                if (btn) btn.classList.toggle('active', m === mode);
+            });
+            const fBox = document.getElementById('para-import-file-box');
+            const pBox = document.getElementById('para-import-proj-box');
+            if (fBox) fBox.style.display = mode === 'file' ? 'block' : 'none';
+            if (pBox) pBox.style.display = mode === 'project' ? 'block' : 'none';
+        }
+
+        function setParaIntensity(level, btn) {
+            const hidden = document.getElementById('para-intensity');
+            if (hidden) hidden.value = level;
+            document.querySelectorAll('.para-int-btn').forEach(b => {
+                b.style.background = '#fff';
+                b.style.color = '#334155';
+                b.style.borderColor = '#e2e8f0';
+                b.style.fontWeight = '500';
+            });
+            if (btn) {
+                btn.style.background = '#eff6ff';
+                btn.style.color = '#1d4ed8';
+                btn.style.borderColor = '#93c5fd';
+                btn.style.fontWeight = '700';
+            }
+        }
+
+        function updateParaCounter() {
+            const val = (document.getElementById('para-input')?.value || '').trim();
+            const words = val ? val.split(/\s+/).filter(Boolean).length : 0;
+            const el = document.getElementById('para-input-counter');
+            if (el) el.textContent = `${words} kata · ${val.length} karakter`;
+        }
+
+        function resetParaphraseStudio() {
+            const inp = document.getElementById('para-input');
+            const terms = document.getElementById('para-preserve-terms');
+            const card = document.getElementById('para-result-card');
+            if (inp) inp.value = '';
+            if (terms) terms.value = '';
+            if (card) card.style.display = 'none';
+            updateParaCounter();
+        }
+
+        async function importFileToParaphrase(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const status = document.getElementById('para-file-status');
+            const ta = document.getElementById('para-input');
+            const nameLower = file.name.toLowerCase();
+            if (status) status.textContent = `Membaca teks dari ${file.name}...`;
+            try {
+                let extracted = '';
+                if (nameLower.endsWith('.txt')) {
+                    extracted = await file.text();
+                } else if (nameLower.endsWith('.pdf')) {
+                    extracted = await extractPdfTextInBrowser(file);
+                } else if (nameLower.endsWith('.docx')) {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const res = await fetch("{{ route('tools.extract.docxText') }}", {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        body: fd
+                    });
+                    const d = await res.json();
+                    if (!res.ok || d.status !== 'success') throw new Error(d.message || 'Gagal membaca .docx');
+                    extracted = d.text || '';
+                } else {
+                    throw new Error('Format harus .docx, .pdf, atau .txt');
+                }
+                extracted = extracted.trim().slice(0, 14000);
+                if (!extracted) throw new Error('Teks kosong atau dokumen berupa scan gambar.');
+                if (ta) ta.value = extracted;
+                updateParaCounter();
+                if (status) status.innerHTML = `<strong style="color:#16a34a;">Berhasil dimuat:</strong> ${escapeHtml(file.name)} (${extracted.split(/\s+/).length} kata). Kamu bisa mengedit atau memilih paragraf spesifik di bawah sebelum parafrase.`;
+            } catch (err) {
+                if (status) status.innerHTML = `<span style="color:#dc2626;">Gagal: ${escapeHtml(err.message)}</span>`;
+            }
+        }
+
+        async function importProjectBabToParaphrase() {
+            const pid = document.getElementById('para-proj-select')?.value;
+            const bab = document.getElementById('para-proj-bab')?.value || 'bab1';
+            const btn = document.getElementById('btn-load-para-proj');
+            if (!pid) {
+                alert('Pilih proyek terlebih dahulu.');
+                return;
+            }
+            if (btn) { btn.disabled = true; btn.textContent = 'Memuat...'; }
+            try {
+                const res = await fetch(`/project/${pid}/chapters-text`);
+                const d = await res.json();
+                if (!res.ok || d.status !== 'success') throw new Error(d.message || 'Gagal mengambil naskah proyek.');
+                const txt = ((d.chapters && d.chapters[bab]) || '').trim();
+                if (!txt) {
+                    alert('Isi bab yang dipilih masih kosong. Silakan pilih bab lain yang sudah di-generate.');
+                    return;
+                }
+                const ta = document.getElementById('para-input');
+                if (ta) ta.value = txt.slice(0, 14000);
+                updateParaCounter();
+            } catch (e) {
+                alert(e.message || 'Gagal memuat bab proyek.');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Muat Teks'; }
+            }
+        }
+
+        function switchParaResultView(view) {
+            const cleanPane = document.getElementById('para-view-clean');
+            const diffPane = document.getElementById('para-view-diff');
+            const cleanBtn = document.getElementById('para-view-clean-btn');
+            const diffBtn = document.getElementById('para-view-diff-btn');
+            if (cleanPane) cleanPane.style.display = view === 'clean' ? 'block' : 'none';
+            if (diffPane) diffPane.style.display = view === 'diff' ? 'block' : 'none';
+            if (cleanBtn) {
+                cleanBtn.style.background = view === 'clean' ? '#eff6ff' : '#fff';
+                cleanBtn.style.color = view === 'clean' ? '#1d4ed8' : '#334155';
+                cleanBtn.style.borderColor = view === 'clean' ? '#93c5fd' : '#e2e8f0';
+            }
+            if (diffBtn) {
+                diffBtn.style.background = view === 'diff' ? '#eff6ff' : '#fff';
+                diffBtn.style.color = view === 'diff' ? '#1d4ed8' : '#334155';
+                diffBtn.style.borderColor = view === 'diff' ? '#93c5fd' : '#e2e8f0';
+            }
+        }
+
+        function renderParaphraseWordDiff(origText, newText) {
+            const norm = w => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+            const origTokens = origText.trim().split(/\s+/).filter(Boolean);
+            const newTokens = newText.trim().split(/\s+/).filter(Boolean);
+            const origSet = new Set(origTokens.map(norm).filter(Boolean));
+            const newSet = new Set(newTokens.map(norm).filter(Boolean));
+
+            const origHtml = origTokens.map(tok => {
+                const n = norm(tok);
+                if (n && n.length > 2 && !newSet.has(n)) {
+                    return `<span style="background:#fee2e2;color:#991b1b;padding:0 3px;border-radius:3px;text-decoration:line-through;">${escapeHtml(tok)}</span>`;
+                }
+                return escapeHtml(tok);
+            }).join(' ');
+
+            const newHtml = newTokens.map(tok => {
+                const n = norm(tok);
+                if (n && n.length > 2 && !origSet.has(n)) {
+                    return `<span style="background:#dcfce7;color:#166534;padding:0 3px;border-radius:3px;font-weight:500;">${escapeHtml(tok)}</span>`;
+                }
+                return escapeHtml(tok);
+            }).join(' ');
+
+            const origEl = document.getElementById('para-diff-orig');
+            const newEl = document.getElementById('para-diff-new');
+            if (origEl) origEl.innerHTML = origHtml;
+            if (newEl) newEl.innerHTML = newHtml;
+        }
+
+        function copyParaphraseResult(btn) {
+            const out = (document.getElementById('para-output')?.value || '').trim();
+            if (!out) return;
+            navigator.clipboard.writeText(out).then(() => {
+                if (!btn) return;
+                const prev = btn.textContent;
+                btn.textContent = '✓ Tersalin!';
+                setTimeout(() => { btn.textContent = prev; }, 1600);
+            });
+        }
+
+        function downloadParaphraseTxt() {
+            const out = (document.getElementById('para-output')?.value || '').trim();
+            if (!out) return;
+            const blob = new Blob([out], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Hasil_Parafrase_SkripsiLab.txt';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function reParaphraseOutput() {
+            const out = (document.getElementById('para-output')?.value || '').trim();
+            const inp = document.getElementById('para-input');
+            if (!out || !inp) return;
+            inp.value = out;
+            updateParaCounter();
+            handleParaphrase();
+        }
+
+        function sendParaphraseToPlagiarism() {
+            const out = (document.getElementById('para-output')?.value || '').trim();
+            if (!out) return;
+            openTab('plagiarism', 'Cek Plagiasi');
+            if (typeof setPlagInputMode === 'function') setPlagInputMode('text');
+            const plagTa = document.getElementById('plag-text-input');
+            if (plagTa) {
+                plagTa.value = out;
+                plagTa.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
         async function handleParaphrase() {
-            const text = document.getElementById('para-input').value.trim();
-            const style = document.getElementById('para-style').value;
+            const text = (document.getElementById('para-input')?.value || '').trim();
+            const style = document.getElementById('para-style')?.value || 'natural';
+            const intensity = document.getElementById('para-intensity')?.value || 'sedang';
+            const preserve_terms = (document.getElementById('para-preserve-terms')?.value || '').trim();
             if (text.length < 15) {
-                alert('Masukkan minimal 1 kalimat lengkap untuk diparafrase.');
+                alert('Masukkan minimal 1 kalimat lengkap (15 karakter) untuk diparafrase.');
                 return;
             }
             const btn = document.getElementById('btn-paraphrase');
             btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Memproses Parafrase...</span>';
+            btn.innerHTML = '<span class="ai-spinner"></span><span>Memproses Parafrase Pro...</span>';
             document.getElementById('para-result-card').style.display = 'none';
-            renderLoadingCard('para-loading-box', 'AI sedang memparafrase paragraf sesuai KBBI & EYD V...', 'Menyusun ulang struktur kalimat ilmiah dan mempertahankan sitasi di dalam kurung...');
+            renderLoadingCard('para-loading-box', 'AI sedang merombak struktur kalimat & mengunci sitasi...', 'Menurunkan kemiripan Turnitin tanpa mengubah makna ilmiah, angka, dan sitasi dalam kurung...');
 
             try {
                 const res = await fetch("{{ route('tools.paraphrase') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ text, style, model: getSelectedModel() })
+                    body: JSON.stringify({ text, style, intensity, preserve_terms, model: getSelectedModel() })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    document.getElementById('para-output').innerText = data.result;
+                    const outEl = document.getElementById('para-output');
+                    if (outEl) outEl.value = data.result;
+                    const m = data.metrics || {};
+                    const uEl = document.getElementById('para-metric-uniqueness');
+                    const sEl = document.getElementById('para-metric-sim');
+                    const wEl = document.getElementById('para-metric-words');
+                    const cEl = document.getElementById('para-metric-cites');
+                    if (uEl) uEl.textContent = `Keunikan ${m.uniqueness_score ?? '-'}%`;
+                    if (sEl) sEl.textContent = `Kemiripan tersisa ${m.ngram_similarity ?? '-'}%`;
+                    if (wEl) wEl.textContent = `${m.original_words ?? 0} → ${m.result_words ?? 0} kata`;
+                    if (cEl) {
+                        if ((m.citations_detected || 0) > 0) {
+                            cEl.style.display = 'inline-block';
+                            cEl.textContent = `${m.citations_preserved}/${m.citations_detected} sitasi terjaga`;
+                        } else {
+                            cEl.style.display = 'none';
+                        }
+                    }
+                    renderParaphraseWordDiff(text, data.result);
+                    switchParaResultView('clean');
                     document.getElementById('para-result-card').style.display = 'block';
+                    document.getElementById('para-result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } else {
                     alert(data.message || 'Gagal memproses parafrase.');
                 }

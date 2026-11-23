@@ -1677,7 +1677,7 @@
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
                 <li><a href="#tools-gratis" class="nav-link">Tools</a></li>
-                <li><a href="#fitur-lengkap" class="nav-link">Semua Modul</a></li>
+                <li><a href="{{ url('/panduan') }}" class="nav-link">Panduan</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
 
@@ -1709,6 +1709,8 @@
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp;
                 Skripsi <span>→</span></a>
             <a href="#tools-gratis" class="mobile-nav-link" onclick="closeLandingMobileNav()">10 Tools Gratis
+                <span>→</span></a>
+            <a href="{{ url('/panduan') }}" class="mobile-nav-link" onclick="closeLandingMobileNav()">Panduan Skripsi (7 Modul)
                 <span>→</span></a>
             <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab
                 AI
@@ -2374,8 +2376,11 @@
                     style="width: 26px; height: 26px; border-radius: 6px; display: block;">
                 SkripsiLab AI
             </div>
-            <div>&copy; {{ date('Y') }} SkripsiLab AI &bull; Proposal &amp; skripsi otomatis AI dengan referensi jurnal
-                yang relevan.</div>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <a href="{{ url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
+                <a href="{{ url('/tools') }}">Tools Gratis</a>
+                <span>&copy; {{ date('Y') }} SkripsiLab AI &bull; Proposal &amp; skripsi otomatis AI dengan referensi jurnal yang relevan.</span>
+            </div>
         </div>
     </footer>
 

@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Allow: /tools
+Allow: /panduan
+Allow: /panduan/
 Allow: /login
 Allow: /register
 Allow: /sample/download/

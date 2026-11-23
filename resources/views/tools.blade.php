@@ -1648,37 +1648,42 @@
                     </div>
                 </div>
 
-                <div class="form-grid-2" style="margin-bottom:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                    <label class="form-label" style="margin:0;">Opsi Perapian <span style="color:#dc2626;">*</span> <span style="font-weight:500; color:var(--text-muted);">(Pilih sendiri minimal 1)</span></label>
+                    <button type="button" id="btn-toggle-all-tidy" onclick="toggleAllTidyOpts(this)" style="font-size:12px; font-weight:600; color:var(--primary); background:#eff6ff; border:1px solid #bfdbfe; border-radius:7px; cursor:pointer; padding:4px 10px;">Centang Semua</button>
+                </div>
+
+                <div class="form-grid-2" id="tidy-options-grid" style="margin-bottom:8px;">
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-pagebreak" checked>
+                        <input type="checkbox" id="tidy-opt-pagebreak" onchange="syncTidyToggleBtn()">
                         <span><strong>Rapikan Pindah Halaman &amp; Hapus Halaman Kosong:</strong> Mulai halaman baru otomatis tiap <code>BAB I–V</code>, <code>ABSTRAK</code>, <code>DAFTAR PUSTAKA</code>, serta hapus enter &amp; page break kosong berlebih.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-indent" checked>
+                        <input type="checkbox" id="tidy-opt-indent" onchange="syncTidyToggleBtn()">
                         <span><strong>Rata Kanan-Kiri, Indentasi &amp; Anti Yatim:</strong> Paragraf isi jadi Justify + masuk 1,25 cm, <code>widowControl</code> aktif, Sub-BAB terkunci (Keep Next), &amp; Daftar Pustaka otomatis Hanging Indent.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-tables" checked>
+                        <input type="checkbox" id="tidy-opt-tables" onchange="syncTidyToggleBtn()">
                         <span><strong>Rapikan Tabel Data (Bebas Potong Margin):</strong> Skalakan lebar kolom tabel pas 100% margin, border tipis rapi, font tabel 10,5pt spasi 1,0, &amp; judul tabel berulang tiap halaman (tabel tanda tangan otomatis dilewati).</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-spaces" checked>
+                        <input type="checkbox" id="tidy-opt-spaces" onchange="syncTidyToggleBtn()">
                         <span><strong>Bersihkan Spasi &amp; Tanda Baca Berantakan:</strong> Hapus spasi ganda/spasi sebelum titik/koma tanpa mengubah satu pun kata, kutipan, rumus, atau angka asli mahasiswa.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-images" checked>
+                        <input type="checkbox" id="tidy-opt-images" onchange="syncTidyToggleBtn()">
                         <span><strong>Rapikan Gambar &amp; Keterangan (Anti Terpotong):</strong> Perkecil proporsional gambar yang melebar keluar margin kertas, posisikan rata tengah, &amp; kunci judul Gambar/Tabel agar tidak terpisah halaman.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-cleanstyle" checked>
+                        <input type="checkbox" id="tidy-opt-cleanstyle" onchange="syncTidyToggleBtn()">
                         <span><strong>Hapus Bekas Copy-Paste (Shading &amp; Warna Teks):</strong> Bersihkan latar belakang abu-abu/putih, stabilo highlight, &amp; seragamkan warna teks isi menjadi hitam pekat siap cetak.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-cover" checked>
+                        <input type="checkbox" id="tidy-opt-cover" onchange="syncTidyToggleBtn()">
                         <span><strong>Lindungi Halaman Sampul &amp; Lembar Pengesahan:</strong> Pertahankan tata letak Cover, logo kampus, jarak tanda tangan, Daftar Isi otomatis (TOC), &amp; rumus matematika Word (Equation) agar tidak ikut berubah.</span>
                     </label>
                     <label class="check-card">
-                        <input type="checkbox" id="tidy-opt-abstract" checked>
+                        <input type="checkbox" id="tidy-opt-abstract" onchange="syncTidyToggleBtn()">
                         <span><strong>Format Khusus Abstrak &amp; Kutipan Blok:</strong> Otomatis atur bagian <code>ABSTRAK / ABSTRACT</code> menjadi spasi 1,0 (tunggal) sesuai pedoman kampus Indonesia, sementara isi Bab tetap mengikuti pilihan spasi di atas.</span>
                     </label>
                 </div>
@@ -3749,9 +3754,30 @@
             setStatus('status-tidy', 'info', 'File Word siap dirapikan. Pilih standar margin/font lalu klik "Rapikan Skripsi Sekarang".');
         }
 
+        function toggleAllTidyOpts(btn) {
+            const boxes = Array.from(document.querySelectorAll('#tidy-options-grid input[type="checkbox"]'));
+            const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+            boxes.forEach(b => { b.checked = !allChecked; });
+            syncTidyToggleBtn();
+        }
+
+        function syncTidyToggleBtn() {
+            const boxes = Array.from(document.querySelectorAll('#tidy-options-grid input[type="checkbox"]'));
+            const btn = document.getElementById('btn-toggle-all-tidy');
+            if (!btn) return;
+            const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+            btn.textContent = allChecked ? 'Kosongkan Semua' : 'Centang Semua';
+        }
+
         async function runTidyDocx() {
             if (!tidyDocxFile) {
                 setStatus('status-tidy', 'error', 'Pilih file Word (.docx) skripsimu terlebih dahulu.');
+                return;
+            }
+            const checkedTidyCount = document.querySelectorAll('#tidy-options-grid input[type="checkbox"]:checked').length;
+            if (checkedTidyCount < 1) {
+                setStatus('status-tidy', 'error', 'Silakan pilih minimal 1 opsi perapian terlebih dahulu.');
+                document.getElementById('tidy-options-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
             const btn = document.getElementById('btn-tidy-docx');
@@ -3777,14 +3803,14 @@
                 const [fontName, fontSzStr] = document.getElementById('tidy-font').value.split('|');
                 const bodySz = parseInt(fontSzStr, 10) || 24;
                 const lineVal = document.getElementById('tidy-spacing').value || '360';
-                const optPageBreak = document.getElementById('tidy-opt-pagebreak').checked;
-                const optIndent = document.getElementById('tidy-opt-indent').checked;
-                const optTables = document.getElementById('tidy-opt-tables').checked;
-                const optSpaces = document.getElementById('tidy-opt-spaces').checked;
-                const optImages = document.getElementById('tidy-opt-images')?.checked ?? true;
-                const optCleanStyle = document.getElementById('tidy-opt-cleanstyle')?.checked ?? true;
-                const optProtectCover = document.getElementById('tidy-opt-cover')?.checked ?? true;
-                const optAbstract = document.getElementById('tidy-opt-abstract')?.checked ?? true;
+                const optPageBreak = Boolean(document.getElementById('tidy-opt-pagebreak')?.checked);
+                const optIndent = Boolean(document.getElementById('tidy-opt-indent')?.checked);
+                const optTables = Boolean(document.getElementById('tidy-opt-tables')?.checked);
+                const optSpaces = Boolean(document.getElementById('tidy-opt-spaces')?.checked);
+                const optImages = Boolean(document.getElementById('tidy-opt-images')?.checked);
+                const optCleanStyle = Boolean(document.getElementById('tidy-opt-cleanstyle')?.checked);
+                const optProtectCover = Boolean(document.getElementById('tidy-opt-cover')?.checked);
+                const optAbstract = Boolean(document.getElementById('tidy-opt-abstract')?.checked);
 
                 const marginPresets = {
                     '4433': { top: 2268, left: 2268, bottom: 1701, right: 1701 },

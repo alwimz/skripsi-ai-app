@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentToolsController;
 use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\PanduanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,17 +15,27 @@ use App\Http\Controllers\StatisticsController;
 |--------------------------------------------------------------------------
 */
 
-// 1. HALAMAN PUBLIK, SEO SITEMAP, ARSIP PROYEK MAHASISWA & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
+// 1. HALAMAN PUBLIK, SEO SITEMAP, PANDUAN PENGGUNA & DOWNLOAD CONTOH ASLI (.DOCX / .PDF)
 Route::get('/', [GeneratorController::class, 'landingPage'])->name('home');
+Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index');
+Route::get('/panduan/{slug}', [PanduanController::class, 'show'])->name('panduan.show');
 Route::get('/sitemap.xml', function () {
     $baseUrl = rtrim(url('/'), '/');
     $today = now()->toDateString();
     $urls = [
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => $baseUrl . '/tools', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/register', 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/login', 'priority' => '0.7', 'changefreq' => 'monthly'],
     ];
+    foreach (PanduanController::getGuides() as $g) {
+        $urls[] = [
+            'loc' => $baseUrl . '/panduan/' . $g['slug'],
+            'priority' => '0.8',
+            'changefreq' => 'weekly',
+        ];
+    }
     foreach (['manajemen', 'it', 'hukum', 'kedokteran', 'pendidikan', 'teknik'] as $major) {
         $urls[] = [
             'loc' => $baseUrl . '/sample/download/' . $major . '/pdf',
@@ -83,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
 
     // --- WORKSPACE GENERATOR (BAB 1-3 PROPOSAL / BAB 1-5 SKRIPSI) ---
     Route::get('/project/{id}', [GeneratorController::class, 'generatorIndex'])->name('app.index');
+    Route::get('/project/{id}/chapters-text', [GeneratorController::class, 'getProjectChaptersText'])->name('project.chapters.text');
     Route::post('/project/{id}/generate', [GeneratorController::class, 'generateChapter'])->name('project.generate');
     Route::post('/project/{id}/revise', [GeneratorController::class, 'reviseChapter'])->name('project.revise');
     Route::post('/project/{id}/save-chapter', [GeneratorController::class, 'saveChapterManual'])->name('project.save.chapter');
