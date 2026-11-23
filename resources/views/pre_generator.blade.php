@@ -5188,8 +5188,8 @@
                                 <div class="od-test-desc">Uji hubungan 2 variabel kategorik (Kesehatan/Sosial) + Cramer's V.</div>
                             </button>
                             <button type="button" class="od-test-card" data-test="nonparam" onclick="odSelectTest('nonparam')">
-                                <div class="od-test-name">Non-Parametrik (MW / Wilcoxon)</div>
-                                <div class="od-test-desc">Alternatif uji beda jika data tidak normal: Mann-Whitney U &amp; Wilcoxon.</div>
+                                <div class="od-test-name">Non-Parametrik (MW / Wilcoxon / Kruskal)</div>
+                                <div class="od-test-desc">Alternatif uji beda data tidak normal: Mann-Whitney U, Wilcoxon, &amp; Kruskal-Wallis H (≥3 kelompok).</div>
                             </button>
                         </div>
 
@@ -9078,6 +9078,44 @@
             odRenderVarPicker();
         }
 
+        function odGetFactorColumns(mode = 'any') {
+            const allCols = odDataset.columns || [];
+            const rows = odDataset.rows || [];
+            const nRows = rows.length;
+            if (!nRows) return [];
+
+            const isIdName = c => /^(id|no|nomor|responden|kode_benda_uji|kode_benda|kode_sampel|kode|nim|npm)$/i.test(c.trim());
+            const stats = allCols.map(c => {
+                const uniq = new Set();
+                let nonEmpty = 0;
+                rows.forEach(r => {
+                    const v = String(r[c] ?? '').trim();
+                    if (v !== '') { nonEmpty++; uniq.add(v); }
+                });
+                const isCat = odColMeta.categorical.includes(c);
+                const repeats = uniq.size >= 2 && uniq.size < nonEmpty;
+                const lowCard = uniq.size >= 2 && uniq.size <= Math.min(15, Math.max(2, Math.floor(nonEmpty / 2)));
+                return { col: c, uniq: uniq.size, nonEmpty, isCat, repeats, lowCard, isId: isIdName(c) };
+            });
+
+            // 1. Kolom faktor ideal: bukan ID, nilai berulang (bukan kode unik per baris), kategorik atau kardinalitas rendah
+            let filtered = stats.filter(s => !s.isId && s.repeats && (s.isCat || s.lowCard));
+            if (mode === 'two') {
+                const exactTwo = filtered.filter(s => s.uniq === 2);
+                if (exactTwo.length) filtered = exactTwo;
+            } else if (mode === 'multi') {
+                const multi = filtered.filter(s => s.uniq >= 3);
+                if (multi.length) filtered = multi;
+            }
+
+            if (filtered.length) return filtered.map(s => s.col);
+
+            // Fallback aman jika dataset sangat kecil atau kolom faktor berkode numerik
+            const fallback = stats.filter(s => !s.isId && s.uniq >= 2 && s.uniq < s.nonEmpty);
+            if (fallback.length) return fallback.map(s => s.col);
+            return allCols.filter(c => !isIdName(c));
+        }
+
         function odRenderVarPicker() {
             const host = document.getElementById('od-var-picker');
             if (!host) return;
@@ -9089,7 +9127,9 @@
             const allCols = odDataset.columns;
             const numCols = odColMeta.numeric.length ? odColMeta.numeric : allCols;
             const nonIdNum = numCols.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
-            const nonIdCat = odColMeta.categorical.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const factorMulti = odGetFactorColumns('multi');
+            const factorTwo = odGetFactorColumns('two');
+            const factorAny = odGetFactorColumns('any');
             const optHtml = (list, selectedVal) => list.map(c => `<option value="${odEscape(c)}" ${c === selectedVal ? 'selected' : ''}>${odEscape(c)}</option>`).join('');
 
             if (odActiveTest === 'regression') {
@@ -9149,83 +9189,97 @@
                     <label class="form-label">Pilih Kolom Butir Item Kuesioner (otomatis dikelompokkan berdasarkan prefix seperti X1_1..X1_4, Y_1..Y_4)</label>
                     <div class="od-chip-list">${chips}</div>`;
             } else if (odActiveTest === 'anova' || odActiveTest === 'ttest_ind') {
-                const defG = nonIdCat[0] || allCols[0] || '';
-                const defV = nonIdNum[0] || numCols[0] || '';
+                const factorList = odActiveTest === 'ttest_ind' ? factorTwo : factorMulti;
+                const defG = factorList[0] || factorAny[0] || allCols[0] || '';
+                const valList = nonIdNum.length ? nonIdNum : numCols;
+                const defV = valList[0] || '';
                 host.innerHTML = `
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                         <div>
                             <label class="form-label" for="od-group-col">Kolom Kelompok / Variasi Perlakuan (Faktor)</label>
-                            <select id="od-group-col" class="form-select">${optHtml(allCols, defG)}</select>
+                            <select id="od-group-col" class="form-select">${optHtml(factorList.length ? factorList : factorAny, defG)}</select>
                         </div>
                         <div>
                             <label class="form-label" for="od-value-col">Kolom Nilai Pengukuran (Numerik)</label>
-                            <select id="od-value-col" class="form-select">${optHtml(numCols, defV)}</select>
+                            <select id="od-value-col" class="form-select">${optHtml(valList, defV)}</select>
                         </div>
                     </div>`;
             } else if (odActiveTest === 'ttest_paired') {
-                const defA = nonIdNum[0] || numCols[0] || '';
-                const defB = nonIdNum[1] || numCols[1] || defA;
+                const valList = nonIdNum.length ? nonIdNum : numCols;
+                const defA = valList[0] || '';
+                const defB = valList[1] || defA;
                 host.innerHTML = `
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                         <div>
                             <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (cth: Pre-Test / Sebelum)</label>
-                            <select id="od-pair-a" class="form-select">${optHtml(numCols, defA)}</select>
+                            <select id="od-pair-a" class="form-select">${optHtml(valList, defA)}</select>
                         </div>
                         <div>
                             <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (cth: Post-Test / Sesudah)</label>
-                            <select id="od-pair-b" class="form-select">${optHtml(numCols, defB)}</select>
+                            <select id="od-pair-b" class="form-select">${optHtml(valList, defB)}</select>
                         </div>
                     </div>`;
             } else if (odActiveTest === 'chisquare') {
-                const defA = nonIdCat[0] || allCols[0] || '';
-                const defB = nonIdCat[1] || allCols[allCols.length - 1] || '';
+                const catPool = factorAny.length >= 2 ? factorAny : allCols.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+                const defA = catPool[0] || allCols[0] || '';
+                const defB = catPool[1] || catPool[catPool.length - 1] || '';
                 host.innerHTML = `
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                         <div>
                             <label class="form-label" for="od-cat-a">Variabel Kategorik Baris</label>
-                            <select id="od-cat-a" class="form-select">${optHtml(allCols, defA)}</select>
+                            <select id="od-cat-a" class="form-select">${optHtml(catPool, defA)}</select>
                         </div>
                         <div>
                             <label class="form-label" for="od-cat-b">Variabel Kategorik Kolom</label>
-                            <select id="od-cat-b" class="form-select">${optHtml(allCols, defB)}</select>
+                            <select id="od-cat-b" class="form-select">${optHtml(catPool, defB)}</select>
                         </div>
                     </div>`;
             } else if (odActiveTest === 'nonparam') {
-                const defG = nonIdCat[0] || allCols[0] || '';
-                const defV = nonIdNum[0] || numCols[0] || '';
-                const defA = nonIdNum[0] || numCols[0] || '';
-                const defB = nonIdNum[1] || numCols[1] || defA;
+                const prevMode = document.getElementById('od-np-mode')?.value || (factorMulti.length && !factorTwo.length ? 'kruskal_wallis' : 'mann_whitney');
+                const factorList = prevMode === 'kruskal_wallis' ? (factorMulti.length ? factorMulti : factorAny) : (factorTwo.length ? factorTwo : factorAny);
+                const defG = factorList[0] || factorAny[0] || allCols[0] || '';
+                const valList = nonIdNum.length ? nonIdNum : numCols;
+                const defV = valList[0] || '';
+                const defA = valList[0] || '';
+                const defB = valList[1] || defA;
                 host.innerHTML = `
                     <div style="margin-bottom:10px;">
                         <label class="form-label" for="od-np-mode">Pilih Jenis Uji Non-Parametrik</label>
-                        <select id="od-np-mode" class="form-select" onchange="odToggleNonparamInputs()">
-                            <option value="mann_whitney">Mann-Whitney U (2 Kelompok Bebas — Pengganti Independent t-Test)</option>
-                            <option value="wilcoxon">Wilcoxon Signed-Rank (2 Data Berpasangan — Pengganti Paired t-Test)</option>
+                        <select id="od-np-mode" class="form-select" onchange="odRenderVarPicker()">
+                            <option value="mann_whitney" ${prevMode === 'mann_whitney' ? 'selected' : ''}>Mann-Whitney U (2 Kelompok Bebas — Pengganti Independent t-Test)</option>
+                            <option value="kruskal_wallis" ${prevMode === 'kruskal_wallis' ? 'selected' : ''}>Kruskal-Wallis H (≥ 3 Kelompok Bebas — Pengganti One-Way ANOVA)</option>
+                            <option value="wilcoxon" ${prevMode === 'wilcoxon' ? 'selected' : ''}>Wilcoxon Signed-Rank (2 Data Berpasangan — Pengganti Paired t-Test)</option>
                         </select>
                     </div>
-                    <div id="od-np-mw-fields" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                    <div id="od-np-mw-fields" style="display:${prevMode === 'wilcoxon' ? 'none' : 'grid'}; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                         <div>
-                            <label class="form-label" for="od-group-col">Kolom Kelompok (2 Grup)</label>
-                            <select id="od-group-col" class="form-select">${optHtml(allCols, defG)}</select>
+                            <label class="form-label" for="od-group-col">${prevMode === 'kruskal_wallis' ? 'Kolom Kelompok / Variasi Perlakuan (≥ 3 Grup)' : 'Kolom Kelompok (2 Grup)'}</label>
+                            <select id="od-group-col" class="form-select">${optHtml(factorList, defG)}</select>
                         </div>
                         <div>
-                            <label class="form-label" for="od-value-col">Kolom Skor / Nilai Numerik</label>
-                            <select id="od-value-col" class="form-select">${optHtml(numCols, defV)}</select>
+                            <label class="form-label" for="od-value-col">Kolom Nilai Pengukuran (Numerik)</label>
+                            <select id="od-value-col" class="form-select">${optHtml(valList, defV)}</select>
                         </div>
                     </div>
-                    <div id="od-np-wx-fields" style="display:none; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                    <div id="od-np-wx-fields" style="display:${prevMode === 'wilcoxon' ? 'grid' : 'none'}; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                         <div>
                             <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (Sebelum)</label>
-                            <select id="od-pair-a" class="form-select">${optHtml(numCols, defA)}</select>
+                            <select id="od-pair-a" class="form-select">${optHtml(valList, defA)}</select>
                         </div>
                         <div>
                             <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (Sesudah)</label>
-                            <select id="od-pair-b" class="form-select">${optHtml(numCols, defB)}</select>
+                            <select id="od-pair-b" class="form-select">${optHtml(valList, defB)}</select>
                         </div>
                     </div>`;
             } else {
-                // descriptive / correlation
-                const chips = nonIdNum.map(c => `<label class="od-col-chip checked"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" checked onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
+                // descriptive / correlation: jika ada skor total (X1_Total..Y_Total), pilih skor total secara default untuk Korelasi agar rapi
+                const isItemCol = c => /^[A-Za-z]+\d*[_\.\-\s]+\d+$/.test(c) && !/total|skor|sum/i.test(c);
+                const summaryCols = nonIdNum.filter(c => !isItemCol(c));
+                const defChecked = (odActiveTest === 'correlation' && summaryCols.length >= 2) ? summaryCols : nonIdNum;
+                const chips = nonIdNum.map(c => {
+                    const chk = defChecked.includes(c);
+                    return `<label class="od-col-chip ${chk ? 'checked' : ''}"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" ${chk ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
+                }).join('');
                 host.innerHTML = `
                     <label class="form-label">Pilih Kolom Variabel Numerik yang Akan Dianalisis</label>
                     <div class="od-chip-list">${chips}</div>`;
@@ -9766,6 +9820,7 @@
                     body: JSON.stringify({
                         result: odCurrentResult,
                         narration: odCurrentNarration,
+                        major: (document.getElementById('od-major-input')?.value || '').trim(),
                         charts_images: chartsImages
                     })
                 });
@@ -9801,6 +9856,7 @@
                     body: JSON.stringify({
                         result: odCurrentResult,
                         narration: odCurrentNarration,
+                        major: (document.getElementById('od-major-input')?.value || '').trim(),
                         charts_images: chartsImages
                     })
                 });

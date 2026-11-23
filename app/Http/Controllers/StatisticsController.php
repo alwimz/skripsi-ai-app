@@ -128,19 +128,22 @@ class StatisticsController extends Controller
         }
         $conclusionsText = implode("\n- ", $result['conclusions'] ?? []);
 
-        $prompt = "Anda adalah Pembimbing Statistik & Metodologi Riset Universitas di Indonesia.\n"
+        $domainHint = $this->resolveMajorTerminologyHint($major);
+
+        $prompt = "Anda adalah Pembimbing Statistik & Metodologi Riset Universitas di Indonesia yang ahli di bidang {$major}.\n"
             . "Tuliskan narasi **Interpretasi Hasil Pengujian Statistik untuk Bab IV Skripsi/Tesis** yang siap ditempel ke Microsoft Word.\n\n"
             . "KONTEKS PENELITIAN:\n"
             . "- Judul/Topik: {$topic}\n"
-            . "- Jurusan/Bidang: {$major}\n"
+            . "- Jurusan/Bidang Ilmu: {$major}\n"
+            . "- Panduan Istilah Akademik Bidang Ini: {$domainHint}\n"
             . "- Jenis Pengujian: " . ($result['title'] ?? 'Uji Statistik') . "\n"
             . "- Keterangan: " . ($result['subtitle'] ?? '') . "\n\n"
             . "HASIL PERHITUNGAN VALID (SETARA IBM SPSS — DILARANG KERAS MENGUBAH ATAU MENGARANG ANGKA):\n"
             . $tablesText . "\n\n"
             . "RINGKASAN KEPUTUSAN MATEMATIS:\n- {$conclusionsText}\n\n"
             . "ATURAN PENULISAN KETAT:\n"
-            . "1. Setiap angka yang Anda sebut (t, F, R², r, Sig., Cronbach's Alpha, Mean, SD, VIF, DW, Chi-Square, Shapiro-Wilk, K-S Lilliefors, dll.) HARUS 100% SAMA PERSIS dengan tabel di atas.\n"
-            . "2. Gunakan bahasa Indonesia ilmiah baku (EYD V, formal, objektif, orang ketiga, tanpa kata 'saya').\n"
+            . "1. Setiap angka yang Anda sebut (t, F, H, R², r, Sig., Cronbach's Alpha, Mean, SD, VIF, DW, Chi-Square, Shapiro-Wilk, K-S Lilliefors, dll.) HARUS 100% SAMA PERSIS dengan tabel di atas.\n"
+            . "2. Gunakan bahasa Indonesia ilmiah baku (EYD V, formal, objektif, orang ketiga, tanpa kata 'saya') dan wajib memakai kosakata teknis/akademik yang tepat untuk bidang {$major} (bukan istilah generik).\n"
             . "3. Bagi menjadi 3 sub-bagian ringkas bernomor bersih: 4.1.1 Deskripsi Hasil Pengujian, 4.1.2 Pengujian Hipotesis dan Asumsi Statistik (sebutkan kriteria α = " . ($result['alpha'] ?? 0.05) . "), dan 4.1.3 Pembahasan dan Implikasi Ilmiah sesuai bidang {$major}.\n"
             . "4. DILARANG KERAS memakai simbol markdown seperti **, __, ###, *, atau bullet tanda bintang! Tulis judul sub-bab sebagai teks biasa tanpa tanda bintang, dan seluruh isi dalam paragraf narasi akademik yang mengalir rapi siap tempel langsung ke Microsoft Word.\n"
             . "5. Jangan menambahkan tabel baru atau angka asumsi fiktif. Tulis langsung isi narasinya (tanpa kalimat pembuka 'Tentu, berikut...').";
@@ -168,6 +171,27 @@ class StatisticsController extends Controller
         $txt = (string) preg_replace('/^\s*[\*\-]\s+/m', '', $txt);
         $txt = (string) preg_replace('/\n{3,}/', "\n\n", $txt);
         return trim($txt);
+    }
+
+    private function resolveMajorTerminologyHint(string $major): string
+    {
+        $m = strtolower($major);
+        if (str_contains($m, 'sipil') || str_contains($m, 'mesin') || str_contains($m, 'material') || str_contains($m, 'teknik')) {
+            return 'Gunakan terminologi rekayasa & pengujian laboratorium seperti benda uji, variasi perlakuan/campuran, mutu material/beton, satuan teknis (MPa, cm, mm), standar SNI/ASTM, performa optimum, dan implikasi konstruksi/rekayasa.';
+        }
+        if (str_contains($m, 'kesehatan') || str_contains($m, 'kedokteran') || str_contains($m, 'keperawatan') || str_contains($m, 'farmasi') || str_contains($m, 'gizi')) {
+            return 'Gunakan terminologi klinis & kesehatan seperti subjek/pasien/sampel uji, kelompok intervensi dan kontrol, efektivitas perlakuan/terapi, signifikansi statistik serta relevansi klinis.';
+        }
+        if (str_contains($m, 'pendidikan') || str_contains($m, 'pgsd') || str_contains($m, 'guru') || str_contains($m, 'kurikulum')) {
+            return 'Gunakan terminologi pendidikan seperti peserta didik/siswa, kelas eksperimen dan kontrol, capaian hasil belajar, efektivitas model/media pembelajaran, dan implikasi pedagogis.';
+        }
+        if (str_contains($m, 'informatika') || str_contains($m, 'komputer') || str_contains($m, 'sistem informasi') || str_contains($m, 'it')) {
+            return 'Gunakan terminologi teknologi informasi seperti pengguna sistem, performa/evaluasi aplikasi, variabel penerimaan teknologi, keandalan instrumen, dan implikasi pengembangan sistem.';
+        }
+        if (str_contains($m, 'manajemen') || str_contains($m, 'ekonomi') || str_contains($m, 'akuntansi') || str_contains($m, 'bisnis')) {
+            return 'Gunakan terminologi bisnis & manajemen seperti responden, determinan kinerja/kepuasan/loyalitas, signifikansi parsial dan simultan, serta implikasi manajerial yang konkret.';
+        }
+        return 'Sesuaikan istilah objek penelitian, satuan pengukuran, dan implikasi praktis secara spesifik dengan disiplin ilmu ' . ($major ?: 'penelitian terkait') . '.';
     }
 
     /**
@@ -283,6 +307,7 @@ class StatisticsController extends Controller
         $title = e((string) ($result['title'] ?? 'Laporan Hasil Olah Data Statistik'));
         $subtitle = e((string) ($result['subtitle'] ?? ''));
         $datasetTitle = e((string) ($result['dataset_title'] ?? 'Data Penelitian'));
+        $majorLabel = e(trim((string) $request->input('major', '')));
         $computedAt = e((string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB'));
         $userName = e(Auth::user()->name ?? 'Mahasiswa');
 
@@ -332,6 +357,18 @@ class StatisticsController extends Controller
                 if ($img['ext'] === 'png' && !extension_loaded('gd')) {
                     continue;
                 }
+                $num = $idx + 1;
+                $chartsHtml .= '<div class="chart-block">'
+                    . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:500px; height:auto; display:block; margin:0 auto;" />'
+                    . '<div class="chart-cap">Gambar ' . $num . '. ' . e($img['title']) . '</div>'
+                    . '</div>';
+            }
+        }
+
+        $chartsHtml = '';
+        if (!empty($chartsImages)) {
+            $chartsHtml .= '<div class="sec-title">Visualisasi Grafik Hasil Pengujian</div>';
+            foreach ($chartsImages as $idx => $img) {
                 $num = $idx + 1;
                 $chartsHtml .= '<div class="chart-block">'
                     . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:500px; height:auto; display:block; margin:0 auto;" />'
@@ -396,7 +433,7 @@ class StatisticsController extends Controller
             . '</style></head><body>'
             . '<div class="header">'
             . '<div class="brand">SkripsiLab AI — ' . $title . '</div>'
-            . '<div class="sub">Dataset: <strong>' . $datasetTitle . '</strong> · Peneliti: ' . $userName . ' · Waktu Hitung: ' . $computedAt . '</div>'
+            . '<div class="sub">Dataset: <strong>' . $datasetTitle . '</strong>' . ($majorLabel !== '' ? ' · Bidang Ilmu: <strong>' . $majorLabel . '</strong>' : '') . ' · Peneliti: ' . $userName . ' · Waktu Hitung: ' . $computedAt . '</div>'
             . ($subtitle !== '' ? '<div class="sub">' . $subtitle . '</div>' : '')
             . '</div>'
             . $hlHtml
@@ -476,6 +513,7 @@ class StatisticsController extends Controller
         $title = $safeTxt($result['title'] ?? 'Laporan Hasil Olah Data Statistik');
         $subtitle = $safeTxt($result['subtitle'] ?? '');
         $datasetTitle = $safeTxt($result['dataset_title'] ?? 'Data Penelitian');
+        $majorLabel = $safeTxt($request->input('major', ''));
         $computedAt = $safeTxt($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB');
         $userName = $safeTxt(Auth::user()->name ?? 'Mahasiswa');
 
@@ -486,7 +524,7 @@ class StatisticsController extends Controller
             ['alignment' => Jc::CENTER, 'spaceAfter' => 80]
         );
         $section->addText(
-            "Dataset: {$datasetTitle} | Peneliti: {$userName} | {$computedAt}",
+            "Dataset: {$datasetTitle}" . ($majorLabel !== '' ? " | Bidang: {$majorLabel}" : '') . " | Peneliti: {$userName} | {$computedAt}",
             ['name' => 'Times New Roman', 'size' => 10, 'color' => '475569'],
             ['alignment' => Jc::CENTER, 'spaceAfter' => 60]
         );
@@ -754,6 +792,7 @@ class StatisticsController extends Controller
         return $clean;
     }
 
+
     // =========================================================================
     // HELPERS
     // =========================================================================
@@ -780,8 +819,8 @@ class StatisticsController extends Controller
             $delim = $top;
         }
 
-        $headers = array_map(fn ($h) => trim((string) $h), str_getcsv($first, $delim));
-        $headers = array_values(array_filter($headers, fn ($h) => $h !== ''));
+        $headers = array_map(fn($h) => trim((string) $h), str_getcsv($first, $delim));
+        $headers = array_values(array_filter($headers, fn($h) => $h !== ''));
         $rows = [];
         for ($i = 1; $i < count($lines); $i++) {
             $line = trim($lines[$i]);

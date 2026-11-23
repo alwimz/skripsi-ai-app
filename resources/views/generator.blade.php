@@ -2064,7 +2064,7 @@
                             <option value="correlation">Korelasi Pearson &amp; Spearman Rank</option>
                             <option value="descriptive">Statistik Deskriptif &amp; Uji Normalitas K-S</option>
                             <option value="chisquare">Uji Chi-Square &amp; Crosstab (Kategorik)</option>
-                            <option value="nonparam">Non-Parametrik (Mann-Whitney U / Wilcoxon)</option>
+                            <option value="nonparam">Non-Parametrik (Mann-Whitney / Wilcoxon / Kruskal-Wallis)</option>
                         </select>
                     </div>
                     <div>
@@ -4040,6 +4040,15 @@
             const num = projOdDataset.numeric.length ? projOdDataset.numeric : all;
             const nonIdNum = num.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
             const nonIdCat = projOdDataset.categorical.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
+            const isIdCol = c => /^(id|no|nomor|responden|kode_benda_uji|kode_benda|kode_sampel|kode|nim|npm)$/i.test(c.trim());
+            const factorCols = all.filter(c => {
+                if (isIdCol(c)) return false;
+                const u = new Set(); let ne = 0;
+                projOdDataset.rows.forEach(r => { const v = String(r[c] ?? '').trim(); if (v !== '') { ne++; u.add(v); } });
+                return u.size >= 2 && u.size < ne && (projOdDataset.categorical.includes(c) || u.size <= Math.min(12, Math.max(2, Math.floor(ne / 2))));
+            });
+            const safeFactors = factorCols.length ? factorCols : (nonIdCat.length ? nonIdCat : all.filter(c => !isIdCol(c)));
+            const safeNum = nonIdNum.length ? nonIdNum : num;
             const opts = (list, sel) => list.map(c => `<option value="${escapeHtml(c)}" ${c === sel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
 
             if (test === 'regression') {
@@ -4056,25 +4065,31 @@
                 </div>`;
             } else if (test === 'anova' || test === 'ttest_ind') {
                 box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Kelompok / Perlakuan</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || all[0])}</select></div>
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Nilai Numerik</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[0] || num[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Kelompok / Perlakuan</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeFactors, safeFactors[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kolom Nilai Numerik</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeNum, safeNum[0])}</select></div>
                 </div>`;
             } else if (test === 'ttest_paired') {
                 box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 1 (Pre-Test)</label><select id="proj-od-pa" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[0] || num[0])}</select></div>
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 2 (Post-Test)</label><select id="proj-od-pb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[1] || num[1] || num[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 1 (Pre-Test)</label><select id="proj-od-pa" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeNum, safeNum[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kondisi 2 (Post-Test)</label><select id="proj-od-pb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeNum, safeNum[1] || safeNum[0])}</select></div>
                 </div>`;
             } else if (test === 'chisquare') {
                 box.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Baris</label><select id="proj-od-ca" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || all[0])}</select></div>
-                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Kolom</label><select id="proj-od-cb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[1] || all[all.length - 1])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Baris</label><select id="proj-od-ca" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeFactors, safeFactors[0])}</select></div>
+                    <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kategorik Kolom</label><select id="proj-od-cb" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeFactors, safeFactors[1] || safeFactors[0])}</select></div>
                 </div>`;
             } else if (test === 'nonparam') {
+                const prevNp = document.getElementById('proj-od-np')?.value || 'mann_whitney';
+                const leftPool = prevNp === 'wilcoxon' ? safeNum : safeFactors;
                 box.innerHTML = `<div style="margin-bottom:8px;"><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Jenis Non-Parametrik</label>
-                    <select id="proj-od-np" class="olah-input" style="padding:7px 9px; font-size:12px;"><option value="mann_whitney">Mann-Whitney U (2 Kelompok)</option><option value="wilcoxon">Wilcoxon Signed-Rank (Berpasangan)</option></select></div>
+                    <select id="proj-od-np" class="olah-input" style="padding:7px 9px; font-size:12px;" onchange="projOdRenderVars()">
+                        <option value="mann_whitney" ${prevNp === 'mann_whitney' ? 'selected' : ''}>Mann-Whitney U (2 Kelompok)</option>
+                        <option value="kruskal_wallis" ${prevNp === 'kruskal_wallis' ? 'selected' : ''}>Kruskal-Wallis H (≥ 3 Kelompok)</option>
+                        <option value="wilcoxon" ${prevNp === 'wilcoxon' ? 'selected' : ''}>Wilcoxon Signed-Rank (Berpasangan)</option>
+                    </select></div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Kelompok / Kondisi 1</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(all, nonIdCat[0] || nonIdNum[0] || all[0])}</select></div>
-                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">Nilai / Kondisi 2</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(num, nonIdNum[1] || nonIdNum[0] || num[0])}</select></div>
+                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">${prevNp === 'wilcoxon' ? 'Kondisi 1' : 'Kolom Kelompok / Perlakuan'}</label><select id="proj-od-g" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(leftPool, leftPool[0])}</select></div>
+                        <div><label style="display:block; font-size:11.5px; font-weight:600; margin-bottom:4px;">${prevNp === 'wilcoxon' ? 'Kondisi 2' : 'Kolom Nilai Numerik'}</label><select id="proj-od-v" class="olah-input" style="padding:7px 9px; font-size:12px;">${opts(safeNum, prevNp === 'wilcoxon' ? (safeNum[1] || safeNum[0]) : safeNum[0])}</select></div>
                     </div>`;
             } else {
                 const items = test === 'validity_reliability' ? nonIdNum.filter(c => !/total|sum/i.test(c)) : nonIdNum;

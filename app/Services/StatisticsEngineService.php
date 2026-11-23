@@ -1432,6 +1432,9 @@ class StatisticsEngineService
         if ($subMode === 'wilcoxon') {
             return $this->runWilcoxonSignedRank($columns, $rows, $options, $alpha);
         }
+        if ($subMode === 'kruskal_wallis') {
+            return $this->runKruskalWallis($columns, $rows, $options, $alpha);
+        }
 
         // Mann-Whitney U (2 kelompok independen)
         $groupCol = trim((string) ($options['group_col'] ?? ''));
@@ -1639,6 +1642,137 @@ class StatisticsEngineService
                 'rumus' => 'Z = [W - n(n+1)/4] / √[n(n+1)(2n+1)/24 - Σ(t³-t)/48]',
                 'metrik' => "Wilcoxon Signed-Rank: Positive Ranks={$posN}, Negative Ranks={$negN}, Ties={$tiesZero}, Z={$this->fmt($z, 3)}, Asymp. Sig. (2-tailed)={$this->fmtP($pVal)}. Median {$colA}={$this->fmt($this->median($aVals), 2)}, {$colB}={$this->fmt($this->median($bVals), 2)}.",
                 'evaluasi' => 'Uji Non-Parametrik Wilcoxon Signed-Rank (Signifikan jika Asymp. Sig. 2-tailed < ' . number_format($alpha, 2) . ')',
+            ],
+        ];
+    }
+
+    /**
+     * Kruskal-Wallis H Test (Alternatif Non-Parametrik One-Way ANOVA untuk >= 3 kelompok — identik IBM SPSS).
+     */
+    private function runKruskalWallis(array $columns, array $rows, array $options, float $alpha): array
+    {
+        $groupCol = trim((string) ($options['group_col'] ?? ''));
+        $valCol = trim((string) ($options['value_col'] ?? $options['y_col'] ?? ''));
+        if ($groupCol === '' || $valCol === '') {
+            [$autoG, $autoV] = $this->guessGroupAndValueColumns($columns, $rows);
+            $groupCol = $groupCol !== '' ? $groupCol : $autoG;
+            $valCol = $valCol !== '' ? $valCol : $autoV;
+        }
+        if ($groupCol === '' || $valCol === '' || $groupCol === $valCol) {
+            throw new InvalidArgumentException('Pilih 1 kolom Kelompok/Perlakuan dan 1 kolom Nilai Pengukuran numerik untuk Uji Kruskal-Wallis H.');
+        }
+
+        $grouped = $this->extractGroupedNumeric($rows, $groupCol, $valCol);
+        $names = array_keys($grouped);
+        $g = count($names);
+        if ($g < 2) {
+            throw new InvalidArgumentException("Kolom '{$groupCol}' minimal harus memiliki 2 kelompok berbeda (ideal >= 3 kelompok untuk Kruskal-Wallis H).");
+        }
+
+        $combined = [];
+        foreach ($names as $gName) {
+            foreach ($grouped[$gName] as $v) {
+                $combined[] = ['val' => $v, 'grp' => $gName];
+            }
+        }
+        $n = count($combined);
+        if ($n < 3) {
+            throw new InvalidArgumentException('Minimal dibutuhkan 3 observasi total untuk Uji Kruskal-Wallis H.');
+        }
+
+        [$ranks, $tieCorr] = $this->computeAverageRanks(array_column($combined, 'val'));
+        $rankSums = array_fill_keys($names, 0.0);
+        foreach ($combined as $idx => $item) {
+            $rankSums[$item['grp']] += $ranks[$idx];
+        }
+
+        $sumR2OverN = 0.0;
+        $rankRows = [];
+        $chartLabels = [];
+        $chartMeans = [];
+        $bestGroup = $names[0];
+        $bestMeanRank = -1.0;
+        $groupSummary = [];
+
+        foreach ($names as $gName) {
+            $ni = count($grouped[$gName]);
+            $ri = $rankSums[$gName];
+            $meanRank = $ni > 0 ? ($ri / $ni) : 0.0;
+            $med = $this->median($grouped[$gName]);
+            $sumR2OverN += ($ni > 0) ? (($ri * $ri) / $ni) : 0.0;
+
+            if ($meanRank > $bestMeanRank) {
+                $bestMeanRank = $meanRank;
+                $bestGroup = $gName;
+            }
+
+            $rankRows[] = [
+                $gName,
+                $ni,
+                $this->fmt($med, 3),
+                $this->fmt($meanRank, 2),
+                $this->fmt($ri, 2),
+            ];
+            $chartLabels[] = $gName;
+            $chartMeans[] = round($meanRank, 2);
+            $groupSummary[] = "{$gName} (n={$ni}, Median={$this->fmt($med, 2)}, Mean Rank={$this->fmt($meanRank, 2)})";
+        }
+
+        $hRaw = (12.0 / ($n * ($n + 1.0))) * $sumR2OverN - 3.0 * ($n + 1.0);
+        $denom = 1.0 - ($tieCorr / max(1.0, ($n * $n * $n) - $n));
+        $hStat = $denom > self::EPS ? max(0.0, $hRaw / $denom) : max(0.0, $hRaw);
+        $df = $g - 1;
+        $pVal = $this->chiSquareP($hStat, (float) $df);
+        $epsSq = $n > 1 ? ($hStat / ($n - 1.0)) : 0.0;
+
+        return [
+            'title' => 'Uji Non-Parametrik Kruskal-Wallis H (≥ 3 Kelompok Bebas)',
+            'subtitle' => "Alternatif Non-Parametrik One-Way ANOVA: {$valCol} berdasarkan {$groupCol} ({$g} Kelompok, N = {$n})",
+            'highlights' => [
+                ['label' => 'Kruskal-Wallis H', 'value' => $this->fmt($hStat, 3), 'tone' => 'blue'],
+                ['label' => 'Asymp. Sig.', 'value' => $this->fmtP($pVal), 'tone' => $pVal < $alpha ? 'emerald' : 'amber'],
+                ['label' => 'Derajat Bebas (df)', 'value' => (string) $df, 'tone' => 'slate'],
+                ['label' => 'Effect Size (ε²)', 'value' => $this->fmt($epsSq, 3), 'tone' => 'slate'],
+            ],
+            'tables' => [
+                [
+                    'title' => "Tabel 1. Ranks ({$valCol} per {$groupCol})",
+                    'headers' => [$groupCol, 'N', 'Median', 'Mean Rank', 'Sum of Ranks'],
+                    'rows' => $rankRows,
+                    'footnote' => "Mean Rank tertinggi dicapai oleh kelompok '{$bestGroup}' sebesar {$this->fmt($bestMeanRank, 2)}.",
+                ],
+                [
+                    'title' => 'Tabel 2. Test Statistics (Kruskal-Wallis Test)',
+                    'headers' => ['Kruskal-Wallis H (Chi-Square)', 'df', 'Asymp. Sig.', 'Epsilon-Squared (ε²)', 'Keputusan'],
+                    'rows' => [
+                        [
+                            $this->fmt($hStat, 3),
+                            $df,
+                            $this->fmtP($pVal),
+                            $this->fmt($epsSq, 3),
+                            $pVal < $alpha ? 'Berbeda Signifikan' : 'Tidak Berbeda Signifikan',
+                        ],
+                    ],
+                    'footnote' => 'Statistik Kruskal-Wallis H sudah menggunakan koreksi ties identik dengan IBM SPSS Statistics. Signifikan jika Asymp. Sig. < ' . number_format($alpha, 2) . '.',
+                ],
+            ],
+            'chart' => [
+                'type' => 'bar',
+                'title' => "Perbandingan Mean Rank {$valCol} Antar Kelompok {$groupCol}",
+                'labels' => $chartLabels,
+                'values' => $chartMeans,
+                'y_label' => 'Mean Rank',
+            ],
+            'conclusions' => [
+                "Uji Non-Parametrik Kruskal-Wallis H menghasilkan H = {$this->fmt($hStat, 3)} (df = {$df}) dengan Asymp. Sig. = {$this->fmtP($pVal)} dan Epsilon-Squared (ε²) = {$this->fmt($epsSq, 3)} (" . ($pVal < $alpha ? "terdapat perbedaan yang signifikan antar kelompok {$groupCol})." : "tidak terdapat perbedaan yang signifikan antar kelompok {$groupCol})."),
+                "Mean Rank tertinggi diperoleh pada kelompok '{$bestGroup}' (Mean Rank = {$this->fmt($bestMeanRank, 2)}).",
+            ],
+            'project_autofill' => [
+                'metode' => 'Uji Non-Parametrik Kruskal-Wallis H (Alternatif One-Way ANOVA Setara IBM SPSS)',
+                'sampel' => "{$n} Observasi / Benda Uji ({$g} Kelompok {$groupCol})",
+                'rumus' => 'H = [12/(N(N+1)) * Σ(Rj²/nj) - 3(N+1)] / [1 - Σ(t³-t)/(N³-N)]; df = k - 1',
+                'metrik' => "Kruskal-Wallis H = {$this->fmt($hStat, 3)} (df = {$df}, Asymp. Sig. = {$this->fmtP($pVal)}), Epsilon-Squared = {$this->fmt($epsSq, 3)}. Rincian kelompok: " . implode('; ', $groupSummary) . ". Tertinggi: {$bestGroup}.",
+                'evaluasi' => 'Uji Non-Parametrik Kruskal-Wallis H (Signifikan jika Asymp. Sig. < ' . number_format($alpha, 2) . ') untuk data ≥ 3 kelompok yang tidak berdistribusi normal',
             ],
         ];
     }
