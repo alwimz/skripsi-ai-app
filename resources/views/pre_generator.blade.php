@@ -3568,7 +3568,11 @@
                     <form action="{{ route('project.start') }}" method="POST" enctype="multipart/form-data" onsubmit="
                         if (typeof syncCustomStructureOutput === 'function') syncCustomStructureOutput();
                         const pedomanFile = this.querySelector('input[name=pedoman_file]');
+                        const pedomanExtracted = document.getElementById('input-pedoman-extracted');
                         const refFiles = this.querySelector('input[name=\'referensi_files[]\']');
+                        if (pedomanFile && pedomanFile.files && pedomanFile.files[0] && pedomanFile.files[0].size > 3.0 * 1024 * 1024 && pedomanExtracted && pedomanExtracted.value.trim().length > 150) {
+                            pedomanFile.value = '';
+                        }
                         let totalBytes = 0;
                         if (pedomanFile && pedomanFile.files && pedomanFile.files[0]) totalBytes += pedomanFile.files[0].size;
                         if (refFiles && refFiles.files) {
@@ -3739,10 +3743,11 @@
                                         style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
                                 </div>
                             </div>
-                            <input type="file" name="pedoman_file" class="form-input" accept=".pdf,.docx,.doc,.txt"
-                                style="padding: 9px 12px; font-size: 13px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
-                                pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB total berkas).</div>
+                            <input type="file" name="pedoman_file" id="input-pedoman-file" class="form-input" accept=".pdf,.docx,.doc,.txt"
+                                style="padding: 9px 12px; font-size: 13px;" onchange="handlePedomanFileSelect(this)">
+                            <input type="hidden" name="pedoman_text" id="input-pedoman-extracted" value="">
+                            <div id="pedoman-extract-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
+                                pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB — PDF teks otomatis dibaca langsung di browser agar akurat 100%).</div>
                         </div>
 
                         <!-- Card 5: Struktur Bab Kustom (Accordion Builder) -->
@@ -7742,6 +7747,85 @@
             defCurrentIdx = 0;
             renderDefenseQuestion();
             setDefenseStep(2);
+        }
+
+        async function handlePedomanFileSelect(input) {
+            const statusEl = document.getElementById('pedoman-extract-status');
+            const hiddenEl = document.getElementById('input-pedoman-extracted');
+            if (hiddenEl) hiddenEl.value = '';
+            if (!input || !input.files || !input.files[0]) {
+                if (statusEl) {
+                    statusEl.style.color = 'var(--text-muted)';
+                    statusEl.textContent = 'Pilih berkas buku pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB — PDF teks otomatis dibaca langsung di browser agar akurat 100%).';
+                }
+                return;
+            }
+            const file = input.files[0];
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            if (ext !== 'pdf') {
+                if (statusEl) {
+                    statusEl.style.color = '#047857';
+                    statusEl.textContent = `Berkas "${file.name}" siap diproses otomatis saat proyek dibuka.`;
+                }
+                return;
+            }
+            if (statusEl) {
+                statusEl.style.color = '#1d4ed8';
+                statusEl.textContent = `Membaca isi pedoman PDF "${file.name}" di browser...`;
+            }
+            try {
+                if (typeof window.pdfjsLib === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                    if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+                        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    }
+                }
+                const buf = await file.arrayBuffer();
+                const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+                const totalPages = pdf.numPages || 0;
+                const maxRead = Math.min(totalPages, 60);
+                const scoredPages = [];
+                const ruleRegex = /(?:sistematika|susunan\s+bab|bab\s+[ivx1-5]|margin|batas\s+tepi|spasi|times\s+new\s+roman|sitasi|daftar\s+pustaka|abstrak|latar\s+belakang|rumusan\s+masalah|tinjauan\s+pustaka|metodologi|penomoran)/gi;
+                for (let p = 1; p <= maxRead; p++) {
+                    const page = await pdf.getPage(p);
+                    const tc = await page.getTextContent();
+                    const txt = tc.items.map(it => it.str || '').join(' ').replace(/\s+/g, ' ').trim();
+                    if (txt.length < 30) continue;
+                    const hits = (txt.match(ruleRegex) || []).length;
+                    scoredPages.push({ page: p, hits, txt });
+                }
+                if (!scoredPages.length) {
+                    if (statusEl) {
+                        statusEl.style.color = '#b45309';
+                        statusEl.textContent = `PDF "${file.name}" tampak berupa hasil scan gambar (teks tidak bisa diseleksi). Disarankan unggah PDF teks asli atau .docx, atau aktifkan "Struktur bab kustom" di bawah.`;
+                    }
+                    return;
+                }
+                // Prioritaskan halaman yang memuat aturan penulisan/sistematika Bab I-V (bukan cover/kata pengantar pedoman)
+                const ranked = [...scoredPages].sort((a, b) => b.hits - a.hits || a.page - b.page);
+                let combined = `[Pedoman Kampus: ${file.name} (${totalPages} hal)]\n`;
+                const picked = ranked.slice(0, 14).sort((a, b) => a.page - b.page);
+                for (const item of picked) {
+                    if (combined.length > 10500) break;
+                    combined += `\n[Hal. ${item.page}] ${item.txt}\n`;
+                }
+                if (hiddenEl) hiddenEl.value = combined.slice(0, 11000);
+                if (statusEl) {
+                    statusEl.style.color = '#047857';
+                    statusEl.textContent = `Pedoman PDF berhasil dibaca (${totalPages} halaman, ${picked.length} halaman aturan inti terdeteksi) — akan langsung dipatuhi saat menulis Bab I–V.`;
+                }
+            } catch (e) {
+                if (statusEl) {
+                    statusEl.style.color = '#047857';
+                    statusEl.textContent = `Berkas PDF "${file.name}" terpilih — akan diekstrak oleh server saat proyek dibuka.`;
+                }
+            }
         }
 
         function updateTargetStyle(radio) {

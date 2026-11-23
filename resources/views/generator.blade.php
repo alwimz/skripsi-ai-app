@@ -593,23 +593,24 @@
 
         .a4-sheet {
             width: 100%;
-            min-height: 1123px; /* Ukuran seragam standar kertas A4 layar */
+            max-width: 794px;
+            min-height: 1123px; /* Ukuran persis kertas A4 (210mm x 297mm @ 96dpi) */
             background: #ffffff;
             border: 1px solid #dbe3ee;
             border-radius: 6px;
             box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
-            padding: 68px 56px 76px 72px;
-            /* Rasio presisi margin skripsi 4-4-3-3 cm & spasi 1,5 Word */
+            padding: 80px 72px 58px 94px;
+            /* Rasio presisi margin skripsi 4-4-3-3 cm & spasi 1,5 Word/PDF */
             color: #111827;
             font-family: "Times New Roman", Georgia, serif;
-            font-size: 15px;
-            line-height: 1.58;
+            font-size: 14.5px;
+            line-height: 1.52;
             box-sizing: border-box;
             word-break: break-word;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            margin-bottom: 24px;
+            margin: 0 auto 24px auto;
             position: relative;
         }
 
@@ -703,25 +704,26 @@
         .toc-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            font-size: 14.5px;
+            gap: 3px;
+            font-size: 13.5px;
+            line-height: 1.42;
         }
 
         .toc-row {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
         }
 
         .toc-row.sub {
-            padding-left: 24px;
+            padding-left: 22px;
             font-weight: 400;
         }
 
         .toc-row.main {
             font-weight: 700;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .toc-dots {
@@ -3794,21 +3796,21 @@
                     return [fullBodyHtml];
                 }
 
-                // Kalibrasi presisi sesuai halaman A4 Microsoft Word (Times New Roman 12pt, 1,5 spasi, margin 4-4-3-3 cm):
-                // ~82 karakter per baris, ~30 baris isi per halaman A4 penuh (halaman pertama Bab tetap muat ~27 baris di bawah judul BAB).
-                const CHARS_PER_LINE = 82;
-                const MAX_LINES_PER_PAGE = 30.5;
+                // Kalibrasi presisi 1:1 sesuai halaman A4 Microsoft Word & PDF (Times New Roman 12pt, 1,5 spasi, margin 4-4-3-3 cm):
+                // ~84 karakter per baris, ~33.5 baris isi per halaman A4 penuh.
+                const CHARS_PER_LINE = 84;
+                const MAX_LINES_PER_PAGE = 33.5;
                 const estimateBlockLines = (block) => {
                     const textLen = (block.innerText || block.textContent || '').replace(/\s+/g, ' ').trim().length;
                     const tagName = (block.tagName || '').toLowerCase();
                     if (block.classList && block.classList.contains('academic-chapter-header')) {
-                        return 3.6;
+                        return 3.2;
                     }
                     if (tagName === 'h1' || tagName === 'h2') {
-                        return 2.8;
+                        return 2.4;
                     }
                     if (tagName === 'h3' || tagName === 'h4') {
-                        return 2.0;
+                        return 1.8;
                     }
                     if (block.classList && block.classList.contains('academic-figure-container')) {
                         return 12.5;
@@ -3895,8 +3897,8 @@
 
                     if (curPageBlocks.length > 0 && (curLines + blockLines > MAX_LINES_PER_PAGE + 1.5)) {
                         const remainingLines = MAX_LINES_PER_PAGE - curLines;
-                        // Jika masih tersisa >= 3.5 baris di halaman ini dan blok adalah paragraf biasa, alirkan kalimat awalnya ke halaman ini (cocok dengan Word & PDF!)
-                        if (isPlainPara && remainingLines >= 3.5) {
+                        // Jika masih tersisa >= 2.5 baris di halaman ini dan blok adalah paragraf biasa, alirkan kalimat awalnya ke halaman ini (cocok 1:1 dengan Word & PDF!)
+                        if (isPlainPara && remainingLines >= 2.5) {
                             const splitPair = splitParagraphHtmlAtLines(block, remainingLines);
                             if (splitPair) {
                                 curPageBlocks.push(splitPair[0]);
@@ -4215,11 +4217,11 @@
                 tocRows.push({ title: 'LAMPIRAN', page: String(lampiranList[0].page), isMain: true, isSub: false });
             }
 
-            // Bagi Daftar Isi, Daftar Tabel, Daftar Gambar, dan Daftar Lampiran ke lembar A4 masing-masing dengan nomor romawi berurutan
-            const tocPages = paginateFrontListRows(tocRows, 20, 23);
-            const dtPages = paginateFrontListRows(daftarTabelList, 19, 22);
-            const dgPages = paginateFrontListRows(daftarGambarList, 19, 22);
-            const dlPages = paginateFrontListRows(lampiranList, 19, 22);
+            // Bagi Daftar Isi, Daftar Tabel, Daftar Gambar, dan Daftar Lampiran ke lembar A4 masing-masing (28 baris per halaman persis seperti Word & PDF)
+            const tocPages = paginateFrontListRows(tocRows, 28, 32);
+            const dtPages = paginateFrontListRows(daftarTabelList, 27, 31);
+            const dgPages = paginateFrontListRows(daftarGambarList, 27, 31);
+            const dlPages = paginateFrontListRows(lampiranList, 27, 31);
 
             let romanTrack = tocStartRomanIdx + Math.max(1, tocPages.length);
             const dtStartRoman = romanTrack;
@@ -4248,7 +4250,7 @@
                 return `
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
-                ${idx === 0 ? '<div class="front-heading">DAFTAR ISI</div>' : '<div class="front-heading" style="font-size: 11pt; color: #475569; margin-bottom: 14px;">DAFTAR ISI (Lanjutan)</div>'}
+                ${idx === 0 ? '<div class="front-heading">DAFTAR ISI</div>' : ''}
                 <div class="toc-list">${rowsHtml}</div>
             </div>
             <div class="sheet-footer">${pgLabel}</div>
@@ -4261,8 +4263,8 @@
                 return `
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
-                ${idx === 0 ? `<div class="front-heading">${heading}</div>` : `<div class="front-heading" style="font-size: 11pt; color: #475569; margin-bottom: 14px;">${heading} (Lanjutan)</div>`}
-                <div class="toc-list" style="margin-top: 16px;">${rowsHtml}</div>
+                ${idx === 0 ? `<div class="front-heading">${heading}</div>` : ''}
+                <div class="toc-list"${idx === 0 ? ' style="margin-top: 16px;"' : ''}>${rowsHtml}</div>
             </div>
             <div class="sheet-footer">${pgLabel}</div>
         </div>`;

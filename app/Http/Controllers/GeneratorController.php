@@ -139,6 +139,42 @@ class GeneratorController extends Controller
     }
 
     /**
+     * Pilih bagian paling relevan dari buku pedoman kampus panjang (sistematika Bab I-V, margin, font, spasi, sitasi)
+     * agar tidak habis terpotong di halaman sampul & kata pengantar buku pedoman.
+     */
+    private function extractSmartGuidelineSummary(string $rawText, int $budget = 9500): string
+    {
+        $clean = trim(str_replace(["\r\n", "\r"], "\n", $rawText));
+        if (mb_strlen($clean) <= $budget) {
+            return $clean;
+        }
+        $chunks = preg_split('/\n{2,}/', $clean) ?: explode("\n", $clean);
+        $scored = [];
+        foreach ($chunks as $idx => $chunk) {
+            $t = trim($chunk);
+            if (mb_strlen($t) < 25) {
+                continue;
+            }
+            $hits = preg_match_all('/\b(?:bab\s+[ivx1-5]|sistematika|susunan|sub-?bab|margin|spasi|times\s+new\s+roman|arial|sitasi|daftar\s+pustaka|abstrak|latar\s+belakang|rumusan\s+masalah|tinjauan\s+pustaka|metodologi|penomoran|tabel|gambar)\b/i', $t);
+            $scored[] = ['idx' => $idx, 'hits' => (int) $hits, 'text' => $t];
+        }
+        usort($scored, fn ($a, $b) => ($b['hits'] <=> $a['hits']) ?: ($a['idx'] <=> $b['idx']));
+        $picked = [];
+        $len = 0;
+        foreach ($scored as $s) {
+            $cLen = mb_strlen($s['text']) + 2;
+            if ($len + $cLen > $budget) {
+                continue;
+            }
+            $picked[] = $s;
+            $len += $cLen;
+        }
+        usort($picked, fn ($a, $b) => $a['idx'] <=> $b['idx']);
+        $out = implode("\n\n", array_column($picked, 'text'));
+        return $out !== '' ? $out : Str::limit($clean, $budget, '');
+    }
+
+    /**
      * Susun ringkasan konteks seimbang per BAB (Abstrak & BAB I–V) dari teks lengkap file Word/PDF
      * agar tidak terpotong di Halaman Sampul / Daftar Isi / Bab I saja.
      */
@@ -2422,13 +2458,14 @@ class GeneratorController extends Controller
         $cleanJudul = trim($request->judul);
         $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
 
-        // Ekstrak file pedoman kampus jika diunggah
-        $guidelineText = '';
-        if ($request->hasFile('pedoman_file')) {
-            $guidelineText = $this->extractTextFromUploadedFile($request->file('pedoman_file'));
+        // Ekstrak file pedoman kampus jika diunggah (utamakan hasil pembacaan PDF.js browser yang 100% akurat untuk PDF Unicode/CID)
+        $guidelineText = trim((string) $request->input('pedoman_text', ''));
+        if ($request->hasFile('pedoman_file') && mb_strlen($guidelineText) < 150) {
+            $serverExtracted = $this->extractTextFromUploadedFile($request->file('pedoman_file'));
+            $guidelineText = trim($guidelineText . "\n" . $serverExtracted);
         }
-        if ($request->filled('pedoman_text')) {
-            $guidelineText = trim($guidelineText . "\n" . $request->pedoman_text);
+        if (mb_strlen($guidelineText) > 9500) {
+            $guidelineText = $this->extractSmartGuidelineSummary($guidelineText, 9500);
         }
 
         // Ekstrak file referensi khusus (artikel/buku wajib) jika diunggah
@@ -2470,7 +2507,7 @@ class GeneratorController extends Controller
             'tahap_pengerjaan' => $request->input('tahap_pengerjaan', 'Proposal Skripsi (Bab I–III)'),
             'struktur_kustom' => trim($request->input('struktur_kustom', '')),
             'data_awal' => trim($request->input('data_awal', '')),
-            'pedoman_text' => Str::limit($guidelineText, 8000, ''),
+            'pedoman_text' => Str::limit($guidelineText, 9500, ''),
             'referensi_khusus' => Str::limit($refFilesText, 5000, ''),
             'sitasi' => [
                 'tahun_min' => $request->input('tahun_min', '2023'),
@@ -3927,7 +3964,9 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
 
         $customStructureNote = !empty($meta['struktur_kustom'])
             ? "PERHATIAN PENTING: MAHASISWA MEMILIKI STRUKTUR SUB-BAB KUSTOM DARI KAMPUSNYA (LIHAT DI ATAS). AI WAJIB MENGIKUTI STRUKTUR KUSTOM TERSEBUT SECARA PERSIS, BUKAN STRUKTUR STANDAR DEFAULT!\n"
-            : "";
+            : (!empty($meta['pedoman_text'])
+                ? "PERHATIAN PENTING (PEDOMAN KAMPUS AKTIF): Mahasiswa mengunggah Pedoman Penulisan Kampus di atas. Jika pedoman kampus tersebut menetapkan urutan sub-bab, penomoran (mis. A/B/C atau 1.1/1.2), gaya bahasa, atau sistematika khusus untuk bab ini, WAJIB patuhi pedoman kampus tersebut sebagai prioritas tertinggi di atas struktur default!\n"
+                : "");
 
         $sistematikaScope = $isProposal ? 'Bab I hingga Bab III (Proposal Skripsi)' : 'Bab I hingga Bab V (Skripsi Lengkap)';
         return match ($bab) {
@@ -5662,59 +5701,25 @@ ATURAN REVISI (SANGAT KETAT):
             $section->addText("Keywords: " . $project->prodi . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
         }
 
-        // --- KATA PENGANTAR (STANDAR AKADEMIK PERGURUAN TINGGI INDONESIA) ---
+        // --- KATA PENGANTAR ---
         $section->addPageBreak();
         $section->addTitle("KATA PENGANTAR", 1);
-        $kpDocLower = strtolower($jenisDokumen);
         $kpSyarat = $isProposal
-            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
-            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
-        $kpBodyStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 80];
-        $kpListStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['left' => 420, 'hanging' => 280], 'spaceAfter' => 40];
-        $kpFont = ['name' => 'Times New Roman', 'size' => 12];
-        $kpFakultasLabel = $fakultas ? $fakultas : 'Fakultas terkait';
-        $kpKampusLabel = $kampus ?: 'Perguruan Tinggi';
-
+            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
+            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
         $section->addText(
-            "Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$kpDocLower} dengan judul \"{$project->judul}\".",
-            $kpFont,
-            $kpBodyStyle
+            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " yang berjudul \"" . $project->judul . "\" dapat " . $kpSyarat . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
+            ['name' => 'Times New Roman', 'size' => 12],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
         );
         $section->addText(
-            "Penulisan {$kpDocLower} ini {$kpSyarat}{$project->prodi}" . ($fakultas ? ", {$fakultas}" : "") . ", {$kpKampusLabel}. Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.",
-            $kpFont,
-            $kpBodyStyle
+            "Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.",
+            ['name' => 'Times New Roman', 'size' => 12],
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 240]
         );
-        $section->addText(
-            "Penyelesaian {$kpDocLower} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:",
-            $kpFont,
-            $kpBodyStyle
-        );
-
-        $kpThanks = [
-            "1. Bapak/Ibu (Nama Rektor), selaku Rektor {$kpKampusLabel} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;",
-            "2. Bapak/Ibu (Nama Dekan), selaku Dekan {$kpFakultasLabel} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;",
-            "3. Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi {$project->prodi} yang telah memberikan arahan dan dukungan akademik;",
-            "4. Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$kpDocLower} ini;",
-            "5. Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;",
-            "6. Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$kpDocLower} ini;",
-            "7. Seluruh dosen dan tenaga kependidikan {$kpFakultasLabel} {$kpKampusLabel} atas ilmu dan pelayanan yang telah diberikan;",
-            "8. Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;",
-            "9. Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$kpDocLower} ini.",
-        ];
-        foreach ($kpThanks as $thanksLine) {
-            $section->addText($thanksLine, $kpFont, $kpListStyle);
-        }
-
-        $section->addText(
-            "Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$kpDocLower} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.",
-            $kpFont,
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceBefore' => 80, 'spaceAfter' => 220]
-        );
-        $section->addText("(Kota), " . $tglBulanIndo, $kpFont, ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
-        $section->addText("Penulis,", $kpFont, ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText(($kampus ? $kampus . ", " : "") . $tglBulanIndo, ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
         $section->addTextBreak(2);
-        $section->addText(strtoupper($nama), ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText("Penulis", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
 
         // --- DAFTAR ISI RAPI (DOT LEADER TAB STOP) ---
         $section->addPageBreak();
@@ -6351,36 +6356,18 @@ ATURAN REVISI (SANGAT KETAT):
             </div>";
         }
 
-        // 5. KATA PENGANTAR (STANDAR AKADEMIK PERGURUAN TINGGI INDONESIA)
-        $kpPdfDocLower = strtolower($jenisDokumen);
+        // 5. KATA PENGANTAR
         $kpPdfSyarat = $isProposal
-            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
-            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
-        $kpPdfFak = $fakultas ? e($fakultas) : 'Fakultas terkait';
-        $kpPdfKampus = $kampus ? e($kampus) : 'Perguruan Tinggi';
-        $kpPdfProdi = e($project->prodi);
+            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
+            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
         $html .= "<div class='page-break'>
             <h2>KATA PENGANTAR</h2>
-            <p>Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$kpPdfDocLower} dengan judul <strong>\"" . e($project->judul) . "\"</strong>.</p>
-            <p>Penulisan {$kpPdfDocLower} ini {$kpPdfSyarat}{$kpPdfProdi}" . ($fakultas ? ", {$kpPdfFak}" : "") . ", {$kpPdfKampus}. Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.</p>
-            <p>Penyelesaian {$kpPdfDocLower} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:</p>
-            <ol style='margin:4pt 0 8pt 18pt; padding-left:10pt; line-height:1.42; font-size:11.5pt;'>
-                <li>Bapak/Ibu (Nama Rektor), selaku Rektor {$kpPdfKampus} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;</li>
-                <li>Bapak/Ibu (Nama Dekan), selaku Dekan {$kpPdfFak} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;</li>
-                <li>Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi {$kpPdfProdi} yang telah memberikan arahan dan dukungan akademik;</li>
-                <li>Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$kpPdfDocLower} ini;</li>
-                <li>Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;</li>
-                <li>Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$kpPdfDocLower} ini;</li>
-                <li>Seluruh dosen dan tenaga kependidikan {$kpPdfFak} {$kpPdfKampus} atas ilmu dan pelayanan yang telah diberikan;</li>
-                <li>Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;</li>
-                <li>Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$kpPdfDocLower} ini.</li>
-            </ol>
-            <p>Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$kpPdfDocLower} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.</p>
-            <div style='margin-top:20pt; float:right; width:210pt; text-align:right; font-size:11.5pt; line-height:1.35;'>
-                <div>(Kota), {$tglBulanIndo}</div>
-                <div>Penulis,</div>
-                <div style='height:42pt;'></div>
-                <div><strong>" . strtoupper(e($nama)) . "</strong></div>
+            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " berjudul \"" . e($project->judul) . "\" dapat {$kpPdfSyarat}" . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
+            <p>Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.</p>
+            <div style='margin-top:26pt; float:right; width:200pt; text-align:center; font-size:12pt; line-height:1.3;'>
+                <div>" . ($kampus ? e($kampus) . ", " : "") . $tglBulanIndo . "</div>
+                <div style='height:44pt;'></div>
+                <div><strong>Penulis</strong></div>
             </div>
             <div style='clear:both;'></div>
         </div>";
