@@ -311,6 +311,17 @@ class StatisticsController extends Controller
         $computedAt = e((string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB'));
         $userName = e(Auth::user()->name ?? 'Mahasiswa');
 
+        $guideHtml = '';
+        if (!empty($result['academic_guide']) && is_array($result['academic_guide'])) {
+            $g = $result['academic_guide'];
+            $guideHtml .= '<div class="guide-box">'
+                . '<div><strong>Tujuan Pengujian:</strong> ' . e((string) ($g['tujuan'] ?? '')) . '</div>'
+                . '<div><strong>Hipotesis:</strong> ' . e((string) ($g['h0'] ?? '')) . ' | ' . e((string) ($g['h1'] ?? '')) . '</div>'
+                . '<div><strong>Dasar Keputusan:</strong> ' . e((string) ($g['kriteria'] ?? '')) . '</div>'
+                . '<div style="color:#64748b; margin-top:2px;"><strong>Referensi Metode:</strong> ' . e((string) ($g['referensi'] ?? '')) . '</div>'
+                . '</div>';
+        }
+
         $hlHtml = '';
         if (!empty($result['highlights'])) {
             $hlHtml .= '<table class="hl-table"><tr>';
@@ -415,6 +426,7 @@ class StatisticsController extends Controller
             . '.hl-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }'
             . '.hl-lbl { font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700; }'
             . '.hl-val { font-size: 10pt; font-weight: 700; color: #0f172a; margin-top: 2px; }'
+            . '.guide-box { background: #f8fafc; border: 0.75pt solid #cbd5e1; border-left: 3pt solid #2563eb; padding: 8px 10px; margin-bottom: 12px; font-size: 7.8pt; line-height: 1.5; }'
             . '.tbl-block { page-break-inside: avoid; margin-bottom: 14px; }'
             . '.tbl-title { font-size: 9pt; font-weight: 700; color: #0f172a; margin: 10px 0 5px; }'
             . '.stat-table { width: 100%; border-collapse: collapse; font-size: 7.6pt; table-layout: auto; }'
@@ -437,6 +449,7 @@ class StatisticsController extends Controller
             . ($subtitle !== '' ? '<div class="sub">' . $subtitle . '</div>' : '')
             . '</div>'
             . $hlHtml
+            . $guideHtml
             . $tablesHtml
             . $chartsHtml
             . $conclusionsHtml
@@ -540,8 +553,21 @@ class StatisticsController extends Controller
             $section->addText(
                 'Persamaan Regresi: ' . $safeTxt($result['equation']),
                 ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '1D4ED8'],
-                ['alignment' => Jc::CENTER, 'spaceAfter' => 180]
+                ['alignment' => Jc::CENTER, 'spaceAfter' => 140]
             );
+        }
+
+        if (!empty($result['academic_guide']) && is_array($result['academic_guide'])) {
+            $g = $result['academic_guide'];
+            $section->addText(
+                'Kerangka Pengujian & Hipotesis',
+                ['name' => 'Times New Roman', 'size' => 11, 'bold' => true, 'color' => '0F172A'],
+                ['spaceBefore' => 100, 'spaceAfter' => 60, 'keepNext' => true]
+            );
+            $section->addText('Tujuan: ' . $safeTxt($g['tujuan'] ?? ''), ['name' => 'Times New Roman', 'size' => 10.5], ['alignment' => Jc::BOTH, 'spaceAfter' => 40]);
+            $section->addText('Hipotesis: ' . $safeTxt($g['h0'] ?? '') . ' | ' . $safeTxt($g['h1'] ?? ''), ['name' => 'Times New Roman', 'size' => 10.5], ['alignment' => Jc::BOTH, 'spaceAfter' => 40]);
+            $section->addText('Dasar Pengambilan Keputusan: ' . $safeTxt($g['kriteria'] ?? ''), ['name' => 'Times New Roman', 'size' => 10.5], ['alignment' => Jc::BOTH, 'spaceAfter' => 40]);
+            $section->addText('Referensi Metode: ' . $safeTxt($g['referensi'] ?? ''), ['name' => 'Times New Roman', 'size' => 9.5, 'italic' => true, 'color' => '475569'], ['spaceAfter' => 140]);
         }
 
         // Tabel-tabel Output SPSS Asli (100% Editable, dengan lebar kolom TWIP eksplisit agar kompatibel Word macOS & Windows)

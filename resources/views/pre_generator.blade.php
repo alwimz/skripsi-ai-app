@@ -3156,7 +3156,8 @@
                 <span>Parafrase</span>
             </button>
 
-            <button type="button" class="nav-btn" id="nav-plagiarism" onclick="openTab('plagiarism', 'Cek Plagiasi')">
+            {{-- Menu Cek Plagiasi disembunyikan sementara hingga penyempurnaan lanjutan --}}
+            <button type="button" class="nav-btn" id="nav-plagiarism" onclick="openTab('plagiarism', 'Cek Plagiasi')" style="display: none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     <path d="M9 12l2 2 4-4" />
@@ -5255,7 +5256,9 @@
                             </div>
 
                             <div class="od-hl-grid" id="od-res-highlights"></div>
+                            <div id="od-res-advisory" style="display:none; padding:11px 14px; border-radius:10px; font-size:12.5px; line-height:1.55; margin-bottom:14px;"></div>
                             <div id="od-res-equation" style="display:none; padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:13px; font-weight:700; margin-bottom:14px;"></div>
+                            <div id="od-res-academic-guide" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 15px; margin-bottom:14px; font-size:12.3px; color:var(--text-secondary); line-height:1.55;"></div>
                             <div id="od-res-tables"></div>
 
                             <!-- Grafik Statistik SVG (Dukung Multi-Grafik Asli SPSS untuk Regresi) -->
@@ -5925,7 +5928,6 @@
                 'defense': 'Simulasi Sidang',
                 'journals': 'Cari Jurnal',
                 'paraphrase': 'Parafrase',
-                'plagiarism': 'Cek Plagiasi',
                 'olahdata': 'Olah Data',
                 'qa': 'Dosen AI',
                 'account': 'Akun Saya',
@@ -8962,11 +8964,46 @@
             });
             odColMeta = { numeric, categorical };
 
+            // Pemeriksaan Kualitas Data Otomatis (Data Preparation: Missing Values, Duplikat, & Outlier IQR)
+            let missingCells = 0;
+            const seenRowSigs = new Set();
+            let dupRows = 0;
+            rowsCopy.forEach(r => {
+                const sig = colsCopy.map(c => {
+                    const v = String(r[c] ?? '').trim();
+                    if (v === '') missingCells++;
+                    return v;
+                }).join('||');
+                if (seenRowSigs.has(sig)) dupRows++;
+                else seenRowSigs.add(sig);
+            });
+            let outlierCount = 0;
+            numeric.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c)).forEach(col => {
+                const vals = rowsCopy.map(r => parseFloat(String(r[col] ?? '').replace(',', '.'))).filter(v => !isNaN(v)).sort((a, b) => a - b);
+                if (vals.length >= 6) {
+                    const q1 = vals[Math.floor(vals.length * 0.25)];
+                    const q3 = vals[Math.floor(vals.length * 0.75)];
+                    const iqr = q3 - q1;
+                    if (iqr > 0) {
+                        const lo = q1 - 1.5 * iqr, hi = q3 + 1.5 * iqr;
+                        outlierCount += vals.filter(v => v < lo || v > hi).length;
+                    }
+                }
+            });
+
             // Render preview
             document.getElementById('od-data-preview-wrap').style.display = 'block';
             document.getElementById('od-btn-clear-data').style.display = 'inline-flex';
             document.getElementById('od-data-summary-label').textContent = `${title} · ${rowsCopy.length} baris × ${colsCopy.length} kolom`;
-            document.getElementById('od-data-col-types').textContent = `${numeric.length} numerik · ${categorical.length} kategorik` + (autoComputed.length ? ` · Skor total otomatis: ${autoComputed.join(', ')}` : '');
+            const dqParts = [
+                `${numeric.length} numerik`,
+                `${categorical.length} kategorik`,
+                missingCells === 0 ? '0 data kosong' : `${missingCells} sel kosong`,
+                dupRows === 0 ? '0 duplikat' : `${dupRows} baris duplikat`,
+                outlierCount === 0 ? '0 outlier IQR' : `${outlierCount} indikasi outlier`
+            ];
+            if (autoComputed.length) dqParts.push(`Skor total otomatis: ${autoComputed.join(', ')}`);
+            document.getElementById('od-data-col-types').textContent = dqParts.join(' · ');
 
             const tbl = document.getElementById('od-preview-table');
             let html = '<thead><tr>' + colsCopy.map(c => `<th>${odEscape(c)}</th>`).join('') + '</tr></thead><tbody>';
@@ -9385,6 +9422,21 @@
                     <div class="od-hl-val">${odEscape(h.value)}</div>
                 </div>`).join('');
 
+            // Method Advisory Banner (Pemeriksaan Asumsi & Rekomendasi Alternatif)
+            const advEl = document.getElementById('od-res-advisory');
+            if (advEl) {
+                if (result.method_advisory) {
+                    const isWarn = result.method_advisory.tone === 'amber';
+                    advEl.style.display = 'block';
+                    advEl.style.background = isWarn ? '#fffbeb' : '#ecfdf5';
+                    advEl.style.border = isWarn ? '1px solid #fde68a' : '1px solid #a7f3d0';
+                    advEl.style.color = isWarn ? '#92400e' : '#065f46';
+                    advEl.innerHTML = `<strong>${odEscape(result.method_advisory.title)}:</strong> ${odEscape(result.method_advisory.message)}`;
+                } else {
+                    advEl.style.display = 'none';
+                }
+            }
+
             // Equation banner
             const eqEl = document.getElementById('od-res-equation');
             if (result.equation) {
@@ -9392,6 +9444,23 @@
                 eqEl.textContent = 'Persamaan Regresi: ' + result.equation;
             } else {
                 eqEl.style.display = 'none';
+            }
+
+            // Academic Guide (Tujuan, H0, H1, Dasar Keputusan & Referensi Metode)
+            const agEl = document.getElementById('od-res-academic-guide');
+            if (agEl) {
+                const g = result.academic_guide;
+                if (g) {
+                    agEl.style.display = 'block';
+                    agEl.innerHTML = `
+                        <div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">Kerangka Uji Hipotesis &amp; Dasar Pengambilan Keputusan</div>
+                        <div><strong>Tujuan:</strong> ${odEscape(g.tujuan)}</div>
+                        <div><strong>Hipotesis:</strong> ${odEscape(g.h0)} | ${odEscape(g.h1)}</div>
+                        <div><strong>Kriteria:</strong> ${odEscape(g.kriteria)}</div>
+                        <div style="margin-top:3px; font-size:11.5px; color:var(--text-muted);"><strong>Referensi Metode:</strong> ${odEscape(g.referensi)}</div>`;
+                } else {
+                    agEl.style.display = 'none';
+                }
             }
 
             // Tables

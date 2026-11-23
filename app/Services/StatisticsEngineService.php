@@ -53,10 +53,81 @@ class StatisticsEngineService
         $result['test_type'] = $testType;
         $result['alpha'] = $alpha;
         $result['total_rows'] = count($rows);
+        $result['academic_guide'] = $this->buildAcademicGuide($testType, $alpha);
         $result['computed_at'] = now()->format('d M Y, H:i') . ' WIB';
-        $result['engine_note'] = 'Dihitung deterministik (presisi IEEE-754 setara IBM SPSS Statistics, α = ' . number_format($alpha, 2) . ').';
+        $result['engine_note'] = 'Dihitung deterministik oleh mesin statistik independen (presisi IEEE-754 setara IBM SPSS Statistics, α = ' . number_format($alpha, 2) . ').';
 
         return $result;
+    }
+
+    private function buildAcademicGuide(string $testType, float $alpha): array
+    {
+        $a = number_format($alpha, 2);
+        return match ($testType) {
+            'regression' => [
+                'tujuan' => 'Menguji pengaruh variabel independen (X) terhadap variabel dependen (Y) secara parsial (Uji t) dan simultan (Uji F), serta mengukur daya jelas model (R²) dan kelayakan asumsi klasik.',
+                'h0' => 'H₀: Variabel independen (X) tidak berpengaruh signifikan terhadap variabel dependen (Y).',
+                'h1' => 'H₁: Variabel independen (X) berpengaruh signifikan terhadap variabel dependen (Y).',
+                'kriteria' => "Tolak H₀ (signifikan) apabila nilai Sig. < {$a}. Model layak (BLUE) apabila lolos Normalitas (Sig. >= {$a}), Multikolinearitas (Tolerance > 0.10 & VIF < 10), Heteroskedastisitas Glejser (Sig. >= {$a}), dan Durbin-Watson berada di zona aman.",
+                'referensi' => 'Ghozali (2018); Gujarati & Porter (2009); Field (2018).',
+            ],
+            'validity_reliability' => [
+                'tujuan' => 'Mengukur ketepatan setiap butir instrumen (validitas item) dan konsistensi internal konstruk penelitian (reliabilitas).',
+                'h0' => 'H₀: Butir pertanyaan tidak berkorelasi signifikan dengan skor total konstruk (tidak valid).',
+                'h1' => 'H₁: Butir pertanyaan berkorelasi positif signifikan dengan skor total konstruk (valid).',
+                'kriteria' => "Butir VALID jika r hitung > r tabel (df = N - 2, α = {$a}) dan Sig. < {$a}. Konstruk RELIABEL jika Cronbach's Alpha >= 0.70 (>= 0.60 cukup reliabel untuk studi eksploratif).",
+                'referensi' => 'Nunnally (1978); Sugiyono (2019); Ghozali (2018).',
+            ],
+            'anova' => [
+                'tujuan' => 'Menguji apakah terdapat perbedaan rata-rata yang signifikan secara statistik pada ≥ 3 kelompok/perlakuan, disertai uji normalitas residual, homogenitas varians, Welch ANOVA, ukuran efek (η² & ω²), dan uji lanjut Post-Hoc Bonferroni.',
+                'h0' => 'H₀: μ₁ = μ₂ = ... = μₖ (tidak terdapat perbedaan rata-rata yang signifikan antar kelompok/perlakuan).',
+                'h1' => 'H₁: Minimal terdapat satu pasangan kelompok/perlakuan yang memiliki rata-rata berbeda signifikan.',
+                'kriteria' => "Tolak H₀ jika Sig. ANOVA (atau Welch ANOVA bila Levene Sig. < {$a}) < {$a}. Jika residual tidak normal (Shapiro-Wilk Sig. < {$a}), verifikasi dengan Kruskal-Wallis H.",
+                'referensi' => 'Montgomery (2017); Field (2018); Welch (1951); Royston (1995).',
+            ],
+            'ttest_ind' => [
+                'tujuan' => 'Membandingkan rata-rata dua kelompok sampel bebas (independen), dilengkapi uji homogenitas varians Levene, versi Student & Welch, serta Cohen\'s d.',
+                'h0' => 'H₀: μ₁ = μ₂ (tidak terdapat perbedaan rata-rata yang signifikan antara kedua kelompok).',
+                'h1' => 'H₁: μ₁ ≠ μ₂ (terdapat perbedaan rata-rata yang signifikan antara kedua kelompok).',
+                'kriteria' => "Jika Levene Sig. >= {$a}, baca baris Equal variances assumed; jika < {$a}, baca baris Welch. Tolak H₀ bila Sig. (2-tailed) < {$a}.",
+                'referensi' => 'Field (2018); Cohen (1988); Sugiyono (2019).',
+            ],
+            'ttest_paired' => [
+                'tujuan' => 'Menguji perbedaan rata-rata dua pengukuran berpasangan pada subjek yang sama (mis. Pre-Test vs Post-Test / Sebelum vs Sesudah perlakuan).',
+                'h0' => 'H₀: μ_d = 0 (tidak terdapat perbedaan rata-rata yang signifikan sebelum dan sesudah perlakuan).',
+                'h1' => 'H₁: μ_d ≠ 0 (terdapat perbedaan rata-rata yang signifikan sebelum dan sesudah perlakuan).',
+                'kriteria' => "Tolak H₀ apabila nilai Sig. (2-tailed) < {$a}. Besar efek diukur dengan Cohen's dz (0.2 kecil, 0.5 sedang, >= 0.8 besar).",
+                'referensi' => 'Field (2018); Cohen (1988); Sugiyono (2019).',
+            ],
+            'correlation' => [
+                'tujuan' => 'Mengukur kekuatan, arah, dan signifikansi hubungan antara dua atau lebih variabel numerik secara parametrik (Pearson r) dan non-parametrik (Spearman ρ).',
+                'h0' => 'H₀: ρ = 0 (tidak terdapat hubungan yang signifikan antara variabel yang diuji).',
+                'h1' => 'H₁: ρ ≠ 0 (terdapat hubungan yang signifikan antara variabel yang diuji).',
+                'kriteria' => "Tolak H₀ apabila nilai Sig. (2-tailed) < {$a}. Kekuatan hubungan mengikuti pedoman Sugiyono (0.00–0.199 sangat rendah s.d. 0.80–1.000 sangat kuat).",
+                'referensi' => 'Sugiyono (2019); Field (2018).',
+            ],
+            'chisquare' => [
+                'tujuan' => 'Menguji ada tidaknya asosiasi/hubungan antara dua variabel kategorik melalui tabulasi silang (Crosstab) dan ukuran asosiasi Cramer\'s V.',
+                'h0' => 'H₀: Kedua variabel kategorik bersifat independen (tidak ada hubungan).',
+                'h1' => 'H₁: Terdapat hubungan/asosiasi yang signifikan antara kedua variabel kategorik.',
+                'kriteria' => "Tolak H₀ apabila Asymp. Sig. (2-sided) < {$a}. Pastikan sel dengan expected count < 5 tidak melebihi 20% total sel.",
+                'referensi' => 'Agresti (2018); Field (2018).',
+            ],
+            'nonparam' => [
+                'tujuan' => 'Menguji perbedaan distribusi/peringkat antar kelompok pada data ordinal atau data yang tidak memenuhi asumsi normalitas parametrik (Mann-Whitney U, Wilcoxon Signed-Rank, Kruskal-Wallis H).',
+                'h0' => 'H₀: Tidak terdapat perbedaan distribusi/peringkat yang signifikan antar kelompok atau kondisi.',
+                'h1' => 'H₁: Terdapat perbedaan distribusi/peringkat yang signifikan antar kelompok atau kondisi.',
+                'kriteria' => "Tolak H₀ apabila nilai Asymp. Sig. < {$a}. Perhitungan menggunakan koreksi ties identik IBM SPSS.",
+                'referensi' => 'Siegel & Castellan (1988); Field (2018); Kruskal & Wallis (1952).',
+            ],
+            default => [
+                'tujuan' => 'Mendeskripsikan sebaran data (tendensi sentral, dispersi, skewness, kurtosis) serta menguji normalitas distribusi (K-S Lilliefors & Shapiro-Wilk).',
+                'h0' => 'H₀: Data berasal dari populasi yang berdistribusi normal.',
+                'h1' => 'H₁: Data tidak berdistribusi normal.',
+                'kriteria' => "Data dinyatakan normal apabila Sig. >= {$a} (gunakan Shapiro-Wilk untuk N <= 50 dan K-S Lilliefors untuk N > 50).",
+                'referensi' => 'Royston (1995); Lilliefors (1967); Field (2018).',
+            ],
+        };
     }
 
     // =========================================================================
@@ -910,9 +981,85 @@ class StatisticsEngineService
         $fStat = $msWithin > self::EPS ? ($msBetween / $msWithin) : 0.0;
         $fSig = $this->fUpperTailP($fStat, (float) $dfBetween, (float) $dfWithin);
         $etaSq = $ssTotal > self::EPS ? ($ssBetween / $ssTotal) : 0.0;
+        $omegaSq = ($ssTotal + $msWithin) > self::EPS
+            ? max(0.0, ($ssBetween - ($dfBetween * $msWithin)) / ($ssTotal + $msWithin))
+            : 0.0;
 
-        // Levene's Test of Homogeneity of Variances (mean-centered, SPSS default)
+        // 1. Uji Normalitas Residual ANOVA (Shapiro-Wilk & K-S Lilliefors)
+        $anovaResiduals = [];
+        foreach ($groupNames as $name) {
+            $mi = $groupStats[$name]['mean'];
+            foreach ($grouped[$name] as $v) {
+                $anovaResiduals[] = $v - $mi;
+            }
+        }
+        $resMeanA = $this->mean($anovaResiduals);
+        $resSdA = $this->sampleStd($anovaResiduals, $resMeanA);
+        $swResA = $this->shapiroWilk($anovaResiduals);
+        $ksResA = $this->kolmogorovSmirnovNormal($anovaResiduals, $resMeanA, $resSdA);
+        $normPassA = ($nTotal <= 50 ? $swResA['sig'] : $ksResA['sig']) >= $alpha;
+
+        // 2. Levene's Test of Homogeneity of Variances (mean-centered, SPSS default)
         $levene = $this->leveneTest($grouped);
+        $homogPass = $levene['sig'] >= $alpha;
+
+        // 3. Welch's One-Way ANOVA (Robust Tests of Equality of Means — setara IBM SPSS Options -> Welch)
+        $wWeights = [];
+        $wSum = 0.0;
+        $wMeanNum = 0.0;
+        $welchValid = true;
+        foreach ($groupNames as $name) {
+            $ni = $groupStats[$name]['n'];
+            $vi = $groupStats[$name]['sd'] * $groupStats[$name]['sd'];
+            if ($vi <= self::EPS) {
+                $welchValid = false;
+                break;
+            }
+            $wi = $ni / $vi;
+            $wWeights[$name] = $wi;
+            $wSum += $wi;
+            $wMeanNum += $wi * $groupStats[$name]['mean'];
+        }
+        $welchF = $fStat;
+        $welchDf2 = (float) $dfWithin;
+        $welchSig = $fSig;
+        if ($welchValid && $wSum > self::EPS) {
+            $xBarW = $wMeanNum / $wSum;
+            $numW = 0.0;
+            $lamSum = 0.0;
+            foreach ($groupNames as $name) {
+                $ni = $groupStats[$name]['n'];
+                $wi = $wWeights[$name];
+                $numW += $wi * pow($groupStats[$name]['mean'] - $xBarW, 2);
+                $lamSum += pow(1.0 - ($wi / $wSum), 2) / max(1, $ni - 1);
+            }
+            $lambda = (3.0 * $lamSum) / max(self::EPS, ($g * $g) - 1.0);
+            $denW = 1.0 + (2.0 * ($g - 2.0) / max(1.0, ($g * $g) - 1.0)) * $lamSum;
+            $welchF = ($numW / $dfBetween) / max(self::EPS, $denW);
+            $welchDf2 = $lamSum > self::EPS ? (1.0 / $lambda) : (float) $dfWithin;
+            $welchSig = $this->fUpperTailP($welchF, (float) $dfBetween, $welchDf2);
+        }
+
+        // Rekomendasi metode otomatis berdasarkan pemeriksaan asumsi
+        if ($normPassA && $homogPass) {
+            $methodAdvisory = [
+                'tone' => 'emerald',
+                'title' => 'Asumsi Parametrik Terpenuhi (Normal & Homogen)',
+                'message' => "Residual berdistribusi normal (Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)}, Sig. = {$this->fmtP($swResA['sig'])}; K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}) dan varians homogen (Levene Sig. = {$this->fmtP($levene['sig'])}). Penggunaan One-Way ANOVA + Post-Hoc Bonferroni sudah tepat secara metodologis.",
+            ];
+        } elseif ($normPassA && !$homogPass) {
+            $methodAdvisory = [
+                'tone' => 'amber',
+                'title' => 'Varians Tidak Homogen → Gunakan Welch\'s ANOVA',
+                'message' => "Residual normal, tetapi Uji Levene menunjukkan varians tidak homogen (Sig. = {$this->fmtP($levene['sig'])} < {$alpha}). Gunakan hasil Welch's ANOVA yang telah dihitung otomatis pada Tabel 3 (Welch F = {$this->fmt($welchF, 3)}, df2 = {$this->fmt($welchDf2, 2)}, Sig. = {$this->fmtP($welchSig)}), atau verifikasi dengan Kruskal-Wallis H.",
+            ];
+        } else {
+            $methodAdvisory = [
+                'tone' => 'amber',
+                'title' => 'Residual Tidak Normal → Pertimbangkan Kruskal-Wallis H',
+                'message' => "Uji normalitas residual menunjukkan indikasi penyimpangan normalitas (Shapiro-Wilk Sig. = {$this->fmtP($swResA['sig'])} < {$alpha}). Disarankan memverifikasi hasil ini dengan uji non-parametrik Kruskal-Wallis H pada kartu Non-Parametrik.",
+            ];
+        }
 
         // Post-Hoc Pairwise Comparisons (Bonferroni)
         $numPairs = ($g * ($g - 1)) / 2;
@@ -960,13 +1107,14 @@ class StatisticsEngineService
         }
 
         return [
-            'title' => 'Analisis One-Way ANOVA & Post-Hoc Bonferroni',
+            'title' => 'Analisis One-Way ANOVA, Uji Asumsi & Post-Hoc Bonferroni',
             'subtitle' => "Variabel Pengukuran: {$valCol} berdasarkan Kelompok: {$groupCol} ({$g} Kelompok, N = {$nTotal})",
+            'method_advisory' => $methodAdvisory,
             'highlights' => [
-                ['label' => 'F Hitung (ANOVA)', 'value' => $this->fmt($fStat, 3), 'tone' => 'blue'],
-                ['label' => 'Sig. (p-value)', 'value' => $this->fmtP($fSig), 'tone' => $fSig < $alpha ? 'emerald' : 'amber'],
-                ['label' => 'Homogenitas Levene', 'value' => 'Sig. ' . $this->fmtP($levene['sig']), 'tone' => $levene['sig'] >= $alpha ? 'emerald' : 'amber'],
-                ['label' => 'Effect Size (η²)', 'value' => $this->fmt($etaSq, 3) . ' (' . $this->fmt($etaSq * 100, 1) . '%)', 'tone' => 'slate'],
+                ['label' => 'F Hitung (ANOVA)', 'value' => $this->fmt($fStat, 3) . ' (Sig. ' . $this->fmtP($fSig) . ')', 'tone' => $fSig < $alpha ? 'emerald' : 'amber'],
+                ['label' => 'Normalitas Residual', 'value' => 'SW Sig. ' . $this->fmtP($swResA['sig']), 'tone' => $normPassA ? 'emerald' : 'amber'],
+                ['label' => 'Homogenitas Levene', 'value' => 'Sig. ' . $this->fmtP($levene['sig']), 'tone' => $homogPass ? 'emerald' : 'amber'],
+                ['label' => 'Effect Size (η² / ω²)', 'value' => $this->fmt($etaSq, 3) . ' / ' . $this->fmt($omegaSq, 3), 'tone' => 'blue'],
             ],
             'tables' => [
                 [
@@ -976,33 +1124,48 @@ class StatisticsEngineService
                     'footnote' => "Nilai rata-rata tertinggi diperoleh pada kelompok '{$bestGroup}' sebesar {$this->fmt($groupStats[$bestGroup]['mean'], 3)}.",
                 ],
                 [
-                    'title' => 'Tabel 2. Test of Homogeneity of Variances (Levene Statistic)',
-                    'headers' => ['Levene Statistic', 'df1', 'df2', 'Sig.', 'Keputusan Homogenitas'],
+                    'title' => 'Tabel 2. Pemeriksaan Asumsi ANOVA (Normalitas Residual & Homogenitas Varians Levene)',
+                    'headers' => ['Jenis Uji Asumsi', 'Statistik Uji', 'df', 'Sig.', 'Keputusan'],
                     'rows' => [
                         [
-                            $this->fmt($levene['f'], 3),
-                            $levene['df1'],
-                            $levene['df2'],
+                            'Normalitas Residual (Shapiro-Wilk)',
+                            'W = ' . $this->fmt($swResA['w'], 3),
+                            (string) $nTotal,
+                            $this->fmtP($swResA['sig']),
+                            $swResA['sig'] >= $alpha ? 'Normal (Lolos Asumsi)' : 'Tidak Normal',
+                        ],
+                        [
+                            'Normalitas Residual (K-S Lilliefors)',
+                            'D = ' . $this->fmt($ksResA['d'], 3),
+                            (string) $nTotal,
+                            $this->fmtLilliefors($ksResA['sig']),
+                            $ksResA['sig'] >= $alpha ? 'Normal (Lolos Asumsi)' : 'Tidak Normal',
+                        ],
+                        [
+                            'Homogenitas Varians (Levene Test)',
+                            'F = ' . $this->fmt($levene['f'], 3),
+                            "{$levene['df1']}, {$levene['df2']}",
                             $this->fmtP($levene['sig']),
-                            $levene['sig'] >= $alpha ? 'Varians Homogen (Lolos Asumsi)' : 'Varians Tidak Homogen',
+                            $homogPass ? 'Varians Homogen (Lolos Asumsi)' : 'Varians Tidak Homogen (Gunakan Welch)',
                         ],
                     ],
-                    'footnote' => 'Varians antar kelompok dinyatakan homogen apabila Sig. Levene >= ' . number_format($alpha, 2) . '.',
+                    'footnote' => 'Asumsi ANOVA mencakup independensi observasi (berdasarkan desain penelitian), normalitas residual (Shapiro-Wilk untuk N <= 50; K-S Lilliefors untuk N > 50), dan homogenitas varians Levene (Sig. >= ' . number_format($alpha, 2) . ').',
                 ],
                 [
-                    'title' => "Tabel 3. ANOVA ({$valCol})",
+                    'title' => "Tabel 3. ANOVA & Robust Welch Test ({$valCol})",
                     'headers' => ['Source of Variation', 'Sum of Squares', 'df', 'Mean Square', 'F', 'Sig.'],
                     'rows' => [
                         ['Between Groups', $this->fmt($ssBetween, 3), $dfBetween, $this->fmt($msBetween, 3), $this->fmt($fStat, 3), $this->fmtP($fSig)],
                         ['Within Groups', $this->fmt($ssWithin, 3), $dfWithin, $this->fmt($msWithin, 3), '-', '-'],
                         ['Total', $this->fmt($ssTotal, 3), $nTotal - 1, '-', '-', '-'],
+                        ['Welch\'s Robust ANOVA (Alternatif)', '-', "{$dfBetween}; " . $this->fmt($welchDf2, 2), '-', $this->fmt($welchF, 3), $this->fmtP($welchSig)],
                     ],
-                    'footnote' => $fSig < $alpha
-                        ? "Terdapat perbedaan rata-rata {$valCol} yang signifikan secara statistik antar kelompok {$groupCol} (F = {$this->fmt($fStat, 3)}, Sig. = {$this->fmtP($fSig)} < {$alpha})."
-                        : "Tidak terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (Sig. = {$this->fmtP($fSig)} >= {$alpha}).",
+                    'footnote' => "Eta Squared (η²) = {$this->fmt($etaSq, 3)}, Omega Squared (ω²) = {$this->fmt($omegaSq, 3)}. " . ($fSig < $alpha
+                        ? "Terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (F = {$this->fmt($fStat, 3)}, Sig. = {$this->fmtP($fSig)} < {$alpha})."
+                        : "Tidak terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (Sig. = {$this->fmtP($fSig)} >= {$alpha})."),
                 ],
                 [
-                    'title' => 'Tabel 4. Multiple Comparisons (Post-Hoc Bonferroni)',
+                    'title' => 'Tabel 4. Multiple Comparisons (Post-Hoc Bonferroni — Seluruh ' . count($postHocRows) . ' Pasangan)',
                     'headers' => ['Perbandingan (I vs J)', 'Mean Diff (I-J)', 'Std. Error', 't', 'Adj. Sig.', '95% CI', 'Keputusan'],
                     'rows' => $postHocRows,
                     'footnote' => 'Nilai Adj. Sig. menggunakan koreksi Bonferroni (p * jumlah pasangan perbandingan).',
@@ -1017,16 +1180,16 @@ class StatisticsEngineService
                 'y_label' => $valCol,
             ],
             'conclusions' => [
-                "Uji Homogenitas Levene menghasilkan F = {$this->fmt($levene['f'], 3)} (Sig. = {$this->fmtP($levene['sig'])}), sehingga varians antar kelompok " . ($levene['sig'] >= $alpha ? 'HOMOGEN.' : 'TIDAK HOMOGEN.'),
-                "Uji One-Way ANOVA menghasilkan F = {$this->fmt($fStat, 3)} dengan Sig. = {$this->fmtP($fSig)} dan Eta Squared (η²) = {$this->fmt($etaSq, 3)} (" . ($fSig < $alpha ? 'terdapat perbedaan signifikan antar perlakuan/kelompok).' : 'tidak terdapat perbedaan signifikan antar perlakuan/kelompok).'),
-                "Rata-rata tertinggi dicapai oleh kelompok '{$bestGroup}' (Mean = {$this->fmt($groupStats[$bestGroup]['mean'], 3)}, SD = {$this->fmt($groupStats[$bestGroup]['sd'], 3)})." . (!empty($sigPairs) ? ' Pasangan berbeda signifikan (Bonferroni): ' . implode('; ', array_slice($sigPairs, 0, 5)) . '.' : ''),
+                "Uji Asumsi: Normalitas residual Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)} (Sig. = {$this->fmtP($swResA['sig'])}) & K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}; Homogenitas Levene F = {$this->fmt($levene['f'], 3)} (Sig. = {$this->fmtP($levene['sig'])}) sehingga varians antar kelompok " . ($homogPass ? 'HOMOGEN.' : 'TIDAK HOMOGEN (lihat baris Welch ANOVA).'),
+                "Uji One-Way ANOVA menghasilkan F = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, Sig. = {$this->fmtP($fSig)}), Welch F = {$this->fmt($welchF, 3)} (Sig. = {$this->fmtP($welchSig)}), Eta Squared (η²) = {$this->fmt($etaSq, 3)}, dan Omega Squared (ω²) = {$this->fmt($omegaSq, 3)} (" . ($fSig < $alpha ? 'H₀ ditolak: terdapat perbedaan signifikan antar perlakuan/kelompok).' : 'H₀ gagal ditolak: tidak terdapat perbedaan signifikan antar perlakuan/kelompok).'),
+                "Rata-rata tertinggi dicapai oleh kelompok '{$bestGroup}' (Mean = {$this->fmt($groupStats[$bestGroup]['mean'], 3)}, SD = {$this->fmt($groupStats[$bestGroup]['sd'], 3)})." . (!empty($sigPairs) ? ' Seluruh ' . count($sigPairs) . ' pasangan berbeda signifikan (Bonferroni): ' . implode('; ', $sigPairs) . '.' : ' Tidak ada pasangan yang berbeda signifikan pada uji lanjut Bonferroni.'),
             ],
             'project_autofill' => [
-                'metode' => 'Uji One-Way ANOVA, Uji Homogenitas Levene & Post-Hoc Bonferroni (Setara IBM SPSS)',
+                'metode' => 'Uji One-Way ANOVA, Normalitas Residual (Shapiro-Wilk), Homogenitas Levene, Welch ANOVA & Post-Hoc Bonferroni (Setara IBM SPSS)',
                 'sampel' => "{$nTotal} Benda Uji / Sampel ({$g} Kelompok {$groupCol})",
-                'rumus' => 'F = MSB / MSW; MSB = SSB / (k-1); MSW = SSW / (N-k); η² = SSB / SST; Post-Hoc Bonferroni p_adj = min(1, m * p)',
-                'metrik' => "One-Way ANOVA {$valCol}: F-hitung = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, Sig. = {$this->fmtP($fSig)}), Eta-Squared = {$this->fmt($etaSq, 3)}, Levene Sig. = {$this->fmtP($levene['sig'])}. Rata-rata kelompok: " . implode('; ', $groupText) . ". Tertinggi: {$bestGroup}.",
-                'evaluasi' => 'Uji Homogenitas Varians Levene (Sig. >= ' . number_format($alpha, 2) . '), One-Way ANOVA (Signifikan jika Sig. < ' . number_format($alpha, 2) . '), dan Uji Lanjut Post-Hoc Bonferroni',
+                'rumus' => 'F = MSB / MSW; η² = SSB / SST; ω² = (SSB - dfB*MSW) / (SST + MSW); Post-Hoc Bonferroni p_adj = min(1, m * p)',
+                'metrik' => "One-Way ANOVA {$valCol}: F-hitung = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, Sig. = {$this->fmtP($fSig)}), Welch F = {$this->fmt($welchF, 3)} (Sig. = {$this->fmtP($welchSig)}), Eta-Squared = {$this->fmt($etaSq, 3)}, Omega-Squared = {$this->fmt($omegaSq, 3)}, Shapiro-Wilk Residual Sig. = {$this->fmtP($swResA['sig'])}, Levene Sig. = {$this->fmtP($levene['sig'])}. Rata-rata kelompok: " . implode('; ', $groupText) . ". Tertinggi: {$bestGroup}.",
+                'evaluasi' => 'Uji Normalitas Residual (Shapiro-Wilk & K-S Lilliefors), Uji Homogenitas Varians Levene, One-Way ANOVA / Welch ANOVA (α = ' . number_format($alpha, 2) . '), dan Uji Lanjut Post-Hoc Bonferroni',
             ],
         ];
     }

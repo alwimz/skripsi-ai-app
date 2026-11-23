@@ -1305,11 +1305,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     <span>Parafrase</span>
                 </a>
-                <a href="{{ route('app.create', ['tab' => 'plagiarism']) }}" class="ws-nav-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                    <span style="flex:1;">Cek Plagiasi</span>
-                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#eff6ff; color:#2563eb;">Baru</span>
-                </a>
+                {{-- Menu Cek Plagiasi disembunyikan sementara --}}
                 <a href="{{ route('app.create', ['tab' => 'olahdata']) }}" class="ws-nav-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
                     <span style="flex:1;">Olah Data</span>
@@ -1652,30 +1648,50 @@
                     </div>
                 </div>
 
-                <div class="form-grid-2" style="margin-bottom:6px;">
+                <div class="form-grid-2" style="margin-bottom:8px;">
                     <label class="check-card">
                         <input type="checkbox" id="tidy-opt-pagebreak" checked>
-                        <span><strong>Rapikan Pindah Halaman &amp; Hapus Halaman Kosong:</strong> Otomatis mulai halaman baru tiap <code>BAB I–V</code>, <code>ABSTRAK</code>, <code>DAFTAR PUSTAKA</code>, serta hapus enter/page break kosong berlebih.</span>
+                        <span><strong>Rapikan Pindah Halaman &amp; Hapus Halaman Kosong:</strong> Mulai halaman baru otomatis tiap <code>BAB I–V</code>, <code>ABSTRAK</code>, <code>DAFTAR PUSTAKA</code>, serta hapus enter &amp; page break kosong berlebih.</span>
                     </label>
                     <label class="check-card">
                         <input type="checkbox" id="tidy-opt-indent" checked>
-                        <span><strong>Rata Kanan-Kiri &amp; Indentasi Akademik:</strong> Paragraf isi jadi Justify + masuk 1,25 cm, Sub-BAB tidak yatim di bawah halaman (Keep Next), &amp; Daftar Pustaka otomatis Hanging Indent.</span>
+                        <span><strong>Rata Kanan-Kiri, Indentasi &amp; Anti Yatim:</strong> Paragraf isi jadi Justify + masuk 1,25 cm, <code>widowControl</code> aktif, Sub-BAB terkunci (Keep Next), &amp; Daftar Pustaka otomatis Hanging Indent.</span>
                     </label>
                     <label class="check-card">
                         <input type="checkbox" id="tidy-opt-tables" checked>
-                        <span><strong>Rapikan Tabel Otomatis:</strong> Lebar tabel pas 100% margin (tidak keluar kertas), border tipis rapi, font tabel 10,5pt spasi 1,0, &amp; baris judul tabel berulang jika pindah halaman.</span>
+                        <span><strong>Rapikan Tabel Data (Bebas Potong Margin):</strong> Skalakan lebar kolom tabel pas 100% margin, border tipis rapi, font tabel 10,5pt spasi 1,0, &amp; judul tabel berulang tiap halaman (tabel tanda tangan otomatis dilewati).</span>
                     </label>
                     <label class="check-card">
                         <input type="checkbox" id="tidy-opt-spaces" checked>
-                        <span><strong>Bersihkan Spasi Berantakan:</strong> Hapus spasi ganda/berlebih antar kata tanpa mengubah satu pun kata, kutipan, angka, atau kalimat asli mahasiswa.</span>
+                        <span><strong>Bersihkan Spasi &amp; Tanda Baca Berantakan:</strong> Hapus spasi ganda/spasi sebelum titik/koma tanpa mengubah satu pun kata, kutipan, rumus, atau angka asli mahasiswa.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-images" checked>
+                        <span><strong>Rapikan Gambar &amp; Keterangan (Anti Terpotong):</strong> Perkecil proporsional gambar yang melebar keluar margin kertas, posisikan rata tengah, &amp; kunci judul Gambar/Tabel agar tidak terpisah halaman.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-cleanstyle" checked>
+                        <span><strong>Hapus Bekas Copy-Paste (Shading &amp; Warna Teks):</strong> Bersihkan latar belakang abu-abu/putih, stabilo highlight, &amp; seragamkan warna teks isi menjadi hitam pekat siap cetak.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-cover" checked>
+                        <span><strong>Lindungi Halaman Sampul &amp; Lembar Pengesahan:</strong> Pertahankan tata letak Cover, logo kampus, jarak tanda tangan, Daftar Isi otomatis (TOC), &amp; rumus matematika Word (Equation) agar tidak ikut berubah.</span>
+                    </label>
+                    <label class="check-card">
+                        <input type="checkbox" id="tidy-opt-abstract" checked>
+                        <span><strong>Format Khusus Abstrak &amp; Kutipan Blok:</strong> Otomatis atur bagian <code>ABSTRAK / ABSTRACT</code> menjadi spasi 1,0 (tunggal) sesuai pedoman kampus Indonesia, sementara isi Bab tetap mengikuti pilihan spasi di atas.</span>
                     </label>
                 </div>
 
                 <div class="tool-action-bar">
-                    <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted);">
-                        <span>🛡️ File asli tidak tertimpa — hasil diunduh sebagai file baru <code>_Rapi.docx</code></span>
+                    <div class="tool-action-controls" style="font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                        <span>File asli tidak tertimpa — hasil diunduh sebagai file baru <code>_Rapi.docx</code></span>
                     </div>
-                    <button type="button" class="btn btn-primary" id="btn-tidy-docx" onclick="runTidyDocx()">✨ Rapikan Skripsi Sekarang</button>
+                    <button type="button" class="btn btn-primary" id="btn-tidy-docx" onclick="runTidyDocx()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 14l2 2 4-4"/></svg>
+                        <span>Rapikan Skripsi Sekarang</span>
+                    </button>
                 </div>
 
                 <div id="proc-tidy" class="proc-box">
@@ -3764,17 +3780,50 @@
                 const optIndent = document.getElementById('tidy-opt-indent').checked;
                 const optTables = document.getElementById('tidy-opt-tables').checked;
                 const optSpaces = document.getElementById('tidy-opt-spaces').checked;
+                const optImages = document.getElementById('tidy-opt-images')?.checked ?? true;
+                const optCleanStyle = document.getElementById('tidy-opt-cleanstyle')?.checked ?? true;
+                const optProtectCover = document.getElementById('tidy-opt-cover')?.checked ?? true;
+                const optAbstract = document.getElementById('tidy-opt-abstract')?.checked ?? true;
 
                 const marginPresets = {
-                    '4433': { top: '2268', left: '2268', bottom: '1701', right: '1701' },
-                    '3333': { top: '1701', left: '1701', bottom: '1701', right: '1701' },
-                    'normal': { top: '1440', left: '1440', bottom: '1440', right: '1440' }
+                    '4433': { top: 2268, left: 2268, bottom: 1701, right: 1701 },
+                    '3333': { top: 1701, left: 1701, bottom: 1701, right: 1701 },
+                    'normal': { top: 1440, left: 1440, bottom: 1440, right: 1440 }
                 };
                 const mar = marginPresets[marginVal] || marginPresets['4433'];
+                const pageWTwip = 11906;
+                const contentWTwip = pageWTwip - mar.left - mar.right;
+                const maxImgEmu = Math.round(contentWTwip * 635); // 1 twip = 635 EMUs
+
+                // Urutan elemen anak sesuai skema OOXML agar Microsoft Word macOS/Windows tidak korup atau mengabaikan style
+                const PPR_ORDER = ['pStyle', 'keepNext', 'keepLines', 'pageBreakBefore', 'widowControl', 'numPr', 'pBdr', 'shd', 'tabs', 'spacing', 'ind', 'jc', 'outlineLvl', 'rPr', 'sectPr'];
+                const RPR_ORDER = ['rStyle', 'rFonts', 'b', 'bCs', 'i', 'iCs', 'caps', 'strike', 'color', 'sz', 'szCs', 'highlight', 'u', 'shd', 'vertAlign'];
+                const TBLPR_ORDER = ['tblStyle', 'tblW', 'jc', 'tblInd', 'tblBorders', 'shd', 'tblLayout', 'tblCellMar', 'tblLook'];
 
                 const mkW = (tag) => xmlDoc.createElementNS(W_NS, 'w:' + tag);
                 const setWAttr = (el, name, val) => el.setAttributeNS(W_NS, 'w:' + name, String(val));
                 const getDirectChild = (parent, local) => Array.from(parent.childNodes).find(n => n.nodeType === 1 && n.localName === local);
+                const ensureOrderedChild = (parent, local, orderList) => {
+                    let c = getDirectChild(parent, local);
+                    if (c) return c;
+                    c = mkW(local);
+                    if (orderList && orderList.length) {
+                        const targetIdx = orderList.indexOf(local);
+                        if (targetIdx >= 0) {
+                            const nextEl = Array.from(parent.childNodes).find(n => {
+                                if (n.nodeType !== 1) return false;
+                                const ni = orderList.indexOf(n.localName);
+                                return ni > targetIdx;
+                            });
+                            if (nextEl) {
+                                parent.insertBefore(c, nextEl);
+                                return c;
+                            }
+                        }
+                    }
+                    parent.appendChild(c);
+                    return c;
+                };
                 const ensureChild = (parent, local, prepend = false) => {
                     let c = getDirectChild(parent, local);
                     if (!c) {
@@ -3794,8 +3843,12 @@
                     chaptersFixed: 0,
                     subHeadingsFixed: 0,
                     tablesFixed: 0,
+                    tablesProtected: 0,
                     bibEntries: 0,
                     spacesCleaned: 0,
+                    imagesResized: 0,
+                    stylesCleaned: 0,
+                    abstractFixed: 0,
                     imagesKept: 0
                 };
 
@@ -3806,10 +3859,17 @@
                 const body = xmlDoc.getElementsByTagNameNS(W_NS, 'body')[0];
                 if (!body) throw new Error('Body dokumen tidak ditemukan.');
 
+                // 1. Atur kertas A4 & Margin (pertahankan orientasi Landscape jika ada halaman lampiran landscape)
                 Array.from(xmlDoc.getElementsByTagNameNS(W_NS, 'sectPr')).forEach(sectPr => {
                     const pgSz = ensureChild(sectPr, 'pgSz');
-                    setWAttr(pgSz, 'w', '11906');
-                    setWAttr(pgSz, 'h', '16838');
+                    const isLandscape = (pgSz.getAttributeNS(W_NS, 'orient') || '').toLowerCase() === 'landscape';
+                    if (isLandscape) {
+                        setWAttr(pgSz, 'w', '16838');
+                        setWAttr(pgSz, 'h', '11906');
+                    } else {
+                        setWAttr(pgSz, 'w', '11906');
+                        setWAttr(pgSz, 'h', '16838');
+                    }
                     const pgMar = ensureChild(sectPr, 'pgMar');
                     setWAttr(pgMar, 'top', mar.top);
                     setWAttr(pgMar, 'left', mar.left);
@@ -3819,42 +3879,59 @@
                     if (!pgMar.getAttributeNS(W_NS, 'footer')) setWAttr(pgMar, 'footer', '709');
                 });
 
-                setProc('tidy', true, 'Merapikan paragraf, BAB, spasi, & menghapus halaman kosong...', 58);
+                setProc('tidy', true, 'Merapikan paragraf, BAB, gambar, tabel & menghapus halaman kosong...', 55);
+
+                const isInsideEquation = (node) => {
+                    let cur = node.parentNode;
+                    while (cur && cur.nodeType === 1) {
+                        if (cur.localName === 'oMath' || cur.localName === 'oMathPara') return true;
+                        cur = cur.parentNode;
+                    }
+                    return false;
+                };
 
                 const applyRunStyle = (rNode, szHalfPt, forceBold = null) => {
+                    if (optProtectCover && isInsideEquation(rNode)) return;
                     const rPr = ensureChild(rNode, 'rPr', true);
-                    const rFonts = ensureChild(rPr, 'rFonts');
+                    const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
                     setWAttr(rFonts, 'ascii', fontName);
                     setWAttr(rFonts, 'hAnsi', fontName);
                     setWAttr(rFonts, 'cs', fontName);
                     setWAttr(rFonts, 'eastAsia', fontName);
 
-                    const sz = ensureChild(rPr, 'sz');
-                    setWAttr(sz, 'val', szHalfPt);
-                    const szCs = ensureChild(rPr, 'szCs');
-                    setWAttr(szCs, 'val', szHalfPt);
+                    // Pertahankan ukuran kecil untuk pangkat/subskrip (superscript/subscript)
+                    const hasVertAlign = !!getDirectChild(rPr, 'vertAlign');
+                    const finalSz = hasVertAlign ? Math.max(16, szHalfPt - 4) : szHalfPt;
+                    const sz = ensureOrderedChild(rPr, 'sz', RPR_ORDER);
+                    setWAttr(sz, 'val', finalSz);
+                    const szCs = ensureOrderedChild(rPr, 'szCs', RPR_ORDER);
+                    setWAttr(szCs, 'val', finalSz);
 
-                    const color = getDirectChild(rPr, 'color');
-                    if (color) {
-                        const cv = (color.getAttributeNS(W_NS, 'val') || '').toLowerCase();
-                        if (cv && cv !== 'auto' && cv !== '000000' && cv !== '1d4ed8') {
-                            setWAttr(color, 'val', '000000');
+                    if (optCleanStyle) {
+                        const color = getDirectChild(rPr, 'color');
+                        if (color) {
+                            const cv = (color.getAttributeNS(W_NS, 'val') || '').toLowerCase();
+                            if (cv && cv !== 'auto' && cv !== '000000') {
+                                setWAttr(color, 'val', '000000');
+                                stats.stylesCleaned++;
+                            }
                         }
+                        if (getDirectChild(rPr, 'shd')) { removeDirectChild(rPr, 'shd'); stats.stylesCleaned++; }
+                        if (getDirectChild(rPr, 'highlight')) { removeDirectChild(rPr, 'highlight'); stats.stylesCleaned++; }
                     }
-                    removeDirectChild(rPr, 'shd');
-                    removeDirectChild(rPr, 'highlight');
 
                     if (forceBold === true) {
-                        ensureChild(rPr, 'b');
+                        ensureOrderedChild(rPr, 'b', RPR_ORDER);
                     }
                 };
 
                 const cleanRunSpaces = (pNode) => {
                     if (!optSpaces) return;
                     Array.from(pNode.getElementsByTagNameNS(W_NS, 't')).forEach(tNode => {
+                        if (optProtectCover && isInsideEquation(tNode)) return;
                         const orig = tNode.textContent || '';
-                        if (!orig) return;
-                        let fixed = orig.replace(/[ \u00A0]{2,}/g, ' ').replace(/\s+([,.;:!?])/g, '$1');
+                        if (!orig || /^\s+$/.test(orig)) return;
+                        let fixed = orig.replace(/[ \u00A0]{2,}/g, ' ').replace(/ +([,.;:!?])/g, '$1');
                         if (fixed !== orig) {
                             tNode.textContent = fixed;
                             tNode.setAttribute('xml:space', 'preserve');
@@ -3863,19 +3940,86 @@
                     });
                 };
 
+                // Helper skalakan gambar yang melebar melebihi batas margin kertas (EMU) secara proporsional
+                const constrainNodeImages = (node) => {
+                    if (!optImages) return;
+                    const drawings = Array.from(node.getElementsByTagNameNS('*', 'drawing'));
+                    drawings.forEach(drw => {
+                        const extents = Array.from(drw.getElementsByTagNameNS('*', 'extent'));
+                        extents.forEach(ext => {
+                            const cx = parseInt(ext.getAttribute('cx') || '0', 10);
+                            const cy = parseInt(ext.getAttribute('cy') || '0', 10);
+                            if (cx > maxImgEmu && cx > 0 && cy > 0) {
+                                const ratio = maxImgEmu / cx;
+                                const newCx = maxImgEmu;
+                                const newCy = Math.round(cy * ratio);
+                                ext.setAttribute('cx', String(newCx));
+                                ext.setAttribute('cy', String(newCy));
+                                Array.from(drw.getElementsByTagNameNS('*', 'ext')).forEach(aExt => {
+                                    const ax = parseInt(aExt.getAttribute('cx') || '0', 10);
+                                    const ay = parseInt(aExt.getAttribute('cy') || '0', 10);
+                                    if (ax > maxImgEmu && ay > 0) {
+                                        aExt.setAttribute('cx', String(newCx));
+                                        aExt.setAttribute('cy', String(Math.round(ay * (newCx / ax))));
+                                    }
+                                });
+                                stats.imagesResized++;
+                            }
+                        });
+                    });
+                };
+
                 const bodyChildren = Array.from(body.childNodes).filter(n => n.nodeType === 1);
+                // Deteksi apakah dokumen memiliki halaman depan/cover sebelum ABSTRAK / KATA PENGANTAR / DAFTAR ISI / BAB I
+                const firstMajorIdx = bodyChildren.findIndex(n => {
+                    if (n.localName !== 'p') return false;
+                    const t = Array.from(n.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join('').replace(/\s+/g, ' ').trim();
+                    return t.length <= 85 && /^(?:BAB\s+[IVX0-9]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|DAFTAR\s+ISI)/i.test(t);
+                });
+                const hasCoverZone = optProtectCover && firstMajorIdx > 0;
+
                 let inBibliography = false;
+                let inAbstract = false;
                 let seenRealContent = false;
                 let consecutiveEmpty = 0;
 
-                for (const node of bodyChildren) {
+                for (let idx = 0; idx < bodyChildren.length; idx++) {
+                    const node = bodyChildren[idx];
+                    const inCoverZone = hasCoverZone && idx < firstMajorIdx;
+
                     if (node.localName === 'p') {
                         const hasDrawing = node.getElementsByTagNameNS('*', 'drawing').length > 0
                             || node.getElementsByTagNameNS('*', 'pict').length > 0
                             || node.getElementsByTagNameNS('*', 'object').length > 0;
-                        const hasSectPr = !!getDirectChild(node, 'pPr') && !!getDirectChild(getDirectChild(node, 'pPr'), 'sectPr');
+                        const pPrExisting = getDirectChild(node, 'pPr');
+                        const hasSectPr = !!pPrExisting && !!getDirectChild(pPrExisting, 'sectPr');
+                        const styleVal = (pPrExisting && getDirectChild(pPrExisting, 'pStyle')?.getAttributeNS(W_NS, 'val')) || '';
+                        const isTocPara = optProtectCover && /^TOC/i.test(styleVal);
+                        const hasFieldCode = node.getElementsByTagNameNS(W_NS, 'fldChar').length > 0 || node.getElementsByTagNameNS(W_NS, 'instrText').length > 0;
                         const rawText = Array.from(node.getElementsByTagNameNS(W_NS, 't')).map(t => t.textContent || '').join('');
                         const text = rawText.replace(/\s+/g, ' ').trim();
+
+                        // Lindungi Cover Page / Lembar Pengesahan / Daftar Isi Otomatis (TOC)
+                        if (inCoverZone) {
+                            if (hasDrawing) constrainNodeImages(node);
+                            if (text) {
+                                seenRealContent = true;
+                                Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
+                                    // Seragamkan hanya font family di cover, jangan rusak ukuran/spasi/rata tengah cover!
+                                    const rPr = ensureChild(r, 'rPr', true);
+                                    const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
+                                    setWAttr(rFonts, 'ascii', fontName);
+                                    setWAttr(rFonts, 'hAnsi', fontName);
+                                    setWAttr(rFonts, 'cs', fontName);
+                                });
+                            }
+                            continue;
+                        }
+
+                        if (isTocPara || (optProtectCover && hasFieldCode && /TOC|PAGEREF/i.test(Array.from(node.getElementsByTagNameNS(W_NS, 'instrText')).map(x => x.textContent || '').join('')))) {
+                            seenRealContent = true;
+                            continue;
+                        }
 
                         if (!text && !hasDrawing && !hasSectPr) {
                             const hasBrPage = Array.from(node.getElementsByTagNameNS(W_NS, 'br'))
@@ -3891,16 +4035,24 @@
 
                         consecutiveEmpty = 0;
                         cleanRunSpaces(node);
+                        if (hasDrawing) constrainNodeImages(node);
 
                         const pPr = ensureChild(node, 'pPr', true);
-                        removeDirectChild(pPr, 'shd');
+                        if (optCleanStyle && getDirectChild(pPr, 'shd')) {
+                            removeDirectChild(pPr, 'shd');
+                            stats.stylesCleaned++;
+                        }
 
                         if (hasDrawing && !text) {
-                            const jc = ensureChild(pPr, 'jc');
-                            setWAttr(jc, 'val', 'center');
-                            const sp = ensureChild(pPr, 'spacing');
-                            setWAttr(sp, 'before', '120');
-                            setWAttr(sp, 'after', '120');
+                            if (optImages) {
+                                const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
+                                setWAttr(jc, 'val', 'center');
+                                removeDirectChild(pPr, 'ind');
+                                const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
+                                setWAttr(sp, 'before', '120');
+                                setWAttr(sp, 'after', '100');
+                                ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
+                            }
                             seenRealContent = true;
                             continue;
                         }
@@ -3909,26 +4061,32 @@
                         const isMajorHeading = text.length <= 95 && /^(?:BAB\s+[IVX0-9]+|DAFTAR\s+PUSTAKA|DAFTAR\s+ISI|DAFTAR\s+TABEL|DAFTAR\s+GAMBAR|DAFTAR\s+LAMPIRAN|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LEMBAR\s+PENGESAHAN|PERNYATAAN\s+KEASLIAN|LAMPIRAN\b)/i.test(text);
                         const isBabTitleFollowup = seenRealContent && text.length <= 75 && upperText === text && /^[A-Z0-9\s,&\-–]+$/.test(text) && text.split(' ').length <= 8 && !/^\d/.test(text);
                         const isSubHeading = !isMajorHeading && text.length <= 120 && /^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)[A-Za-zÀ-ÿ]/.test(text);
-                        const isCaption = /^(?:Gambar|Tabel|Grafik|Bagan)\s+\d+(?:\.\d+)?/i.test(text) && text.length <= 160;
+                        const isCaption = /^(?:Gambar|Tabel|Grafik|Bagan|Sumber\s*:)\s*/i.test(text) && text.length <= 170;
                         const isListItem = !!getDirectChild(pPr, 'numPr') || /^(?:\d+[\.\)]\s+|[a-z][\.\)]\s+|[•\-–]\s+)/.test(text);
 
                         if (/^DAFTAR\s+PUSTAKA/i.test(text)) {
                             inBibliography = true;
-                        } else if (isMajorHeading && /^LAMPIRAN/i.test(text)) {
+                            inAbstract = false;
+                        } else if (/^(?:ABSTRAK|ABSTRACT)\b/i.test(text)) {
+                            inAbstract = true;
                             inBibliography = false;
+                        } else if (isMajorHeading) {
+                            inAbstract = false;
+                            if (/^(?:BAB\s+|LAMPIRAN)/i.test(text)) inBibliography = false;
                         }
 
                         const runs = Array.from(node.getElementsByTagNameNS(W_NS, 'r'));
 
                         if (isMajorHeading) {
                             if (optPageBreak && seenRealContent) {
-                                ensureChild(pPr, 'pageBreakBefore');
+                                ensureOrderedChild(pPr, 'pageBreakBefore', PPR_ORDER);
                             }
-                            ensureChild(pPr, 'keepNext');
-                            const jc = ensureChild(pPr, 'jc');
+                            ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
+                            ensureOrderedChild(pPr, 'keepLines', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
                             setWAttr(jc, 'val', 'center');
                             removeDirectChild(pPr, 'ind');
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '0');
                             setWAttr(sp, 'after', '180');
                             setWAttr(sp, 'line', '276');
@@ -3936,11 +4094,12 @@
                             runs.forEach(r => applyRunStyle(r, Math.max(bodySz + 4, 28), true));
                             stats.chaptersFixed++;
                         } else if (isBabTitleFollowup) {
-                            ensureChild(pPr, 'keepNext');
-                            const jc = ensureChild(pPr, 'jc');
+                            ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
+                            ensureOrderedChild(pPr, 'keepLines', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
                             setWAttr(jc, 'val', 'center');
                             removeDirectChild(pPr, 'ind');
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '0');
                             setWAttr(sp, 'after', '200');
                             setWAttr(sp, 'line', '276');
@@ -3948,11 +4107,12 @@
                             runs.forEach(r => applyRunStyle(r, bodySz + 2, true));
                             stats.chaptersFixed++;
                         } else if (isSubHeading) {
-                            ensureChild(pPr, 'keepNext');
-                            const jc = ensureChild(pPr, 'jc');
+                            ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
+                            ensureOrderedChild(pPr, 'keepLines', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
                             setWAttr(jc, 'val', 'left');
                             removeDirectChild(pPr, 'ind');
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '200');
                             setWAttr(sp, 'after', '80');
                             setWAttr(sp, 'line', lineVal);
@@ -3960,35 +4120,52 @@
                             runs.forEach(r => applyRunStyle(r, bodySz, true));
                             stats.subHeadingsFixed++;
                         } else if (isCaption) {
-                            const jc = ensureChild(pPr, 'jc');
-                            setWAttr(jc, 'val', 'center');
-                            removeDirectChild(pPr, 'ind');
-                            const sp = ensureChild(pPr, 'spacing');
-                            setWAttr(sp, 'before', '100');
+                            if (optImages) {
+                                const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
+                                setWAttr(jc, 'val', 'center');
+                                removeDirectChild(pPr, 'ind');
+                                if (/^Tabel\s+\d/i.test(text)) ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
+                            }
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
+                            setWAttr(sp, 'before', '80');
                             setWAttr(sp, 'after', '100');
                             setWAttr(sp, 'line', '240');
                             setWAttr(sp, 'lineRule', 'auto');
                             runs.forEach(r => applyRunStyle(r, Math.max(20, bodySz - 2), null));
                         } else if (inBibliography) {
-                            const jc = ensureChild(pPr, 'jc');
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
                             setWAttr(jc, 'val', optIndent ? 'both' : 'left');
                             if (optIndent) {
+                                ensureOrderedChild(pPr, 'widowControl', PPR_ORDER);
                                 removeDirectChild(pPr, 'ind');
-                                const ind = ensureChild(pPr, 'ind');
+                                const ind = ensureOrderedChild(pPr, 'ind', PPR_ORDER);
                                 setWAttr(ind, 'left', '709');
                                 setWAttr(ind, 'hanging', '709');
                             }
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '0');
                             setWAttr(sp, 'after', '120');
-                            setWAttr(sp, 'line', '260');
+                            setWAttr(sp, 'line', '240');
                             setWAttr(sp, 'lineRule', 'auto');
                             runs.forEach(r => applyRunStyle(r, bodySz, null));
                             stats.bibEntries++;
+                        } else if (inAbstract && optAbstract) {
+                            ensureOrderedChild(pPr, 'widowControl', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
+                            setWAttr(jc, 'val', 'both');
+                            removeDirectChild(pPr, 'ind');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '120');
+                            setWAttr(sp, 'line', '240'); // Spasi 1.0 standar abstrak Indonesia
+                            setWAttr(sp, 'lineRule', 'auto');
+                            runs.forEach(r => applyRunStyle(r, bodySz, null));
+                            stats.abstractFixed++;
                         } else if (isListItem) {
-                            const jc = ensureChild(pPr, 'jc');
+                            if (optIndent) ensureOrderedChild(pPr, 'widowControl', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
                             setWAttr(jc, 'val', optIndent ? 'both' : 'left');
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '0');
                             setWAttr(sp, 'after', '60');
                             setWAttr(sp, 'line', lineVal);
@@ -3997,14 +4174,15 @@
                         } else {
                             const existingJc = getDirectChild(pPr, 'jc')?.getAttributeNS(W_NS, 'val');
                             const keepCenter = existingJc === 'center' && text.length < 90;
-                            const jc = ensureChild(pPr, 'jc');
-                            setWAttr(jc, 'val', keepCenter ? 'center' : (optIndent ? 'both' : 'left'));
+                            if (optIndent) ensureOrderedChild(pPr, 'widowControl', PPR_ORDER);
+                            const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
+                            setWAttr(jc, 'val', keepCenter ? 'center' : (optIndent ? 'both' : (existingJc || 'left')));
                             if (optIndent && !keepCenter && text.length > 65) {
                                 removeDirectChild(pPr, 'ind');
-                                const ind = ensureChild(pPr, 'ind');
+                                const ind = ensureOrderedChild(pPr, 'ind', PPR_ORDER);
                                 setWAttr(ind, 'firstLine', '709');
                             }
-                            const sp = ensureChild(pPr, 'spacing');
+                            const sp = ensureOrderedChild(pPr, 'spacing', PPR_ORDER);
                             setWAttr(sp, 'before', '0');
                             setWAttr(sp, 'after', '0');
                             setWAttr(sp, 'line', lineVal);
@@ -4014,16 +4192,56 @@
 
                         seenRealContent = true;
                         stats.paragraphsTidied++;
-                    } else if (node.localName === 'tbl' && optTables) {
+                    } else if (node.localName === 'tbl') {
                         seenRealContent = true;
                         consecutiveEmpty = 0;
+                        if (optImages) constrainNodeImages(node);
+
+                        if (!optTables) continue;
+
+                        // Deteksi tabel tanda tangan / identitas / cover tanpa garis agar TIDAK dirusak menjadi kotak bergaris!
+                        const tblText = Array.from(node.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join(' ');
                         const tblPr = ensureChild(node, 'tblPr', true);
-                        const tblW = ensureChild(tblPr, 'tblW');
-                        setWAttr(tblW, 'w', '5000');
-                        setWAttr(tblW, 'type', 'pct');
+                        const origBdr = getDirectChild(tblPr, 'tblBorders');
+                        const isOriginallyBorderless = origBdr && Array.from(origBdr.childNodes).filter(n => n.nodeType === 1).every(b => {
+                            const v = (b.getAttributeNS(W_NS, 'val') || '').toLowerCase();
+                            return v === 'none' || v === 'nil';
+                        });
+                        const isSignatureLike = optProtectCover && (inCoverZone || isOriginallyBorderless || /(?:Pembimbing\s*[I12]|Mengetahui|Disetujui|Penguji|Ketua\s+Program\s+Studi|NIM\s*:|NPM\s*:)/i.test(tblText));
+
+                        if (isSignatureLike) {
+                            // Hanya seragamkan font tabel tanda tangan tanpa menambah garis border!
+                            Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
+                                const rPr = ensureChild(r, 'rPr', true);
+                                const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
+                                setWAttr(rFonts, 'ascii', fontName);
+                                setWAttr(rFonts, 'hAnsi', fontName);
+                                setWAttr(rFonts, 'cs', fontName);
+                            });
+                            stats.tablesProtected++;
+                            continue;
+                        }
+
+                        // Skalakan tblGrid & cell widths agar tabel tidak pernah keluar batas margin kertas
+                        const tblW = ensureOrderedChild(tblPr, 'tblW', TBLPR_ORDER);
+                        setWAttr(tblW, 'w', String(contentWTwip));
+                        setWAttr(tblW, 'type', 'dxa');
+
+                        const tblGrid = getDirectChild(node, 'tblGrid');
+                        if (tblGrid) {
+                            const cols = Array.from(tblGrid.childNodes).filter(n => n.nodeType === 1 && n.localName === 'gridCol');
+                            const totalColW = cols.reduce((acc, c) => acc + (parseInt(c.getAttributeNS(W_NS, 'w') || '0', 10) || 0), 0);
+                            if (totalColW > contentWTwip && cols.length > 0) {
+                                const ratio = contentWTwip / totalColW;
+                                cols.forEach(c => {
+                                    const cw = parseInt(c.getAttributeNS(W_NS, 'w') || '1000', 10);
+                                    setWAttr(c, 'w', Math.max(400, Math.round(cw * ratio)));
+                                });
+                            }
+                        }
 
                         removeDirectChild(tblPr, 'tblBorders');
-                        const borders = mkW('tblBorders');
+                        const borders = ensureOrderedChild(tblPr, 'tblBorders', TBLPR_ORDER);
                         ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].forEach(side => {
                             const b = mkW(side);
                             setWAttr(b, 'val', 'single');
@@ -4032,17 +4250,43 @@
                             setWAttr(b, 'color', '334155');
                             borders.appendChild(b);
                         });
-                        tblPr.appendChild(borders);
+
+                        removeDirectChild(tblPr, 'tblCellMar');
+                        const cellMar = ensureOrderedChild(tblPr, 'tblCellMar', TBLPR_ORDER);
+                        [['top', 65], ['bottom', 65], ['left', 90], ['right', 90]].forEach(([s, v]) => {
+                            const m = mkW(s);
+                            setWAttr(m, 'w', v);
+                            setWAttr(m, 'type', 'dxa');
+                            cellMar.appendChild(m);
+                        });
 
                         const rows = Array.from(node.childNodes).filter(n => n.nodeType === 1 && n.localName === 'tr');
                         rows.forEach((tr, rIdx) => {
                             const trPr = ensureChild(tr, 'trPr', true);
                             ensureChild(trPr, 'cantSplit');
                             if (rIdx === 0) ensureChild(trPr, 'tblHeader');
+                            const cells = Array.from(tr.childNodes).filter(n => n.nodeType === 1 && n.localName === 'tc');
+                            const rowSumW = cells.reduce((acc, tc) => {
+                                const tcPr = getDirectChild(tc, 'tcPr');
+                                const tcW = tcPr && getDirectChild(tcPr, 'tcW');
+                                const tp = tcW ? (tcW.getAttributeNS(W_NS, 'type') || 'dxa') : 'dxa';
+                                return acc + (tp === 'dxa' ? (parseInt(tcW?.getAttributeNS(W_NS, 'w') || '0', 10) || 0) : 0);
+                            }, 0);
+                            if (rowSumW > contentWTwip) {
+                                const ratio = contentWTwip / rowSumW;
+                                cells.forEach(tc => {
+                                    const tcPr = getDirectChild(tc, 'tcPr');
+                                    const tcW = tcPr && getDirectChild(tcPr, 'tcW');
+                                    if (tcW && (tcW.getAttributeNS(W_NS, 'type') || 'dxa') === 'dxa') {
+                                        const w = parseInt(tcW.getAttributeNS(W_NS, 'w') || '0', 10);
+                                        if (w > 0) setWAttr(tcW, 'w', Math.max(400, Math.round(w * ratio)));
+                                    }
+                                });
+                            }
                             Array.from(tr.getElementsByTagNameNS(W_NS, 'p')).forEach(tp => {
                                 cleanRunSpaces(tp);
                                 const tpPr = ensureChild(tp, 'pPr', true);
-                                const sp = ensureChild(tpPr, 'spacing');
+                                const sp = ensureOrderedChild(tpPr, 'spacing', PPR_ORDER);
                                 setWAttr(sp, 'before', '40');
                                 setWAttr(sp, 'after', '40');
                                 setWAttr(sp, 'line', '240');
@@ -4093,13 +4337,17 @@
 
                 const pills = [
                     `✓ ${stats.paragraphsTidied} Paragraf dirapikan`,
-                    `✓ ${stats.emptyRemoved} Baris/halaman kosong dihapus`,
-                    `✓ ${stats.chaptersFixed} Judul BAB ditata`,
-                    `✓ ${stats.subHeadingsFixed} Sub-BAB (Keep Next)`,
-                    `✓ ${stats.tablesFixed} Tabel pas margin`,
+                    stats.emptyRemoved > 0 ? `✓ ${stats.emptyRemoved} Baris/halaman kosong dihapus` : null,
+                    stats.chaptersFixed > 0 ? `✓ ${stats.chaptersFixed} Judul BAB ditata` : null,
+                    stats.subHeadingsFixed > 0 ? `✓ ${stats.subHeadingsFixed} Sub-BAB (Keep Next)` : null,
+                    stats.tablesFixed > 0 ? `✓ ${stats.tablesFixed} Tabel data pas margin` : null,
+                    stats.tablesProtected > 0 ? `✓ ${stats.tablesProtected} Tabel tanda tangan dilindungi` : null,
+                    stats.abstractFixed > 0 ? `✓ ${stats.abstractFixed} Paragraf Abstrak (spasi 1,0)` : null,
                     stats.bibEntries > 0 ? `✓ ${stats.bibEntries} Daftar Pustaka (Hanging)` : null,
                     stats.spacesCleaned > 0 ? `✓ ${stats.spacesCleaned} Spasi ganda dibersihkan` : null,
-                    `🖼️ ${stats.imagesKept} Gambar 100% utuh`
+                    stats.stylesCleaned > 0 ? `✓ ${stats.stylesCleaned} Bekas copy-paste dibersihkan` : null,
+                    stats.imagesResized > 0 ? `✓ ${stats.imagesResized} Gambar disesuaikan ke margin` : null,
+                    `✓ ${stats.imagesKept} Gambar 100% utuh`
                 ].filter(Boolean);
                 document.getElementById('result-tidy-pills').innerHTML = pills.map(p => `<span class="audit-pill">${p}</span>`).join('');
             } catch (err) {
