@@ -11,6 +11,9 @@
         content="skripsilab ai, skripsilab, skripsi lab, skripsi ai, buat skripsi otomatis ai, buat proposal skripsi otomatis, referensi ilmiah jurnal relevan, cari jurnal doi relevan, ai pembuat skripsi, generator skripsi bab 1-5, contoh proposal skripsi, cari judul skripsi, daftar pustaka apa 7th otomatis, ppt sidang skripsi otomatis, simulasi sidang skripsi, parafrase skripsi, dosen ai, format skripsi 4-4-3-3, ekspor word pdf skripsi">
     <meta name="author" content="SkripsiLab AI">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    @if(!empty(env('GOOGLE_SITE_VERIFICATION')))
+        <meta name="google-site-verification" content="{{ env('GOOGLE_SITE_VERIFICATION') }}">
+    @endif
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
