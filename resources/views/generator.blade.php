@@ -2297,7 +2297,7 @@
             text-indent: 0 !important;
         }
     </style>
-    <div id="cite-action-popover"
+    <div id="cite-action-popover" onclick="event.stopPropagation();"
         style="display: none; position: fixed; z-index: 10050; width: 396px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); flex-direction: column; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.24); overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
         <div id="cite-pop-drag-handle" title="Tahan dan geser untuk memindahkan popup"
             style="padding: 11px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; cursor: grab; user-select: none; flex-shrink: 0;">
@@ -2957,7 +2957,10 @@
             document.addEventListener('touchend', endDrag);
         })();
 
-        function closeCitationPopover() {
+        let isReplacingCitation = false;
+
+        function closeCitationPopover(force = false) {
+            if (isReplacingCitation && !force) return;
             const pop = document.getElementById('cite-action-popover');
             if (pop) pop.style.display = 'none';
             clearActiveSentenceHighlight();
@@ -2965,13 +2968,14 @@
 
         document.addEventListener('click', (e) => {
             const pop = document.getElementById('cite-action-popover');
-            if (!pop || pop.style.display === 'none') return;
+            if (!pop || pop.style.display === 'none' || isReplacingCitation) return;
+            if (!document.body.contains(e.target)) return;
             if (!pop.contains(e.target) && !e.target.closest('.academic-cite-badge, .table-cite-text')) {
                 closeCitationPopover();
             }
         });
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
+            if (e.key === 'Escape' && !isReplacingCitation) {
                 closeCitationPopover();
             }
         });
@@ -3054,7 +3058,8 @@
         }
 
         async function executeCitationReplace(candidateIdx) {
-            if (!activeCitationCtx) return;
+            if (!activeCitationCtx || isReplacingCitation) return;
+            isReplacingCitation = true;
             const autoBtn = document.getElementById('cite-btn-auto-replace');
             const loadingBox = document.getElementById('cite-replace-loading');
             const loadingTxt = document.getElementById('cite-replace-loading-text');
@@ -3084,6 +3089,7 @@
             if (listEl) {
                 listEl.querySelectorAll('button').forEach((b) => { b.disabled = true; b.style.opacity = '0.55'; });
             }
+            clampCitationPopoverToViewport();
 
             try {
                 const res = await fetch(`/project/${projectId}/citation/replace`, {
@@ -3114,13 +3120,15 @@
                 if (typeof data.updated_daftar_pustaka === 'string') {
                     chapterContents.daftar_pustaka = data.updated_daftar_pustaka;
                 }
-                closeCitationPopover();
+                isReplacingCitation = false;
+                closeCitationPopover(true);
                 selectChapterView(activeView);
                 updateProgressUI();
                 showToast(`Sitasi diganti menjadi ${data.new_cite} & Daftar Pustaka otomatis diperbarui!`, 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal mengganti sitasi.', 'error');
             } finally {
+                isReplacingCitation = false;
                 if (autoBtn) {
                     autoBtn.disabled = false;
                     autoBtn.style.opacity = '';
