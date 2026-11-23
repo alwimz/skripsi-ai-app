@@ -892,6 +892,34 @@ class GeneratorController extends Controller
     {
         $sections = [];
 
+        $extractMarkdownTables = static function (string $text, int $maxChars = 2200): string {
+            $lines = preg_split("/\r\n|\n/", $text) ?: [];
+            $tables = [];
+            $buf = [];
+            $caption = '';
+            foreach ($lines as $ln) {
+                $t = trim($ln);
+                if (preg_match('/^(?:\*{1,2})?Tabel\s+\d+\.\d+[^\n]{0,120}$/i', $t)) {
+                    $caption = trim($t, '* ');
+                    continue;
+                }
+                if (str_starts_with($t, '|') && substr_count($t, '|') >= 2) {
+                    $buf[] = $t;
+                } else {
+                    if (count($buf) >= 2) {
+                        $tables[] = ($caption !== '' ? $caption . "\n" : '') . implode("\n", $buf);
+                        $caption = '';
+                    }
+                    $buf = [];
+                }
+            }
+            if (count($buf) >= 2) {
+                $tables[] = ($caption !== '' ? $caption . "\n" : '') . implode("\n", $buf);
+            }
+            $joined = implode("\n\n", $tables);
+            return mb_strlen($joined) > $maxChars ? mb_substr($joined, 0, $maxChars) . "\n..." : $joined;
+        };
+
         $b1 = trim(strip_tags((string) ($project->bab1_content ?? '')));
         if ($b1 !== '') {
             if (preg_match('/((?:1\.4|1\.2|B\.|C\.|D\.)?\s*Rumusan\s+Masalah[^\n]*\n[\s\S]{30,1400}?)(?=\n\s*(?:1\.[3-9]|[B-H]\.\s+Tujuan|Tujuan\s+Penelitian|1\.5|Manfaat\s+Penelitian)|$)/i', $b1, $m)) {
@@ -904,7 +932,7 @@ class GeneratorController extends Controller
 
         $b2 = trim(strip_tags((string) ($project->bab2_content ?? '')));
         if ($b2 !== '') {
-            if (preg_match('/((?:2\.[3-6]|[C-F]\.)?\s*(?:Hipotesis|Batasan\s+Kinerja)[^\n]*\n[\s\S]{30,1000}?)(?=\n\s*(?:2\.[5-9]|BAB\s+III)|$)/i', $b2, $m)) {
+            if (preg_match('/((?:2\.[3-6]|[C-F]\.)?\s*(?:Hipotesis|Batasan\s+Kinerja)[^\n]*\n[\s\S]{30,1100}?)(?=\n\s*(?:2\.[5-9]|BAB\s+III)|$)/i', $b2, $m)) {
                 $sections[] = "HIPOTESIS / TARGET BAB II:\n" . trim($m[1]);
             }
         }
@@ -912,21 +940,39 @@ class GeneratorController extends Controller
         $b3 = trim(strip_tags((string) ($project->bab3_content ?? '')));
         if ($b3 !== '') {
             $b3Snippets = [];
-            if (preg_match('/((?:3\.[1-4]|[A-D]\.)?\s*(?:Populasi\s+dan\s+Sampel|Sumber\s+Data|Subjek|Dataset)[^\n]*\n[\s\S]{25,700}?)(?=\n\s*(?:3\.[2-9]|[B-H]\.\s+)|$)/i', $b3, $m)) {
+            if (preg_match('/((?:3\.[1-4]|[A-D]\.)?\s*(?:Populasi\s+dan\s+Sampel|Sumber\s+(?:dan\s+Teknik\s+Pengumpulan\s+)?(?:Data|Dataset)|Subjek|Dataset)[^\n]*\n[\s\S]{25,1400}?)(?=\n\s*(?:3\.[3-9]|[C-H]\.\s+)|$)/i', $b3, $m)) {
                 $b3Snippets[] = trim($m[1]);
             }
-            if (preg_match('/((?:3\.[5-9]|[E-H]\.)?\s*(?:Teknik\s+Analisis\s+Data|Metode\s+Pengujian|Evaluasi)[^\n]*\n[\s\S]{25,700}?)(?=\n\s*(?:Gambar\s+3|BAB\s+IV)|$)/i', $b3, $m)) {
+            if (preg_match('/((?:3\.[3-6]|[C-F]\.)?\s*(?:Pembobotan|Pembagian\s+Data|Pemodelan|Desain\s+Eksperimen|Instrumen)[^\n]*\n[\s\S]{25,1100}?)(?=\n\s*(?:3\.[5-9]|[E-H]\.\s+)|$)/i', $b3, $m)) {
                 $b3Snippets[] = trim($m[1]);
+            }
+            if (preg_match('/((?:3\.[5-9]|[E-H]\.)?\s*(?:Teknik\s+Analisis\s+Data|Metode\s+Pengujian|Metrik\s+Evaluasi|Evaluasi)[^\n]*\n[\s\S]{25,900}?)(?=\n\s*(?:Gambar\s+3|BAB\s+IV)|$)/i', $b3, $m)) {
+                $b3Snippets[] = trim($m[1]);
+            }
+            $b3Tables = $extractMarkdownTables($b3, 1200);
+            if ($b3Tables !== '') {
+                $b3Snippets[] = "TABEL BAB III:\n" . $b3Tables;
             }
             if (!empty($b3Snippets)) {
-                $sections[] = "METODE, SAMPEL & ANALISIS BAB III:\n" . implode("\n", $b3Snippets);
+                $sections[] = "METODE, UKURAN DATASET/SAMPEL & PARAMETER TERKUNCI BAB III (WAJIB DIPAKAI PERSIS DI BAB IV & V — DILARANG UBAH ANGKA):\n" . implode("\n\n", $b3Snippets);
             }
         }
 
         $b4 = trim(strip_tags((string) ($project->bab4_content ?? '')));
         if ($b4 !== '') {
-            if (preg_match('/((?:4\.[3-7]|[C-G]\.)?\s*(?:Hasil\s+Analisis|Pengujian\s+Hipotesis|Hasil\s+Pengujian|Pembahasan)[^\n]*\n[\s\S]{30,1100}?)(?=\n\s*(?:4\.[6-9]|Keterbatasan|BAB\s+V)|$)/i', $b4, $m)) {
-                $sections[] = "TEMUAN EMPIRIS KUNCI BAB IV:\n" . trim($m[1]);
+            $b4Parts = [];
+            $b4Tables = $extractMarkdownTables($b4, 2800);
+            if ($b4Tables !== '') {
+                $b4Parts[] = "SELURUH TABEL HASIL EMPIRIS BAB IV (ANGKA RESMI TERKUNCI):\n" . $b4Tables;
+            }
+            if (preg_match('/((?:4\.[1-2]|[A-B]\.)?\s*(?:Deskripsi|Gambaran\s+Umum)[^\n]*\n[\s\S]{25,700}?)(?=\n\s*(?:Tabel\s+4|4\.[2-9])|$)/i', $b4, $m)) {
+                $b4Parts[] = trim($m[1]);
+            }
+            if (preg_match('/((?:4\.[3-7]|[C-G]\.)?\s*(?:Hasil\s+Analisis|Pengujian\s+Hipotesis|Hasil\s+Pengujian|Pembahasan)[^\n]*\n[\s\S]{30,1600}?)(?=\n\s*(?:4\.[6-9]|Keterbatasan|BAB\s+V)|$)/i', $b4, $m)) {
+                $b4Parts[] = trim($m[1]);
+            }
+            if (!empty($b4Parts)) {
+                $sections[] = "TEMUAN EMPIRIS & METRIK TERKUNCI BAB IV (WAJIB DIKUTIP 100% SAMA PERSIS DI BAB V — JANGAN UBAH 1 DIGIT PUN):\n" . implode("\n\n", $b4Parts);
             }
         }
 
@@ -934,9 +980,13 @@ class GeneratorController extends Controller
             return '';
         }
 
-        return "\n=== PETA BENANG MERAH LINTAS BAB (WAJIB KONSISTEN 100% — JANGAN MELENCENG) ===\n"
+        return "\n=== PETA BENANG MERAH & PENGUNCIAN ANGKA LINTAS BAB (WAJIB KONSISTEN 100% — DILARANG MELENCENG) ===\n"
             . implode("\n\n", $sections)
-            . "\n=====================================================================\n";
+            . "\n\nATURAN PENGUNCIAN ANGKA LINTAS BAB (MUTLAK):\n"
+            . "- DILARANG KERAS mengubah 1 digit pun angka jumlah data/sampel, distribusi kelas, rasio & jumlah split data latih/uji, akurasi, presisi, recall, F1-score, hasil uji ablasi, koefisien regresi, p-value/Sig., maupun urutan algoritma terbaik dari bab sebelumnya!\n"
+            . "- Seluruh angka di Bab IV WAJIB 100% cocok dengan ukuran dataset/sampel dan desain Bab III.\n"
+            . "- Seluruh angka, persentase, waktu latih, dan perbandingan algoritma di Bab V (Kesimpulan & Saran) WAJIB 100% identik dengan Tabel & teks Bab IV!\n"
+            . "=====================================================================\n";
     }
 
     private function buildVerifiedMatchedDaftarPustaka(Project $project, array $citationsList, string $gayaSitasi): array
@@ -995,13 +1045,26 @@ class GeneratorController extends Controller
             return $content;
         }
 
-        // 1. Bersihkan sisa LaTeX & frasa klise pembuka AI
+        // 1. Bersihkan sisa LaTeX, judul bab ganda, bocoran prompt, kata Inggris sisipan, & frasa klise pembuka AI
         $content = $this->formatAcademicMathText($content);
+        // Hapus baris judul BAB ganda di awal konten (karena header BAB I-V sudah dicetak otomatis oleh sistem)
+        $content = (string) preg_replace('/^\s*(?:#+\s*)?BAB\s+[IVX0-9]+(?:\s+[^\n]{0,80})?\s*\n+/i', '', $content);
+        // Gabungkan kembali sitasi yang terlanjur terpotong baris tepat setelah "et al." / "dkk."
+        $content = (string) preg_replace('/\b(et\s+al\.|dkk\.)\s*\n+\s*(\(\d{4}[a-z]?\))/i', '$1 $2', $content);
+
         $clicheMap = [
             '/^Di era digital saat ini,?\s+/im' => 'Dalam perkembangan teknologi digital mutakhir, ',
             '/^Di era globalisasi saat ini,?\s+/im' => 'Dalam dinamika perkembangan global mutakhir, ',
             '/^Tidak dapat dipungkiri bahwa\s+/im' => 'Secara empiris, ',
             '/\bmemegang peranan krusial\b/i' => 'berperan penting',
+            '/\bdalam bank referensi proyek ini\b/i' => 'dalam kajian literatur terdahulu',
+            '/\bbank referensi proyek ini\b/i' => 'kajian literatur terdahulu',
+            '/\bbank referensi terverifikasi\b/i' => 'literatur ilmiah terdahulu',
+            '/\bincreasingly\b/i' => 'semakin',
+            '/\bsignificantly\b/i' => 'secara signifikan',
+            '/\beffectively\b/i' => 'secara efektif',
+            '/\bconsequently\b/i' => 'sebagai konsekuensinya',
+            '/\bfurthermore\b/i' => 'lebih lanjut',
         ];
         foreach ($clicheMap as $pat => $rep) {
             $content = (string) preg_replace($pat, $rep, $content);
@@ -1042,8 +1105,27 @@ class GeneratorController extends Controller
             }
 
             // Pecah paragraf terlalu panjang (>880 karakter) tepat di batas kalimat tengah agar proporsional (~7-10 baris Word)
+            // WAJIB lindungi singkatan akademik (et al., dkk., No., hlm., Dr., Prof., dst.) agar tidak pernah memotong sitasi!
             if (!$isHeadingOrList && mb_strlen($trim) > 880) {
-                $sentences = preg_split('/(?<=[.!?])\s+(?=[A-ZÀ-Ÿ"(\d])/', $trim) ?: [$trim];
+                $rawParts = preg_split('/(?<=[.!?])\s+(?=[A-ZÀ-Ÿ"\d])/', $trim) ?: [$trim];
+                $sentences = [];
+                foreach ($rawParts as $rp) {
+                    $rpTrim = trim($rp);
+                    if ($rpTrim === '') {
+                        continue;
+                    }
+                    if (!empty($sentences)) {
+                        $prev = $sentences[count($sentences) - 1];
+                        if (
+                            preg_match('/\b(?:et\s+al|dkk|no|hlm|hal|dr|prof|ir|vol|uu|pp|dsb|dst|dll|mr|mrs|ms|fig|tab|vs|al)\.\s*$/i', $prev)
+                            || preg_match('/^\(\d{4}[a-z]?\)/', $rpTrim)
+                        ) {
+                            $sentences[count($sentences) - 1] = $prev . ' ' . $rpTrim;
+                            continue;
+                        }
+                    }
+                    $sentences[] = $rpTrim;
+                }
                 if (count($sentences) >= 4) {
                     $targetHalf = mb_strlen($trim) / 2;
                     $acc = '';
@@ -1099,11 +1181,14 @@ class GeneratorController extends Controller
                         $numbered[] = $num . '. ' . $cleanItem;
                         $num++;
                     }
-                    $newBlock = $kHead . implode("\n\n", $numbered);
+                    $newBlock = $kHead . implode("\n", $numbered);
                     $result = str_replace($mK[0], $newBlock, $result);
                 }
             }
         }
+
+        // Rapikan daftar bernomor berurutan yang dipisahkan baris kosong agar tidak reset ke 1. saat dirender <ol> di PDF
+        $result = (string) preg_replace('/(\n\d+\.\s+[^\n]+)\n{2,}(?=\d+\.\s+)/', "$1\n", $result);
 
         return $result;
     }
@@ -1177,6 +1262,7 @@ class GeneratorController extends Controller
         if ($isProposal) {
             $items[] = ['label' => 'LEMBAR PERSETUJUAN PROPOSAL', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
             $items[] = ['label' => 'KATA PENGANTAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $tocStartRoman = $romanIdx;
             $items[] = ['label' => 'DAFTAR ISI', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         } else {
             $items[] = ['label' => 'LEMBAR PENGESAHAN', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
@@ -1184,18 +1270,23 @@ class GeneratorController extends Controller
             $items[] = ['label' => 'ABSTRAK', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
             $items[] = ['label' => 'ABSTRACT', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
             $items[] = ['label' => 'KATA PENGANTAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
+            $tocStartRoman = $romanIdx;
             $items[] = ['label' => 'DAFTAR ISI', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         }
 
+        $afterTocIndices = [];
         if ($hasTables) {
+            $afterTocIndices[] = count($items);
             $items[] = ['label' => 'DAFTAR TABEL', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         }
         if ($hasFigures) {
+            $afterTocIndices[] = count($items);
             $items[] = ['label' => 'DAFTAR GAMBAR', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         }
 
         $lampiranList = $this->extractLampiranForProject($project, $isProposal);
         if (!empty($lampiranList)) {
+            $afterTocIndices[] = count($items);
             $items[] = ['label' => 'DAFTAR LAMPIRAN', 'page' => $this->toRomanLower($romanIdx++), 'level' => 1];
         }
 
@@ -1246,6 +1337,17 @@ class GeneratorController extends Controller
 
         if (!empty($lampiranList)) {
             $items[] = ['label' => 'LAMPIRAN', 'page' => (string) $lampiranList[0]['page'], 'level' => 1];
+        }
+
+        // Sesuaikan penomoran Romawi DAFTAR TABEL/GAMBAR/LAMPIRAN ketika DAFTAR ISI merentang >= 2 halaman A4 (28 baris/halaman)
+        $tocPages = max(1, (int) ceil(count($items) / 28));
+        if ($tocPages > 1 && !empty($afterTocIndices)) {
+            $nextRoman = $tocStartRoman + $tocPages;
+            foreach ($afterTocIndices as $idxPos) {
+                if (isset($items[$idxPos])) {
+                    $items[$idxPos]['page'] = $this->toRomanLower($nextRoman++);
+                }
+            }
         }
 
         return $items;
@@ -3036,7 +3138,7 @@ PEDOMAN STANDAR PENULISAN SKRIPSI INDONESIA (GITHUB ACADEMIC SKILL):
 {$skillRules}
 
 ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA):
-1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan 'Kondisi ideal dalam...', 'Di era digital / era globalisasi saat ini...', 'Perkembangan teknologi yang pesat...', 'Tidak dapat dipungkiri bahwa...', 'Memegang peranan krusial...', atau 'Merupakan tonggak penting...').
+1. Gaya Bahasa & Humanizer Alami: Gunakan Bahasa {$bahasa} ilmiah baku sesuai EYD V/KBBI, kohesif, objektif, dan BEBAS TOTAL DARI KLISE AI (DILARANG KERAS membuka kalimat dengan 'Kondisi ideal dalam...', 'Di era digital / era globalisasi saat ini...', 'Perkembangan teknologi yang pesat...', 'Tidak dapat dipungkiri bahwa...', 'Memegang peranan krusial...', atau 'Merupakan tonggak penting...'). DILARANG KERAS menyelipkan kata keterangan Inggris mentah (seperti 'increasingly', 'significantly', 'effectively') di tengah kalimat Bahasa Indonesia, dan DILARANG KERAS menyebut kata-kata meta prompt seperti 'bank referensi proyek ini' atau 'daftar referensi terverifikasi di atas' di dalam isi skripsi!
 2. Suara Pasif Ilmiah Baku: Khusus metodologi (Bab III) dan pembahasan temuan (Bab IV), gunakan kalimat pasif ilmiah (contoh: 'Data dikumpulkan melalui penyebaran kuesioner...', 'Analisis regresi linier dilakukan untuk...'), hindari suara orang pertama (saya, penulis, kami).
 3. Kedalaman Materi & Ritme Paragraf Proporsional (STANDAR SKRIPSI S1 NASIONAL):
    - Tuliskan setiap bab secara MENDALAM, KOMPREHENSIF, dan EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas.
@@ -3971,27 +4073,26 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
         $sistematikaScope = $isProposal ? 'Bab I hingga Bab III (Proposal Skripsi)' : 'Bab I hingga Bab V (Skripsi Lengkap)';
         return match ($bab) {
             'bab1' => $master . "\n{$tahapKaryaPrompt}\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n" . "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara MENDALAM, KOMPREHENSIF, DAN EKSTENSIF (STANDAR SKRIPSI S1 NASIONAL PERGURUAN TINGGI INDONESIA, MINIMAL 1800 - 2500 KATA).
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara TAJAM, PADAT, DAN PROPORSIONAL sesuai STANDAR SKRIPSI S1 PERGURUAN TINGGI INDONESIA (target ideal 1.250 - 1.650 KATA / ±5-7 halaman A4 agar fokus dan tidak bertele-tele).
 {$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
-1.1 Latar Belakang Masalah (Wajib ditulis secara MENDALAM dan PROPORSIONAL sebanyak 8-10 PARAGRAF RAPI masing-masing ±5-7 kalimat / ±80-115 kata agar 1 halaman A4 muat ±3 paragraf rapi, menggunakan pola PIRAMIDA TERBALIK lengkap):
-- Paragraf 1 (RINGKAS 5-7 KALIMAT & WAJIB MINIMAL 1 SITASI ILMIAH!): Mulai dengan landasan normatif, regulasi nasional (Undang-Undang/peraturan terkait), dan konteks ideal makro terkait topik '{$project->judul}'. Sisipkan minimal 1 sitasi in-text gaya {$gayaSitasi} dari bank referensi terverifikasi di atas secara ringkas dan mengalir — JANGAN dipanjangkan melebihi 7 kalimat (maksimal ±100 kata)!
-- Paragraf 2: Perkuat konteks makro dan fenomena penggunaan/perkembangan objek penelitian dengan rujukan ilmiah riil atau otoritas data resmi (BPS, Kemendikbudristek, APJII, UNESCO, atau We Are Social/DataReportal).
-- Paragraf 3-4: Fenomena empiris dan data kuantitatif nyata di lapangan / objek penelitian terkait kondisi responden dan intensitas masalah.
-- Paragraf 5-6: Masalah spesifik yang teramati dan analisis kesenjangan (research gap) antara kondisi ideal (das Sollen) dengan realitas di lapangan (das Sein).
-- Paragraf 7-8: Analisis komparatif hasil penelitian terdahulu (tahun {$tahunMin}-2026) dan alasan mengapa pendekatan/solusi dalam penelitian ini mutlak dibutuhkan.
-- Paragraf 9-10: Penegasan urgensi solusi, kebaruan (novelty), dan justifikasi ilmiah mengapa penelitian ini penting untuk diselesaikan.
-1.2 Identifikasi Masalah (Tuliskan 5-7 butir permasalahan konkret dan mendalam yang teramati pada objek penelitian dalam format poin bernomor 1., 2., 3., dst.).
-1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara tegas dalam 3-5 poin: batasan variabel, subjek/sampel, periode waktu, dan lokasi penelitian).
-1.4 Rumusan Masalah (Tuliskan 3-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras dengan topik).
-1.5 Tujuan Penelitian (Tuliskan Tujuan Umum dan Tujuan Khusus yang menjawab langsung setiap butir Rumusan Masalah).
-1.6 Manfaat Penelitian (Uraikan secara komprehensif ke dalam: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis bagi subjek/responden, bagi praktisi/instansi, dan bagi peneliti selanjutnya).
-1.7 Keaslian Penelitian (Uraikan poin pembeda riset ini dari riset-riset sebelumnya).
-1.8 Sistematika Penulisan (Uraikan ringkasan isi {$sistematikaScope} secara terperinci).\n" : "") . "
+1.1 Latar Belakang Masalah (WAJIB ditulis TAJAM, PADAT, DAN PROPORSIONAL sebanyak **TEPAT 5-6 PARAGRAF** — ±1,5 sampai 2 halaman A4, masing-masing 5-6 kalimat / ±75-105 kata, BUKAN 9-10 paragraf yang kepanjangan! — mengikuti alur PIRAMIDA TERBALIK standar skripsi S1 Indonesia):
+- Paragraf 1 (Konteks Makro & Landasan Normatif — 5-6 kalimat, WAJIB minimal 1 sitasi ilmiah): Mulai dengan konteks makro/regulasi terkait topik '{$project->judul}' disertai minimal 1 sitasi in-text gaya {$gayaSitasi} dari literatur ilmiah terverifikasi.
+- Paragraf 2 (Fenomena Empiris & Data Nyata — 5-6 kalimat): Sajikan skala fenomena dan bukti empiris/data otoritas resmi (BPS, Kemendikbudristek, APJII, We Are Social/DataReportal, atau data lapangan mahasiswa) yang menegaskan besarnya persoalan.
+- Paragraf 3 (Permasalahan Spesifik di Objek Penelitian — 5-6 kalimat): Uraikan kendala teknis/operasional spesifik yang terjadi pada objek penelitian beserta rujukan penelitian terdahulu (tahun {$tahunMin}-2026).
+- Paragraf 4 (Kesenjangan Riset / Research Gap — 5-6 kalimat): Konfrontasikan temuan penelitian terdahulu (tahun {$tahunMin}-2026) untuk menunjukkan celah metodologis/empiris yang belum terjawab secara tuntas.
+- Paragraf 5-6 (Urgensi Solusi, Kebaruan & Alasan Pemilihan Judul — masing-masing 5-6 kalimat): Tegaskan kebaruan (novelty), alasan pemilihan pendekatan/metode penelitian ini, serta urgensi praktis mengapa penelitian ini harus diselesaikan sekarang.
+1.2 Identifikasi Masalah (Tuliskan 4-5 butir permasalahan konkret yang diturunkan langsung dari Latar Belakang dalam format poin bernomor 1., 2., 3., dst.).
+1.3 Batasan Masalah (Uraikan batasan ruang lingkup penelitian secara ringkas dan tegas dalam 3-4 poin: variabel/objek, sampel/data, periode waktu, dan metode).
+1.4 Rumusan Masalah (Tuliskan 3-4 butir pertanyaan penelitian ilmiah yang spesifik, terukur, dan selaras langsung dengan tujuan).
+1.5 Tujuan Penelitian (Tuliskan Tujuan Umum dan Tujuan Khusus bernomor yang menjawab 1-ke-1 setiap butir Rumusan Masalah).
+1.6 Manfaat Penelitian (Uraikan secara ringkas dan bernas ke dalam: 1.6.1 Manfaat Teoretis dan 1.6.2 Manfaat Praktis).
+1.7 Keaslian Penelitian (Uraikan secara ringkas 1-2 paragraf pembeda riset ini dari 3-4 studi terdahulu terbaru tanpa pernah menyebut istilah 'bank referensi proyek ini').
+1.8 Sistematika Penulisan (Uraikan ringkasan isi {$sistematikaScope} secara padat dan terstruktur).\n" : "") . "
 " . (!empty($meta['data_awal']) ? "WAJIB: Masukkan data awal penelitian mahasiswa ('{$meta['data_awal']}') secara eksplisit ke dalam Latar Belakang Masalah (1.1) sebagai bukti fenomena nyata!\n" : "") . "
 INSTRUKSI MUTLAK:
-- Seluruh sub-bab HARUS ditulis lengkap tuntas dalam satu kali respons ini. DILARANG berhenti di tengah jalan!
-- Tuliskan dengan paragraf-paragraf akademik panjang yang padat analisis (target 1800-2500 kata). DILARANG membuat ringkasan pendek!
-- Langsung mulai dari sub-bab pertama tanpa kata pengantar AI.",
+- Seluruh sub-bab HARUS ditulis lengkap tuntas dalam satu kali respons ini tanpa mengulang-ulang kalimat yang sama.
+- Jaga agar 1.1 Latar Belakang Masalah tepat 5-6 paragraf padat (±1,5-2 halaman) dan total Bab I proporsional (1.250-1.650 kata).
+- Langsung mulai dari sub-bab pertama (1.1 Latar Belakang Masalah) tanpa judul 'BAB I' dan tanpa kata pengantar AI.",
 
             'bab2' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab2Prompt}\n
 {$customStructureNote}
@@ -4059,9 +4160,14 @@ INSTRUKSI MUTLAK:
             'BAB V PENUTUP'
         ];
 
-        foreach ($lines as $line) {
+        foreach ($lines as $idx => $line) {
             $lineTrimmed = trim(strip_tags($line));
             $lineUpper = strtoupper($lineTrimmed);
+
+            // Hapus baris judul BAB ganda (termasuk "BAB IV HASIL PENELITIAN DAN PEMBAHASAN", "BAB III METODOLOGI PENELITIAN", dll.)
+            if ($idx < 6 && preg_match('/^(?:#+\s*)?BAB\s+[IVX0-9]+(?:\s+[^\n]{0,80})?$/i', $lineTrimmed)) {
+                continue;
+            }
 
             $isTitle = false;
             foreach ($chapterKeywords as $keyword) {
@@ -4550,7 +4656,9 @@ ATURAN REVISI (SANGAT KETAT):
      */
     private function pdfSafeText(string $text): string
     {
-        // Ubah kombinasi huruf + combining circumflex / precomposed hat agar rapi
+        // Normalisasi combining diacritics (c + \u0302, y + \u0302, x + \u0304, dst.) & precomposed hat/bar agar tidak jadi '?' di CPDF Times-Roman
+        $text = (string) preg_replace('/([A-Za-z])\x{0302}/u', '$1&#770;', $text);
+        $text = (string) preg_replace('/([A-Za-z])\x{0304}/u', '$1&#772;', $text);
         $text = str_replace(
             ['ŷ', 'Ŷ', 'ĉ', 'Ĉ', 'x̄', 'X̄', 'ȳ', 'Ȳ', 'p̂', 'P̂'],
             ['y&#770;', 'Y&#770;', 'c&#770;', 'C&#770;', 'x&#772;', 'X&#772;', 'y&#772;', 'Y&#772;', 'p&#770;', 'P&#770;'],
@@ -4598,9 +4706,9 @@ ATURAN REVISI (SANGAT KETAT):
             $escaped
         );
 
-        // Bungkus simbol matematika, Yunani, panah, & tanda khusus di luar Windows-1252 dengan DejaVu Serif
+        // Bungkus simbol matematika, Yunani, panah, proporsional (∝), & tanda khusus di luar Windows-1252 dengan DejaVu Serif
         $escaped = preg_replace(
-            '/([α-ωΑ-Ω∑∏√≈≤≥≠±∞∈∉⊂⊆∪∩∂∫∇→←↔⇒⇔↓↑•—–‘’“”]+)/u',
+            '/([α-ωΑ-Ω∑∏√≈≤≥≠±∞∝∈∉⊂⊆∪∩∂∫∇→←↔⇒⇔↓↑×÷·∙∧∨∀∃≡∼≃•—–‘’“”]+)/u',
             '<span style="font-family:\'DejaVu Serif\', serif;">$1</span>',
             $escaped
         );
@@ -4614,6 +4722,9 @@ ATURAN REVISI (SANGAT KETAT):
     private function formatAcademicContentForPdf(string $content, string $judul = ''): string
     {
         $content = str_replace(["\r\n", "\r"], "\n", $content);
+        // Bersihkan judul BAB ganda & sitasi terpotong baris di naskah lama saat ekspor PDF
+        $content = (string) preg_replace('/^\s*(?:#+\s*)?BAB\s+[IVX0-9]+(?:\s+[^\n]{0,80})?\s*\n+/i', '', $content);
+        $content = (string) preg_replace('/\b(et\s+al\.|dkk\.)\s*\n+\s*(\(\d{4}[a-z]?\))/i', '$1 $2', $content);
         $lines = explode("\n", $content);
         $html = '';
         $inOl = false;
@@ -4680,9 +4791,9 @@ ATURAN REVISI (SANGAT KETAT):
                 // Distribusi lebar kolom cerdas untuk SEMUA jumlah kolom (2 sampai 10+ kolom)
                 $colWidths = [];
                 if ($colCount === 6) {
-                    $colWidths = $isFirstColNo ? ['6%', '18%', '22%', '18%', '16%', '20%'] : ['16%', '20%', '20%', '16%', '14%', '14%'];
+                    $colWidths = $isFirstColNo ? ['6%', '18%', '22%', '18%', '16%', '20%'] : ['16%', '19%', '17%', '16%', '16%', '16%'];
                 } elseif ($colCount === 5) {
-                    $colWidths = $isFirstColNo ? ['6%', '22%', '24%', '24%', '24%'] : ['20%', '30%', '16%', '22%', '12%'];
+                    $colWidths = $isFirstColNo ? ['6%', '22%', '24%', '24%', '24%'] : ['16%', '21%', '21%', '21%', '21%'];
                 } elseif ($colCount === 4) {
                     $colWidths = $isFirstColNo ? ['7%', '31%', '31%', '31%'] : ['25%', '25%', '25%', '25%'];
                 } elseif ($colCount === 3) {
@@ -4724,7 +4835,7 @@ ATURAN REVISI (SANGAT KETAT):
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
-                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:0.75pt solid #000000; border-bottom:1.2pt solid #000000; line-height:{$lineHeight}; font-size:{$headerSize}; word-wrap:break-word; overflow-wrap:break-word; background:#f1f5f9;'>" . $this->pdfSafeText($cleanCol) . "</th>";
+                            $html .= "<th style='{$wStyle} padding:{$cellPadding}; font-weight:bold; text-align:center; vertical-align:middle; border:0.75pt solid #000000; border-bottom:1.2pt solid #000000; line-height:{$lineHeight}; font-size:{$headerSize}; word-break:normal; overflow-wrap:break-word; background:#f1f5f9;'>" . $this->pdfSafeText($cleanCol) . "</th>";
                         }
                         $html .= "</tr></thead><tbody>";
                     } else {
@@ -4924,18 +5035,20 @@ ATURAN REVISI (SANGAT KETAT):
                 continue;
             }
 
-            // List bernomor (1. ..., 2. ...)
-            if (preg_match('/^\d+\.\s+(.+)$/', $trimmed, $m)) {
+            // List bernomor (1. ..., 2. ...) — pertahankan nomor eksplisit lewat <ol start="N"> agar tidak pernah reset ke 1., 1., 1.!
+            if (preg_match('/^(\d+)\.\s+(.+)$/', $trimmed, $m)) {
+                $itemNum = max(1, (int) $m[1]);
                 if ($inUl) {
                     $html .= "</ul>";
                     $inUl = false;
                 }
                 if (!$inOl) {
-                    $html .= "<ol style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
+                    $startAttr = $itemNum > 1 ? " start='{$itemNum}'" : "";
+                    $html .= "<ol{$startAttr} style='margin:4pt 0 8pt 0; padding-left:1.27cm;'>";
                     $inOl = true;
                 }
-                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[1])));
-                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
+                $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[2])));
+                $html .= "<li value='{$itemNum}' style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
@@ -4975,7 +5088,11 @@ ATURAN REVISI (SANGAT KETAT):
 
     private function parseAndAddContent($section, $htmlContent, $project = null)
     {
-        $text = str_replace(['<p>', '</p>', '<br>', '<br/>'], ["\n", "\n", "\n", "\n"], $htmlContent);
+        $text = str_replace(['<p>', '</p>', '<br>', '<br/>'], ["\n", "\n", "\n", "\n"], (string) $htmlContent);
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
+        // Bersihkan judul BAB ganda & sitasi terpotong baris di naskah lama saat ekspor Word
+        $text = (string) preg_replace('/^\s*(?:#+\s*)?BAB\s+[IVX0-9]+(?:\s+[^\n]{0,80})?\s*\n+/i', '', $text);
+        $text = (string) preg_replace('/\b(et\s+al\.|dkk\.)\s*\n+\s*(\(\d{4}[a-z]?\))/i', '$1 $2', $text);
         $lines = explode("\n", $text);
 
         $tableBuffer = [];
@@ -5026,9 +5143,9 @@ ATURAN REVISI (SANGAT KETAT):
                 // Distribusi proporsional lebar kolom Word sesuai jumlah kolom agar kolom narasi luas & rapi
                 $pctMap = [];
                 if ($maxCols === 6) {
-                    $pctMap = $isFirstColNo ? [0.06, 0.16, 0.22, 0.14, 0.16, 0.26] : [0.16, 0.20, 0.20, 0.15, 0.14, 0.15];
+                    $pctMap = $isFirstColNo ? [0.06, 0.16, 0.22, 0.14, 0.16, 0.26] : [0.16, 0.19, 0.17, 0.16, 0.16, 0.16];
                 } elseif ($maxCols === 5) {
-                    $pctMap = $isFirstColNo ? [0.07, 0.20, 0.27, 0.23, 0.23] : [0.20, 0.28, 0.16, 0.22, 0.14];
+                    $pctMap = $isFirstColNo ? [0.07, 0.20, 0.27, 0.23, 0.23] : [0.16, 0.21, 0.21, 0.21, 0.21];
                 } elseif ($maxCols === 4) {
                     $pctMap = $isFirstColNo ? [0.08, 0.28, 0.34, 0.30] : [0.24, 0.28, 0.24, 0.24];
                 } elseif ($maxCols === 3) {
@@ -5469,6 +5586,99 @@ ATURAN REVISI (SANGAT KETAT):
         return null;
     }
 
+    /**
+     * Susun ringkasan ABSTRAK (ID), ABSTRACT (EN), dan Kata Kunci secara dinamis dari isi Bab III-V
+     * agar tidak lagi menampilkan boilerplate generik ("Kuantitatif (Survei / Regresi)" tanpa angka temuan).
+     */
+    private function buildDynamicAbstrakData(Project $project): array
+    {
+        $cleanJudul = rtrim(trim((string) $project->judul), '. ');
+        $prodi = trim((string) ($project->prodi ?: 'Program Studi'));
+        $metodeRaw = trim((string) ($project->metode_penelitian ?: 'ilmiah terstruktur'));
+
+        $b3 = trim(strip_tags((string) ($project->bab3_content ?? '')));
+        $b4 = trim(strip_tags((string) ($project->bab4_content ?? '')));
+        $b5 = trim(strip_tags((string) ($project->bab5_content ?? '')));
+
+        // Deteksi metode riil dari Bab III agar akurat (tidak bentrok dengan dropdown form)
+        $metodeAktual = $metodeRaw;
+        if ($b3 !== '' && preg_match('/penelitian\s+(kuantitatif\s+eksperimental(?:\s+komputasi)?|eksperimental\s+komputasi|kualitatif\s+deskriptif|penelitian\s+dan\s+pengembangan\s*\(R&D\)|tindakan\s+kelas|yuridis\s+(?:normatif|empiris)|campuran\s*\(mixed\s+methods\))/i', $b3, $mm)) {
+            $metodeAktual = trim($mm[1]);
+        }
+
+        // Ekstrak angka dataset / sampel dari Bab IV atau Bab III
+        $samplePhraseId = '';
+        $samplePhraseEn = '';
+        $srcSample = $b4 !== '' ? $b4 : $b3;
+        if ($srcSample !== '' && preg_match('/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i', $srcSample, $ms)) {
+            $samplePhraseId = " dengan melibatkan {$ms[1]} {$ms[2]}";
+            $unitMap = [
+                'komentar' => 'comments', 'responden' => 'respondents', 'sampel' => 'samples',
+                'dokumen' => 'documents', 'data' => 'records', 'citra' => 'images',
+                'siswa' => 'students', 'mahasiswa' => 'students', 'pasien' => 'patients',
+                'karyawan' => 'employees', 'observasi' => 'observations',
+            ];
+            $enUnit = $unitMap[strtolower($ms[2])] ?? 'samples';
+            $samplePhraseEn = " involving {$ms[1]} {$enUnit}";
+        }
+
+        // Ekstrak kalimat capaian/hasil empiris utama dari Bab IV (prioritas: akurasi/F1/R²/Sig.) atau Bab V poin 1
+        $findingId = '';
+        $findingEn = '';
+        if ($b4 !== '' && preg_match('/[^.\n]*(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)[^.\n]{8,220}\./iu', $b4, $mf)) {
+            $findingId = trim(preg_replace('/\s+/', ' ', $mf[0]));
+        } elseif ($b5 !== '' && preg_match('/^\s*1\.\s+([^\n]{30,260})/m', $b5, $mf5)) {
+            $firstSent = preg_split('/(?<=[.!?])\s+/', trim($mf5[1]))[0] ?? trim($mf5[1]);
+            $findingId = rtrim(trim($firstSent), '.') . '.';
+        }
+
+        if ($findingId !== '') {
+            $idBody = "Penelitian ini bertujuan untuk menganalisis dan menjawab permasalahan pada topik \"{$cleanJudul}\". Pendekatan yang diterapkan adalah metode {$metodeAktual}{$samplePhraseId} melalui tahapan pengumpulan, pengolahan, dan pengujian data secara sistematis. {$findingId} Temuan penelitian ini diharapkan memberikan kontribusi teoretis serta rekomendasi praktis bagi pengembangan keilmuan pada Program Studi {$prodi}.";
+        } else {
+            $idBody = "Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan menyelesaikan permasalahan pada topik \"{$cleanJudul}\". Metode penelitian yang diterapkan adalah {$metodeAktual}{$samplePhraseId} melalui prosedur pengumpulan, pengolahan, dan pengujian data empiris secara sistematis. Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur, memberikan evaluasi kinerja yang valid, serta menghasilkan kontribusi teoretis dan praktis bagi pengembangan keilmuan pada Program Studi {$prodi}.";
+        }
+
+        // Ringkasan angka metrik untuk ABSTRACT Bahasa Inggris
+        if ($b4 !== '' && preg_match('/(?:akurasi(?:\s+keseluruhan)?\s+(?:sebesar\s+)?|accuracy\s+(?:of\s+)?)(\d{1,3}[,\.]\d{1,2}\s*(?:persen|%)|0[,\.]\d{2,4})/i', $b4, $ma)) {
+            $accVal = str_replace(['persen', ','], ['%', '.'], trim($ma[1]));
+            $findingEn = "Empirical evaluation confirms the effectiveness of the proposed approach, achieving an overall accuracy of {$accVal} alongside consistent class-level performance metrics.";
+        } elseif ($b4 !== '' && preg_match('/(?:R²|R-?Square)\s*(?:sebesar|=)\s*(0[,\.]\d{2,4}|\d{1,2}[,\.]\d{1,2}\s*%)/i', $b4, $mr)) {
+            $r2Val = str_replace(',', '.', trim($mr[1]));
+            $findingEn = "Empirical testing confirms a statistically significant effect with a coefficient of determination (R-Square) of {$r2Val}.";
+        } else {
+            $findingEn = "The empirical findings demonstrate that the implemented approach effectively addresses all research questions and provides verifiable evaluation outcomes.";
+        }
+
+        $enBody = "This study aims to investigate, analyze, and resolve the empirical problems addressed in \"{$cleanJudul}\". Employing a structured research methodology{$samplePhraseEn}, this study systematically collects, processes, and evaluates empirical data. {$findingEn} Overall, the results offer both theoretical contributions and practical implications for the field of {$prodi}.";
+
+        // Bangun Kata Kunci relevan dari judul (bukan generik "Skripsi")
+        $stopKw = ['dan', 'atau', 'yang', 'pada', 'dalam', 'untuk', 'dengan', 'terhadap', 'menggunakan', 'melalui', 'studi', 'kasus', 'pengaruh', 'analisis', 'evaluasi', 'implementasi', 'penerapan', 'perancangan', 'pengembangan', 'berbasis', 'di', 'ke', 'dari', 'oleh', 'secara'];
+        $words = preg_split('/[\s,:;\-\(\)\/]+/u', $cleanJudul) ?: [];
+        $kwList = [];
+        foreach ($words as $w) {
+            $wClean = trim($w);
+            if (mb_strlen($wClean) >= 4 && !in_array(mb_strtolower($wClean), $stopKw, true)) {
+                $kwList[] = $wClean;
+            }
+            if (count($kwList) >= 4) {
+                break;
+            }
+        }
+        if (empty($kwList)) {
+            $kwList = [$prodi, 'Analisis Empiris'];
+        }
+        $keywordsId = implode(', ', array_unique(array_merge($kwList, [$prodi]))) . '.';
+        $keywordsEn = implode(', ', array_unique(array_merge($kwList, ['Empirical Evaluation']))) . '.';
+
+        return [
+            'judul' => $cleanJudul,
+            'id_body' => $idBody,
+            'id_keywords' => $keywordsId,
+            'en_body' => $enBody,
+            'en_keywords' => $keywordsEn,
+        ];
+    }
+
     private function createPhpWordDocument($project, Request $request, ?string $logoPath = null, array $meta = [])
     {
         $this->docxFlowchartVmlMap = [];
@@ -5672,54 +5882,91 @@ ATURAN REVISI (SANGAT KETAT):
             $section->addText(strtoupper($nama), ['bold' => true, 'underline' => 'single', 'size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
             $section->addText("NIM. " . ($npm ?: '-'), ['size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
 
+            $abstrakData = $this->buildDynamicAbstrakData($project);
+            $cleanJudulDoc = $abstrakData['judul'];
+
             $section->addPageBreak();
             // --- ABSTRAK (BAHASA INDONESIA — STANDAR 1 SPASI) ---
             $section->addTitle("ABSTRAK", 1);
-            $section->addText(strtoupper($project->judul), $bold12, $center);
+            $section->addText(strtoupper($cleanJudulDoc), $bold12, $center);
             $section->addText("Oleh: " . $nama . ($npm ? " (NIM: " . $npm . ")" : ""), ['size' => 11], $center);
             $section->addText("Program Studi " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['size' => 10.5, 'color' => '333333'], $center);
             $section->addTextBreak(1);
             $section->addText(
-                "Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan menyelesaikan permasalahan pada topik \"" . $project->judul . "\". Metode penelitian yang diterapkan adalah " . ($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " melalui prosedur pengumpulan, pengolahan, dan pengujian data empiris secara sistematis. Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur, memberikan evaluasi kinerja yang valid, serta menghasilkan kontribusi teoretis dan praktis bagi pengembangan keilmuan pada Program Studi " . $project->prodi . ".",
+                $abstrakData['id_body'],
                 ['name' => 'Times New Roman', 'size' => 11.5],
                 ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 140]
             );
-            $section->addText("Kata Kunci: " . $project->prodi . ", " . ($project->metode_penelitian ?: 'Metode Penelitian') . ", Analisis Empiris, Skripsi.", ['bold' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
+            $section->addText("Kata Kunci: " . $abstrakData['id_keywords'], ['bold' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
 
             $section->addPageBreak();
             // --- ABSTRACT (ENGLISH — STANDAR 1 SPASI ITALIC) ---
             $section->addTitle("ABSTRACT", 1);
-            $section->addText(strtoupper($project->judul), ['bold' => true, 'italic' => true, 'size' => 12], $center);
+            $section->addText(strtoupper($cleanJudulDoc), ['bold' => true, 'italic' => true, 'size' => 12], $center);
             $section->addText("By: " . $nama . ($npm ? " (Student ID: " . $npm . ")" : ""), ['italic' => true, 'size' => 11], $center);
             $section->addText("Department of " . $project->prodi . ($kampus ? ", " . $kampus : ""), ['italic' => true, 'size' => 10.5, 'color' => '333333'], $center);
             $section->addTextBreak(1);
             $section->addText(
-                "This study aims to investigate, analyze, and resolve the empirical problems addressed in \"" . $project->judul . "\". Employing a structured " . ($project->metode_penelitian ?: 'scientific') . " methodology, this research systematically collects, processes, and evaluates empirical data. The findings demonstrate that the implemented approach effectively addresses all research questions, provides verifiable evaluation outcomes, and contributes both theoretical insights and practical implications to the field of " . $project->prodi . ".",
+                $abstrakData['en_body'],
                 ['name' => 'Times New Roman', 'italic' => true, 'size' => 11.5],
                 ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 140]
             );
-            $section->addText("Keywords: " . $project->prodi . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
+            $section->addText("Keywords: " . $abstrakData['en_keywords'], ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
         }
 
-        // --- KATA PENGANTAR ---
+        // --- KATA PENGANTAR (STANDAR 9 POIN PERGURUAN TINGGI INDONESIA — 1:1 DENGAN PREVIEW & PDF) ---
+        $cleanJudulKp = rtrim(trim((string) $project->judul), '. ');
+        $docKindLower = strtolower($jenisDokumen);
+        $fakultasKp = $fakultas ?: 'Fakultas terkait';
         $section->addPageBreak();
         $section->addTitle("KATA PENGANTAR", 1);
         $kpSyarat = $isProposal
-            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
-            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
+            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
+            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
+        $kpFont = ['name' => 'Times New Roman', 'size' => 11.5];
+        $kpPara = ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 90];
         $section->addText(
-            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " yang berjudul \"" . $project->judul . "\" dapat " . $kpSyarat . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
-            ['name' => 'Times New Roman', 'size' => 12],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+            "Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$docKindLower} dengan judul \"{$cleanJudulKp}\".",
+            $kpFont,
+            $kpPara
         );
         $section->addText(
-            "Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.",
-            ['name' => 'Times New Roman', 'size' => 12],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 240]
+            "Penulisan {$docKindLower} ini {$kpSyarat}{$project->prodi}" . ($fakultas ? ", {$fakultas}" : "") . ($kampus ? ", {$kampus}" : "") . ". Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.",
+            $kpFont,
+            $kpPara
         );
-        $section->addText(($kampus ? $kampus . ", " : "") . $tglBulanIndo, ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText(
+            "Penyelesaian {$docKindLower} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:",
+            $kpFont,
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 70]
+        );
+        $kpItems = [
+            "1. Bapak/Ibu (Nama Rektor), selaku Rektor {$kampus} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;",
+            "2. Bapak/Ibu (Nama Dekan), selaku Dekan {$fakultasKp} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;",
+            "3. Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi {$project->prodi} yang telah memberikan arahan dan dukungan akademik;",
+            "4. Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$docKindLower} ini;",
+            "5. Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;",
+            "6. Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$docKindLower} ini;",
+            "7. Seluruh dosen dan tenaga kependidikan {$fakultasKp} {$kampus} atas ilmu dan pelayanan yang telah diberikan;",
+            "8. Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;",
+            "9. Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$docKindLower} ini.",
+        ];
+        foreach ($kpItems as $kpItem) {
+            $section->addText(
+                $kpItem,
+                ['name' => 'Times New Roman', 'size' => 11],
+                ['alignment' => Jc::BOTH, 'lineHeight' => 1.38, 'indentation' => ['left' => 420, 'hanging' => 300], 'spaceAfter' => 45]
+            );
+        }
+        $section->addText(
+            "Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$docKindLower} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.",
+            $kpFont,
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.45, 'indentation' => ['firstLine' => 720], 'spaceBefore' => 70, 'spaceAfter' => 180]
+        );
+        $section->addText("(Kota), " . $tglBulanIndo, ['name' => 'Times New Roman', 'size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText("Penulis,", ['name' => 'Times New Roman', 'size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
         $section->addTextBreak(2);
-        $section->addText("Penulis", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText(strtoupper($nama), ['bold' => true, 'name' => 'Times New Roman', 'size' => 11.5], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
 
         // --- DAFTAR ISI RAPI (DOT LEADER TAB STOP) ---
         $section->addPageBreak();
@@ -6327,17 +6574,20 @@ ATURAN REVISI (SANGAT KETAT):
                 </div>
             </div>";
 
+            $abstrakPdf = $this->buildDynamicAbstrakData($project);
+            $cleanJudulPdf = $abstrakPdf['judul'];
+
             // ABSTRAK INDONESIA (1 SPASI)
             $html .= "<div class='page-break'>
                 <h2>ABSTRAK</h2>
                 <div style='text-align:center;'>
-                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($project->judul) . "</div>
+                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($cleanJudulPdf) . "</div>
                     <div style='font-size:10.5pt; margin-top:4pt;'>Oleh: " . e($nama) . ($npm ? " (NIM: " . e($npm) . ")" : "") . "</div>
                     <div style='font-size:10pt; color:#333; margin-bottom:14pt;'>Program Studi " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . "</div>
                 </div>
                 <div style='font-size:11.5pt; line-height:1.15;'>
-                    <p style='line-height:1.15;'>Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan menyelesaikan permasalahan pada topik \"" . e($project->judul) . "\". Metode penelitian yang diterapkan adalah " . e($project->metode_penelitian ?: 'Kuantitatif / Kualitatif Ilmiah') . " melalui prosedur pengumpulan, pengolahan, dan pengujian data empiris secara sistematis. Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur, memberikan evaluasi kinerja yang valid, serta menghasilkan kontribusi teoretis dan praktis bagi pengembangan keilmuan pada Program Studi " . e($project->prodi) . ".</p>
-                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Kata Kunci:</strong> " . e($project->prodi) . ", " . e($project->metode_penelitian ?: 'Metode Penelitian') . ", Analisis Empiris, Skripsi.</p>
+                    <p style='line-height:1.15;'>" . e($abstrakPdf['id_body']) . "</p>
+                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Kata Kunci:</strong> " . e($abstrakPdf['id_keywords']) . "</p>
                 </div>
             </div>";
 
@@ -6345,29 +6595,46 @@ ATURAN REVISI (SANGAT KETAT):
             $html .= "<div class='page-break'>
                 <h2>ABSTRACT</h2>
                 <div style='text-align:center; font-style:italic;'>
-                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($project->judul) . "</div>
+                    <div style='font-size:11.5pt; font-weight:bold; margin-top:6pt; line-height:1.25; text-transform:uppercase;'>" . e($cleanJudulPdf) . "</div>
                     <div style='font-size:10.5pt; margin-top:4pt;'>By: " . e($nama) . ($npm ? " (Student ID: " . e($npm) . ")" : "") . "</div>
                     <div style='font-size:10pt; color:#333; margin-bottom:14pt;'>Department of " . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . "</div>
                 </div>
                 <div style='font-size:11.5pt; line-height:1.15; font-style:italic;'>
-                    <p style='line-height:1.15;'>This study aims to investigate, analyze, and resolve the empirical problems addressed in \"" . e($project->judul) . "\". Employing a structured " . e($project->metode_penelitian ?: 'scientific') . " methodology, this research systematically collects, processes, and evaluates empirical data. The findings demonstrate that the implemented approach effectively addresses all research questions, provides verifiable evaluation outcomes, and contributes both theoretical insights and practical implications to the field of " . e($project->prodi) . ".</p>
-                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Keywords:</strong> " . e($project->prodi) . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.</p>
+                    <p style='line-height:1.15;'>" . e($abstrakPdf['en_body']) . "</p>
+                    <p style='text-indent:0; margin-top:10pt; line-height:1.15;'><strong>Keywords:</strong> " . e($abstrakPdf['en_keywords']) . "</p>
                 </div>
             </div>";
         }
 
-        // 5. KATA PENGANTAR
+        // 5. KATA PENGANTAR (STANDAR 9 POIN PERGURUAN TINGGI INDONESIA — 1:1 DENGAN PREVIEW & WORD)
+        $cleanJudulKpPdf = rtrim(trim((string) $project->judul), '. ');
+        $docKindLowerPdf = strtolower($jenisDokumen);
+        $fakultasKpPdf = $fakultas ?: 'Fakultas terkait';
         $kpPdfSyarat = $isProposal
-            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
-            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
+            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
+            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
         $html .= "<div class='page-break'>
             <h2>KATA PENGANTAR</h2>
-            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " berjudul \"" . e($project->judul) . "\" dapat {$kpPdfSyarat}" . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
-            <p>Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.</p>
-            <div style='margin-top:26pt; float:right; width:200pt; text-align:center; font-size:12pt; line-height:1.3;'>
-                <div>" . ($kampus ? e($kampus) . ", " : "") . $tglBulanIndo . "</div>
-                <div style='height:44pt;'></div>
-                <div><strong>Penulis</strong></div>
+            <p style='font-size:11.2pt; line-height:1.45; margin-bottom:6pt;'>Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$docKindLowerPdf} dengan judul <strong>\"" . e($cleanJudulKpPdf) . "\"</strong>.</p>
+            <p style='font-size:11.2pt; line-height:1.45; margin-bottom:6pt;'>Penulisan {$docKindLowerPdf} ini {$kpPdfSyarat}" . e($project->prodi) . ($fakultas ? ", " . e($fakultas) : "") . ($kampus ? ", " . e($kampus) : "") . ". Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.</p>
+            <p style='font-size:11.2pt; line-height:1.45; margin-bottom:5pt;'>Penyelesaian {$docKindLowerPdf} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:</p>
+            <ol style='margin:3pt 0 7pt 0; padding-left:1.1cm; font-size:10.8pt; line-height:1.38; text-align:justify;'>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu (Nama Rektor), selaku Rektor " . e($kampus) . " yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;</li>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu (Nama Dekan), selaku Dekan " . e($fakultasKpPdf) . " yang telah memberikan fasilitas dan kemudahan selama perkuliahan;</li>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi " . e($project->prodi) . " yang telah memberikan arahan dan dukungan akademik;</li>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$docKindLowerPdf} ini;</li>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;</li>
+                <li style='margin-bottom:2.5pt;'>Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$docKindLowerPdf} ini;</li>
+                <li style='margin-bottom:2.5pt;'>Seluruh dosen dan tenaga kependidikan " . e($fakultasKpPdf) . " " . e($kampus) . " atas ilmu dan pelayanan yang telah diberikan;</li>
+                <li style='margin-bottom:2.5pt;'>Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;</li>
+                <li style='margin-bottom:2.5pt;'>Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$docKindLowerPdf} ini.</li>
+            </ol>
+            <p style='font-size:11.2pt; line-height:1.45; margin-bottom:6pt;'>Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$docKindLowerPdf} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.</p>
+            <div style='margin-top:18pt; float:right; width:210pt; text-align:right; font-size:11.2pt; line-height:1.35;'>
+                <div>(Kota), {$tglBulanIndo}</div>
+                <div>Penulis,</div>
+                <div style='height:40pt;'></div>
+                <div><strong>" . strtoupper(e($nama)) . "</strong></div>
             </div>
             <div style='clear:both;'></div>
         </div>";

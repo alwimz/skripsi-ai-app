@@ -4336,17 +4336,32 @@
             <div>
                 <div class="front-heading">ABSTRAK</div>
                 <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.3; text-transform: uppercase;">
-                    ${escapeHtml(projectTitle)}
+                    ${escapeHtml(projectTitle.replace(/\.+\s*$/, ''))}
                 </div>
                 <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px;">
                     Oleh: ${escapeHtml(nama)} (NIM: ${escapeHtml(nim || '-')})<br>
                     Program Studi ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
                 </div>
                 <p style="text-align: justify; line-height: 1.15; font-size: 11pt; text-indent: 1.27cm;">
-                    Penelitian ini bertujuan untuk menginvestigasi, menganalisis, dan memecahkan permasalahan pada topik <em>"${escapeHtml(projectTitle)}"</em>. Menggunakan metode penelitian ${escapeHtml(projectMeta.metode || 'ilmiah terstruktur')}, penelitian ini mengumpulkan dan memproses data empiris lapangan secara sistematis. Hasil pengujian menunjukkan bahwa implementasi metode mampu menjawab rumusan masalah secara komprehensif, memberikan evaluasi kinerja yang valid, serta berkontribusi nyata bagi pengembangan keilmuan pada bidang ${escapeHtml(projectProdi)}.
+                    ${(() => {
+                        const cleanT = projectTitle.replace(/\.+\s*$/, '');
+                        const b3Txt = (chapterContents.bab3 || '').replace(/<[^>]+>/g, ' ');
+                        const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
+                        const mMeth = b3Txt.match(/penelitian\s+(kuantitatif\s+eksperimental(?:\s+komputasi)?|eksperimental\s+komputasi|kualitatif\s+deskriptif|penelitian\s+dan\s+pengembangan\s*\(R&D\)|tindakan\s+kelas|yuridis\s+(?:normatif|empiris)|campuran\s*\(mixed\s+methods\))/i);
+                        const meth = mMeth ? mMeth[1].trim() : (projectMeta.metode || 'ilmiah terstruktur');
+                        const mSamp = (b4Txt || b3Txt).match(/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
+                        const sampStr = mSamp ? ` dengan melibatkan ${mSamp[1]} ${mSamp[2]}` : '';
+                        const mFind = b4Txt.match(/[^.\n]*(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)[^.\n]{8,220}\./i);
+                        const findStr = mFind ? mFind[0].replace(/\s+/g, ' ').trim() : `Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur dan memberikan evaluasi kinerja yang valid.`;
+                        return escapeHtml(`Penelitian ini bertujuan untuk menganalisis dan menjawab permasalahan pada topik "${cleanT}". Pendekatan yang diterapkan adalah metode ${meth}${sampStr} melalui tahapan pengumpulan, pengolahan, dan pengujian data secara sistematis. ${findStr} Temuan penelitian ini diharapkan memberikan kontribusi teoretis serta rekomendasi praktis bagi pengembangan keilmuan pada Program Studi ${projectProdi}.`);
+                    })()}
                 </p>
                 <div style="font-size: 11pt; margin-top: 14px; line-height: 1.15;">
-                    <strong>Kata Kunci:</strong> ${escapeHtml(projectProdi)}, ${escapeHtml(projectMeta.metode || 'Analisis Empiris')}, Evaluasi Kinerja, Skripsi.
+                    <strong>Kata Kunci:</strong> ${(() => {
+                        const stopKw = new Set(['dan','atau','yang','pada','dalam','untuk','dengan','terhadap','menggunakan','melalui','studi','kasus','pengaruh','analisis','evaluasi','implementasi','penerapan','perancangan','pengembangan','berbasis','di','ke','dari','oleh','secara']);
+                        const kws = projectTitle.replace(/\.+\s*$/, '').split(/[\s,:;\-\(\)\/]+/).filter(w => w.length >= 4 && !stopKw.has(w.toLowerCase())).slice(0, 4);
+                        return escapeHtml([...new Set([...kws, projectProdi])].join(', ') + '.');
+                    })()}
                 </div>
             </div>
             <div class="sheet-footer">${pgAbstrak}</div>
@@ -4357,17 +4372,29 @@
             <div>
                 <div class="front-heading">ABSTRACT</div>
                 <div style="text-align: center; margin: 12px 0 16px; font-weight: 700; font-size: 11.5pt; line-height: 1.3; font-style: italic; text-transform: uppercase;">
-                    ${escapeHtml(projectTitle)}
+                    ${escapeHtml(projectTitle.replace(/\.+\s*$/, ''))}
                 </div>
                 <div style="text-align: center; font-size: 10.5pt; color: #475569; margin-bottom: 14px; font-style: italic;">
                     By: ${escapeHtml(nama)} (Student ID: ${escapeHtml(nim || '-')})<br>
                     Department of ${escapeHtml(projectProdi)}, ${escapeHtml(kampus)}
                 </div>
                 <p style="text-align: justify; line-height: 1.15; font-size: 11pt; text-indent: 1.27cm; font-style: italic;">
-                    This research aims to investigate, analyze, and resolve the empirical problems associated with <em>"${escapeHtml(projectTitle)}"</em>. Utilizing a structured scientific methodology in ${escapeHtml(projectProdi)}, the research systematically collects and analyzes empirical data. The findings demonstrate that the implemented approach effectively addresses the research questions, yields verifiable evaluation outcomes, and contributes valuable insights to both academic literature and practical applications.
+                    ${(() => {
+                        const cleanT = projectTitle.replace(/\.+\s*$/, '');
+                        const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
+                        const mAcc = b4Txt.match(/(?:akurasi(?:\s+keseluruhan)?\s+(?:sebesar\s+)?|accuracy\s+(?:of\s+)?)(\d{1,3}[,\.]\d{1,2}\s*(?:persen|%)|0[,\.]\d{2,4})/i);
+                        const findEn = mAcc
+                            ? `Empirical evaluation confirms the effectiveness of the proposed approach, achieving an overall accuracy of ${mAcc[1].replace(/persen/i, '%').replace(',', '.')} alongside consistent class-level performance metrics.`
+                            : `The empirical findings demonstrate that the implemented approach effectively addresses all research questions and provides verifiable evaluation outcomes.`;
+                        return escapeHtml(`This study aims to investigate, analyze, and resolve the empirical problems addressed in "${cleanT}". Employing a structured research methodology, this study systematically collects, processes, and evaluates empirical data. ${findEn} Overall, the results offer both theoretical contributions and practical implications for the field of ${projectProdi}.`);
+                    })()}
                 </p>
                 <div style="font-size: 11pt; margin-top: 14px; font-style: italic; line-height: 1.15;">
-                    <strong>Keywords:</strong> ${escapeHtml(projectProdi)}, Empirical Research, Performance Evaluation, Undergraduate Thesis.
+                    <strong>Keywords:</strong> ${(() => {
+                        const stopKw = new Set(['dan','atau','yang','pada','dalam','untuk','dengan','terhadap','menggunakan','melalui','studi','kasus','pengaruh','analisis','evaluasi','implementasi','penerapan','perancangan','pengembangan','berbasis','di','ke','dari','oleh','secara']);
+                        const kws = projectTitle.replace(/\.+\s*$/, '').split(/[\s,:;\-\(\)\/]+/).filter(w => w.length >= 4 && !stopKw.has(w.toLowerCase())).slice(0, 4);
+                        return escapeHtml([...new Set([...kws, 'Empirical Evaluation'])].join(', ') + '.');
+                    })()}
                 </div>
             </div>
             <div class="sheet-footer">${pgAbstract}</div>
