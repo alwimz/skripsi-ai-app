@@ -4005,10 +4005,13 @@
                         const rawText = Array.from(node.getElementsByTagNameNS(W_NS, 't')).map(t => t.textContent || '').join('');
                         const text = rawText.replace(/\s+/g, ' ').trim();
 
-                        // Deteksi baris Daftar Isi / Daftar Tabel / Daftar Gambar (baik TOC otomatis Word maupun dot-leader "........ ii / 12")
+                        // Deteksi baris Daftar Isi / Daftar Tabel / Daftar Gambar (TOC otomatis Word, tab-stop dot-leader PHPWord, maupun titik manual "........ ii / 12")
                         const hasDotLeader = /\.{3,}/.test(text);
-                        const endsWithTocPage = (hasDotLeader || hasTabEl || /\s{2,}/.test(rawText)) && /(?:\b[ivxlcdm]{1,6}|\b\d{1,4})\s*$/i.test(text);
-                        const isTocEntry = isTocStyle || hasDotLeader || endsWithTocPage;
+                        const tabNodes = Array.from(node.getElementsByTagNameNS(W_NS, 'tab'));
+                        const hasDotTabStop = tabNodes.some(tb => (tb.getAttributeNS(W_NS, 'leader') || '').toLowerCase() === 'dot');
+                        const hasLiteralTab = rawText.includes('\t');
+                        const endsWithTocPage = (hasDotLeader || hasTabEl || hasLiteralTab || /\s{2,}/.test(rawText)) && /(?:\b[ivxlcdm]{1,6}|\b\d{1,4})\s*$/i.test(text);
+                        const isTocEntry = isTocStyle || hasDotTabStop || hasDotLeader || endsWithTocPage;
 
                         // Lindungi Cover Page / Lembar Pengesahan / Halaman Depan
                         if (inCoverZone) {
@@ -4033,7 +4036,13 @@
                             seenRealContent = true;
                             prevWasBabHeading = false;
                             prevWasPageBreak = false;
-                            // Hanya seragamkan jenis font secara aman tanpa merusak tab stop / dot leader / halaman
+                            // Sesuaikan posisi tab-stop rata kanan dot-leader agar pas dengan margin kertas yang dipilih
+                            tabNodes.forEach(tb => {
+                                if ((tb.getAttributeNS(W_NS, 'val') || '').toLowerCase() === 'right') {
+                                    setWAttr(tb, 'pos', String(contentWTwip));
+                                }
+                            });
+                            // Seragamkan hanya jenis font secara aman tanpa merusak tab stop / dot leader / halaman
                             Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
                                 const rPr = ensureChild(r, 'rPr', true);
                                 const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
@@ -4050,9 +4059,11 @@
                             if (optPageBreak && (hasBrPage || consecutiveEmpty >= 1 || !seenRealContent)) {
                                 body.removeChild(node);
                                 stats.emptyRemoved++;
-                                if (hasBrPage) prevWasPageBreak = true;
+                                // Jangan set prevWasPageBreak = true karena break kosongnya baru saja dihapus;
+                                // judul BAB berikutnya tetap butuh pageBreakBefore agar mulai di halaman baru!
                                 continue;
                             }
+                            if (hasBrPage) prevWasPageBreak = true;
                             consecutiveEmpty++;
                             continue;
                         }
@@ -4266,7 +4277,7 @@
                             const v = (b.getAttributeNS(W_NS, 'val') || '').toLowerCase();
                             return v === 'none' || v === 'nil';
                         });
-                        const isSignatureLike = optProtectCover && (inCoverZone || isOriginallyBorderless || /(?:Pembimbing\s*[I12]|Mengetahui|Disetujui|Penguji|Ketua\s+Program\s+Studi|NIM\s*:|NPM\s*:)/i.test(tblText));
+                        const isSignatureLike = isOriginallyBorderless || (optProtectCover && inCoverZone) || /(?:Pembimbing\s*[I12]|Mengetahui|Disetujui|Penguji|Ketua\s+Program\s+Studi|NIM\s*:|NPM\s*:)/i.test(tblText);
 
                         if (isSignatureLike) {
                             // Hanya seragamkan font tabel tanda tangan tanpa menambah garis border!
