@@ -738,18 +738,16 @@
         }
 
         .sheet-footer {
-            position: absolute;
-            bottom: 25px;
-            left: 60px;
-            right: 60px;
-            padding-top: 10px;
+            margin-top: auto;
+            padding-top: 16px;
             text-align: center;
             font-size: 13.5px;
             font-family: 'Times New Roman', serif;
             font-weight: 600;
             color: #475569;
-            border-top: 1px solid rgba(203, 213, 225, 0.6);
+            border-top: 1px solid rgba(203, 213, 225, 0.55);
             user-select: none;
+            flex-shrink: 0;
         }
 
         .paper-editor {
@@ -1255,17 +1253,16 @@
             .a4-sheet {
                 width: 100% !important;
                 max-width: 100% !important;
-                min-height: 0 !important;
-                aspect-ratio: 210 / 297;
+                min-height: 920px !important;
                 height: auto !important;
-                padding: 46px 38px 72px 48px !important;
+                padding: 44px 36px 34px 46px !important;
                 font-size: 14.5px !important;
                 line-height: 1.56 !important;
                 box-sizing: border-box !important;
             }
             .a4-sheet.empty-sheet,
             .a4-sheet.empty-sheet-premium {
-                aspect-ratio: auto !important;
+                min-height: 260px !important;
             }
         }
 
@@ -1355,17 +1352,16 @@
             .a4-sheet {
                 width: 100%;
                 max-width: 100%;
-                min-height: 0 !important;
-                aspect-ratio: 210 / 297;
+                min-height: 760px !important;
                 height: auto !important;
                 box-sizing: border-box;
-                padding: 36px 24px 66px 28px !important;
+                padding: 34px 22px 28px 26px !important;
                 font-size: 13.5px !important;
                 line-height: 1.55 !important;
                 border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
-                overflow-x: hidden;
+                overflow-x: clip;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
@@ -2979,6 +2975,16 @@
                 closeCitationPopover();
             }
         });
+        window.addEventListener('resize', () => {
+            const pop = document.getElementById('cite-action-popover');
+            if (!pop || pop.style.display === 'none') return;
+            const pr = pop.getBoundingClientRect();
+            const centeredLeft = Math.max(12, Math.round((window.innerWidth - pr.width) / 2));
+            const maxTop = Math.max(12, window.innerHeight - pr.height - 12);
+            const nextTop = Math.min(maxTop, Math.max(12, pr.top));
+            pop.style.left = `${centeredLeft}px`;
+            pop.style.top = `${nextTop}px`;
+        });
 
         function handlePopoverOpenSource() {
             if (!activeCitationCtx) return;
@@ -4076,6 +4082,29 @@
             const daftarTabelList = extractTablesForDocument(pageMap);
             const daftarGambarList = extractFiguresForDocument(pageMap);
 
+            // Helper paginasi Daftar Isi / Daftar Tabel / Daftar Gambar / Daftar Lampiran per halaman A4 agar tidak menumpuk di 1 halaman!
+            const paginateFrontListRows = (rows, firstPageMaxUnits = 20, nextPageMaxUnits = 23) => {
+                if (!rows || !rows.length) return [];
+                const chunks = [];
+                let cur = [];
+                let units = 0;
+                rows.forEach((row) => {
+                    const labelLen = String(row.title || row.label || '').length;
+                    const rowUnits = labelLen > 52 ? 1.7 : (row.isMain ? 1.15 : 1.0);
+                    const limit = chunks.length === 0 ? firstPageMaxUnits : nextPageMaxUnits;
+                    if (cur.length > 0 && (units + rowUnits > limit)) {
+                        chunks.push(cur);
+                        cur = [row];
+                        units = rowUnits;
+                    } else {
+                        cur.push(row);
+                        units += rowUnits;
+                    }
+                });
+                if (cur.length > 0) chunks.push(cur);
+                return chunks;
+            };
+
             const tocRows = [];
             let romanCur = 2;
             tocRows.push({ title: 'HALAMAN JUDUL', page: 'i', isMain: true, isSub: false });
@@ -4093,27 +4122,20 @@
             }
 
             const pgKataPengantar = toRoman(romanCur++);
-            const pgDaftarIsi = toRoman(romanCur++);
+            const tocStartRomanIdx = romanCur;
+            const pgDaftarIsi = toRoman(tocStartRomanIdx);
             tocRows.push({ title: 'KATA PENGANTAR', page: pgKataPengantar, isMain: true, isSub: false });
             tocRows.push({ title: 'DAFTAR ISI', page: pgDaftarIsi, isMain: true, isSub: false });
 
-            let pgDaftarTabel = '';
-            if (daftarTabelList.length > 0) {
-                pgDaftarTabel = toRoman(romanCur++);
-                tocRows.push({ title: 'DAFTAR TABEL', page: pgDaftarTabel, isMain: true, isSub: false });
-            }
-            let pgDaftarGambar = '';
-            if (daftarGambarList.length > 0) {
-                pgDaftarGambar = toRoman(romanCur++);
-                tocRows.push({ title: 'DAFTAR GAMBAR', page: pgDaftarGambar, isMain: true, isSub: false });
-            }
+            // Placeholder entri Daftar Tabel/Gambar/Lampiran (nomor romawinya diperbarui setelah jumlah halaman Daftar Isi diketahui)
+            const dtEntry = daftarTabelList.length > 0 ? { title: 'DAFTAR TABEL', page: '', isMain: true, isSub: false } : null;
+            if (dtEntry) tocRows.push(dtEntry);
+            const dgEntry = daftarGambarList.length > 0 ? { title: 'DAFTAR GAMBAR', page: '', isMain: true, isSub: false } : null;
+            if (dgEntry) tocRows.push(dgEntry);
 
             const lampiranList = getLampiranWithPages(pageMap);
-            let pgDaftarLampiran = '';
-            if (lampiranList.length > 0) {
-                pgDaftarLampiran = toRoman(romanCur++);
-                tocRows.push({ title: 'DAFTAR LAMPIRAN', page: pgDaftarLampiran, isMain: true, isSub: false });
-            }
+            const dlEntry = lampiranList.length > 0 ? { title: 'DAFTAR LAMPIRAN', page: '', isMain: true, isSub: false } : null;
+            if (dlEntry) tocRows.push(dlEntry);
 
             chaptersDef.forEach((ch) => {
                 if (!allowBab45 && (ch.key === 'bab4' || ch.key === 'bab5')) return;
@@ -4161,23 +4183,63 @@
                 tocRows.push({ title: 'LAMPIRAN', page: String(lampiranList[0].page), isMain: true, isSub: false });
             }
 
-            const tocHtml = tocRows.map((r) => {
-                const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
-                const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
-                return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
+            // Bagi Daftar Isi, Daftar Tabel, Daftar Gambar, dan Daftar Lampiran ke lembar A4 masing-masing dengan nomor romawi berurutan
+            const tocPages = paginateFrontListRows(tocRows, 20, 23);
+            const dtPages = paginateFrontListRows(daftarTabelList, 19, 22);
+            const dgPages = paginateFrontListRows(daftarGambarList, 19, 22);
+            const dlPages = paginateFrontListRows(lampiranList, 19, 22);
+
+            let romanTrack = tocStartRomanIdx + Math.max(1, tocPages.length);
+            const dtStartRoman = romanTrack;
+            if (dtEntry) {
+                dtEntry.page = toRoman(dtStartRoman);
+                romanTrack += dtPages.length;
+            }
+            const dgStartRoman = romanTrack;
+            if (dgEntry) {
+                dgEntry.page = toRoman(dgStartRoman);
+                romanTrack += dgPages.length;
+            }
+            const dlStartRoman = romanTrack;
+            if (dlEntry) {
+                dlEntry.page = toRoman(dlStartRoman);
+                romanTrack += dlPages.length;
+            }
+
+            const renderTocSheetsHtml = () => tocPages.map((pageRows, idx) => {
+                const rowsHtml = pageRows.map((r) => {
+                    const cls = r.isSub ? 'toc-row sub' : 'toc-row main';
+                    const pageSpan = r.page ? `<span class="toc-page">${escapeHtml(r.page)}</span>` : '';
+                    return `<div class="${cls}"><span>${escapeHtml(r.title)}</span><span class="toc-dots"></span>${pageSpan}</div>`;
+                }).join('');
+                const pgLabel = toRoman(tocStartRomanIdx + idx);
+                return `
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                ${idx === 0 ? '<div class="front-heading">DAFTAR ISI</div>' : '<div class="front-heading" style="font-size: 11pt; color: #475569; margin-bottom: 14px;">DAFTAR ISI (Lanjutan)</div>'}
+                <div class="toc-list">${rowsHtml}</div>
+            </div>
+            <div class="sheet-footer">${pgLabel}</div>
+        </div>`;
             }).join('');
 
-            const daftarTabelHtml = daftarTabelList.length > 0
-                ? daftarTabelList.map(t => `<div class="toc-row main"><span>${escapeHtml(t.title)}</span><span class="toc-dots"></span><span class="toc-page">${t.page}</span></div>`).join('')
-                : '';
+            const renderNamedListSheetsHtml = (heading, pagesArr, startRomanIdx, labelKey) => pagesArr.map((pageRows, idx) => {
+                const rowsHtml = pageRows.map((item) => `<div class="toc-row main"><span>${escapeHtml(item[labelKey] || '')}</span><span class="toc-dots"></span><span class="toc-page">${escapeHtml(String(item.page || ''))}</span></div>`).join('');
+                const pgLabel = toRoman(startRomanIdx + idx);
+                return `
+        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
+            <div>
+                ${idx === 0 ? `<div class="front-heading">${heading}</div>` : `<div class="front-heading" style="font-size: 11pt; color: #475569; margin-bottom: 14px;">${heading} (Lanjutan)</div>`}
+                <div class="toc-list" style="margin-top: 16px;">${rowsHtml}</div>
+            </div>
+            <div class="sheet-footer">${pgLabel}</div>
+        </div>`;
+            }).join('');
 
-            const daftarGambarHtml = daftarGambarList.length > 0
-                ? daftarGambarList.map(g => `<div class="toc-row main"><span>${escapeHtml(g.title)}</span><span class="toc-dots"></span><span class="toc-page">${g.page}</span></div>`).join('')
-                : '';
-
-            const daftarLampiranHtml = lampiranList.length > 0
-                ? lampiranList.map(l => `<div class="toc-row main"><span>${escapeHtml(l.label)}</span><span class="toc-dots"></span><span class="toc-page">${l.page}</span></div>`).join('')
-                : '';
+            const tocSheetsHtml = renderTocSheetsHtml();
+            const daftarTabelSheetsHtml = dtPages.length > 0 ? renderNamedListSheetsHtml('DAFTAR TABEL', dtPages, dtStartRoman, 'title') : '';
+            const daftarGambarSheetsHtml = dgPages.length > 0 ? renderNamedListSheetsHtml('DAFTAR GAMBAR', dgPages, dgStartRoman, 'title') : '';
+            const daftarLampiranSheetsHtml = dlPages.length > 0 ? renderNamedListSheetsHtml('DAFTAR LAMPIRAN', dlPages, dlStartRoman, 'label') : '';
 
             const DEFAULT_ACADEMIC_SEAL_SVG = `<svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
               <circle cx="60" cy="60" r="56" stroke="#000000" stroke-width="2.5" fill="#ffffff"/>
@@ -4364,44 +4426,17 @@
             <div class="sheet-footer">${pgKataPengantar}</div>
         </div>
 
-        <!-- DAFTAR ISI -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">DAFTAR ISI</div>
-                <div class="toc-list">${tocHtml}</div>
-            </div>
-            <div class="sheet-footer">${pgDaftarIsi}</div>
-        </div>
+        <!-- DAFTAR ISI (OTOMATIS TERPAGINASI PER HALAMAN A4) -->
+        ${tocSheetsHtml}
 
-        ${daftarTabelList.length > 0 ? `
         <!-- DAFTAR TABEL -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">DAFTAR TABEL</div>
-                <div class="toc-list" style="margin-top: 20px;">${daftarTabelHtml}</div>
-            </div>
-            <div class="sheet-footer">${pgDaftarTabel}</div>
-        </div>` : ''}
+        ${daftarTabelSheetsHtml}
 
-        ${daftarGambarList.length > 0 ? `
         <!-- DAFTAR GAMBAR -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">DAFTAR GAMBAR</div>
-                <div class="toc-list" style="margin-top: 20px;">${daftarGambarHtml}</div>
-            </div>
-            <div class="sheet-footer">${pgDaftarGambar}</div>
-        </div>` : ''}
+        ${daftarGambarSheetsHtml}
 
-        ${lampiranList.length > 0 ? `
-        <!-- DAFTAR LAMPIRAN (OTOMATIS MUNCUL JIKA MAHASISWA MENGUNGGAH LAMPIRAN) -->
-        <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
-            <div>
-                <div class="front-heading">DAFTAR LAMPIRAN</div>
-                <div class="toc-list" style="margin-top: 20px;">${daftarLampiranHtml}</div>
-            </div>
-            <div class="sheet-footer">${pgDaftarLampiran}</div>
-        </div>` : ''}
+        <!-- DAFTAR LAMPIRAN -->
+        ${daftarLampiranSheetsHtml}
     `;
         }
 
