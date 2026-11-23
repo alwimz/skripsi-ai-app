@@ -2563,6 +2563,10 @@ class GeneratorController extends Controller
             'judul' => 'required|string',
             'prodi' => 'required|string',
             'metode_penelitian' => 'required|string',
+            'sumber_referensi' => 'required|array|min:1',
+        ], [
+            'sumber_referensi.required' => 'Silakan pilih minimal 1 Sumber Referensi.',
+            'sumber_referensi.min' => 'Silakan pilih minimal 1 Sumber Referensi.',
         ]);
 
         $cleanJudul = trim($request->judul);
