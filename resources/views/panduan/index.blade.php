@@ -56,9 +56,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { max-width: 100%; overflow-x: clip; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.65; }
         a { text-decoration: none; color: inherit; }
-        .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 1120px; width: 100%; margin: 0 auto; padding: 0 20px; }
         .topbar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 40; }
         .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16.5px; color: #0f172a; }
@@ -73,9 +74,9 @@
         .eyebrow { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 14px; }
         .hero h1 { font-size: clamp(26px, 4vw, 42px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 14px; color: #0f172a; }
         .hero p { max-width: 680px; margin: 0 auto 24px; color: #475569; font-size: 15.5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; padding-bottom: 56px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; padding-bottom: 56px; }
         .mobile-subbar { display: none; }
-        .guide-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+        .guide-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
         .guide-card:hover { transform: translateY(-2px); border-color: #93c5fd; box-shadow: 0 14px 30px -12px rgba(37, 99, 235, 0.16); }
         .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
         .num-pill { font-size: 12px; font-weight: 800; color: #1d4ed8; background: #eff6ff; padding: 3px 10px; border-radius: 999px; }

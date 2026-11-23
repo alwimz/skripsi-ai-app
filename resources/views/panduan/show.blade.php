@@ -74,9 +74,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { max-width: 100%; overflow-x: clip; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.7; }
         a { text-decoration: none; color: inherit; }
-        .container { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 1060px; width: 100%; margin: 0 auto; padding: 0 20px; }
         .topbar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 40; }
         .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16.5px; color: #0f172a; }
@@ -87,15 +88,15 @@
         .btn-primary:hover { background: #1d4ed8; }
         .btn-outline { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; }
         .btn-outline:hover { border-color: #2563eb; color: #2563eb; }
-        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 26px; padding: 28px 0 60px; align-items: start; }
-        .sidebar-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; position: sticky; top: 82px; }
+        .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 26px; padding: 28px 0 60px; align-items: start; width: 100%; }
+        .sidebar-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; position: sticky; top: 82px; min-width: 0; max-width: 100%; }
         .sidebar-toggle-mobile { display: none; }
         .sidebar-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 10px; }
         .side-link { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 3px; }
         .side-link:hover { background: #f1f5f9; color: #0f172a; }
         .side-link.active { background: #eff6ff; color: #1d4ed8; font-weight: 700; }
         .mobile-subbar { display: none; }
-        .article-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 28px; min-width: 0; }
+        .article-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 28px; min-width: 0; max-width: 100%; overflow-wrap: break-word; }
         .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #64748b; margin-bottom: 12px; flex-wrap: wrap; }
         .breadcrumb a:hover { color: #2563eb; }
         .badge-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -127,10 +128,10 @@
             .mobile-subbar::-webkit-scrollbar { display: none; }
             .mobile-subbar a { white-space: nowrap; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
             .mobile-subbar a.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-            .layout { grid-template-columns: 1fr; gap: 12px; padding: 16px 0 44px; }
-            .sidebar-box { position: static; padding: 8px 10px; border-radius: 12px; }
+            .layout { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px 0 44px; }
+            .sidebar-box { position: static; padding: 8px 10px; border-radius: 12px; width: 100%; overflow: hidden; }
             .sidebar-title, .sidebar-tools-link { display: none; }
-            .sidebar-nav-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+            .sidebar-nav-list { display: flex; gap: 6px; width: 100%; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
             .sidebar-nav-list::-webkit-scrollbar { display: none; }
             .side-link { margin-bottom: 0; white-space: nowrap; flex-shrink: 0; padding: 6px 11px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 12.5px; }
             .side-link.active { border-color: #93c5fd; }
