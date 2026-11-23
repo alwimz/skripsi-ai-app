@@ -4349,10 +4349,15 @@
                         const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
                         const mMeth = b3Txt.match(/penelitian\s+(kuantitatif\s+eksperimental(?:\s+komputasi)?|eksperimental\s+komputasi|kualitatif\s+deskriptif|penelitian\s+dan\s+pengembangan\s*\(R&D\)|tindakan\s+kelas|yuridis\s+(?:normatif|empiris)|campuran\s*\(mixed\s+methods\))/i);
                         const meth = mMeth ? mMeth[1].trim() : (projectMeta.metode || 'ilmiah terstruktur');
-                        const mSamp = (b4Txt || b3Txt).match(/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
+                        const mSampFinal = (b4Txt || b3Txt).match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|digunakan\s+dalam\s+penelitian\s+berjumlah)[^.\n]{0,40}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
+                        const mSamp = mSampFinal || (b4Txt || b3Txt).match(/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
                         const sampStr = mSamp ? ` dengan melibatkan ${mSamp[1]} ${mSamp[2]}` : '';
-                        const mFind = b4Txt.match(/[^.\n]*(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)[^.\n]{8,220}\./i);
-                        const findStr = mFind ? mFind[0].replace(/\s+/g, ' ').trim() : `Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur dan memberikan evaluasi kinerja yang valid.`;
+                        const b4Sents = b4Txt.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ÿ])|\n+/).map(s => s.replace(/\s+/g, ' ').trim());
+                        let bestFind = b4Sents.find(s => s.length >= 30 && s.length <= 280 && !s.startsWith('|') && /(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)/i.test(s) && /(?:\d+[,\.]\d+|\d+\s*(?:%|persen))/i.test(s) && !/dapat\s+menyesatkan|mengabaikan\s+kelas/i.test(s));
+                        if (bestFind) {
+                            bestFind = bestFind.replace(/^(?:Berdasarkan\s+)?Tabel\s+\d+\.\d+\s+(?:memperlihatkan|menunjukkan)\s+bahwa\s+/i, 'Hasil pengujian menunjukkan bahwa ').replace(/\.+\s*$/, '') + '.';
+                        }
+                        const findStr = bestFind || `Hasil penelitian menunjukkan bahwa pendekatan yang diterapkan mampu menjawab seluruh rumusan masalah secara terukur dan memberikan evaluasi kinerja yang valid.`;
                         return escapeHtml(`Penelitian ini bertujuan untuk menganalisis dan menjawab permasalahan pada topik "${cleanT}". Pendekatan yang diterapkan adalah metode ${meth}${sampStr} melalui tahapan pengumpulan, pengolahan, dan pengujian data secara sistematis. ${findStr} Temuan penelitian ini diharapkan memberikan kontribusi teoretis serta rekomendasi praktis bagi pengembangan keilmuan pada Program Studi ${projectProdi}.`);
                     })()}
                 </p>
