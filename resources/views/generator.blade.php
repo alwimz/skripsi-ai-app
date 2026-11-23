@@ -2762,11 +2762,14 @@
             const container = citeEl.closest('p, li, td');
             if (!container) return null;
 
-            // Kumpulkan seluruh text node + elemen citeEl untuk menentukan batas kalimat (. ! ?) tepat di sekitar sitasi
+            // Kumpulkan seluruh text node + rentang seluruh sitasi di paragraf agar jika 1 kalimat majemuk punya >= 2 sitasi
+            // (cth: "A (2025) ..., sementara B (2023) ..."), sorotan berhenti tepat di klausa milik sitasi yang diklik!
+            const allCitesInContainer = Array.from(container.querySelectorAll('.academic-cite-badge, .table-cite-text'));
             const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
             const nodes = [];
             let fullText = '';
             let citeStart = -1, citeEnd = -1;
+            const otherCiteRanges = [];
             let n;
             while ((n = walker.nextNode())) {
                 const start = fullText.length;
@@ -2776,6 +2779,11 @@
                 if (citeEl.contains(n)) {
                     if (citeStart === -1) citeStart = start;
                     citeEnd = end;
+                } else {
+                    const otherEl = allCitesInContainer.find(ce => ce !== citeEl && ce.contains(n));
+                    if (otherEl) {
+                        otherCiteRanges.push({ start, end });
+                    }
                 }
                 fullText += val;
             }
@@ -2807,6 +2815,30 @@
                         sentEnd = i + 1;
                         break;
                     }
+                }
+            }
+
+            // Jika di dalam kalimat yang sama ada sitasi lain sebelum/sesudah sitasi yang diklik, potong sorotan pada batas klausa (koma/titik koma/konjungsi)
+            const prevOther = otherCiteRanges.filter(r => r.end <= citeStart && r.start >= sentStart).sort((a, b) => b.end - a.end)[0];
+            if (prevOther) {
+                const between = fullText.slice(prevOther.end, citeStart);
+                const mClause = between.match(/([,;]\s*(?:sementara|sedangkan|adapun|namun|akan\s+tetapi|berbeda\s+dengan|serta|dan)?\s*|\b(?:sementara|sedangkan|adapun)\s+)/i);
+                if (mClause && mClause.index !== undefined) {
+                    const cutPos = prevOther.end + mClause.index + (mClause[0].startsWith(',') || mClause[0].startsWith(';') ? 1 : 0);
+                    sentStart = cutPos;
+                    while (sentStart < citeStart && /\s/.test(fullText[sentStart])) sentStart++;
+                } else {
+                    sentStart = citeStart;
+                }
+            }
+            const nextOther = otherCiteRanges.filter(r => r.start >= citeEnd && r.end <= sentEnd).sort((a, b) => a.start - b.start)[0];
+            if (nextOther) {
+                const between = fullText.slice(citeEnd, nextOther.start);
+                const mClause = between.match(/([,;]\s*(?:sementara|sedangkan|adapun|namun|akan\s+tetapi|berbeda\s+dengan|serta|dan)?\s*|\b(?:sementara|sedangkan|adapun)\s+)/i);
+                if (mClause && mClause.index !== undefined) {
+                    sentEnd = citeEnd + mClause.index;
+                } else {
+                    sentEnd = nextOther.start;
                 }
             }
 
@@ -4406,20 +4438,38 @@
 
         ${skripsiOnlySheets}
 
-        <!-- KATA PENGANTAR -->
+        <!-- KATA PENGANTAR (STANDAR AKADEMIK PERGURUAN TINGGI INDONESIA) -->
         <div class="a4-sheet front-body" contenteditable="true" spellcheck="false" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 1123px; position: relative;">
             <div>
                 <div class="front-heading">KATA PENGANTAR</div>
-                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm; margin-top: 18px;">
-                    Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyusun naskah ${docKind.toLowerCase()} yang berjudul <strong>"${escapeHtml(projectTitle)}"</strong> dengan baik.
+                <p style="text-align: justify; line-height: 1.55; font-size: 11.2pt; text-indent: 1.27cm; margin-top: 14px; margin-bottom: 7px;">
+                    Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan ${docKind.toLowerCase()} dengan judul <strong>"${escapeHtml(projectTitle)}"</strong>.
                 </p>
-                <p style="text-align: justify; line-height: 1.6; font-size: 11.5pt; text-indent: 1.27cm;">
-                    Penyusunan naskah ini diajukan pada Program Studi ${escapeHtml(projectProdi)}, ${fakultas ? escapeHtml(fakultas) + ', ' : ''}${escapeHtml(kampus)}. Penulis menyampaikan rasa hormat dan terima kasih yang sebesar-besarnya kepada pimpinan universitas, dekan, ketua program studi, dosen pembimbing, seluruh staf pengajar, serta keluarga tercinta atas bimbingan dan dukungan yang telah diberikan.
+                <p style="text-align: justify; line-height: 1.55; font-size: 11.2pt; text-indent: 1.27cm; margin-bottom: 7px;">
+                    Penulisan ${docKind.toLowerCase()} ini ${allowBab45 ? 'dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana' : 'diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi'} pada Program Studi ${escapeHtml(projectProdi)}${fakultas ? ', ' + escapeHtml(fakultas) : ''}, ${escapeHtml(kampus)}. Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.
                 </p>
-                <div style="margin-top: 36px; float: right; width: 200px; text-align: center; font-size: 11pt;">
-                    <div>${escapeHtml(kampus)}, ${tahun}</div>
-                    <div style="height: 44px;"></div>
-                    <div><strong>Penulis</strong></div>
+                <p style="text-align: justify; line-height: 1.55; font-size: 11.2pt; text-indent: 1.27cm; margin-bottom: 6px;">
+                    Penyelesaian ${docKind.toLowerCase()} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:
+                </p>
+                <ol style="margin: 4px 0 8px 24px; padding-left: 12px; font-size: 11pt; line-height: 1.48; text-align: justify;">
+                    <li style="margin-bottom: 3px;">Bapak/Ibu (Nama Rektor), selaku Rektor ${escapeHtml(kampus)} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;</li>
+                    <li style="margin-bottom: 3px;">Bapak/Ibu (Nama Dekan), selaku Dekan ${escapeHtml(fakultas || 'Fakultas terkait')} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;</li>
+                    <li style="margin-bottom: 3px;">Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi ${escapeHtml(projectProdi)} yang telah memberikan arahan dan dukungan akademik;</li>
+                    <li style="margin-bottom: 3px;">Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya ${docKind.toLowerCase()} ini;</li>
+                    <li style="margin-bottom: 3px;">Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;</li>
+                    <li style="margin-bottom: 3px;">Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan ${docKind.toLowerCase()} ini;</li>
+                    <li style="margin-bottom: 3px;">Seluruh dosen dan tenaga kependidikan ${escapeHtml(fakultas || 'Fakultas')} ${escapeHtml(kampus)} atas ilmu dan pelayanan yang telah diberikan;</li>
+                    <li style="margin-bottom: 3px;">Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;</li>
+                    <li style="margin-bottom: 3px;">Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan ${docKind.toLowerCase()} ini.</li>
+                </ol>
+                <p style="text-align: justify; line-height: 1.55; font-size: 11.2pt; text-indent: 1.27cm; margin-bottom: 6px;">
+                    Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa ${docKind.toLowerCase()} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.
+                </p>
+                <div style="margin-top: 22px; float: right; width: 220px; text-align: right; font-size: 11pt; line-height: 1.4;">
+                    <div>(Kota), ${tahun}</div>
+                    <div>Penulis,</div>
+                    <div style="height: 46px;"></div>
+                    <div><strong>${escapeHtml(nama).toUpperCase()}</strong></div>
                 </div>
                 <div style="clear: both;"></div>
             </div>

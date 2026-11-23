@@ -5662,25 +5662,59 @@ ATURAN REVISI (SANGAT KETAT):
             $section->addText("Keywords: " . $project->prodi . ", Empirical Analysis, Research Methodology, Undergraduate Thesis.", ['bold' => true, 'italic' => true, 'size' => 11], ['alignment' => Jc::BOTH, 'lineHeight' => 1.0, 'indentation' => ['firstLine' => 0]]);
         }
 
-        // --- KATA PENGANTAR ---
+        // --- KATA PENGANTAR (STANDAR AKADEMIK PERGURUAN TINGGI INDONESIA) ---
         $section->addPageBreak();
         $section->addTitle("KATA PENGANTAR", 1);
+        $kpDocLower = strtolower($jenisDokumen);
         $kpSyarat = $isProposal
-            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
-            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
+            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
+            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
+        $kpBodyStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 80];
+        $kpListStyle = ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['left' => 420, 'hanging' => 280], 'spaceAfter' => 40];
+        $kpFont = ['name' => 'Times New Roman', 'size' => 12];
+        $kpFakultasLabel = $fakultas ? $fakultas : 'Fakultas terkait';
+        $kpKampusLabel = $kampus ?: 'Perguruan Tinggi';
+
         $section->addText(
-            "Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " yang berjudul \"" . $project->judul . "\" dapat " . $kpSyarat . $project->prodi . ($kampus ? ", " . $kampus : "") . ".",
-            ['name' => 'Times New Roman', 'size' => 12],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 120]
+            "Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$kpDocLower} dengan judul \"{$project->judul}\".",
+            $kpFont,
+            $kpBodyStyle
         );
         $section->addText(
-            "Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.",
-            ['name' => 'Times New Roman', 'size' => 12],
-            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceAfter' => 240]
+            "Penulisan {$kpDocLower} ini {$kpSyarat}{$project->prodi}" . ($fakultas ? ", {$fakultas}" : "") . ", {$kpKampusLabel}. Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.",
+            $kpFont,
+            $kpBodyStyle
         );
-        $section->addText(($kampus ? $kampus . ", " : "") . $tglBulanIndo, ['name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText(
+            "Penyelesaian {$kpDocLower} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:",
+            $kpFont,
+            $kpBodyStyle
+        );
+
+        $kpThanks = [
+            "1. Bapak/Ibu (Nama Rektor), selaku Rektor {$kpKampusLabel} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;",
+            "2. Bapak/Ibu (Nama Dekan), selaku Dekan {$kpFakultasLabel} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;",
+            "3. Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi {$project->prodi} yang telah memberikan arahan dan dukungan akademik;",
+            "4. Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$kpDocLower} ini;",
+            "5. Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;",
+            "6. Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$kpDocLower} ini;",
+            "7. Seluruh dosen dan tenaga kependidikan {$kpFakultasLabel} {$kpKampusLabel} atas ilmu dan pelayanan yang telah diberikan;",
+            "8. Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;",
+            "9. Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$kpDocLower} ini.",
+        ];
+        foreach ($kpThanks as $thanksLine) {
+            $section->addText($thanksLine, $kpFont, $kpListStyle);
+        }
+
+        $section->addText(
+            "Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$kpDocLower} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.",
+            $kpFont,
+            ['alignment' => Jc::BOTH, 'lineHeight' => 1.5, 'indentation' => ['firstLine' => 720], 'spaceBefore' => 80, 'spaceAfter' => 220]
+        );
+        $section->addText("(Kota), " . $tglBulanIndo, $kpFont, ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText("Penulis,", $kpFont, ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
         $section->addTextBreak(2);
-        $section->addText("Penulis", ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
+        $section->addText(strtoupper($nama), ['bold' => true, 'name' => 'Times New Roman', 'size' => 12], ['alignment' => Jc::RIGHT, 'lineHeight' => 1.25]);
 
         // --- DAFTAR ISI RAPI (DOT LEADER TAB STOP) ---
         $section->addPageBreak();
@@ -6317,18 +6351,36 @@ ATURAN REVISI (SANGAT KETAT):
             </div>";
         }
 
-        // 5. KATA PENGANTAR
+        // 5. KATA PENGANTAR (STANDAR AKADEMIK PERGURUAN TINGGI INDONESIA)
+        $kpPdfDocLower = strtolower($jenisDokumen);
         $kpPdfSyarat = $isProposal
-            ? "diajukan sebagai rancangan penelitian untuk Seminar Proposal Skripsi pada Program Studi "
-            : "diselesaikan sebagai salah satu syarat akademik guna memperoleh gelar Sarjana pada Program Studi ";
+            ? "diajukan sebagai salah satu persyaratan Seminar Proposal Skripsi pada Program Studi "
+            : "dimaksudkan untuk memenuhi salah satu syarat memperoleh gelar Sarjana pada Program Studi ";
+        $kpPdfFak = $fakultas ? e($fakultas) : 'Fakultas terkait';
+        $kpPdfKampus = $kampus ? e($kampus) : 'Perguruan Tinggi';
+        $kpPdfProdi = e($project->prodi);
         $html .= "<div class='page-break'>
             <h2>KATA PENGANTAR</h2>
-            <p>Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas segala rahmat dan karunia-Nya sehingga penyusunan " . strtolower($jenisDokumen) . " berjudul \"" . e($project->judul) . "\" dapat {$kpPdfSyarat}" . e($project->prodi) . ($kampus ? ", " . e($kampus) : "") . ".</p>
-            <p>Penulis menyampaikan terima kasih yang sebesar-besarnya kepada pimpinan universitas, ketua program studi, dosen pembimbing, dosen penguji, serta keluarga dan rekan-rekan atas bimbingan, arahan, serta dukungan yang telah diberikan. Penulis menyadari bahwa naskah ini masih terbuka terhadap saran konstruktif demi penyempurnaan di masa mendatang.</p>
-            <div style='margin-top:26pt; float:right; width:200pt; text-align:center; font-size:12pt; line-height:1.3;'>
-                <div>" . ($kampus ? e($kampus) . ", " : "") . $tglBulanIndo . "</div>
-                <div style='height:44pt;'></div>
-                <div><strong>Penulis</strong></div>
+            <p>Dengan memanjatkan puji syukur ke hadirat Tuhan Yang Maha Esa, yang telah melimpahkan rahmat dan hidayah-Nya, penulis dapat menyelesaikan penyusunan {$kpPdfDocLower} dengan judul <strong>\"" . e($project->judul) . "\"</strong>.</p>
+            <p>Penulisan {$kpPdfDocLower} ini {$kpPdfSyarat}{$kpPdfProdi}" . ($fakultas ? ", {$kpPdfFak}" : "") . ", {$kpPdfKampus}. Penulis berharap hasil penelitian ini dapat memperkaya kajian ilmiah pada bidang yang diteliti serta menjadi bahan pertimbangan bagi pihak-pihak yang terkait dengan permasalahan penelitian.</p>
+            <p>Penyelesaian {$kpPdfDocLower} ini tidak terlepas dari peran serta berbagai pihak. Oleh sebab itu, pada kesempatan yang baik ini penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:</p>
+            <ol style='margin:4pt 0 8pt 18pt; padding-left:10pt; line-height:1.42; font-size:11.5pt;'>
+                <li>Bapak/Ibu (Nama Rektor), selaku Rektor {$kpPdfKampus} yang telah memberikan kesempatan kepada penulis untuk menempuh pendidikan;</li>
+                <li>Bapak/Ibu (Nama Dekan), selaku Dekan {$kpPdfFak} yang telah memberikan fasilitas dan kemudahan selama perkuliahan;</li>
+                <li>Bapak/Ibu (Nama Ketua Program Studi), selaku Ketua Program Studi {$kpPdfProdi} yang telah memberikan arahan dan dukungan akademik;</li>
+                <li>Bapak/Ibu (Nama Dosen Pembimbing), selaku Dosen Pembimbing yang telah memberikan bimbingan, koreksi, dan motivasi sejak penyusunan proposal hingga terselesaikannya {$kpPdfDocLower} ini;</li>
+                <li>Bapak/Ibu (Nama Dosen Pembimbing Akademik), selaku Dosen Pembimbing Akademik yang telah mendampingi penulis selama masa studi;</li>
+                <li>Bapak/Ibu Dosen Penguji yang telah memberikan masukan berharga bagi penyempurnaan {$kpPdfDocLower} ini;</li>
+                <li>Seluruh dosen dan tenaga kependidikan {$kpPdfFak} {$kpPdfKampus} atas ilmu dan pelayanan yang telah diberikan;</li>
+                <li>Orang tua tercinta yang dengan tulus senantiasa mendoakan, membimbing, dan mendukung penulis dalam setiap langkah;</li>
+                <li>Saudara, sahabat, serta rekan-rekan yang telah memberikan bantuan dan dorongan semangat selama proses penyusunan {$kpPdfDocLower} ini.</li>
+            </ol>
+            <p>Semoga Tuhan Yang Maha Esa membalas segala kebaikan dan bantuan yang telah diberikan dengan pahala yang setimpal. Penulis menyadari sepenuhnya bahwa {$kpPdfDocLower} ini masih memiliki kekurangan. Oleh karena itu, kritik dan saran yang bersifat membangun sangat penulis harapkan demi penyempurnaan penelitian selanjutnya.</p>
+            <div style='margin-top:20pt; float:right; width:210pt; text-align:right; font-size:11.5pt; line-height:1.35;'>
+                <div>(Kota), {$tglBulanIndo}</div>
+                <div>Penulis,</div>
+                <div style='height:42pt;'></div>
+                <div><strong>" . strtoupper(e($nama)) . "</strong></div>
             </div>
             <div style='clear:both;'></div>
         </div>";
