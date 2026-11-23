@@ -1038,7 +1038,38 @@ class GeneratorController extends Controller
             $outLines[] = $trim;
         }
 
-        return trim((string) preg_replace("/\n{3,}/", "\n\n", implode("\n", $outLines)));
+        $result = trim((string) preg_replace("/\n{3,}/", "\n\n", implode("\n", $outLines)));
+
+        // 3. Khusus Bab V: Pastikan 5.1 Kesimpulan otomatis berbentuk poin bernomor (1., 2., ...) selaras dengan Rumusan Masalah Bab I
+        if ($chapter === 'bab5' && preg_match('/((?:5\.1|A\.)\s*(?:Kesimpulan|Simpulan)[^\n]*\n)([\s\S]{40,}?)(?=\n\s*(?:5\.2|B\.\s+Saran|Saran\b)|$)/i', $result, $mK)) {
+            $kHead = $mK[1];
+            $kBody = trim($mK[2]);
+            $hasNumbered = preg_match_all('/^\s*\d+[\.\)]\s+.{10,}/m', $kBody);
+            if ($hasNumbered === 0) {
+                $kParas = array_values(array_filter(array_map('trim', preg_split('/\n+/', $kBody) ?: []), fn ($x) => mb_strlen($x) >= 25));
+                if (count($kParas) >= 2) {
+                    $numbered = [];
+                    $num = 1;
+                    // Jika paragraf pertama cuma kalimat pengantar ("Berdasarkan hasil penelitian...:"), biarkan tanpa nomor
+                    foreach ($kParas as $idxP => $kp) {
+                        if ($idxP === 0 && (str_ends_with($kp, ':') || (mb_strlen($kp) < 160 && preg_match('/berdasarkan\s+hasil|dapat\s+disimpulkan|sebagai\s+berikut/i', $kp)))) {
+                            $numbered[] = $kp;
+                            continue;
+                        }
+                        $cleanItem = trim((string) preg_replace('/^(?:Pertama|Kedua|Ketiga|Keempat|Kelima),?\s+/i', '', $kp));
+                        if ($cleanItem !== '') {
+                            $cleanItem = mb_strtoupper(mb_substr($cleanItem, 0, 1)) . mb_substr($cleanItem, 1);
+                        }
+                        $numbered[] = $num . '. ' . $cleanItem;
+                        $num++;
+                    }
+                    $newBlock = $kHead . implode("\n\n", $numbered);
+                    $result = str_replace($mK[0], $newBlock, $result);
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -3871,8 +3902,8 @@ WAJIB MEMUAT TABEL DATA DAN ANALISIS EMPIRIS LENGKAP:
             $rmCountAuto = count($rmItemsAuto[0] ?? []);
         }
         $rmCountRule = $rmCountAuto > 0
-            ? "WAJIB terdiri dari TEPAT {$rmCountAuto} poin bernomor (1., 2., ... {$rmCountAuto}.) yang menjawab satu per satu {$rmCountAuto} butir Rumusan Masalah pada Bab I secara presisi dan berbasis angka temuan Bab IV."
-            : "Menjawab seluruh butir rumusan masalah Bab I secara tegas dalam poin bernomor berdasarkan capaian empiris Bab IV.";
+            ? "WAJIB ditulis dalam format DAFTAR POIN BERNOMOR persis `1.`, `2.`, ... hingga `{$rmCountAuto}.` (TEPAT {$rmCountAuto} butir bernomor, BUKAN paragraf naratif tanpa nomor!) yang menjawab satu per satu {$rmCountAuto} butir Rumusan Masalah pada Bab I secara presisi dan berbasis angka temuan Bab IV."
+            : "WAJIB ditulis dalam format daftar poin bernomor (`1.`, `2.`, `3.`, dst.) yang menjawab satu per satu seluruh butir rumusan masalah Bab I secara tegas berdasarkan capaian empiris Bab IV.";
 
         // Bab V Penutup & Daftar Pustaka Lengkap & Terverifikasi (Bebas Mendeley)
         $bab5Prompt = "

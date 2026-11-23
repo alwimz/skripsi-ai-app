@@ -2285,6 +2285,17 @@
             background: linear-gradient(90deg, #2563eb, #0f766e);
             animation: citePulseBar 1.15s ease-in-out infinite;
         }
+        .cite-active-sentence-hl {
+            background: #fef08a;
+            color: #0f172a;
+            border-radius: 3px;
+            padding: 1px 2px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+        .paper-editor p[data-split-cont="1"] {
+            text-indent: 0 !important;
+        }
     </style>
     <div id="cite-action-popover"
         style="display: none; position: fixed; z-index: 10050; width: 396px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); flex-direction: column; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.24); overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
@@ -2297,7 +2308,7 @@
                         <span id="cite-pop-label" style="font-size: 13px; font-weight: 700; color: #1e3a8a; word-break: break-word;">Sitasi</span>
                         <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">APA 7th</span>
                     </div>
-                    <div id="cite-pop-match" style="font-size: 11.5px; color: #475569; margin-top: 4px; line-height: 1.45; max-height: 54px; overflow: hidden;"></div>
+                    <div id="cite-pop-match" style="font-size: 11.5px; color: #334155; margin-top: 5px; line-height: 1.5; max-height: 115px; overflow-y: auto; padding-right: 4px; word-break: break-word;"></div>
                 </div>
             </div>
             <button type="button" onclick="closeCitationPopover()" aria-label="Tutup"
@@ -2740,6 +2751,89 @@
             return matchedEntry;
         }
 
+        function clearActiveSentenceHighlight() {
+            document.querySelectorAll('mark.cite-active-sentence-hl').forEach((mk) => {
+                const parent = mk.parentNode;
+                if (!parent) return;
+                while (mk.firstChild) parent.insertBefore(mk.firstChild, mk);
+                parent.removeChild(mk);
+                parent.normalize();
+            });
+        }
+
+        function highlightSentenceForCitation(citeEl) {
+            clearActiveSentenceHighlight();
+            const container = citeEl.closest('p, li, td');
+            if (!container) return null;
+
+            // Kumpulkan seluruh text node + elemen citeEl untuk menentukan batas kalimat (. ! ?) tepat di sekitar sitasi
+            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+            const nodes = [];
+            let fullText = '';
+            let citeStart = -1, citeEnd = -1;
+            let n;
+            while ((n = walker.nextNode())) {
+                const start = fullText.length;
+                const val = n.nodeValue || '';
+                const end = start + val.length;
+                nodes.push({ node: n, start, end });
+                if (citeEl.contains(n)) {
+                    if (citeStart === -1) citeStart = start;
+                    citeEnd = end;
+                }
+                fullText += val;
+            }
+            if (citeStart === -1) return null;
+
+            // Cari awal kalimat sebelum citeStart (hindari memotong pada "et al." / "No." / "dkk.")
+            let sentStart = 0;
+            const before = fullText.slice(0, citeStart);
+            const abbrTail = /(?:et\s+al|dkk|no|hlm|hal|dr|prof|st|mt|pd|uu|pp)$/i;
+            for (let i = before.length - 1; i >= 0; i--) {
+                const ch = before[i];
+                if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < before.length && /\s/.test(before[i + 1]))) {
+                    const prevToken = before.slice(Math.max(0, i - 10), i).trim();
+                    if (!abbrTail.test(prevToken)) {
+                        sentStart = i + 1;
+                        while (sentStart < citeStart && /\s/.test(fullText[sentStart])) sentStart++;
+                        break;
+                    }
+                }
+            }
+
+            // Cari akhir kalimat setelah citeEnd
+            let sentEnd = fullText.length;
+            for (let i = citeEnd; i < fullText.length; i++) {
+                const ch = fullText[i];
+                if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 >= fullText.length || /\s/.test(fullText[i + 1]))) {
+                    const prevToken = fullText.slice(Math.max(0, i - 10), i).trim();
+                    if (!abbrTail.test(prevToken)) {
+                        sentEnd = i + 1;
+                        break;
+                    }
+                }
+            }
+
+            // Bungkus rentang teks kalimat dengan <mark class="cite-active-sentence-hl"> tanpa memutus elemen sitasi
+            let lastMark = null;
+            nodes.forEach((seg) => {
+                if (seg.end <= sentStart || seg.start >= sentEnd) return;
+                const localS = Math.max(0, sentStart - seg.start);
+                const localE = Math.min(seg.node.nodeValue.length, sentEnd - seg.start);
+                if (localE <= localS) return;
+                try {
+                    const rng = document.createRange();
+                    rng.setStart(seg.node, localS);
+                    rng.setEnd(seg.node, localE);
+                    const mk = document.createElement('mark');
+                    mk.className = 'cite-active-sentence-hl';
+                    rng.surroundContents(mk);
+                    lastMark = mk;
+                } catch (e) {}
+            });
+            return lastMark ? lastMark.getBoundingClientRect() : null;
+        }
+
         function openCitationLink(el, event) {
             if (event) {
                 event.stopPropagation();
@@ -2757,6 +2851,9 @@
             const paragraph = paraEl ? paraEl.innerText.trim() : '';
             const matchedEntry = findMatchedDpEntry(author, year);
 
+            // Auto-blok/sorot kalimat utuh dari sitasi yang diklik agar langsung terlihat konteks kalimatnya
+            const hlRect = highlightSentenceForCitation(el);
+
             activeCitationCtx = { el, citeText, author, year, chapterKey, paragraph, matchedEntry };
 
             const pop = document.getElementById('cite-action-popover');
@@ -2769,9 +2866,9 @@
             document.getElementById('cite-pop-rule').textContent = `${gaya} · ≥ ${thMin}`;
             const matchBox = document.getElementById('cite-pop-match');
             if (matchedEntry) {
-                matchBox.innerHTML = `<span style="color:#047857; font-weight:600;">Terdaftar di Daftar Pustaka:</span> ${escapeHtml(matchedEntry.slice(0, 155))}${matchedEntry.length > 155 ? '…' : ''}`;
+                matchBox.innerHTML = `<span style="color:#047857; font-weight:700;">Terdaftar di Daftar Pustaka:</span> ${escapeHtml(matchedEntry)}`;
             } else {
-                matchBox.innerHTML = `<span style="color:#b45309; font-weight:600;">Belum ada di Daftar Pustaka</span> · Pengaturan: ${escapeHtml(asal)}.`;
+                matchBox.innerHTML = `<span style="color:#b45309; font-weight:700;">Belum ada di Daftar Pustaka</span> · Pengaturan: ${escapeHtml(asal)}.`;
             }
 
             const repPanel = document.getElementById('cite-replace-panel');
@@ -2779,15 +2876,15 @@
             document.getElementById('cite-search-input').value = '';
             document.getElementById('cite-candidates-list').innerHTML = '';
 
-            // Tampilkan dan posisikan popover tepat di dekat sitasi tanpa terpotong layar
+            // Tampilkan dan posisikan popover tepat di bawah kalimat yang disorot agar kalimatnya tetap terlihat jelas
             pop.style.display = 'flex';
-            const rect = el.getBoundingClientRect();
+            const anchorRect = hlRect || el.getBoundingClientRect();
             const popW = Math.min(396, window.innerWidth - 24);
-            let left = rect.left;
+            let left = el.getBoundingClientRect().left;
             if (left + popW > window.innerWidth - 12) {
                 left = Math.max(12, window.innerWidth - popW - 12);
             }
-            let top = rect.bottom + 8;
+            let top = anchorRect.bottom + 10;
             pop.style.left = `${left}px`;
             pop.style.top = `${top}px`;
             clampCitationPopoverToViewport();
@@ -2863,6 +2960,7 @@
         function closeCitationPopover() {
             const pop = document.getElementById('cite-action-popover');
             if (pop) pop.style.display = 'none';
+            clearActiveSentenceHighlight();
         }
 
         document.addEventListener('click', (e) => {
@@ -3696,10 +3794,73 @@
                 let curPageBlocks = [];
                 let curLines = 0;
 
+                // Pecah paragraf HTML yang meluap di akhir halaman pada batas kalimat (seperti aliran halaman asli Word & PDF)
+                const splitParagraphHtmlAtLines = (pEl, targetLines) => {
+                    const html = pEl.innerHTML;
+                    const plain = (pEl.innerText || pEl.textContent || '').replace(/\s+/g, ' ').trim();
+                    const targetChars = Math.max(140, Math.floor((targetLines - 0.4) * CHARS_PER_LINE));
+                    if (plain.length <= targetChars + 90) return null;
+
+                    // Cari posisi titik akhir kalimat terdekat <= targetChars di dalam HTML (aman di luar tag <...>)
+                    let inTag = false;
+                    let visibleCount = 0;
+                    let bestSplitHtmlIdx = -1;
+                    for (let i = 0; i < html.length; i++) {
+                        const ch = html[i];
+                        if (ch === '<') { inTag = true; continue; }
+                        if (ch === '>') { inTag = false; continue; }
+                        if (inTag) continue;
+                        visibleCount++;
+                        if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < html.length && /\s/.test(html[i + 1]))) {
+                            const beforeChunk = html.slice(Math.max(0, i - 12), i).replace(/<[^>]+>/g, '').trim();
+                            if (!/(?:et\s+al|dkk|no|hlm|hal|dr|prof)$/i.test(beforeChunk)) {
+                                if (visibleCount <= targetChars + 40 && visibleCount >= 110) {
+                                    bestSplitHtmlIdx = i + 1;
+                                } else if (visibleCount > targetChars + 40) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (bestSplitHtmlIdx === -1) return null;
+
+                    const headHtml = html.slice(0, bestSplitHtmlIdx).trim();
+                    const tailHtml = html.slice(bestSplitHtmlIdx).trim();
+                    if (!headHtml || !tailHtml) return null;
+
+                    // Pastikan tidak memotong di dalam tag terbuka (mis. <span> sitasi)
+                    const openSpans = (headHtml.match(/<span\b/gi) || []).length;
+                    const closeSpans = (headHtml.match(/<\/span>/gi) || []).length;
+                    if (openSpans !== closeSpans) return null;
+
+                    const pHead = document.createElement('p');
+                    pHead.setAttribute('data-split-head', '1');
+                    pHead.innerHTML = headHtml;
+                    const pTail = document.createElement('p');
+                    pTail.setAttribute('data-split-cont', '1');
+                    pTail.innerHTML = tailHtml;
+                    return [pHead, pTail];
+                };
+
                 blocks.forEach((block) => {
                     const blockLines = estimateBlockLines(block);
-                    // Ganti halaman jika halaman saat ini sudah terisi layak (>= 21 baris) dan blok berikutnya membuat halaman terlalu penuh
-                    if (curPageBlocks.length > 0 && curLines >= 21 && (curLines + blockLines > MAX_LINES_PER_PAGE + 2.5)) {
+                    const tagName = (block.tagName || '').toLowerCase();
+                    const isPlainPara = tagName === 'p' && (!block.classList || (!block.classList.contains('academic-caption') && !block.classList.contains('dp-entry')));
+
+                    if (curPageBlocks.length > 0 && (curLines + blockLines > MAX_LINES_PER_PAGE + 1.5)) {
+                        const remainingLines = MAX_LINES_PER_PAGE - curLines;
+                        // Jika masih tersisa >= 3.5 baris di halaman ini dan blok adalah paragraf biasa, alirkan kalimat awalnya ke halaman ini (cocok dengan Word & PDF!)
+                        if (isPlainPara && remainingLines >= 3.5) {
+                            const splitPair = splitParagraphHtmlAtLines(block, remainingLines);
+                            if (splitPair) {
+                                curPageBlocks.push(splitPair[0]);
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [splitPair[1]];
+                                curLines = estimateBlockLines(splitPair[1]);
+                                return;
+                            }
+                        }
+
                         const lastBlock = curPageBlocks[curPageBlocks.length - 1];
                         const lastTag = (lastBlock.tagName || '').toLowerCase();
                         const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
@@ -5213,6 +5374,30 @@
             }
         }
 
+        function extractCleanChapterTextFromPages(pagesNodeList) {
+            clearActiveSentenceHighlight();
+            const blocks = [];
+            Array.from(pagesNodeList).forEach((pageEl) => {
+                const kids = Array.from(pageEl.children);
+                if (!kids.length) {
+                    const t = pageEl.innerText.trim();
+                    if (t) blocks.push(t);
+                    return;
+                }
+                kids.forEach((child) => {
+                    const t = (child.innerText || '').trim();
+                    if (!t) return;
+                    // Gabungkan kembali paragraf lanjutan lintas halaman (data-split-cont="1") agar tidak terpecah jadi 2 paragraf saat disimpan
+                    if (child.getAttribute && child.getAttribute('data-split-cont') === '1' && blocks.length > 0) {
+                        blocks[blocks.length - 1] = blocks[blocks.length - 1] + ' ' + t;
+                    } else {
+                        blocks.push(t);
+                    }
+                });
+            });
+            return blocks.join('\n\n');
+        }
+
         async function saveActiveEdit() {
             const container = document.getElementById('sheets-container');
             if (!container || activeView === 'revisi') return;
@@ -5249,7 +5434,7 @@
                     for (const chKey of keys) {
                         const pages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
                         if (!pages.length) continue;
-                        const textVal = Array.from(pages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                        const textVal = extractCleanChapterTextFromPages(pages);
                         if (!textVal) continue;
                         const res = await fetch(`/project/${projectId}/save-chapter`, {
                             method: 'POST',
@@ -5270,7 +5455,7 @@
 
                 const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
                 if (!allPages.length) return;
-                const htmlContent = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                const htmlContent = extractCleanChapterTextFromPages(allPages);
                 const res = await fetch(`/project/${projectId}/save-chapter`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
