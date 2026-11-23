@@ -54,7 +54,7 @@ class StatisticsEngineService
         $result['alpha'] = $alpha;
         $result['total_rows'] = count($rows);
         $result['academic_guide'] = $this->buildAcademicGuide($testType, $alpha);
-        $result['computed_at'] = now()->format('d M Y, H:i') . ' WIB';
+        $result['computed_at'] = now('Asia/Jakarta')->format('d M Y, H:i') . ' WIB';
         $result['engine_note'] = 'Dihitung deterministik oleh mesin statistik independen (presisi IEEE-754 setara IBM SPSS Statistics, α = ' . number_format($alpha, 2) . ').';
 
         return $result;
@@ -778,14 +778,14 @@ class StatisticsEngineService
             'conclusions' => [
                 "Persamaan regresi yang terbentuk adalah {$equation}.",
                 "Nilai R Square sebesar {$this->fmt($r2, 3)} (Adjusted R² = {$this->fmt($adjR2, 3)}) menunjukkan bahwa variabel independen menjelaskan " . $this->fmt($r2 * 100, 1) . "% variasi {$yCol}, sedangkan sisanya " . $this->fmt((1 - $r2) * 100, 1) . "% dipengaruhi faktor lain di luar model.",
-                'Uji F Simultan menghasilkan F = ' . $this->fmt($fStat, 3) . ' dengan Sig. = ' . $this->fmtP($fSig) . ($fSig < $alpha ? ' (Signifikan secara simultan).' : ' (Tidak signifikan secara simultan).'),
-                'Uji Asumsi Klasik: Normalitas K-S (Lilliefors) D = ' . $this->fmt($ksRes['d'], 3) . ' (Sig. ' . $this->fmtLilliefors($ksRes['sig']) . '), Shapiro-Wilk W = ' . $this->fmt($swRes['w'], 3) . ' (Sig. ' . $this->fmtP($swRes['sig']) . '), Max VIF = ' . $this->fmt($maxVif, 2) . ', Glejser Min Sig. = ' . $this->fmtP($minGlejserP) . ', Durbin-Watson = ' . $this->fmt($dw, 3) . '.',
+                'Uji F Simultan menghasilkan F = ' . $this->fmt($fStat, 3) . ' dengan ' . $this->fmtSigClause($fSig) . ($fSig < $alpha ? ' (Signifikan secara simultan).' : ' (Tidak signifikan secara simultan).'),
+                'Uji Asumsi Klasik: Normalitas K-S (Lilliefors) D = ' . $this->fmt($ksRes['d'], 3) . ' (Sig. ' . $this->fmtLilliefors($ksRes['sig']) . '), Shapiro-Wilk W = ' . $this->fmt($swRes['w'], 3) . ' (' . $this->fmtSigClause($swRes['sig']) . '), Max VIF = ' . $this->fmt($maxVif, 2) . ', Glejser Min ' . $this->fmtSigClause($minGlejserP) . ', Durbin-Watson = ' . $this->fmt($dw, 3) . '.',
             ],
             'project_autofill' => [
                 'metode' => "Analisis {$regKind} & Uji Asumsi Klasik (Setara IBM SPSS Statistics)",
                 'sampel' => "{$n} Observasi / Responden (" . count($xCols) . " Variabel Independen, 1 Dependen)",
                 'rumus' => "{$equation}; R² = SSR/SST; F = MSR/MSE; t_j = B_j / SE(B_j); VIF_j = 1 / (1 - R_j²)",
-                'metrik' => "R = {$this->fmt($rVal, 3)}, R-Square = {$this->fmt($r2, 3)} (" . $this->fmt($r2 * 100, 1) . "%), Adjusted R-Square = {$this->fmt($adjR2, 3)}, F-hitung = {$this->fmt($fStat, 3)} (Sig. {$this->fmtP($fSig)}). Koefisien Parsial: " . implode('; ', $partialSummary) . ". Asumsi Klasik: Normalitas K-S Lilliefors Sig. = {$this->fmtLilliefors($ksRes['sig'])}, Shapiro-Wilk W = {$this->fmt($swRes['w'], 3)} (Sig. {$this->fmtP($swRes['sig'])}), Min Glejser Sig. = {$this->fmtP($minGlejserP)}, Durbin-Watson = {$this->fmt($dw, 3)}.",
+                'metrik' => "R = {$this->fmt($rVal, 3)}, R-Square = {$this->fmt($r2, 3)} (" . $this->fmt($r2 * 100, 1) . "%), Adjusted R-Square = {$this->fmt($adjR2, 3)}, F-hitung = {$this->fmt($fStat, 3)} ({$this->fmtSigClause($fSig)}). Koefisien Parsial: " . implode('; ', $partialSummary) . ". Asumsi Klasik: Normalitas K-S Lilliefors Sig. = {$this->fmtLilliefors($ksRes['sig'])}, Shapiro-Wilk W = {$this->fmt($swRes['w'], 3)} ({$this->fmtSigClause($swRes['sig'])}), Min Glejser {$this->fmtSigClause($minGlejserP)}, Durbin-Watson = {$this->fmt($dw, 3)}.",
                 'evaluasi' => 'Uji Asumsi Klasik (Kolmogorov-Smirnov Lilliefors, Shapiro-Wilk, Tolerance/VIF, Glejser, Durbin-Watson), Uji t Parsial, Uji F Simultan, Koefisien Determinasi (R²)',
             ],
         ];
@@ -1045,19 +1045,19 @@ class StatisticsEngineService
             $methodAdvisory = [
                 'tone' => 'emerald',
                 'title' => 'Asumsi Parametrik Terpenuhi (Normal & Homogen)',
-                'message' => "Residual berdistribusi normal (Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)}, Sig. = {$this->fmtP($swResA['sig'])}; K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}) dan varians homogen (Levene Sig. = {$this->fmtP($levene['sig'])}). Penggunaan One-Way ANOVA + Post-Hoc Bonferroni sudah tepat secara metodologis.",
+                'message' => "Residual berdistribusi normal (Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)}, {$this->fmtSigClause($swResA['sig'])}; K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}) dan varians homogen (Levene {$this->fmtSigClause($levene['sig'])}). Penggunaan One-Way ANOVA + Post-Hoc Bonferroni sudah tepat secara metodologis.",
             ];
         } elseif ($normPassA && !$homogPass) {
             $methodAdvisory = [
                 'tone' => 'amber',
                 'title' => 'Varians Tidak Homogen → Gunakan Welch\'s ANOVA',
-                'message' => "Residual normal, tetapi Uji Levene menunjukkan varians tidak homogen (Sig. = {$this->fmtP($levene['sig'])} < {$alpha}). Gunakan hasil Welch's ANOVA yang telah dihitung otomatis pada Tabel 3 (Welch F = {$this->fmt($welchF, 3)}, df2 = {$this->fmt($welchDf2, 2)}, Sig. = {$this->fmtP($welchSig)}), atau verifikasi dengan Kruskal-Wallis H.",
+                'message' => "Residual normal, tetapi Uji Levene menunjukkan varians tidak homogen ({$this->fmtSigClause($levene['sig'])} < {$alpha}). Gunakan hasil Welch's ANOVA yang telah dihitung otomatis pada Tabel 3 (Welch F = {$this->fmt($welchF, 3)}, df2 = {$this->fmt($welchDf2, 2)}, {$this->fmtSigClause($welchSig)}), atau verifikasi dengan Kruskal-Wallis H.",
             ];
         } else {
             $methodAdvisory = [
                 'tone' => 'amber',
                 'title' => 'Residual Tidak Normal → Pertimbangkan Kruskal-Wallis H',
-                'message' => "Uji normalitas residual menunjukkan indikasi penyimpangan normalitas (Shapiro-Wilk Sig. = {$this->fmtP($swResA['sig'])} < {$alpha}). Disarankan memverifikasi hasil ini dengan uji non-parametrik Kruskal-Wallis H pada kartu Non-Parametrik.",
+                'message' => "Uji normalitas residual menunjukkan indikasi penyimpangan normalitas (Shapiro-Wilk {$this->fmtSigClause($swResA['sig'])} < {$alpha}). Disarankan memverifikasi hasil ini dengan uji non-parametrik Kruskal-Wallis H pada kartu Non-Parametrik.",
             ];
         }
 
@@ -1079,7 +1079,7 @@ class StatisticsEngineService
                 $ciU = $diff + $tBonf * $seDiff;
                 $isPairSig = $adjP < $alpha;
                 if ($isPairSig) {
-                    $sigPairs[] = "{$gA} vs {$gB} (Δ={$this->fmt($diff, 2)}, Sig.={$this->fmtP($adjP)})";
+                    $sigPairs[] = "{$gA} vs {$gB} (Δ = {$this->fmt($diff, 2)}, {$this->fmtSigClause($adjP)})";
                 }
                 $postHocRows[] = [
                     "{$gA} vs {$gB}",
@@ -1161,8 +1161,8 @@ class StatisticsEngineService
                         ['Welch\'s Robust ANOVA (Alternatif)', '-', "{$dfBetween}; " . $this->fmt($welchDf2, 2), '-', $this->fmt($welchF, 3), $this->fmtP($welchSig)],
                     ],
                     'footnote' => "Eta Squared (η²) = {$this->fmt($etaSq, 3)}, Omega Squared (ω²) = {$this->fmt($omegaSq, 3)}. " . ($fSig < $alpha
-                        ? "Terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (F = {$this->fmt($fStat, 3)}, Sig. = {$this->fmtP($fSig)} < {$alpha})."
-                        : "Tidak terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (Sig. = {$this->fmtP($fSig)} >= {$alpha})."),
+                        ? "Terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} (F = {$this->fmt($fStat, 3)}, {$this->fmtSigClause($fSig)}, α = {$alpha})."
+                        : "Tidak terdapat perbedaan rata-rata {$valCol} yang signifikan antar kelompok {$groupCol} ({$this->fmtSigClause($fSig)}, α = {$alpha})."),
                 ],
                 [
                     'title' => 'Tabel 4. Multiple Comparisons (Post-Hoc Bonferroni — Seluruh ' . count($postHocRows) . ' Pasangan)',
@@ -1180,15 +1180,15 @@ class StatisticsEngineService
                 'y_label' => $valCol,
             ],
             'conclusions' => [
-                "Uji Asumsi: Normalitas residual Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)} (Sig. = {$this->fmtP($swResA['sig'])}) & K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}; Homogenitas Levene F = {$this->fmt($levene['f'], 3)} (Sig. = {$this->fmtP($levene['sig'])}) sehingga varians antar kelompok " . ($homogPass ? 'HOMOGEN.' : 'TIDAK HOMOGEN (lihat baris Welch ANOVA).'),
-                "Uji One-Way ANOVA menghasilkan F = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, Sig. = {$this->fmtP($fSig)}), Welch F = {$this->fmt($welchF, 3)} (Sig. = {$this->fmtP($welchSig)}), Eta Squared (η²) = {$this->fmt($etaSq, 3)}, dan Omega Squared (ω²) = {$this->fmt($omegaSq, 3)} (" . ($fSig < $alpha ? 'H₀ ditolak: terdapat perbedaan signifikan antar perlakuan/kelompok).' : 'H₀ gagal ditolak: tidak terdapat perbedaan signifikan antar perlakuan/kelompok).'),
+                "Uji Asumsi: Normalitas residual Shapiro-Wilk W = {$this->fmt($swResA['w'], 3)} ({$this->fmtSigClause($swResA['sig'])}) & K-S Lilliefors Sig. = {$this->fmtLilliefors($ksResA['sig'])}; Homogenitas Levene F = {$this->fmt($levene['f'], 3)} ({$this->fmtSigClause($levene['sig'])}) sehingga varians antar kelompok " . ($homogPass ? 'HOMOGEN.' : 'TIDAK HOMOGEN (lihat baris Welch ANOVA).'),
+                "Uji One-Way ANOVA menghasilkan F = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, {$this->fmtSigClause($fSig)}), Welch F = {$this->fmt($welchF, 3)} ({$this->fmtSigClause($welchSig)}), Eta Squared (η²) = {$this->fmt($etaSq, 3)}, dan Omega Squared (ω²) = {$this->fmt($omegaSq, 3)} (" . ($fSig < $alpha ? 'H₀ ditolak: terdapat perbedaan signifikan antar perlakuan/kelompok).' : 'H₀ gagal ditolak: tidak terdapat perbedaan signifikan antar perlakuan/kelompok).'),
                 "Rata-rata tertinggi dicapai oleh kelompok '{$bestGroup}' (Mean = {$this->fmt($groupStats[$bestGroup]['mean'], 3)}, SD = {$this->fmt($groupStats[$bestGroup]['sd'], 3)})." . (!empty($sigPairs) ? ' Seluruh ' . count($sigPairs) . ' pasangan berbeda signifikan (Bonferroni): ' . implode('; ', $sigPairs) . '.' : ' Tidak ada pasangan yang berbeda signifikan pada uji lanjut Bonferroni.'),
             ],
             'project_autofill' => [
                 'metode' => 'Uji One-Way ANOVA, Normalitas Residual (Shapiro-Wilk), Homogenitas Levene, Welch ANOVA & Post-Hoc Bonferroni (Setara IBM SPSS)',
                 'sampel' => "{$nTotal} Benda Uji / Sampel ({$g} Kelompok {$groupCol})",
                 'rumus' => 'F = MSB / MSW; η² = SSB / SST; ω² = (SSB - dfB*MSW) / (SST + MSW); Post-Hoc Bonferroni p_adj = min(1, m * p)',
-                'metrik' => "One-Way ANOVA {$valCol}: F-hitung = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, Sig. = {$this->fmtP($fSig)}), Welch F = {$this->fmt($welchF, 3)} (Sig. = {$this->fmtP($welchSig)}), Eta-Squared = {$this->fmt($etaSq, 3)}, Omega-Squared = {$this->fmt($omegaSq, 3)}, Shapiro-Wilk Residual Sig. = {$this->fmtP($swResA['sig'])}, Levene Sig. = {$this->fmtP($levene['sig'])}. Rata-rata kelompok: " . implode('; ', $groupText) . ". Tertinggi: {$bestGroup}.",
+                'metrik' => "One-Way ANOVA {$valCol}: F-hitung = {$this->fmt($fStat, 3)} (df = {$dfBetween}; {$dfWithin}, {$this->fmtSigClause($fSig)}), Welch F = {$this->fmt($welchF, 3)} ({$this->fmtSigClause($welchSig)}), Eta-Squared = {$this->fmt($etaSq, 3)}, Omega-Squared = {$this->fmt($omegaSq, 3)}, Shapiro-Wilk Residual {$this->fmtSigClause($swResA['sig'])}, Levene {$this->fmtSigClause($levene['sig'])}. Rata-rata kelompok: " . implode('; ', $groupText) . ". Tertinggi: {$bestGroup}.",
                 'evaluasi' => 'Uji Normalitas Residual (Shapiro-Wilk & K-S Lilliefors), Uji Homogenitas Varians Levene, One-Way ANOVA / Welch ANOVA (α = ' . number_format($alpha, 2) . '), dan Uji Lanjut Post-Hoc Bonferroni',
             ],
         ];
@@ -1304,7 +1304,7 @@ class StatisticsEngineService
                             '[' . $this->fmt($diff - $tCritWelch * $seWelch, 3) . ', ' . $this->fmt($diff + $tCritWelch * $seWelch, 3) . ']',
                         ],
                     ],
-                    'footnote' => 'Karena Levene Sig. = ' . $this->fmtP($levene['sig']) . ($equalVar ? ' (>= ' . $alpha . '), baca baris Equal variances assumed.' : ' (< ' . $alpha . '), baca baris Equal variances not assumed (Welch).'),
+                    'footnote' => 'Karena Levene ' . $this->fmtSigClause($levene['sig']) . ($equalVar ? ' (>= ' . $alpha . '), baca baris Equal variances assumed.' : ' (< ' . $alpha . '), baca baris Equal variances not assumed (Welch).'),
                 ],
             ],
             'chart' => [
@@ -1572,14 +1572,14 @@ class StatisticsEngineService
                 'y_label' => 'Frekuensi (N)',
             ],
             'conclusions' => [
-                "Pearson Chi-Square = {$this->fmt($chi2, 3)} (df = {$df}) dengan Asymp. Sig. = {$this->fmtP($pVal)} (" . ($pVal < $alpha ? "terdapat hubungan yang signifikan antara {$catA} dan {$catB})." : "tidak terdapat hubungan yang signifikan antara {$catA} dan {$catB})."),
+                "Pearson Chi-Square = {$this->fmt($chi2, 3)} (df = {$df}) dengan {$this->fmtSigClause($pVal, 'Asymp. Sig.')} (" . ($pVal < $alpha ? "terdapat hubungan yang signifikan antara {$catA} dan {$catB})." : "tidak terdapat hubungan yang signifikan antara {$catA} dan {$catB})."),
                 "Nilai Cramer's V sebesar {$this->fmt($cramerV, 3)} menunjukkan kekuatan asosiasi kategori '{$this->correlationStrength($cramerV)}'.",
             ],
             'project_autofill' => [
                 'metode' => 'Uji Chi-Square Independensi & Crosstabulation (Setara IBM SPSS)',
                 'sampel' => "{$nTotal} Observasi ({$catA} × {$catB})",
                 'rumus' => 'χ² = Σ[(O - E)² / E]; df = (r-1)(c-1); Cramer\'s V = √[χ² / (N * min(r-1, c-1))]',
-                'metrik' => "Pearson Chi-Square = {$this->fmt($chi2, 3)} (df = {$df}, Asymp. Sig. = {$this->fmtP($pVal)}), Cramer's V = {$this->fmt($cramerV, 3)}, Contingency Coefficient = {$this->fmt($contCoef, 3)}.",
+                'metrik' => "Pearson Chi-Square = {$this->fmt($chi2, 3)} (df = {$df}, {$this->fmtSigClause($pVal, 'Asymp. Sig.')}), Cramer's V = {$this->fmt($cramerV, 3)}, Contingency Coefficient = {$this->fmt($contCoef, 3)}.",
                 'evaluasi' => 'Uji Chi-Square (Signifikan jika Asymp. Sig. < ' . number_format($alpha, 2) . ') & Syarat Expected Count < 5 maksimal 20% sel',
             ],
         ];
@@ -1927,14 +1927,14 @@ class StatisticsEngineService
                 'y_label' => 'Mean Rank',
             ],
             'conclusions' => [
-                "Uji Non-Parametrik Kruskal-Wallis H menghasilkan H = {$this->fmt($hStat, 3)} (df = {$df}) dengan Asymp. Sig. = {$this->fmtP($pVal)} dan Epsilon-Squared (ε²) = {$this->fmt($epsSq, 3)} (" . ($pVal < $alpha ? "terdapat perbedaan yang signifikan antar kelompok {$groupCol})." : "tidak terdapat perbedaan yang signifikan antar kelompok {$groupCol})."),
+                "Uji Non-Parametrik Kruskal-Wallis H menghasilkan H = {$this->fmt($hStat, 3)} (df = {$df}) dengan {$this->fmtSigClause($pVal, 'Asymp. Sig.')} dan Epsilon-Squared (ε²) = {$this->fmt($epsSq, 3)} (" . ($pVal < $alpha ? "terdapat perbedaan yang signifikan antar kelompok {$groupCol})." : "tidak terdapat perbedaan yang signifikan antar kelompok {$groupCol})."),
                 "Mean Rank tertinggi diperoleh pada kelompok '{$bestGroup}' (Mean Rank = {$this->fmt($bestMeanRank, 2)}).",
             ],
             'project_autofill' => [
                 'metode' => 'Uji Non-Parametrik Kruskal-Wallis H (Alternatif One-Way ANOVA Setara IBM SPSS)',
                 'sampel' => "{$n} Observasi / Benda Uji ({$g} Kelompok {$groupCol})",
                 'rumus' => 'H = [12/(N(N+1)) * Σ(Rj²/nj) - 3(N+1)] / [1 - Σ(t³-t)/(N³-N)]; df = k - 1',
-                'metrik' => "Kruskal-Wallis H = {$this->fmt($hStat, 3)} (df = {$df}, Asymp. Sig. = {$this->fmtP($pVal)}), Epsilon-Squared = {$this->fmt($epsSq, 3)}. Rincian kelompok: " . implode('; ', $groupSummary) . ". Tertinggi: {$bestGroup}.",
+                'metrik' => "Kruskal-Wallis H = {$this->fmt($hStat, 3)} (df = {$df}, {$this->fmtSigClause($pVal, 'Asymp. Sig.')}), Epsilon-Squared = {$this->fmt($epsSq, 3)}. Rincian kelompok: " . implode('; ', $groupSummary) . ". Tertinggi: {$bestGroup}.",
                 'evaluasi' => 'Uji Non-Parametrik Kruskal-Wallis H (Signifikan jika Asymp. Sig. < ' . number_format($alpha, 2) . ') untuk data ≥ 3 kelompok yang tidak berdistribusi normal',
             ],
         ];
@@ -2858,5 +2858,13 @@ class StatisticsEngineService
             return '< 0.001';
         }
         return number_format($p, 3, '.', '');
+    }
+
+    private function fmtSigClause(float $p, string $label = 'Sig.'): string
+    {
+        if ($p < 0.001) {
+            return "{$label} < 0.001";
+        }
+        return "{$label} = " . number_format($p, 3, '.', '');
     }
 }

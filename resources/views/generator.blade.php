@@ -1970,6 +1970,16 @@
                             </svg>
                             <span>Olah Data Penelitian</span>
                         </button>
+                        <button type="button" class="btn-top" id="btn-audit-dosen" onclick="openAuditModal()"
+                            style="border-color: #cbd5e1;"
+                            title="Periksa benang merah Bab I–V, sitasi paragraf pertama, sinkronisasi Daftar Pustaka, dan kualitas bahasa sebelum bimbingan">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 11l3 3L22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                            <span>Audit Dosen</span>
+                        </button>
                         <button type="button" class="btn-top" onclick="selectChapterView('revisi')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -2248,7 +2258,88 @@
         </div>
     </div>
 
+    <!-- Popover Interaktif Klik Sitasi (Buka Sumber / Ganti Sitasi Terverifikasi) -->
+    <div id="cite-action-popover"
+        style="display: none; position: fixed; z-index: 10050; width: 390px; max-width: calc(100vw - 24px); background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.22); overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+        <div style="padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+            <div style="min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span id="cite-pop-label" style="font-size: 13px; font-weight: 700; color: #1e3a8a; word-break: break-word;">Sitasi</span>
+                    <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">APA 7th</span>
+                </div>
+                <div id="cite-pop-match" style="font-size: 11.5px; color: #475569; margin-top: 4px; line-height: 1.45; max-height: 54px; overflow: hidden;"></div>
+            </div>
+            <button type="button" onclick="closeCitationPopover()" aria-label="Tutup"
+                style="border: none; background: transparent; color: #64748b; cursor: pointer; padding: 2px; line-height: 1; font-size: 18px;">&times;</button>
+        </div>
 
+        <div style="padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #ffffff;">
+            <button type="button" id="cite-pop-btn-open" onclick="handlePopoverOpenSource()"
+                style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span>Buka Sumber</span>
+            </button>
+            <button type="button" id="cite-pop-btn-replace" onclick="toggleCitationReplacePanel()"
+                style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border-radius: 9px; border: none; background: #2563eb; color: #ffffff; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                <span>Ganti Sitasi</span>
+            </button>
+        </div>
+
+        <div id="cite-replace-panel" style="display: none; border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 12px 14px;">
+            <label style="display: flex; align-items: flex-start; gap: 7px; font-size: 11.5px; color: #334155; cursor: pointer; margin-bottom: 10px; line-height: 1.4;">
+                <input type="checkbox" id="cite-adjust-sentence" checked style="margin-top: 2px; accent-color: #2563eb;">
+                <span>Sesuaikan kalimat di sekitar sitasi agar cocok dengan jurnal terverifikasi pengganti (otomatis perbarui Daftar Pustaka).</span>
+            </label>
+
+            <button type="button" id="cite-btn-auto-replace" onclick="executeCitationReplace(null)"
+                style="width: 100%; height: 36px; border: none; border-radius: 9px; background: #0f766e; color: #ffffff; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                <span>Ganti Otomatis Sesuai Pengaturan Sitasi</span>
+            </button>
+
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                <input type="text" id="cite-search-input" placeholder="Cari topik jurnal pengganti lain..."
+                    style="flex: 1; height: 32px; padding: 0 10px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #0f172a;"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();loadCitationCandidates();}">
+                <button type="button" onclick="loadCitationCandidates()"
+                    style="height: 32px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 7px; background: #ffffff; color: #334155; font-size: 11.5px; font-weight: 600; cursor: pointer;">Cari</button>
+            </div>
+
+            <div id="cite-candidates-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Audit Pra-Bimbingan Ala Dosen Pembimbing -->
+    <div id="modal-audit-dosen" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+        <div style="background: #ffffff; border-radius: 18px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px;">
+                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #047857; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #a7f3d0;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 3px 0;">Audit Pra-Bimbingan Ala Dosen</h3>
+                        <p style="font-size: 12.5px; color: #64748b; margin: 0; line-height: 1.45;">Pemeriksaan deterministik atas benang merah Bab I–V, sitasi paragraf pertama, sinkronisasi Daftar Pustaka, kepatuhan tahun sitasi, dan kebersihan format akademik.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAuditModal()" style="border: none; background: transparent; color: #64748b; cursor: pointer; font-size: 22px; line-height: 1;">&times;</button>
+            </div>
+
+            <div id="audit-modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="padding: 28px; text-align: center; color: #64748b; font-size: 13px;">Memeriksa seluruh bab dan daftar pustaka...</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 12px; flex-wrap: wrap; gap: 8px;">
+                <span style="font-size: 11.5px; color: #64748b;">Tip: Klik langsung sitasi biru mana pun di naskah untuk <strong>Buka Sumber</strong> atau <strong>Ganti Sitasi</strong>.</span>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="runProjectAudit()" class="btn-top" style="height: 34px; padding: 0 14px;">Periksa Ulang</button>
+                    <button type="button" onclick="closeAuditModal()" class="btn-top primary" style="height: 34px; padding: 0 16px;">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="toast-wrap" id="toast-wrap"></div>
 
@@ -2601,7 +2692,7 @@
                 const authorAttr = escapeHtml(authorClean);
                 const yearAttr = escapeHtml(year);
                 const cls = isTable ? 'table-cite-text' : 'academic-cite-badge cite-blue';
-                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Buka publikasi ilmiah asli">${labelSafe}</span>`;
+                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Klik untuk Buka Sumber atau Ganti Sitasi">${labelSafe}</span>`;
             });
 
             // B. Sitasi dalam Kurung: "(Muflih & Santosa, 2023)", "(Nambut et al., 2023)", "(Zuhdy, 2024)"
@@ -2616,22 +2707,246 @@
                 const authorAttr = escapeHtml(authorClean);
                 const yearAttr = escapeHtml(year);
                 const cls = isTable ? 'table-cite-text' : 'academic-cite-badge cite-blue';
-                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Buka publikasi ilmiah asli">${labelSafe}</span>`;
+                return `<span class="${cls}" data-cite="${labelSafe}" data-author="${authorAttr}" data-year="${yearAttr}" onclick="openCitationLink(this, event)" title="Klik untuk Buka Sumber atau Ganti Sitasi">${labelSafe}</span>`;
             });
 
             return out;
         }
 
+        let activeCitationCtx = null;
+        let citationCandidatesCache = [];
+
+        function findMatchedDpEntry(author, year) {
+            const dpText = chapterContents.daftar_pustaka || '';
+            const lines = dpText.split(/\n+/);
+            const primaryAuthor = (author || '').split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
+            if (!primaryAuthor || primaryAuthor.length < 2) return '';
+            const regex = new RegExp('\\b' + primaryAuthor + '\\b.*?' + (year ? '\\b' + year + '\\b' : ''), 'i');
+            let matchedEntry = lines.find(line => regex.test(line)) || '';
+            if (!matchedEntry && year) {
+                matchedEntry = lines.find(line => line.toLowerCase().includes(primaryAuthor.toLowerCase()) && line.includes(year)) || '';
+            }
+            return matchedEntry;
+        }
+
         function openCitationLink(el, event) {
             if (event) {
                 event.stopPropagation();
+                event.preventDefault();
             }
             const citeText = el.getAttribute('data-cite') || el.innerText.trim();
             const author = el.getAttribute('data-author') || '';
             const year = el.getAttribute('data-year') || '';
+            const sheetEl = el.closest('[data-chapter]');
+            let chapterKey = sheetEl ? sheetEl.getAttribute('data-chapter') : activeView;
+            if (!['bab1', 'bab2', 'bab3', 'bab4', 'bab5'].includes(chapterKey)) {
+                chapterKey = ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'].includes(activeView) ? activeView : 'bab1';
+            }
+            const paraEl = el.closest('p, li, td') || el.parentElement;
+            const paragraph = paraEl ? paraEl.innerText.trim() : '';
+            const matchedEntry = findMatchedDpEntry(author, year);
+
+            activeCitationCtx = { el, citeText, author, year, chapterKey, paragraph, matchedEntry };
+
+            const pop = document.getElementById('cite-action-popover');
+            const sitasiCfg = (projectMeta && projectMeta.sitasi) ? projectMeta.sitasi : {};
+            const gaya = sitasiCfg.gaya || 'APA 7th';
+            const thMin = sitasiCfg.tahun_min || '2023';
+            const asal = sitasiCfg.asal || 'Indonesia + Internasional';
+
+            document.getElementById('cite-pop-label').textContent = citeText;
+            document.getElementById('cite-pop-rule').textContent = `${gaya} · ≥ ${thMin}`;
+            const matchBox = document.getElementById('cite-pop-match');
+            if (matchedEntry) {
+                matchBox.innerHTML = `<span style="color:#047857; font-weight:600;">Terdaftar di Daftar Pustaka:</span> ${escapeHtml(matchedEntry.slice(0, 155))}${matchedEntry.length > 155 ? '…' : ''}`;
+            } else {
+                matchBox.innerHTML = `<span style="color:#b45309; font-weight:600;">Belum ada di Daftar Pustaka</span> · Pengaturan: ${escapeHtml(asal)}.`;
+            }
+
+            const repPanel = document.getElementById('cite-replace-panel');
+            repPanel.style.display = 'none';
+            document.getElementById('cite-search-input').value = '';
+            document.getElementById('cite-candidates-list').innerHTML = '';
+
+            // Tampilkan dan posisikan popover tepat di dekat sitasi tanpa terpotong layar
+            pop.style.display = 'block';
+            const rect = el.getBoundingClientRect();
+            const popW = Math.min(390, window.innerWidth - 24);
+            let left = rect.left;
+            if (left + popW > window.innerWidth - 12) {
+                left = Math.max(12, window.innerWidth - popW - 12);
+            }
+            let top = rect.bottom + 8;
+            if (top + 220 > window.innerHeight && rect.top > 180) {
+                top = Math.max(12, rect.top - 165);
+            }
+            pop.style.left = `${left}px`;
+            pop.style.top = `${top}px`;
+        }
+
+        function closeCitationPopover() {
+            const pop = document.getElementById('cite-action-popover');
+            if (pop) pop.style.display = 'none';
+        }
+
+        document.addEventListener('click', (e) => {
+            const pop = document.getElementById('cite-action-popover');
+            if (!pop || pop.style.display === 'none') return;
+            if (!pop.contains(e.target) && !e.target.closest('.academic-cite-badge, .table-cite-text')) {
+                closeCitationPopover();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCitationPopover();
+                closeAuditModal();
+            }
+        });
+
+        function handlePopoverOpenSource() {
+            if (!activeCitationCtx) return;
+            const { citeText, author, year, matchedEntry } = activeCitationCtx;
+            closeCitationPopover();
+            proceedOpenCitationSource(citeText, author, year, matchedEntry);
+        }
+
+        function toggleCitationReplacePanel() {
+            const repPanel = document.getElementById('cite-replace-panel');
+            if (!repPanel) return;
+            const willOpen = repPanel.style.display === 'none';
+            repPanel.style.display = willOpen ? 'block' : 'none';
+            if (willOpen) {
+                // Pastikan popover tetap muat di viewport saat panel diperluas
+                const pop = document.getElementById('cite-action-popover');
+                if (pop) {
+                    const pr = pop.getBoundingClientRect();
+                    if (pr.bottom > window.innerHeight - 12) {
+                        pop.style.top = `${Math.max(12, window.innerHeight - pr.height - 16)}px`;
+                    }
+                }
+                loadCitationCandidates();
+            }
+        }
+
+        async function loadCitationCandidates() {
+            if (!activeCitationCtx) return;
+            const listEl = document.getElementById('cite-candidates-list');
+            const query = (document.getElementById('cite-search-input')?.value || '').trim();
+            listEl.innerHTML = '<div style="padding: 12px; text-align: center; font-size: 12px; color: #64748b;">Mencari jurnal terverifikasi sesuai pengaturan sitasimu...</div>';
+
+            try {
+                const res = await fetch(`/project/${projectId}/citation/replace`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'candidates',
+                        chapter: activeCitationCtx.chapterKey,
+                        old_cite: activeCitationCtx.citeText,
+                        old_author: activeCitationCtx.author,
+                        old_year: activeCitationCtx.year,
+                        paragraph: activeCitationCtx.paragraph,
+                        query
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal memuat kandidat jurnal.');
+                }
+                citationCandidatesCache = data.candidates || [];
+                if (!citationCandidatesCache.length) {
+                    listEl.innerHTML = '<div style="padding: 10px; text-align: center; font-size: 12px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">Belum ada kandidat cocok. Coba ketik kata kunci topik yang lebih umum di kotak pencarian.</div>';
+                    return;
+                }
+                listEl.innerHTML = citationCandidatesCache.map((c, idx) => {
+                    const isId = (c.scope || '').toLowerCase().includes('indo');
+                    const badge = isId
+                        ? '<span style="font-size:10px; font-weight:700; color:#1d4ed8; background:#dbeafe; padding:1px 6px; border-radius:999px;">Indonesia</span>'
+                        : '<span style="font-size:10px; font-weight:700; color:#047857; background:#d1fae5; padding:1px 6px; border-radius:999px;">Internasional</span>';
+                    return `
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:9px; padding:9px 10px; display:flex; flex-direction:column; gap:5px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <strong style="font-size:12px; color:#0f172a;">${escapeHtml(c.in_text || '')} (${escapeHtml(String(c.year || ''))})</strong>
+                                    ${badge}
+                                </div>
+                                <button type="button" onclick="executeCitationReplace(${idx})"
+                                    style="border:none; background:#2563eb; color:#ffffff; font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; cursor:pointer; flex-shrink:0;">Pakai</button>
+                            </div>
+                            <div style="font-size:11.5px; color:#334155; line-height:1.35;">${escapeHtml((c.title || '').slice(0, 125))}${(c.title || '').length > 125 ? '…' : ''}</div>
+                            <div style="font-size:10.5px; color:#64748b;">${escapeHtml(c.venue || '')}${c.doi ? ' · DOI Terverifikasi' : ''}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = `<div style="padding: 10px; font-size: 12px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">${escapeHtml(err.message || 'Gagal memuat kandidat.')}</div>`;
+            }
+        }
+
+        async function executeCitationReplace(candidateIdx) {
+            if (!activeCitationCtx) return;
+            const autoBtn = document.getElementById('cite-btn-auto-replace');
+            const origAutoHtml = autoBtn ? autoBtn.innerHTML : '';
+            if (autoBtn) {
+                autoBtn.disabled = true;
+                autoBtn.innerHTML = '<span>Mengganti sitasi &amp; menyelaraskan kalimat...</span>';
+            }
+
+            try {
+                const chosenRef = (candidateIdx !== null && candidateIdx !== undefined)
+                    ? (citationCandidatesCache[candidateIdx] || null)
+                    : (citationCandidatesCache[0] || null);
+                const adjustSentence = Boolean(document.getElementById('cite-adjust-sentence')?.checked);
+                const query = (document.getElementById('cite-search-input')?.value || '').trim();
+
+                const res = await fetch(`/project/${projectId}/citation/replace`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'replace',
+                        chapter: activeCitationCtx.chapterKey,
+                        old_cite: activeCitationCtx.citeText,
+                        old_author: activeCitationCtx.author,
+                        old_year: activeCitationCtx.year,
+                        paragraph: activeCitationCtx.paragraph,
+                        chosen_ref: chosenRef,
+                        adjust_sentence: adjustSentence,
+                        query
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal mengganti sitasi.');
+                }
+
+                chapterContents[data.chapter] = data.updated_chapter_content;
+                if (typeof data.updated_daftar_pustaka === 'string') {
+                    chapterContents.daftar_pustaka = data.updated_daftar_pustaka;
+                }
+                closeCitationPopover();
+                selectChapterView(activeView);
+                updateProgressUI();
+                showToast(`Sitasi diganti menjadi ${data.new_cite} & Daftar Pustaka otomatis diperbarui!`, 'success');
+            } catch (err) {
+                showToast(err.message || 'Gagal mengganti sitasi.', 'error');
+            } finally {
+                if (autoBtn) {
+                    autoBtn.disabled = false;
+                    autoBtn.innerHTML = origAutoHtml;
+                }
+            }
+        }
+
+        function proceedOpenCitationSource(citeText, author, year, matchedEntry) {
             const fullRaw = (citeText + ' ' + author + ' ' + year).toLowerCase();
 
-            // Cari di daftar pustaka apakah ada entri yang cocok
             // 1. Pemetaan langsung laporan otoritas statistik & lembaga resmi nasional / global
             if (fullRaw.includes('we are social') || fullRaw.includes('meltwater') || fullRaw.includes('datareportal')) {
                 window.open('https://datareportal.com/reports/digital-2024-indonesia', '_blank', 'noopener,noreferrer');
@@ -2650,31 +2965,15 @@
                 return;
             }
 
-            // 2. Cari di daftar pustaka apakah ada entri yang cocok dengan URL / DOI asli
-            const dpText = chapterContents.daftar_pustaka || '';
-            const lines = dpText.split(/\n+/);
-
-            const primaryAuthor = author.split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
-            let matchedEntry = '';
-            if (primaryAuthor && primaryAuthor.length >= 2) {
-                const regex = new RegExp('\\b' + primaryAuthor + '\\b.*?' + (year ? '\\b' + year + '\\b' : ''), 'i');
-                matchedEntry = lines.find(line => regex.test(line)) || '';
-                if (!matchedEntry && year) {
-                    matchedEntry = lines.find(line => line.toLowerCase().includes(primaryAuthor.toLowerCase()) && line.includes(year)) || '';
-                }
-            }
-
+            const primaryAuthor = (author || '').split(/[\s,]+/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, '');
             let directUrl = '';
             let pubTitle = '';
 
             if (matchedEntry) {
-                // Ekstrak URL / DOI asli
                 const urlMatch = matchedEntry.match(/(https?:\/\/[^\s]+)/i);
                 if (urlMatch) {
                     directUrl = urlMatch[1].replace(/[.,;)]+$/, '');
                 }
-
-                // Ekstrak judul artikel ilmiah bersih
                 const cleanEntry = matchedEntry.replace(/^[\s\d\.\-\*\[\]]+/, '').trim();
                 const afterYear = cleanEntry.replace(/^.*?\((?:19|20)\d{2}[a-z]?\)\.\s*/i, '');
                 if (afterYear && afterYear !== cleanEntry) {
@@ -2683,13 +2982,11 @@
                 }
             }
 
-            // A. Jika ada URL / DOI langsung dari daftar pustaka, buka langsung di tab baru
             if (directUrl && directUrl.startsWith('http')) {
                 window.open(directUrl, '_blank', 'noopener,noreferrer');
                 return;
             }
 
-            // B. Cari DOI resmi melalui Crossref API secara real-time, fallback ke Google Scholar
             const searchKeyword = (pubTitle && pubTitle.length >= 10) ? pubTitle : `${primaryAuthor || author} ${year}`;
             const cleanQuery = (pubTitle && pubTitle.length >= 10) ? `"${pubTitle}"` : `"${author || primaryAuthor}" ${year || ''}`.trim();
             const scholarFallbackUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(cleanQuery)}`;
@@ -2721,6 +3018,112 @@
                         window.open(scholarFallbackUrl, '_blank', 'noopener,noreferrer');
                     }
                 });
+        }
+
+        function openAuditModal() {
+            const modal = document.getElementById('modal-audit-dosen');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            runProjectAudit();
+        }
+
+        function closeAuditModal() {
+            const modal = document.getElementById('modal-audit-dosen');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function runProjectAudit() {
+            const body = document.getElementById('audit-modal-body');
+            if (!body) return;
+            body.innerHTML = '<div style="padding: 28px; text-align: center; color: #64748b; font-size: 13px;">Memeriksa konsistensi Bab I–V, sitasi in-text, dan Daftar Pustaka...</div>';
+
+            try {
+                const res = await fetch(`/project/${projectId}/audit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal menjalankan audit.');
+                }
+
+                const score = Number(data.score || 0);
+                const toneColor = score >= 88 ? '#047857' : (score >= 70 ? '#b45309' : '#b91c1c');
+                const toneBg = score >= 88 ? '#ecfdf5' : (score >= 70 ? '#fffbeb' : '#fef2f2');
+                const toneBorder = score >= 88 ? '#a7f3d0' : (score >= 70 ? '#fde68a' : '#fecaca');
+                const cfg = data.citation_settings || {};
+
+                const checksHtml = (data.checks || []).map((ck) => {
+                    const isPass = ck.status === 'pass';
+                    const isFail = ck.status === 'fail';
+                    const iconSvg = isPass
+                        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+                        : (isFail
+                            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+                            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>');
+                    const cardBorder = isPass ? '#d1fae5' : (isFail ? '#fecaca' : '#fde68a');
+                    const cardBg = isPass ? '#f8fafc' : (isFail ? '#fef2f2' : '#fffbeb');
+                    const detailsHtml = (ck.details || []).length
+                        ? `<ul style="margin:6px 0 0 18px; padding:0; font-size:12px; color:#475569; line-height:1.5;">${ck.details.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>`
+                        : '';
+                    const actionBtn = ck.action
+                        ? `<div style="margin-top:8px;"><button type="button" onclick="handleAuditAction('${escapeHtml(ck.action.type)}', '${escapeHtml(ck.action.target)}')" style="border:1px solid #bfdbfe; background:#eff6ff; color:#1d4ed8; font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:7px; cursor:pointer;">${escapeHtml(ck.action.label)}</button></div>`
+                        : '';
+
+                    return `
+                        <div style="border:1px solid ${cardBorder}; background:${cardBg}; border-radius:12px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start;">
+                            <div style="margin-top:2px; flex-shrink:0;">${iconSvg}</div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:13px; font-weight:700; color:#0f172a;">${escapeHtml(ck.title)}</div>
+                                <div style="font-size:12.5px; color:#334155; margin-top:2px; line-height:1.45;">${escapeHtml(ck.summary)}</div>
+                                ${detailsHtml}
+                                ${actionBtn}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                body.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; padding:14px 16px; border-radius:13px; background:${toneBg}; border:1px solid ${toneBorder};">
+                        <div>
+                            <div style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:${toneColor};">Skor Kesiapan Bimbingan</div>
+                            <div style="font-size:15px; font-weight:700; color:#0f172a; margin-top:2px;">${escapeHtml(data.grade_label || '')}</div>
+                            <div style="font-size:11.5px; color:#475569; margin-top:3px;">Pengaturan Form: <strong>${escapeHtml(cfg.gaya || 'APA 7th')}</strong> · Tahun ≥ <strong>${escapeHtml(String(cfg.tahun_min || '2023'))}</strong> · ${escapeHtml(cfg.asal || '')}</div>
+                        </div>
+                        <div style="font-size:30px; font-weight:800; color:${toneColor}; line-height:1;">${score}<span style="font-size:14px; font-weight:600;">/100</span></div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:9px;">${checksHtml}</div>
+                `;
+            } catch (err) {
+                body.innerHTML = `<div style="padding:16px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px;">${escapeHtml(err.message || 'Gagal menjalankan audit.')}</div>`;
+            }
+        }
+
+        async function handleAuditAction(type, target) {
+            if (type === 'sync_dp') {
+                closeAuditModal();
+                selectChapterView('daftar_pustaka');
+                if (typeof generateCurrentView === 'function') {
+                    generateCurrentView();
+                }
+                return;
+            }
+            if (type === 'olah_data') {
+                closeAuditModal();
+                if (typeof openDataRiilModal === 'function') {
+                    openDataRiilModal();
+                }
+                return;
+            }
+            if (type === 'revise' || type === 'chapter') {
+                closeAuditModal();
+                selectChapterView(target || 'bab1');
+            }
         }
 
         function isStandaloneFormula(line) {

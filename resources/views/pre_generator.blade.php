@@ -4774,8 +4774,19 @@
                                 <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px;" onclick="filterJournalResults('Internasional', this)">Internasional</button>
                             </div>
                         </div>
-                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
-                            onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            @if($history->count() > 0)
+                                <select id="journal-target-project" class="form-select"
+                                    style="height: 31px; padding: 0 26px 0 9px; font-size: 11.5px; width: auto; max-width: 220px;"
+                                    title="Pilih proyek tujuan untuk tombol Simpan ke Proyek">
+                                    @foreach($history as $hp)
+                                        <option value="{{ $hp->id }}">{{ \Illuminate\Support\Str::limit($hp->judul, 38) }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+                            <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;"
+                                onclick="downloadJournalListTxt()">Unduh Daftar Sitasi (.txt)</button>
+                        </div>
                     </div>
                     <div id="journals-list"></div>
                 </div>
@@ -8105,7 +8116,11 @@
                         </div>
                     </div>
                     <div class="project-row-action" style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
-                        <button type="button" class="btn-outline btn-copy-cite" style="padding:6px 10px; font-size:11.5px; white-space:nowrap; border-radius:8px;">Salin Sitasi APA</button>
+                        <button type="button" class="btn-outline btn-save-proj-ref" style="padding:6px 10px; font-size:11.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:4px; border-color:#bfdbfe; color:#1d4ed8; background:#eff6ff;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                            <span>Simpan ke Proyek</span>
+                        </button>
+                        <button type="button" class="btn-outline btn-copy-cite" style="padding:6px 10px; font-size:11.5px; white-space:nowrap; border-radius:8px;">Salin Sitasi</button>
                         <a href="${escapeHtml(directUrl)}" target="_blank" rel="noopener" class="btn-outline" style="padding:6px 11px; font-size:11.5px; white-space:nowrap; border-radius:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
                             <span>Buka Jurnal</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -8116,12 +8131,56 @@
                         </a>
                     </div>
                 `;
+                const saveBtn = row.querySelector('.btn-save-proj-ref');
+                if (saveBtn) {
+                    const targetSel = document.getElementById('journal-target-project');
+                    if (!targetSel || !targetSel.value) {
+                        saveBtn.style.display = 'none';
+                    } else {
+                        saveBtn.addEventListener('click', async () => {
+                            const targetProjId = targetSel.value;
+                            const orig = saveBtn.innerHTML;
+                            saveBtn.disabled = true;
+                            saveBtn.textContent = 'Menyimpan...';
+                            try {
+                                const res = await fetch(`/project/${targetProjId}/references/add`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        title: j.title || '',
+                                        author: j.author || '',
+                                        year: j.year || '',
+                                        journal: j.journal || '',
+                                        doi_url: directUrl !== '#' ? directUrl : '',
+                                        scope: j.scope || 'Internasional'
+                                    })
+                                });
+                                const data = await res.json();
+                                if (!res.ok || data.status !== 'success') {
+                                    throw new Error(data.message || 'Gagal menyimpan jurnal.');
+                                }
+                                saveBtn.textContent = 'Tersimpan di Proyek ✓';
+                                saveBtn.style.background = '#ecfdf5';
+                                saveBtn.style.color = '#047857';
+                                saveBtn.style.borderColor = '#a7f3d0';
+                            } catch (err) {
+                                saveBtn.innerHTML = orig;
+                                saveBtn.disabled = false;
+                                alert(err.message || 'Gagal menyimpan jurnal ke proyek.');
+                            }
+                        });
+                    }
+                }
                 const copyBtn = row.querySelector('.btn-copy-cite');
                 if (copyBtn) {
                     copyBtn.addEventListener('click', () => {
                         navigator.clipboard.writeText(citationStr).then(() => {
                             copyBtn.textContent = 'Sitasi Disalin ✓';
-                            setTimeout(() => { copyBtn.textContent = 'Salin Sitasi APA'; }, 1800);
+                            setTimeout(() => { copyBtn.textContent = 'Salin Sitasi'; }, 1800);
                         });
                     });
                 }

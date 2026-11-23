@@ -308,7 +308,7 @@ class StatisticsController extends Controller
         $subtitle = e((string) ($result['subtitle'] ?? ''));
         $datasetTitle = e((string) ($result['dataset_title'] ?? 'Data Penelitian'));
         $majorLabel = e(trim((string) $request->input('major', '')));
-        $computedAt = e((string) ($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB'));
+        $computedAt = e((string) ($result['computed_at'] ?? now('Asia/Jakarta')->format('d M Y, H:i') . ' WIB'));
         $userName = e(Auth::user()->name ?? 'Mahasiswa');
 
         $guideHtml = '';
@@ -376,25 +376,13 @@ class StatisticsController extends Controller
             }
         }
 
-        $chartsHtml = '';
-        if (!empty($chartsImages)) {
-            $chartsHtml .= '<div class="sec-title">Visualisasi Grafik Hasil Pengujian</div>';
-            foreach ($chartsImages as $idx => $img) {
-                $num = $idx + 1;
-                $chartsHtml .= '<div class="chart-block">'
-                    . '<img src="' . $img['data_url'] . '" style="width:100%; max-width:500px; height:auto; display:block; margin:0 auto;" />'
-                    . '<div class="chart-cap">Gambar ' . $num . '. ' . e($img['title']) . '</div>'
-                    . '</div>';
-            }
-        }
-
         $conclusionsHtml = '';
         if (!empty($result['conclusions'])) {
-            $conclusionsHtml .= '<div class="sec-title">Ringkasan Keputusan Statistik</div><ul class="conc-list">';
+            $conclusionsHtml .= '<div class="conc-block"><div class="sec-title">Ringkasan Keputusan Statistik</div><ul class="conc-list">';
             foreach ($result['conclusions'] as $c) {
                 $conclusionsHtml .= '<li>' . e((string) $c) . '</li>';
             }
-            $conclusionsHtml .= '</ul>';
+            $conclusionsHtml .= '</ul></div>';
         }
 
         $narrationHtml = '';
@@ -438,10 +426,10 @@ class StatisticsController extends Controller
             . '.chart-block { page-break-inside: avoid; border: 0.8pt solid #cbd5e1; padding: 10px 12px; margin-bottom: 12px; text-align: center; background: #ffffff; }'
             . '.chart-cap { font-size: 8pt; font-weight: 700; color: #334155; margin-top: 6px; }'
             . '.sec-title { font-size: 10pt; font-weight: 700; color: #1e293b; border-left: 3.5px solid #2563eb; padding-left: 8px; margin: 16px 0 8px; page-break-after: avoid; }'
+            . '.conc-block { page-break-inside: avoid; }'
             . '.conc-list { margin: 0 0 10px 18px; padding: 0; font-size: 8.5pt; }'
             . '.conc-list li { margin-bottom: 4px; }'
             . '.narr-box { border: 1px solid #e2e8f0; background: #ffffff; padding: 10px 12px; text-align: justify; font-size: 8.8pt; line-height: 1.65; }'
-            . '.footer-note { margin-top: 14px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 7.4pt; color: #64748b; }'
             . '</style></head><body>'
             . '<div class="header">'
             . '<div class="brand">' . $title . '</div>'
@@ -454,7 +442,6 @@ class StatisticsController extends Controller
             . $chartsHtml
             . $conclusionsHtml
             . $narrationHtml
-            . '<div class="footer-note">Verifikasi Matematis: Seluruh koefisien, statistik uji (t, F, r, χ², U, Z, Shapiro-Wilk W, K-S Lilliefors), derajat bebas, dan p-value dihitung menggunakan mesin numerik deterministik berpresisi tinggi (setara IBM SPSS Statistics).</div>'
             . '</body></html>';
 
         $options = new Options();
@@ -527,7 +514,7 @@ class StatisticsController extends Controller
         $subtitle = $safeTxt($result['subtitle'] ?? '');
         $datasetTitle = $safeTxt($result['dataset_title'] ?? 'Data Penelitian');
         $majorLabel = $safeTxt($request->input('major', ''));
-        $computedAt = $safeTxt($result['computed_at'] ?? now()->format('d M Y, H:i') . ' WIB');
+        $computedAt = $safeTxt($result['computed_at'] ?? now('Asia/Jakarta')->format('d M Y, H:i') . ' WIB');
         $userName = $safeTxt(Auth::user()->name ?? 'Mahasiswa');
 
         // Judul Laporan

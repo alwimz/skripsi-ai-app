@@ -462,33 +462,126 @@ class GeneratorController extends Controller
     /**
      * Ambil referensi ilmiah terverifikasi dari OpenAlex & Crossref sesuai aturan sitasi proyek (tahun_min, asal, SINTA/Scopus)
      */
-    private function fetchVerifiedReferencesForProject(Project $project): array
+    private function formatVerifiedReferenceEntry(array $ref, string $gayaSitasi = 'APA 7th', int $index = 1): string
+    {
+        $gaya = strtolower(trim($gayaSitasi));
+        $year = (string) ($ref['year'] ?? date('Y'));
+        $title = trim((string) ($ref['title'] ?? ''));
+        $venue = trim((string) ($ref['venue'] ?? 'Jurnal Ilmiah Terakreditasi'));
+        $vol = trim((string) ($ref['vol'] ?? ''));
+        $iss = trim((string) ($ref['iss'] ?? ''));
+        $pages = trim((string) ($ref['pages'] ?? ''));
+        $doi = trim((string) ($ref['doi'] ?? ''));
+        $authorsApa = trim((string) ($ref['authors_apa'] ?? ($ref['in_text'] ?? 'Anonim')));
+        $authorsIeee = trim((string) ($ref['authors_ieee'] ?? $authorsApa));
+
+        $doiSuffix = $doi !== '' ? " {$doi}" : '';
+
+        if (str_contains($gaya, 'ieee')) {
+            $bib = '';
+            if ($vol !== '') {
+                $bib .= ", vol. {$vol}";
+            }
+            if ($iss !== '') {
+                $bib .= ", no. {$iss}";
+            }
+            if ($pages !== '') {
+                $bib .= ", pp. {$pages}";
+            }
+            return "[{$index}] {$authorsIeee}, \"{$title},\" {$venue}{$bib}, {$year}.{$doiSuffix}";
+        }
+
+        if (str_contains($gaya, 'vancouver')) {
+            $vAuthors = preg_replace('/,\s*&\s*/', ', ', $authorsApa);
+            $vAuthors = str_replace(['.', ','], '', (string) $vAuthors);
+            $vAuthors = trim((string) preg_replace('/\s{2,}/', ' ', $vAuthors));
+            $bib = '';
+            if ($vol !== '') {
+                $bib .= ";{$vol}" . ($iss !== '' ? "({$iss})" : '');
+            }
+            if ($pages !== '') {
+                $bib .= ":{$pages}";
+            }
+            return "{$index}. {$vAuthors}. {$title}. {$venue}. {$year}{$bib}.{$doiSuffix}";
+        }
+
+        if (str_contains($gaya, 'chicago')) {
+            $bib = '';
+            if ($vol !== '') {
+                $bib .= " {$vol}";
+                if ($iss !== '') {
+                    $bib .= ", no. {$iss}";
+                }
+            }
+            $bib .= " ({$year})";
+            if ($pages !== '') {
+                $bib .= ": {$pages}";
+            }
+            $chAuthors = rtrim($authorsApa, '.');
+            return "{$chAuthors}. \"{$title}.\" {$venue}{$bib}.{$doiSuffix}";
+        }
+
+        if (str_contains($gaya, 'harvard')) {
+            $bib = '';
+            if ($vol !== '') {
+                $bib .= ", {$vol}" . ($iss !== '' ? "({$iss})" : '');
+            }
+            if ($pages !== '') {
+                $bib .= ", pp. {$pages}";
+            }
+            return "{$authorsApa} ({$year}) '{$title}', {$venue}{$bib}.{$doiSuffix}";
+        }
+
+        // Default: APA 7th
+        $bib = '';
+        if ($vol !== '') {
+            $bib .= ", {$vol}" . ($iss !== '' ? "({$iss})" : '');
+        }
+        if ($pages !== '') {
+            $bib .= ", {$pages}";
+        }
+        return "{$authorsApa} ({$year}). {$title}. {$venue}{$bib}.{$doiSuffix}";
+    }
+
+    private function buildJournalSearchQuery(string $rawText, int $maxWords = 6): string
+    {
+        $cleanWords = (string) preg_replace('/[^a-zA-Z0-9\s]/', ' ', $rawText);
+        $stop = [
+            'pengaruh', 'analisis', 'implementasi', 'penerapan', 'hubungan', 'terhadap', 'pada', 'dalam',
+            'dengan', 'menggunakan', 'studi', 'kasus', 'untuk', 'yang', 'dari', 'dan', 'atau', 'siswa',
+            'kelas', 'secara', 'melalui', 'bahwa', 'adalah', 'menjadi', 'oleh', 'sebagai', 'dapat',
+            'lebih', 'serta', 'telah', 'tidak', 'akan', 'juga', 'antara', 'tersebut', 'penelitian',
+            'menunjukkan', 'berdasarkan', 'hal', 'ini', 'itu', 'namun', 'karena', 'sehingga', 'tahun',
+        ];
+        $words = array_values(array_filter(
+            preg_split('/\s+/', trim($cleanWords)) ?: [],
+            fn ($w) => strlen($w) >= 4 && !in_array(strtolower($w), $stop, true) && !ctype_digit($w)
+        ));
+        if (empty($words)) {
+            $words = array_values(array_filter(
+                preg_split('/\s+/', trim($cleanWords)) ?: [],
+                fn ($w) => strlen($w) >= 4 && !ctype_digit($w)
+            ));
+        }
+        return implode(' ', array_slice($words, 0, $maxWords));
+    }
+
+    private function queryVerifiedJournalsExternal(string $query, int $tahunMin, string $asal, string $gayaSitasi = 'APA 7th', int $limit = 15): array
     {
         $refs = [];
         $seenTitles = [];
+        if (trim($query) === '') {
+            return [];
+        }
+
         try {
-            $cleanWords = preg_replace('/[^a-zA-Z0-9\s]/', ' ', (string) $project->judul);
-            $stop = ['pengaruh', 'analisis', 'implementasi', 'penerapan', 'hubungan', 'terhadap', 'pada', 'dalam', 'dengan', 'menggunakan', 'studi', 'kasus', 'untuk', 'yang', 'dari', 'dan', 'atau', 'siswa', 'kelas'];
-            $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4 && !in_array(strtolower($w), $stop)));
-            if (empty($words)) {
-                $words = array_values(array_filter(explode(' ', $cleanWords), fn($w) => strlen($w) >= 4));
-            }
-            $query = implode(' ', array_slice($words, 0, 6));
-            if (empty($query)) {
-                return [];
-            }
-
-            $meta = $this->getProjectMeta($project);
-            $sitasi = $meta['sitasi'] ?? [];
-            $tahunMin = !empty($sitasi['tahun_min']) ? max(2015, min(2026, (int) $sitasi['tahun_min'])) : 2023;
-            $asal = strtolower((string) ($sitasi['asal'] ?? 'indonesia + internasional'));
-            $wantId = str_contains($asal, 'indonesia') || str_contains($asal, 'nasional') || str_contains($asal, 'semua');
-            $wantInt = str_contains($asal, 'internasional') || str_contains($asal, 'global') || str_contains($asal, 'semua') || !$wantId;
-
+            $asalLower = strtolower($asal);
+            $wantId = str_contains($asalLower, 'indonesia') || str_contains($asalLower, 'nasional') || str_contains($asalLower, 'semua');
+            $wantInt = str_contains($asalLower, 'internasional') || str_contains($asalLower, 'global') || str_contains($asalLower, 'semua') || !$wantId;
             $filterDate = "from_publication_date:{$tahunMin}-01-01,to_publication_date:2026-12-31";
-            $headers = ['User-Agent' => 'SkripsiAI-Academic/2.1 (mailto:support@skripsi-ai.app)'];
+            $headers = ['User-Agent' => 'SkripsiLab-Academic/2.2 (mailto:support@muhalwisyahrir.tech)'];
 
-            $formatOpenAlex = function ($w) use ($tahunMin, &$seenTitles): ?string {
+            $parseOpenAlex = function (array $w, string $scope) use ($tahunMin, $gayaSitasi, &$seenTitles): ?array {
                 $title = trim((string) ($w['title'] ?? ''));
                 if ($title === '' || isset($seenTitles[strtolower($title)])) {
                     return null;
@@ -497,51 +590,76 @@ class GeneratorController extends Controller
                 if ($year < $tahunMin || $year > 2026) {
                     return null;
                 }
-                $seenTitles[strtolower($title)] = true;
-
                 $authorships = $w['authorships'] ?? [];
                 $inTextAuthors = [];
                 $apaAuthors = [];
+                $ieeeAuthors = [];
                 foreach (array_slice($authorships, 0, 3) as $a) {
                     $full = trim((string) ($a['author']['display_name'] ?? ''));
-                    if ($full === '') continue;
-                    $parts = preg_split('/\s+/', $full);
-                    $last = array_pop($parts);
+                    if ($full === '') {
+                        continue;
+                    }
+                    $parts = preg_split('/\s+/', $full) ?: [];
+                    $last = (string) array_pop($parts);
+                    if ($last === '') {
+                        continue;
+                    }
                     $inTextAuthors[] = $last;
                     $initials = '';
                     foreach ($parts as $p) {
-                        if ($p !== '') $initials .= strtoupper(mb_substr($p, 0, 1)) . '. ';
+                        if ($p !== '') {
+                            $initials .= strtoupper(mb_substr($p, 0, 1)) . '. ';
+                        }
                     }
-                    $apaAuthors[] = trim($last . ($initials !== '' ? ', ' . trim($initials) : ''));
+                    $initTrim = trim($initials);
+                    $apaAuthors[] = trim($last . ($initTrim !== '' ? ', ' . $initTrim : ''));
+                    $ieeeAuthors[] = trim(($initTrim !== '' ? $initTrim . ' ' : '') . $last);
                 }
                 if (empty($inTextAuthors)) {
                     return null;
                 }
+                $seenTitles[strtolower($title)] = true;
                 $inText = count($authorships) > 2
                     ? $inTextAuthors[0] . ' et al.'
                     : (count($inTextAuthors) === 2 ? $inTextAuthors[0] . ' & ' . $inTextAuthors[1] : $inTextAuthors[0]);
                 $apaAuthStr = count($apaAuthors) > 1
                     ? implode(', ', array_slice($apaAuthors, 0, -1)) . ', & ' . end($apaAuthors)
                     : $apaAuthors[0];
+                $ieeeAuthStr = count($ieeeAuthors) > 2
+                    ? $ieeeAuthors[0] . ' et al.'
+                    : (count($ieeeAuthors) === 2 ? $ieeeAuthors[0] . ' and ' . $ieeeAuthors[1] : $ieeeAuthors[0]);
 
                 $venue = trim((string) ($w['primary_location']['source']['display_name'] ?? ''));
                 if ($venue === '') {
-                    $venue = 'Jurnal Ilmiah Terakreditasi';
+                    $venue = $scope === 'Indonesia' ? 'Jurnal Ilmiah Terakreditasi' : 'International Peer-Reviewed Journal';
                 }
                 $bib = $w['biblio'] ?? [];
                 $vol = trim((string) ($bib['volume'] ?? ''));
                 $iss = trim((string) ($bib['issue'] ?? ''));
                 $fp = trim((string) ($bib['first_page'] ?? ''));
                 $lp = trim((string) ($bib['last_page'] ?? ''));
-                $bibStr = '';
-                if ($vol !== '') {
-                    $bibStr .= ", {$vol}" . ($iss !== '' ? "({$iss})" : '');
-                }
-                if ($fp !== '') {
-                    $bibStr .= ", {$fp}" . ($lp !== '' && $lp !== $fp ? "-{$lp}" : '');
-                }
+                $pages = $fp !== '' ? ($fp . ($lp !== '' && $lp !== $fp ? "-{$lp}" : '')) : '';
                 $doi = trim((string) ($w['doi'] ?? ''));
-                return "[Sitasi: {$inText} ({$year})] {$apaAuthStr} ({$year}). {$title}. {$venue}{$bibStr}." . ($doi !== '' ? " {$doi}" : '');
+                if ($doi !== '' && !str_starts_with($doi, 'http')) {
+                    $doi = 'https://doi.org/' . ltrim($doi, '/');
+                }
+
+                $entry = [
+                    'in_text' => $inText,
+                    'first_surname' => $inTextAuthors[0],
+                    'year' => $year,
+                    'authors_apa' => $apaAuthStr,
+                    'authors_ieee' => $ieeeAuthStr,
+                    'title' => $title,
+                    'venue' => $venue,
+                    'vol' => $vol,
+                    'iss' => $iss,
+                    'pages' => $pages,
+                    'doi' => $doi,
+                    'scope' => $scope,
+                ];
+                $entry['formatted'] = $this->formatVerifiedReferenceEntry($entry, $gayaSitasi);
+                return $entry;
             };
 
             if ($wantId) {
@@ -552,8 +670,12 @@ class GeneratorController extends Controller
                 ]);
                 if ($resId->successful()) {
                     foreach ($resId->json()['results'] ?? [] as $w) {
-                        $line = $formatOpenAlex($w);
-                        if ($line) $refs[] = $line;
+                        if (is_array($w)) {
+                            $item = $parseOpenAlex($w, 'Indonesia');
+                            if ($item) {
+                                $refs[] = $item;
+                            }
+                        }
                     }
                 }
             }
@@ -566,13 +688,17 @@ class GeneratorController extends Controller
                 ]);
                 if ($resInt->successful()) {
                     foreach ($resInt->json()['results'] ?? [] as $w) {
-                        $line = $formatOpenAlex($w);
-                        if ($line) $refs[] = $line;
+                        if (is_array($w)) {
+                            $scope = (($w['language'] ?? '') === 'id') ? 'Indonesia' : 'Internasional';
+                            $item = $parseOpenAlex($w, $scope);
+                            if ($item) {
+                                $refs[] = $item;
+                            }
+                        }
                     }
                 }
             }
 
-            // Fallback Crossref jika hasil OpenAlex kurang dari 5
             if (count($refs) < 5) {
                 $cr = Http::timeout(8)->withHeaders($headers)->get('https://api.crossref.org/works', [
                     'query' => $query,
@@ -587,35 +713,238 @@ class GeneratorController extends Controller
                         if ($title === '' || $year < $tahunMin || $year > 2026 || isset($seenTitles[strtolower($title)])) {
                             continue;
                         }
-                        $seenTitles[strtolower($title)] = true;
                         $authors = $item['author'] ?? [];
                         $inTextList = [];
                         $apaList = [];
+                        $ieeeList = [];
                         foreach (array_slice($authors, 0, 3) as $a) {
                             $fam = trim((string) ($a['family'] ?? ''));
                             $giv = trim((string) ($a['given'] ?? ''));
-                            if ($fam === '') continue;
+                            if ($fam === '') {
+                                continue;
+                            }
                             $inTextList[] = $fam;
                             $init = $giv !== '' ? strtoupper(mb_substr($giv, 0, 1)) . '.' : '';
                             $apaList[] = trim($fam . ($init !== '' ? ', ' . $init : ''));
+                            $ieeeList[] = trim(($init !== '' ? $init . ' ' : '') . $fam);
                         }
-                        if (empty($inTextList)) continue;
-                        $inText = count($authors) > 2 ? $inTextList[0] . ' et al.' : (count($inTextList) === 2 ? $inTextList[0] . ' & ' . $inTextList[1] : $inTextList[0]);
-                        $apaStr = count($apaList) > 1 ? implode(', ', array_slice($apaList, 0, -1)) . ', & ' . end($apaList) : $apaList[0];
+                        if (empty($inTextList)) {
+                            continue;
+                        }
+                        $seenTitles[strtolower($title)] = true;
+                        $inText = count($authors) > 2
+                            ? $inTextList[0] . ' et al.'
+                            : (count($inTextList) === 2 ? $inTextList[0] . ' & ' . $inTextList[1] : $inTextList[0]);
+                        $apaStr = count($apaList) > 1
+                            ? implode(', ', array_slice($apaList, 0, -1)) . ', & ' . end($apaList)
+                            : $apaList[0];
+                        $ieeeStr = count($ieeeList) > 2
+                            ? $ieeeList[0] . ' et al.'
+                            : (count($ieeeList) === 2 ? $ieeeList[0] . ' and ' . $ieeeList[1] : $ieeeList[0]);
                         $venue = trim((string) ($item['container-title'][0] ?? 'Jurnal Ilmiah Bereputasi'));
                         $vol = trim((string) ($item['volume'] ?? ''));
                         $iss = trim((string) ($item['issue'] ?? ''));
-                        $page = trim((string) ($item['page'] ?? ''));
-                        $bib = ($vol !== '' ? ", {$vol}" . ($iss !== '' ? "({$iss})" : '') : '') . ($page !== '' ? ", {$page}" : '');
+                        $pages = trim((string) ($item['page'] ?? ''));
                         $doi = !empty($item['DOI']) ? 'https://doi.org/' . $item['DOI'] : '';
-                        $refs[] = "[Sitasi: {$inText} ({$year})] {$apaStr} ({$year}). {$title}. {$venue}{$bib}." . ($doi !== '' ? " {$doi}" : '');
+
+                        $entry = [
+                            'in_text' => $inText,
+                            'first_surname' => $inTextList[0],
+                            'year' => $year,
+                            'authors_apa' => $apaStr,
+                            'authors_ieee' => $ieeeStr,
+                            'title' => $title,
+                            'venue' => $venue,
+                            'vol' => $vol,
+                            'iss' => $iss,
+                            'pages' => $pages,
+                            'doi' => $doi,
+                            'scope' => 'Internasional',
+                        ];
+                        $entry['formatted'] = $this->formatVerifiedReferenceEntry($entry, $gayaSitasi);
+                        $refs[] = $entry;
                     }
                 }
             }
         } catch (Throwable $e) {
             Log::warning('Verified reference lookup skipped: ' . $e->getMessage());
         }
-        return array_slice($refs, 0, 15);
+
+        return array_slice($refs, 0, $limit);
+    }
+
+    private function getVerifiedRefsStructured(Project $project, bool $forceRefresh = false): array
+    {
+        $meta = $this->getProjectMeta($project);
+        $sitasi = $meta['sitasi'] ?? [];
+        $tahunMin = !empty($sitasi['tahun_min']) ? max(2015, min(2026, (int) $sitasi['tahun_min'])) : 2023;
+        $asal = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
+        $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
+        $sumberKey = is_array($sitasi['sumber'] ?? null) ? implode(',', $sitasi['sumber']) : 'default';
+        $sig = "{$tahunMin}|{$asal}|{$gayaSitasi}|{$sumberKey}";
+
+        if (
+            !$forceRefresh
+            && !empty($meta['verified_refs'])
+            && is_array($meta['verified_refs'])
+            && (($meta['verified_refs_sig'] ?? '') === $sig)
+        ) {
+            return $meta['verified_refs'];
+        }
+
+        $query = $this->buildJournalSearchQuery((string) $project->judul . ' ' . (string) $project->prodi, 6);
+        $fetched = $this->queryVerifiedJournalsExternal($query, $tahunMin, $asal, $gayaSitasi, 15);
+
+        // Gabungkan dengan referensi yang pernah disimpan manual oleh mahasiswa (jika masih memenuhi tahunMin)
+        $existingSaved = [];
+        if (!empty($meta['verified_refs']) && is_array($meta['verified_refs'])) {
+            foreach ($meta['verified_refs'] as $oldRef) {
+                if (!is_array($oldRef) || empty($oldRef['manual_saved'])) {
+                    continue;
+                }
+                $oldRef['formatted'] = $this->formatVerifiedReferenceEntry($oldRef, $gayaSitasi);
+                $existingSaved[] = $oldRef;
+            }
+        }
+
+        $merged = $existingSaved;
+        $seen = [];
+        foreach ($merged as $m) {
+            $seen[strtolower((string) ($m['title'] ?? ''))] = true;
+        }
+        foreach ($fetched as $f) {
+            $k = strtolower((string) ($f['title'] ?? ''));
+            if ($k !== '' && !isset($seen[$k])) {
+                $seen[$k] = true;
+                $merged[] = $f;
+            }
+        }
+        $merged = array_slice($merged, 0, 20);
+
+        if (!empty($merged)) {
+            $meta['verified_refs'] = $merged;
+            $meta['verified_refs_sig'] = $sig;
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+            try {
+                if ($project->exists) {
+                    $project->save();
+                }
+            } catch (Throwable $e) {
+                Log::warning('Failed to cache verified_refs: ' . $e->getMessage());
+            }
+        }
+
+        return $merged;
+    }
+
+    private function fetchVerifiedReferencesForProject(Project $project, bool $forceRefresh = false): array
+    {
+        $meta = $this->getProjectMeta($project);
+        $gayaSitasi = (string) ($meta['sitasi']['gaya'] ?? 'APA 7th');
+        $structured = $this->getVerifiedRefsStructured($project, $forceRefresh);
+        $lines = [];
+        foreach ($structured as $idx => $ref) {
+            $inText = (string) ($ref['in_text'] ?? 'Penulis');
+            $year = (string) ($ref['year'] ?? '');
+            $formatted = $this->formatVerifiedReferenceEntry($ref, $gayaSitasi, $idx + 1);
+            $lines[] = "[Sitasi: {$inText} ({$year})] {$formatted}";
+        }
+        return array_slice($lines, 0, 15);
+    }
+
+    private function extractProjectBenangMerah(Project $project): string
+    {
+        $sections = [];
+
+        $b1 = trim(strip_tags((string) ($project->bab1_content ?? '')));
+        if ($b1 !== '') {
+            if (preg_match('/((?:1\.4|1\.2|B\.|C\.|D\.)?\s*Rumusan\s+Masalah[^\n]*\n[\s\S]{30,1400}?)(?=\n\s*(?:1\.[3-9]|[B-H]\.\s+Tujuan|Tujuan\s+Penelitian|1\.5|Manfaat\s+Penelitian)|$)/i', $b1, $m)) {
+                $sections[] = "RUMUSAN MASALAH BAB I (WAJIB DIJAWAB SECARA PRESISI):\n" . trim($m[1]);
+            }
+            if (preg_match('/((?:1\.5|1\.3|C\.|D\.|E\.)?\s*Tujuan\s+Penelitian[^\n]*\n[\s\S]{30,1000}?)(?=\n\s*(?:1\.[4-9]|[D-H]\.\s+Manfaat|Manfaat\s+Penelitian|1\.6|Keaslian|Sistematika)|$)/i', $b1, $m)) {
+                $sections[] = "TUJUAN PENELITIAN BAB I:\n" . trim($m[1]);
+            }
+        }
+
+        $b2 = trim(strip_tags((string) ($project->bab2_content ?? '')));
+        if ($b2 !== '') {
+            if (preg_match('/((?:2\.[3-6]|[C-F]\.)?\s*(?:Hipotesis|Batasan\s+Kinerja)[^\n]*\n[\s\S]{30,1000}?)(?=\n\s*(?:2\.[5-9]|BAB\s+III)|$)/i', $b2, $m)) {
+                $sections[] = "HIPOTESIS / TARGET BAB II:\n" . trim($m[1]);
+            }
+        }
+
+        $b3 = trim(strip_tags((string) ($project->bab3_content ?? '')));
+        if ($b3 !== '') {
+            $b3Snippets = [];
+            if (preg_match('/((?:3\.[1-4]|[A-D]\.)?\s*(?:Populasi\s+dan\s+Sampel|Sumber\s+Data|Subjek|Dataset)[^\n]*\n[\s\S]{25,700}?)(?=\n\s*(?:3\.[2-9]|[B-H]\.\s+)|$)/i', $b3, $m)) {
+                $b3Snippets[] = trim($m[1]);
+            }
+            if (preg_match('/((?:3\.[5-9]|[E-H]\.)?\s*(?:Teknik\s+Analisis\s+Data|Metode\s+Pengujian|Evaluasi)[^\n]*\n[\s\S]{25,700}?)(?=\n\s*(?:Gambar\s+3|BAB\s+IV)|$)/i', $b3, $m)) {
+                $b3Snippets[] = trim($m[1]);
+            }
+            if (!empty($b3Snippets)) {
+                $sections[] = "METODE, SAMPEL & ANALISIS BAB III:\n" . implode("\n", $b3Snippets);
+            }
+        }
+
+        $b4 = trim(strip_tags((string) ($project->bab4_content ?? '')));
+        if ($b4 !== '') {
+            if (preg_match('/((?:4\.[3-7]|[C-G]\.)?\s*(?:Hasil\s+Analisis|Pengujian\s+Hipotesis|Hasil\s+Pengujian|Pembahasan)[^\n]*\n[\s\S]{30,1100}?)(?=\n\s*(?:4\.[6-9]|Keterbatasan|BAB\s+V)|$)/i', $b4, $m)) {
+                $sections[] = "TEMUAN EMPIRIS KUNCI BAB IV:\n" . trim($m[1]);
+            }
+        }
+
+        if (empty($sections)) {
+            return '';
+        }
+
+        return "\n=== PETA BENANG MERAH LINTAS BAB (WAJIB KONSISTEN 100% — JANGAN MELENCENG) ===\n"
+            . implode("\n\n", $sections)
+            . "\n=====================================================================\n";
+    }
+
+    private function buildVerifiedMatchedDaftarPustaka(Project $project, array $citationsList, string $gayaSitasi): array
+    {
+        $verifiedBank = $this->getVerifiedRefsStructured($project);
+        $matchedEntries = [];
+        $unmatchedCitations = [];
+        $usedTitles = [];
+
+        foreach ($citationsList as $cit) {
+            $citClean = trim((string) $cit);
+            if ($citClean === '') {
+                continue;
+            }
+            preg_match('/\b((?:19|20)\d{2})\b/', $citClean, $ym);
+            $citYear = isset($ym[1]) ? (int) $ym[1] : 0;
+            $citAuthor = trim((string) preg_replace('/\s*\(?\d{4}[a-z]?\)?.*$/', '', $citClean));
+            $firstWord = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $citAuthor)[0] ?? ''));
+
+            $found = null;
+            if ($firstWord !== '' && strlen($firstWord) >= 2) {
+                foreach ($verifiedBank as $ref) {
+                    $refSurname = strtolower((string) preg_replace('/[^a-zA-Z]/', '', (string) ($ref['first_surname'] ?? '')));
+                    $refInText = strtolower((string) ($ref['in_text'] ?? ''));
+                    $refYear = (int) ($ref['year'] ?? 0);
+                    if (($refSurname === $firstWord || str_contains($refInText, $firstWord)) && ($citYear === 0 || $refYear === $citYear)) {
+                        $found = $ref;
+                        break;
+                    }
+                }
+            }
+
+            if ($found) {
+                $tKey = strtolower((string) ($found['title'] ?? ''));
+                if (!isset($usedTitles[$tKey])) {
+                    $usedTitles[$tKey] = true;
+                    $matchedEntries[] = $this->formatVerifiedReferenceEntry($found, $gayaSitasi, count($matchedEntries) + 1);
+                }
+            } else {
+                $unmatchedCitations[] = $citClean;
+            }
+        }
+
+        return [$matchedEntries, $unmatchedCitations];
     }
 
     /**
@@ -2462,7 +2791,7 @@ Pertanyaan Mahasiswa:
 
         $verifiedRefs = $this->fetchVerifiedReferencesForProject($project);
         $verifiedRefText = !empty($verifiedRefs)
-            ? "\nREFERENSI JURNAL ILMIAH TERVERIFIKASI (PRIORITASKAN UNTUK DISITASI SECARA KONTEKSTUAL):\n- " . implode("\n- ", $verifiedRefs) . "\n"
+            ? "\nBANK REFERENSI JURNAL ILMIAH TERVERIFIKASI (TERKUNCI UNTUK PROYEK INI — FORMAT {$gayaSitasi}, TAHUN >= {$tahunMin}, ASAL: {$asalRef} — PRIORITAS UTAMA UNTUK DISITASI DI BAB I–V):\n- " . implode("\n- ", $verifiedRefs) . "\n"
             : '';
 
         $extraContext = '';
@@ -2718,20 +3047,21 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
                 "4. Berikan pembahasan ilmiah mendalam mengenai arti dari angka-angka tersebut, mengapa hasil tersebut tercapai, serta implikasi teoritis dan praktisnya terhadap judul '{$project->judul}'.\n";
         }
 
+        $benangMerah = $this->extractProjectBenangMerah($project);
         $context = "";
         if ($bab == 'bab2')
-            $context = "KONTEKS BAB I (PERTAHANKAN BENANG MERAH RUMUSAN MASALAH & VARIABEL):\n" . Str::limit(strip_tags((string) $project->bab1_content), 3500);
+            $context = $benangMerah . "\nKONTEKS BAB I (PERTAHANKAN BENANG MERAH RUMUSAN MASALAH & VARIABEL):\n" . Str::limit(strip_tags((string) $project->bab1_content), 3200);
         elseif ($bab == 'bab3')
-            $context = "KONTEKS BAB I & BAB II (PERTAHANKAN KONSISTENSI VARIABEL, INDIKATOR & HIPOTESIS):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\n" . Str::limit(strip_tags((string) $project->bab2_content), 1800);
+            $context = $benangMerah . "\nKONTEKS BAB I & BAB II (PERTAHANKAN KONSISTENSI VARIABEL, INDIKATOR & HIPOTESIS):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1600) . "\n\n" . Str::limit(strip_tags((string) $project->bab2_content), 1800);
         elseif ($bab == 'bab4')
-            $context = "KONTEKS BAB I & BAB III (JAWAB SEMUA RUMUSAN MASALAH & GUNAKAN METODE/SAMPEL BAB III):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\n" . Str::limit(strip_tags((string) $project->bab3_content), 2000);
+            $context = $benangMerah . "\nKONTEKS BAB I & BAB III (JAWAB SEMUA RUMUSAN MASALAH & GUNAKAN METODE/SAMPEL BAB III):\n" . Str::limit(strip_tags((string) $project->bab1_content), 1500) . "\n\n" . Str::limit(strip_tags((string) $project->bab3_content), 2000);
         elseif ($bab == 'bab5') {
-            $context = "RUMUSAN MASALAH BAB I:\n" . Str::limit(strip_tags((string) $project->bab1_content), 1800) . "\n\nHASIL PENELITIAN BAB IV:\n" . Str::limit(strip_tags((string) $project->bab4_content), 2800);
+            $context = $benangMerah . "\nRINGKASAN BAB I:\n" . Str::limit(strip_tags((string) $project->bab1_content), 1500) . "\n\nHASIL PENELITIAN BAB IV:\n" . Str::limit(strip_tags((string) $project->bab4_content), 2800);
             $allText = $project->bab1_content . " " . $project->bab2_content . " " . $project->bab3_content . " " . $project->bab4_content;
             $citationsList = $this->extractInTextCitations($allText);
             $citationsStr = !empty($citationsList) ? implode("\n- ", $citationsList) : "- Tidak ada sitasi terdeteksi";
             $context .= "\n\n=== DAFTAR SITASI ASLI YANG MUNCUL DALAM NASKAH BAB 1 S/D 4 (WAJIB DIBUATKAN DAFTAR PUSTAKANYA) ===\n- " . $citationsStr;
-            $context .= "\n\n=== RINGKASAN ISI TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 10000);
+            $context .= "\n\n=== RINGKASAN ISI TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 9000);
         }
 
         // Bab II Sesuai Rumpun Ilmu & WAJIB KERANGKA BERPIKIR DISESUAIKAN DENGAN JUDUL & JURUSAN
@@ -3416,7 +3746,8 @@ ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir secara MENDALAM, KOMPREHENSIF, DAN EKSTENSIF (STANDAR SKRIPSI S1 NASIONAL PERGURUAN TINGGI INDONESIA, MINIMAL 1800 - 2500 KATA).
 {$customStructureNote}" . (empty($meta['struktur_kustom']) ? "WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN TANPA MELEWATKAN SATU PUN:
 1.1 Latar Belakang Masalah (Wajib ditulis secara MENDALAM dan KOMPREHENSIF minimal 7-10 PARAGRAF PANJANG menggunakan pola PIRAMIDA TERBALIK lengkap):
-- Paragraf 1-2: Landasan normatif, regulasi nasional (Undang-Undang, Permendikbud / regulasi terkait), dan konteks ideal makro terkait topik '{$project->judul}'. Paragraf pembuka WAJIB langsung mencantumkan rujukan ilmiah riil/otoritas data resmi (seperti Kemendikbudristek/BSKAP, BPS, UNESCO, atau We Are Social/DataReportal) serta referensi terverifikasi di atas.
+- Paragraf 1 (ATURAN WAJIB MINIMAL 1 SITASI ILMIAH!): Mulai dengan landasan normatif, regulasi nasional (Undang-Undang, Permendikbud / regulasi terkait), dan konteks ideal makro terkait topik '{$project->judul}'. PARAGRAF PERTAMA INI WAJIB MENGANDUNG MINIMAL 1 (SATU) SITASI IN-TEXT GAYA {$gayaSitasi} (contoh: Penulis (Tahun) atau (Penulis, Tahun)) YANG DIAMBIL LANGSUNG DARI BANK REFERENSI TERVERIFIKASI DI ATAS ATAU REFERENSI WAJIB MAHASISWA — dilarang keras menulis paragraf pertama tanpa sitasi ilmiah!
+- Paragraf 2: Perkuat konteks makro dengan rujukan ilmiah riil atau otoritas data resmi (seperti BPS, Kemendikbudristek/BSKAP, APJII, UNESCO, atau We Are Social/DataReportal) serta referensi terverifikasi di atas.
 - Paragraf 3-4: Fenomena empiris dan data kuantitatif nyata di lapangan / objek penelitian terkait kondisi responden dan intensitas masalah.
 - Paragraf 5-6: Masalah spesifik yang teramati dan analisis kesenjangan (research gap) antara kondisi ideal (das Sollen) dengan realitas di lapangan (das Sein).
 - Paragraf 7-8: Analisis komparatif hasil penelitian terdahulu (tahun {$tahunMin}-2026) dan alasan mengapa pendekatan/solusi dalam penelitian ini mutlak dibutuhkan.
@@ -3546,14 +3877,14 @@ INSTRUKSI MUTLAK:
                 if (str_contains($cleanContent, '===DAFTAR PUSTAKA===')) {
                     $parts = explode('===DAFTAR PUSTAKA===', $cleanContent, 2);
                     $project->bab5_content = trim($parts[0]);
-                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh);
+                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh, $gayaSitasiCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
                 } elseif (preg_match('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent)) {
                     $parts = preg_split('/\n\s*(?:===+\s*)?DAFTAR\s+PUSTAKA\s*(?:===+)?\s*\n/i', $cleanContent, 2);
                     $project->bab5_content = trim($parts[0]);
-                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh);
+                    $cleanDp = $this->cleanDaftarPustaka(trim($parts[1] ?? ''), $tahunMinCh, $gayaSitasiCh);
                     if (!empty($cleanDp)) {
                         $project->daftar_pustaka = $cleanDp;
                     }
@@ -3568,16 +3899,21 @@ INSTRUKSI MUTLAK:
                         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content);
                         if (strlen($allText) > 500) {
                             $citationsList = $this->extractInTextCitations($allText);
-                            $citBlock = !empty($citationsList)
-                                ? "DAFTAR SITASI ASLI YANG MUNCUL DI NASKAH (WAJIB DIBUATKAN BIBLIOGRAFINYA):\n- " . implode("\n- ", $citationsList) . "\n"
+                            [$verifiedMatched, $unmatchedCits] = $this->buildVerifiedMatchedDaftarPustaka($project, $citationsList, $gayaSitasiCh);
+                            $verifiedBlock = !empty($verifiedMatched)
+                                ? "ENTRI TERVERIFIKASI DENGAN DOI ASLI (WAJIB DISERTAKAN PERSIS TANPA MENGUBAH PENULIS/TAHUN/DOI):\n- " . implode("\n- ", $verifiedMatched) . "\n"
                                 : "";
+                            $citBlock = !empty($unmatchedCits)
+                                ? "SITASI TAMBAHAN DALAM NASKAH YANG PERLU DILENGKAPI BIBLIOGRAFINYA:\n- " . implode("\n- ", $unmatchedCits) . "\n"
+                                : (!empty($citationsList) ? "DAFTAR SITASI ASLI YANG MUNCUL DI NASKAH:\n- " . implode("\n- ", $citationsList) . "\n" : "");
                             $dpPrompt = "Tulis DAFTAR PUSTAKA gaya {$gayaSitasiCh} berdasarkan sitasi nama penulis dan tahun yang dikutip pada naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\n" .
+                                $verifiedBlock .
                                 $citBlock .
                                 (!empty($meta['referensi_khusus']) ? "REFERENSI WAJIB UNGGAHAN MAHASISWA (WAJIB MASUK):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n" : "") .
                                 "Tahun penerbitan WAJIB minimal tahun {$tahunMinCh} dan maksimal 2026 (DILARANG di bawah {$tahunMinCh}).\n" .
-                                "ATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (urut A-Z) TANPA kalimat pembuka/pengantar.\n2. DILARANG menulis placeholder. Setiap referensi WAJIB memiliki nama penulis, tahun ({$tahunMinCh}-2026), judul artikel ilmiah spesifik, nama jurnal nyata, volume(nomor), halaman, dan DOI/URL.\n3. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 6000);
+                                "ATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (urut sesuai kaidah {$gayaSitasiCh}) TANPA kalimat pembuka/pengantar.\n2. WAJIB menyertakan seluruh ENTRI TERVERIFIKASI di atas secara utuh tanpa mengubah DOI-nya.\n3. DILARANG mengarang DOI palsu untuk sitasi yang tidak memiliki DOI.\n4. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 5500);
                             $dpRaw = $this->ai->generateText($dpPrompt, $model);
-                            $cleanedDp = $this->cleanDaftarPustaka($dpRaw, $tahunMinCh);
+                            $cleanedDp = $this->cleanDaftarPustaka($dpRaw, $tahunMinCh, $gayaSitasiCh);
                             if (!empty($cleanedDp)) {
                                 $project->daftar_pustaka = $cleanedDp;
                             }
@@ -6189,23 +6525,32 @@ ATURAN REVISI (SANGAT KETAT):
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
-    private function cleanDaftarPustaka(string $raw, string $tahunMin = '2023'): string
+    private function cleanDaftarPustaka(string $raw, string $tahunMin = '2023', string $gayaSitasi = 'APA 7th'): string
     {
         $text = strip_tags($raw);
         $text = str_replace(['*', '#', '_', '`'], '', $text);
         $lines = explode("\n", $text);
         $cleaned = [];
         $minYr = (int) $tahunMin;
+        $gayaLower = strtolower(trim($gayaSitasi));
+        $isNumberedStyle = str_contains($gayaLower, 'ieee') || str_contains($gayaLower, 'vancouver');
+
         foreach ($lines as $line) {
             $l = trim($line);
-            if (strlen($l) < 12)
+            if (strlen($l) < 12) {
                 continue;
+            }
             if (preg_match('/^(berikut\s+adalah|daftar\s+pustaka|referensi\s*:|catatan\s*:|berikut\s+daftar)/i', $l)) {
                 continue;
             }
-            $l = preg_replace('/^[\d\-\•]+\.?\s*/', '', $l);
-            // Saring jika tahun terbit di bawah batas minimum (misal tahun 2021 padahal batas min 2023)
-            if ($minYr > 2000 && preg_match('/\b(19\d{2}|20\d{2})\b/', $l, $m)) {
+            if (!$isNumberedStyle) {
+                $l = (string) preg_replace('/^[\d\-\•]+\.?\s*/', '', $l);
+            } else {
+                $l = (string) preg_replace('/^[\-\•]+\s*/', '', $l);
+            }
+            // Saring jika tahun terbit di bawah batas minimum (kecuali regulasi UU/Peraturan/Permendikbud)
+            $isRegulation = (bool) preg_match('/\b(undang-undang|peraturan|permendikbud|kementerian|republic|republik\s+indonesia)\b/i', $l);
+            if (!$isRegulation && $minYr > 2000 && preg_match('/\b(19\d{2}|20\d{2})\b/', $l, $m)) {
                 $yr = (int) $m[1];
                 if ($yr < $minYr) {
                     continue;
@@ -6345,15 +6690,23 @@ ATURAN REVISI (SANGAT KETAT):
         $model = $request->input('model', 'auto');
         $meta = $this->getProjectMeta($project);
         $sitasi = $meta['sitasi'] ?? [];
-        $gayaSitasi = $sitasi['gaya'] ?? 'APA 7th';
+        $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
         $tahunMin = !empty($sitasi['tahun_min']) ? (string) $sitasi['tahun_min'] : '2023';
-        $asalRef = $sitasi['asal'] ?? 'Indonesia + Internasional';
+        $asalRef = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
 
         $allText = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
         $citationsList = $this->extractInTextCitations($allText);
-        $citationsBlock = !empty($citationsList)
-            ? "\nDAFTAR SITASI ASLI YANG MUNCUL DALAM NASKAH (WAJIB DIBUATKAN BIBLIOGRAFI LENGKAPNYA):\n- " . implode("\n- ", $citationsList) . "\n"
+
+        // Cocokkan deterministik dulu dengan Bank Referensi Terverifikasi OpenAlex/Crossref proyek ini
+        [$verifiedMatched, $unmatchedCits] = $this->buildVerifiedMatchedDaftarPustaka($project, $citationsList, $gayaSitasi);
+
+        $verifiedBlock = !empty($verifiedMatched)
+            ? "\nENTRI REFERENSI TERVERIFIKASI DENGAN DOI ASLI (WAJIB DISERTAKAN PERSIS — DILARANG MENGUBAH PENULIS/TAHUN/DOI):\n- " . implode("\n- ", $verifiedMatched) . "\n"
             : "";
+
+        $citationsBlock = !empty($unmatchedCits)
+            ? "\nSITASI LAIN YANG MUNCUL DALAM NASKAH (WAJIB DIBUATKAN BIBLIOGRAFINYA SESUAI GAYA {$gayaSitasi}):\n- " . implode("\n- ", $unmatchedCits) . "\n"
+            : (!empty($citationsList) ? "\nDAFTAR SITASI ASLI YANG MUNCUL DALAM NASKAH:\n- " . implode("\n- ", $citationsList) . "\n" : "");
 
         $refUploadNote = !empty($meta['referensi_khusus'])
             ? "\nREFERENSI WAJIB DARI UNGGAHAN MAHASISWA (WAJIB MASUK KE DALAM DAFTAR PUSTAKA):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n"
@@ -6362,24 +6715,52 @@ ATURAN REVISI (SANGAT KETAT):
         $prompt = "Tulis DAFTAR PUSTAKA lengkap dengan format {$gayaSitasi} berdasarkan naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}) berikut ini.
 Asal Referensi: {$asalRef}.
 Tahun terbit referensi: minimal tahun {$tahunMin} dan maksimal tahun 2026.
+{$verifiedBlock}
 {$citationsBlock}
 {$refUploadNote}
 ATURAN MUTLAK & TEGAS:
-1. DAFTAR PUSTAKA WAJIB DIAMBIL DARI SITASI ASLI YANG BENAR-BENAR MUNCUL DALAM NASKAH (lihat daftar di atas). DILARANG KERAS mengarang nama penulis/jurnal fiktif yang tidak pernah disitasi di dalam naskah!
-2. LANGSUNG tulis baris daftar pustaka pertama (urut abjad A-Z) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
-3. DILARANG menulis placeholder 'Judul artikel tentang...' atau 'Nama Jurnal, Volume(Issue), Halaman'. Setiap entri WAJIB memiliki nama penulis lengkap, tahun terbit, judul artikel ilmiah spesifik, nama jurnal akademik bereputasi, volume, nomor, halaman, dan link DOI/URL.
-4. Jangan gunakan tanda bintang markdown (*).
+1. WAJIB menyertakan SELURUH ENTRI REFERENSI TERVERIFIKASI di atas secara utuh tanpa mengubah judul, penulis, tahun, ataupun link DOI aslinya!
+2. DAFTAR PUSTAKA WAJIB 100% SINKRON 1-to-1 dengan sitasi asli yang benar-benar muncul dalam naskah. DILARANG KERAS mengarang referensi fiktif yang tidak pernah disitasi di dalam naskah!
+3. LANGSUNG tulis baris daftar pustaka pertama (urut sesuai kaidah {$gayaSitasi}) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
+4. DILARANG menulis placeholder atau mengarang link DOI palsu untuk buku/regulasi/laporan yang tidak memiliki DOI.
+5. Jangan gunakan tanda bintang markdown (*).
 
 NASKAH BAB I - BAB V:
-" . substr($allText, 0, 10000);
+" . substr($allText, 0, 9500);
 
         try {
             $daftarPustaka = $this->ai->generateText($prompt, $model);
-            $project->daftar_pustaka = $this->cleanDaftarPustaka($daftarPustaka, $tahunMin);
+            $cleaned = $this->cleanDaftarPustaka($daftarPustaka, $tahunMin, $gayaSitasi);
+
+            // Pastikan setiap entri terverifikasi yang dikutip tidak hilang setelah proses AI
+            if (!empty($verifiedMatched)) {
+                $existingLower = strtolower($cleaned);
+                $missingVerified = [];
+                foreach ($verifiedMatched as $vm) {
+                    $doiMatch = preg_match('#https?://doi\.org/[^\s]+#i', $vm, $dm) ? strtolower($dm[0]) : strtolower(substr($vm, 0, 45));
+                    if ($doiMatch !== '' && !str_contains($existingLower, $doiMatch)) {
+                        $missingVerified[] = $vm;
+                    }
+                }
+                if (!empty($missingVerified)) {
+                    $allLines = array_values(array_filter(array_map('trim', explode("\n", trim($cleaned . "\n" . implode("\n", $missingVerified))))));
+                    $gayaLower = strtolower($gayaSitasi);
+                    if (!str_contains($gayaLower, 'ieee') && !str_contains($gayaLower, 'vancouver')) {
+                        sort($allLines, SORT_NATURAL | SORT_FLAG_CASE);
+                    }
+                    $cleaned = implode("\n", $allLines);
+                }
+            }
+
+            $project->daftar_pustaka = $cleaned;
             $project->save();
 
             if ($request->wantsJson()) {
-                return response()->json(['status' => 'success', 'daftar_pustaka' => $project->daftar_pustaka]);
+                return response()->json([
+                    'status' => 'success',
+                    'daftar_pustaka' => $project->daftar_pustaka,
+                    'verified_matched_count' => count($verifiedMatched),
+                ]);
             }
             return back()->with('success', 'Daftar pustaka berhasil diperbarui.');
         } catch (Exception $e) {
@@ -6388,6 +6769,703 @@ NASKAH BAB I - BAB V:
             }
             return back()->with('error', 'Gagal memperbarui daftar pustaka.');
         }
+    }
+
+    /**
+     * Audit Pra-Bimbingan Ala Dosen Pembimbing (Deterministik, Instan & Akurat — 0% Halusinasi AI)
+     */
+    public function auditProject(Request $request, $id)
+    {
+        $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $meta = $this->getProjectMeta($project);
+        $sitasi = $meta['sitasi'] ?? [];
+        $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
+        $tahunMin = !empty($sitasi['tahun_min']) ? (int) $sitasi['tahun_min'] : 2023;
+        $asalRef = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
+
+        $isProposal = str_contains(strtolower((string) ($meta['tahap_pengerjaan'] ?? '')), 'proposal')
+            || str_contains(strtolower((string) ($meta['jenis_penelitian'] ?? '')), 'proposal')
+            || in_array((string) ($project->sumber_data ?? ''), ['Proposal Skripsi (Bab I-III)', 'Proposal Skripsi (S1)'], true);
+
+        $b1 = trim(strip_tags((string) ($project->bab1_content ?? '')));
+        $b2 = trim(strip_tags((string) ($project->bab2_content ?? '')));
+        $b3 = trim(strip_tags((string) ($project->bab3_content ?? '')));
+        $b4 = trim(strip_tags((string) ($project->bab4_content ?? '')));
+        $b5 = trim(strip_tags((string) ($project->bab5_content ?? '')));
+        $dp = trim(strip_tags((string) ($project->daftar_pustaka ?? '')));
+
+        $checks = [];
+        $earned = 0;
+        $maxPoints = 0;
+
+        // 1. Cek Sitasi Paragraf Pertama Bab I (Wajib minimal 1 sitasi ilmiah)
+        $maxPoints += 15;
+        $firstParaOk = false;
+        $firstParaSample = '';
+        if ($b1 !== '') {
+            $linesB1 = preg_split('/\n+/', $b1) ?: [];
+            foreach ($linesB1 as $ln) {
+                $t = trim($ln);
+                if (mb_strlen($t) < 90) {
+                    continue;
+                }
+                if (preg_match('/^(BAB\s+I|PENDAHULUAN|1\.1\s+Latar|A\.\s+Latar)/i', $t)) {
+                    continue;
+                }
+                $firstParaSample = $t;
+                break;
+            }
+            $firstParaCites = $firstParaSample !== '' ? $this->extractInTextCitations($firstParaSample) : [];
+            $firstParaOk = count($firstParaCites) >= 1;
+        }
+        if ($b1 === '') {
+            $checks[] = [
+                'id' => 'bab1_first_cite',
+                'title' => 'Sitasi Paragraf Pertama Bab I',
+                'status' => 'warn',
+                'summary' => 'Bab I belum ditulis.',
+                'details' => ['Susun Bab I terlebih dahulu agar paragraf pembuka memiliki landasan sitasi ilmiah.'],
+                'action' => ['type' => 'chapter', 'target' => 'bab1', 'label' => 'Buka Bab I'],
+            ];
+        } elseif ($firstParaOk) {
+            $earned += 15;
+            $checks[] = [
+                'id' => 'bab1_first_cite',
+                'title' => 'Sitasi Paragraf Pertama Bab I',
+                'status' => 'pass',
+                'summary' => 'Paragraf pertama 1.1 Latar Belakang sudah memuat sitasi ilmiah (' . implode(', ', array_slice($firstParaCites, 0, 2)) . ').',
+                'details' => [],
+                'action' => null,
+            ];
+        } else {
+            $earned += 5;
+            $checks[] = [
+                'id' => 'bab1_first_cite',
+                'title' => 'Sitasi Paragraf Pertama Bab I',
+                'status' => 'fail',
+                'summary' => 'Paragraf pertama Bab I belum memiliki sitasi in-text (minimal 1 sitasi ilmiah).',
+                'details' => ['Dosen penguji umumnya mewajibkan minimal 1 rujukan ilmiah/jurnal pada paragraf pembuka 1.1 Latar Belakang.'],
+                'action' => ['type' => 'revise', 'target' => 'bab1', 'label' => 'Buka Bab I untuk Tambah Sitasi'],
+            ];
+        }
+
+        // 2. Cek Benang Merah Rumusan Masalah (Bab I) vs Kesimpulan (Bab V)
+        $maxPoints += 20;
+        $rmCount = 0;
+        if ($b1 !== '' && preg_match('/(?:1\.4|1\.2|B\.|C\.|D\.)?\s*Rumusan\s+Masalah[^\n]*\n([\s\S]{20,1600}?)(?=\n\s*(?:1\.[3-9]|[B-H]\.\s+Tujuan|Tujuan\s+Penelitian|1\.5|Manfaat)|$)/i', $b1, $mRm)) {
+            preg_match_all('/^\s*(?:\d+[\.\)]|[a-z][\.\)])\s+.{10,}/m', $mRm[1], $rmItems);
+            $rmCount = count($rmItems[0] ?? []);
+        }
+        $kesCount = 0;
+        if ($b5 !== '' && preg_match('/(?:5\.1|A\.)?\s*(?:Kesimpulan|Simpulan)[^\n]*\n([\s\S]{20,2400}?)(?=\n\s*(?:5\.2|B\.\s+Saran|Saran)|$)/i', $b5, $mKes)) {
+            preg_match_all('/^\s*(?:\d+[\.\)]|[a-z][\.\)])\s+.{10,}/m', $mKes[1], $kesItems);
+            $kesCount = count($kesItems[0] ?? []);
+        }
+        if ($isProposal) {
+            if ($rmCount >= 1) {
+                $earned += 20;
+                $checks[] = [
+                    'id' => 'benang_merah',
+                    'title' => 'Struktur Rumusan Masalah (Mode Proposal)',
+                    'status' => 'pass',
+                    'summary' => "Terdeteksi {$rmCount} butir Rumusan Masalah terstruktur di Bab I (siap dilanjutkan ke Bab IV–V saat Skripsi).",
+                    'details' => [],
+                    'action' => null,
+                ];
+            } else {
+                $earned += 8;
+                $checks[] = [
+                    'id' => 'benang_merah',
+                    'title' => 'Struktur Rumusan Masalah (Mode Proposal)',
+                    'status' => 'warn',
+                    'summary' => 'Butir bernomor Rumusan Masalah di Bab I belum terdeteksi jelas.',
+                    'details' => ['Pastikan Rumusan Masalah ditulis dalam poin bernomor 1., 2., 3. agar mudah ditelusuri dosen.'],
+                    'action' => ['type' => 'chapter', 'target' => 'bab1', 'label' => 'Periksa Bab I'],
+                ];
+            }
+        } else {
+            if ($rmCount > 0 && $kesCount > 0 && $rmCount === $kesCount) {
+                $earned += 20;
+                $checks[] = [
+                    'id' => 'benang_merah',
+                    'title' => 'Benang Merah Bab I ↔ Bab V',
+                    'status' => 'pass',
+                    'summary' => "Sinkron 100%: {$rmCount} Rumusan Masalah di Bab I dijawab tepat oleh {$kesCount} poin Kesimpulan di Bab V.",
+                    'details' => [],
+                    'action' => null,
+                ];
+            } elseif ($b5 === '') {
+                $earned += 6;
+                $checks[] = [
+                    'id' => 'benang_merah',
+                    'title' => 'Benang Merah Bab I ↔ Bab V',
+                    'status' => 'warn',
+                    'summary' => "Bab I memiliki {$rmCount} Rumusan Masalah, namun Bab V (Penutup) belum disusun.",
+                    'details' => ['Susun Bab V agar jumlah poin Kesimpulan menjawab seluruh Rumusan Masalah secara tepat.'],
+                    'action' => ['type' => 'chapter', 'target' => 'bab5', 'label' => 'Buka Bab V'],
+                ];
+            } else {
+                $earned += 10;
+                $checks[] = [
+                    'id' => 'benang_merah',
+                    'title' => 'Benang Merah Bab I ↔ Bab V',
+                    'status' => 'warn',
+                    'summary' => "Jumlah poin belum seimbang: Bab I memiliki {$rmCount} Rumusan Masalah, sedangkan Bab V memiliki {$kesCount} poin bernomor Kesimpulan.",
+                    'details' => ['Samakan jumlah poin bernomor Kesimpulan (5.1) dengan jumlah Rumusan Masalah Bab I agar lolos pemeriksaan dosen pembimbing.'],
+                    'action' => ['type' => 'chapter', 'target' => 'bab5', 'label' => 'Buka & Rapikan Bab V'],
+                ];
+            }
+        }
+
+        // 3. Cek Sinkronisasi 1-to-1 Sitasi In-Text <-> Daftar Pustaka
+        $maxPoints += 25;
+        $bodyAll = $b1 . "\n" . $b2 . "\n" . $b3 . "\n" . $b4;
+        $inTextCites = $this->extractInTextCitations($bodyAll);
+        $dpLines = array_values(array_filter(array_map('trim', explode("\n", $dp)), fn ($l) => mb_strlen($l) >= 15));
+
+        $missingFromDp = [];
+        $matchedDpIdx = [];
+        foreach ($inTextCites as $cit) {
+            preg_match('/\b((?:19|20)\d{2})\b/', $cit, $ym);
+            $yr = $ym[1] ?? '';
+            $authorRaw = trim((string) preg_replace('/\s*\(?\d{4}[a-z]?\)?.*$/', '', $cit));
+            $firstTok = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $authorRaw)[0] ?? ''));
+            $found = false;
+            if ($firstTok !== '' && strlen($firstTok) >= 2) {
+                foreach ($dpLines as $idx => $line) {
+                    $ll = strtolower($line);
+                    if (str_contains($ll, $firstTok) && ($yr === '' || str_contains($ll, $yr))) {
+                        $found = true;
+                        $matchedDpIdx[$idx] = true;
+                        break;
+                    }
+                }
+            }
+            if (!$found) {
+                $missingFromDp[] = $cit;
+            }
+        }
+        $orphanDp = [];
+        foreach ($dpLines as $idx => $line) {
+            if (!isset($matchedDpIdx[$idx])) {
+                $orphanDp[] = Str::limit($line, 85);
+            }
+        }
+
+        if (empty($inTextCites) && empty($dpLines)) {
+            $checks[] = [
+                'id' => 'citation_sync',
+                'title' => 'Sinkronisasi Sitasi ↔ Daftar Pustaka',
+                'status' => 'warn',
+                'summary' => 'Belum ada sitasi atau Daftar Pustaka yang dapat diaudit.',
+                'details' => [],
+                'action' => ['type' => 'chapter', 'target' => 'daftar_pustaka', 'label' => 'Buka Daftar Pustaka'],
+            ];
+        } elseif (empty($missingFromDp) && count($orphanDp) <= 1) {
+            $earned += 25;
+            $checks[] = [
+                'id' => 'citation_sync',
+                'title' => 'Sinkronisasi Sitasi ↔ Daftar Pustaka',
+                'status' => 'pass',
+                'summary' => 'Seluruh ' . count($inTextCites) . ' sitasi in-text tercantum rapi di Daftar Pustaka (' . count($dpLines) . ' entri).',
+                'details' => [],
+                'action' => null,
+            ];
+        } else {
+            $ratio = count($inTextCites) > 0 ? max(0, (count($inTextCites) - count($missingFromDp)) / count($inTextCites)) : 0.5;
+            $earned += (int) round(25 * $ratio * 0.75);
+            $details = [];
+            if (!empty($missingFromDp)) {
+                $details[] = count($missingFromDp) . ' sitasi dalam naskah belum ada di Daftar Pustaka: ' . implode(', ', array_slice($missingFromDp, 0, 6)) . (count($missingFromDp) > 6 ? ' ...' : '');
+            }
+            if (!empty($orphanDp)) {
+                $details[] = count($orphanDp) . ' entri di Daftar Pustaka belum terdeteksi dikutip di Bab I–IV: ' . implode(' | ', array_slice($orphanDp, 0, 3));
+            }
+            $checks[] = [
+                'id' => 'citation_sync',
+                'title' => 'Sinkronisasi Sitasi ↔ Daftar Pustaka',
+                'status' => count($missingFromDp) > 0 ? 'fail' : 'warn',
+                'summary' => count($missingFromDp) . ' sitasi hilang dari Daftar Pustaka · ' . count($orphanDp) . ' referensi belum dikutip.',
+                'details' => $details,
+                'action' => ['type' => 'sync_dp', 'target' => 'daftar_pustaka', 'label' => 'Sinkronkan Daftar Pustaka Otomatis'],
+            ];
+        }
+
+        // 4. Kepatuhan Tahun Terbit Minimum & Pengaturan Sitasi Mahasiswa
+        $maxPoints += 15;
+        $outdatedCites = [];
+        foreach ($inTextCites as $cit) {
+            if (preg_match('/\b((?:19|20)\d{2})\b/', $cit, $ym)) {
+                $yr = (int) $ym[1];
+                $isReg = (bool) preg_match('/^(UU|Undang|Permen|PP|Perpres|Kepmen|UUD|SNI|ASTM)/i', $cit);
+                if (!$isReg && $yr < $tahunMin) {
+                    $outdatedCites[] = $cit;
+                }
+            }
+        }
+        if (empty($outdatedCites)) {
+            $earned += 15;
+            $checks[] = [
+                'id' => 'citation_year',
+                'title' => "Kepatuhan Tahun & Gaya ({$gayaSitasi}, ≥ {$tahunMin})",
+                'status' => 'pass',
+                'summary' => "Seluruh sitasi mematuhi batas tahun minimum ≥ {$tahunMin} dan pengaturan asal {$asalRef}.",
+                'details' => [],
+                'action' => null,
+            ];
+        } else {
+            $earned += 6;
+            $checks[] = [
+                'id' => 'citation_year',
+                'title' => "Kepatuhan Tahun & Gaya ({$gayaSitasi}, ≥ {$tahunMin})",
+                'status' => 'warn',
+                'summary' => count($outdatedCites) . " sitasi berumur di bawah batas form mahasiswa ({$tahunMin}).",
+                'details' => [
+                    'Sitasi di bawah tahun ' . $tahunMin . ': ' . implode(', ', array_slice($outdatedCites, 0, 6)),
+                    'Tip: Klik langsung teks sitasi berwarna biru di naskah lalu pilih "Ganti Sitasi" untuk menggantinya otomatis dengan jurnal terverifikasi ≥ ' . $tahunMin . '.',
+                ],
+                'action' => null,
+            ];
+        }
+
+        // 5. Konsistensi Data Riil / Olah Data (Bab III & IV)
+        $maxPoints += 10;
+        $dataRiil = is_array($meta['data_riil'] ?? null) ? array_filter($meta['data_riil']) : [];
+        if (empty($dataRiil)) {
+            if ($isProposal) {
+                $earned += 10;
+                $checks[] = [
+                    'id' => 'data_riil',
+                    'title' => 'Integrasi Olah Data Penelitian',
+                    'status' => 'pass',
+                    'summary' => 'Mode Proposal (Bab I–III): Olah data empiris bersifat opsional hingga tahap pengambilan data.',
+                    'details' => [],
+                    'action' => null,
+                ];
+            } else {
+                $earned += 5;
+                $checks[] = [
+                    'id' => 'data_riil',
+                    'title' => 'Integrasi Olah Data Penelitian',
+                    'status' => 'warn',
+                    'summary' => 'Data olahan riil belum diisi pada Menu Olah Data Penelitian.',
+                    'details' => ['Isi hasil SPSS / Kalkulator Olah Data agar angka di Bab IV 100% sesuai data lapanganmu.'],
+                    'action' => ['type' => 'olah_data', 'target' => 'olah_data', 'label' => 'Buka Menu Olah Data'],
+                ];
+            }
+        } else {
+            preg_match_all('/\b\d+[.,]\d+\b/', (string) ($dataRiil['metrik'] ?? ''), $numMatches);
+            $keyNums = array_slice(array_unique($numMatches[0] ?? []), 0, 5);
+            $matchedNums = 0;
+            foreach ($keyNums as $kn) {
+                $altComma = str_replace('.', ',', $kn);
+                $altDot = str_replace(',', '.', $kn);
+                if (str_contains($b4, $kn) || str_contains($b4, $altComma) || str_contains($b4, $altDot)) {
+                    $matchedNums++;
+                }
+            }
+            if (empty($keyNums) || $matchedNums > 0 || $b4 === '') {
+                $earned += 10;
+                $checks[] = [
+                    'id' => 'data_riil',
+                    'title' => 'Integrasi Olah Data Penelitian',
+                    'status' => 'pass',
+                    'summary' => $b4 === ''
+                        ? 'Parameter olah data riil sudah tersimpan siap digunakan saat menyusun Bab IV.'
+                        : "Parameter olah data riil terverifikasi masuk di Bab IV ({$matchedNums}/" . max(1, count($keyNums)) . ' metrik kunci cocok).',
+                    'details' => [],
+                    'action' => null,
+                ];
+            } else {
+                $earned += 4;
+                $checks[] = [
+                    'id' => 'data_riil',
+                    'title' => 'Integrasi Olah Data Penelitian',
+                    'status' => 'warn',
+                    'summary' => 'Angka metrik di Menu Olah Data belum muncul persis di naskah Bab IV.',
+                    'details' => ['Buka Bab IV lalu klik "Susun Ulang Bab Ini" setelah menyimpan hasil olah data agar seluruh angka sinkron.'],
+                    'action' => ['type' => 'chapter', 'target' => 'bab4', 'label' => 'Buka Bab IV'],
+                ];
+            }
+        }
+
+        // 6. Kualitas Bahasa, Klise AI, Markdown & LaTeX Mentah
+        $maxPoints += 15;
+        $fullText = $bodyAll . "\n" . $b5;
+        $formatIssues = [];
+        $cliches = ['di era digital saat ini', 'di era globalisasi saat ini', 'tidak dapat dipungkiri bahwa', 'memegang peranan krusial', 'merupakan tonggak penting', 'kondisi ideal dalam'];
+        $foundCliches = [];
+        $fullLower = strtolower($fullText);
+        foreach ($cliches as $cl) {
+            if (str_contains($fullLower, $cl)) {
+                $foundCliches[] = '"' . $cl . '"';
+            }
+        }
+        if (!empty($foundCliches)) {
+            $formatIssues[] = 'Terdeteksi frasa klise AI: ' . implode(', ', $foundCliches);
+        }
+        if (preg_match('/\\\(?:frac|hat|widehat|approx|times|cdot)\b/', $fullText)) {
+            $formatIssues[] = 'Masih terdapat kode LaTeX mentah (mis. \\frac atau \\hat) di naskah.';
+        }
+        if (preg_match('/^\s*#{2,6}\s+/m', $fullText)) {
+            $formatIssues[] = 'Masih terdapat simbol markdown heading (###) yang belum dibersihkan.';
+        }
+
+        if (empty($formatIssues)) {
+            $earned += 15;
+            $checks[] = [
+                'id' => 'academic_style',
+                'title' => 'Kualitas Bahasa & Kebersihan Format',
+                'status' => 'pass',
+                'summary' => 'Bebas frasa klise AI, bebas markdown mentah (###), dan bebas kebocoran LaTeX.',
+                'details' => [],
+                'action' => null,
+            ];
+        } else {
+            $earned += 7;
+            $checks[] = [
+                'id' => 'academic_style',
+                'title' => 'Kualitas Bahasa & Kebersihan Format',
+                'status' => 'warn',
+                'summary' => count($formatIssues) . ' catatan gaya bahasa/format akademik ditemukan.',
+                'details' => $formatIssues,
+                'action' => ['type' => 'chapter', 'target' => 'revisi', 'label' => 'Buka Lab Revisi'],
+            ];
+        }
+
+        $score = $maxPoints > 0 ? (int) round(($earned / $maxPoints) * 100) : 0;
+        $gradeLabel = $score >= 88
+            ? 'Siap Bimbingan Dosen'
+            : ($score >= 70 ? 'Layak dengan Revisi Minor' : 'Perlu Perbaikan Sebelum Bimbingan');
+
+        return response()->json([
+            'status' => 'success',
+            'score' => $score,
+            'grade_label' => $gradeLabel,
+            'citation_settings' => [
+                'gaya' => $gayaSitasi,
+                'tahun_min' => $tahunMin,
+                'asal' => $asalRef,
+                'verified_bank_count' => count($meta['verified_refs'] ?? []),
+            ],
+            'stats' => [
+                'in_text_count' => count($inTextCites),
+                'dp_count' => count($dpLines),
+                'missing_dp_count' => count($missingFromDp),
+                'orphan_dp_count' => count($orphanDp),
+                'rm_count' => $rmCount,
+                'kes_count' => $kesCount,
+            ],
+            'checks' => $checks,
+        ]);
+    }
+
+    /**
+     * Ganti Sitasi Interaktif langsung dari Workspace Penulisan (Buka Sumber / Ganti Sitasi Terverifikasi sesuai Pengaturan Form Mahasiswa)
+     */
+    public function replaceCitation(Request $request, $id)
+    {
+        $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $meta = $this->getProjectMeta($project);
+        $sitasi = $meta['sitasi'] ?? [];
+        $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
+        $tahunMin = !empty($sitasi['tahun_min']) ? max(2015, min(2026, (int) $sitasi['tahun_min'])) : 2023;
+        $asalRef = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
+        $bahasa = (string) ($sitasi['bahasa'] ?? 'Indonesia');
+
+        $action = (string) $request->input('action', 'candidates');
+        $chapter = (string) $request->input('chapter', 'bab1');
+        $oldCite = trim((string) $request->input('old_cite', ''));
+        $oldAuthor = trim((string) $request->input('old_author', ''));
+        $paragraph = trim((string) $request->input('paragraph', ''));
+        $customQuery = trim((string) $request->input('query', ''));
+
+        $allowedChapters = ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'];
+        if (!in_array($chapter, $allowedChapters, true)) {
+            return response()->json(['status' => 'error', 'message' => 'Bab tidak valid untuk penggantian sitasi.'], 422);
+        }
+
+        // Ambil kandidat jurnal terverifikasi yang relevan dengan kalimat/paragraf + mematuhi pengaturan sitasi mahasiswa!
+        $buildCandidates = function () use ($project, $paragraph, $customQuery, $tahunMin, $asalRef, $gayaSitasi, $oldAuthor): array {
+            $searchBase = $customQuery !== ''
+                ? $customQuery
+                : ($paragraph !== '' ? $paragraph : (string) $project->judul);
+            $q = $this->buildJournalSearchQuery($searchBase, 6);
+            $fresh = $q !== '' ? $this->queryVerifiedJournalsExternal($q, $tahunMin, $asalRef, $gayaSitasi, 8) : [];
+            $locked = $this->getVerifiedRefsStructured($project);
+
+            $combined = [];
+            $seen = [];
+            $oldFirst = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $oldAuthor)[0] ?? ''));
+
+            foreach (array_merge($fresh, $locked) as $ref) {
+                if (!is_array($ref) || empty($ref['title'])) {
+                    continue;
+                }
+                $yr = (int) ($ref['year'] ?? 0);
+                if ($yr < $tahunMin || $yr > 2026) {
+                    continue;
+                }
+                $refFirst = strtolower((string) preg_replace('/[^a-zA-Z]/', '', (string) ($ref['first_surname'] ?? '')));
+                if ($oldFirst !== '' && $refFirst === $oldFirst) {
+                    continue;
+                }
+                $k = strtolower((string) $ref['title']);
+                if (isset($seen[$k])) {
+                    continue;
+                }
+                $seen[$k] = true;
+                $ref['formatted'] = $this->formatVerifiedReferenceEntry($ref, $gayaSitasi);
+                $combined[] = $ref;
+            }
+            return array_slice($combined, 0, 8);
+        };
+
+        if ($action === 'candidates') {
+            $candidates = $buildCandidates();
+            return response()->json([
+                'status' => 'success',
+                'settings' => [
+                    'gaya' => $gayaSitasi,
+                    'tahun_min' => $tahunMin,
+                    'asal' => $asalRef,
+                    'bahasa' => $bahasa,
+                ],
+                'candidates' => $candidates,
+            ]);
+        }
+
+        // Action = replace
+        if ($oldCite === '') {
+            return response()->json(['status' => 'error', 'message' => 'Sitasi lama tidak terdeteksi.'], 422);
+        }
+
+        $chosenRef = $request->input('chosen_ref');
+        if (is_string($chosenRef)) {
+            $chosenRef = json_decode($chosenRef, true);
+        }
+        if (!is_array($chosenRef) || empty($chosenRef['in_text']) || empty($chosenRef['year'])) {
+            $candidates = $buildCandidates();
+            if (empty($candidates)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Belum ditemukan jurnal pengganti terverifikasi (≥ {$tahunMin}). Coba tulis kata kunci pencarian yang lebih umum.",
+                ], 422);
+            }
+            $chosenRef = $candidates[0];
+        }
+
+        $adjustSentence = filter_var($request->input('adjust_sentence', true), FILTER_VALIDATE_BOOLEAN);
+        $col = $chapter . '_content';
+        $chapterContent = (string) ($project->$col ?? '');
+        if ($chapterContent === '') {
+            return response()->json(['status' => 'error', 'message' => 'Konten bab masih kosong.'], 422);
+        }
+
+        $isParenthetical = str_starts_with(trim($oldCite), '(') && str_ends_with(trim($oldCite), ')');
+        $newInText = $isParenthetical
+            ? '(' . $chosenRef['in_text'] . ', ' . $chosenRef['year'] . ')'
+            : $chosenRef['in_text'] . ' (' . $chosenRef['year'] . ')';
+        $newFormattedRef = $this->formatVerifiedReferenceEntry($chosenRef, $gayaSitasi);
+
+        // Temukan blok paragraf yang memuat sitasi lama di dalam naskah mentah bab
+        $lines = preg_split("/(\r\n|\n)/", $chapterContent) ?: [];
+        $targetLineIdx = -1;
+        foreach ($lines as $idx => $ln) {
+            if (str_contains($ln, $oldCite)) {
+                if ($paragraph === '' || str_contains($ln, mb_substr($paragraph, 0, 35))) {
+                    $targetLineIdx = $idx;
+                    break;
+                }
+                if ($targetLineIdx === -1) {
+                    $targetLineIdx = $idx;
+                }
+            }
+        }
+        if ($targetLineIdx === -1 && $oldAuthor !== '') {
+            // Pencarian longgar bila tanda kurung / spasi sedikit berbeda di markdown mentah
+            $pat = '/' . preg_quote($oldAuthor, '/') . '[^.\n]{0,20}\b' . preg_quote((string) $request->input('old_year', ''), '/') . '\b/i';
+            foreach ($lines as $idx => $ln) {
+                if (preg_match($pat, $ln)) {
+                    $targetLineIdx = $idx;
+                    break;
+                }
+            }
+        }
+
+        if ($targetLineIdx === -1) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Posisi sitasi tidak ditemukan secara persis di bab ini. Coba buka bab terkait terlebih dahulu.',
+            ], 422);
+        }
+
+        $origLine = $lines[$targetLineIdx];
+        $updatedLine = '';
+
+        if ($adjustSentence) {
+            try {
+                $prompt = "Anda adalah Editor Skripsi Akademik Indonesia.\n"
+                    . "Tugas Anda: Ganti sitasi lama `{$oldCite}` pada paragraf berikut menjadi sitasi terverifikasi baru `{$newInText}` (dari artikel asli: \"{$chosenRef['title']}\" — {$chosenRef['venue']}, {$chosenRef['year']}), DAN sesuaikan halus kalimat yang mengutipnya agar klaimnya benar-benar selaras dengan topik artikel baru tersebut.\n\n"
+                    . "ATURAN MUTLAK:\n"
+                    . "1. WAJIB menyertakan sitasi persis `{$newInText}` sesuai gaya {$gayaSitasi} (tahun {$chosenRef['year']}).\n"
+                    . "2. Pertahankan gaya bahasa {$bahasa} ilmiah baku, struktur paragraf, dan sitasi lain (jika ada) di paragraf tersebut tetap utuh.\n"
+                    . "3. DILARANG memakai tanda bintang markdown (** / *), heading (###), atau kalimat pengantar seperti 'Berikut paragraf hasil revisi:'.\n"
+                    . "4. Keluarkan HANYA 1 paragraf hasil perbaikan tersebut.\n\n"
+                    . "PARAGRAF ASLI:\n{$origLine}";
+                $aiPara = trim($this->cleanTextKeepFormat($this->ai->generateText($prompt, 'auto')));
+                $aiPara = trim((string) preg_replace('/\s*\n+\s*/', ' ', $aiPara));
+                if ($aiPara !== '' && str_contains($aiPara, (string) $chosenRef['year']) && mb_strlen($aiPara) >= 40) {
+                    $updatedLine = $aiPara;
+                }
+            } catch (Throwable $e) {
+                Log::warning('AI sentence adjust fallback to direct replace: ' . $e->getMessage());
+            }
+        }
+
+        if ($updatedLine === '') {
+            if (str_contains($origLine, $oldCite)) {
+                $updatedLine = str_replace($oldCite, $newInText, $origLine);
+            } else {
+                $pat = '/\(?' . preg_quote($oldAuthor, '/') . '[^.\n)]{0,20}\b' . preg_quote((string) $request->input('old_year', ''), '/') . '\b\)?/i';
+                $updatedLine = (string) preg_replace($pat, $newInText, $origLine, 1);
+            }
+        }
+
+        $lines[$targetLineIdx] = $updatedLine;
+        $project->$col = implode("\n", $lines);
+
+        // Simpan referensi baru ke bank verified_refs proyek
+        $verifiedRefs = is_array($meta['verified_refs'] ?? null) ? $meta['verified_refs'] : [];
+        $existsInBank = false;
+        foreach ($verifiedRefs as $vr) {
+            if (is_array($vr) && strtolower((string) ($vr['title'] ?? '')) === strtolower((string) $chosenRef['title'])) {
+                $existsInBank = true;
+                break;
+            }
+        }
+        if (!$existsInBank) {
+            $chosenRef['manual_saved'] = true;
+            $chosenRef['formatted'] = $newFormattedRef;
+            array_unshift($verifiedRefs, $chosenRef);
+            $meta['verified_refs'] = array_slice($verifiedRefs, 0, 25);
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+        }
+
+        // Sinkronkan Daftar Pustaka: tambahkan referensi baru (dan bersihkan referensi lama bila sudah tidak dikutip lagi di bab manapun)
+        $dpLines = array_values(array_filter(array_map('trim', explode("\n", (string) ($project->daftar_pustaka ?? '')))));
+        $allBodyAfter = strip_tags($project->bab1_content . ' ' . $project->bab2_content . ' ' . $project->bab3_content . ' ' . $project->bab4_content . ' ' . $project->bab5_content);
+
+        if ($oldAuthor !== '') {
+            $oldFirst = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $oldAuthor)[0] ?? ''));
+            $oldYr = (string) $request->input('old_year', '');
+            $stillCited = $oldFirst !== '' && preg_match('/\b' . preg_quote($oldFirst, '/') . '\b[^.\n]{0,30}\b' . preg_quote($oldYr, '/') . '\b/i', $allBodyAfter);
+            if (!$stillCited && $oldFirst !== '' && $oldYr !== '') {
+                $dpLines = array_values(array_filter($dpLines, function ($line) use ($oldFirst, $oldYr) {
+                    $ll = strtolower($line);
+                    return !(str_contains($ll, $oldFirst) && str_contains($ll, $oldYr));
+                }));
+            }
+        }
+
+        $newKey = !empty($chosenRef['doi']) ? strtolower((string) $chosenRef['doi']) : strtolower(mb_substr((string) $chosenRef['title'], 0, 35));
+        $alreadyInDp = false;
+        foreach ($dpLines as $line) {
+            if ($newKey !== '' && str_contains(strtolower($line), $newKey)) {
+                $alreadyInDp = true;
+                break;
+            }
+        }
+        if (!$alreadyInDp) {
+            $dpLines[] = $newFormattedRef;
+        }
+        $gayaLower = strtolower($gayaSitasi);
+        if (!str_contains($gayaLower, 'ieee') && !str_contains($gayaLower, 'vancouver')) {
+            sort($dpLines, SORT_NATURAL | SORT_FLAG_CASE);
+        }
+        $project->daftar_pustaka = implode("\n", $dpLines);
+        $project->save();
+
+        return response()->json([
+            'status' => 'success',
+            'chapter' => $chapter,
+            'old_cite' => $oldCite,
+            'new_cite' => $newInText,
+            'new_ref_formatted' => $newFormattedRef,
+            'new_doi' => (string) ($chosenRef['doi'] ?? ''),
+            'updated_chapter_content' => $project->$col,
+            'updated_daftar_pustaka' => $project->daftar_pustaka,
+        ]);
+    }
+
+    /**
+     * Simpan jurnal dari fitur Cari Jurnal langsung ke Referensi Wajib & Bank Terverifikasi Proyek Mahasiswa
+     */
+    public function addProjectReference(Request $request, $id)
+    {
+        $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $meta = $this->getProjectMeta($project);
+        $gayaSitasi = (string) ($meta['sitasi']['gaya'] ?? 'APA 7th');
+
+        $title = trim((string) $request->input('title', ''));
+        $author = trim((string) $request->input('author', ''));
+        $year = (int) $request->input('year', date('Y'));
+        $journal = trim((string) $request->input('journal', 'Jurnal Ilmiah Terakreditasi'));
+        $doiUrl = trim((string) $request->input('doi_url', ''));
+        $scope = trim((string) $request->input('scope', 'Internasional'));
+
+        if ($title === '' || $author === '') {
+            return response()->json(['status' => 'error', 'message' => 'Data jurnal tidak lengkap.'], 422);
+        }
+
+        $firstPart = trim(explode(',', explode(';', explode('&', $author)[0])[0])[0]);
+        $tokens = preg_split('/\s+/', $firstPart) ?: [];
+        $surname = end($tokens) ?: $firstPart;
+        $inText = (str_contains($author, 'et al') || substr_count($author, ',') >= 2) ? "{$surname} et al." : $surname;
+
+        $entry = [
+            'in_text' => $inText,
+            'first_surname' => $surname,
+            'year' => $year,
+            'authors_apa' => $author,
+            'authors_ieee' => $author,
+            'title' => $title,
+            'venue' => $journal,
+            'vol' => '',
+            'iss' => '',
+            'pages' => '',
+            'doi' => $doiUrl,
+            'scope' => $scope,
+            'manual_saved' => true,
+        ];
+        $entry['formatted'] = $this->formatVerifiedReferenceEntry($entry, $gayaSitasi);
+
+        $bank = is_array($meta['verified_refs'] ?? null) ? $meta['verified_refs'] : [];
+        $exists = false;
+        foreach ($bank as $b) {
+            if (is_array($b) && strtolower((string) ($b['title'] ?? '')) === strtolower($title)) {
+                $exists = true;
+                break;
+            }
+        }
+        if (!$exists) {
+            array_unshift($bank, $entry);
+            $meta['verified_refs'] = array_slice($bank, 0, 25);
+        }
+
+        $existingSpecial = trim((string) ($meta['referensi_khusus'] ?? ''));
+        if (!str_contains(strtolower($existingSpecial), strtolower(mb_substr($title, 0, 40)))) {
+            $meta['referensi_khusus'] = trim($existingSpecial . "\n- " . $entry['formatted']);
+        }
+
+        $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+        $project->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Jurnal berhasil disimpan ke proyek \"{$project->judul}\" (format {$gayaSitasi}).",
+            'formatted' => $entry['formatted'],
+        ]);
     }
 
     public function solveQuestion(Request $request)

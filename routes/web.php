@@ -89,6 +89,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/project/{id}/lampiran/extract', [GeneratorController::class, 'extractLampiranFile'])->name('project.lampiran.extract');
     Route::post('/project/{id}/guideline', [GeneratorController::class, 'uploadGuideline'])->name('project.guideline');
     Route::post('/project/{id}/refine-references', [GeneratorController::class, 'refineReferences'])->name('project.refine.references');
+    Route::post('/project/{id}/audit', [GeneratorController::class, 'auditProject'])->name('project.audit');
+    Route::post('/project/{id}/citation/replace', [GeneratorController::class, 'replaceCitation'])->name('project.citation.replace');
+    Route::post('/project/{id}/references/add', [GeneratorController::class, 'addProjectReference'])->name('project.references.add');
 
     // --- DOWNLOAD DOCX & PDF (DENGAN LOGO KAMPUS) ---
     Route::match(['get', 'post'], '/project/{id}/download/docx', [GeneratorController::class, 'downloadDocx'])->name('app.downloadDocx');

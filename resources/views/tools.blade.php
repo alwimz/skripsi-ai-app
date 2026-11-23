@@ -1833,7 +1833,7 @@
                                 </div>
                             </div>
                             <div class="result-actions">
-                                <button type="button" class="btn btn-outline" id="btn-preview-docx2pdf">👁 Lihat PDF</button>
+                                <button type="button" class="btn btn-outline" id="btn-preview-docx2pdf"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat PDF</button>
                                 <button type="button" class="btn btn-success" id="btn-download-docx2pdf">⬇ Unduh PDF</button>
                             </div>
                         </div>
@@ -1853,7 +1853,7 @@
                         <h2 class="panel-title">Gabung PDF (Merge PDF)</h2>
                         <p class="panel-desc">Satukan Cover, Lembar Pengesahan hasil scan, Bab I–V, dan Lampiran menjadi satu file PDF utuh — dilengkapi pratinjau halaman pertama tiap file &amp; tombol cek hasil PDF langsung.</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser · Tanpa Batas Ukuran</span>
+                    <span class="privacy-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 100% di Browser · Tanpa Batas Ukuran</span>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-merge-pdf').click()">
@@ -1908,7 +1908,7 @@
                             </div>
                         </div>
                         <div class="result-actions">
-                            <button type="button" class="btn btn-outline" id="btn-preview-merge">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-outline" id="btn-preview-merge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat PDF</button>
                             <button type="button" class="btn btn-success" id="btn-download-merge">⬇ Unduh PDF</button>
                         </div>
                     </div>
@@ -1927,7 +1927,7 @@
                         <h2 class="panel-title">Pisah / Hapus Halaman PDF</h2>
                         <p class="panel-desc">Klik langsung halaman PDF dari pratinjau visual atau ketik rentang halaman — bisa <strong>Ambil Halaman Terpilih</strong> maupun <strong>Hapus Halaman Terpilih</strong> (misalnya hapus halaman kosong).</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser · Pratinjau Visual</span>
+                    <span class="privacy-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 100% di Browser · Pratinjau Visual</span>
                 </div>
 
                 <div class="seg-switch">
@@ -1993,7 +1993,7 @@
                             </div>
                         </div>
                         <div class="result-actions">
-                            <button type="button" class="btn btn-outline" id="btn-preview-split">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-outline" id="btn-preview-split"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat PDF</button>
                             <button type="button" class="btn btn-success" id="btn-download-split">⬇ Unduh PDF</button>
                         </div>
                     </div>
@@ -2012,7 +2012,7 @@
                         <h2 class="panel-title">Kompres File (PDF, Word .docx &amp; Gambar)</h2>
                         <p class="panel-desc">Kecilkan ukuran file skripsi PDF, dokumen Word yang berat karena banyak foto, maupun gambar/scan agar lolos batas upload SIAKAD &amp; repository kampus.</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser · Tanpa Batas 4 MB</span>
+                    <span class="privacy-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 100% di Browser · Tanpa Batas 4 MB</span>
                 </div>
 
                 <div class="seg-switch">
@@ -2069,7 +2069,7 @@
                                 </div>
                             </div>
                             <div class="result-actions">
-                                <button type="button" class="btn btn-outline" id="btn-preview-comp-pdf">👁 Lihat PDF</button>
+                                <button type="button" class="btn btn-outline" id="btn-preview-comp-pdf"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat PDF</button>
                                 <button type="button" class="btn btn-success" id="btn-download-comp-pdf">⬇ Unduh PDF</button>
                             </div>
                         </div>
@@ -2185,11 +2185,11 @@
                         <h2 class="panel-title">Hapus Background Gambar (TTD, Logo &amp; Pas Foto)</h2>
                         <p class="panel-desc">Buat tanda tangan transparan untuk Lembar Pengesahan Word, bersihkan background logo kampus, atau ganti latar pas foto mahasiswa ke Transparan / Merah / Biru secara otomatis.</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser · Privat</span>
+                    <span class="privacy-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 100% di Browser · Privat</span>
                 </div>
 
                 <div class="seg-switch">
-                    <button type="button" class="seg-btn active" id="seg-rmbg-ai" onclick="setRemoveBgMode('ai')">✨ Hapus Background AI (Otomatis · Semua Gambar)</button>
+                    <button type="button" class="seg-btn active" id="seg-rmbg-ai" onclick="setRemoveBgMode('ai')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>Hapus Background AI (Otomatis · Semua Gambar)</button>
                     <button type="button" class="seg-btn" id="seg-rmbg-smart" onclick="setRemoveBgMode('smart')">Tanda Tangan &amp; Logo (Latar Polos)</button>
                 </div>
 
@@ -2202,8 +2202,9 @@
 
                 <!-- Kontrol Mode AI (Default — Semua Foto, Pas Foto, Produk & Objek Rumit) -->
                 <div id="rmbg-ai-controls" style="margin-bottom:12px;">
-                    <div style="padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-size:12.5px; color:#1e40af;">
-                        ✨ <strong>Mode AI Otomatis (ISNet / RMBG):</strong> Memisahkan subjek, orang, pas foto, maupun objek rumit dari latar belakang langsung di browser. Pemakaian pertama mengunduh model AI sekali saja (tersimpan otomatis di cache browser).
+                    <div style="padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-size:12.5px; color:#1e40af; display:flex; align-items:flex-start; gap:8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>
+                        <span><strong>Mode AI Otomatis (ISNet / RMBG):</strong> Memisahkan subjek, orang, pas foto, maupun objek rumit dari latar belakang langsung di browser. Pemakaian pertama mengunduh model AI sekali saja (tersimpan otomatis di cache browser).</span>
                     </div>
                 </div>
 
@@ -2276,7 +2277,7 @@
 
                 <div class="tool-action-bar">
                     <div class="tool-action-controls">
-                        <button type="button" class="btn btn-soft" id="btn-rmbg-run" onclick="runRemoveBgCurrentMode()">✨ Proses Ulang dengan AI</button>
+                        <button type="button" class="btn btn-soft" id="btn-rmbg-run" onclick="runRemoveBgCurrentMode()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Proses Ulang dengan AI</button>
                     </div>
                     <div class="btn-row-responsive two-col-mobile">
                         <button type="button" class="btn btn-primary" id="btn-rmbg-dl-png" onclick="downloadRemoveBg('png')" disabled>⬇ Unduh PNG</button>
@@ -2297,7 +2298,7 @@
                         <h2 class="panel-title">JPG / PNG → PDF A4</h2>
                         <p class="panel-desc">Ubah foto Lembar Pengesahan bertanda tangan, Surat Izin Penelitian, KRS, atau Kuesioner menjadi dokumen PDF A4 rapi — bisa putar foto 90° &amp; atur urutan halaman.</p>
                     </div>
-                    <span class="privacy-badge">⚡ 100% di Browser</span>
+                    <span class="privacy-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 100% di Browser</span>
                 </div>
 
                 <div class="dropzone" onclick="document.getElementById('input-img-pdf').click()">
@@ -2357,7 +2358,7 @@
                             </div>
                         </div>
                         <div class="result-actions">
-                            <button type="button" class="btn btn-outline" id="btn-preview-img-pdf">👁 Lihat PDF</button>
+                            <button type="button" class="btn btn-outline" id="btn-preview-img-pdf"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Lihat PDF</button>
                             <button type="button" class="btn btn-success" id="btn-download-img-pdf">⬇ Unduh PDF</button>
                         </div>
                     </div>
@@ -2434,7 +2435,7 @@
                             <div style="font-size:12px; font-weight:700; color:#1d4ed8; text-transform:uppercase;" id="sample-result-label">Jumlah Sampel Minimal (n)</div>
                             <div class="slovin-num" id="slovin-final-n">187 Responden</div>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="copySlovinParagraph()">📋 Salin Paragraf Bab III</button>
+                        <button type="button" class="btn btn-primary" onclick="copySlovinParagraph()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Salin Paragraf Bab III</button>
                     </div>
                     <div class="slovin-steps" id="slovin-steps-box"></div>
                     <div class="slovin-para" id="slovin-para-box"></div>
@@ -2488,8 +2489,8 @@
                 </div>
 
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                    <div id="wc-abstract-badge" class="abstract-badge">ℹ️ Standar abstrak skripsi Indonesia umumnya 150–250 kata.</div>
-                    <button type="button" class="btn btn-outline" style="margin-top:12px;" onclick="copyWordCountSummary()">📋 Salin Ringkasan</button>
+                    <div id="wc-abstract-badge" class="abstract-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>Standar abstrak skripsi Indonesia umumnya 150–250 kata.</span></div>
+                    <button type="button" class="btn btn-outline" style="margin-top:12px;" onclick="copyWordCountSummary()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Salin Ringkasan</button>
                 </div>
                 <div id="wc-top-words-wrap" style="display:none; margin-top:12px;">
                     <div style="font-size:12px; font-weight:700; color:var(--text-secondary);">Kata Kunci Paling Sering Muncul:</div>
@@ -3974,12 +3975,16 @@
                 const firstMajorIdx = bodyChildren.findIndex(n => {
                     if (n.localName !== 'p') return false;
                     const t = Array.from(n.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join('').replace(/\s+/g, ' ').trim();
-                    return t.length <= 85 && /^(?:BAB\s+[IVX0-9]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|DAFTAR\s+ISI)/i.test(t);
+                    if (/\.{3,}/.test(t) || n.getElementsByTagNameNS(W_NS, 'tab').length > 0) return false;
+                    return t.length <= 75 && /^(?:BAB\s+[IVX0-9]+|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|DAFTAR\s+ISI)$/i.test(t);
                 });
                 const hasCoverZone = optProtectCover && firstMajorIdx > 0;
 
                 let inBibliography = false;
                 let inAbstract = false;
+                let inTocSection = false;
+                let prevWasBabHeading = false;
+                let prevWasPageBreak = false;
                 let seenRealContent = false;
                 let consecutiveEmpty = 0;
 
@@ -3994,18 +3999,23 @@
                         const pPrExisting = getDirectChild(node, 'pPr');
                         const hasSectPr = !!pPrExisting && !!getDirectChild(pPrExisting, 'sectPr');
                         const styleVal = (pPrExisting && getDirectChild(pPrExisting, 'pStyle')?.getAttributeNS(W_NS, 'val')) || '';
-                        const isTocPara = optProtectCover && /^TOC/i.test(styleVal);
+                        const isTocStyle = /^TOC/i.test(styleVal);
                         const hasFieldCode = node.getElementsByTagNameNS(W_NS, 'fldChar').length > 0 || node.getElementsByTagNameNS(W_NS, 'instrText').length > 0;
+                        const hasTabEl = node.getElementsByTagNameNS(W_NS, 'tab').length > 0;
                         const rawText = Array.from(node.getElementsByTagNameNS(W_NS, 't')).map(t => t.textContent || '').join('');
                         const text = rawText.replace(/\s+/g, ' ').trim();
 
-                        // Lindungi Cover Page / Lembar Pengesahan / Daftar Isi Otomatis (TOC)
+                        // Deteksi baris Daftar Isi / Daftar Tabel / Daftar Gambar (baik TOC otomatis Word maupun dot-leader "........ ii / 12")
+                        const hasDotLeader = /\.{3,}/.test(text);
+                        const endsWithTocPage = (hasDotLeader || hasTabEl || /\s{2,}/.test(rawText)) && /(?:\b[ivxlcdm]{1,6}|\b\d{1,4})\s*$/i.test(text);
+                        const isTocEntry = isTocStyle || hasDotLeader || endsWithTocPage;
+
+                        // Lindungi Cover Page / Lembar Pengesahan / Halaman Depan
                         if (inCoverZone) {
                             if (hasDrawing) constrainNodeImages(node);
                             if (text) {
                                 seenRealContent = true;
                                 Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
-                                    // Seragamkan hanya font family di cover, jangan rusak ukuran/spasi/rata tengah cover!
                                     const rPr = ensureChild(r, 'rPr', true);
                                     const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
                                     setWAttr(rFonts, 'ascii', fontName);
@@ -4013,11 +4023,24 @@
                                     setWAttr(rFonts, 'cs', fontName);
                                 });
                             }
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = hasSectPr;
                             continue;
                         }
 
-                        if (isTocPara || (optProtectCover && hasFieldCode && /TOC|PAGEREF/i.test(Array.from(node.getElementsByTagNameNS(W_NS, 'instrText')).map(x => x.textContent || '').join('')))) {
+                        // SELALU lindungi entri Daftar Isi / TOC (agar tidak pernah diberi page-break atau diubah jadi judul BAB!)
+                        if (isTocEntry || (hasFieldCode && /TOC|PAGEREF/i.test(Array.from(node.getElementsByTagNameNS(W_NS, 'instrText')).map(x => x.textContent || '').join('')))) {
                             seenRealContent = true;
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
+                            // Hanya seragamkan jenis font secara aman tanpa merusak tab stop / dot leader / halaman
+                            Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
+                                const rPr = ensureChild(r, 'rPr', true);
+                                const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
+                                setWAttr(rFonts, 'ascii', fontName);
+                                setWAttr(rFonts, 'hAnsi', fontName);
+                                setWAttr(rFonts, 'cs', fontName);
+                            });
                             continue;
                         }
 
@@ -4027,6 +4050,7 @@
                             if (optPageBreak && (hasBrPage || consecutiveEmpty >= 1 || !seenRealContent)) {
                                 body.removeChild(node);
                                 stats.emptyRemoved++;
+                                if (hasBrPage) prevWasPageBreak = true;
                                 continue;
                             }
                             consecutiveEmpty++;
@@ -4054,31 +4078,57 @@
                                 ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
                             }
                             seenRealContent = true;
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
                             continue;
                         }
 
                         const upperText = text.toUpperCase();
-                        const isMajorHeading = text.length <= 95 && /^(?:BAB\s+[IVX0-9]+|DAFTAR\s+PUSTAKA|DAFTAR\s+ISI|DAFTAR\s+TABEL|DAFTAR\s+GAMBAR|DAFTAR\s+LAMPIRAN|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LEMBAR\s+PENGESAHAN|PERNYATAAN\s+KEASLIAN|LAMPIRAN\b)/i.test(text);
-                        const isBabTitleFollowup = seenRealContent && text.length <= 75 && upperText === text && /^[A-Z0-9\s,&\-–]+$/.test(text) && text.split(' ').length <= 8 && !/^\d/.test(text);
-                        const isSubHeading = !isMajorHeading && text.length <= 120 && /^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)[A-Za-zÀ-ÿ]/.test(text);
-                        const isCaption = /^(?:Gambar|Tabel|Grafik|Bagan|Sumber\s*:)\s*/i.test(text) && text.length <= 170;
+                        const isMajorHeading = !hasTabEl && text.length <= 75 && /^(?:BAB\s+[IVX0-9]+(?:\s*[:\-–.]?\s*[A-ZÀ-Ÿ\s]{0,50})?|DAFTAR\s+PUSTAKA|DAFTAR\s+ISI|DAFTAR\s+TABEL|DAFTAR\s+GAMBAR|DAFTAR\s+LAMPIRAN|KATA\s+PENGANTAR|ABSTRAK|ABSTRACT|LEMBAR\s+PENGESAHAN|SURAT\s+PERNYATAAN(?:\s+KEASLIAN)?|PERNYATAAN\s+KEASLIAN|LAMPIRAN(?:\s+[A-Z0-9]+)?)$/i.test(text);
+                        const isBabOnlyLine = /^BAB\s+[IVX0-9]+\s*$/i.test(text);
+                        // Judul lanjutan BAB (mis. "PENDAHULUAN" tepat di bawah "BAB I") HANYA jika paragraf sebelumnya benar-benar baris "BAB I/II/III/IV/V"
+                        const isBabTitleFollowup = prevWasBabHeading && text.length <= 75 && upperText === text && /^[A-Z0-9\s,&\-–]+$/.test(text) && text.split(' ').length <= 8 && !/^\d/.test(text);
+                        const isSubHeading = !isMajorHeading && !inTocSection && text.length <= 120 && /^(?:\d+\.\d+(?:\.\d+)?\.?\s+|[A-Z]\.\s+)[A-Za-zÀ-ÿ]/.test(text);
+                        const isCaption = !inTocSection && /^(?:Gambar|Tabel|Grafik|Bagan|Sumber\s*:)\s*/i.test(text) && text.length <= 170;
                         const isListItem = !!getDirectChild(pPr, 'numPr') || /^(?:\d+[\.\)]\s+|[a-z][\.\)]\s+|[•\-–]\s+)/.test(text);
 
-                        if (/^DAFTAR\s+PUSTAKA/i.test(text)) {
+                        if (/^DAFTAR\s+(?:ISI|TABEL|GAMBAR|LAMPIRAN)$/i.test(text)) {
+                            inTocSection = true;
+                            inBibliography = false;
+                            inAbstract = false;
+                        } else if (/^DAFTAR\s+PUSTAKA$/i.test(text)) {
+                            inTocSection = false;
                             inBibliography = true;
                             inAbstract = false;
-                        } else if (/^(?:ABSTRAK|ABSTRACT)\b/i.test(text)) {
+                        } else if (/^(?:ABSTRAK|ABSTRACT)$/i.test(text)) {
+                            inTocSection = false;
                             inAbstract = true;
                             inBibliography = false;
                         } else if (isMajorHeading) {
+                            inTocSection = false;
                             inAbstract = false;
                             if (/^(?:BAB\s+|LAMPIRAN)/i.test(text)) inBibliography = false;
+                        }
+
+                        // Jika sedang berada di dalam zona Daftar Isi/Tabel/Gambar manual, jangan acak tata letak baris daftar isinya
+                        if (inTocSection && !isMajorHeading) {
+                            Array.from(node.getElementsByTagNameNS(W_NS, 'r')).forEach(r => {
+                                const rPr = ensureChild(r, 'rPr', true);
+                                const rFonts = ensureOrderedChild(rPr, 'rFonts', RPR_ORDER);
+                                setWAttr(rFonts, 'ascii', fontName);
+                                setWAttr(rFonts, 'hAnsi', fontName);
+                                setWAttr(rFonts, 'cs', fontName);
+                            });
+                            seenRealContent = true;
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
+                            continue;
                         }
 
                         const runs = Array.from(node.getElementsByTagNameNS(W_NS, 'r'));
 
                         if (isMajorHeading) {
-                            if (optPageBreak && seenRealContent) {
+                            if (optPageBreak && seenRealContent && !prevWasPageBreak) {
                                 ensureOrderedChild(pPr, 'pageBreakBefore', PPR_ORDER);
                             }
                             ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
@@ -4093,6 +4143,8 @@
                             setWAttr(sp, 'lineRule', 'auto');
                             runs.forEach(r => applyRunStyle(r, Math.max(bodySz + 4, 28), true));
                             stats.chaptersFixed++;
+                            prevWasBabHeading = isBabOnlyLine;
+                            prevWasPageBreak = false;
                         } else if (isBabTitleFollowup) {
                             ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
                             ensureOrderedChild(pPr, 'keepLines', PPR_ORDER);
@@ -4105,8 +4157,11 @@
                             setWAttr(sp, 'line', '276');
                             setWAttr(sp, 'lineRule', 'auto');
                             runs.forEach(r => applyRunStyle(r, bodySz + 2, true));
-                            stats.chaptersFixed++;
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
                         } else if (isSubHeading) {
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
                             ensureOrderedChild(pPr, 'keepNext', PPR_ORDER);
                             ensureOrderedChild(pPr, 'keepLines', PPR_ORDER);
                             const jc = ensureOrderedChild(pPr, 'jc', PPR_ORDER);
@@ -4191,6 +4246,10 @@
                         }
 
                         seenRealContent = true;
+                        if (!isMajorHeading) {
+                            prevWasBabHeading = false;
+                            prevWasPageBreak = false;
+                        }
                         stats.paragraphsTidied++;
                     } else if (node.localName === 'tbl') {
                         seenRealContent = true;
@@ -5328,9 +5387,9 @@
             document.getElementById('seg-rmbg-ai').classList.toggle('active', mode === 'ai');
             document.getElementById('rmbg-smart-controls').style.display = mode === 'smart' ? 'block' : 'none';
             document.getElementById('rmbg-ai-controls').style.display = mode === 'ai' ? 'block' : 'none';
-            document.getElementById('btn-rmbg-run').textContent = mode === 'ai'
-                ? '✨ Proses Ulang dengan AI'
-                : '✨ Proses Hapus Background';
+            document.getElementById('btn-rmbg-run').innerHTML = mode === 'ai'
+                ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Proses Ulang dengan AI'
+                : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Proses Hapus Background';
             if (rmbgSourceImg) {
                 if (mode === 'smart') {
                     processRemoveBgSmart();
@@ -5517,7 +5576,7 @@
             renderRmbgComposite();
             const removedPct = (removedPx / (w * h)) * 100;
             if (removedPct < 4) {
-                setStatus('status-rmbg', 'info', 'Background gambar ini tampak kompleks untuk mode Latar Polos. Klik tab "✨ Hapus Background AI (Otomatis)" di atas untuk pemisahan subjek yang bersih!');
+                setStatus('status-rmbg', 'info', 'Background gambar ini tampak kompleks untuk mode Latar Polos. Klik tab "Hapus Background AI (Otomatis)" di atas untuk pemisahan subjek yang bersih!');
             } else {
                 setStatus('status-rmbg', 'success', `✓ Background polos berhasil dihapus (${removedPct.toFixed(0)}% area latar dibersihkan). Geser slider Toleransi jika perlu, lalu unduh PNG/JPG.`);
             }
@@ -5925,22 +5984,26 @@
             document.getElementById('wc-pages-20').textContent = `Spasi 1,5 · (${pages20} hal spasi 2)`;
 
             const absBadge = document.getElementById('wc-abstract-badge');
+            const icInfo = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            const icCheck = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>';
+            const icWarn = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            const icDoc = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
             if (words === 0) {
                 absBadge.className = 'abstract-badge';
-                absBadge.textContent = 'ℹ️ Standar abstrak skripsi Indonesia umumnya 150–250 kata.';
+                absBadge.innerHTML = `${icInfo}<span>Standar abstrak skripsi Indonesia umumnya 150–250 kata.</span>`;
             } else if (words >= 150 && words <= 250) {
                 absBadge.className = 'abstract-badge ideal';
-                absBadge.textContent = `✓ Ideal untuk Abstrak Skripsi (${words} kata — masuk rentang 150–250 kata).`;
+                absBadge.innerHTML = `${icCheck}<span>Ideal untuk Abstrak Skripsi (${words} kata — masuk rentang 150–250 kata).</span>`;
             } else if (words < 150) {
                 absBadge.className = 'abstract-badge warn';
-                absBadge.textContent = `ℹ️ Jika ini Abstrak: kurang ${150 - words} kata lagi dari minimal 150 kata.`;
+                absBadge.innerHTML = `${icInfo}<span>Jika ini Abstrak: kurang ${150 - words} kata lagi dari minimal 150 kata.</span>`;
             } else if (words <= 350) {
                 absBadge.className = 'abstract-badge warn';
-                absBadge.textContent = `⚠️ Jika ini Abstrak: melebihi 250 kata (+${words - 250} kata).`;
+                absBadge.innerHTML = `${icWarn}<span>Jika ini Abstrak: melebihi 250 kata (+${words - 250} kata).</span>`;
             } else {
                 const avgSentence = sentences > 0 ? Math.round(words / sentences) : 0;
                 absBadge.className = 'abstract-badge ideal';
-                absBadge.textContent = `📄 Mode Naskah Bab: rata-rata ${avgSentence} kata per kalimat · ±${pages15} halaman A4.`;
+                absBadge.innerHTML = `${icDoc}<span>Mode Naskah Bab: rata-rata ${avgSentence} kata per kalimat · ±${pages15} halaman A4.</span>`;
             }
 
             const freq = {};
