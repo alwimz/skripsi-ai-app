@@ -4857,12 +4857,21 @@
                 <div class="card">
                     <!-- Sumber Input Switcher -->
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
-                        <div class="plag-mode-tabs" style="margin-bottom: 0;" role="tablist">
-                            <button type="button" class="plag-mode-btn active" id="para-src-btn-text" onclick="setParaSourceMode('text')">Tulis / Tempel Teks</button>
-                            <button type="button" class="plag-mode-btn" id="para-src-btn-file" onclick="setParaSourceMode('file')">Impor dari File (.docx/.pdf/.txt)</button>
-                            <button type="button" class="plag-mode-btn" id="para-src-btn-project" onclick="setParaSourceMode('project')">Ambil dari Proyek Bab I–V</button>
+                        <div class="plag-mode-tabs" style="margin-bottom: 0; flex: 1 1 280px; max-width: 440px;" role="tablist">
+                            <button type="button" class="plag-mode-btn active" id="para-src-btn-text" onclick="setParaSourceMode('text')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <span>Tempel Teks</span>
+                            </button>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-file" onclick="setParaSourceMode('file')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <span>Upload File</span>
+                            </button>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-project" onclick="setParaSourceMode('project')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                <span>Proyek Saya</span>
+                            </button>
                         </div>
-                        <button type="button" class="btn-outline" style="padding: 5px 11px; font-size: 12px;" onclick="resetParaphraseStudio()">Reset</button>
+                        <button type="button" class="btn-outline" style="padding: 7px 13px; font-size: 12.5px; flex-shrink: 0;" onclick="resetParaphraseStudio()">Reset</button>
                     </div>
 
                     <!-- Impor dari File -->
@@ -4902,11 +4911,11 @@
                         </div>
                     </div>
 
-                    <!-- Opsi Gaya, Intensitas, & Istilah Terkunci -->
-                    <div class="responsive-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <!-- Opsi Gaya, Intensitas, & Istilah Terkunci (2 baris sejajar & 100% responsif) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 12px; align-items: end;">
                         <div>
-                            <label class="form-label">Mode Parafrase</label>
-                            <select id="para-style" class="form-select">
+                            <label class="form-label" for="para-style">Mode Parafrase</label>
+                            <select id="para-style" class="form-select" style="height: 40px;">
                                 <option value="natural" selected>Anti-Turnitin (Rombak Struktur Kalimat)</option>
                                 <option value="academic">Ilmiah Baku (Standar EYD V &amp; KBBI)</option>
                                 <option value="passive">Kalimat Pasif Ilmiah (Bab III &amp; IV)</option>
@@ -4917,17 +4926,18 @@
                         </div>
                         <div>
                             <label class="form-label">Intensitas Perubahan</label>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                                <button type="button" class="btn-outline para-int-btn" data-intensity="ringan" onclick="setParaIntensity('ringan', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center;">Ringan</button>
-                                <button type="button" class="btn-outline para-int-btn active" data-intensity="sedang" onclick="setParaIntensity('sedang', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 700;">Sedang</button>
-                                <button type="button" class="btn-outline para-int-btn" data-intensity="maksimal" onclick="setParaIntensity('maksimal', this)" style="padding: 8px 6px; font-size: 12.5px; justify-content: center;">Maksimal</button>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; height: 40px;">
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="ringan" onclick="setParaIntensity('ringan', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center;">Ringan</button>
+                                <button type="button" class="btn-outline para-int-btn active" data-intensity="sedang" onclick="setParaIntensity('sedang', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 700;">Sedang</button>
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="maksimal" onclick="setParaIntensity('maksimal', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center;">Maksimal</button>
                             </div>
                             <input type="hidden" id="para-intensity" value="sedang">
                         </div>
-                        <div>
-                            <label class="form-label">Istilah / Variabel Terkunci <span class="opt">(opsional)</span></label>
-                            <input type="text" id="para-preserve-terms" class="form-input" placeholder="cth: Naive Bayes, TF-IDF, turnover intention">
-                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="form-label" for="para-preserve-terms">Istilah / Variabel Terkunci <span class="opt">(opsional · pisahkan dengan koma)</span></label>
+                        <input type="text" id="para-preserve-terms" class="form-input" style="height: 40px;" placeholder="cth: Naive Bayes, TF-IDF, turnover intention">
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
