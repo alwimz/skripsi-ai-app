@@ -71,9 +71,10 @@
         .btn-outline:hover { border-color: #2563eb; color: #2563eb; }
         .hero { padding: 54px 0 36px; text-align: center; }
         .eyebrow { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 14px; }
-        .hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 14px; color: #0f172a; }
-        .hero p { max-width: 680px; margin: 0 auto 24px; color: #475569; font-size: 16px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; padding-bottom: 56px; }
+        .hero h1 { font-size: clamp(26px, 4vw, 42px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 14px; color: #0f172a; }
+        .hero p { max-width: 680px; margin: 0 auto 24px; color: #475569; font-size: 15.5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; padding-bottom: 56px; }
+        .mobile-subbar { display: none; }
         .guide-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
         .guide-card:hover { transform: translateY(-2px); border-color: #93c5fd; box-shadow: 0 14px 30px -12px rgba(37, 99, 235, 0.16); }
         .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -84,7 +85,15 @@
         .card-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 13px; font-weight: 600; color: #2563eb; }
         .footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 26px 0; font-size: 13px; color: #64748b; }
         .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-        @media (max-width: 720px) { .nav-links { display: none; } }
+        @media (max-width: 720px) {
+            .nav-links { display: none; }
+            .mobile-subbar { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px; background: #fff; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
+            .mobile-subbar a { white-space: nowrap; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
+            .mobile-subbar a.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+            .hero { padding: 34px 0 24px; }
+            .container { padding: 0 14px; }
+            .btn { padding: 7px 12px; font-size: 12.5px; }
+        }
     </style>
 </head>
 
@@ -110,6 +119,11 @@
             </div>
         </div>
     </header>
+    <div class="mobile-subbar">
+        <a href="{{ url('/') }}">Beranda</a>
+        <a href="{{ url('/panduan') }}" class="active">Semua Panduan (7)</a>
+        <a href="{{ url('/tools') }}">10 Tools Gratis</a>
+    </div>
 
     <main>
         <section class="hero">

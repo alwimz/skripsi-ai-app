@@ -87,39 +87,61 @@
         .btn-primary:hover { background: #1d4ed8; }
         .btn-outline { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; }
         .btn-outline:hover { border-color: #2563eb; color: #2563eb; }
-        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 28px; padding: 32px 0 60px; align-items: start; }
-        .sidebar-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; position: sticky; top: 82px; }
+        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 26px; padding: 28px 0 60px; align-items: start; }
+        .sidebar-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; position: sticky; top: 82px; }
+        .sidebar-toggle-mobile { display: none; }
         .sidebar-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 10px; }
         .side-link { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 3px; }
         .side-link:hover { background: #f1f5f9; color: #0f172a; }
         .side-link.active { background: #eff6ff; color: #1d4ed8; font-weight: 700; }
-        .article-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 30px; }
-        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #64748b; margin-bottom: 14px; flex-wrap: wrap; }
+        .mobile-subbar { display: none; }
+        .article-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 28px; min-width: 0; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #64748b; margin-bottom: 12px; flex-wrap: wrap; }
         .breadcrumb a:hover { color: #2563eb; }
-        .badge-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .badge-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
         .badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; }
         .badge-muted { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; }
-        h1 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 12px; }
-        .lead { font-size: 15.5px; color: #475569; margin-bottom: 24px; }
-        .step-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 14px; background: #ffffff; }
+        h1 { font-size: clamp(22px, 3vw, 31px); font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 10px; }
+        .lead { font-size: 15px; color: #475569; margin-bottom: 22px; }
+        .step-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; background: #ffffff; }
         .step-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
         .step-num { width: 28px; height: 28px; border-radius: 999px; background: #2563eb; color: #fff; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .step-card h2 { font-size: 16.5px; font-weight: 700; color: #0f172a; }
-        .step-card p { font-size: 14.3px; color: #334155; margin-bottom: 10px; }
+        .step-card h2 { font-size: 16px; font-weight: 700; color: #0f172a; line-height: 1.35; }
+        .step-card p { font-size: 14.2px; color: #334155; margin-bottom: 10px; }
         .tip-box { font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 9px 12px; border-radius: 9px; }
-        .warn-box { margin-top: 24px; padding: 18px 20px; border-radius: 14px; background: #fff7ed; border: 1px solid #fed7aa; }
+        .warn-box { margin-top: 22px; padding: 16px 18px; border-radius: 14px; background: #fff7ed; border: 1px solid #fed7aa; }
         .warn-box h3 { font-size: 15px; font-weight: 700; color: #9a3412; margin-bottom: 8px; }
         .warn-box ul { padding-left: 18px; font-size: 13.8px; color: #7c2d12; }
         .warn-box li { margin-bottom: 4px; }
-        .faq-section { margin-top: 26px; }
-        .faq-section h3 { font-size: 16.5px; font-weight: 700; margin-bottom: 10px; }
+        .faq-section { margin-top: 24px; }
+        .faq-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
         .faq-item { border: 1px solid #e2e8f0; border-radius: 11px; padding: 14px 16px; margin-bottom: 10px; }
-        .faq-q { font-size: 14.3px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+        .faq-q { font-size: 14.2px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
         .faq-a { font-size: 13.8px; color: #475569; }
-        .cta-banner { margin-top: 26px; padding: 22px; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #f8fafc); border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
-        .pager { margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13.5px; font-weight: 600; color: #2563eb; }
+        .cta-banner { margin-top: 24px; padding: 20px; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #f8fafc); border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+        .pager { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13.5px; font-weight: 600; color: #2563eb; }
         .footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 24px 0; font-size: 13px; color: #64748b; }
-        @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } .sidebar-box { position: static; } .article-card { padding: 20px; } .nav-links { display: none; } }
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .mobile-subbar { display: flex; gap: 6px; overflow-x: auto; padding: 8px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
+            .mobile-subbar::-webkit-scrollbar { display: none; }
+            .mobile-subbar a { white-space: nowrap; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
+            .mobile-subbar a.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+            .layout { grid-template-columns: 1fr; gap: 12px; padding: 16px 0 44px; }
+            .sidebar-box { position: static; padding: 8px 10px; border-radius: 12px; }
+            .sidebar-title, .sidebar-tools-link { display: none; }
+            .sidebar-nav-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+            .sidebar-nav-list::-webkit-scrollbar { display: none; }
+            .side-link { margin-bottom: 0; white-space: nowrap; flex-shrink: 0; padding: 6px 11px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 12.5px; }
+            .side-link.active { border-color: #93c5fd; }
+            .article-card { padding: 18px 16px; border-radius: 14px; }
+        }
+        @media (max-width: 520px) {
+            .container { padding: 0 14px; }
+            .topbar-inner { height: 58px; }
+            .btn { padding: 7px 12px; font-size: 12.5px; }
+            .step-card { padding: 14px; }
+        }
     </style>
 </head>
 
@@ -145,18 +167,25 @@
             </div>
         </div>
     </header>
+    <div class="mobile-subbar">
+        <a href="{{ url('/') }}">Beranda</a>
+        <a href="{{ url('/panduan') }}" class="active">Semua Panduan</a>
+        <a href="{{ url('/tools') }}">10 Tools Gratis</a>
+    </div>
 
     <main class="container">
         <div class="layout">
             <aside class="sidebar-box">
                 <div class="sidebar-title">7 Panduan SkripsiLab AI</div>
-                @foreach($guides as $item)
-                    <a href="{{ route('panduan.show', $item['slug']) }}" class="side-link {{ $item['slug'] === $guide['slug'] ? 'active' : '' }}">
-                        <span style="font-weight:700;opacity:0.75;">{{ $item['num'] }}.</span>
-                        <span>{{ $item['short_title'] }}</span>
-                    </a>
-                @endforeach
-                <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
+                <div class="sidebar-nav-list">
+                    @foreach($guides as $item)
+                        <a href="{{ route('panduan.show', $item['slug']) }}" class="side-link {{ $item['slug'] === $guide['slug'] ? 'active' : '' }}">
+                            <span style="font-weight:700;opacity:0.75;">{{ $item['num'] }}.</span>
+                            <span>{{ $item['short_title'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
+                <div class="sidebar-tools-link" style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
                     <a href="{{ url('/tools') }}" class="side-link">10 Tools Mahasiswa Gratis →</a>
                 </div>
             </aside>
