@@ -3197,12 +3197,12 @@
             </a>
 
             <div class="nav-group-title">Akun &amp; Bonus</div>
-            <button type="button" class="nav-btn" id="nav-pricing" onclick="openTab('pricing', 'Paket & Tier Akun')">
+            <button type="button" class="nav-btn" id="nav-pricing" onclick="openTab('pricing', 'Paket')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <rect x="2" y="5" width="20" height="14" rx="2" />
                     <line x1="2" y1="10" x2="22" y2="10" />
                 </svg>
-                <span style="flex: 1;">Paket &amp; Tier Akun</span>
+                <span style="flex: 1;">Paket</span>
                 <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">
                     {{ !empty($billingSummary['is_paid_active']) ? 'Aktif' : '15rb' }}
                 </span>
@@ -5769,7 +5769,7 @@
                                     Jatah Free: <strong>1 proyek uji coba</strong> (Sampul, Bab I &amp; Daftar Pustaka) + <strong>1x coba gratis</strong> tiap fitur AI Tools. Download Word/PDF terkunci.
                                 @endif
                             </div>
-                            <button type="button" class="btn-primary" style="margin-top: 12px; padding: 8px 14px; font-size: 12.5px;" onclick="openTab('pricing', 'Paket & Tier Akun')">
+                            <button type="button" class="btn-primary" style="margin-top: 12px; padding: 8px 14px; font-size: 12.5px;" onclick="openTab('pricing', 'Paket')">
                                 {{ $accPaid ? 'Tambah Kuota / Perpanjang Paket →' : 'Upgrade Paket Mulai Rp15.000 →' }}
                             </button>
                         </div>
@@ -5814,8 +5814,8 @@
                     ];
                 @endphp
                 <div class="page-eyebrow">Tanpa Sistem Kredit · Bayar Pakai Kuota atau Unlimited</div>
-                <h1 class="page-title">Paket Harga &amp; Tier Akun Saya</h1>
-                <p class="page-subtitle">Cek status kuota akun Anda dan pilih paket paling hemat (mulai Rp15.000) dengan aktivasi otomatis via QRIS Pakasir.</p>
+                <h1 class="page-title">Paket</h1>
+                <p class="page-subtitle">Cek status kuota akun Anda dan pilih paket paling hemat (mulai Rp15.000) dengan aktivasi otomatis via QRIS.</p>
 
                 <!-- Kartu Status Tier Aktif -->
                 <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; border: none;">
@@ -5839,10 +5839,6 @@
                             <button type="button" onclick="openTab('referral', 'Ajak Teman')"
                                 style="padding:9px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.1); color:#ffffff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
                                 🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
-                            </button>
-                            <button type="button" onclick="startPakasirCheckout('hemat')"
-                                style="padding:9px 16px; border-radius:10px; border:none; background:#2563eb; color:#ffffff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
-                                ⚡ Bayar QRIS Cepat
                             </button>
                         </div>
                     </div>
@@ -6353,7 +6349,7 @@
                 'paraphrase': 'Parafrase',
                 'olahdata': 'Olah Data',
                 'qa': 'Dosen AI',
-                'pricing': 'Paket & Tier Akun',
+                'pricing': 'Paket',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
                 'feedback': 'Saran & Laporan'
@@ -9383,385 +9379,6 @@
             if (srcCount) srcCount.textContent = `${sources.length} sumber`;
             if (srcList) {
                 if (!sources.length) {
-                    srcList.innerHTML = `<div style="padding:14px; text-align:center; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:9px; font-size:12.5px; color:#047857;">
-                        ✓ Tidak ditemukan kemiripan signifikan pada jurnal ilmiah terbuka &amp; web!
-                    </div>`;
-                } else {
-                    srcList.innerHTML = sources.map(src => {
-                        const linkHtml = src.url
-                            ? `<a href="${escapeHtml(src.url)}" target="_blank" rel="noopener" style="font-size:11.5px; color:#2563eb; text-decoration:underline; word-break:break-all;">Buka Sumber ↗</a>`
-                            : `<span style="font-size:11.5px; color:#64748b;">Dokumen Pembanding Lokal</span>`;
-                        return `
-                            <div class="plag-src-item">
-                                <span class="plag-sent-num" style="background:${src.color.badge}; margin-top:2px; flex-shrink:0;">${src.number}</span>
-                                <div style="flex:1; min-width:0;">
-                                    <div style="font-size:12.5px; font-weight:700; color:#0f172a; line-height:1.35;">${escapeHtml(src.title)}</div>
-                                    <div style="font-size:11px; color:#64748b; margin-top:2px;">${escapeHtml(src.origin)}${src.year ? ' · ' + src.year : ''} · ${src.matched_sentences} kalimat</div>
-                                    <div style="margin-top:3px;">${linkHtml}</div>
-                                </div>
-                                <div style="font-size:13.5px; font-weight:800; color:${src.color.badge}; flex-shrink:0;">${Number(src.percent).toFixed(1)}%</div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            }
-        }
-
-        function openPlagInlineParaphrase(idx) {
-            if (!plagCurrentReport || !plagCurrentReport.sentences[idx]) return;
-            plagSelectedSentenceIdx = idx;
-            const s = plagCurrentReport.sentences[idx];
-            const box = document.getElementById('plag-inline-editor');
-            document.getElementById('plag-inline-meta').textContent = `Sumber [${s.source_number}] · Kemiripan ${s.match_percent}% (${s.contiguous_words} kata berurutan)`;
-            document.getElementById('plag-inline-orig').textContent = s.text;
-            const srcLinkEl = document.getElementById('plag-inline-source-link');
-            srcLinkEl.innerHTML = s.source_url
-                ? `Mirip dengan: <strong>${escapeHtml(s.source_title || '')}</strong> — <a href="${escapeHtml(s.source_url)}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">Lihat Sumber ↗</a>`
-                : `Mirip dengan: <strong>${escapeHtml(s.source_title || 'Sumber terdeteksi')}</strong>`;
-            document.getElementById('plag-inline-result-box').style.display = 'none';
-            document.getElementById('plag-inline-new-text').value = '';
-            box.style.display = 'block';
-            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        async function paraphraseFlaggedSentence() {
-            if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
-            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
-            const btn = document.getElementById('btn-plag-inline-para');
-            const origHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Memparafrase kalimat...</span>';
-            try {
-                const res = await fetch("{{ route('tools.paraphrase') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: JSON.stringify({ text: s.text, style: 'natural', model: getSelectedModel() })
-                });
-                const data = await res.json();
-                if (data.status === 'success' && data.result) {
-                    document.getElementById('plag-inline-new-text').value = data.result.trim();
-                    document.getElementById('plag-inline-result-box').style.display = 'block';
-                } else {
-                    showPlagError(data.message || 'Gagal memparafrase kalimat.');
-                }
-            } catch (e) {
-                showPlagError('Gagal menghubungi layanan parafrase.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = origHtml;
-            }
-        }
-
-        function applyParaphrasedSentence() {
-            if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
-            const newTxt = (document.getElementById('plag-inline-new-text')?.value || '').trim();
-            if (!newTxt) return;
-            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
-            const removedWords = Math.round((s.word_count || 0) * Math.min(1, Math.max(0.35, (s.match_percent || 0) / 100)));
-            s.text = newTxt;
-            s.matched = false;
-            s.match_percent = 0;
-            s.paraphrased = true;
-
-            // Perbarui estimasi skor similarity secara langsung setelah kalimat diparafrase
-            plagCurrentReport.matched_words = Math.max(0, (plagCurrentReport.matched_words || 0) - removedWords);
-            const denom = Math.max(1, plagCurrentReport.checked_words || 1);
-            plagCurrentReport.overall_score = Math.round((plagCurrentReport.matched_words / denom) * 1000) / 10;
-            if (plagCurrentReport.overall_score <= 15) {
-                plagCurrentReport.status_label = 'Aman · Lolos Standar Kampus (< 15%)';
-            } else if (plagCurrentReport.overall_score <= 25) {
-                plagCurrentReport.status_label = 'Cukup Aman · Periksa Kalimat Berwarna (15–25%)';
-            }
-
-            document.getElementById('plag-inline-editor').style.display = 'none';
-            renderPlagiarismReport(plagCurrentReport);
-        }
-
-        function copyUpdatedPlagDoc(btn) {
-            if (!plagCurrentReport || !plagCurrentReport.sentences) return;
-            const fullText = plagCurrentReport.sentences.map(s => s.is_heading ? ('\n\n' + s.text + '\n') : s.text).join(' ').replace(/\s+\n/g, '\n').trim();
-            navigator.clipboard.writeText(fullText).then(() => {
-                const origHtml = btn.innerHTML;
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Naskah Tersalin</span>';
-                setTimeout(() => btn.innerHTML = origHtml, 1800);
-            });
-        }
-
-        async function downloadPlagiarismPdf() {
-            if (!plagCurrentReport) return;
-            const btn = document.getElementById('btn-plag-pdf');
-            const origHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan Laporan PDF...</span>';
-            try {
-                const res = await fetch("{{ route('tools.plagiarism.pdf') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ report: plagCurrentReport })
-                });
-                if (!res.ok) throw new Error('Gagal membuat PDF.');
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Laporan_Similarity_SkripsiLab.pdf';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1500);
-            } catch (e) {
-                showPlagError('Gagal mengunduh laporan PDF.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = origHtml;
-            }
-        }
-
-        // =========================================================================
-        // OLAH DATA STATISTIK VALID (SETARA IBM SPSS — STANDALONE MENU SIDEBAR)
-        // =========================================================================
-        let odDataset = { columns: [], rows: [], title: '' };
-        let odColMeta = { numeric: [], categorical: [] };
-        let odActiveTest = 'regression';
-        let odCurrentResult = null;
-        let odCurrentNarration = '';
-        let odInstMode = 'kuesioner';
-        let odCurrentInstrument = null;
-
-        function odEscape(str) {
-            return String(str ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function odSwitchSubTab(tab) {
-            document.getElementById('od-subpane-calc').style.display = tab === 'calc' ? 'block' : 'none';
-            document.getElementById('od-subpane-inst').style.display = tab === 'inst' ? 'block' : 'none';
-            document.getElementById('od-tab-btn-calc').classList.toggle('active', tab === 'calc');
-            document.getElementById('od-tab-btn-inst').classList.toggle('active', tab === 'inst');
-        }
-
-        function odShowError(msg) {
-            const box = document.getElementById('od-error-box');
-            if (!box) return;
-            if (!msg) {
-                box.style.display = 'none';
-                box.textContent = '';
-            } else {
-                box.style.display = 'block';
-                box.textContent = msg;
-            }
-        }
-
-        function odLoadSheetJs() {
-            if (window.XLSX) return Promise.resolve(window.XLSX);
-            return new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-                s.onload = () => window.XLSX ? resolve(window.XLSX) : reject(new Error('Library Excel gagal dimuat.'));
-                s.onerror = () => reject(new Error('Gagal memuat pembaca file Excel (.xlsx). Coba simpan sebagai .CSV lalu unggah ulang.'));
-                document.head.appendChild(s);
-            });
-        }
-
-        function odParseDelimitedText(raw) {
-            const cleaned = String(raw || '').replace(/^\uFEFF/, '').trim();
-            const lines = cleaned.split(/\r\n|\r|\n/).filter(l => l.trim() !== '');
-            if (lines.length < 2) return { columns: [], rows: [] };
-            const first = lines[0];
-            const counts = {
-                '\t': (first.match(/\t/g) || []).length,
-                ';': (first.match(/;/g) || []).length,
-                ',': (first.match(/,/g) || []).length
-            };
-            let delim = ',';
-            if (counts['\t'] >= counts[';'] && counts['\t'] >= counts[','] && counts['\t'] > 0) delim = '\t';
-            else if (counts[';'] > counts[',']) delim = ';';
-
-            const splitLine = (line) => {
-                const out = [];
-                let cur = '';
-                let inQ = false;
-                for (let i = 0; i < line.length; i++) {
-                    const ch = line[i];
-                    if (ch === '"') {
-                        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-                        else inQ = !inQ;
-                    } else if (ch === delim && !inQ) {
-                        out.push(cur.trim());
-                        cur = '';
-                    } else {
-                        cur += ch;
-                    }
-                }
-                out.push(cur.trim());
-                return out;
-            };
-
-            const rawHeaders = splitLine(lines[0]).map((h, i) => h || ('Kolom_' + (i + 1)));
-            const columns = rawHeaders.filter(Boolean);
-            const rows = [];
-            for (let i = 1; i < lines.length; i++) {
-                const vals = splitLine(lines[i]);
-                const obj = {};
-                let hasVal = false;
-                columns.forEach((col, idx) => {
-                    const v = vals[idx] !== undefined ? vals[idx] : '';
-                    if (v !== '') hasVal = true;
-                    obj[col] = v;
-                });
-                if (hasVal) rows.push(obj);
-            }
-            return { columns, rows };
-        }
-
-        async function odHandleFileUpload(input) {
-            odShowError('');
-            const file = input?.files?.[0];
-            if (!file) return;
-            const ext = (file.name.split('.').pop() || '').toLowerCase();
-            try {
-                if (ext === 'xlsx' || ext === 'xls') {
-                    const XLSX = await odLoadSheetJs();
-                    const buf = await file.arrayBuffer();
-                    const wb = XLSX.read(buf, { type: 'array' });
-                    const firstSheet = wb.SheetNames[0];
-                    const sheet = wb.Sheets[firstSheet];
-                    const arr = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-                    if (!arr || arr.length < 2) throw new Error('Sheet Excel kosong atau hanya berisi 1 baris.');
-                    const columns = arr[0].map((h, i) => String(h || '').trim() || ('Kolom_' + (i + 1)));
-                    const rows = [];
-                    for (let i = 1; i < arr.length; i++) {
-                        const r = arr[i];
-                        if (!r || !r.some(v => String(v ?? '').trim() !== '')) continue;
-                        const obj = {};
-                        columns.forEach((c, idx) => { obj[c] = r[idx] !== undefined ? String(r[idx]).trim() : ''; });
-                        rows.push(obj);
-                    }
-                    odSetDataset(columns, rows, file.name);
-                } else {
-                    const txt = await file.text();
-                    const parsed = odParseDelimitedText(txt);
-                    if (!parsed.rows.length) throw new Error('File CSV/teks tidak memiliki baris data yang valid.');
-                    odSetDataset(parsed.columns, parsed.rows, file.name);
-                }
-            } catch (err) {
-                odShowError(err.message || 'Gagal membaca file data.');
-            }
-        }
-
-        function odLoadFromPaste() {
-            odShowError('');
-            const raw = (document.getElementById('od-paste-area')?.value || '').trim();
-            if (!raw) {
-                odShowError('Tempel data tabel (CSV atau salinan Excel) terlebih dahulu.');
-                return;
-            }
-            const parsed = odParseDelimitedText(raw);
-            if (!parsed.columns.length || parsed.rows.length < 2) {
-                odShowError('Minimal harus ada 1 baris header kolom dan 2 baris data.');
-                return;
-            }
-            odSetDataset(parsed.columns, parsed.rows, 'Data Tempel Manual');
-        }
-
-        function odClearDataset() {
-            odDataset = { columns: [], rows: [], title: '' };
-            odColMeta = { numeric: [], categorical: [] };
-            odCurrentResult = null;
-            odCurrentNarration = '';
-            document.getElementById('od-data-preview-wrap').style.display = 'none';
-            document.getElementById('od-btn-clear-data').style.display = 'none';
-            document.getElementById('od-result-section').style.display = 'none';
-            document.getElementById('od-file-input').value = '';
-            document.getElementById('od-var-picker').innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>';
-        }
-
-        function odIsNumericVal(v) {
-            const s = String(v ?? '').trim();
-            if (!s) return false;
-            const norm = s.includes(',') && !s.includes('.') ? s.replace(',', '.') : s.replace(/,/g, '');
-            return !isNaN(parseFloat(norm)) && isFinite(norm);
-        }
-
-        function odSetDataset(columns, rows, title) {
-            // Auto-Compute Skor Total Variabel (seperti Transform -> Compute Variable di IBM SPSS)
-            // jika dataset punya butir kuesioner X1_1..X1_4, Y_1..Y_4 namun belum punya X1_Total / Y_Total
-            const colsCopy = [...columns];
-            const rowsCopy = rows.map(r => ({ ...r }));
-            const prefixGroups = {};
-            colsCopy.forEach(c => {
-                if (/^(id|no|nomor|responden|kode|total|skor|sum)/i.test(c)) return;
-                const m = c.match(/^([A-Za-z]+\d*)[_\.\-\s]+(\d+)$/);
-                if (m) {
-                    const pfx = m[1];
-                    if (!prefixGroups[pfx]) prefixGroups[pfx] = [];
-                    prefixGroups[pfx].push(c);
-                }
-            });
-            const autoComputed = [];
-            Object.entries(prefixGroups).forEach(([pfx, itemCols]) => {
-                if (itemCols.length < 2) return;
-                const allNumeric = itemCols.every(ic => rowsCopy.slice(0, 30).some(r => odIsNumericVal(r[ic])));
-                if (!allNumeric) return;
-                const existingTotal = colsCopy.find(c => new RegExp('^' + pfx + '[ _\\-]?total$', 'i').test(c) || c.toLowerCase() === pfx.toLowerCase());
-                if (!existingTotal) {
-                    const totalCol = pfx + '_Total';
-                    colsCopy.push(totalCol);
-                    rowsCopy.forEach(r => {
-                        let s = 0; let ok = 0;
-                        itemCols.forEach(ic => {
-                            const raw = String(r[ic] ?? '').trim().replace(',', '.');
-                            const num = parseFloat(raw);
-                            if (!isNaN(num)) { s += num; ok++; }
-                        });
-                        r[totalCol] = ok === itemCols.length ? String(Math.round(s * 1000) / 1000) : '';
-                    });
-                    autoComputed.push(totalCol);
-                }
-            });
-
-            odDataset = { columns: colsCopy, rows: rowsCopy, title: title || 'Data Penelitian', autoComputed };
-            const numeric = [];
-            const categorical = [];
-            colsCopy.forEach(col => {
-                let numCount = 0;
-                let nonEmpty = 0;
-                rowsCopy.slice(0, 120).forEach(r => {
-                    const v = String(r[col] ?? '').trim();
-                    if (v !== '') {
-                        nonEmpty++;
-                        if (odIsNumericVal(v)) numCount++;
-                    }
-                });
-                if (nonEmpty > 0 && numCount / nonEmpty >= 0.7) numeric.push(col);
-                else categorical.push(col);
-            });
-            odColMeta = { numeric, categorical };
-
-            // Pemeriksaan Kualitas Data Otomatis (Data Preparation: Missing Values, Duplikat, & Outlier IQR)
-            let missingCells = 0;
-            const seenRowSigs = new Set();
-            let dupRows = 0;
-            rowsCopy.forEach(r => {
-                const sig = colsCopy.map(c => {
-                    const v = String(r[c] ?? '').trim();
-                    if (v === '') missingCells++;
-                    return v;
-                }).join('||');
-                if (seenRowSigs.has(sig)) dupRows++;
-                else seenRowSigs.add(sig);
-            });
-            let outlierCount = 0;
-            numeric.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c)).forEach(col => {
-                const vals = rowsCopy.map(r => parseFloat(String(r[col] ?? '').replace(',', '.'))).filter(v => !isNaN(v)).sort((a, b) => a - b);
-                if (vals.length >= 6) {
-                    const q1 = vals[Math.floor(vals.length * 0.25)];
-                    const q3 = vals[Math.floor(vals.length * 0.75)];
-                    const iqr = q3 - q1;
-                    if (iqr > 0) {
                         const lo = q1 - 1.5 * iqr, hi = q3 + 1.5 * iqr;
                         outlierCount += vals.filter(v => v < lo || v > hi).length;
                     }

@@ -30,14 +30,14 @@
     }
     .sl-pricing-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 16px;
         margin-bottom: 16px;
     }
     .sl-plan-card {
         background: #ffffff;
         border: 1.5px solid #e2e8f0;
-        border-radius: 16px;
+        border-radius: 18px;
         padding: 20px;
         display: flex;
         flex-direction: column;
@@ -85,22 +85,16 @@
         border: 1px solid #fed7aa;
     }
     .sl-plan-name {
-        font-size: 16px;
+        font-size: 16.5px;
         font-weight: 800;
         color: #0f172a;
         margin-bottom: 4px;
-    }
-    .sl-plan-tagline {
-        font-size: 12.5px;
-        color: #64748b;
-        line-height: 1.5;
-        margin-bottom: 14px;
-        min-height: 38px;
     }
     .sl-price-strike-row {
         display: flex;
         align-items: center;
         gap: 8px;
+        margin-top: 8px;
         margin-bottom: 2px;
         min-height: 20px;
     }
@@ -129,15 +123,38 @@
         font-size: 12px;
         color: #475569;
         font-weight: 600;
-        margin-top: 4px;
+        margin-top: 3px;
+        margin-bottom: 12px;
+    }
+    .sl-summary-box {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 11px 13px;
         margin-bottom: 14px;
-        padding-bottom: 12px;
-        border-bottom: 1px dashed #e2e8f0;
+    }
+    .sl-plan-card.popular .sl-summary-box {
+        background: #eff6ff;
+        border-color: #dbeafe;
+    }
+    .sl-summary-title {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: #1e3a8a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+    }
+    .sl-summary-desc {
+        font-size: 11.5px;
+        color: #475569;
+        line-height: 1.45;
     }
     .sl-plan-features {
         list-style: none;
         padding: 0;
-        margin: 0 0 16px;
+        margin: 0 0 14px;
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -147,30 +164,48 @@
         align-items: flex-start;
         gap: 8px;
         font-size: 12.5px;
-        color: #334155;
-        line-height: 1.45;
+        color: #1e293b;
+        line-height: 1.4;
     }
-    .sl-plan-features li.locked {
+    .sl-check-circle {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #16a34a;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .sl-locked-divider {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 10px;
+        margin-top: 4px;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+    .sl-locked-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12px;
         color: #94a3b8;
-    }
-    .sl-check-ic {
-        color: #16a34a;
-        font-weight: 800;
-        flex-shrink: 0;
-    }
-    .sl-lock-ic {
-        color: #cbd5e1;
-        font-weight: 800;
-        flex-shrink: 0;
+        line-height: 1.4;
     }
     .sl-plan-btn {
         width: 100%;
-        padding: 11px 14px;
-        border-radius: 10px;
+        padding: 11px 16px;
+        border-radius: 999px;
         font-size: 13.5px;
         font-weight: 700;
         border: 1.5px solid #cbd5e1;
-        background: #f8fafc;
+        background: #ffffff;
         color: #0f172a;
         cursor: pointer;
         text-align: center;
@@ -207,7 +242,7 @@
 
 <div class="sl-pricing-group-title" style="margin-top: 4px;">
     <h3>1. Tier Gratis &amp; Paket Kuota Naskah (Non-Kredit)</h3>
-    <span>Bayar sekali sesuai jumlah naskah Proposal / Skripsi yang Anda kerjakan — bebas revisi</span>
+    <span>Bayar sekali sesuai jumlah naskah Proposal / Skripsi — bebas revisi tanpa potong kredit</span>
 </div>
 
 <div class="sl-pricing-grid">
@@ -228,7 +263,6 @@
                 </div>
 
                 <div class="sl-plan-name">{{ $p['name'] }}</div>
-                <div class="sl-plan-tagline">{{ $p['tagline'] }}</div>
 
                 <div class="sl-price-strike-row">
                     @if(!empty($p['original_price']) && $p['original_price'] > $p['price'])
@@ -242,20 +276,32 @@
                 </div>
                 <div class="sl-price-period">{{ $p['period_label'] }}</div>
 
+                @if(!empty($p['summary_title']))
+                    <div class="sl-summary-box">
+                        <div class="sl-summary-title">📄 {{ $p['summary_title'] }}</div>
+                        <div class="sl-summary-desc">{{ $p['summary_desc'] ?? '' }}</div>
+                    </div>
+                @endif
+
                 <ul class="sl-plan-features">
                     @foreach(($p['features'] ?? []) as $feat)
                         <li>
-                            <span class="sl-check-ic">✓</span>
+                            <span class="sl-check-circle">✓</span>
                             <span>{{ $feat }}</span>
                         </li>
                     @endforeach
-                    @foreach(($p['locked_features'] ?? []) as $lFeat)
-                        <li class="locked">
-                            <span class="sl-lock-ic">✕</span>
-                            <span>{{ $lFeat }}</span>
-                        </li>
-                    @endforeach
                 </ul>
+
+                @if(!empty($p['locked_features']))
+                    <div class="sl-locked-divider">
+                        @foreach($p['locked_features'] as $lFeat)
+                            <div class="sl-locked-item">
+                                <span style="flex-shrink:0;">🔒</span>
+                                <span>{{ $lFeat }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <div>
@@ -265,17 +311,17 @@
                             {{ $isCurrent ? 'Tier Aktif Saat Ini' : 'Paket Uji Coba Awal' }}
                         </span>
                     @else
-                        <a href="{{ route('register') }}" class="sl-plan-btn">Mulai Coba Gratis →</a>
+                        <a href="{{ route('register') }}" class="sl-plan-btn primary">Mulai Coba Gratis →</a>
                     @endauth
                 @else
                     @auth
-                        <button type="button" class="sl-plan-btn {{ $isPopular ? 'primary' : '' }}"
+                        <button type="button" class="sl-plan-btn primary"
                             onclick="startPakasirCheckout('{{ $p['code'] }}')">
-                            <span>Pilih &amp; Bayar QRIS →</span>
+                            <span>Pilih {{ $p['name'] }}</span>
                         </button>
                     @else
-                        <a href="{{ route('register') }}" class="sl-plan-btn {{ $isPopular ? 'primary' : '' }}">
-                            <span>Daftar &amp; Pilih Paket →</span>
+                        <a href="{{ route('register') }}" class="sl-plan-btn primary">
+                            <span>Pilih {{ $p['name'] }}</span>
                         </a>
                     @endauth
                 @endif
@@ -286,7 +332,7 @@
 
 <div class="sl-pricing-group-title" style="margin-top: 28px;">
     <h3>2. Paket Unlimited Proposal &amp; Skripsi (Bebas Batas Kuota)</h3>
-    <span>Lebih murah dari harga langganan kompetitor — pilih durasi sesuai target sidang Anda</span>
+    <span>Lebih hemat dari paket kompetitor — semua fitur AI terbuka penuh selama masa aktif</span>
 </div>
 
 <div class="sl-pricing-grid">
@@ -306,7 +352,6 @@
                 </div>
 
                 <div class="sl-plan-name">{{ $p['name'] }}</div>
-                <div class="sl-plan-tagline">{{ $p['tagline'] }}</div>
 
                 <div class="sl-price-strike-row">
                     @if(!empty($p['original_price']) && $p['original_price'] > $p['price'])
@@ -320,10 +365,17 @@
                 </div>
                 <div class="sl-price-period">{{ $p['period_label'] }}</div>
 
+                @if(!empty($p['summary_title']))
+                    <div class="sl-summary-box">
+                        <div class="sl-summary-title">📄 {{ $p['summary_title'] }}</div>
+                        <div class="sl-summary-desc">{{ $p['summary_desc'] ?? '' }}</div>
+                    </div>
+                @endif
+
                 <ul class="sl-plan-features">
                     @foreach(($p['features'] ?? []) as $feat)
                         <li>
-                            <span class="sl-check-ic">✓</span>
+                            <span class="sl-check-circle">✓</span>
                             <span>{{ $feat }}</span>
                         </li>
                     @endforeach
@@ -332,13 +384,13 @@
 
             <div>
                 @auth
-                    <button type="button" class="sl-plan-btn {{ $isPopular ? 'primary' : '' }}"
+                    <button type="button" class="sl-plan-btn primary"
                         onclick="startPakasirCheckout('{{ $p['code'] }}')">
-                        <span>Langganan Sekarang →</span>
+                        <span>Pilih {{ $p['name'] }}</span>
                     </button>
                 @else
-                    <a href="{{ route('register') }}" class="sl-plan-btn {{ $isPopular ? 'primary' : '' }}">
-                        <span>Daftar &amp; Aktifkan →</span>
+                    <a href="{{ route('register') }}" class="sl-plan-btn primary">
+                        <span>Pilih {{ $p['name'] }}</span>
                     </a>
                 @endauth
             </div>
