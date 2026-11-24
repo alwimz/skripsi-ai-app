@@ -585,33 +585,54 @@
 
         #sheets-container {
             width: 100%;
-            max-width: 820px;
+            max-width: 840px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            align-items: center;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .a4-sheet-stage {
+            position: relative;
+            margin: 0 auto 20px auto;
+            flex-shrink: 0;
         }
 
         .a4-sheet {
-            width: 100%;
+            width: 794px;
+            min-width: 794px;
             max-width: 794px;
             min-height: 1123px; /* Ukuran persis kertas A4 (210mm x 297mm @ 96dpi) */
             background: #ffffff;
             border: 1px solid #dbe3ee;
-            border-radius: 6px;
+            border-radius: 4px;
             box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
-            padding: 80px 72px 58px 94px;
-            /* Rasio presisi margin skripsi 4-4-3-3 cm & spasi 1,5 Word/PDF */
-            color: #111827;
-            font-family: "Times New Roman", Georgia, serif;
-            font-size: 14.5px;
-            line-height: 1.52;
+            padding: 4cm 3cm 3cm 4cm;
+            /* Ukuran, margin 4-4-3-3 cm & tipografi identik 1:1 dengan Word/PDF */
+            color: #000000;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
             box-sizing: border-box;
             word-break: break-word;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            margin: 0 auto 24px auto;
+            margin: 0 auto 20px auto;
             position: relative;
+        }
+
+        .a4-sheet-stage > .a4-sheet {
+            margin: 0 !important;
+        }
+
+        .a4-sheet.empty-sheet,
+        .a4-sheet.empty-sheet-premium {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 794px !important;
+            min-height: 360px !important;
         }
 
         .cover-sheet {
@@ -740,21 +761,25 @@
         }
 
         .sheet-footer {
-            margin-top: auto;
-            padding-top: 16px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 1.35cm;
             text-align: center;
-            font-size: 13.5px;
-            font-family: 'Times New Roman', serif;
-            font-weight: 600;
-            color: #475569;
-            border-top: 1px solid rgba(203, 213, 225, 0.55);
+            font-size: 11pt;
+            font-family: inherit;
+            font-weight: 400;
+            color: #000000;
             user-select: none;
-            flex-shrink: 0;
+            pointer-events: none;
         }
 
         .paper-editor {
             outline: none;
             min-height: 420px;
+            display: flow-root;
+            font-size: inherit;
+            line-height: 1.5;
         }
 
         .paper-editor:focus {
@@ -767,53 +792,54 @@
             text-align: center;
             font-size: 14pt;
             font-weight: 700;
-            margin: 0 0 16pt;
-            line-height: 1.35;
+            margin: 0 0 12pt;
+            line-height: 1.25;
         }
 
         .paper-editor h3 {
             font-size: 1em;
             font-weight: 700;
-            margin: 14pt 0 6pt;
-            line-height: 1.4;
+            margin: 8pt 0 4pt;
+            line-height: 1.5;
         }
 
         .paper-editor h4 {
             font-size: 1em;
             font-weight: 700;
-            margin: 10pt 0 4pt;
-            line-height: 1.4;
+            margin: 5pt 0 3pt;
+            line-height: 1.5;
         }
 
         .paper-editor p {
             text-align: justify;
             text-indent: 1.27cm;
             line-height: 1.5;
-            margin-bottom: 6pt;
+            margin: 0 0 4pt;
         }
 
         .paper-editor ul,
         .paper-editor ol {
-            margin: 4pt 0 8pt 0;
-            padding-left: 1.27cm;
+            margin: 0 0 4pt 0;
+            padding-left: 22pt;
         }
 
         .paper-editor li {
             text-align: justify;
             line-height: 1.5;
-            margin-bottom: 4pt;
+            margin: 0 0 3pt 0;
         }
 
         .paper-editor ol[data-split-list="1"],
         .paper-editor ul[data-split-list="1"] {
-            margin-top: 2pt;
+            margin-top: 0;
         }
 
         .paper-editor .dp-entry {
-            text-indent: -32px;
-            padding-left: 32px;
+            text-indent: -1.27cm;
+            padding-left: 1.27cm;
             text-align: left;
-            margin-bottom: 10px;
+            line-height: 1.35;
+            margin: 0 0 6pt;
         }
 
 
@@ -1264,26 +1290,12 @@
                 z-index: 100;
             }
 
-            .a4-sheet {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-height: 920px !important;
-                height: auto !important;
-                padding: 44px 36px 34px 46px !important;
-                font-size: 14.5px !important;
-                line-height: 1.56 !important;
-                box-sizing: border-box !important;
-            }
-            .paper-editor p {
-                text-indent: 24px !important;
-            }
-            .paper-editor ul,
-            .paper-editor ol {
-                padding-left: 24px !important;
-            }
             .a4-sheet.empty-sheet,
             .a4-sheet.empty-sheet-premium {
+                width: 100% !important;
+                min-width: 0 !important;
                 min-height: 260px !important;
+                padding: 28px 20px !important;
             }
         }
 
@@ -3929,6 +3941,32 @@
             'daftar_pustaka': { num: '', title: 'DAFTAR PUSTAKA' }
         };
 
+        const DOC_FONT_MAP = {
+            times: { css: "'Times New Roman', Times, serif", size: '12pt', label: 'Times New Roman 12pt' },
+            arial: { css: "Arial, Helvetica, sans-serif", size: '11pt', label: 'Arial 11pt' },
+            georgia: { css: "Georgia, 'Times New Roman', serif", size: '11pt', label: 'Georgia 11pt' }
+        };
+        let activeDocFontKey = 'times';
+
+        function getActiveSheetMetrics() {
+            const top = Math.max(1, parseFloat(document.getElementById('m-top')?.value || '4') || 4);
+            const left = Math.max(1, parseFloat(document.getElementById('m-left')?.value || '4') || 4);
+            const bottom = Math.max(1, parseFloat(document.getElementById('m-bottom')?.value || '3') || 3);
+            const right = Math.max(1, parseFloat(document.getElementById('m-right')?.value || '3') || 3);
+            const fontKey = (typeof activeDocFontKey === 'string' && DOC_FONT_MAP[activeDocFontKey])
+                ? activeDocFontKey
+                : 'times';
+            const fontCfg = DOC_FONT_MAP[fontKey] || DOC_FONT_MAP.times;
+            const pxPerCm = 96 / 2.54;
+            return {
+                top, left, bottom, right,
+                fontCss: fontCfg.css,
+                fontSize: fontCfg.size,
+                printableWpx: Math.max(240, (21.0 - left - right) * pxPerCm),
+                printableHpx: Math.max(420, (29.7 - top - bottom) * pxPerCm)
+            };
+        }
+
         function buildChapterFullHtml(chapterKey) {
             const raw = (chapterContents[chapterKey] || '').trim();
             if (!raw) return '';
@@ -3939,7 +3977,7 @@
                 const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
                 if (!hasHeaderAlready) {
                     const hHtml = `
-                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 16pt; line-height: 1.3;">
+                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 12pt; line-height: 1.25;">
                     ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;">${curH.num}</div>` : ''}
                     <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-top: ${curH.num ? '2px' : '0'};">${curH.title}</div>
                 </div>
@@ -3952,6 +3990,7 @@
 
         function splitBodyHtmlToPages(fullBodyHtml) {
             if (!fullBodyHtml || !fullBodyHtml.trim()) return [];
+            let sandboxWrap = null;
             try {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = fullBodyHtml;
@@ -3961,28 +4000,50 @@
                     return [fullBodyHtml];
                 }
 
-                // Kalibrasi presisi 1:1 sesuai halaman A4 Microsoft Word & PDF (Times New Roman 12pt, 1,5 spasi, margin 4-4-3-3 cm):
-                // ~74 karakter per baris, ~33.5 baris isi per halaman A4 penuh.
-                const CHARS_PER_LINE = 74;
-                const MAX_LINES_PER_PAGE = 33.5;
+                const metrics = getActiveSheetMetrics();
+                const MAX_CONTENT_PX = Math.max(420, metrics.printableHpx - 6);
+
+                // Ukur tinggi DOM nyata di sandbox 1:1 ukuran area cetak A4 (21cm - margin) agar paginasi cocok 1:1 dengan Word & PDF
+                let useRealDom = false;
+                let sandboxPage = null;
+                if (typeof document !== 'undefined' && document.body) {
+                    sandboxWrap = document.createElement('div');
+                    sandboxWrap.style.cssText = 'position:fixed; left:-99999px; top:0; visibility:hidden; pointer-events:none; z-index:-1;';
+                    sandboxPage = document.createElement('div');
+                    sandboxPage.className = 'paper-editor';
+                    sandboxPage.style.width = `${metrics.printableWpx.toFixed(2)}px`;
+                    sandboxPage.style.minHeight = '0';
+                    sandboxPage.style.height = 'auto';
+                    sandboxPage.style.fontFamily = metrics.fontCss;
+                    sandboxPage.style.fontSize = metrics.fontSize;
+                    sandboxPage.style.lineHeight = '1.5';
+                    sandboxPage.style.padding = '0';
+                    sandboxPage.style.margin = '0';
+                    sandboxPage.style.boxSizing = 'border-box';
+                    sandboxWrap.appendChild(sandboxPage);
+                    document.body.appendChild(sandboxWrap);
+                    const probe = document.createElement('p');
+                    probe.textContent = 'Uji ukuran halaman A4.';
+                    sandboxPage.appendChild(probe);
+                    const probeH = sandboxPage.getBoundingClientRect().height;
+                    sandboxPage.innerHTML = '';
+                    useRealDom = probeH > 10 && sandboxPage.getBoundingClientRect().width > 100;
+                }
+
+                const CHARS_PER_LINE = 84;
+                const MAX_LINES_PER_PAGE = 34.5;
 
                 const estimateListItemLines = (li) => {
                     const len = (li.innerText || li.textContent || '').replace(/\s+/g, ' ').trim().length;
-                    return Math.max(1, Math.ceil((len + 6) / 68)) + 0.35;
+                    return Math.max(1, Math.ceil((len + 6) / 76)) + 0.25;
                 };
 
                 const estimateBlockLines = (block) => {
                     const textLen = (block.innerText || block.textContent || '').replace(/\s+/g, ' ').trim().length;
                     const tagName = (block.tagName || '').toLowerCase();
-                    if (block.classList && block.classList.contains('academic-chapter-header')) {
-                        return 3.2;
-                    }
-                    if (tagName === 'h1' || tagName === 'h2') {
-                        return 2.4;
-                    }
-                    if (tagName === 'h3' || tagName === 'h4') {
-                        return 1.8;
-                    }
+                    if (block.classList && block.classList.contains('academic-chapter-header')) return 3.0;
+                    if (tagName === 'h1' || tagName === 'h2') return 2.2;
+                    if (tagName === 'h3' || tagName === 'h4') return 1.6;
                     const figNode = (block.classList && block.classList.contains('academic-figure-container'))
                         ? block
                         : (block.querySelector ? block.querySelector('[data-diagram-height]') : null);
@@ -3998,31 +4059,116 @@
                         const rows = block.querySelectorAll ? block.querySelectorAll('tr').length : 4;
                         return Math.min(28, Math.max(5.5, rows * 1.65 + 2.5));
                     }
-                    if (block.querySelector && block.querySelector('img')) {
-                        return 12.0;
-                    }
+                    if (block.querySelector && block.querySelector('img')) return 12.0;
                     if (tagName === 'ul' || tagName === 'ol') {
                         const items = Array.from(block.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
-                        if (items.length) {
-                            return items.reduce((sum, li) => sum + estimateListItemLines(li), 0.5);
-                        }
-                        return Math.max(2, Math.ceil(textLen / 68) + 0.5);
+                        if (items.length) return items.reduce((sum, li) => sum + estimateListItemLines(li), 0.35);
+                        return Math.max(2, Math.ceil(textLen / 76) + 0.35);
                     }
                     if (block.classList && block.classList.contains('dp-entry')) {
-                        return Math.max(1.5, Math.ceil(textLen / 70)) + 0.45;
+                        return Math.max(1.5, Math.ceil(textLen / 78)) + 0.35;
                     }
-                    return Math.max(1, Math.ceil((textLen + 8) / CHARS_PER_LINE)) + 0.35;
+                    return Math.max(1, Math.ceil((textLen + 8) / CHARS_PER_LINE)) + 0.25;
                 };
 
-                const pages = [];
-                let curPageBlocks = [];
-                let curLines = 0;
+                const measureContainerWithNode = (nodesArr) => {
+                    sandboxPage.innerHTML = '';
+                    nodesArr.forEach(n => sandboxPage.appendChild(n.cloneNode(true)));
+                    return sandboxPage.getBoundingClientRect().height;
+                };
 
-                // Pecah paragraf HTML yang meluap di akhir halaman pada batas kalimat (seperti aliran halaman asli Word & PDF)
+                const splitParagraphBySandbox = (pEl, baseNodes) => {
+                    const html = pEl.innerHTML;
+                    const candidates = [];
+                    let inTag = false;
+                    for (let i = 0; i < html.length; i++) {
+                        const ch = html[i];
+                        if (ch === '<') { inTag = true; continue; }
+                        if (ch === '>') { inTag = false; continue; }
+                        if (inTag) continue;
+                        if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < html.length && /\s/.test(html[i + 1]))) {
+                            const beforeChunk = html.slice(Math.max(0, i - 12), i).replace(/<[^>]+>/g, '').trim();
+                            if (!/(?:et\s+al|dkk|no|hlm|hal|dr|prof)$/i.test(beforeChunk)) {
+                                const headCandidate = html.slice(0, i + 1).trim();
+                                const tailCandidate = html.slice(i + 1).trim();
+                                if (headCandidate.replace(/<[^>]+>/g, '').trim().length >= 80 && tailCandidate.replace(/<[^>]+>/g, '').trim().length >= 40) {
+                                    const openSpans = (headCandidate.match(/<span\b/gi) || []).length;
+                                    const closeSpans = (headCandidate.match(/<\/span>/gi) || []).length;
+                                    if (openSpans === closeSpans) candidates.push(i + 1);
+                                }
+                            }
+                        }
+                    }
+                    if (!candidates.length) return null;
+
+                    let lo = 0, hi = candidates.length - 1, bestIdx = -1;
+                    while (lo <= hi) {
+                        const mid = Math.floor((lo + hi) / 2);
+                        const splitAt = candidates[mid];
+                        const pTest = document.createElement('p');
+                        pTest.setAttribute('data-split-head', '1');
+                        pTest.innerHTML = html.slice(0, splitAt).trim();
+                        const h = measureContainerWithNode([...baseNodes, pTest]);
+                        if (h <= MAX_CONTENT_PX) {
+                            bestIdx = splitAt;
+                            lo = mid + 1;
+                        } else {
+                            hi = mid - 1;
+                        }
+                    }
+                    if (bestIdx === -1) return null;
+
+                    const pHead = document.createElement('p');
+                    pHead.setAttribute('data-split-head', '1');
+                    pHead.innerHTML = html.slice(0, bestIdx).trim();
+                    const pTail = document.createElement('p');
+                    pTail.setAttribute('data-split-cont', '1');
+                    pTail.innerHTML = html.slice(bestIdx).trim();
+                    return [pHead, pTail];
+                };
+
+                const splitListBySandbox = (listEl, baseNodes) => {
+                    const listTag = (listEl.tagName || '').toLowerCase();
+                    if (listTag !== 'ol' && listTag !== 'ul') return null;
+                    const items = Array.from(listEl.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
+                    if (items.length < 2) return null;
+
+                    const startAttr = listEl.getAttribute('start');
+                    let fitCount = 0;
+                    for (let k = 1; k < items.length; k++) {
+                        const probeList = document.createElement(listTag);
+                        if (listTag === 'ol' && startAttr) probeList.setAttribute('start', startAttr);
+                        for (let j = 0; j < k; j++) probeList.appendChild(items[j].cloneNode(true));
+                        if (measureContainerWithNode([...baseNodes, probeList]) <= MAX_CONTENT_PX) {
+                            fitCount = k;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (fitCount < 1 || fitCount >= items.length) return null;
+
+                    const headList = document.createElement(listTag);
+                    if (listTag === 'ol' && startAttr) headList.setAttribute('start', startAttr);
+                    for (let j = 0; j < fitCount; j++) headList.appendChild(items[j].cloneNode(true));
+
+                    const tailList = document.createElement(listTag);
+                    tailList.setAttribute('data-split-list', '1');
+                    const tailItems = items.slice(fitCount).map(li => li.cloneNode(true));
+                    if (listTag === 'ol') {
+                        const firstTailVal = parseInt(tailItems[0].getAttribute('value') || '', 10);
+                        const baseStart = parseInt(startAttr || '1', 10);
+                        const nextStart = !isNaN(firstTailVal) ? firstTailVal : (baseStart + fitCount);
+                        tailList.setAttribute('start', String(nextStart));
+                    }
+                    tailItems.forEach(li => tailList.appendChild(li));
+                    return [headList, tailList];
+                };
+
+                // Fallback math splitters bila offscreen DOM belum siap
                 const splitParagraphHtmlAtLines = (pEl, targetLines) => {
                     const html = pEl.innerHTML;
                     const plain = (pEl.innerText || pEl.textContent || '').replace(/\s+/g, ' ').trim();
-                    const targetChars = Math.max(130, Math.floor((targetLines - 0.35) * CHARS_PER_LINE));
+                    const targetChars = Math.max(130, Math.floor((targetLines - 0.25) * CHARS_PER_LINE));
                     if (plain.length <= targetChars + 80) return null;
 
                     let inTag = false;
@@ -4064,14 +4210,13 @@
                     return [pHead, pTail];
                 };
 
-                // Pecah daftar bernomor/bullet (<ol>/<ul>) antar poin <li> seperti aliran Word & PDF agar halaman penuh sebelum pindah kertas
                 const splitListAtLines = (listEl, targetLines) => {
                     const listTag = (listEl.tagName || '').toLowerCase();
                     if ((listTag !== 'ol' && listTag !== 'ul') || targetLines < 3.0) return null;
                     const items = Array.from(listEl.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
                     if (items.length < 2) return null;
 
-                    let accLines = 0.4;
+                    let accLines = 0.35;
                     const headItems = [];
                     const tailItems = [];
                     for (let i = 0; i < items.length; i++) {
@@ -4102,58 +4247,108 @@
                     return [headList, tailList];
                 };
 
+                const pages = [];
+                let curPageBlocks = [];
+                let curLines = 0;
+
                 for (let idx = 0; idx < queue.length; idx++) {
                     const block = queue[idx];
-                    const blockLines = estimateBlockLines(block);
                     const tagName = (block.tagName || '').toLowerCase();
                     const isPlainPara = tagName === 'p' && (!block.classList || (!block.classList.contains('academic-caption') && !block.classList.contains('dp-entry') && !block.classList.contains('academic-formula')));
                     const isListBlock = tagName === 'ul' || tagName === 'ol';
 
-                    if (curPageBlocks.length > 0 && (curLines + blockLines > MAX_LINES_PER_PAGE + 1.5)) {
-                        const remainingLines = MAX_LINES_PER_PAGE - curLines;
-                        if (isPlainPara && remainingLines >= 2.5) {
-                            const splitPair = splitParagraphHtmlAtLines(block, remainingLines);
-                            if (splitPair) {
-                                curPageBlocks.push(splitPair[0]);
-                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                curPageBlocks = [];
-                                curLines = 0;
-                                queue.splice(idx + 1, 0, splitPair[1]);
-                                continue;
+                    if (useRealDom) {
+                        const nextHeight = measureContainerWithNode([...curPageBlocks, block]);
+                        if (curPageBlocks.length > 0 && nextHeight > MAX_CONTENT_PX) {
+                            const curHeight = measureContainerWithNode(curPageBlocks);
+                            const remPx = MAX_CONTENT_PX - curHeight;
+
+                            if (isPlainPara && remPx >= 46) {
+                                const splitPair = splitParagraphBySandbox(block, curPageBlocks);
+                                if (splitPair) {
+                                    curPageBlocks.push(splitPair[0]);
+                                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                    curPageBlocks = [];
+                                    queue.splice(idx + 1, 0, splitPair[1]);
+                                    continue;
+                                }
                             }
-                        }
 
-                        if (isListBlock && remainingLines >= 3.0) {
-                            const splitListPair = splitListAtLines(block, remainingLines);
-                            if (splitListPair) {
-                                curPageBlocks.push(splitListPair[0]);
-                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                curPageBlocks = [];
-                                curLines = 0;
-                                queue.splice(idx + 1, 0, splitListPair[1]);
-                                continue;
+                            if (isListBlock && remPx >= 46) {
+                                const splitListPair = splitListBySandbox(block, curPageBlocks);
+                                if (splitListPair) {
+                                    curPageBlocks.push(splitListPair[0]);
+                                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                    curPageBlocks = [];
+                                    queue.splice(idx + 1, 0, splitListPair[1]);
+                                    continue;
+                                }
                             }
-                        }
 
-                        const lastBlock = curPageBlocks[curPageBlocks.length - 1];
-                        const lastTag = (lastBlock.tagName || '').toLowerCase();
-                        const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
-                        const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
+                            const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                            const lastTag = (lastBlock.tagName || '').toLowerCase();
+                            const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
+                            const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
 
-                        if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
-                            const orphanEl = curPageBlocks.pop();
-                            const orphanLines = estimateBlockLines(orphanEl);
-                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                            curPageBlocks = [orphanEl, block];
-                            curLines = orphanLines + blockLines;
+                            if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
+                                const orphanEl = curPageBlocks.pop();
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [orphanEl, block];
+                            } else {
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [block];
+                            }
                         } else {
-                            pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                            curPageBlocks = [block];
-                            curLines = blockLines;
+                            curPageBlocks.push(block);
                         }
                     } else {
-                        curPageBlocks.push(block);
-                        curLines += blockLines;
+                        const blockLines = estimateBlockLines(block);
+                        if (curPageBlocks.length > 0 && (curLines + blockLines > MAX_LINES_PER_PAGE + 1.5)) {
+                            const remainingLines = MAX_LINES_PER_PAGE - curLines;
+                            if (isPlainPara && remainingLines >= 2.5) {
+                                const splitPair = splitParagraphHtmlAtLines(block, remainingLines);
+                                if (splitPair) {
+                                    curPageBlocks.push(splitPair[0]);
+                                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                    curPageBlocks = [];
+                                    curLines = 0;
+                                    queue.splice(idx + 1, 0, splitPair[1]);
+                                    continue;
+                                }
+                            }
+
+                            if (isListBlock && remainingLines >= 3.0) {
+                                const splitListPair = splitListAtLines(block, remainingLines);
+                                if (splitListPair) {
+                                    curPageBlocks.push(splitListPair[0]);
+                                    pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                    curPageBlocks = [];
+                                    curLines = 0;
+                                    queue.splice(idx + 1, 0, splitListPair[1]);
+                                    continue;
+                                }
+                            }
+
+                            const lastBlock = curPageBlocks[curPageBlocks.length - 1];
+                            const lastTag = (lastBlock.tagName || '').toLowerCase();
+                            const isLastCaption = lastBlock.classList && lastBlock.classList.contains('academic-caption');
+                            const isLastHeading = (lastTag === 'h2' || lastTag === 'h3' || lastTag === 'h4') || (lastBlock.classList && lastBlock.classList.contains('academic-chapter-header'));
+
+                            if ((isLastHeading || isLastCaption) && curPageBlocks.length > 1) {
+                                const orphanEl = curPageBlocks.pop();
+                                const orphanLines = estimateBlockLines(orphanEl);
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [orphanEl, block];
+                                curLines = orphanLines + blockLines;
+                            } else {
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [block];
+                                curLines = blockLines;
+                            }
+                        } else {
+                            curPageBlocks.push(block);
+                            curLines += blockLines;
+                        }
                     }
                 }
 
@@ -4165,6 +4360,10 @@
             } catch (e) {
                 console.error('Error splitBodyHtmlToPages:', e);
                 return [fullBodyHtml];
+            } finally {
+                if (sandboxWrap && sandboxWrap.parentNode) {
+                    sandboxWrap.parentNode.removeChild(sandboxWrap);
+                }
             }
         }
 
@@ -5882,12 +6081,43 @@
             }
         }
 
-        const DOC_FONT_MAP = {
-            times: { css: "'Times New Roman', Times, serif", size: '12pt', label: 'Times New Roman 12pt' },
-            arial: { css: "Arial, Helvetica, sans-serif", size: '11pt', label: 'Arial 11pt' },
-            georgia: { css: "Georgia, 'Times New Roman', serif", size: '11pt', label: 'Georgia 11pt' }
-        };
-        let activeDocFontKey = 'times';
+        function scaleA4SheetsToViewport() {
+            const container = document.getElementById('sheets-container');
+            if (!container) return;
+            const availW = container.clientWidth;
+            if (!availW || availW < 120) return;
+
+            const sheets = Array.from(container.querySelectorAll('.a4-sheet:not(.empty-sheet):not(.empty-sheet-premium)'));
+            const scale = Math.min(1, availW / 794);
+
+            sheets.forEach((sheet) => {
+                if (!sheet.parentElement || !sheet.parentElement.classList.contains('a4-sheet-stage')) {
+                    const stage = document.createElement('div');
+                    stage.className = 'a4-sheet-stage';
+                    sheet.parentNode.insertBefore(stage, sheet);
+                    stage.appendChild(sheet);
+                }
+                const stage = sheet.parentElement;
+                const naturalH = Math.max(1123, sheet.offsetHeight || 1123);
+                if (scale < 0.999) {
+                    stage.style.width = `${Math.round(794 * scale)}px`;
+                    stage.style.height = `${Math.round(naturalH * scale)}px`;
+                    sheet.style.transformOrigin = 'top left';
+                    sheet.style.transform = `scale(${scale.toFixed(4)})`;
+                    sheet.style.position = 'absolute';
+                    sheet.style.top = '0';
+                    sheet.style.left = '0';
+                } else {
+                    stage.style.width = '794px';
+                    stage.style.height = 'auto';
+                    sheet.style.transform = '';
+                    sheet.style.transformOrigin = '';
+                    sheet.style.position = 'relative';
+                    sheet.style.top = '';
+                    sheet.style.left = '';
+                }
+            });
+        }
 
         function applyCurrentDocFormatting() {
             const cfg = DOC_FONT_MAP[activeDocFontKey] || DOC_FONT_MAP.times;
@@ -5895,20 +6125,27 @@
             const left = document.getElementById('m-left')?.value || '4';
             const bottom = document.getElementById('m-bottom')?.value || '3';
             const right = document.getElementById('m-right')?.value || '3';
-            const isCompactViewport = window.innerWidth <= 900;
 
             document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
                 el.style.fontFamily = cfg.css;
-                if (el.classList.contains('paper-editor')) {
-                    el.style.fontSize = isCompactViewport ? '14px' : cfg.size;
-                }
                 if (el.classList.contains('a4-sheet') && !el.classList.contains('empty-sheet') && !el.classList.contains('empty-sheet-premium')) {
-                    el.style.padding = isCompactViewport ? '' : `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+                    el.style.fontSize = cfg.size;
+                    el.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+                }
+                if (el.classList.contains('paper-editor')) {
+                    el.style.fontSize = cfg.size;
                 }
             });
+            scaleA4SheetsToViewport();
         }
 
-        window.addEventListener('resize', applyCurrentDocFormatting);
+        window.addEventListener('resize', scaleA4SheetsToViewport);
+        if (typeof ResizeObserver !== 'undefined') {
+            const sheetsWrapEl = document.getElementById('sheets-container');
+            if (sheetsWrapEl) {
+                new ResizeObserver(() => scaleA4SheetsToViewport()).observe(sheetsWrapEl);
+            }
+        }
 
         function updateDocFont(val, silent = false) {
             const cfg = DOC_FONT_MAP[val] || DOC_FONT_MAP.times;
@@ -5919,7 +6156,11 @@
             const fontInp = dlForm ? dlForm.querySelector('input[name="font_family"]') : null;
             if (fontInp) fontInp.value = activeDocFontKey;
 
-            applyCurrentDocFormatting();
+            if (!silent && typeof renderActiveSheet === 'function' && activeView !== 'revisi' && activeView !== 'lampiran') {
+                renderActiveSheet();
+            } else {
+                applyCurrentDocFormatting();
+            }
             if (!silent) {
                 showToast(`Font naskah & ekspor Word/PDF diubah ke ${cfg.label}`, 'info');
             }
@@ -5944,7 +6185,11 @@
                 }
             });
 
-            applyCurrentDocFormatting();
+            if (!silent && typeof renderActiveSheet === 'function' && activeView !== 'revisi' && activeView !== 'lampiran') {
+                renderActiveSheet();
+            } else {
+                applyCurrentDocFormatting();
+            }
         }
 
         function handleSidebarLogoUpload(input) {

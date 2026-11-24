@@ -489,7 +489,7 @@ class GeneratorController extends Controller
         foreach ($chapterKeys as $k) {
             $text = trim(strip_tags((string) ($project->{$k . '_content'} ?? '')));
             if ($text !== '') {
-                $pages = max(1, (int) ceil(mb_strlen($text) / 2200));
+                $pages = max(1, (int) ceil(mb_strlen($text) / 2450));
                 $map[$k] = ['start' => $curPage, 'count' => $pages, 'end' => $curPage + $pages - 1];
                 $curPage += $pages;
             } else {

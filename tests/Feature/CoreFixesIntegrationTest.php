@@ -52,6 +52,13 @@ class CoreFixesIntegrationTest extends TestCase
             ->assertStatus(200)
             ->assertSee('<link rel="canonical"', false)
             ->assertSee('<meta name="description"', false);
+
+        $landingHtml = $this->get('/')->assertStatus(200)->getContent();
+        $hargaPos = strpos($landingHtml, 'id="harga-paket"');
+        $faqPos = strpos($landingHtml, 'id="faq"');
+        $this->assertNotFalse($hargaPos);
+        $this->assertNotFalse($faqPos);
+        $this->assertLessThan($faqPos, $hargaPos, 'Pricing section must appear above FAQ on the landing page.');
     }
 
     public function test_quota_status_card_is_collapsed_by_default_with_lihat_sisa_kuota_toggle(): void
@@ -161,6 +168,10 @@ class CoreFixesIntegrationTest extends TestCase
         $wsHtml = $this->actingAs($user)->get('/project/' . $project->id)->assertStatus(200)->getContent();
         $this->assertStringContainsString('buildAcademicFlowchartSvgJs', $wsHtml);
         $this->assertStringContainsString('splitListAtLines', $wsHtml);
+        $this->assertStringContainsString('scaleA4SheetsToViewport', $wsHtml);
+        $this->assertStringContainsString('measureContainerWithNode', $wsHtml);
+        $this->assertStringContainsString('padding: 4cm 3cm 3cm 4cm;', $wsHtml);
+        $this->assertStringContainsString('width: 794px;', $wsHtml);
         $this->assertSame(
             preg_match_all('/<script\b/i', $wsHtml),
             preg_match_all('/<\/script>/i', $wsHtml),

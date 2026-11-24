@@ -2267,8 +2267,24 @@
             </div>
         </section>
 
-        <!-- Section 4: FAQ Mahasiswa (SEO Rich Results + Bantuan Cepat) -->
-        <section id="faq" class="section section-subtle">
+        <!-- Section 4: Harga Paket Mahasiswa -->
+        <section id="harga-paket" class="section section-subtle">
+            <div class="container">
+                <div style="text-align:center; max-width:700px; margin:0 auto 24px;">
+                    <span class="section-label">Tanpa Kredit · Bayar Pakai Kuota atau Unlimited</span>
+                    <h2 style="font-size: clamp(1.5rem, 2.8vw, 2.05rem); font-weight: 800; color: #0f172a; margin: 10px 0 8px;">
+                        Harga Paling Ramah Mahasiswa Indonesia
+                    </h2>
+                    <p style="font-size: 14.5px; color: #475569; margin: 0;">
+                        Boleh coba gratis 1 proyek dulu (Sampul, Bab I &amp; Daftar Pustaka + AI Tools 1x). Butuh naskah lengkap + Download Word/PDF? Mulai <strong>Rp15.000</strong> saja!
+                    </p>
+                </div>
+                @include('partials.pricing_catalog', ['plans' => $plans ?? []])
+            </div>
+        </section>
+
+        <!-- Section 5: FAQ Mahasiswa (SEO Rich Results + Bantuan Cepat) -->
+        <section id="faq" class="section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-label">Pertanyaan Umum</span>
@@ -2353,20 +2369,6 @@
                             soal 24 jam.
                         </div>
                     </details>
-                </div>
-
-                <!-- Section Harga Paket Mahasiswa -->
-                <div id="harga-paket" style="margin-top: 56px; padding-top: 32px; border-top: 1px solid #e2e8f0;">
-                    <div style="text-align:center; max-width:700px; margin:0 auto 24px;">
-                        <span class="section-label">Tanpa Kredit · Bayar Pakai Kuota atau Unlimited</span>
-                        <h2 style="font-size: clamp(1.5rem, 2.8vw, 2.05rem); font-weight: 800; color: #0f172a; margin: 10px 0 8px;">
-                            Harga Paling Ramah Mahasiswa Indonesia
-                        </h2>
-                        <p style="font-size: 14.5px; color: #475569; margin: 0;">
-                            Boleh coba gratis 1 proyek dulu (Sampul, Bab I &amp; Daftar Pustaka + AI Tools 1x). Butuh naskah lengkap + Download Word/PDF? Mulai <strong>Rp15.000</strong> saja!
-                        </p>
-                    </div>
-                    @include('partials.pricing_catalog', ['plans' => $plans ?? []])
                 </div>
 
                 <div class="cta-banner" style="margin-top: 44px;">
