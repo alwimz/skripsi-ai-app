@@ -1198,6 +1198,64 @@ class GeneratorController extends Controller
         // Rapikan daftar bernomor berurutan yang dipisahkan baris kosong agar tidak reset ke 1. saat dirender <ol> di PDF
         $result = (string) preg_replace('/(\n\d+\.\s+[^\n]+)\n{2,}(?=\d+\.\s+)/', "$1\n", $result);
 
+        // Auto-isi tanda ✓ jika AI menghasilkan tabel jadwal penelitian (Bulan ke-1..N / Minggu) yang semua sel waktunya kosong
+        if (str_contains($result, '|') && preg_match('/bulan\s+ke-?\s*1|minggu\s+ke-?\s*1/i', $result)) {
+            $tLines = preg_split("/(\r\n|\n)/", $result) ?: [];
+            $i = 0;
+            $nLines = count($tLines);
+            while ($i < $nLines) {
+                if (preg_match('/^\s*\|.*(?:bulan\s+ke-?\s*1|minggu\s+ke-?\s*1).*\|/i', $tLines[$i]) && isset($tLines[$i + 1]) && preg_match('/^\s*\|[\s:\-|]+\|\s*$/', $tLines[$i + 1])) {
+                    $hdrCells = array_map('trim', explode('|', trim($tLines[$i], "| \t\r\n")));
+                    $timeCols = [];
+                    foreach ($hdrCells as $ci => $hc) {
+                        if (preg_match('/^(?:bulan|minggu)\s*(?:ke-?)?\s*\d+$/i', $hc)) {
+                            $timeCols[] = $ci;
+                        }
+                    }
+                    if (count($timeCols) >= 2) {
+                        $rowIdxs = [];
+                        $r = $i + 2;
+                        while ($r < $nLines && preg_match('/^\s*\|.*\|\s*$/', $tLines[$r])) {
+                            $rowIdxs[] = $r;
+                            $r++;
+                        }
+                        if (!empty($rowIdxs)) {
+                            $allEmpty = true;
+                            foreach ($rowIdxs as $ri) {
+                                $cells = array_map('trim', explode('|', trim($tLines[$ri], "| \t\r\n")));
+                                foreach ($timeCols as $tc) {
+                                    if (isset($cells[$tc]) && $cells[$tc] !== '' && $cells[$tc] !== '-') {
+                                        $allEmpty = false;
+                                        break 2;
+                                    }
+                                }
+                            }
+                            if ($allEmpty) {
+                                $totalRows = count($rowIdxs);
+                                $numTime = count($timeCols);
+                                foreach ($rowIdxs as $pos => $ri) {
+                                    $cells = array_map('trim', explode('|', trim($tLines[$ri], "| \t\r\n")));
+                                    while (count($cells) < count($hdrCells)) {
+                                        $cells[] = '';
+                                    }
+                                    $startCol = (int) floor(($pos * $numTime) / max(1, $totalRows));
+                                    $endCol = min($numTime - 1, (int) floor((($pos + 1) * $numTime) / max(1, $totalRows)));
+                                    for ($ti = $startCol; $ti <= $endCol; $ti++) {
+                                        $cells[$timeCols[$ti]] = '✓';
+                                    }
+                                    $tLines[$ri] = '| ' . implode(' | ', $cells) . ' |';
+                                }
+                            }
+                        }
+                        $i = $r;
+                        continue;
+                    }
+                }
+                $i++;
+            }
+            $result = implode("\n", $tLines);
+        }
+
         return $result;
     }
 
@@ -1654,7 +1712,7 @@ class GeneratorController extends Controller
                 'framework' => 48,
                 default => 44,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
@@ -1794,7 +1852,7 @@ class GeneratorController extends Controller
                 'framework' => 48,
                 default => 42,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
@@ -3853,7 +3911,7 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
 ```
 [Mulai]
 ↓
-[Identifikasi Masalah & Studi Kepustakaan '{$project->judul}']
+[Identifikasi Masalah & Studi Kepustakaan {$project->judul}]
 ↓
 [Pengumpulan Data Angket & Dokumentasi Lapangan]
 ↓
@@ -5534,22 +5592,24 @@ ATURAN REVISI (SANGAT KETAT):
     private function extractInTextCitations(string $text): array
     {
         $citations = [];
-        // Format 1: Penulis (Tahun), cth: Indriyani et al. (2023), Mulya (2025), Azril & Chrisnawati (2026)
-        if (preg_match_all('/([A-Z][a-zA-Z]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-Z]+|&\s+[A-Z][a-zA-Z]+))?)\s*\(((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
+        // Format 1: Penulis (Tahun), termasuk 2-5 penulis seperti: Pongdatu, Lestari, dan Tasman (2023)
+        if (preg_match_all('/([A-Z][a-zA-Z\-]+(?:\s+et\s+al\.?|(?:,\s+[A-Z][a-zA-Z\-]+){0,4},?\s+(?:dan|&)\s+[A-Z][a-zA-Z\-]+)?)\s*\(((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $m) {
                 $author = trim($m[1]);
                 $year = $m[2];
-                if (!in_array(strtolower($author), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan'])) {
+                $firstAuthor = trim((string) preg_split('/[\s,]+/', $author)[0]);
+                if (!in_array(strtolower($firstAuthor), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan', 'pasal', 'tahun', 'ayat'])) {
                     $citations["{$author} ({$year})"] = true;
                 }
             }
         }
-        // Format 2: (Penulis, Tahun), cth: (Indriyani et al., 2023), (Azril & Chrisnawati, 2026)
-        if (preg_match_all('/\(([A-Z][a-zA-Z]+(?:\s+(?:et\s+al\.?|dan\s+[A-Z][a-zA-Z]+|&\s+[A-Z][a-zA-Z]+))?),?\s*((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
+        // Format 2: (Penulis, Tahun), termasuk multi-penulis seperti (Pongdatu, Lestari, & Tasman, 2023)
+        if (preg_match_all('/\(([A-Z][a-zA-Z\-]+(?:\s+et\s+al\.?|(?:,\s+[A-Z][a-zA-Z\-]+){0,4},?\s+(?:dan|&)\s+[A-Z][a-zA-Z\-]+)?),?\s*((?:19|20)\d\d)\)/u', $text, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $m) {
                 $author = trim($m[1]);
                 $year = $m[2];
-                if (!in_array(strtolower($author), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan'])) {
+                $firstAuthor = trim((string) preg_split('/[\s,]+/', $author)[0]);
+                if (!in_array(strtolower($firstAuthor), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan', 'pasal', 'tahun', 'ayat'])) {
                     $citations["{$author} ({$year})"] = true;
                 }
             }
