@@ -1710,6 +1710,17 @@
                 <span class="project-mode-badge" style="margin-top: 2px;">
                     {{ $isProposal ? 'Proposal (Bab I–III)' : 'Skripsi Penuh (Bab I–V)' }}
                 </span>
+                @php
+                    $isGenUnlocked = !empty($projectUnlocked);
+                @endphp
+                <div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 8px; background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border: 1px solid {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }};">
+                    <span style="font-size: 10.5px; font-weight: 700; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }};">
+                        {{ $isGenUnlocked ? '✓ Full Akses Aktif' : 'Free · Sampul, Bab I & DP' }}
+                    </span>
+                    <a href="{{ route('billing.plans') }}" style="font-size: 10.5px; font-weight: 700; color: #2563eb; text-decoration: none;">
+                        {{ $isGenUnlocked ? 'Paket' : 'Upgrade →' }}
+                    </a>
+                </div>
             </div>
 
             <div class="progress-wrap">
@@ -1758,13 +1769,19 @@
                         style="font-size: 10px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 999px; align-self: center;">Lengkap</span>
                 </button>
                 @foreach ($chapterTitles as $key => $label)
+                    @php $isLockedChap = !$isGenUnlocked && in_array($key, ['bab2', 'bab3', 'bab4', 'bab5'], true); @endphp
                     <button type="button" class="nav-item" id="nav-item-{{ $key }}"
                         onclick="selectChapterView('{{ $key }}')">
                         <span class="nav-item-left">
                             <span class="nav-item-text">{{ $label }}</span>
                         </span>
-                        <span class="status-dot {{ !empty($project->{$key . '_content'}) ? 'done' : '' }}"
-                            id="dot-{{ $key }}"></span>
+                        <span style="display:inline-flex; align-items:center; gap:5px;">
+                            @if($isLockedChap)
+                                <span title="Buka dengan Paket Starter mulai Rp15.000" style="font-size:10px;">🔒</span>
+                            @endif
+                            <span class="status-dot {{ !empty($project->{$key . '_content'}) ? 'done' : '' }}"
+                                id="dot-{{ $key }}"></span>
+                        </span>
                     </button>
                 @endforeach
 
@@ -1910,9 +1927,9 @@
             <div class="sidebar-download-sticky"
                 style="flex-shrink: 0; padding: 12px 14px; padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)); background: #ffffff; border-top: 1px solid var(--border); box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.06); z-index: 50;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button type="button" class="btn-dl-side primary" onclick="submitQuickDownload('docx')">⬇ Word
+                    <button type="button" class="btn-dl-side primary" onclick="submitQuickDownload('docx')">{{ !$isGenUnlocked ? '🔒 ' : '⬇ ' }}Word
                         (.docx)</button>
-                    <button type="button" class="btn-dl-side" onclick="submitQuickDownload('pdf')">⬇ PDF (.pdf)</button>
+                    <button type="button" class="btn-dl-side" onclick="submitQuickDownload('pdf')">{{ !$isGenUnlocked ? '🔒 ' : '⬇ ' }}PDF (.pdf)</button>
                 </div>
             </div>
         </aside>
@@ -5450,6 +5467,10 @@
                     body: JSON.stringify({ chapter: activeView, model, data_riil: researchDataRiil })
                 });
                 const data = await res.json();
+                if (res.status === 402 || data.status === 'upgrade_required') {
+                    openUpgradeModal(data.message || 'Buka seluruh bab dengan Paket Kuota mulai Rp15.000.', data.reason);
+                    return;
+                }
                 if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun bab.');
                 chapterContents[activeView] = data.content || '';
                 if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
@@ -5482,6 +5503,12 @@
                         body: JSON.stringify({ chapter: key, model, data_riil: researchDataRiil })
                     });
                     const data = await res.json();
+                    if (res.status === 402 || data.status === 'upgrade_required') {
+                        finishLoadingSheet();
+                        if (dot) dot.classList.remove('generating');
+                        openUpgradeModal(data.message || 'Buka seluruh bab dengan Paket Kuota mulai Rp15.000.', data.reason);
+                        break;
+                    }
                     if (!res.ok || data.status !== 'success') throw new Error(data.message || `Gagal menyusun ${key}`);
                     chapterContents[key] = data.content || '';
                     if (data.daftar_pustaka) chapterContents.daftar_pustaka = data.daftar_pustaka;
@@ -5578,6 +5605,12 @@
                     body: formData
                 });
                 const data = await res.json();
+                if (res.status === 402 || data.status === 'upgrade_required') {
+                    finishLoadingSheet();
+                    openUpgradeModal(data.message || 'Revisi bagian ini tersedia di Paket Starter mulai Rp15.000.', data.reason);
+                    renderLabRevisi();
+                    return;
+                }
                 if (!res.ok || data.status !== 'success') {
                     throw new Error(data.message || data.error || 'Gagal memproses revisi.');
                 }
@@ -5821,6 +5854,10 @@
         }
 
         function submitQuickDownload(format) {
+            if (!@json($projectUnlocked ?? false)) {
+                openUpgradeModal('Download Word (.docx) & PDF (.pdf) siap cetak tersedia untuk Paket Starter mulai Rp15.000. Pekerjaanmu sudah tersimpan aman!', 'download_locked');
+                return;
+            }
             updateMargins();
             const form = document.getElementById('quick-download-form');
             const coverImg = document.querySelector('.cover-logo-img');
@@ -6167,6 +6204,7 @@
         updateProgressUI();
         selectChapterView('all');
     </script>
+    @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])
 </body>
 
 </html>

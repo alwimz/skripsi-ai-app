@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Services\BillingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
+    public function __construct(private BillingService $billing)
+    {
+    }
     /**
      * Kode Akses Admin (Passcode).
      * Dapat diatur via .env (ADMIN_PASSWORD), default: 'admin123'
@@ -60,6 +65,8 @@ class AdminController extends Controller
                 ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         }
 
+        $this->billing->ensureSchema();
+
         // Hitung metrik (gunakan zona waktu WIB / Asia/Jakarta)
         $nowWib = Carbon::now('Asia/Jakarta');
         $todayStartUtc = $nowWib->copy()->startOfDay()->setTimezone('UTC');
@@ -71,8 +78,8 @@ class AdminController extends Controller
         $usersThisWeek = User::where('created_at', '>=', $weekStartUtc)->count();
         $usersThisMonth = User::where('created_at', '>=', $monthStartUtc)->count();
         $totalProjects = Project::count();
-        // Estimasi Pendapatan Langganan Paket (Dummy Jutaan Sesuai Permintaan)
-        $totalRevenue = 4850000;
+        $realRevenue = (int) DB::table('transactions')->where('status', 'completed')->sum('amount');
+        $totalRevenue = $realRevenue;
 
         // Pencarian pengguna
         $q = trim($request->query('q', ''));
@@ -120,6 +127,30 @@ class AdminController extends Controller
             return $p;
         });
 
+        $transactions = DB::table('transactions')
+            ->orderByDesc('created_at')
+            ->limit(30)
+            ->get()
+            ->map(function ($tx) use ($userMap) {
+                $owner = $userMap->get($tx->user_id) ?? User::find($tx->user_id);
+                $tx->user_name = $owner->name ?? 'User #' . $tx->user_id;
+                $tx->user_email = $owner->email ?? '-';
+                return $tx;
+            });
+
+        $withdrawals = DB::table('referral_withdrawals')
+            ->orderByDesc('created_at')
+            ->limit(30)
+            ->get()
+            ->map(function ($w) {
+                $owner = User::find($w->user_id);
+                $w->user_name = $owner->name ?? 'User #' . $w->user_id;
+                $w->user_email = $owner->email ?? '-';
+                return $w;
+            });
+
+        $plans = $this->billing->getPlans(true);
+
         return response()
             ->view('admin.users', compact(
                 'totalUsers',
@@ -130,9 +161,52 @@ class AdminController extends Controller
                 'totalRevenue',
                 'users',
                 'projects',
+                'transactions',
+                'withdrawals',
+                'plans',
                 'q'
             ))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
+    public function updateUserPlan(Request $request, $id)
+    {
+        if (!$this->isAdminAuthorized($request)) {
+            abort(403);
+        }
+        $this->billing->ensureSchema();
+        $user = User::findOrFail($id);
+        $planCode = trim((string) $request->input('plan_code', 'free'));
+
+        if ($planCode === 'free') {
+            $user->plan_code = 'free';
+            $user->project_quota_limit = 0;
+            $user->project_quota_used = 0;
+            $user->plan_expires_at = null;
+            $user->save();
+            return back()->with('success', "Tier {$user->name} dikembalikan ke Free.");
+        }
+
+        $plan = $this->billing->getPlan($planCode);
+        if (!$plan) {
+            return back()->with('error', 'Kode paket tidak valid.');
+        }
+
+        $this->billing->activatePackageForUser($user, $planCode, null);
+        return back()->with('success', "Paket {$plan['name']} berhasil diaktifkan untuk {$user->name}.");
+    }
+
+    public function markWithdrawalPaid(Request $request, $id)
+    {
+        if (!$this->isAdminAuthorized($request)) {
+            abort(403);
+        }
+        $this->billing->ensureSchema();
+        DB::table('referral_withdrawals')->where('id', $id)->update([
+            'status' => 'paid',
+            'updated_at' => now(),
+        ]);
+        return back()->with('success', 'Status pencairan referral ditandai sudah dibayar.');
     }
 
     /**

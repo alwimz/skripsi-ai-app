@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Services\BillingService;
 use App\Services\PlagiarismCheckService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -14,10 +15,12 @@ use ZipArchive;
 class PlagiarismController extends Controller
 {
     protected PlagiarismCheckService $plagiarism;
+    protected BillingService $billing;
 
-    public function __construct(PlagiarismCheckService $plagiarism)
+    public function __construct(PlagiarismCheckService $plagiarism, BillingService $billing)
     {
         $this->plagiarism = $plagiarism;
+        $this->billing = $billing;
     }
 
     /**
@@ -25,6 +28,17 @@ class PlagiarismController extends Controller
      */
     public function check(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            $access = $this->billing->checkToolAccess($user, 'plagiarism', 'Cek Plagiarisme');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
         $request->validate([
             'text' => 'nullable|string|max:180000',
             'project_id' => 'nullable|integer',
@@ -92,6 +106,9 @@ class PlagiarismController extends Controller
 
             $report['doc_title'] = $docTitle !== '' ? $docTitle : 'Naskah Skripsi / Proposal';
             $report['checked_at'] = now()->format('d M Y, H:i') . ' WIB';
+            if ($user) {
+                $this->billing->markToolUsed($user, 'plagiarism');
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -110,6 +127,14 @@ class PlagiarismController extends Controller
      */
     public function downloadReportPdf(Request $request)
     {
+        $user = Auth::user();
+        if ($user && !$this->billing->hasActivePaidAccess($user)) {
+            return response()->json([
+                'status' => 'upgrade_required',
+                'reason' => 'download_locked',
+                'message' => 'Download laporan PDF Cek Plagiarisme tersedia untuk Paket Starter mulai Rp15.000.',
+            ], 402);
+        }
         $payload = $request->input('report');
         if (is_string($payload)) {
             $payload = json_decode($payload, true);

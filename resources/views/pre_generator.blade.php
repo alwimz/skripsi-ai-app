@@ -3197,6 +3197,17 @@
             </a>
 
             <div class="nav-group-title">Akun &amp; Bonus</div>
+            <button type="button" class="nav-btn" id="nav-pricing" onclick="openTab('pricing', 'Paket & Tier Akun')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+                <span style="flex: 1;">Paket &amp; Tier Akun</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">
+                    {{ !empty($billingSummary['is_paid_active']) ? 'Aktif' : '15rb' }}
+                </span>
+            </button>
+
             <button type="button" class="nav-btn" id="nav-account" onclick="openTab('account', 'Akun Saya')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -5708,10 +5719,17 @@
                                 {{ $user->email }}
                             </div>
                         </div>
+                        @php
+                            $accPaid = !empty($billingSummary['is_paid_active']);
+                            $accUnlimited = !empty($billingSummary['is_unlimited']);
+                            $accPlanName = ($billingSummary['is_admin'] ?? false)
+                                ? 'Administrator (Unlimited)'
+                                : ($billingSummary['plan']['name'] ?? 'Free (Coba Dulu)');
+                        @endphp
                         <span
-                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12.5px; font-weight: 600;">
-                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
-                            Langganan Aktif
+                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: {{ $accPaid ? '#f0fdf4' : '#f1f5f9' }}; color: {{ $accPaid ? '#16a34a' : '#475569' }}; border: 1px solid {{ $accPaid ? '#bbf7d0' : '#cbd5e1' }}; font-size: 12.5px; font-weight: 700;">
+                            <span style="width: 7px; height: 7px; border-radius: 50%; background: {{ $accPaid ? '#16a34a' : '#64748b' }};"></span>
+                            {{ $accPlanName }}
                         </span>
                     </div>
 
@@ -5739,12 +5757,21 @@
                             style="padding: 16px; border: 1px solid #bfdbfe; border-radius: 12px; background: #eff6ff;">
                             <div
                                 style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">
-                                Paket Mahasiswa</div>
+                                Status Tier &amp; Kuota Naskah</div>
                             <div style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 6px;">
-                                Akses Penuh (Tanpa Token)</div>
-                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px;">Seluruh model
-                                AI (Otomatis, DeepSeek AI, Google Gemini) aktif untuk penulisan Bab I–V, PPT Sidang,
-                                &amp; Simulasi Sidang.</div>
+                                {{ $accPlanName }}</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.55;">
+                                @if($accUnlimited)
+                                    Akses <strong>Unlimited</strong> semua Proposal, Skripsi (Bab I–V), Download Word/PDF, &amp; seluruh AI Tools. Berlaku hingga: <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
+                                @elseif($accPaid)
+                                    Sisa kuota: <strong>{{ $billingSummary['remaining_quota'] ?? 0 }} Proposal/Skripsi Full</strong> (Terpakai {{ $billingSummary['quota_used'] ?? 0 }}/{{ $billingSummary['quota_limit'] ?? 0 }}). Berlaku hingga: <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
+                                @else
+                                    Jatah Free: <strong>1 proyek uji coba</strong> (Sampul, Bab I &amp; Daftar Pustaka) + <strong>1x coba gratis</strong> tiap fitur AI Tools. Download Word/PDF terkunci.
+                                @endif
+                            </div>
+                            <button type="button" class="btn-primary" style="margin-top: 12px; padding: 8px 14px; font-size: 12.5px;" onclick="openTab('pricing', 'Paket & Tier Akun')">
+                                {{ $accPaid ? 'Tambah Kuota / Perpanjang Paket →' : 'Upgrade Paket Mulai Rp15.000 →' }}
+                            </button>
                         </div>
 
                         <div
@@ -5764,17 +5791,154 @@
             </section>
 
             <!-- ========================================================= -->
+            <!-- 10B. TAB PAKET & TIER AKUN (HARGA PAKET + PAKASIR QRIS) -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-pricing">
+                @php
+                    $bs = $billingSummary ?? [];
+                    $bsPaid = !empty($bs['is_paid_active']);
+                    $bsUnlim = !empty($bs['is_unlimited']);
+                    $freeUsage = $bs['free_tool_usage'] ?? [];
+                    $toolTrialMap = [
+                        'titles' => 'Cari Ide Judul AI',
+                        'journals' => 'Cari Jurnal Ber-DOI',
+                        'ppt' => 'Generator PPT Sidang',
+                        'defense' => 'Simulasi Sidang AI',
+                        'paraphrase' => 'Parafrase Akademik',
+                        'plagiarism' => 'Cek Plagiarisme',
+                        'stats_analyze' => 'Olah Data Statistik',
+                        'stats_interpret' => 'Interpretasi Bab IV AI',
+                        'stats_instrument' => 'Generator Kuesioner',
+                        'qa' => 'Dosen AI',
+                        'revise' => 'Revisi Bab I AI',
+                    ];
+                @endphp
+                <div class="page-eyebrow">Tanpa Sistem Kredit · Bayar Pakai Kuota atau Unlimited</div>
+                <h1 class="page-title">Paket Harga &amp; Tier Akun Saya</h1>
+                <p class="page-subtitle">Cek status kuota akun Anda dan pilih paket paling hemat (mulai Rp15.000) dengan aktivasi otomatis via QRIS Pakasir.</p>
+
+                <!-- Kartu Status Tier Aktif -->
+                <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; border: none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: #7dd3fc; text-transform: uppercase; letter-spacing: 0.06em;">Tier Akun Aktif Sekarang</div>
+                            <div style="font-size: 22px; font-weight: 800; margin-top: 4px;">
+                                {{ ($bs['is_admin'] ?? false) ? 'Administrator (Unlimited)' : ($bs['plan']['name'] ?? 'Free (Coba Dulu)') }}
+                            </div>
+                            <div style="font-size: 13px; color: #cbd5e1; margin-top: 5px; line-height: 1.5;">
+                                @if($bsUnlim)
+                                    Status: <strong style="color:#4ade80;">Unlimited Aktif</strong> &bull; Berlaku sampai <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
+                                @elseif($bsPaid)
+                                    Sisa Kuota Full: <strong style="color:#4ade80;">{{ $bs['remaining_quota'] ?? 0 }} Proposal/Skripsi</strong> (Terpakai {{ $bs['quota_used'] ?? 0 }}/{{ $bs['quota_limit'] ?? 0 }}) &bull; Berlaku sampai <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
+                                @else
+                                    Jatah Proyek Free: <strong>{{ $bs['free_project_used'] ?? 0 }}/1</strong> (Sampul, Bab I &amp; Daftar Pustaka) &bull; Bab II–V &amp; Download Word/PDF masih terkunci
+                                @endif
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" onclick="openTab('referral', 'Ajak Teman')"
+                                style="padding:9px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.1); color:#ffffff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
+                                🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
+                            </button>
+                            <button type="button" onclick="startPakasirCheckout('hemat')"
+                                style="padding:9px 16px; border-radius:10px; border:none; background:#2563eb; color:#ffffff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
+                                ⚡ Bayar QRIS Cepat
+                            </button>
+                        </div>
+                    </div>
+
+                    @if(!$bsPaid)
+                        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.14);">
+                            <div style="font-size: 11.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">Status Jatah Coba Gratis (1x per Fitur AI untuk Tier Free):</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                @foreach($toolTrialMap as $tKey => $tLabel)
+                                    @php $used = ((int) ($freeUsage[$tKey] ?? 0)) >= 1; @endphp
+                                    <span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: {{ $used ? 'rgba(248,113,113,0.18)' : 'rgba(74,222,128,0.18)' }}; color: {{ $used ? '#fecaca' : '#bbf7d0' }}; border: 1px solid {{ $used ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)' }};">
+                                        {{ $used ? '✕ Habis:' : '✓ Tersedia (1x):' }} {{ $tLabel }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Katalog Paket Lengkap (15rb, 29rb, 50rb/bln, 2bln, 3bln, 6bln, 1thn) -->
+                <div class="card" style="margin-bottom: 20px;">
+                    @include('partials.pricing_catalog', ['plans' => $plans ?? [], 'billingSummary' => $billingSummary ?? []])
+                </div>
+
+                @if(!empty($bs['recent_transactions']) && count($bs['recent_transactions']) > 0)
+                    <div class="card">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Riwayat Transaksi Paket Saya</div>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid #e2e8f0; color:#64748b; text-align:left;">
+                                        <th style="padding:8px 6px;">Order ID</th>
+                                        <th style="padding:8px 6px;">Paket</th>
+                                        <th style="padding:8px 6px;">Nominal</th>
+                                        <th style="padding:8px 6px;">Status</th>
+                                        <th style="padding:8px 6px;">Waktu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($bs['recent_transactions'] as $tx)
+                                        <tr style="border-bottom:1px solid #f1f5f9;">
+                                            <td style="padding:8px 6px; font-family:monospace;">{{ $tx->order_id }}</td>
+                                            <td style="padding:8px 6px; font-weight:600;">{{ $tx->plan_name }}</td>
+                                            <td style="padding:8px 6px;">Rp {{ number_format($tx->amount, 0, ',', '.') }}</td>
+                                            <td style="padding:8px 6px;">
+                                                <span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; background:{{ $tx->status === 'completed' ? '#dcfce7' : '#fef3c7' }}; color:{{ $tx->status === 'completed' ? '#15803d' : '#b45309' }};">
+                                                    {{ strtoupper($tx->status) }}
+                                                </span>
+                                            </td>
+                                            <td style="padding:8px 6px; color:#64748b;">{{ \Carbon\Carbon::parse($tx->created_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+            </section>
+
+            <!-- ========================================================= -->
             <!-- 11. TAB AJAK TEMAN (REFERRAL) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-referral">
                 @php
-                    $refCode = 'SKRIPSI-' . strtoupper(substr(md5(($user->id ?? '1') . ($user->email ?? 'user')), 0, 6));
-                    $refUrl = url('/register?ref=' . $refCode);
+                    $refStats = $billingSummary['referral_stats'] ?? [];
+                    $refCode = $billingSummary['referral_code'] ?? ('SKRIPSI-' . strtoupper(substr(md5(($user->id ?? '1') . ($user->email ?? 'user')), 0, 6)));
+                    $refUrl = $billingSummary['referral_url'] ?? url('/register?ref=' . $refCode);
+                    $refBalance = (int) ($refStats['balance'] ?? 0);
+                    $invitedUsers = $refStats['invited_users'] ?? collect();
+                    $refHistory = $refStats['history'] ?? collect();
+                    $refWithdrawals = $refStats['withdrawals'] ?? collect();
                 @endphp
-                <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
-                <h1 class="page-title">Ajak Teman (Referral)</h1>
-                <p class="page-subtitle">Bagikan link undangan SkripsiLab AI ke teman sejurusan atau kelompok bimbinganmu.
+                <div class="page-eyebrow">Program Komunitas Mahasiswa · Aktif Otomatis</div>
+                <h1 class="page-title">Ajak Teman (Referral 10%)</h1>
+                <p class="page-subtitle">Setiap teman yang mendaftar lewat link Anda lalu membeli paket berbayar, Anda langsung mendapat komisi 10% yang bisa dicairkan atau ditukar menjadi paket.
                 </p>
+
+                <!-- Statistik Live Referral -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:12px; margin-bottom:18px;">
+                    <div class="card" style="padding:14px 16px;">
+                        <div style="font-size:11.5px; font-weight:600; color:#64748b;">Teman Mendaftar</div>
+                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">{{ number_format((int) ($refStats['invited_count'] ?? 0)) }}</div>
+                    </div>
+                    <div class="card" style="padding:14px 16px;">
+                        <div style="font-size:11.5px; font-weight:600; color:#64748b;">Transaksi Berhasil</div>
+                        <div style="font-size:22px; font-weight:800; color:#2563eb; margin-top:4px;">{{ number_format((int) ($refStats['converted_count'] ?? 0)) }}x</div>
+                    </div>
+                    <div class="card" style="padding:14px 16px;">
+                        <div style="font-size:11.5px; font-weight:600; color:#64748b;">Total Komisi Terkumpul</div>
+                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">Rp {{ number_format((int) ($refStats['total_earned'] ?? 0), 0, ',', '.') }}</div>
+                    </div>
+                    <div class="card" style="padding:14px 16px; border-color:#bbf7d0; background:#f0fdf4;">
+                        <div style="font-size:11.5px; font-weight:700; color:#15803d;">Saldo Komisi Tersedia</div>
+                        <div id="ref-balance-text" style="font-size:22px; font-weight:800; color:#16a34a; margin-top:4px;">Rp {{ number_format($refBalance, 0, ',', '.') }}</div>
+                    </div>
+                </div>
 
                 <div class="card"
                     style="margin-bottom: 18px; border-color: #bfdbfe; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
@@ -5785,10 +5949,9 @@
                                 style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">
                                 KOMISI AFILIASI MAHASISWA 10%</div>
                             <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
-                                Dapatkan Komisi 10% dari Setiap Pembelian Paket</h3>
+                                Dapatkan Komisi 10% dari Setiap Pembelian Paket Teman</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
-                                seangkatan atau tim bimbinganmu. Anda otomatis mendapatkan <strong>komisi 10%</strong>
-                                dari setiap pembelian paket atau fitur berbayar SkripsiLab AI di masa depan.</p>
+                                seangkatan atau tim bimbinganmu. Begitu teman membeli paket via QRIS Pakasir (Rp15rb–Rp399rb), <strong>komisi 10%</strong> otomatis masuk ke saldo Anda.</p>
                         </div>
                         <div
                             style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
@@ -5821,6 +5984,89 @@
                     </div>
                 </div>
 
+                <!-- Pencairan atau Tukar Saldo Komisi -->
+                <div class="form-row" style="margin-bottom: 18px;">
+                    <div class="card">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Tukar Saldo Jadi Paket Otomatis</div>
+                        <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">Gunakan saldo komisi langsung tanpa menunggu pencairan bank.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                            <select id="ref-redeem-plan" class="form-select" style="flex:1; min-width:180px;">
+                                <option value="starter">Paket Starter 1 Naskah (Rp15.000)</option>
+                                <option value="hemat">Paket Hemat 3 Naskah (Rp29.000)</option>
+                                <option value="unlimited_1m">Unlimited 1 Bulan (Rp50.000)</option>
+                            </select>
+                            <button type="button" class="btn-primary" onclick="submitReferralRedeem()" {{ $refBalance < 15000 ? 'disabled' : '' }} style="opacity:{{ $refBalance < 15000 ? '0.55' : '1' }};">
+                                Tukar Paket →
+                            </button>
+                        </div>
+                        <div style="font-size:11.5px; color:#64748b; margin-top:8px;">Minimal saldo Rp15.000 untuk tukar ke Paket Starter.</div>
+                    </div>
+
+                    <div class="card">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Ajukan Pencairan Dana / Rekening</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                            <select id="ref-wd-channel" class="form-select">
+                                <option value="DANA">DANA</option>
+                                <option value="GoPay">GoPay</option>
+                                <option value="OVO">OVO</option>
+                                <option value="ShopeePay">ShopeePay</option>
+                                <option value="Transfer Bank (BCA/BRI/Mandiri)">Transfer Bank</option>
+                            </select>
+                            <input type="number" id="ref-wd-amount" class="form-input" placeholder="Nominal (min 10000)" min="10000" value="{{ max(10000, $refBalance) }}">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                            <input type="text" id="ref-wd-number" class="form-input" placeholder="Nomor HP / Rekening">
+                            <input type="text" id="ref-wd-name" class="form-input" placeholder="Atas Nama Pemilik">
+                        </div>
+                        <button type="button" class="btn-outline" onclick="submitReferralWithdraw()" {{ $refBalance < 10000 ? 'disabled' : '' }} style="width:100%; opacity:{{ $refBalance < 10000 ? '0.55' : '1' }};">
+                            Ajukan Pencairan Komisi (Min. Rp10.000)
+                        </button>
+                    </div>
+                </div>
+
+                @if(count($invitedUsers) > 0 || count($refHistory) > 0 || count($refWithdrawals) > 0)
+                    <div class="card" style="margin-bottom: 18px;">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Aktivitas Teman &amp; Riwayat Komisi</div>
+                        @if(count($invitedUsers) > 0)
+                            <div style="overflow-x:auto; margin-bottom:14px;">
+                                <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid #e2e8f0; color:#64748b; text-align:left;">
+                                            <th style="padding:7px 6px;">Teman Diundang</th>
+                                            <th style="padding:7px 6px;">Status Paket</th>
+                                            <th style="padding:7px 6px;">Tanggal Daftar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($invitedUsers as $iu)
+                                            @php
+                                                $parts = explode('@', (string) $iu->email, 2);
+                                                $masked = substr($parts[0], 0, 2) . '***@' . ($parts[1] ?? '');
+                                            @endphp
+                                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                                <td style="padding:7px 6px;"><strong>{{ $iu->name }}</strong> <span style="color:#64748b;">({{ $masked }})</span></td>
+                                                <td style="padding:7px 6px;">{{ strtoupper($iu->plan_code ?? 'free') }}</td>
+                                                <td style="padding:7px 6px; color:#64748b;">{{ $iu->created_at ? $iu->created_at->timezone('Asia/Jakarta')->format('d M Y') : '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                        @if(count($refWithdrawals) > 0)
+                            <div style="font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">Riwayat Penarikan Komisi</div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                @foreach($refWithdrawals as $wd)
+                                    <div style="font-size:12px; padding:8px 10px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; display:flex; justify-content:space-between;">
+                                        <span>{{ $wd->channel }} · {{ $wd->account_number }} ({{ $wd->account_name }})</span>
+                                        <span><strong>Rp {{ number_format($wd->amount, 0, ',', '.') }}</strong> · {{ strtoupper($wd->status) }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 <div class="card">
                     <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Cara
                         Kerja Komisi Referral SkripsiLab AI</div>
@@ -5834,16 +6080,15 @@
                         </div>
                         <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px;">
                             <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">
-                                2. Teman Bergabung</div>
+                                2. Teman Bergabung &amp; Beli Paket</div>
                             <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">Teman
-                                mendaftar lewat link Anda dan mulai menyusun skripsi / proposal.</div>
+                                mendaftar lewat link Anda lalu membeli paket Starter, Hemat, atau Unlimited.</div>
                         </div>
                         <div
                             style="padding: 14px; border: 1px solid #bbf7d0; border-radius: 10px; background: #f0fdf4;">
                             <div style="font-size: 12px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">3.
-                                Komisi 10% Tiap Pembelian</div>
-                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Dapatkan komisi 10% dari
-                                setiap pembelian paket atau fitur di masa depan.</div>
+                                Komisi 10% Langsung Masuk</div>
+                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Saldo otomatis masuk dan bisa ditukar jadi paket atau dicairkan ke Dana/GoPay/Rekening.</div>
                         </div>
                     </div>
                 </div>
@@ -6108,6 +6353,7 @@
                 'paraphrase': 'Parafrase',
                 'olahdata': 'Olah Data',
                 'qa': 'Dosen AI',
+                'pricing': 'Paket & Tier Akun',
                 'account': 'Akun Saya',
                 'referral': 'Ajak Teman',
                 'feedback': 'Saran & Laporan'
@@ -10648,7 +10894,63 @@
                 }
             });
         })();
+
+        async function submitReferralRedeem() {
+            const planCode = document.getElementById('ref-redeem-plan')?.value || 'starter';
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch("{{ route('referral.action') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                    body: JSON.stringify({ action: 'redeem', plan_code: planCode })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    alert(data.message || 'Gagal menukar saldo referral.');
+                    return;
+                }
+                alert(data.message);
+                window.location.reload();
+            } catch (e) {
+                alert('Gagal memproses penukaran komisi.');
+            }
+        }
+
+        async function submitReferralWithdraw() {
+            const channel = document.getElementById('ref-wd-channel')?.value || 'DANA';
+            const amount = parseInt(document.getElementById('ref-wd-amount')?.value || '0', 10);
+            const accountNumber = (document.getElementById('ref-wd-number')?.value || '').trim();
+            const accountName = (document.getElementById('ref-wd-name')?.value || '').trim();
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            if (!accountNumber || !accountName || amount < 10000) {
+                alert('Lengkapi nomor tujuan, nama pemilik, dan nominal minimal Rp10.000.');
+                return;
+            }
+            try {
+                const res = await fetch("{{ route('referral.action') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                    body: JSON.stringify({
+                        action: 'withdraw',
+                        channel,
+                        amount,
+                        account_number: accountNumber,
+                        account_name: accountName
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    alert(data.message || 'Gagal mengajukan pencairan.');
+                    return;
+                }
+                alert(data.message);
+                window.location.reload();
+            } catch (e) {
+                alert('Gagal mengajukan pencairan komisi.');
+            }
+        }
     </script>
+    @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])
 </body>
 
 </html>

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan</title>
     <meta name="description"
         content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah dan jurnal yang relevan ber-DOI. Ekspor Word/PDF, PPT &amp; simulasi sidang.">
@@ -1678,6 +1679,7 @@
                 <li><a href="#workspace-preview" class="nav-link">Pratinjau Workspace</a></li>
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
                 <li><a href="#tools-gratis" class="nav-link">Tools</a></li>
+                <li><a href="#harga-paket" class="nav-link">Harga Paket</a></li>
                 <li><a href="{{ url('/panduan') }}" class="nav-link">Panduan</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
@@ -1710,6 +1712,8 @@
             <a href="#contoh-hasil" class="mobile-nav-link" onclick="closeLandingMobileNav()">Contoh Proposal &amp;
                 Skripsi <span>→</span></a>
             <a href="#tools-gratis" class="mobile-nav-link" onclick="closeLandingMobileNav()">10 Tools Gratis
+                <span>→</span></a>
+            <a href="#harga-paket" class="mobile-nav-link" onclick="closeLandingMobileNav()">Harga Paket (Mulai Rp15rb)
                 <span>→</span></a>
             <a href="{{ url('/panduan') }}" class="mobile-nav-link" onclick="closeLandingMobileNav()">Panduan Skripsi (7 Modul)
                 <span>→</span></a>
@@ -2351,6 +2355,20 @@
                     </details>
                 </div>
 
+                <!-- Section Harga Paket Mahasiswa -->
+                <div id="harga-paket" style="margin-top: 56px; padding-top: 32px; border-top: 1px solid #e2e8f0;">
+                    <div style="text-align:center; max-width:700px; margin:0 auto 24px;">
+                        <span class="section-label">Tanpa Kredit · Bayar Pakai Kuota atau Unlimited</span>
+                        <h2 style="font-size: clamp(1.5rem, 2.8vw, 2.05rem); font-weight: 800; color: #0f172a; margin: 10px 0 8px;">
+                            Harga Paling Ramah Mahasiswa Indonesia
+                        </h2>
+                        <p style="font-size: 14.5px; color: #475569; margin: 0;">
+                            Boleh coba gratis 1 proyek dulu (Sampul, Bab I &amp; Daftar Pustaka + AI Tools 1x). Butuh naskah lengkap + Download Word/PDF? Mulai <strong>Rp15.000</strong> saja!
+                        </p>
+                    </div>
+                    @include('partials.pricing_catalog', ['plans' => $plans ?? []])
+                </div>
+
                 <div class="cta-banner" style="margin-top: 44px;">
                     <h2>Susun Proposal &amp; Skripsi Lebih Cepat</h2>
                     <p>Otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI dalam satu
@@ -2653,6 +2671,9 @@
 
         renderPreviewStudio();
     </script>
+    @auth
+        @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])
+    @endauth
 </body>
 
 </html>

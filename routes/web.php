@@ -9,6 +9,7 @@ use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,12 +24,15 @@ Route::get('/panduan/{slug}', [PanduanController::class, 'show'])->name('panduan
 Route::get('/kebijakan-privasi', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('/syarat-ketentuan', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
+Route::get('/paket', [PaymentController::class, 'plans'])->name('billing.plans');
+Route::post('/webhook/pakasir', [PaymentController::class, 'webhook'])->name('pakasir.webhook');
 Route::get('/sitemap.xml', function () {
     $baseUrl = rtrim(url('/'), '/');
     $today = now()->toDateString();
     $urls = [
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => $baseUrl . '/tools', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => $baseUrl . '/paket', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/kebijakan-privasi', 'priority' => '0.7', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/syarat-ketentuan', 'priority' => '0.7', 'changefreq' => 'monthly'],
@@ -122,6 +126,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api-key/test/{id}', [GeneratorController::class, 'testApiKey'])->name('api.key.test');
     Route::post('/reward/claim', [GeneratorController::class, 'claimReward'])->name('reward.claim');
 
+    // --- PAKASIR PAYMENT & REFERRAL ---
+    Route::post('/payment/create', [PaymentController::class, 'createTransaction'])->name('payment.create');
+    Route::get('/payment/status/{orderId}', [PaymentController::class, 'checkStatus'])->name('payment.status');
+    Route::post('/referral/action', [PaymentController::class, 'referralAction'])->name('referral.action');
+
     // --- AI TOOLS ---
     Route::post('/tools/generate-titles', [GeneratorController::class, 'generateTitles'])->name('tools.titles');
     Route::post('/tools/find-journals', [GeneratorController::class, 'findJournals'])->name('tools.journals');
@@ -158,4 +167,6 @@ Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard')
 Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users');
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+Route::post('/admin/users/{id}/plan', [AdminController::class, 'updateUserPlan'])->name('admin.users.plan');
+Route::post('/admin/withdrawals/{id}/paid', [AdminController::class, 'markWithdrawalPaid'])->name('admin.withdrawals.paid');
 

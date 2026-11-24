@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AIManagerService;
+use App\Services\BillingService;
 use App\Services\StatisticsEngineService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -20,11 +21,13 @@ class StatisticsController extends Controller
 {
     protected StatisticsEngineService $engine;
     protected AIManagerService $ai;
+    protected BillingService $billing;
 
-    public function __construct(StatisticsEngineService $engine, AIManagerService $ai)
+    public function __construct(StatisticsEngineService $engine, AIManagerService $ai, BillingService $billing)
     {
         $this->engine = $engine;
         $this->ai = $ai;
+        $this->billing = $billing;
     }
 
     /**
@@ -32,6 +35,17 @@ class StatisticsController extends Controller
      */
     public function analyze(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            $access = $this->billing->checkToolAccess($user, 'stats_analyze', 'Olah Data Statistik');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
         $columns = $request->input('columns', []);
         $rows = $request->input('rows', []);
         $testType = (string) $request->input('test_type', 'descriptive');
@@ -80,6 +94,9 @@ class StatisticsController extends Controller
         try {
             $result = $this->engine->analyze($columns, $rows, $testType, $options);
             $result['dataset_title'] = trim((string) $request->input('dataset_title', '')) ?: 'Data Penelitian Mahasiswa';
+            if ($user) {
+                $this->billing->markToolUsed($user, 'stats_analyze');
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -103,6 +120,17 @@ class StatisticsController extends Controller
      */
     public function interpret(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            $access = $this->billing->checkToolAccess($user, 'stats_interpret', 'Interpretasi Bab IV Statistik');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
         $result = $request->input('result');
         if (is_string($result)) {
             $result = json_decode($result, true);
@@ -150,6 +178,9 @@ class StatisticsController extends Controller
 
         try {
             $narration = $this->cleanAcademicNarration($this->ai->generateText($prompt));
+            if ($user) {
+                $this->billing->markToolUsed($user, 'stats_interpret');
+            }
             return response()->json([
                 'status' => 'success',
                 'narration' => $narration,
@@ -200,6 +231,17 @@ class StatisticsController extends Controller
      */
     public function generateInstrument(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            $access = $this->billing->checkToolAccess($user, 'stats_instrument', 'Generator Kuesioner & Instrumen');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
         $request->validate([
             'mode' => 'required|in:kuesioner,eksperimen',
             'topic' => 'required|string|max:300',
@@ -276,6 +318,9 @@ class StatisticsController extends Controller
 
         // Bangun header & baris kosong template Excel/CSV yang langsung kompatibel dengan Kalkulator Olah Data
         [$headers, $templateRows] = $this->buildTemplateSheet($mode, $parsed, $itemsPerVar);
+        if ($user) {
+            $this->billing->markToolUsed($user, 'stats_instrument');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -293,6 +338,14 @@ class StatisticsController extends Controller
      */
     public function downloadReportPdf(Request $request)
     {
+        $user = Auth::user();
+        if ($user && !$this->billing->hasActivePaidAccess($user)) {
+            return response()->json([
+                'status' => 'upgrade_required',
+                'reason' => 'download_locked',
+                'message' => 'Download laporan PDF Olah Data tersedia untuk Paket Starter mulai Rp15.000.',
+            ], 402);
+        }
         $result = $request->input('result');
         if (is_string($result)) {
             $result = json_decode($result, true);
@@ -474,6 +527,14 @@ class StatisticsController extends Controller
      */
     public function downloadReportDocx(Request $request)
     {
+        $user = Auth::user();
+        if ($user && !$this->billing->hasActivePaidAccess($user)) {
+            return response()->json([
+                'status' => 'upgrade_required',
+                'reason' => 'download_locked',
+                'message' => 'Download laporan Word (.docx) Olah Data tersedia untuk Paket Starter mulai Rp15.000.',
+            ], 402);
+        }
         $result = $request->input('result');
         if (is_string($result)) {
             $result = json_decode($result, true);

@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function loginForm() {
+    public function __construct(private BillingService $billing)
+    {
+    }
+
+    public function loginForm()
+    {
         return view('auth.login');
     }
 
-    public function authenticate(Request $request) {
+    public function authenticate(Request $request)
+    {
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials)) {
@@ -29,72 +36,95 @@ class AuthController extends Controller
         return back()->withErrors(['email' => 'Email atau password salah.']);
     }
 
-    public function registerForm() {
+    public function registerForm(Request $request)
+    {
+        $ref = trim((string) $request->query('ref', ''));
+        if ($ref !== '') {
+            session(['pending_referral_code' => strtoupper($ref)]);
+        }
+
         return view('auth.register');
     }
 
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
+        $this->billing->ensureSchema();
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
             'referral_code' => 'nullable|string|max:50',
         ]);
 
+        $rawEmail = strtolower(trim((string) $request->input('email')));
+        if ($this->billing->isDisposableEmail($rawEmail)) {
+            return back()->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['email' => 'Email sementara (temp-mail) tidak diizinkan. Gunakan email pribadi atau email kampus yang aktif.']);
+        }
+
+        $canonical = $this->billing->canonicalizeEmail($rawEmail);
+        if (User::where('canonical_email', $canonical)->orWhereRaw('LOWER(email) = ?', [$canonical])->exists()) {
+            return back()->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['email' => 'Alamat email utama atau alias Gmail ini sudah terdaftar. Silakan masuk menggunakan akun yang sudah ada.']);
+        }
+
+        $ip = (string) ($request->ip() ?? '');
+        if ($ip !== '' && !in_array($ip, ['127.0.0.1', '::1'], true)) {
+            $recentIpCount = User::where('signup_ip', $ip)
+                ->where('created_at', '>=', now()->subDay())
+                ->count();
+            if ($recentIpCount >= 3) {
+                return back()->withInput($request->except('password', 'password_confirmation'))
+                    ->withErrors(['email' => 'Batas pendaftaran akun baru dari jaringan ini telah tercapai untuk hari ini. Silakan login atau coba lagi besok.']);
+            }
+        }
+
+        $refInput = trim((string) ($request->input('referral_code') ?: session('pending_referral_code', '')));
+        $referrer = $this->billing->resolveReferrer($refInput, $rawEmail);
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => trim((string) $request->input('name')),
+            'email' => $rawEmail,
+            'password' => Hash::make((string) $request->input('password')),
         ]);
 
+        $user->canonical_email = $canonical;
+        $user->signup_ip = $ip !== '' ? $ip : null;
+        $user->plan_code = 'free';
+        $user->referred_by_user_id = $referrer?->id;
+        $user->save();
+        $this->billing->ensureUserReferralCode($user);
+
+        session()->forget('pending_referral_code');
         Auth::login($user);
-        
+
         return redirect()->route('app.create');
     }
 
-    public function quickGoogleLogin(Request $request) {
-        $email = trim($request->input('email', ''));
-        $name = trim($request->input('name', ''));
-
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->route('login')->withErrors(['email' => 'Silakan masukkan alamat email Google / Gmail yang valid.']);
-        }
-
-        if (empty($name)) {
-            $name = explode('@', $email)[0];
-            $name = ucwords(str_replace(['.', '_', '-'], ' ', $name));
-        }
-
-        $user = User::firstOrCreate(
-            ['email' => strtolower($email)],
-            [
-                'name' => $name,
-                'password' => Hash::make(Str::random(24)),
-            ]
-        );
-
-        Auth::login($user, true);
-        return redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Akun Google berhasil.");
+    public function quickGoogleLogin(Request $request)
+    {
+        return redirect()->route('login')->withErrors([
+            'email' => 'Login cepat tanpa verifikasi dinonaktifkan demi keamanan kuota akun. Gunakan tombol Masuk dengan Google resmi atau formulir login.',
+        ]);
     }
 
-    public function redirectToGoogle() {
+    public function redirectToGoogle(Request $request)
+    {
+        $ref = trim((string) $request->query('ref', ''));
+        if ($ref !== '') {
+            session(['pending_referral_code' => strtoupper($ref)]);
+        }
+
         $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID');
         if (empty($clientId)) {
-            // Demo Instant Google Sign-in Fallback jika Google OAuth credentials belum diset di server
-            $demoGoogleEmail = 'mahasiswa.google@skripsi-ai.com';
-            $user = User::firstOrCreate(
-                ['email' => $demoGoogleEmail],
-                [
-                    'name' => 'Mahasiswa Google Demo',
-                    'password' => Hash::make(Str::random(16)),
-                ]
-            );
-            Auth::login($user, true);
-            return redirect()->route('app.create')->with('info', 'Masuk berhasil via Akun Google Demo (Kredensial GOOGLE_CLIENT_ID belum disetel di server).');
+            return redirect()->route('login')->withErrors([
+                'email' => 'Login Google OAuth belum dikonfigurasi di server. Silakan masuk atau daftar menggunakan email & kata sandi.',
+            ]);
         }
 
         $redirectUri = config('services.google.redirect') ?: (env('GOOGLE_REDIRECT_URI') ?: route('auth.google.callback'));
-        $url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
+        $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
@@ -106,7 +136,9 @@ class AuthController extends Controller
         return redirect()->away($url);
     }
 
-    public function handleGoogleCallback(Request $request) {
+    public function handleGoogleCallback(Request $request)
+    {
+        $this->billing->ensureSchema();
         $code = $request->input('code');
         if (empty($code)) {
             return redirect()->route('login')->withErrors(['email' => 'Gagal mendapatkan otorisasi dari Google.']);
@@ -136,21 +168,48 @@ class AuthController extends Controller
             }
 
             $userProfile = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo')->json();
-            $email = $userProfile['email'] ?? null;
-            $name = $userProfile['name'] ?? 'Mahasiswa';
+            $email = strtolower(trim((string) ($userProfile['email'] ?? '')));
+            $name = trim((string) ($userProfile['name'] ?? 'Mahasiswa'));
 
-            if (!$email) {
+            if ($email === '') {
                 return redirect()->route('login')->withErrors(['email' => 'Email Google tidak ditemukan.']);
             }
 
-            $user = User::where('email', $email)->first();
+            if ($this->billing->isDisposableEmail($email)) {
+                return redirect()->route('login')->withErrors(['email' => 'Domain email ini tidak diizinkan.']);
+            }
+
+            $canonical = $this->billing->canonicalizeEmail($email);
+            $user = User::where('email', $email)
+                ->orWhere('canonical_email', $canonical)
+                ->first();
+
             if (!$user) {
+                $refCode = trim((string) session('pending_referral_code', ''));
+                $referrer = $this->billing->resolveReferrer($refCode, $email);
                 $user = User::create([
-                    'name' => $name,
+                    'name' => $name ?: 'Mahasiswa',
                     'email' => $email,
                     'password' => Hash::make(Str::random(24)),
                 ]);
+                $user->canonical_email = $canonical;
+                $user->signup_ip = (string) ($request->ip() ?? '');
+                $user->plan_code = 'free';
+                $user->referred_by_user_id = $referrer?->id;
+                $user->email_verified_at = now();
+                $user->save();
+            } else {
+                if (empty($user->canonical_email)) {
+                    $user->canonical_email = $canonical;
+                }
+                if (empty($user->email_verified_at)) {
+                    $user->email_verified_at = now();
+                }
+                $user->save();
             }
+
+            $this->billing->ensureUserReferralCode($user);
+            session()->forget('pending_referral_code');
 
             Auth::login($user, true);
             return redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Google berhasil.");
@@ -159,7 +218,8 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

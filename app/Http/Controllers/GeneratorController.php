@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\User;
 use App\Services\AIManagerService;
+use App\Services\BillingService;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\SimpleType\Jc;
@@ -28,6 +29,7 @@ use ZipArchive;
 class GeneratorController extends Controller
 {
     protected AIManagerService $ai;
+    private ?BillingService $billingService = null;
     private array $docxTempFiles = [];
     private array $docxFlowchartVmlMap = [];
     private string $docxFontName = 'Times New Roman';
@@ -36,6 +38,11 @@ class GeneratorController extends Controller
     public function __construct(AIManagerService $ai)
     {
         $this->ai = $ai;
+    }
+
+    private function billing(): BillingService
+    {
+        return $this->billingService ??= app(BillingService::class);
     }
 
     // =========================================================================
@@ -817,6 +824,7 @@ class GeneratorController extends Controller
         $asal = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
         $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
         $sumberKey = is_array($sitasi['sumber'] ?? null) ? implode(',', $sitasi['sumber']) : 'default';
+        $sig = "{$tahunMin}|{$asal}|{$gayaSitasi}|{$sumberKey}";
         $topicHash = substr(md5(mb_strtolower(trim((string) $project->judul)) . '|' . mb_strtolower(trim((string) $project->prodi))), 0, 8);
         $sig = "{$tahunMin}|{$asal}|{$gayaSitasi}|{$sumberKey}|{$topicHash}";
 
@@ -2250,8 +2258,10 @@ class GeneratorController extends Controller
         }
 
         $savedPpts = $this->getSavedPptsForUser($user->id);
+        $billingSummary = $this->billing()->getUserSummary($user);
+        $plans = $this->billing()->getPlans(true);
 
-        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts'));
+        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans'));
     }
 
     private function ensureSavedPptsTable(): bool
@@ -2712,6 +2722,22 @@ class GeneratorController extends Controller
             return redirect()->route('app.index', ['id' => $existing->id]);
         }
 
+        $authUser = Auth::user();
+        if ($authUser) {
+            $projGate = $this->billing()->canStartProject($authUser);
+            if (empty($projGate['allowed'])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'upgrade_required',
+                        'reason' => $projGate['reason'] ?? 'free_project_limit',
+                        'message' => $projGate['message'],
+                    ], 402);
+                }
+                return redirect()->route('app.create', ['tab' => 'pricing'])
+                    ->with('upgrade_modal', $projGate['message']);
+            }
+        }
+
         $project = Project::create([
             'judul' => $cleanJudul,
             'prodi' => trim($request->prodi),
@@ -2722,6 +2748,10 @@ class GeneratorController extends Controller
             'status' => 'draft',
             'citation_validation' => json_encode($meta, JSON_UNESCAPED_UNICODE),
         ]);
+
+        if ($authUser) {
+            $this->billing()->markProjectStarted($authUser, $project);
+        }
 
         return redirect()->route('app.index', ['id' => $project->id]);
     }
@@ -2762,7 +2792,12 @@ class GeneratorController extends Controller
             $project->save();
         }
 
-        return view('generator', compact('project', 'history', 'meta'));
+        $authUser = Auth::user();
+        $billingSummary = $authUser ? $this->billing()->getUserSummary($authUser) : null;
+        $plans = $this->billing()->getPlans(false);
+        $projectUnlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : false;
+
+        return view('generator', compact('project', 'history', 'meta', 'billingSummary', 'plans', 'projectUnlocked'));
     }
 
     /**
@@ -2814,6 +2849,18 @@ class GeneratorController extends Controller
 
     public function generateTitles(Request $request)
     {
+        $authUser = Auth::user();
+        if ($authUser) {
+            $access = $this->billing()->checkToolAccess($authUser, 'titles', 'Generator Ide Judul');
+            if (empty($access['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
+
         $request->validate(['topik' => 'required|string']);
         $prodi = $request->input('prodi') ?: 'Umum';
         $metode = $request->input('metode') ?: 'Kuantitatif / Kualitatif / R&D';
@@ -2840,6 +2887,10 @@ Syarat WAJIB:
                 return strlen($t) > 15 && !preg_match('/^(berikut|rekomendasi|judul\s+skripsi|daftar)/i', $t);
             }));
 
+            if ($authUser) {
+                $this->billing()->markToolUsed($authUser, 'titles');
+            }
+
             return response()->json([
                 'status' => 'success',
                 'data' => array_slice($cleanTitles, 0, 10),
@@ -2851,6 +2902,18 @@ Syarat WAJIB:
 
     public function findJournals(Request $request)
     {
+        $authUser = Auth::user();
+        if ($authUser) {
+            $access = $this->billing()->checkToolAccess($authUser, 'journals', 'Pencari Jurnal Ilmiah');
+            if (empty($access['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
+
         $request->validate(['keyword' => 'required|string']);
         $keyword = trim($request->keyword);
         $scope = $request->input('scope', 'all'); // all | id | int
@@ -3083,6 +3146,10 @@ ATURAN KETAT:
             $merged = array_slice($merged, 0, 10);
         }
 
+        if ($authUser) {
+            $this->billing()->markToolUsed($authUser, 'journals');
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $merged,
@@ -3125,6 +3192,18 @@ ATURAN KETAT:
             }
         }
 
+        $authUser = Auth::user();
+        if ($authUser) {
+            $access = $this->billing()->checkToolAccess($authUser, 'qa', 'Dosen Pembimbing AI');
+            if (empty($access['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
+
         try {
             $prompt = "PERAN: Anda adalah Dosen Pembimbing Akademik yang cerdas, suportif, dan to the point.
 ATURAN WAJIB MENJAWAB:
@@ -3137,6 +3216,10 @@ Pertanyaan Mahasiswa:
 
             $response = $this->ai->generateText($prompt, $model);
             $cleanResponse = trim(strip_tags($response));
+
+            if ($authUser) {
+                $this->billing()->markToolUsed($authUser, 'qa');
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -4268,6 +4351,17 @@ INSTRUKSI MUTLAK:
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $chapter = $request->chapter;
+        $authUser = Auth::user();
+        if ($authUser) {
+            $gate = $this->billing()->canGenerateChapter($authUser, $project, (string) $chapter);
+            if (empty($gate['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $gate['reason'] ?? 'chapter_locked',
+                    'message' => $gate['message'],
+                ], 402);
+            }
+        }
         $model = $request->input('model', 'auto');
         $dataRiil = $request->input('data_riil', []);
         $meta = $this->getProjectMeta($project);
@@ -4436,6 +4530,28 @@ INSTRUKSI MUTLAK:
             $chapter = 'bab' . $sm[1];
         }
 
+        $authUser = Auth::user();
+        if ($authUser) {
+            $chapGate = $this->billing()->canGenerateChapter($authUser, $project, (string) $chapter);
+            if (empty($chapGate['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $chapGate['reason'] ?? 'chapter_locked',
+                    'message' => $chapGate['message'],
+                ], 402);
+            }
+            if (empty($project->is_full_unlocked) && !$this->billing()->hasActivePaidAccess($authUser)) {
+                $revGate = $this->billing()->checkToolAccess($authUser, 'revise', 'Revisi Bab AI');
+                if (empty($revGate['allowed'])) {
+                    return response()->json([
+                        'status' => 'upgrade_required',
+                        'reason' => $revGate['reason'] ?? 'free_tool_limit',
+                        'message' => $revGate['message'],
+                    ], 402);
+                }
+            }
+        }
+
         $model = $request->input('model', 'auto');
         $currentContent = $project->{$chapter . '_content'} ?? '';
 
@@ -4550,6 +4666,10 @@ ATURAN REVISI (SANGAT KETAT):
 
             $project->{$chapter . '_content'} = $cleanContent;
             $project->save();
+
+            if (!empty($authUser) && empty($project->is_full_unlocked) && !$this->billing()->hasActivePaidAccess($authUser)) {
+                $this->billing()->markToolUsed($authUser, 'revise');
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -6328,6 +6448,21 @@ ATURAN REVISI (SANGAT KETAT):
         if (ob_get_length())
             ob_end_clean();
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $authUser = Auth::user();
+        if ($authUser) {
+            $dlGate = $this->billing()->canDownloadProject($authUser, $project);
+            if (empty($dlGate['allowed'])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'upgrade_required',
+                        'reason' => $dlGate['reason'] ?? 'download_locked',
+                        'message' => $dlGate['message'],
+                    ], 402);
+                }
+                return redirect()->route('app.index', ['id' => $project->id])
+                    ->with('upgrade_modal', $dlGate['message']);
+            }
+        }
         $meta = $this->getProjectMeta($project);
         $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
         foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
@@ -6485,6 +6620,21 @@ ATURAN REVISI (SANGAT KETAT):
     public function downloadPdf($id, Request $request)
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $authUser = Auth::user();
+        if ($authUser) {
+            $dlGate = $this->billing()->canDownloadProject($authUser, $project);
+            if (empty($dlGate['allowed'])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'upgrade_required',
+                        'reason' => $dlGate['reason'] ?? 'download_locked',
+                        'message' => $dlGate['message'],
+                    ], 402);
+                }
+                return redirect()->route('app.index', ['id' => $project->id])
+                    ->with('upgrade_modal', $dlGate['message']);
+            }
+        }
         $meta = $this->getProjectMeta($project);
         $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
         foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
@@ -7266,7 +7416,8 @@ ATURAN REVISI (SANGAT KETAT):
         } catch (Throwable $e) {
             $publicProjects = collect();
         }
-        return view('landing', compact('publicProjects'));
+        $plans = $this->billing()->getPlans(true);
+        return view('landing', compact('publicProjects', 'plans'));
     }
 
     public function downloadPublicProject($id, string $format, Request $request)
@@ -8187,6 +8338,18 @@ PANDUAN PENULISAN JAWABAN (ATURAN KETAT):
 
     public function paraphraseText(Request $request)
     {
+        $authUser = Auth::user();
+        if ($authUser) {
+            $access = $this->billing()->checkToolAccess($authUser, 'paraphrase', 'Parafrase Akademik AI');
+            if (empty($access['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
+
         $request->validate([
             'text' => 'required|string|min:15|max:15000',
             'style' => 'nullable|string',
@@ -8278,6 +8441,10 @@ TEKS ASLI:
                 }
             }
 
+            if ($authUser) {
+                $this->billing()->markToolUsed($authUser, 'paraphrase');
+            }
+
             return response()->json([
                 'status' => 'success',
                 'result' => $result,
@@ -8298,21 +8465,35 @@ TEKS ASLI:
     public function getProjectChaptersText($id)
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $authUser = Auth::user();
+        $unlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : true;
         return response()->json([
             'status' => 'success',
             'judul' => $project->judul,
+            'unlocked' => $unlocked,
             'chapters' => [
                 'bab1' => trim(strip_tags((string) ($project->bab1_content ?? ''))),
-                'bab2' => trim(strip_tags((string) ($project->bab2_content ?? ''))),
-                'bab3' => trim(strip_tags((string) ($project->bab3_content ?? ''))),
-                'bab4' => trim(strip_tags((string) ($project->bab4_content ?? ''))),
-                'bab5' => trim(strip_tags((string) ($project->bab5_content ?? ''))),
+                'bab2' => $unlocked ? trim(strip_tags((string) ($project->bab2_content ?? ''))) : '',
+                'bab3' => $unlocked ? trim(strip_tags((string) ($project->bab3_content ?? ''))) : '',
+                'bab4' => $unlocked ? trim(strip_tags((string) ($project->bab4_content ?? ''))) : '',
+                'bab5' => $unlocked ? trim(strip_tags((string) ($project->bab5_content ?? ''))) : '',
             ],
         ]);
     }
 
     public function generatePpt(Request $request)
     {
+        $authUser = Auth::user();
+        if ($authUser) {
+            $access = $this->billing()->checkToolAccess($authUser, 'ppt', 'Generator PPT Sidang');
+            if (empty($access['allowed'])) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
         $model = $request->input('model', 'auto');
         $docText = '';
         $docTitle = trim($request->input('judul', ''));
@@ -8602,6 +8783,9 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
             $finalTitle = $docTitle ?: 'Presentasi Sidang Skripsi';
             $projIdForSave = $request->filled('project_id') ? (int) $request->input('project_id') : null;
             $savedDeck = $this->persistSavedPptRecord(Auth::id(), $projIdForSave, $finalTitle, $slidesArray, $coverMeta, 'royal_academic');
+            if ($authUser) {
+                $this->billing()->markToolUsed($authUser, 'ppt');
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -8617,6 +8801,9 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
             $fallbackSlides = $buildDefaultSlides($docTitle, $projProdi, $slideCount);
             $projIdForSave = $request->filled('project_id') ? (int) $request->input('project_id') : null;
             $savedDeck = $this->persistSavedPptRecord(Auth::id(), $projIdForSave, $finalTitle, $fallbackSlides, $coverMeta, 'royal_academic');
+            if ($authUser) {
+                $this->billing()->markToolUsed($authUser, 'ppt');
+            }
             return response()->json([
                 'status' => 'success',
                 'title' => $finalTitle,
@@ -8635,8 +8822,19 @@ Kembalikan HANYA JSON Array valid dengan persis {$slideCount} objek slide:
         $jumlahSoal = max(4, min(12, (int) $request->input('jumlah_soal', 5)));
         $minScore = max(5.0, min(9.0, (float) $request->input('min_score', 7.0)));
 
+        $authUser = Auth::user();
         try {
             if ($mode === 'generate_questions') {
+                if ($authUser) {
+                    $access = $this->billing()->checkToolAccess($authUser, 'defense', 'Simulasi Sidang AI');
+                    if (empty($access['allowed'])) {
+                        return response()->json([
+                            'status' => 'upgrade_required',
+                            'reason' => $access['reason'] ?? 'free_tool_limit',
+                            'message' => $access['message'],
+                        ], 402);
+                    }
+                }
                 $docText = '';
                 $docTitle = trim($request->input('judul', ''));
                 $metode = trim($request->input('metode', ''));
@@ -8733,6 +8931,10 @@ FORMAT OUTPUT WAJIB: Kembalikan HANYA JSON Array murni berisi {$jumlahSoal} obje
                 $questions = array_slice($questions, 0, $jumlahSoal);
                 foreach ($questions as $idx => &$qItem) {
                     $qItem['number'] = $idx + 1;
+                }
+
+                if ($authUser) {
+                    $this->billing()->markToolUsed($authUser, 'defense');
                 }
 
                 return response()->json([

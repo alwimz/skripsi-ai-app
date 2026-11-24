@@ -60,4 +60,10 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
+
+    'pakasir' => [
+        'project' => env('PAKASIR_PROJECT'),
+        'api_key' => env('PAKASIR_API_KEY'),
+        'base_url' => env('PAKASIR_BASE_URL', 'https://app.pakasir.com'),
+    ],
 ];

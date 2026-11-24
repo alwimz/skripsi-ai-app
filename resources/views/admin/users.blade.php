@@ -587,9 +587,10 @@
                             <th>Nama Pengguna</th>
                             <th>Email Terdaftar</th>
                             <th>Metode Akun</th>
+                            <th style="text-align: center;">Tier &amp; Kuota</th>
                             <th style="text-align: center;">Proyek Skripsi</th>
                             <th>Waktu Pendaftaran</th>
-                            <th style="text-align: right;">User ID</th>
+                            <th style="text-align: right;">Kelola Paket</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -597,6 +598,8 @@
                             @php
                                 $isGoogle = str_ends_with($u->email, '@gmail.com') || str_contains($u->email, 'google');
                                 $initials = strtoupper(substr(trim($u->name ?: 'M'), 0, 1));
+                                $uPlan = $u->plan_code ?? 'free';
+                                $uQuotaRem = max(0, (int) ($u->project_quota_limit ?? 0) - (int) ($u->project_quota_used ?? 0));
                             @endphp
                             <tr>
                                 <td style="text-align: center; color: #64748b; font-weight: 600;">{{ $index + 1 }}</td>
@@ -605,12 +608,15 @@
                                         <div class="user-avatar">{{ $initials }}</div>
                                         <div>
                                             <div class="user-name">{{ $u->name }}</div>
-                                            <div class="user-id-tag">ID: #{{ $u->id }}</div>
+                                            <div class="user-id-tag">ID: #{{ $u->id }} · Ref: {{ $u->referral_code ?? '-' }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <span style="font-family: monospace; font-size: 13px; color: #e2e8f0;">{{ $u->email }}</span>
+                                    @if(!empty($u->referral_balance) && $u->referral_balance > 0)
+                                        <div style="font-size: 11px; color: #34d399; margin-top: 2px;">Komisi: Rp {{ number_format($u->referral_balance, 0, ',', '.') }}</div>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($isGoogle)
@@ -634,6 +640,16 @@
                                     @endif
                                 </td>
                                 <td style="text-align: center;">
+                                    <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; background:{{ $uPlan === 'free' ? 'rgba(148,163,184,0.18)' : 'rgba(16,185,129,0.2)' }}; color:{{ $uPlan === 'free' ? '#cbd5e1' : '#34d399' }};">
+                                        {{ strtoupper($uPlan) }}
+                                    </span>
+                                    @if(in_array($uPlan, ['starter', 'hemat'], true))
+                                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">Sisa: {{ $uQuotaRem }} ({{ $u->project_quota_used ?? 0 }}/{{ $u->project_quota_limit ?? 0 }})</div>
+                                    @elseif(str_starts_with($uPlan, 'unlimited') && !empty($u->plan_expires_at))
+                                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">s/d {{ \Carbon\Carbon::parse($u->plan_expires_at)->timezone('Asia/Jakarta')->format('d/m/y') }}</div>
+                                    @endif
+                                </td>
+                                <td style="text-align: center;">
                                     <span class="badge-projects">
                                         {{ $u->projects_count ?? 0 }} Proyek
                                     </span>
@@ -646,13 +662,21 @@
                                         {{ $u->created_at ? $u->created_at->diffForHumans() : '' }}
                                     </div>
                                 </td>
-                                <td style="text-align: right; color: #64748b; font-family: monospace;">
-                                    #{{ $u->id }}
+                                <td style="text-align: right;">
+                                    <form action="{{ route('admin.users.plan', ['id' => $u->id]) }}" method="POST" style="display:inline-flex; gap:6px; align-items:center;">
+                                        @csrf
+                                        <select name="plan_code" style="padding:5px 8px; border-radius:7px; border:1px solid rgba(255,255,255,0.16); background:#0f172a; color:#f8fafc; font-size:11.5px;">
+                                            @foreach(($plans ?? []) as $pCode => $pInfo)
+                                                <option value="{{ $pCode }}" {{ $uPlan === $pCode ? 'selected' : '' }}>{{ $pInfo['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" style="padding:5px 10px; border-radius:7px; border:none; background:#4f46e5; color:#fff; font-size:11.5px; font-weight:700; cursor:pointer;">Simpan</button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="empty-state">
+                                <td colspan="8" class="empty-state">
                                     <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -726,6 +750,97 @@
                 </table>
             </div>
         </div>
+
+        @if(!empty($transactions) && count($transactions) > 0)
+            <div class="section-header" style="margin-top: 32px;">
+                <div class="section-title">
+                    <span>Transaksi Pembayaran Pakasir</span>
+                    <span class="user-count-pill">{{ count($transactions) }} Transaksi</span>
+                </div>
+            </div>
+            <div class="table-card" style="margin-bottom: 24px;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Pengguna</th>
+                                <th>Paket</th>
+                                <th>Nominal</th>
+                                <th>Status</th>
+                                <th>Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($transactions as $tx)
+                                <tr>
+                                    <td style="font-family:monospace;">{{ $tx->order_id }}</td>
+                                    <td>
+                                        <div class="user-name">{{ $tx->user_name }}</div>
+                                        <div class="user-id-tag">{{ $tx->user_email }}</div>
+                                    </td>
+                                    <td>{{ $tx->plan_name }}</td>
+                                    <td>Rp {{ number_format($tx->amount, 0, ',', '.') }}</td>
+                                    <td>
+                                        <span style="padding:3px 8px; border-radius:999px; font-size:11px; font-weight:700; background:{{ $tx->status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' }}; color:{{ $tx->status === 'completed' ? '#34d399' : '#fbbf24' }};">
+                                            {{ strtoupper($tx->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ \Carbon\Carbon::parse($tx->created_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if(!empty($withdrawals) && count($withdrawals) > 0)
+            <div class="section-header" style="margin-top: 32px;">
+                <div class="section-title">
+                    <span>Permintaan Pencairan Komisi Referral</span>
+                    <span class="user-count-pill">{{ count($withdrawals) }} Pengajuan</span>
+                </div>
+            </div>
+            <div class="table-card" style="margin-bottom: 24px;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pengguna</th>
+                                <th>Rekening / e-Wallet</th>
+                                <th>Nominal</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($withdrawals as $wd)
+                                <tr>
+                                    <td>
+                                        <div class="user-name">{{ $wd->user_name }}</div>
+                                        <div class="user-id-tag">{{ $wd->user_email }}</div>
+                                    </td>
+                                    <td>{{ $wd->channel }} · {{ $wd->account_number }} ({{ $wd->account_name }})</td>
+                                    <td>Rp {{ number_format($wd->amount, 0, ',', '.') }}</td>
+                                    <td>{{ strtoupper($wd->status) }}</td>
+                                    <td style="text-align:right;">
+                                        @if($wd->status === 'pending')
+                                            <form action="{{ route('admin.withdrawals.paid', ['id' => $wd->id]) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" style="padding:5px 10px; border-radius:7px; border:none; background:#10b981; color:#fff; font-size:11.5px; font-weight:700; cursor:pointer;">Tandai Cair</button>
+                                            </form>
+                                        @else
+                                            <span style="color:#34d399; font-size:12px;">✓ Lunas</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
 
         <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #475569;">
             SkripsiLab AI Dedicated Owner Console &copy; {{ date('Y') }} &bull; Private &amp; Confidential
