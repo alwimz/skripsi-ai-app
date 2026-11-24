@@ -326,7 +326,7 @@ class PlagiarismCheckService
     private function fetchOnlineCandidates(array $queryPlans): array
     {
         $serperKey = trim((string) (config('services.serper.key') ?: env('SERPER_API_KEY', '')));
-        $ua = 'SkripsiLabAI/1.0 (https://muhalwisyahrir.tech; academic-similarity-checker)';
+        $ua = 'SkripsiLabAI/1.0 (https://skripsilabai.com; academic-similarity-checker)';
 
         // Batasi jumlah query paralel agar cepat (~3-6 detik di Vercel PHP)
         $planKeys = array_keys($queryPlans);

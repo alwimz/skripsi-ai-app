@@ -299,11 +299,12 @@ class StudentToolsController extends Controller
             .page-break { page-break-before: always; }
         </style></head><body>{$bodyHtml}</body></html>";
 
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->set_option('isRemoteEnabled', false);
-        $dompdf->set_option('tempDir', '/tmp');
-        $dompdf->set_option('fontCache', '/tmp');
+        $dompdf->set_option('tempDir', $tmpDir);
+        $dompdf->set_option('fontCache', $tmpDir);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         try {
@@ -314,8 +315,8 @@ class StudentToolsController extends Controller
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
-            $dompdf->set_option('tempDir', '/tmp');
-            $dompdf->set_option('fontCache', '/tmp');
+            $dompdf->set_option('tempDir', $tmpDir);
+            $dompdf->set_option('fontCache', $tmpDir);
             $dompdf->loadHtml($fallbackHtml);
             $dompdf->setPaper('A4', 'portrait');
             $dompdf->render();
@@ -358,7 +359,8 @@ class StudentToolsController extends Controller
         $academic = $request->boolean('academic_format', false);
         $pages = $request->input('pages', []);
 
-        Settings::setTempDir('/tmp');
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
+        Settings::setTempDir($tmpDir);
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Times New Roman');
         $phpWord->setDefaultFontSize(12);
@@ -452,7 +454,7 @@ class StudentToolsController extends Controller
         }
 
         $filename = $safeBase . '.docx';
-        $tmpPath = '/tmp/tool_pdf2docx_' . Str::random(10) . '.docx';
+        $tmpPath = $tmpDir . '/tool_pdf2docx_' . Str::random(10) . '.docx';
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($tmpPath);
 

@@ -35,6 +35,10 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->withInput($request->except('password', 'password_confirmation', 'pin', '_token'))
                     ->with('info', 'Sesi halaman diperbarui otomatis. Silakan kirim ulang.');
             }
+            $response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
+            $response->headers->set('X-Content-Type-Options', 'nosniff', false);
+            $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin', false);
+            $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()', false);
             return $response;
         });
     })->create();

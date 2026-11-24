@@ -19,4 +19,4 @@ Disallow: /profile/
 Disallow: /admin
 Disallow: /masuk
 
-Sitemap: https://muhalwisyahrir.tech/sitemap.xml
+Sitemap: https://skripsilabai.com/sitemap.xml

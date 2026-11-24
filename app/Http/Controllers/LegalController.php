@@ -28,14 +28,14 @@ class LegalController extends Controller
             'badge' => 'Dokumen Legal Resmi',
             'title' => 'Kebijakan Privasi SkripsiLab AI',
             'meta_title' => 'Kebijakan Privasi — SkripsiLab AI | Perlindungan Data & Keamanan Akun',
-            'meta_description' => 'Kebijakan privasi resmi SkripsiLab AI (muhalwisyahrir.tech) mengenai pengelolaan data akun, Google Sign-In OAuth 2.0, kerahasiaan naskah proposal dan skripsi, serta hak pengguna.',
+            'meta_description' => 'Kebijakan privasi resmi SkripsiLab AI (skripsilabai.com) mengenai pengelolaan data akun, Google Sign-In OAuth 2.0, kerahasiaan naskah proposal dan skripsi, serta hak pengguna.',
             'subtitle' => 'Komitmen kami dalam melindungi privasi akun, keamanan autentikasi Google Sign-In, serta kerahasiaan penuh atas draf proposal dan skripsi mahasiswa.',
             'sections' => [
                 [
                     'num' => '1',
                     'title' => 'Identitas Pengelola Layanan',
                     'paragraphs' => [
-                        'SkripsiLab AI adalah aplikasi web workspace penulisan akademik berbasis kecerdasan buatan yang beroperasi secara resmi pada domain muhalwisyahrir.tech, dikembangkan dan dikelola oleh Muh Alwi Syahrir (berdomisili di Makassar, Sulawesi Selatan, Indonesia).',
+                        'SkripsiLab AI adalah aplikasi web workspace penulisan akademik berbasis kecerdasan buatan yang beroperasi secara resmi pada domain skripsilabai.com, dikembangkan dan dikelola oleh Muh Alwi Syahrir (berdomisili di Makassar, Sulawesi Selatan, Indonesia).',
                         'Dengan mendaftar, masuk, atau menggunakan fitur apa pun di SkripsiLab AI, Anda memahami dan menyetujui tata cara pemrosesan data sebagaimana dijelaskan dalam Kebijakan Privasi ini.',
                     ],
                 ],
@@ -118,7 +118,7 @@ class LegalController extends Controller
                     'num' => '1',
                     'title' => 'Penerimaan Ketentuan',
                     'paragraphs' => [
-                        'Syarat dan Ketentuan ini mengatur akses dan penggunaan situs web serta layanan SkripsiLab AI di alamat resmi muhalwisyahrir.tech.',
+                        'Syarat dan Ketentuan ini mengatur akses dan penggunaan situs web serta layanan SkripsiLab AI di alamat resmi skripsilabai.com.',
                         'Dengan membuat akun atau menggunakan tools publik maupun workspace berlangganan di SkripsiLab AI, Anda menyatakan telah membaca dan setuju untuk mematuhi ketentuan berikut.',
                     ],
                 ],
@@ -183,9 +183,9 @@ class LegalController extends Controller
             'slug' => '/tentang',
             'badge' => 'Profil Resmi & Transparansi',
             'title' => 'Tentang SkripsiLab AI & Pengembang',
-            'meta_title' => 'Tentang Kami & Pengembang — SkripsiLab AI (muhalwisyahrir.tech)',
-            'meta_description' => 'Informasi resmi tentang SkripsiLab AI, profil pengembang Muh Alwi Syahrir di Makassar, komitmen keamanan domain muhalwisyahrir.tech, serta kontak dukungan resmi.',
-            'subtitle' => 'Mengenal misi platform, identitas pengembang resmi, standar keamanan domain muhalwisyahrir.tech, dan kanal kontak bantuan langsung.',
+            'meta_title' => 'Tentang Kami & Pengembang — SkripsiLab AI (skripsilabai.com)',
+            'meta_description' => 'Informasi resmi tentang SkripsiLab AI, profil pengembang Muh Alwi Syahrir di Makassar, komitmen keamanan domain skripsilabai.com, serta kontak dukungan resmi.',
+            'subtitle' => 'Mengenal misi platform, identitas pengembang resmi, standar keamanan domain skripsilabai.com, dan kanal kontak bantuan langsung.',
             'sections' => [
                 [
                     'num' => '1',
@@ -199,7 +199,7 @@ class LegalController extends Controller
                     'num' => '2',
                     'title' => 'Profil Pengembang & Pengelola',
                     'paragraphs' => [
-                        'Domain resmi muhalwisyahrir.tech dikelola langsung oleh Muh Alwi Syahrir, seorang pengembang perangkat lunak (Full-Stack Web & Mobile Developer) asal Makassar, Sulawesi Selatan, Indonesia, yang berpengalaman dalam ekosistem Laravel, React Native, dan Flutter.',
+                        'Domain resmi skripsilabai.com dikelola langsung oleh Muh Alwi Syahrir, seorang pengembang perangkat lunak (Full-Stack Web & Mobile Developer) asal Makassar, Sulawesi Selatan, Indonesia, yang berpengalaman dalam ekosistem Laravel, React Native, dan Flutter.',
                         'Seluruh pemeliharaan server, pembaruan fitur, serta dukungan teknis pengguna ditangani secara langsung oleh tim pengembang tanpa perantara pihak ketiga yang tidak jelas.',
                     ],
                 ],
@@ -210,7 +210,7 @@ class LegalController extends Controller
                         'Demi kenyamanan dan keamanan seluruh pengguna, kami menegaskan standar operasional berikut:',
                     ],
                     'bullets' => [
-                        'Satu Domain Resmi: Layanan SkripsiLab AI hanya beroperasi pada HTTPS resmi muhalwisyahrir.tech.',
+                        'Satu Domain Resmi: Layanan SkripsiLab AI hanya beroperasi pada HTTPS resmi skripsilabai.com.',
                         'Autentikasi Aman: Login mendukung email/kata sandi terenkripsi bcrypt serta Google OAuth 2.0 resmi.',
                         'Bebas Penipuan & OTP Pihak Ketiga: SkripsiLab AI tidak pernah meminta PIN perbankan, nomor kartu kredit, ataupun kode OTP aplikasi lain dalam bentuk apa pun.',
                     ],

@@ -543,7 +543,7 @@
                     <strong>Pengelola Resmi</strong>
                     <div>{{ $owner_name }}</div>
                     <div>{{ $location }}</div>
-                    <div style="margin-top:4px;font-size:0.76rem;">Domain: <code>muhalwisyahrir.tech</code></div>
+                    <div style="margin-top:4px;font-size:0.76rem;">Domain: <code>skripsilabai.com</code></div>
                     <a href="https://wa.me/{{ $whatsapp_number }}?text=Halo%20Admin%20SkripsiLab%20AI%2C%20saya%20ingin%20bertanya%20terkait%20privasi%20atau%20layanan." target="_blank" rel="noopener noreferrer" class="wa-btn">
                         Hubungi Support Resmi
                     </a>

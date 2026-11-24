@@ -622,7 +622,7 @@ class GeneratorController extends Controller
             $wantId = str_contains($asalLower, 'indonesia') || str_contains($asalLower, 'nasional') || str_contains($asalLower, 'semua');
             $wantInt = str_contains($asalLower, 'internasional') || str_contains($asalLower, 'global') || str_contains($asalLower, 'semua') || !$wantId;
             $filterDate = "from_publication_date:{$tahunMin}-01-01,to_publication_date:2026-12-31";
-            $headers = ['User-Agent' => 'SkripsiLab-Academic/2.2 (mailto:support@muhalwisyahrir.tech)'];
+            $headers = ['User-Agent' => 'SkripsiLab-Academic/2.2 (mailto:support@skripsilabai.com)'];
 
             $parseOpenAlex = function (array $w, string $scope) use ($tahunMin, $gayaSitasi, &$seenTitles): ?array {
                 $title = trim((string) ($w['title'] ?? ''));
@@ -5822,7 +5822,8 @@ ATURAN REVISI (SANGAT KETAT):
 
             $isJpg = str_starts_with($rawBytes, "\xFF\xD8\xFF");
             $ext = $isJpg ? 'jpg' : 'png';
-            $tmpPath = '/tmp/logo_' . uniqid() . '.' . $ext;
+            $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
+            $tmpPath = $tmpDir . '/logo_' . uniqid() . '.' . $ext;
 
             if (function_exists('imagecreatefromstring')) {
                 $img = @imagecreatefromstring($rawBytes);
@@ -5839,7 +5840,7 @@ ATURAN REVISI (SANGAT KETAT):
                     imagefilledrectangle($dst, 0, 0, $newW, $newH, $white);
                     imagecopyresampled($dst, $img, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
-                    $tmpJpg = '/tmp/logo_' . uniqid() . '.jpg';
+                    $tmpJpg = $tmpDir . '/logo_' . uniqid() . '.jpg';
                     imagejpeg($dst, $tmpJpg, 85);
                     imagedestroy($img);
                     imagedestroy($dst);
@@ -6536,8 +6537,9 @@ ATURAN REVISI (SANGAT KETAT):
         $phpWord = $this->createPhpWordDocument($project, $request, $logoPath, $meta);
         $filename = 'Naskah_' . Str::slug(substr($project->judul, 0, 28), '_') . '.docx';
 
-        Settings::setTempDir('/tmp');
-        $path = '/tmp/' . $filename;
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
+        Settings::setTempDir($tmpDir);
+        $path = $tmpDir . '/' . $filename;
 
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
@@ -7083,11 +7085,12 @@ ATURAN REVISI (SANGAT KETAT):
         }
         $html .= "</body></html>";
 
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
         $dompdf = new Dompdf();
         $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->set_option('isRemoteEnabled', false);
-        $dompdf->set_option('tempDir', '/tmp');
-        $dompdf->set_option('fontCache', '/tmp');
+        $dompdf->set_option('tempDir', $tmpDir);
+        $dompdf->set_option('fontCache', $tmpDir);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4');
         try {
@@ -7098,8 +7101,8 @@ ATURAN REVISI (SANGAT KETAT):
             $dompdf = new Dompdf();
             $dompdf->set_option('isHtml5ParserEnabled', true);
             $dompdf->set_option('isRemoteEnabled', false);
-            $dompdf->set_option('tempDir', '/tmp');
-            $dompdf->set_option('fontCache', '/tmp');
+            $dompdf->set_option('tempDir', $tmpDir);
+            $dompdf->set_option('fontCache', $tmpDir);
             $dompdf->loadHtml($fallbackHtml);
             $dompdf->setPaper('A4');
             $dompdf->render();
@@ -7342,8 +7345,9 @@ ATURAN REVISI (SANGAT KETAT):
             ob_end_clean();
         $phpWord = $this->createPhpWordDocument($fakeProject, $request, null, ['tahap_pengerjaan' => $jenisDok]);
         $filename = 'Contoh_' . ucfirst($major) . '.docx';
-        Settings::setTempDir('/tmp');
-        $path = '/tmp/' . $filename;
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
+        Settings::setTempDir($tmpDir);
+        $path = $tmpDir . '/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
         $this->postProcessDocxOutline($path);
@@ -7519,8 +7523,9 @@ ATURAN REVISI (SANGAT KETAT):
             ob_end_clean();
         $phpWord = $this->createPhpWordDocument($project, $request, $logoPath, $meta);
         $filename = 'Dokumen_' . Str::slug(substr($project->judul, 0, 28), '_') . '.docx';
-        Settings::setTempDir('/tmp');
-        $path = '/tmp/' . $filename;
+        $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
+        Settings::setTempDir($tmpDir);
+        $path = $tmpDir . '/' . $filename;
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($path);
         $this->postProcessDocxOutline($path);
