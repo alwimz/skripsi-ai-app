@@ -1686,6 +1686,29 @@
                         <input type="checkbox" id="tidy-opt-abstract" onchange="syncTidyToggleBtn()">
                         <span><strong>Format Khusus Abstrak &amp; Kutipan Blok:</strong> Otomatis atur bagian <code>ABSTRAK / ABSTRACT</code> menjadi spasi 1,0 (tunggal) sesuai pedoman kampus Indonesia, sementara isi Bab tetap mengikuti pilihan spasi di atas.</span>
                     </label>
+                    <div class="check-card" style="grid-column: 1 / -1; flex-direction: column; gap: 10px; background: #f8faff; border-color: #dbeafe;" onclick="if(event.target.closest('select, label.sub-lbl')) return;">
+                        <label style="display:flex; align-items:flex-start; gap:9px; width:100%; cursor:pointer;">
+                            <input type="checkbox" id="tidy-opt-pagenum" onchange="onToggleTidyPageNum()">
+                            <span><strong>Rapikan Penomoran Halaman Skripsi Otomatis:</strong> Pisahkan Section <code>Cover</code> (tanpa nomor), <code>Bagian Awal</code> (Romawi <code>i, ii, iii</code> tengah bawah), dan <code>BAB I–V</code> + <code>DAFTAR PUSTAKA</code> (mulai angka <code>1, 2, 3</code>) dengan Word native <em>Section Break</em> &amp; <em>Page Field</em> tanpa merusak tata letak atau bagian Landscape.</span>
+                        </label>
+                        <div id="tidy-pagenum-subopts" class="form-grid-2" style="display:none; width:100%; padding-left:24px; margin-bottom:0; gap:10px;">
+                            <div>
+                                <label class="form-label" for="tidy-pagenum-layout" style="font-size:11.5px; margin-bottom:4px;">Letak Nomor Bagian Isi (BAB I–V &amp; Pustaka)</label>
+                                <select id="tidy-pagenum-layout" class="form-select" style="font-size:12.5px; min-height:36px;">
+                                    <option value="bab_bottom_right" selected>Standar Skripsi (Awal BAB Tengah Bawah, Isi Kanan Atas)</option>
+                                    <option value="all_bottom_center">Semua Tengah Bawah (Awal BAB &amp; Isi di Tengah Bawah)</option>
+                                    <option value="all_top_right">Kanan Atas Semua (Seluruh Halaman BAB I–V di Kanan Atas)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="tidy-pagenum-roman-start" style="font-size:11.5px; margin-bottom:4px;">Nomor Awal Bagian Depan (Jika Ada Cover)</label>
+                                <select id="tidy-pagenum-roman-start" class="form-select" style="font-size:12.5px; min-height:36px;">
+                                    <option value="2" selected>Mulai ii (Cover dihitung i tersembunyi — Umum di Kampus)</option>
+                                    <option value="1">Mulai i (Halaman pertama setelah Cover bernomor i)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="tool-action-bar">
@@ -3761,12 +3784,23 @@
             syncTidyToggleBtn();
         }
 
+        function onToggleTidyPageNum() {
+            const cb = document.getElementById('tidy-opt-pagenum');
+            const sub = document.getElementById('tidy-pagenum-subopts');
+            if (sub) sub.style.display = (cb && cb.checked) ? 'grid' : 'none';
+            syncTidyToggleBtn();
+        }
+
         function syncTidyToggleBtn() {
             const boxes = Array.from(document.querySelectorAll('#tidy-options-grid input[type="checkbox"]'));
             const btn = document.getElementById('btn-toggle-all-tidy');
-            if (!btn) return;
-            const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
-            btn.textContent = allChecked ? 'Kosongkan Semua' : 'Centang Semua';
+            if (btn) {
+                const allChecked = boxes.length > 0 && boxes.every(b => b.checked);
+                btn.textContent = allChecked ? 'Kosongkan Semua' : 'Centang Semua';
+            }
+            const cb = document.getElementById('tidy-opt-pagenum');
+            const sub = document.getElementById('tidy-pagenum-subopts');
+            if (sub && cb) sub.style.display = cb.checked ? 'grid' : 'none';
         }
 
         async function runTidyDocx() {
@@ -3811,6 +3845,10 @@
                 const optCleanStyle = Boolean(document.getElementById('tidy-opt-cleanstyle')?.checked);
                 const optProtectCover = Boolean(document.getElementById('tidy-opt-cover')?.checked);
                 const optAbstract = Boolean(document.getElementById('tidy-opt-abstract')?.checked);
+                const optPageNum = Boolean(document.getElementById('tidy-opt-pagenum')?.checked);
+                const pageNumLayout = document.getElementById('tidy-pagenum-layout')?.value || 'bab_bottom_right';
+                const romanStartVal = parseInt(document.getElementById('tidy-pagenum-roman-start')?.value || '2', 10) || 2;
+                const onlyPageNum = optPageNum && !optPageBreak && !optIndent && !optTables && !optSpaces && !optImages && !optCleanStyle && !optProtectCover && !optAbstract;
 
                 const marginPresets = {
                     '4433': { top: 2268, left: 2268, bottom: 1701, right: 1701 },
@@ -3876,6 +3914,7 @@
                     imagesResized: 0,
                     stylesCleaned: 0,
                     abstractFixed: 0,
+                    pageSectionsFixed: 0,
                     imagesKept: 0
                 };
 
@@ -3886,27 +3925,29 @@
                 const body = xmlDoc.getElementsByTagNameNS(W_NS, 'body')[0];
                 if (!body) throw new Error('Body dokumen tidak ditemukan.');
 
-                // 1. Atur kertas A4 & Margin (pertahankan orientasi Landscape jika ada halaman lampiran landscape)
-                Array.from(xmlDoc.getElementsByTagNameNS(W_NS, 'sectPr')).forEach(sectPr => {
-                    const pgSz = ensureChild(sectPr, 'pgSz');
-                    const isLandscape = (pgSz.getAttributeNS(W_NS, 'orient') || '').toLowerCase() === 'landscape';
-                    if (isLandscape) {
-                        setWAttr(pgSz, 'w', '16838');
-                        setWAttr(pgSz, 'h', '11906');
-                    } else {
-                        setWAttr(pgSz, 'w', '11906');
-                        setWAttr(pgSz, 'h', '16838');
-                    }
-                    const pgMar = ensureChild(sectPr, 'pgMar');
-                    setWAttr(pgMar, 'top', mar.top);
-                    setWAttr(pgMar, 'left', mar.left);
-                    setWAttr(pgMar, 'bottom', mar.bottom);
-                    setWAttr(pgMar, 'right', mar.right);
-                    if (!pgMar.getAttributeNS(W_NS, 'header')) setWAttr(pgMar, 'header', '709');
-                    if (!pgMar.getAttributeNS(W_NS, 'footer')) setWAttr(pgMar, 'footer', '709');
-                });
+                // 1. Atur kertas A4 & Margin (lewati bila user hanya memilih fokus Rapikan Penomoran Halaman)
+                if (!onlyPageNum) {
+                    Array.from(xmlDoc.getElementsByTagNameNS(W_NS, 'sectPr')).forEach(sectPr => {
+                        const pgSz = ensureChild(sectPr, 'pgSz');
+                        const isLandscape = (pgSz.getAttributeNS(W_NS, 'orient') || '').toLowerCase() === 'landscape';
+                        if (isLandscape) {
+                            setWAttr(pgSz, 'w', '16838');
+                            setWAttr(pgSz, 'h', '11906');
+                        } else {
+                            setWAttr(pgSz, 'w', '11906');
+                            setWAttr(pgSz, 'h', '16838');
+                        }
+                        const pgMar = ensureChild(sectPr, 'pgMar');
+                        setWAttr(pgMar, 'top', mar.top);
+                        setWAttr(pgMar, 'left', mar.left);
+                        setWAttr(pgMar, 'bottom', mar.bottom);
+                        setWAttr(pgMar, 'right', mar.right);
+                        if (!pgMar.getAttributeNS(W_NS, 'header')) setWAttr(pgMar, 'header', '709');
+                        if (!pgMar.getAttributeNS(W_NS, 'footer')) setWAttr(pgMar, 'footer', '709');
+                    });
+                }
 
-                setProc('tidy', true, 'Merapikan paragraf, BAB, gambar, tabel & menghapus halaman kosong...', 55);
+                setProc('tidy', true, onlyPageNum ? 'Menganalisis bagian Cover, Bagian Awal & BAB untuk penomoran halaman...' : 'Merapikan paragraf, BAB, gambar, tabel & menghapus halaman kosong...', 55);
 
                 const isInsideEquation = (node) => {
                     let cur = node.parentNode;
@@ -4014,7 +4055,7 @@
                 let seenRealContent = false;
                 let consecutiveEmpty = 0;
 
-                for (let idx = 0; idx < bodyChildren.length; idx++) {
+                for (let idx = 0; idx < (onlyPageNum ? 0 : bodyChildren.length); idx++) {
                     const node = bodyChildren[idx];
                     const inCoverZone = hasCoverZone && idx < firstMajorIdx;
 
@@ -4396,12 +4437,471 @@
                     }
                 }
 
+                // 2. Penomoran Halaman Skripsi Otomatis (ECMA-376 OOXML Spec Compliant)
+                if (optPageNum) {
+                    setProc('tidy', true, 'Menata Section Break & Penomoran Halaman (Cover, Romawi, BAB I–V)...', 74);
+
+                    const R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+                    const REL_NS = 'http://schemas.openxmlformats.org/package/2006/relationships';
+                    const CT_NS = 'http://schemas.openxmlformats.org/package/2006/content-types';
+                    const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+                    const SECTPR_ORDER = [
+                        'headerReference', 'footerReference', 'footnotePr', 'endnotePr',
+                        'type', 'pgSz', 'pgMar', 'paperSrc', 'pgBorders', 'lnNumType',
+                        'pgNumType', 'cols', 'formProt', 'vAlign', 'noEndnote',
+                        'titlePg', 'textDirection', 'bidi', 'rtlGutter', 'docGrid'
+                    ];
+
+                    const docRoot = xmlDoc.documentElement;
+                    if (!docRoot.getAttribute('xmlns:r')) {
+                        docRoot.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:r', R_NS);
+                    }
+
+                    // Baca atau siapkan word/_rels/document.xml.rels dan [Content_Types].xml
+                    const relsPath = 'word/_rels/document.xml.rels';
+                    let relsStr = await zip.file(relsPath)?.async('string');
+                    if (!relsStr) {
+                        relsStr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+                    }
+                    const relsDoc = parser.parseFromString(relsStr, 'application/xml');
+                    if (relsDoc.getElementsByTagName('parsererror').length) {
+                        throw new Error('File relasi dokumen Word (.rels) rusak.');
+                    }
+
+                    const ctStr = await zip.file('[Content_Types].xml')?.async('string');
+                    if (!ctStr) throw new Error('[Content_Types].xml tidak ditemukan pada file Word.');
+                    const ctDoc = parser.parseFromString(ctStr, 'application/xml');
+                    if (ctDoc.getElementsByTagName('parsererror').length) {
+                        throw new Error('Struktur [Content_Types].xml dokumen Word rusak.');
+                    }
+
+                    const usedRelIds = new Set(
+                        Array.from(relsDoc.getElementsByTagName('Relationship')).map(r => r.getAttribute('Id') || '')
+                    );
+                    let nextRelNum = 901;
+                    const allocRelId = () => {
+                        while (usedRelIds.has('rId' + nextRelNum)) nextRelNum++;
+                        const id = 'rId' + nextRelNum;
+                        usedRelIds.add(id);
+                        return id;
+                    };
+
+                    const allocPartName = (baseName) => {
+                        let candidate = baseName + '.xml';
+                        let n = 1;
+                        while (zip.file('word/' + candidate)) {
+                            candidate = baseName + '_' + n + '.xml';
+                            n++;
+                        }
+                        return candidate;
+                    };
+
+                    const serializerInner = new XMLSerializer();
+                    const registerHeaderFooterPart = (baseName, isHeader, xmlContent) => {
+                        const fileName = allocPartName(baseName);
+                        zip.file('word/' + fileName, xmlContent);
+
+                        const relId = allocRelId();
+                        const relEl = relsDoc.createElementNS(REL_NS, 'Relationship');
+                        relEl.setAttribute('Id', relId);
+                        relEl.setAttribute('Type', isHeader
+                            ? 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header'
+                            : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer');
+                        relEl.setAttribute('Target', fileName);
+                        relsDoc.documentElement.appendChild(relEl);
+
+                        const partName = '/word/' + fileName;
+                        const contentType = isHeader
+                            ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml'
+                            : 'application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml';
+                        const hasOverride = Array.from(ctDoc.getElementsByTagName('Override'))
+                            .some(o => (o.getAttribute('PartName') || '').toLowerCase() === partName.toLowerCase());
+                        if (!hasOverride) {
+                            const ov = ctDoc.createElementNS(CT_NS, 'Override');
+                            ov.setAttribute('PartName', partName);
+                            ov.setAttribute('ContentType', contentType);
+                            ctDoc.documentElement.appendChild(ov);
+                        }
+                        return relId;
+                    };
+
+                    const escapeXmlAttr = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const numSz = Math.max(22, bodySz - 2);
+                    const safeFont = escapeXmlAttr(fontName);
+                    const buildEmptyPartXml = (rootTag) => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+                        + `<w:${rootTag} xmlns:w="${W_NS}"><w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p></w:${rootTag}>`;
+                    const buildPageFieldPartXml = (rootTag, alignVal) => {
+                        const rPrXml = `<w:rPr><w:rFonts w:ascii="${safeFont}" w:hAnsi="${safeFont}" w:cs="${safeFont}" w:eastAsia="${safeFont}"/><w:color w:val="000000"/><w:sz w:val="${numSz}"/><w:szCs w:val="${numSz}"/></w:rPr>`;
+                        return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+                            + `<w:${rootTag} xmlns:w="${W_NS}">`
+                            + `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/><w:jc w:val="${alignVal}"/></w:pPr>`
+                            + `<w:r>${rPrXml}<w:fldChar w:fldCharType="begin"/></w:r>`
+                            + `<w:r>${rPrXml}<w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>`
+                            + `<w:r>${rPrXml}<w:fldChar w:fldCharType="separate"/></w:r>`
+                            + `<w:r>${rPrXml}<w:t>1</w:t></w:r>`
+                            + `<w:r>${rPrXml}<w:fldChar w:fldCharType="end"/></w:r>`
+                            + `</w:p></w:${rootTag}>`;
+                    };
+
+                    const rIdHdrEmpty = registerHeaderFooterPart('sl_hdr_empty', true, buildEmptyPartXml('hdr'));
+                    const rIdFtrEmpty = registerHeaderFooterPart('sl_ftr_empty', false, buildEmptyPartXml('ftr'));
+                    const rIdFtrCenter = registerHeaderFooterPart('sl_ftr_center', false, buildPageFieldPartXml('ftr', 'center'));
+                    const rIdHdrRight = (pageNumLayout === 'bab_bottom_right' || pageNumLayout === 'all_top_right')
+                        ? registerHeaderFooterPart('sl_hdr_right', true, buildPageFieldPartXml('hdr', 'right'))
+                        : null;
+
+                    // Ambil template sectPr akhir dokumen (sebelum membersihkan section break portrait lama)
+                    let bodyFinalSectPr = Array.from(body.childNodes).reverse().find(n => n.nodeType === 1 && n.localName === 'sectPr');
+                    if (!bodyFinalSectPr) {
+                        bodyFinalSectPr = mkW('sectPr');
+                        const pgSz = mkW('pgSz');
+                        setWAttr(pgSz, 'w', '11906');
+                        setWAttr(pgSz, 'h', '16838');
+                        const pgMar = mkW('pgMar');
+                        setWAttr(pgMar, 'top', mar.top);
+                        setWAttr(pgMar, 'left', mar.left);
+                        setWAttr(pgMar, 'bottom', mar.bottom);
+                        setWAttr(pgMar, 'right', mar.right);
+                        setWAttr(pgMar, 'header', '709');
+                        setWAttr(pgMar, 'footer', '709');
+                        bodyFinalSectPr.appendChild(pgSz);
+                        bodyFinalSectPr.appendChild(pgMar);
+                        body.appendChild(bodyFinalSectPr);
+                    }
+
+                    const createPortraitSectTemplate = () => {
+                        const clone = bodyFinalSectPr.cloneNode(true);
+                        ['headerReference', 'footerReference', 'type', 'pgNumType', 'titlePg'].forEach(tag => removeDirectChild(clone, tag));
+                        const pgSz = ensureOrderedChild(clone, 'pgSz', SECTPR_ORDER);
+                        if ((pgSz.getAttributeNS(W_NS, 'orient') || '').toLowerCase() === 'landscape') {
+                            pgSz.removeAttributeNS(W_NS, 'orient');
+                            pgSz.removeAttribute('w:orient');
+                            setWAttr(pgSz, 'w', '11906');
+                            setWAttr(pgSz, 'h', '16838');
+                        }
+                        const pgMar = ensureOrderedChild(clone, 'pgMar', SECTPR_ORDER);
+                        if (!pgMar.getAttributeNS(W_NS, 'header') || pgMar.getAttributeNS(W_NS, 'header') === '0') setWAttr(pgMar, 'header', '709');
+                        if (!pgMar.getAttributeNS(W_NS, 'footer') || pgMar.getAttributeNS(W_NS, 'footer') === '0') setWAttr(pgMar, 'footer', '709');
+                        return clone;
+                    };
+                    const sectTemplate = createPortraitSectTemplate();
+
+                    // Kumpulkan node konten saat ini (tidak termasuk body > sectPr akhir) & deteksi section landscape eksisting
+                    let workNodes = Array.from(body.childNodes).filter(n => n.nodeType === 1 && n.localName !== 'sectPr');
+                    const isLandscapeSectPr = (sp) => {
+                        if (!sp) return false;
+                        const pgSz = getDirectChild(sp, 'pgSz');
+                        return !!pgSz && (pgSz.getAttributeNS(W_NS, 'orient') || '').toLowerCase() === 'landscape';
+                    };
+
+                    // Bersihkan section break portrait lama yang mungkin berantakan di dalam paragraf
+                    for (let wi = 0; wi < workNodes.length; wi++) {
+                        const wn = workNodes[wi];
+                        if (wn.localName !== 'p') continue;
+                        const wpPr = getDirectChild(wn, 'pPr');
+                        const oldSp = wpPr && getDirectChild(wpPr, 'sectPr');
+                        if (!oldSp) continue;
+
+                        // Pertahankan jika section tersebut atau section berikutnya adalah Landscape (misal Lampiran lebar)
+                        let nextSp = bodyFinalSectPr;
+                        for (let ni = wi + 1; ni < workNodes.length; ni++) {
+                            if (workNodes[ni].localName === 'p') {
+                                const npPr = getDirectChild(workNodes[ni], 'pPr');
+                                const candSp = npPr && getDirectChild(npPr, 'sectPr');
+                                if (candSp) { nextSp = candSp; break; }
+                            }
+                        }
+                        if (isLandscapeSectPr(oldSp) || isLandscapeSectPr(nextSp)) {
+                            continue;
+                        }
+                        wpPr.removeChild(oldSp);
+                        const hasText = Array.from(wn.getElementsByTagNameNS(W_NS, 't')).some(t => (t.textContent || '').trim() !== '');
+                        const hasMedia = wn.getElementsByTagNameNS('*', 'drawing').length > 0
+                            || wn.getElementsByTagNameNS('*', 'pict').length > 0
+                            || wn.getElementsByTagNameNS('*', 'object').length > 0;
+                        if (!hasText && !hasMedia) {
+                            body.removeChild(wn);
+                        }
+                    }
+
+                    workNodes = Array.from(body.childNodes).filter(n => n.nodeType === 1 && n.localName !== 'sectPr');
+
+                    const getParaInfoForPageNum = (el) => {
+                        if (!el) return { type: 'other', text: '' };
+                        if (el.localName === 'sdt') {
+                            const sdtTxt = Array.from(el.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join(' ').replace(/\s+/g, ' ').trim();
+                            if (/DAFTAR\s+ISI|TABLE\s+OF\s+CONTENTS/i.test(sdtTxt)) return { type: 'front', text: 'DAFTAR ISI' };
+                            return { type: 'other', text: '' };
+                        }
+                        if (el.localName !== 'p') return { type: 'other', text: '' };
+
+                        const pPr = getDirectChild(el, 'pPr');
+                        const stVal = (pPr && getDirectChild(pPr, 'pStyle')?.getAttributeNS(W_NS, 'val')) || '';
+                        if (/^TOC/i.test(stVal)) return { type: 'other', text: '' };
+                        const hasTab = el.getElementsByTagNameNS(W_NS, 'tab').length > 0;
+                        if (hasTab) return { type: 'other', text: '' };
+                        const rawT = Array.from(el.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join('');
+                        const txt = rawT.replace(/\s+/g, ' ').trim();
+                        if (!txt || txt.length > 80 || /\.{3,}/.test(txt)) return { type: 'other', text: txt };
+
+                        if (/^(?:LEMBAR\s+(?:PERSETUJUAN|PENGESAHAN|MOTTO|PERSEMBAHAN)|HALAMAN\s+(?:PERSETUJUAN|PENGESAHAN|MOTTO|PERSEMBAHAN)|SURAT\s+PERNYATAAN(?:\s+KEASLIAN)?|PERNYATAAN\s+KEASLIAN|KATA\s+PENGANTAR|UCAPAN\s+TERIMA\s+KASIH|ABSTRAK|ABSTRACT|DAFTAR\s+(?:ISI|TABEL|GAMBAR|LAMPIRAN)|RINGKASAN|PRAKATA)(?:\s+PROPOSAL|\s+SKRIPSI)?(?:\s*[:\-–.]\s*.*)?$/i.test(txt)) {
+                            return { type: 'front', text: txt };
+                        }
+                        if (/^BAB\s+(?:[IVXLCDM]+|\d+)(?:\s*[:\-–.]?\s*[A-ZÀ-Ÿ0-9\s,&\-–]{0,60})?$/i.test(txt)) {
+                            return { type: 'bab', text: txt };
+                        }
+                        if (/^(?:DAFTAR\s+PUSTAKA|REFERENSI|BIBLIOGRAFI)$/i.test(txt)) {
+                            return { type: 'bib', text: txt };
+                        }
+                        if (/^LAMPIRAN(?:\s+[A-Z0-9.\-]+)?(?:\s*[:\-–.].*)?$/i.test(txt)) {
+                            return { type: 'app', text: txt };
+                        }
+                        return { type: 'other', text: txt };
+                    };
+
+                    const hasVisibleNodeContent = (el) => {
+                        if (!el) return false;
+                        if (el.localName === 'tbl' || el.localName === 'sdt') return true;
+                        const txt = Array.from(el.getElementsByTagNameNS(W_NS, 't')).map(x => x.textContent || '').join('').trim();
+                        if (txt !== '') return true;
+                        return el.getElementsByTagNameNS('*', 'drawing').length > 0
+                            || el.getElementsByTagNameNS('*', 'pict').length > 0
+                            || el.getElementsByTagNameNS('*', 'object').length > 0;
+                    };
+
+                    let firstFrontIdx = -1;
+                    let firstBabIdx = -1;
+                    const bodyBreakTargets = []; // [{ idx, role }]
+                    let seenLampiranBreak = false;
+
+                    for (let wi = 0; wi < workNodes.length; wi++) {
+                        const info = getParaInfoForPageNum(workNodes[wi]);
+                        if (info.type === 'front' && firstFrontIdx === -1 && firstBabIdx === -1) {
+                            firstFrontIdx = wi;
+                        } else if ((info.type === 'bab' || info.type === 'bib' || info.type === 'app') && firstBabIdx === -1) {
+                            firstBabIdx = wi;
+                            bodyBreakTargets.push({ idx: wi, kind: info.type });
+                            if (info.type === 'app') seenLampiranBreak = true;
+                        } else if (firstBabIdx !== -1 && pageNumLayout === 'bab_bottom_right') {
+                            if (info.type === 'bab' || info.type === 'bib') {
+                                bodyBreakTargets.push({ idx: wi, kind: info.type });
+                            } else if (info.type === 'app' && !seenLampiranBreak) {
+                                bodyBreakTargets.push({ idx: wi, kind: info.type });
+                                seenLampiranBreak = true;
+                            }
+                        }
+                    }
+
+                    // Bangun daftar batas section: [ { breakBeforeIdx, role } ]
+                    // role bagian SEBELUM breakBeforeIdx ditentukan oleh posisi berikutnya
+                    const boundaries = [];
+                    if (firstFrontIdx >= 0 && (firstBabIdx === -1 || firstFrontIdx < firstBabIdx)) {
+                        const coverHasContent = workNodes.slice(0, firstFrontIdx).some(hasVisibleNodeContent);
+                        if (coverHasContent) {
+                            boundaries.push({ breakBeforeIdx: firstFrontIdx, prevRole: 'cover', nextRole: 'front' });
+                        }
+                    }
+                    if (firstBabIdx >= 0) {
+                        const prevOfFirstBab = (firstFrontIdx >= 0 && firstFrontIdx < firstBabIdx)
+                            ? 'front'
+                            : (workNodes.slice(0, firstBabIdx).some(hasVisibleNodeContent) ? 'cover' : null);
+                        if (prevOfFirstBab) {
+                            boundaries.push({ breakBeforeIdx: firstBabIdx, prevRole: prevOfFirstBab, nextRole: 'body_first' });
+                        }
+                        for (let bi = 1; bi < bodyBreakTargets.length; bi++) {
+                            boundaries.push({ breakBeforeIdx: bodyBreakTargets[bi].idx, prevRole: 'body', nextRole: 'body_next' });
+                        }
+                    }
+
+                    const configureSectPr = (sectPr, role, isFirstBody, withNextPageType) => {
+                        ['headerReference', 'footerReference', 'type', 'pgNumType', 'titlePg'].forEach(tag => removeDirectChild(sectPr, tag));
+
+                        const addHeaderRef = (typeVal, relId) => {
+                            const h = mkW('headerReference');
+                            setWAttr(h, 'type', typeVal);
+                            h.setAttributeNS(R_NS, 'r:id', relId);
+                            const nxt = Array.from(sectPr.childNodes).find(n => n.nodeType === 1 && SECTPR_ORDER.indexOf(n.localName) > SECTPR_ORDER.indexOf('headerReference'));
+                            if (nxt) sectPr.insertBefore(h, nxt); else sectPr.appendChild(h);
+                        };
+                        const addFooterRef = (typeVal, relId) => {
+                            const f = mkW('footerReference');
+                            setWAttr(f, 'type', typeVal);
+                            f.setAttributeNS(R_NS, 'r:id', relId);
+                            const nxt = Array.from(sectPr.childNodes).find(n => n.nodeType === 1 && SECTPR_ORDER.indexOf(n.localName) > SECTPR_ORDER.indexOf('footerReference'));
+                            if (nxt) sectPr.insertBefore(f, nxt); else sectPr.appendChild(f);
+                        };
+
+                        if (withNextPageType) {
+                            const tp = ensureOrderedChild(sectPr, 'type', SECTPR_ORDER);
+                            setWAttr(tp, 'val', 'nextPage');
+                        }
+
+                        if (role === 'cover') {
+                            addHeaderRef('default', rIdHdrEmpty);
+                            addFooterRef('default', rIdFtrEmpty);
+                        } else if (role === 'front') {
+                            addHeaderRef('default', rIdHdrEmpty);
+                            addFooterRef('default', rIdFtrCenter);
+                            const pgNum = ensureOrderedChild(sectPr, 'pgNumType', SECTPR_ORDER);
+                            setWAttr(pgNum, 'fmt', 'lowerRoman');
+                            const hasCoverBefore = boundaries.some(b => b.prevRole === 'cover');
+                            setWAttr(pgNum, 'start', String(hasCoverBefore ? romanStartVal : 1));
+                        } else {
+                            // Bagian Isi (BAB I-V / Daftar Pustaka)
+                            if (pageNumLayout === 'bab_bottom_right') {
+                                addHeaderRef('default', rIdHdrRight);
+                                addHeaderRef('first', rIdHdrEmpty);
+                                addFooterRef('default', rIdFtrEmpty);
+                                addFooterRef('first', rIdFtrCenter);
+                                ensureOrderedChild(sectPr, 'titlePg', SECTPR_ORDER);
+                            } else if (pageNumLayout === 'all_top_right') {
+                                addHeaderRef('default', rIdHdrRight);
+                                addFooterRef('default', rIdFtrEmpty);
+                            } else {
+                                addHeaderRef('default', rIdHdrEmpty);
+                                addFooterRef('default', rIdFtrCenter);
+                            }
+                            const pgNum = ensureOrderedChild(sectPr, 'pgNumType', SECTPR_ORDER);
+                            setWAttr(pgNum, 'fmt', 'decimal');
+                            if (isFirstBody) {
+                                setWAttr(pgNum, 'start', '1');
+                            } else {
+                                pgNum.removeAttributeNS(W_NS, 'start');
+                                pgNum.removeAttribute('w:start');
+                            }
+                        }
+
+                        const pgMar = ensureOrderedChild(sectPr, 'pgMar', SECTPR_ORDER);
+                        if (!pgMar.getAttributeNS(W_NS, 'header') || pgMar.getAttributeNS(W_NS, 'header') === '0') setWAttr(pgMar, 'header', '709');
+                        if (!pgMar.getAttributeNS(W_NS, 'footer') || pgMar.getAttributeNS(W_NS, 'footer') === '0') setWAttr(pgMar, 'footer', '709');
+                    };
+
+                    // Pastikan urutan child di <w:pPr> meletakkan <w:sectPr> selalu di paling akhir
+                    const attachSectPrBeforeNode = (targetNode, sectPr) => {
+                        let prev = targetNode.previousElementSibling;
+                        // Jika tepat sebelum heading terdapat paragraf kosong yang hanya berisi page-break, buang br/paragraf kosong tsb agar tak terjadi halaman kosong ganda
+                        while (prev && prev.localName === 'p') {
+                            const hasBreak = Array.from(prev.getElementsByTagNameNS(W_NS, 'br'))
+                                .some(br => (br.getAttributeNS(W_NS, 'type') || '').toLowerCase() === 'page');
+                            const hasTxt = Array.from(prev.getElementsByTagNameNS(W_NS, 't')).some(t => (t.textContent || '').trim() !== '');
+                            const hasPic = prev.getElementsByTagNameNS('*', 'drawing').length > 0
+                                || prev.getElementsByTagNameNS('*', 'pict').length > 0
+                                || prev.getElementsByTagNameNS('*', 'object').length > 0;
+                            const hasOldSp = !!(getDirectChild(prev, 'pPr') && getDirectChild(getDirectChild(prev, 'pPr'), 'sectPr'));
+                            if (hasBreak && !hasTxt && !hasPic && !hasOldSp) {
+                                const toDel = prev;
+                                prev = prev.previousElementSibling;
+                                body.removeChild(toDel);
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (prev && prev.localName === 'p') {
+                            const prevPPr = ensureChild(prev, 'pPr', true);
+                            Array.from(prev.getElementsByTagNameNS(W_NS, 'br')).forEach(br => {
+                                if ((br.getAttributeNS(W_NS, 'type') || '').toLowerCase() === 'page') {
+                                    br.parentNode?.removeChild(br);
+                                }
+                            });
+                            if (!getDirectChild(prevPPr, 'sectPr')) {
+                                prevPPr.appendChild(sectPr);
+                            }
+                        } else {
+                            const holderP = mkW('p');
+                            const holderPPr = mkW('pPr');
+                            const sp = mkW('spacing');
+                            setWAttr(sp, 'before', '0');
+                            setWAttr(sp, 'after', '0');
+                            setWAttr(sp, 'line', '20');
+                            setWAttr(sp, 'lineRule', 'exact');
+                            const hRPr = mkW('rPr');
+                            const hSz = mkW('sz');
+                            setWAttr(hSz, 'val', '2');
+                            hRPr.appendChild(hSz);
+                            holderPPr.appendChild(sp);
+                            holderPPr.appendChild(hRPr);
+                            holderPPr.appendChild(sectPr);
+                            holderP.appendChild(holderPPr);
+                            body.insertBefore(holderP, targetNode);
+                        }
+                        // Hilangkan pageBreakBefore di heading awal section baru karena nextPage section break sudah pindah halaman
+                        if (targetNode.localName === 'p') {
+                            const tPPr = getDirectChild(targetNode, 'pPr');
+                            if (tPPr) removeDirectChild(tPPr, 'pageBreakBefore');
+                        }
+                    };
+
+                    let finalRole = 'body';
+                    if (firstBabIdx === -1 && firstFrontIdx >= 0) finalRole = 'front';
+                    else if (firstBabIdx === -1 && firstFrontIdx === -1) finalRole = 'body';
+
+                    let bodySecStarted = false;
+                    let hasPrevSection = false;
+                    for (let bi = 0; bi < boundaries.length; bi++) {
+                        const b = boundaries[bi];
+                        const targetEl = workNodes[b.breakBeforeIdx];
+                        if (!targetEl) continue;
+
+                        // Jika sudah ada sectPr landscape tepat sebelum targetEl, jangan ditimpa; cukup lanjutkan numbering
+                        const prevEl = targetEl.previousElementSibling;
+                        const existingLandscape = prevEl && prevEl.localName === 'p' && getDirectChild(prevEl, 'pPr') && getDirectChild(getDirectChild(prevEl, 'pPr'), 'sectPr');
+                        if (existingLandscape && isLandscapeSectPr(existingLandscape)) {
+                            const isFirstB = (b.prevRole === 'body' && !bodySecStarted);
+                            if (b.prevRole === 'body') bodySecStarted = true;
+                            configureSectPr(existingLandscape, b.prevRole, isFirstB, hasPrevSection);
+                            hasPrevSection = true;
+                            stats.pageSectionsFixed++;
+                            continue;
+                        }
+
+                        const newSp = sectTemplate.cloneNode(true);
+                        const isFirstB = (b.prevRole === 'body' && !bodySecStarted);
+                        if (b.prevRole === 'body') bodySecStarted = true;
+                        configureSectPr(newSp, b.prevRole, isFirstB, hasPrevSection);
+                        attachSectPrBeforeNode(targetEl, newSp);
+                        hasPrevSection = true;
+                        stats.pageSectionsFixed++;
+                    }
+
+                    // Konfigurasikan section terakhir (trailing body > sectPr) & setiap landscape sectPr tersisa
+                    const isFinalFirstBody = (finalRole === 'body' && !bodySecStarted);
+                    configureSectPr(bodyFinalSectPr, finalRole, isFinalFirstBody, hasPrevSection);
+                    stats.pageSectionsFixed++;
+
+                    // Jika masih ada section break landscape internal sebelum akhir dokumen, pastikan penomorannya tetap Arab berlanjut
+                    Array.from(body.childNodes).forEach(ch => {
+                        if (ch.nodeType === 1 && ch.localName === 'p') {
+                            const sp = getDirectChild(ch, 'pPr') && getDirectChild(getDirectChild(ch, 'pPr'), 'sectPr');
+                            if (sp && isLandscapeSectPr(sp)) {
+                                configureSectPr(sp, 'body', false, true);
+                            }
+                        }
+                    });
+
+                    // Jika dokumen sebelumnya memakai "Different Odd & Even Pages", matikan agar halaman genap (2, 4, dst.) tidak hilang nomornya
+                    const settingsStr = await zip.file('word/settings.xml')?.async('string');
+                    if (settingsStr) {
+                        const settingsDoc = parser.parseFromString(settingsStr, 'application/xml');
+                        if (!settingsDoc.getElementsByTagName('parsererror').length) {
+                            const oddEven = Array.from(settingsDoc.getElementsByTagNameNS(W_NS, 'evenAndOddHeaders'));
+                            if (oddEven.length) {
+                                oddEven.forEach(el => el.parentNode?.removeChild(el));
+                                zip.file('word/settings.xml', serializerInner.serializeToString(settingsDoc));
+                            }
+                        }
+                    }
+
+                    zip.file(relsPath, serializerInner.serializeToString(relsDoc));
+                    zip.file('[Content_Types].xml', serializerInner.serializeToString(ctDoc));
+                }
+
                 setProc('tidy', true, 'Menyimpan kembali dokumen Word rapi (.docx)...', 82);
                 const serializer = new XMLSerializer();
                 zip.file('word/document.xml', serializer.serializeToString(xmlDoc));
 
                 const stylesXmlStr = await zip.file('word/styles.xml')?.async('string');
-                if (stylesXmlStr) {
+                if (stylesXmlStr && !onlyPageNum) {
                     const stylesDoc = parser.parseFromString(stylesXmlStr, 'application/xml');
                     if (!stylesDoc.getElementsByTagName('parsererror').length) {
                         Array.from(stylesDoc.getElementsByTagNameNS(W_NS, 'rFonts')).forEach(rf => {
@@ -4432,7 +4932,8 @@
                 document.getElementById('btn-download-tidy').onclick = () => triggerBlobDownload(tidyDocxResultBlob, tidyDocxOutName);
 
                 const pills = [
-                    `✓ ${stats.paragraphsTidied} Paragraf dirapikan`,
+                    stats.pageSectionsFixed > 0 ? `✓ ${stats.pageSectionsFixed} Section penomoran halaman ditata` : null,
+                    stats.paragraphsTidied > 0 ? `✓ ${stats.paragraphsTidied} Paragraf dirapikan` : null,
                     stats.emptyRemoved > 0 ? `✓ ${stats.emptyRemoved} Baris/halaman kosong dihapus` : null,
                     stats.chaptersFixed > 0 ? `✓ ${stats.chaptersFixed} Judul BAB ditata` : null,
                     stats.subHeadingsFixed > 0 ? `✓ ${stats.subHeadingsFixed} Sub-BAB (Keep Next)` : null,
