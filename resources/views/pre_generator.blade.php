@@ -59,7 +59,10 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+
+            *,
+            *::before,
+            *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
@@ -906,7 +909,7 @@
             color: var(--ppt-text);
         }
 
-        .ppt-canvas > div {
+        .ppt-canvas>div {
             position: relative;
             z-index: 2;
             height: 100%;
@@ -949,10 +952,13 @@
             border: 1px solid #9f1239;
             padding-top: 28px;
         }
+
         .ppt-theme-sidang_crimson::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 8px;
             background: linear-gradient(90deg, #fda4af 0%, #ffffff 50%, #fb7185 100%);
             z-index: 3;
@@ -977,10 +983,13 @@
             padding-left: clamp(30px, 4.5vw, 52px);
             border: 1px solid #bfdbfe;
         }
+
         .ppt-theme-royal_academic::before {
             content: '';
             position: absolute;
-            top: 0; bottom: 0; left: 0;
+            top: 0;
+            bottom: 0;
+            left: 0;
             width: 16px;
             background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 55%, #38bdf8 100%);
             z-index: 3;
@@ -1005,14 +1014,18 @@
             border: 1px solid #e7d8c5;
             padding-top: 28px;
         }
+
         .ppt-theme-canva_editorial::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: linear-gradient(90deg, #9a3412 0%, #ea580c 55%, #f59e0b 100%);
             z-index: 3;
         }
+
         .ppt-theme-canva_editorial #slide-title-edit,
         .ppt-theme-canva_editorial #fs-slide-title {
             font-family: Georgia, 'Times New Roman', serif;
@@ -1037,10 +1050,13 @@
             border: 1px solid #a7f3d0;
             padding-top: 28px;
         }
+
         .ppt-theme-emerald_executive::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 10px;
             background: linear-gradient(90deg, #065f46 0%, #059669 72%, #d97706 100%);
             z-index: 3;
@@ -1067,10 +1083,13 @@
             border: 2px solid #111827;
             padding-top: 28px;
         }
+
         .ppt-theme-swiss_minimal::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: #111827;
             z-index: 3;
@@ -1095,10 +1114,13 @@
             border: 1px solid #3730a3;
             padding-top: 28px;
         }
+
         .ppt-theme-basic_navy::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 8px;
             background: linear-gradient(90deg, #6366f1 0%, #818cf8 55%, #38bdf8 100%);
             z-index: 3;
@@ -1123,10 +1145,13 @@
             border: 1.5px solid #cbd5e1;
             padding-top: 26px;
         }
+
         .ppt-theme-basic_white::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 6px;
             background: linear-gradient(90deg, #334155 0%, #64748b 100%);
             z-index: 3;
@@ -1151,10 +1176,13 @@
             border: 1px solid #fecaca;
             padding-top: 28px;
         }
+
         .ppt-theme-maroon_prestige::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 10px;
             background: linear-gradient(90deg, #7f1d1d 0%, #991b1b 65%, #d97706 100%);
             z-index: 3;
@@ -1179,10 +1207,13 @@
             border: 1px solid #1e293b;
             padding-top: 28px;
         }
+
         .ppt-theme-tech_dark::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 8px;
             background: linear-gradient(90deg, #0284c7 0%, #06b6d4 50%, #818cf8 100%);
             z-index: 3;
@@ -1207,10 +1238,13 @@
             border: 1px solid #ddd6fe;
             padding-top: 28px;
         }
+
         .ppt-theme-pastel_lavender::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: linear-gradient(90deg, #6d28d9 0%, #8b5cf6 55%, #c084fc 100%);
             z-index: 3;
@@ -1235,10 +1269,13 @@
             border: 1px solid #99f6e4;
             padding-top: 28px;
         }
+
         .ppt-theme-nordic_teal::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: linear-gradient(90deg, #115e59 0%, #0d9488 55%, #2dd4bf 100%);
             z-index: 3;
@@ -1263,10 +1300,13 @@
             border: 1px solid #fde68a;
             padding-top: 28px;
         }
+
         .ppt-theme-warm_terracotta::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: linear-gradient(90deg, #92400e 0%, #d97706 55%, #f97316 100%);
             z-index: 3;
@@ -1291,10 +1331,13 @@
             border: 1px solid #334155;
             padding-top: 28px;
         }
+
         .ppt-theme-classic_gold::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 9px;
             background: linear-gradient(90deg, #b45309 0%, #fbbf24 50%, #f59e0b 100%);
             z-index: 3;
@@ -1357,11 +1400,13 @@
             font-size: 19px !important;
             line-height: 1.24 !important;
         }
+
         .ppt-canvas.ppt-density-compact #slide-subtitle-edit,
         .ppt-canvas.ppt-density-compact #fs-slide-subtitle {
             font-size: 12.5px !important;
             margin-bottom: 8px !important;
         }
+
         .ppt-canvas.ppt-density-compact #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
         .ppt-canvas.ppt-density-compact #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
             font-size: 11.5px !important;
@@ -1374,11 +1419,13 @@
             font-size: 16.5px !important;
             line-height: 1.2 !important;
         }
+
         .ppt-canvas.ppt-density-dense #slide-subtitle-edit,
         .ppt-canvas.ppt-density-dense #fs-slide-subtitle {
             font-size: 11px !important;
             margin-bottom: 6px !important;
         }
+
         .ppt-canvas.ppt-density-dense #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
         .ppt-canvas.ppt-density-dense #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
             font-size: 10.2px !important;
@@ -1391,11 +1438,13 @@
             font-size: 14.5px !important;
             line-height: 1.18 !important;
         }
+
         .ppt-canvas.ppt-density-micro #slide-subtitle-edit,
         .ppt-canvas.ppt-density-micro #fs-slide-subtitle {
             font-size: 10px !important;
             margin-bottom: 5px !important;
         }
+
         .ppt-canvas.ppt-density-micro #slide-bullets-edit li:not(.ppt-cover-pembimbing-li),
         .ppt-canvas.ppt-density-micro #fs-slide-bullets li:not(.ppt-cover-pembimbing-li) {
             font-size: 9.2px !important;
@@ -1404,23 +1453,27 @@
         }
 
         /* Cover Slide 1 Typography & Balanced 16:9 Vertical Composition */
-        .ppt-canvas.ppt-is-cover > div {
+        .ppt-canvas.ppt-is-cover>div {
             justify-content: space-between;
         }
+
         .ppt-canvas.ppt-is-cover #slide-title-edit,
         .ppt-canvas.ppt-is-cover #fs-slide-title {
             margin-top: auto !important;
             margin-bottom: 10px !important;
         }
+
         .ppt-canvas.ppt-is-cover #slide-subtitle-edit,
         .ppt-canvas.ppt-is-cover #fs-slide-subtitle {
             margin-bottom: auto !important;
         }
+
         .ppt-canvas.ppt-is-cover #slide-bullets-edit,
         .ppt-canvas.ppt-is-cover #fs-slide-bullets {
             flex: 0 0 auto !important;
             margin-top: 12px !important;
         }
+
         .ppt-cover-title-text {
             font-size: clamp(18px, 2.4vw, 25px);
             font-weight: 800;
@@ -1430,10 +1483,12 @@
             color: var(--ppt-text);
             letter-spacing: -0.015em;
         }
+
         .ppt-cover-title-text.ppt-title-long {
             font-size: clamp(16px, 2.05vw, 21.5px);
             line-height: 1.28;
         }
+
         .ppt-cover-divider {
             width: 78px;
             height: 3.5px;
@@ -1441,6 +1496,7 @@
             background: var(--ppt-accent);
             margin: 12px auto 6px;
         }
+
         .ppt-cover-oleh-box {
             display: inline-flex;
             flex-direction: column;
@@ -1451,6 +1507,7 @@
             border: 1px solid var(--ppt-card-border);
             margin: 4px auto 6px;
         }
+
         .ppt-cover-oleh-tag {
             font-size: 9.5px;
             font-weight: 700;
@@ -1458,18 +1515,21 @@
             color: var(--ppt-card-label);
             text-transform: uppercase;
         }
+
         .ppt-cover-author-name {
             font-size: 14.5px;
             font-weight: 800;
             color: var(--ppt-card-text);
             margin-top: 3px;
         }
+
         .ppt-cover-nim {
             font-size: 11.5px;
             font-weight: 600;
             color: var(--ppt-muted);
             margin-top: 2px;
         }
+
         .ppt-cover-footer-inst {
             text-align: center;
             font-size: 10.5px;
@@ -2182,8 +2242,8 @@
                 gap: 8px !important;
             }
 
-            .ppt-canvas > div,
-            #fs-slide-canvas > div {
+            .ppt-canvas>div,
+            #fs-slide-canvas>div {
                 height: auto !important;
                 justify-content: flex-start !important;
                 gap: 6px !important;
@@ -2371,7 +2431,7 @@
                 max-width: 100% !important;
             }
 
-            #pane-qa .chat-msg.user > div {
+            #pane-qa .chat-msg.user>div {
                 max-width: 88% !important;
                 padding: 10px 13px !important;
                 font-size: 13.5px !important;
@@ -2760,6 +2820,7 @@
             .plag-report-grid {
                 grid-template-columns: 1fr;
             }
+
             .plag-score-card {
                 order: -1;
             }
@@ -2771,6 +2832,7 @@
                 gap: 3px;
                 padding: 3px;
             }
+
             .plag-mode-btn {
                 flex-direction: column;
                 gap: 4px;
@@ -2780,11 +2842,13 @@
                 text-align: center;
                 line-height: 1.2;
             }
+
             .plag-filters-row {
                 flex-direction: column;
                 gap: 9px;
                 padding: 10px 12px;
             }
+
             .plag-doc-viewer {
                 padding: 14px;
                 font-size: 13.5px;
@@ -2792,12 +2856,15 @@
                 text-align: left;
                 max-height: 460px;
             }
+
             .plag-score-card {
                 padding: 15px;
             }
+
             .plag-big-pct {
                 font-size: 36px;
             }
+
             .plag-breakdown-grid {
                 gap: 6px;
             }
@@ -2817,6 +2884,7 @@
             max-width: 100%;
             flex-wrap: wrap;
         }
+
         .od-subtab-btn {
             display: inline-flex;
             align-items: center;
@@ -2832,16 +2900,19 @@
             cursor: pointer;
             transition: all 0.15s ease;
         }
+
         .od-subtab-btn:hover {
             color: var(--text-main);
             background: rgba(255, 255, 255, 0.65);
         }
+
         .od-subtab-btn.active {
             background: #ffffff;
             color: var(--primary);
             border-color: #bfdbfe;
             box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
         }
+
         .od-badge-valid {
             display: inline-flex;
             align-items: center;
@@ -2854,12 +2925,14 @@
             font-size: 11.5px;
             font-weight: 700;
         }
+
         .od-upload-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
             gap: 16px;
             margin-bottom: 16px;
         }
+
         .od-dropzone {
             border: 1.8px dashed #93c5fd;
             background: #f8fbff;
@@ -2874,16 +2947,20 @@
             justify-content: center;
             gap: 8px;
         }
-        .od-dropzone:hover, .od-dropzone.dragover {
+
+        .od-dropzone:hover,
+        .od-dropzone.dragover {
             border-color: var(--primary);
             background: #eff6ff;
         }
+
         .od-sample-row {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
             margin-top: 8px;
         }
+
         .od-sample-btn {
             display: flex;
             align-items: flex-start;
@@ -2897,10 +2974,12 @@
             font-family: inherit;
             transition: all 0.15s ease;
         }
+
         .od-sample-btn:hover {
             border-color: #93c5fd;
             background: #f8fbff;
         }
+
         .od-sample-btn svg {
             width: 16px;
             height: 16px;
@@ -2908,24 +2987,28 @@
             flex-shrink: 0;
             margin-top: 2px;
         }
+
         .od-sample-title {
             font-size: 12px;
             font-weight: 700;
             color: var(--text-main);
             line-height: 1.25;
         }
+
         .od-sample-sub {
             font-size: 11px;
             color: var(--text-muted);
             margin-top: 2px;
             line-height: 1.3;
         }
+
         .od-test-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 14px;
         }
+
         .od-test-card {
             padding: 10px 12px;
             border-radius: 11px;
@@ -2936,15 +3019,18 @@
             font-family: inherit;
             transition: all 0.15s ease;
         }
+
         .od-test-card:hover {
             border-color: #93c5fd;
             background: #f8fbff;
         }
+
         .od-test-card.active {
             border-color: var(--primary);
             background: #eff6ff;
             box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
         }
+
         .od-test-name {
             font-size: 12.5px;
             font-weight: 700;
@@ -2953,12 +3039,14 @@
             align-items: center;
             gap: 6px;
         }
+
         .od-test-desc {
             font-size: 11px;
             color: var(--text-muted);
             margin-top: 3px;
             line-height: 1.35;
         }
+
         .od-var-box {
             background: #f8fafc;
             border: 1px solid var(--border);
@@ -2966,12 +3054,14 @@
             padding: 14px;
             margin-bottom: 14px;
         }
+
         .od-chip-list {
             display: flex;
             flex-wrap: wrap;
             gap: 7px;
             margin-top: 6px;
         }
+
         .od-col-chip {
             display: inline-flex;
             align-items: center;
@@ -2987,37 +3077,58 @@
             user-select: none;
             transition: all 0.12s;
         }
+
         .od-col-chip.checked {
             background: #eff6ff;
             border-color: var(--primary);
             color: #1d4ed8;
         }
+
         .od-col-chip input {
             margin: 0;
             accent-color: var(--primary);
         }
+
         .od-hl-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
             margin-bottom: 16px;
         }
+
         .od-hl-card {
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 12px 14px;
         }
-        .od-hl-card.tone-blue { border-left: 3.5px solid #2563eb; background: #f8fbff; }
-        .od-hl-card.tone-emerald { border-left: 3.5px solid #059669; background: #f0fdf4; }
-        .od-hl-card.tone-amber { border-left: 3.5px solid #d97706; background: #fffbeb; }
-        .od-hl-card.tone-slate { border-left: 3.5px solid #64748b; }
+
+        .od-hl-card.tone-blue {
+            border-left: 3.5px solid #2563eb;
+            background: #f8fbff;
+        }
+
+        .od-hl-card.tone-emerald {
+            border-left: 3.5px solid #059669;
+            background: #f0fdf4;
+        }
+
+        .od-hl-card.tone-amber {
+            border-left: 3.5px solid #d97706;
+            background: #fffbeb;
+        }
+
+        .od-hl-card.tone-slate {
+            border-left: 3.5px solid #64748b;
+        }
+
         .od-hl-lbl {
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.02em;
             color: var(--text-muted);
         }
+
         .od-hl-val {
             font-size: 15px;
             font-weight: 800;
@@ -3025,6 +3136,7 @@
             margin-top: 4px;
             word-break: break-word;
         }
+
         .od-table-card {
             background: #ffffff;
             border: 1px solid var(--border);
@@ -3032,23 +3144,27 @@
             padding: 14px 16px;
             margin-bottom: 14px;
         }
+
         .od-table-title {
             font-size: 13px;
             font-weight: 700;
             color: var(--text-main);
             margin-bottom: 10px;
         }
+
         .od-table-wrap {
             width: 100%;
             max-width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+
         .od-spss-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12.2px;
         }
+
         .od-spss-table th {
             background: #eff6ff;
             color: #1e3a8a;
@@ -3059,6 +3175,7 @@
             border-bottom: 1px solid #bfdbfe;
             white-space: nowrap;
         }
+
         .od-spss-table td {
             padding: 7px 10px;
             border-bottom: 1px solid #e2e8f0;
@@ -3066,12 +3183,15 @@
             white-space: normal;
             line-height: 1.4;
         }
+
         .od-spss-table tr:last-child td {
             border-bottom: 2px solid #1e3a8a;
         }
+
         .od-spss-table tbody tr:hover {
             background: #f8fafc;
         }
+
         .od-footnote {
             font-size: 11.5px;
             color: var(--text-muted);
@@ -3079,6 +3199,7 @@
             margin-top: 8px;
             line-height: 1.5;
         }
+
         .od-chart-box {
             background: #ffffff;
             border: 1px solid var(--border);
@@ -3087,6 +3208,7 @@
             margin-bottom: 14px;
             overflow-x: auto;
         }
+
         .od-narration-box {
             background: #ffffff;
             border: 1px solid #bfdbfe;
@@ -3097,6 +3219,7 @@
             color: #1e293b;
             text-align: justify;
         }
+
         .od-narration-box h4 {
             font-size: 13.8px;
             font-weight: 700;
@@ -3104,15 +3227,26 @@
             margin: 14px 0 6px;
             text-align: left;
         }
-        .od-narration-box h4:first-child { margin-top: 0; }
-        .od-narration-box p { margin: 0 0 10px; }
-        .od-narration-box p:last-child { margin-bottom: 0; }
+
+        .od-narration-box h4:first-child {
+            margin-top: 0;
+        }
+
+        .od-narration-box p {
+            margin: 0 0 10px;
+        }
+
+        .od-narration-box p:last-child {
+            margin-bottom: 0;
+        }
+
         .od-chart-tabs {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-bottom: 10px;
         }
+
         .od-chart-tab {
             padding: 6px 11px;
             border-radius: 8px;
@@ -3125,32 +3259,296 @@
             cursor: pointer;
             transition: all 0.14s ease;
         }
-        .od-chart-tab:hover { border-color: #93c5fd; color: var(--primary); }
-        .od-chart-tab.active { background: #eff6ff; border-color: var(--primary); color: #1d4ed8; }
+
+        .od-chart-tab:hover {
+            border-color: #93c5fd;
+            color: var(--primary);
+        }
+
+        .od-chart-tab.active {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: #1d4ed8;
+        }
+
         .od-inst-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 0.8fr);
             gap: 12px;
             margin-bottom: 14px;
         }
+
         .od-reg-grid {
             display: grid;
             grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
             gap: 14px;
         }
+
         @media (max-width: 900px) {
-            .od-upload-grid { grid-template-columns: 1fr; }
-            .od-test-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .od-hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .od-inst-grid, .od-reg-grid { grid-template-columns: 1fr; }
+            .od-upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .od-test-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .od-hl-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .od-inst-grid,
+            .od-reg-grid {
+                grid-template-columns: 1fr;
+            }
         }
+
         @media (max-width: 600px) {
-            .od-subtabs { width: 100%; }
-            .od-subtab-btn { flex: 1 1 100%; justify-content: center; font-size: 12.5px; padding: 9px 10px; }
-            .od-sample-row { grid-template-columns: 1fr; }
-            .od-test-grid { grid-template-columns: 1fr; }
-            .od-hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .od-hl-val { font-size: 13.5px; }
+            .od-subtabs {
+                width: 100%;
+            }
+
+            .od-subtab-btn {
+                flex: 1 1 100%;
+                justify-content: center;
+                font-size: 12.5px;
+                padding: 9px 10px;
+            }
+
+            .od-sample-row {
+                grid-template-columns: 1fr;
+            }
+
+            .od-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .od-hl-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .od-hl-val {
+                font-size: 13.5px;
+            }
+        }
+
+        /* ========================================================= */
+        /* PANDUAN LENGKAP IN-APP WORKSPACE                          */
+        /* ========================================================= */
+        .panduan-layout {
+            display: grid;
+            grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panduan-sidebar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .panduan-sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            padding: 4px 8px 10px;
+        }
+
+        .panduan-mod-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .panduan-mod-btn {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 11px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .panduan-mod-btn:hover {
+            background: #f8fafc;
+            color: var(--text-main);
+        }
+
+        .panduan-mod-btn.active {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: var(--primary);
+        }
+
+        .panduan-mod-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .panduan-mod-btn.active .panduan-mod-num {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .panduan-mod-panel {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: clamp(18px, 3vw, 28px);
+            min-width: 0;
+        }
+
+        .panduan-mod-panel.active {
+            display: block;
+        }
+
+        .panduan-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .panduan-step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 18px 0 22px;
+        }
+
+        .panduan-step-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px 16px;
+            background: #ffffff;
+        }
+
+        .panduan-step-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .panduan-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: var(--primary);
+            font-size: 12.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .panduan-tip-box {
+            margin-top: 10px;
+            padding: 9px 12px;
+            border-radius: 9px;
+            background: #f8fafc;
+            border-left: 3px solid var(--primary);
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .panduan-warn-box {
+            padding: 15px 16px;
+            border-radius: 12px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            margin-bottom: 20px;
+        }
+
+        .panduan-faq-item {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .panduan-cta-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .panduan-pager {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .panduan-pager-btn {
+            text-align: left;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #ffffff;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .panduan-pager-btn:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        @media (max-width: 900px) {
+            .panduan-layout {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .panduan-mod-list {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+            }
+
+            .panduan-pager {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .panduan-mod-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -3245,13 +3643,15 @@
             </button>
 
             {{-- Menu Cek Plagiasi disembunyikan sementara hingga penyempurnaan lanjutan --}}
-            <button type="button" class="nav-btn" id="nav-plagiarism" onclick="openTab('plagiarism', 'Cek Plagiasi')" style="display: none;">
+            <button type="button" class="nav-btn" id="nav-plagiarism" onclick="openTab('plagiarism', 'Cek Plagiasi')"
+                style="display: none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     <path d="M9 12l2 2 4-4" />
                 </svg>
                 <span style="flex: 1;">Cek Plagiasi</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">Baru</span>
+                <span
+                    style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">Baru</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-olahdata" onclick="openTab('olahdata', 'Olah Data')">
@@ -3261,7 +3661,8 @@
                     <path d="M6 20v-6" />
                 </svg>
                 <span style="flex: 1;">Olah Data</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">SPSS</span>
+                <span
+                    style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">SPSS</span>
             </button>
 
             <button type="button" class="nav-btn" id="nav-qa" onclick="openTab('qa', 'Dosen AI')">
@@ -3274,10 +3675,12 @@
 
             <a href="{{ route('tools.hub') }}" class="nav-btn" id="nav-tools-hub" style="text-decoration: none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    <path
+                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                 </svg>
                 <span style="flex: 1;">Tools Mahasiswa</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">10</span>
+                <span
+                    style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #ecfdf5; color: #059669;">10</span>
             </a>
 
             <div class="nav-group-title">Akun &amp; Bonus</div>
@@ -3287,7 +3690,8 @@
                     <line x1="2" y1="10" x2="22" y2="10" />
                 </svg>
                 <span style="flex: 1;">Paket</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">
+                <span
+                    style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">
                     {{ !empty($billingSummary['is_paid_active']) ? 'Aktif' : '15rb' }}
                 </span>
             </button>
@@ -3311,14 +3715,15 @@
             </button>
 
             <div class="nav-group-title">Bantuan &amp; Pengembang</div>
-            <a href="{{ route('panduan.index') }}" target="_blank" rel="noopener" class="nav-btn" style="text-decoration: none;">
+            <button type="button" class="nav-btn" id="nav-panduan" onclick="openTab('panduan', 'Panduan Lengkap')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                 </svg>
                 <span style="flex: 1;">Panduan Lengkap</span>
-                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">7</span>
-            </a>
+                <span
+                    style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #eff6ff; color: #2563eb;">{{ count($guides ?? []) }}</span>
+            </button>
             <button type="button" class="nav-btn" id="nav-feedback" onclick="openTab('feedback', 'Saran & Laporan')"
                 style="color: #0284c7;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -3358,9 +3763,11 @@
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" onclick="openTab('dashboard', 'Dashboard'); return false;"
+                <a href="{{ route('app.create', ['tab' => 'dashboard']) }}"
+                    onclick="openTab('dashboard', 'Dashboard'); return false;"
                     style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 14px; text-decoration: none;">
-                    <img src="/images/logo.svg" alt="SkripsiLab AI" style="width: 24px; height: 24px; border-radius: 6px; display: block;">
+                    <img src="/images/logo.svg" alt="SkripsiLab AI"
+                        style="width: 24px; height: 24px; border-radius: 6px; display: block;">
                     <span>SkripsiLab AI</span>
                 </a>
                 <span class="breadcrumb-current" id="breadcrumb-label" style="display: none;">Dashboard</span>
@@ -3374,18 +3781,24 @@
             @endphp
             <div class="topbar-right">
                 <input type="hidden" id="global-model" value="auto">
-                @if($topPaid)
-                    <span class="token-pill"
-                        style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; font-weight: 700; cursor: default;">
-                        <span>✓ {{ $topPlanName }}</span>
-                    </span>
-                @else
-                    <button type="button" class="token-pill" onclick="openTab('pricing', 'Paket')"
-                        style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 700;">
-                        <span>Paket Free</span>
-                        <span style="color: #2563eb; font-weight: 800;">Upgrade →</span>
-                    </button>
-                @endif
+                <button type="button" class="token-pill" onclick="openTab('pricing', 'Paket')"
+                    style="background: {{ $topPaid ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $topPaid ? '#bbf7d0' : '#fde68a' }}; color: {{ $topPaid ? '#15803d' : '#b45309' }}; font-weight: 700;">
+                    <span>{{ $topPaid ? '✓ ' . $topPlanName : 'Paket Free' }}</span>
+                    @if(!$topPaid)
+                            @if($topPaid)
+                                <span class="token-pill"
+                                    style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; font-weight: 700; cursor: default;">
+                                    <span>✓ {{ $topPlanName }}</span>
+                                </span>
+                            @else
+                                <button type="button" class="token-pill" onclick="openTab('pricing', 'Paket')"
+                                    style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 700;">
+                                    <span>Paket Free</span>
+                                    <span style="color: #2563eb; font-weight: 800;">Upgrade →</span>
+                            @endif
+                            </button>
+                        </button>
+                    @endif
             </div>
         </header>
 
@@ -3816,26 +4229,33 @@
                                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px;">
                                 <label id="label-target-proposal" class="target-choice-card"
                                     style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 15px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
-                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
+                                    <div
+                                        style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
                                         <input type="radio" name="tahap_pengerjaan" value="Proposal Skripsi (Bab I–III)"
                                             checked style="accent-color: var(--primary); flex-shrink: 0;"
                                             onchange="updateTargetStyle(this)">
                                         <span id="title-target-proposal"
-                                            style="font-size: 13.5px; font-weight: 700; color: var(--primary); line-height: 1.35;">Proposal Skripsi (Bab 1–3)</span>
+                                            style="font-size: 13.5px; font-weight: 700; color: var(--primary); line-height: 1.35;">Proposal
+                                            Skripsi (Bab 1–3)</span>
                                     </div>
                                     <span id="badge-target-proposal"
-                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; flex-shrink: 0;">Seminar Proposal</span>
+                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; flex-shrink: 0;">Seminar
+                                        Proposal</span>
                                 </label>
                                 <label id="label-target-full" class="target-choice-card"
                                     style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 15px; border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer; background: #fff; transition: all 0.2s;">
-                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
+                                    <div
+                                        style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
                                         <input type="radio" name="tahap_pengerjaan" value="Skripsi Lengkap (Bab I–V)"
-                                            style="accent-color: var(--primary); flex-shrink: 0;" onchange="updateTargetStyle(this)">
+                                            style="accent-color: var(--primary); flex-shrink: 0;"
+                                            onchange="updateTargetStyle(this)">
                                         <span id="title-target-full"
-                                            style="font-size: 13.5px; font-weight: 700; color: var(--text-main); line-height: 1.35;">Full Skripsi Lengkap (Bab 1–5)</span>
+                                            style="font-size: 13.5px; font-weight: 700; color: var(--text-main); line-height: 1.35;">Full
+                                            Skripsi Lengkap (Bab 1–5)</span>
                                     </div>
                                     <span id="badge-target-full"
-                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; white-space: nowrap; flex-shrink: 0;">Sidang Akhir</span>
+                                        style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; white-space: nowrap; flex-shrink: 0;">Sidang
+                                        Akhir</span>
                                 </label>
                             </div>
                         </div>
@@ -3845,13 +4265,19 @@
                             <div class="responsive-grid-title-logo"
                                 style="display: grid; grid-template-columns: 1fr 180px; gap: 16px; align-items: stretch; margin-bottom: 18px;">
                                 <div>
-                                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
-                                        <label class="form-label" style="margin-bottom: 0;">Judul Proposal / Skripsi <span
-                                                class="req">*</span></label>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                                        <label class="form-label" style="margin-bottom: 0;">Judul Proposal / Skripsi
+                                            <span class="req">*</span></label>
                                         <button type="button" onclick="openTab('titles', 'Cari Judul')"
                                             style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; padding: 3px 10px; cursor: pointer; transition: all 0.15s;"
-                                            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                            onmouseover="this.style.background='#dbeafe'"
+                                            onmouseout="this.style.background='#eff6ff'">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.2">
+                                                <circle cx="11" cy="11" r="8" />
+                                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                            </svg>
                                             <span>Belum punya judul? Cari Judul dulu →</span>
                                         </button>
                                     </div>
@@ -3961,11 +4387,14 @@
                                         style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
                                 </div>
                             </div>
-                            <input type="file" name="pedoman_file" id="input-pedoman-file" class="form-input" accept=".pdf,.docx,.doc,.txt"
-                                style="padding: 9px 12px; font-size: 13px;" onchange="handlePedomanFileSelect(this)">
+                            <input type="file" name="pedoman_file" id="input-pedoman-file" class="form-input"
+                                accept=".pdf,.docx,.doc,.txt" style="padding: 9px 12px; font-size: 13px;"
+                                onchange="handlePedomanFileSelect(this)">
                             <input type="hidden" name="pedoman_text" id="input-pedoman-extracted" value="">
-                            <div id="pedoman-extract-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
-                                pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB — PDF teks otomatis dibaca langsung di browser agar akurat 100%).</div>
+                            <div id="pedoman-extract-status"
+                                style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Pilih berkas buku
+                                pedoman penulisan kampus (.pdf / .docx / .txt, maks 3,5 MB — PDF teks otomatis dibaca
+                                langsung di browser agar akurat 100%).</div>
                         </div>
 
                         <!-- Card 5: Struktur Bab Kustom (Accordion Builder) -->
@@ -4074,72 +4503,74 @@
                                 <label class="form-label">Format Penomoran Sub-Bab</label>
                                 <select name="format_nomor" class="form-select">
                                     <option value="1.1" selected>Desimal (1.1, 1.2, 2.1, 2.2 — Standar Umum)</option>
-                                    <option value="A.">Huruf Kapital (A., B., C., 1., 2. — Format Kampus Tertentu)</option>
+                                    <option value="A.">Huruf Kapital (A., B., C., 1., 2. — Format Kampus Tertentu)
+                                    </option>
                                 </select>
                             </div>
 
                             <label class="form-label">Sumber referensi</label>
-                            <div class="responsive-grid-3"
-                            <label class="form-label">Sumber referensi <span class="req">*</span> <span
-                                    style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-left: 4px;">(Pilih minimal 1)</span></label>
-                            @php $oldSumberRef = is_array(old('sumber_referensi')) ? old('sumber_referensi') : []; @endphp
-                            <div id="sumber-referensi-group" class="responsive-grid-3"
-                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                                <label
-                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" checked
-                                    <input type="checkbox" name="sumber_referensi[]" value="Umum"
-                                        {{ in_array('Umum', $oldSumberRef, true) ? 'checked' : '' }}
-                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                        style="accent-color: var(--primary);">
-                                    <span>Umum</span>
-                                </label>
-                                <label
-                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked
-                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta"
-                                        {{ in_array('Terindeks Sinta', $oldSumberRef, true) ? 'checked' : '' }}
-                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                        style="accent-color: var(--primary);">
-                                    <span>Terindeks Sinta</span>
-                                </label>
-                                <label
-                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus"
-                                        {{ in_array('Terindeks Scopus', $oldSumberRef, true) ? 'checked' : '' }}
-                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                        style="accent-color: var(--primary);">
-                                    <span>Terindeks Scopus</span>
-                                </label>
-                            </div>
-                            <div id="sumber-referensi-error"
-                                style="display: {{ $errors->has('sumber_referensi') ? 'block' : 'none' }}; margin-top: 8px; font-size: 12.5px; color: #dc2626; font-weight: 500;">
-                                {{ $errors->first('sumber_referensi') ?: 'Silakan pilih minimal 1 Sumber Referensi.' }}
-                            </div>
-                        </div>
-
-                        <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
-                        <div class="card" style="margin-bottom: 24px;">
-                            <div
-                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                                <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah artikel
-                                    atau buku referensi wajib <span
-                                        style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                            <div class="responsive-grid-3" <label class="form-label">Sumber referensi <span
+                                    class="req">*</span> <span
+                                    style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-left: 4px;">(Pilih
+                                    minimal 1)</span></label>
+                                @php $oldSumberRef = is_array(old('sumber_referensi')) ? old('sumber_referensi') : []; @endphp
+                                <div id="sumber-referensi-group" class="responsive-grid-3"
+                                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" name="sumber_referensi[]" value="Umum" checked <input
+                                            type="checkbox" name="sumber_referensi[]" value="Umum" {{ in_array('Umum', $oldSumberRef, true) ? 'checked' : '' }}
+                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                            style="accent-color: var(--primary);">
+                                        <span>Umum</span>
+                                    </label>
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked
+                                            <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" {{ in_array('Terindeks Sinta', $oldSumberRef, true) ? 'checked' : '' }}
+                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                            style="accent-color: var(--primary);">
+                                        <span>Terindeks Sinta</span>
+                                    </label>
+                                    <label
+                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus" {{ in_array('Terindeks Scopus', $oldSumberRef, true) ? 'checked' : '' }}
+                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                            style="accent-color: var(--primary);">
+                                        <span>Terindeks Scopus</span>
+                                    </label>
                                 </div>
-                                <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
+                                <div id="sumber-referensi-error"
+                                    style="display: {{ $errors->has('sumber_referensi') ? 'block' : 'none' }}; margin-top: 8px; font-size: 12.5px; color: #dc2626; font-weight: 500;">
+                                    {{ $errors->first('sumber_referensi') ?: 'Silakan pilih minimal 1 Sumber Referensi.' }}
+                                </div>
                             </div>
-                            <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
-                                Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal khusus.
-                                Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
-                            </div>
-                            <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt"
-                                class="form-input" style="padding: 9px 12px; font-size: 13px;">
 
-                            <div class="card-footer-bar">
-                                <button type="button" class="btn-outline" onclick="showProjectListView()">Batal</button>
-                                <button type="submit" class="btn-primary">Buat Proyek & Buka Workspace →</button>
+                            <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
+                            <div class="card" style="margin-bottom: 24px;">
+                                <div
+                                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Unggah
+                                        artikel
+                                        atau buku referensi wajib <span
+                                            style="font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 6px;">OPSIONAL</span>
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-muted);">Maks 5 berkas</span>
+                                </div>
+                                <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px;">
+                                    Untuk sumber yang wajib kamu pakai — arahan pembimbing, buku teori, atau jurnal
+                                    khusus.
+                                    Sistem membaca isinya dan memasukkannya ke dalam naskah serta Daftar Pustaka.
+                                </div>
+                                <input type="file" name="referensi_files[]" multiple accept=".pdf,.docx,.doc,.txt"
+                                    class="form-input" style="padding: 9px 12px; font-size: 13px;">
+
+                                <div class="card-footer-bar">
+                                    <button type="button" class="btn-outline"
+                                        onclick="showProjectListView()">Batal</button>
+                                    <button type="submit" class="btn-primary">Buat Proyek & Buka Workspace →</button>
+                                </div>
                             </div>
-                        </div>
                     </form>
                 </div>
             </section>
@@ -4165,12 +4596,16 @@
                             <label class="form-label">Metodologi <span class="req">*</span></label>
                             <select id="title-metode" class="form-select">
                                 <option value="">Pilih Metodologi</option>
-                                <option value="Kuantitatif (Survei / Regresi)">Kuantitatif (Survei / Regresi / SEM)</option>
-                                <option value="Kuantitatif — Data Sekunder">Kuantitatif — Data Sekunder (BPS / BEI / Panel)</option>
-                                <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif (Studi Kasus / Deskriptif)</option>
+                                <option value="Kuantitatif (Survei / Regresi)">Kuantitatif (Survei / Regresi / SEM)
+                                </option>
+                                <option value="Kuantitatif — Data Sekunder">Kuantitatif — Data Sekunder (BPS / BEI /
+                                    Panel)</option>
+                                <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif (Studi Kasus /
+                                    Deskriptif)</option>
                                 <option value="R&D / Pengembangan Sistem">R&D / Pengembangan Sistem IT / AI</option>
                                 <option value="PTK (Penelitian Tindakan Kelas)">PTK (Penelitian Tindakan Kelas)</option>
-                                <option value="Studi Pustaka (Library Research)">Studi Pustaka (Library Research)</option>
+                                <option value="Studi Pustaka (Library Research)">Studi Pustaka (Library Research)
+                                </option>
                                 <option value="Mixed Method">Mixed Method (Kombinasi)</option>
                                 <option value="Hukum Normatif">Hukum Normatif (Perundang-Undangan)</option>
                                 <option value="Hukum Empiris">Hukum Empiris (Sosiologi Hukum)</option>
@@ -4245,7 +4680,8 @@
                                 <span>PPT Saya</span>
                                 <span class="count-badge" id="saved-ppts-count">0</span>
                             </div>
-                            <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);">Tersimpan otomatis setelah generate</span>
+                            <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);">Tersimpan
+                                otomatis setelah generate</span>
                         </div>
                         <div id="saved-ppts-list"></div>
                     </div>
@@ -4282,7 +4718,8 @@
                         <div class="form-label" style="margin-bottom: 8px;">Atau unggah file skripsi / proposal (.pdf,
                             .docx)</div>
                         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca isi
-                            utuh Bab I–V dari file Word (<code>.docx</code>) atau PDF skripsimu (maks 3,5 MB) lalu menyusun 6–12 slide presentasi sidang secara riil sesuai isi naskah.</p>
+                            utuh Bab I–V dari file Word (<code>.docx</code>) atau PDF skripsimu (maks 3,5 MB) lalu
+                            menyusun 6–12 slide presentasi sidang secara riil sesuai isi naskah.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="file" id="ppt-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
                                 style="flex: 1; padding: 8px 12px; font-size: 13px;"
@@ -4389,25 +4826,32 @@
                             </div>
 
                             <!-- Pilihan Jumlah Slide Sidang (6 - 12 Slide) -->
-                            <div style="margin-top: 14px; background: #ffffff; padding: 14px 16px; border: 1.5px solid #bfdbfe; border-radius: 12px; box-shadow: 0 1px 3px rgba(37,99,235,0.06);">
-                                <div class="ppt-slide-count-head" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                                    <label for="ppt-input-slide-count" style="font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 7px;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink: 0;">
+                            <div
+                                style="margin-top: 14px; background: #ffffff; padding: 14px 16px; border: 1.5px solid #bfdbfe; border-radius: 12px; box-shadow: 0 1px 3px rgba(37,99,235,0.06);">
+                                <div class="ppt-slide-count-head"
+                                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                    <label for="ppt-input-slide-count"
+                                        style="font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 7px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="var(--primary)" stroke-width="2" style="flex-shrink: 0;">
                                             <rect x="2" y="3" width="20" height="14" rx="2" />
                                             <line x1="8" y1="21" x2="16" y2="21" />
                                             <line x1="12" y1="17" x2="12" y2="21" />
                                         </svg>
                                         <span>Jumlah Slide Presentasi Sidang</span>
                                     </label>
-                                    <span id="ppt-slide-count-badge" style="font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; display: inline-flex; align-items: center;">
+                                    <span id="ppt-slide-count-badge"
+                                        style="font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; white-space: nowrap; display: inline-flex; align-items: center;">
                                         8 Slide (Ringkas &amp; Padat)
                                     </span>
                                 </div>
-                                <div class="ppt-slide-count-controls" style="display: flex; align-items: center; gap: 12px;">
+                                <div class="ppt-slide-count-controls"
+                                    style="display: flex; align-items: center; gap: 12px;">
                                     <input type="range" id="ppt-input-slide-count" min="6" max="12" value="8" step="1"
                                         style="flex: 1; width: 100%; accent-color: var(--primary); cursor: pointer;"
                                         oninput="updateSlideCountUI(this.value)">
-                                    <select id="ppt-select-slide-count" class="form-select" style="width: 135px; font-size: 13px; font-weight: 600;"
+                                    <select id="ppt-select-slide-count" class="form-select"
+                                        style="width: 135px; font-size: 13px; font-weight: 600;"
                                         onchange="updateSlideCountUI(this.value)">
                                         <option value="6">6 Slide</option>
                                         <option value="7">7 Slide</option>
@@ -4419,7 +4863,8 @@
                                     </select>
                                 </div>
                                 <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">
-                                    Pilih 6–8 slide untuk presentasi kilat (10–15 menit), atau 9–12 slide untuk pembahasan skripsi lengkap & komprehensif.
+                                    Pilih 6–8 slide untuk presentasi kilat (10–15 menit), atau 9–12 slide untuk
+                                    pembahasan skripsi lengkap & komprehensif.
                                 </div>
                             </div>
                         </div>
@@ -4447,16 +4892,24 @@
                 <div id="ppt-view-step-3" style="display: none;">
                     <!-- Card Pemilih Template Slide (Basic + Tema Cantik Modern) -->
                     <div class="card" style="padding: 16px 18px; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Desain Template Slide</span>
-                                    <span id="ppt-autosave-status" style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 9px; border-radius: 999px; white-space: nowrap;">✓ Tersimpan di PPT Saya</span>
+                                    <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih
+                                        Desain Template Slide</span>
+                                    <span id="ppt-autosave-status"
+                                        style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 9px; border-radius: 999px; white-space: nowrap;">✓
+                                        Tersimpan di PPT Saya</span>
                                 </div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Tersedia tema Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh <code>.pptx</code>.</div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Tersedia tema
+                                    Basic klasik maupun tema desain modern yang langsung diterapkan saat unduh
+                                    <code>.pptx</code>.
+                                </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah Slide</button>
+                                <button type="button" class="btn-outline" onclick="addNewSlide()">+ Tambah
+                                    Slide</button>
                                 <button type="button" class="btn-outline"
                                     style="border-color: var(--primary); color: var(--primary); font-weight: 600;"
                                     onclick="openFullscreenSlideshow()">
@@ -4721,11 +5174,13 @@
                         <span class="step-num-circle">1</span>
                         <span>Pilih skripsi</span>
                     </button>
-                    <button type="button" class="step-pill" id="def-step-btn-2" onclick="if(defenseQuestions.length) setDefenseStep(2)">
+                    <button type="button" class="step-pill" id="def-step-btn-2"
+                        onclick="if(defenseQuestions.length) setDefenseStep(2)">
                         <span class="step-num-circle">2</span>
                         <span>Latihan tanya-jawab</span>
                     </button>
-                    <button type="button" class="step-pill" id="def-step-btn-3" onclick="if(document.getElementById('def-score-bars').children.length) setDefenseStep(3)">
+                    <button type="button" class="step-pill" id="def-step-btn-3"
+                        onclick="if(document.getElementById('def-score-bars').children.length) setDefenseStep(3)">
                         <span class="step-num-circle">3</span>
                         <span>Evaluasi & skor</span>
                     </button>
@@ -4785,9 +5240,7 @@
                             </div>
                         </div>
                         @forelse($history as $proj)
-                            <div class="project-row"
-                                data-id="{{ $proj->id }}"
-                                data-title="{{ e($proj->judul) }}"
+                            <div class="project-row" data-id="{{ $proj->id }}" data-title="{{ e($proj->judul) }}"
                                 onclick="startDefenseWithProject(this.dataset.id, this.dataset.title)">
                                 <div class="project-row-left">
                                     <div style="min-width: 0; width: 100%;">
@@ -4808,7 +5261,8 @@
                     <div class="card">
                         <div class="form-label">Atau unggah file skripsi / proposal (.pdf, .docx)</div>
                         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">AI akan membaca isi
-                            utuh Bab I–V dari file Word/PDF (maks 3,5 MB), menyusun pertanyaan penguji riil sesuai naskahmu, dan menilai jawaban berdasarkan data aslimu.</p>
+                            utuh Bab I–V dari file Word/PDF (maks 3,5 MB), menyusun pertanyaan penguji riil sesuai
+                            naskahmu, dan menilai jawaban berdasarkan data aslimu.</p>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="file" id="def-file-input" class="form-input" accept=".pdf,.docx,.doc,.txt"
                                 style="flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px;">
@@ -4820,7 +5274,9 @@
 
                 <!-- STEP 2: Jawab Pertanyaan Satu per Satu -->
                 <div id="def-view-step-2" style="display: none;">
-                    <div id="def-doc-status-pill" style="display: none; margin-bottom: 12px; padding: 9px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 12.5px; font-weight: 600;"></div>
+                    <div id="def-doc-status-pill"
+                        style="display: none; margin-bottom: 12px; padding: 9px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 12.5px; font-weight: 600;">
+                    </div>
                     <div class="card">
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
@@ -4867,11 +5323,13 @@
                                     -</h3>
                             </div>
                             <div style="text-align: right; display: flex; align-items: center; gap: 12px;">
-                                <span id="def-eval-grade-badge" style="display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 44px; padding: 0 12px; border-radius: 12px; background: #dbeafe; color: #1d4ed8; font-size: 18px; font-weight: 800;">-</span>
+                                <span id="def-eval-grade-badge"
+                                    style="display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 44px; padding: 0 12px; border-radius: 12px; background: #dbeafe; color: #1d4ed8; font-size: 18px; font-weight: 800;">-</span>
                                 <div>
                                     <div style="font-size: 28px; font-weight: 700; color: var(--primary);"
                                         id="def-eval-score">0.0/10</div>
-                                    <div style="font-size: 12px; color: var(--text-muted);" id="def-eval-min-label">Rata-rata Skor Jawaban</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);" id="def-eval-min-label">
+                                        Rata-rata Skor Jawaban</div>
                                 </div>
                             </div>
                         </div>
@@ -5008,9 +5466,15 @@
                             <span style="font-weight: 700; color: var(--text-main);">Daftar Artikel Jurnal
                                 Relevan</span>
                             <div style="display: inline-flex; gap: 5px; flex-wrap: wrap;">
-                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px; background: var(--primary-soft); color: var(--primary); border-color: #bfdbfe;" onclick="filterJournalResults('all', this)">Semua</button>
-                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px;" onclick="filterJournalResults('Indonesia', this)">Indonesia</button>
-                                <button type="button" class="btn-outline journal-filter-btn" style="padding: 3px 10px; font-size: 11.5px;" onclick="filterJournalResults('Internasional', this)">Internasional</button>
+                                <button type="button" class="btn-outline journal-filter-btn"
+                                    style="padding: 3px 10px; font-size: 11.5px; background: var(--primary-soft); color: var(--primary); border-color: #bfdbfe;"
+                                    onclick="filterJournalResults('all', this)">Semua</button>
+                                <button type="button" class="btn-outline journal-filter-btn"
+                                    style="padding: 3px 10px; font-size: 11.5px;"
+                                    onclick="filterJournalResults('Indonesia', this)">Indonesia</button>
+                                <button type="button" class="btn-outline journal-filter-btn"
+                                    style="padding: 3px 10px; font-size: 11.5px;"
+                                    onclick="filterJournalResults('Internasional', this)">Internasional</button>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -5019,7 +5483,8 @@
                                     style="height: 31px; padding: 0 26px 0 9px; font-size: 11.5px; width: auto; max-width: 220px;"
                                     title="Pilih proyek tujuan untuk tombol Simpan ke Proyek">
                                     @foreach($history as $hp)
-                                        <option value="{{ $hp->id }}">{{ \Illuminate\Support\Str::limit($hp->judul, 38) }}</option>
+                                        <option value="{{ $hp->id }}">{{ \Illuminate\Support\Str::limit($hp->judul, 38) }}
+                                        </option>
                                     @endforeach
                                 </select>
                             @endif
@@ -5037,46 +5502,71 @@
             <section class="tab-pane" id="pane-paraphrase">
                 <div class="page-eyebrow">Penulisan Akademik · Anti-Plagiarisme</div>
                 <h1 class="page-title">Parafrase Akademik Pro</h1>
-                <p class="page-subtitle">Ubah struktur kalimat untuk menurunkan kemiripan Turnitin tanpa merusak sitasi, angka statistik, maupun makna ilmiah sesuai KBBI &amp; EYD V.</p>
+                <p class="page-subtitle">Ubah struktur kalimat untuk menurunkan kemiripan Turnitin tanpa merusak sitasi,
+                    angka statistik, maupun makna ilmiah sesuai KBBI &amp; EYD V.</p>
 
                 <div class="card">
                     <!-- Sumber Input Switcher -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
-                        <div class="plag-mode-tabs" style="margin-bottom: 0; flex: 1 1 280px; max-width: 440px;" role="tablist">
-                            <button type="button" class="plag-mode-btn active" id="para-src-btn-text" onclick="setParaSourceMode('text')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                        <div class="plag-mode-tabs" style="margin-bottom: 0; flex: 1 1 280px; max-width: 440px;"
+                            role="tablist">
+                            <button type="button" class="plag-mode-btn active" id="para-src-btn-text"
+                                onclick="setParaSourceMode('text')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
                                 <span>Tempel Teks</span>
                             </button>
-                            <button type="button" class="plag-mode-btn" id="para-src-btn-file" onclick="setParaSourceMode('file')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-file"
+                                onclick="setParaSourceMode('file')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
                                 <span>Upload File</span>
                             </button>
-                            <button type="button" class="plag-mode-btn" id="para-src-btn-project" onclick="setParaSourceMode('project')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            <button type="button" class="plag-mode-btn" id="para-src-btn-project"
+                                onclick="setParaSourceMode('project')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                    <path
+                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                </svg>
                                 <span>Proyek Saya</span>
                             </button>
                         </div>
-                        <button type="button" class="btn-outline" style="padding: 7px 13px; font-size: 12.5px; flex-shrink: 0;" onclick="resetParaphraseStudio()">Reset</button>
+                        <button type="button" class="btn-outline"
+                            style="padding: 7px 13px; font-size: 12.5px; flex-shrink: 0;"
+                            onclick="resetParaphraseStudio()">Reset</button>
                     </div>
 
                     <!-- Impor dari File -->
-                    <div id="para-import-file-box" style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px dashed var(--border); border-radius: 10px;">
+                    <div id="para-import-file-box"
+                        style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px dashed var(--border); border-radius: 10px;">
                         <label class="form-label">Pilih File Skripsi / Referensi (.docx, .pdf, atau .txt)</label>
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <input type="file" id="para-file-input" class="form-input" accept=".docx,.pdf,.txt" style="flex: 1; min-width: 220px; padding: 7px 10px; font-size: 13px;" onchange="importFileToParaphrase(this)">
+                            <input type="file" id="para-file-input" class="form-input" accept=".docx,.pdf,.txt"
+                                style="flex: 1; min-width: 220px; padding: 7px 10px; font-size: 13px;"
+                                onchange="importFileToParaphrase(this)">
                         </div>
-                        <div id="para-file-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Teks hasil ekstraksi langsung dimuat ke kotak di bawah (maks 15.000 karakter).</div>
+                        <div id="para-file-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                            Teks hasil ekstraksi langsung dimuat ke kotak di bawah (maks 15.000 karakter).</div>
                     </div>
 
                     <!-- Impor dari Proyek -->
-                    <div id="para-import-proj-box" style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;">
+                    <div id="para-import-proj-box"
+                        style="display: none; margin-bottom: 14px; padding: 12px 14px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;">
                         <div class="form-row" style="margin-bottom: 0;">
                             <div>
                                 <label class="form-label">Pilih Proyek Skripsi / Proposal</label>
                                 <select id="para-proj-select" class="form-select">
                                     <option value="">-- Pilih proyek --</option>
                                     @foreach($history as $item)
-                                        <option value="{{ $item->id }}">{{ \Illuminate\Support\Str::limit($item->judul, 85) }}</option>
+                                        <option value="{{ $item->id }}">
+                                            {{ \Illuminate\Support\Str::limit($item->judul, 85) }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -5090,7 +5580,9 @@
                                         <option value="bab4">Bab IV — Hasil &amp; Pembahasan</option>
                                         <option value="bab5">Bab V — Penutup</option>
                                     </select>
-                                    <button type="button" id="btn-load-para-proj" class="btn-outline" style="white-space: nowrap;" onclick="importProjectBabToParaphrase()">Muat Teks</button>
+                                    <button type="button" id="btn-load-para-proj" class="btn-outline"
+                                        style="white-space: nowrap;" onclick="importProjectBabToParaphrase()">Muat
+                                        Teks</button>
                                 </div>
                             </div>
                         </div>
@@ -5121,14 +5613,20 @@
                     </div>
 
                     <div style="margin-bottom: 14px;">
-                        <label class="form-label" for="para-preserve-terms">Istilah / Variabel Terkunci <span class="opt">(opsional · pisahkan dengan koma)</span></label>
-                        <input type="text" id="para-preserve-terms" class="form-input" style="height: 40px;" placeholder="cth: Naive Bayes, TF-IDF, turnover intention">
+                        <label class="form-label" for="para-preserve-terms">Istilah / Variabel Terkunci <span
+                                class="opt">(opsional · pisahkan dengan koma)</span></label>
+                        <input type="text" id="para-preserve-terms" class="form-input" style="height: 40px;"
+                            placeholder="cth: Naive Bayes, TF-IDF, turnover intention">
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 8px;">
-                            <label class="form-label" style="margin-bottom: 0;">Naskah / Paragraf Asli <span class="req">*</span></label>
-                            <span id="para-input-counter" style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">0 kata · 0 karakter</span>
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Naskah / Paragraf Asli <span
+                                    class="req">*</span></label>
+                            <span id="para-input-counter"
+                                style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">0 kata · 0
+                                karakter</span>
                         </div>
                         <textarea id="para-input" class="form-textarea" style="min-height: 155px; line-height: 1.65;"
                             oninput="updateParaCounter()"
@@ -5146,50 +5644,76 @@
 
                 <!-- Hasil Parafrase Lengkap + Metrik & Diff -->
                 <div id="para-result-card" class="card" style="display: none; margin-top: 18px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); margin-bottom: 14px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); margin-bottom: 14px;">
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             <span class="form-label" style="margin-bottom: 0; font-size: 14px;">Hasil Parafrase</span>
-                            <span id="para-metric-uniqueness" style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #dcfce7; color: #166534;">Keunikan -%</span>
-                            <span id="para-metric-sim" style="font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #eff6ff; color: #1d4ed8;">Kemiripan tersisa -%</span>
-                            <span id="para-metric-words" style="font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">0 → 0 kata</span>
-                            <span id="para-metric-cites" style="display: none; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f0fdf4; color: #15803d;">0 sitasi terjaga</span>
+                            <span id="para-metric-uniqueness"
+                                style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #dcfce7; color: #166534;">Keunikan
+                                -%</span>
+                            <span id="para-metric-sim"
+                                style="font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #eff6ff; color: #1d4ed8;">Kemiripan
+                                tersisa -%</span>
+                            <span id="para-metric-words"
+                                style="font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569;">0
+                                → 0 kata</span>
+                            <span id="para-metric-cites"
+                                style="display: none; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f0fdf4; color: #15803d;">0
+                                sitasi terjaga</span>
                         </div>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                            <button type="button" class="btn-outline" id="para-view-clean-btn" style="padding: 5px 11px; font-size: 12px; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 600;" onclick="switchParaResultView('clean')">Hasil Bersih</button>
-                            <button type="button" class="btn-outline" id="para-view-diff-btn" style="padding: 5px 11px; font-size: 12px;" onclick="switchParaResultView('diff')">Bandingkan Perubahan</button>
+                            <button type="button" class="btn-outline" id="para-view-clean-btn"
+                                style="padding: 5px 11px; font-size: 12px; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 600;"
+                                onclick="switchParaResultView('clean')">Hasil Bersih</button>
+                            <button type="button" class="btn-outline" id="para-view-diff-btn"
+                                style="padding: 5px 11px; font-size: 12px;"
+                                onclick="switchParaResultView('diff')">Bandingkan Perubahan</button>
                         </div>
                     </div>
 
                     <!-- View 1: Editable clean result -->
                     <div id="para-view-clean">
-                        <textarea id="para-output" class="form-textarea" style="min-height: 170px; font-size: 14px; line-height: 1.75; color: var(--text-main); background: #fff;"></textarea>
+                        <textarea id="para-output" class="form-textarea"
+                            style="min-height: 170px; font-size: 14px; line-height: 1.75; color: var(--text-main); background: #fff;"></textarea>
                     </div>
 
                     <!-- View 2: Side-by-side Diff Highlight -->
                     <div id="para-view-diff" style="display: none;">
                         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
-                            <span style="display: inline-block; padding: 1px 6px; background: #dcfce7; color: #166534; border-radius: 4px; font-weight: 600;">Hijau</span> = frasa/kata baru hasil parafrase &nbsp;·&nbsp;
-                            <span style="display: inline-block; padding: 1px 6px; background: #fee2e2; color: #991b1b; border-radius: 4px; text-decoration: line-through;">Merah</span> = kata asli yang diganti
+                            <span
+                                style="display: inline-block; padding: 1px 6px; background: #dcfce7; color: #166534; border-radius: 4px; font-weight: 600;">Hijau</span>
+                            = frasa/kata baru hasil parafrase &nbsp;·&nbsp;
+                            <span
+                                style="display: inline-block; padding: 1px 6px; background: #fee2e2; color: #991b1b; border-radius: 4px; text-decoration: line-through;">Merah</span>
+                            = kata asli yang diganti
                         </div>
                         <div class="responsive-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px;">
                             <div style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #fafafa;">
                                 <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Teks Asli</div>
                                 <div id="para-diff-orig" style="font-size: 13.5px; line-height: 1.75; color: #334155;"></div>
                             </div>
-                            <div style="padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff;">
-                                <div style="font-size: 11.5px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; margin-bottom: 6px;">Hasil Parafrase Baru</div>
-                                <div id="para-diff-new" style="font-size: 13.5px; line-height: 1.75; color: #0f172a;"></div>
+                            <div
+                                style="padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff;">
+                                <div
+                                    style="font-size: 11.5px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; margin-bottom: 6px;">
+                                    Hasil Parafrase Baru</div>
+                                <div id="para-diff-new" style="font-size: 13.5px; line-height: 1.75; color: #0f172a;">
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="card-footer-bar" style="margin-top: 14px;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="copyParaphraseResult(this)">Salin Teks</button>
-                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="downloadParaphraseTxt()">Unduh .txt</button>
-                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;" onclick="reParaphraseOutput()">Parafrase Ulang ↻</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;"
+                                onclick="copyParaphraseResult(this)">Salin Teks</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;"
+                                onclick="downloadParaphraseTxt()">Unduh .txt</button>
+                            <button type="button" class="btn-outline" style="padding: 6px 12px; font-size: 12.5px;"
+                                onclick="reParaphraseOutput()">Parafrase Ulang ↻</button>
                         </div>
-                        <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;" onclick="sendParaphraseToPlagiarism()">Cek Kemiripan Turnitin →</button>
+                        <button type="button" class="btn-primary" style="padding: 7px 14px; font-size: 12.5px;"
+                            onclick="sendParaphraseToPlagiarism()">Cek Kemiripan Turnitin →</button>
                     </div>
                 </div>
             </section>
@@ -5201,21 +5725,34 @@
                 <div class="page-eyebrow">Pre-Check Kemiripan · Ala Turnitin</div>
                 <h1 class="page-title">Cek Plagiasi &amp; Kemiripan Naskah</h1>
                 <p class="page-subtitle">Periksa kemiripan kalimat secara nyata terhadap database jurnal ilmiah terbuka
-                    (OpenAlex, Crossref), Wikipedia, web, maupun dokumen rujukan — lengkap highlight warna, 1-klik parafrase,
+                    (OpenAlex, Crossref), Wikipedia, web, maupun dokumen rujukan — lengkap highlight warna, 1-klik
+                    parafrase,
                     dan laporan PDF.</p>
 
                 <div class="card">
                     <div class="plag-mode-tabs" role="tablist">
-                        <button type="button" class="plag-mode-btn active" id="plag-tab-text" onclick="setPlagInputMode('text')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <button type="button" class="plag-mode-btn active" id="plag-tab-text"
+                            onclick="setPlagInputMode('text')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
                             <span>Tempel Teks</span>
                         </button>
-                        <button type="button" class="plag-mode-btn" id="plag-tab-file" onclick="setPlagInputMode('file')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-file"
+                            onclick="setPlagInputMode('file')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
                             <span>Upload File</span>
                         </button>
-                        <button type="button" class="plag-mode-btn" id="plag-tab-project" onclick="setPlagInputMode('project')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        <button type="button" class="plag-mode-btn" id="plag-tab-project"
+                            onclick="setPlagInputMode('project')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            </svg>
                             <span>Proyek Saya</span>
                         </button>
                     </div>
@@ -5224,7 +5761,8 @@
                     <div id="plag-box-text">
                         <div class="form-group" style="margin-bottom: 10px;">
                             <label class="form-label">Judul Dokumen (opsional, untuk header laporan PDF)</label>
-                            <input type="text" id="plag-doc-title" class="form-input" placeholder="Contoh: Bab I Pendahuluan — Analisis Sentimen TikTok">
+                            <input type="text" id="plag-doc-title" class="form-input"
+                                placeholder="Contoh: Bab I Pendahuluan — Analisis Sentimen TikTok">
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Naskah yang Ingin Diperiksa <span class="req">*</span></label>
@@ -5236,10 +5774,14 @@
                     <!-- Mode 2: Upload File .docx / .pdf / .txt -->
                     <div id="plag-box-file" style="display: none;">
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Pilih File Skripsi / Proposal (.docx, .pdf, atau .txt) <span class="req">*</span></label>
-                            <input type="file" id="plag-file-input" class="form-input" accept=".docx,.pdf,.txt" onchange="onPlagFileSelected(this)">
-                            <div id="plag-file-info" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-                                Mendukung file Word (<code>.docx</code>), PDF (<code>.pdf</code>), dan Teks (<code>.txt</code>) hingga 8 MB.
+                            <label class="form-label">Pilih File Skripsi / Proposal (.docx, .pdf, atau .txt) <span
+                                    class="req">*</span></label>
+                            <input type="file" id="plag-file-input" class="form-input" accept=".docx,.pdf,.txt"
+                                onchange="onPlagFileSelected(this)">
+                            <div id="plag-file-info"
+                                style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                                Mendukung file Word (<code>.docx</code>), PDF (<code>.pdf</code>), dan Teks
+                                (<code>.txt</code>) hingga 8 MB.
                             </div>
                         </div>
                     </div>
@@ -5247,11 +5789,13 @@
                     <!-- Mode 3: Pilih Proyek Tersimpan -->
                     <div id="plag-box-project" style="display: none;">
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Pilih Proyek Skripsi / Proposal Tersimpan <span class="req">*</span></label>
+                            <label class="form-label">Pilih Proyek Skripsi / Proposal Tersimpan <span
+                                    class="req">*</span></label>
                             <select id="plag-project-select" class="form-select">
                                 <option value="">-- Pilih proyek dari Workspace --</option>
                                 @foreach($history as $item)
-                                    <option value="{{ $item->id }}">{{ \Illuminate\Support\Str::limit($item->judul, 95) }}</option>
+                                    <option value="{{ $item->id }}">{{ \Illuminate\Support\Str::limit($item->judul, 95) }}
+                                    </option>
                                 @endforeach
                             </select>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
@@ -5279,11 +5823,16 @@
                     <!-- Opsional: Bandingkan 2 Dokumen -->
                     <details class="plag-compare-toggle">
                         <summary>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                stroke-width="2" style="flex-shrink:0;">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
                             <span>Opsional: Bandingkan dengan Dokumen / Jurnal Referensi Lokal (1-vs-1)</span>
                         </summary>
                         <div style="margin-top: 10px;">
-                            <input type="file" id="plag-compare-file" class="form-input" accept=".docx,.pdf,.txt" style="margin-bottom: 8px;">
+                            <input type="file" id="plag-compare-file" class="form-input" accept=".docx,.pdf,.txt"
+                                style="margin-bottom: 8px;">
                             <textarea id="plag-compare-text" class="form-textarea" style="min-height: 85px;"
                                 placeholder="Atau tempelkan teks artikel/jurnal sumber di sini untuk membandingkan langsung 100% kalimatmu dengan sumber tersebut..."></textarea>
                         </div>
@@ -5292,9 +5841,15 @@
                     <div id="plag-error-banner" class="plag-error-banner"></div>
 
                     <div class="card-footer-bar">
-                        <span class="footer-meta">SHINGLING &amp; SPAN MATCHING · OPENALEX + CROSSREF + WIKIPEDIA + WEB</span>
-                        <button type="button" id="btn-plag-check" class="btn-primary plag-btn-icon" onclick="handlePlagiarismCheck()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                        <span class="footer-meta">SHINGLING &amp; SPAN MATCHING · OPENALEX + CROSSREF + WIKIPEDIA +
+                            WEB</span>
+                        <button type="button" id="btn-plag-check" class="btn-primary plag-btn-icon"
+                            onclick="handlePlagiarismCheck()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="M9 12l2 2 4-4" />
+                            </svg>
                             <span>Cek Plagiasi Sekarang</span>
                         </button>
                     </div>
@@ -5307,13 +5862,21 @@
                     <div class="plag-report-grid">
                         <!-- Kolom Kiri: Naskah Berwarna + 1-Klik Parafrase Inline -->
                         <div>
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                                 <div>
-                                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Naskah dengan Penandaan Kemiripan</div>
-                                    <div style="font-size: 12px; color: var(--text-muted);">Klik kalimat berwarna mana saja untuk langsung <strong>Parafrase 1-Klik</strong> menurunkan skor.</div>
+                                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Naskah
+                                        dengan Penandaan Kemiripan</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Klik kalimat berwarna mana
+                                        saja untuk langsung <strong>Parafrase 1-Klik</strong> menurunkan skor.</div>
                                 </div>
-                                <button type="button" class="btn-outline plag-btn-icon" style="padding: 6px 12px; font-size: 12px;" onclick="copyUpdatedPlagDoc(this)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <button type="button" class="btn-outline plag-btn-icon"
+                                    style="padding: 6px 12px; font-size: 12px;" onclick="copyUpdatedPlagDoc(this)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
                                     <span>Salin Naskah Terbaru</span>
                                 </button>
                             </div>
@@ -5322,24 +5885,44 @@
 
                             <!-- Kotak Parafrase Inline saat pengguna klik kalimat yang ditandai -->
                             <div id="plag-inline-editor" class="plag-inline-editor" style="display: none;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                    <div style="font-size: 12.5px; font-weight: 700; color: #1e40af;" id="plag-inline-meta">Kalimat Terdeteksi Mirip</div>
-                                    <button type="button" class="btn-outline" style="padding: 3px 9px; font-size: 11.5px;" onclick="document.getElementById('plag-inline-editor').style.display='none';">Tutup</button>
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #1e40af;"
+                                        id="plag-inline-meta">Kalimat Terdeteksi Mirip</div>
+                                    <button type="button" class="btn-outline"
+                                        style="padding: 3px 9px; font-size: 11.5px;"
+                                        onclick="document.getElementById('plag-inline-editor').style.display='none';">Tutup</button>
                                 </div>
-                                <div id="plag-inline-orig" style="font-size: 13px; color: #334155; background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6;"></div>
-                                <div id="plag-inline-source-link" style="font-size: 12px; color: #475569; margin-bottom: 10px;"></div>
+                                <div id="plag-inline-orig"
+                                    style="font-size: 13px; color: #334155; background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6;">
+                                </div>
+                                <div id="plag-inline-source-link"
+                                    style="font-size: 12px; color: #475569; margin-bottom: 10px;"></div>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button type="button" class="btn-primary plag-btn-icon" id="btn-plag-inline-para" style="padding: 7px 14px; font-size: 12.5px;" onclick="paraphraseFlaggedSentence()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                    <button type="button" class="btn-primary plag-btn-icon" id="btn-plag-inline-para"
+                                        style="padding: 7px 14px; font-size: 12.5px;"
+                                        onclick="paraphraseFlaggedSentence()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M12 20h9" />
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                        </svg>
                                         <span>Parafrase Otomatis Kalimat Ini</span>
                                     </button>
                                 </div>
                                 <div id="plag-inline-result-box" style="display: none; margin-top: 10px;">
-                                    <label class="form-label" style="font-size: 12px; color: #047857;">Hasil Parafrase (Bisa diedit sebelum diterapkan):</label>
-                                    <textarea id="plag-inline-new-text" class="form-textarea" style="min-height: 75px; font-size: 13px;"></textarea>
+                                    <label class="form-label" style="font-size: 12px; color: #047857;">Hasil Parafrase
+                                        (Bisa diedit sebelum diterapkan):</label>
+                                    <textarea id="plag-inline-new-text" class="form-textarea"
+                                        style="min-height: 75px; font-size: 13px;"></textarea>
                                     <div style="margin-top: 8px; display: flex; gap: 8px;">
-                                        <button type="button" class="btn-primary plag-btn-icon" style="background: #059669; padding: 6px 14px; font-size: 12.5px;" onclick="applyParaphrasedSentence()">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <button type="button" class="btn-primary plag-btn-icon"
+                                            style="background: #059669; padding: 6px 14px; font-size: 12.5px;"
+                                            onclick="applyParaphrasedSentence()">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
                                             <span>Terapkan &amp; Perbarui Skor</span>
                                         </button>
                                     </div>
@@ -5349,51 +5932,80 @@
 
                         <!-- Kolom Kanan: Similarity Index & Daftar Sumber Cocok -->
                         <div class="plag-score-card">
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-                                <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); text-transform: uppercase;">Similarity Index</span>
-                                <span id="plag-status-pill" style="font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;">-</span>
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                                <span
+                                    style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); text-transform: uppercase;">Similarity
+                                    Index</span>
+                                <span id="plag-status-pill"
+                                    style="font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;">-</span>
                             </div>
 
-                            <div style="display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                            <div
+                                style="display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
                                 <div id="plag-big-pct" class="plag-big-pct">0%</div>
-                                <div style="font-size: 12px; color: var(--text-muted);" id="plag-word-summary">0 kata diperiksa</div>
+                                <div style="font-size: 12px; color: var(--text-muted);" id="plag-word-summary">0 kata
+                                    diperiksa</div>
                             </div>
 
                             <!-- Breakdown Sumber -->
                             <div class="plag-breakdown-grid">
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
-                                    <div id="plag-acad-pct" style="font-size: 15px; font-weight: 700; color: #1d4ed8;">0%</div>
+                                <div
+                                    style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
+                                    <div id="plag-acad-pct" style="font-size: 15px; font-weight: 700; color: #1d4ed8;">
+                                        0%</div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Jurnal Ilmiah</div>
                                 </div>
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
-                                    <div id="plag-web-pct" style="font-size: 15px; font-weight: 700; color: #7c3aed;">0%</div>
+                                <div
+                                    style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
+                                    <div id="plag-web-pct" style="font-size: 15px; font-weight: 700; color: #7c3aed;">0%
+                                    </div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Internet / Web</div>
                                 </div>
-                                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
-                                    <div id="plag-local-pct" style="font-size: 15px; font-weight: 700; color: #0d9488;">0%</div>
+                                <div
+                                    style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center;">
+                                    <div id="plag-local-pct" style="font-size: 15px; font-weight: 700; color: #0d9488;">
+                                        0%</div>
                                     <div style="font-size: 10.5px; color: var(--text-muted);">Pembanding</div>
                                 </div>
                             </div>
 
-                            <div style="font-size: 12px; color: #475569; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
+                            <div
+                                style="font-size: 12px; color: #475569; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 14px; display: flex; justify-content: space-between;">
                                 <span>Keragaman Kosakata (TTR)</span>
                                 <strong id="plag-ttr-val">0%</strong>
                             </div>
 
-                            <button type="button" class="btn-primary btn-full plag-btn-icon" id="btn-plag-pdf" onclick="downloadPlagiarismPdf()" style="margin-bottom: 16px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <button type="button" class="btn-primary btn-full plag-btn-icon" id="btn-plag-pdf"
+                                onclick="downloadPlagiarismPdf()" style="margin-bottom: 16px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
                                 <span>Unduh Laporan PDF (Ala Turnitin)</span>
                             </button>
 
-                            <div style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between;">
+                            <div
+                                style="font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between;">
                                 <span>Sumber Cocok (Match Overview)</span>
-                                <span id="plag-src-count" style="color: var(--text-muted); font-weight: 600;">0 sumber</span>
+                                <span id="plag-src-count" style="color: var(--text-muted); font-weight: 600;">0
+                                    sumber</span>
                             </div>
                             <div id="plag-sources-list" style="max-height: 300px; overflow-y: auto;"></div>
 
-                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); line-height: 1.5; display: flex; gap: 6px; align-items: flex-start;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                <span><strong>Pre-Check Similarity:</strong> Menggunakan pencocokan frasa Shingling terhadap database jurnal terbuka (OpenAlex, Crossref), Wikipedia &amp; web untuk membantu menurunkan kemiripan sebelum submit Turnitin resmi kampus.</span>
+                            <div
+                                style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); line-height: 1.5; display: flex; gap: 6px; align-items: flex-start;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b"
+                                    stroke-width="2" style="flex-shrink:0; margin-top:2px;">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span><strong>Pre-Check Similarity:</strong> Menggunakan pencocokan frasa Shingling
+                                    terhadap database jurnal terbuka (OpenAlex, Crossref), Wikipedia &amp; web untuk
+                                    membantu menurunkan kemiripan sebelum submit Turnitin resmi kampus.</span>
                             </div>
                         </div>
                     </div>
@@ -5405,23 +6017,41 @@
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-olahdata">
                 <div class="page-eyebrow">Statistik Valid S1 &amp; S2 · Semua Jurusan</div>
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+                <div
+                    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
                     <h1 class="page-title" style="margin:0;">Olah Data Statistik (Setara SPSS)</h1>
                     <span class="od-badge-valid">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
                         <span>Komputasi Deterministik · Presisi SPSS</span>
                     </span>
                 </div>
-                <p class="page-subtitle">Solusi olah data mandiri untuk mahasiswa yang sudah punya proposal/data maupun yang belum memiliki kuesioner atau lembar uji lab. Mendukung Ekonomi, Pendidikan, Kesehatan, Sosial, IT, hingga Teknik Sipil &amp; Eksperimen Laboratorium.</p>
+                <p class="page-subtitle">Solusi olah data mandiri untuk mahasiswa yang sudah punya proposal/data maupun
+                    yang belum memiliki kuesioner atau lembar uji lab. Mendukung Ekonomi, Pendidikan, Kesehatan, Sosial,
+                    IT, hingga Teknik Sipil &amp; Eksperimen Laboratorium.</p>
 
                 <!-- Sub-Tab Switcher: Sudah Punya Data vs Belum Punya Kuesioner/Form -->
                 <div class="od-subtabs" role="tablist">
-                    <button type="button" class="od-subtab-btn active" id="od-tab-btn-calc" onclick="odSwitchSubTab('calc')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <button type="button" class="od-subtab-btn active" id="od-tab-btn-calc"
+                        onclick="odSwitchSubTab('calc')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 20V10" />
+                            <path d="M12 20V4" />
+                            <path d="M6 20v-6" />
+                        </svg>
                         <span>Sudah Punya Data (Hitung Statistik Valid)</span>
                     </button>
                     <button type="button" class="od-subtab-btn" id="od-tab-btn-inst" onclick="odSwitchSubTab('inst')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
                         <span>Belum Punya Kuesioner / Form Lab (Buat + Template Excel)</span>
                     </button>
                 </div>
@@ -5429,13 +6059,23 @@
                 <!-- SUB-TAB 1: KALKULATOR OLAH DATA VALID -->
                 <div id="od-subpane-calc">
                     <div class="card" style="margin-bottom: 16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
                             <div>
-                                <div style="font-size:14px; font-weight:700; color:var(--text-main);">1. Masukkan Data Penelitian (Excel, CSV, atau Tempel Tabel)</div>
-                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Baris pertama otomatis dibaca sebagai nama kolom variabel (mis. <code>X1_1</code>, <code>Kuat_Tekan_MPa</code>, <code>Pretest</code>).</div>
+                                <div style="font-size:14px; font-weight:700; color:var(--text-main);">1. Masukkan Data
+                                    Penelitian (Excel, CSV, atau Tempel Tabel)</div>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Baris pertama
+                                    otomatis dibaca sebagai nama kolom variabel (mis. <code>X1_1</code>,
+                                    <code>Kuat_Tekan_MPa</code>, <code>Pretest</code>).
+                                </div>
                             </div>
-                            <button type="button" class="btn-outline" id="od-btn-clear-data" onclick="odClearDataset()" style="display:none; padding:6px 11px; font-size:12px;">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                            <button type="button" class="btn-outline" id="od-btn-clear-data" onclick="odClearDataset()"
+                                style="display:none; padding:6px 11px; font-size:12px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                </svg>
                                 <span>Reset Data</span>
                             </button>
                         </div>
@@ -5444,40 +6084,66 @@
                             <!-- Dropzone Excel / CSV -->
                             <div>
                                 <label class="od-dropzone" id="od-dropzone" for="od-file-input">
-                                    <div style="width:40px; height:40px; border-radius:10px; background:#dbeafe; color:#1d4ed8; display:flex; align-items:center; justify-content:center;">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <div
+                                        style="width:40px; height:40px; border-radius:10px; background:#dbeafe; color:#1d4ed8; display:flex; align-items:center; justify-content:center;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="17 8 12 3 7 8" />
+                                            <line x1="12" y1="3" x2="12" y2="15" />
+                                        </svg>
                                     </div>
-                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);">Unggah File Excel (.xlsx / .xls) atau CSV</div>
-                                    <div style="font-size:11.5px; color:var(--text-muted);">Klik pilih berkas atau seret ke sini (maks 5.000 baris, diproses instan)</div>
-                                    <input type="file" id="od-file-input" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none;" onchange="odHandleFileUpload(this)">
+                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);">Unggah File
+                                        Excel (.xlsx / .xls) atau CSV</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted);">Klik pilih berkas atau seret
+                                        ke sini (maks 5.000 baris, diproses instan)</div>
+                                    <input type="file" id="od-file-input" accept=".xlsx,.xls,.csv,.tsv,.txt"
+                                        style="display:none;" onchange="odHandleFileUpload(this)">
                                 </label>
 
                                 <div style="margin-top:10px;">
-                                    <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Atau Coba Dataset Contoh Lintas Jurusan (1-Klik):</div>
+                                    <div
+                                        style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">
+                                        Atau Coba Dataset Contoh Lintas Jurusan (1-Klik):</div>
                                     <div class="od-sample-row">
                                         <button type="button" class="od-sample-btn" onclick="odLoadSample('likert')">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="16" rx="2" />
+                                                <line x1="7" y1="9" x2="17" y2="9" />
+                                                <line x1="7" y1="13" x2="13" y2="13" />
+                                            </svg>
                                             <div>
                                                 <div class="od-sample-title">Kuesioner Likert (N=30)</div>
-                                                <div class="od-sample-sub">Manajemen/Pendidikan · Validitas &amp; Regresi</div>
+                                                <div class="od-sample-sub">Manajemen/Pendidikan · Validitas &amp;
+                                                    Regresi</div>
                                             </div>
                                         </button>
                                         <button type="button" class="od-sample-btn" onclick="odLoadSample('beton')">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                                                <polyline points="2 17 12 22 22 17" />
+                                                <polyline points="2 12 12 17 22 12" />
+                                            </svg>
                                             <div>
                                                 <div class="od-sample-title">Kuat Tekan Beton (N=20)</div>
                                                 <div class="od-sample-sub">Teknik Sipil / Uji Lab · One-Way ANOVA</div>
                                             </div>
                                         </button>
                                         <button type="button" class="od-sample-btn" onclick="odLoadSample('prepost')">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                            </svg>
                                             <div>
                                                 <div class="od-sample-title">Pre-Test vs Post-Test</div>
                                                 <div class="od-sample-sub">Pendidikan/Kesehatan · Paired t-Test</div>
                                             </div>
                                         </button>
-                                        <button type="button" class="od-sample-btn" onclick="odLoadSample('eksperimen')">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6"/><path d="M10 3v6l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3"/></svg>
+                                        <button type="button" class="od-sample-btn"
+                                            onclick="odLoadSample('eksperimen')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M9 3h6" />
+                                                <path d="M10 3v6l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3" />
+                                            </svg>
                                             <div>
                                                 <div class="od-sample-title">Kontrol vs Eksperimen</div>
                                                 <div class="od-sample-sub">Kesehatan/Sains · Independent t-Test</div>
@@ -5489,12 +6155,18 @@
 
                             <!-- Tempel langsung dari Excel / Google Sheets -->
                             <div style="display:flex; flex-direction:column;">
-                                <label class="form-label" for="od-paste-area" style="margin-bottom:6px;">Atau Tempel (Copy-Paste) Langsung dari Excel / Spreadsheet</label>
-                                <textarea id="od-paste-area" class="form-textarea" rows="6" style="flex:1; min-height:142px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px;"
+                                <label class="form-label" for="od-paste-area" style="margin-bottom:6px;">Atau Tempel
+                                    (Copy-Paste) Langsung dari Excel / Spreadsheet</label>
+                                <textarea id="od-paste-area" class="form-textarea" rows="6"
+                                    style="flex:1; min-height:142px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px;"
                                     placeholder="Contoh format CSV / Tab Excel:&#10;Campuran,Kuat_Tekan_MPa&#10;Normal_0%,25.4&#10;FlyAsh_10%,28.9&#10;FlyAsh_20%,31.8"></textarea>
                                 <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-                                    <button type="button" class="btn-outline" onclick="odLoadFromPaste()" style="padding:7px 13px; font-size:12.5px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                    <button type="button" class="btn-outline" onclick="odLoadFromPaste()"
+                                        style="padding:7px 13px; font-size:12.5px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
                                         <span>Muat Tabel dari Teks</span>
                                     </button>
                                 </div>
@@ -5502,9 +6174,12 @@
                         </div>
 
                         <!-- Preview Dataset -->
-                        <div id="od-data-preview-wrap" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
-                            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                                <div style="font-size:12.5px; font-weight:700; color:var(--text-main);" id="od-data-summary-label">Dataset dimuat</div>
+                        <div id="od-data-preview-wrap"
+                            style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
+                            <div
+                                style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                <div style="font-size:12.5px; font-weight:700; color:var(--text-main);"
+                                    id="od-data-summary-label">Dataset dimuat</div>
                                 <div style="font-size:11.5px; color:var(--text-muted);" id="od-data-col-types"></div>
                             </div>
                             <div class="od-table-wrap">
@@ -5515,62 +6190,88 @@
 
                     <!-- Langkah 2: Pilih Uji & Variabel -->
                     <div class="card" style="margin-bottom: 16px;">
-                        <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:4px;">2. Pilih Jenis Uji Statistik &amp; Variabel</div>
-                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Tersedia 9 uji parametrik &amp; non-parametrik lengkap yang umum diminta dosen pembimbing di S1 &amp; S2.</div>
+                        <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:4px;">2.
+                            Pilih Jenis Uji Statistik &amp; Variabel</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Tersedia 9 uji
+                            parametrik &amp; non-parametrik lengkap yang umum diminta dosen pembimbing di S1 &amp; S2.
+                        </div>
 
                         <div class="od-test-grid" id="od-test-selector">
-                            <button type="button" class="od-test-card active" data-test="regression" onclick="odSelectTest('regression')">
+                            <button type="button" class="od-test-card active" data-test="regression"
+                                onclick="odSelectTest('regression')">
                                 <div class="od-test-name">Regresi Linier &amp; Asumsi Klasik</div>
-                                <div class="od-test-desc">R², Uji F, Uji t, VIF/Tolerance, Normalitas K-S, Glejser, Durbin-Watson.</div>
+                                <div class="od-test-desc">R², Uji F, Uji t, VIF/Tolerance, Normalitas K-S, Glejser,
+                                    Durbin-Watson.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="validity_reliability" onclick="odSelectTest('validity_reliability')">
+                            <button type="button" class="od-test-card" data-test="validity_reliability"
+                                onclick="odSelectTest('validity_reliability')">
                                 <div class="od-test-name">Validitas &amp; Reliabilitas</div>
-                                <div class="od-test-desc">Pearson r hitung vs r tabel, Sig., Cronbach's Alpha &amp; Alpha if Deleted.</div>
+                                <div class="od-test-desc">Pearson r hitung vs r tabel, Sig., Cronbach's Alpha &amp;
+                                    Alpha if Deleted.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="anova" onclick="odSelectTest('anova')">
+                            <button type="button" class="od-test-card" data-test="anova"
+                                onclick="odSelectTest('anova')">
                                 <div class="od-test-name">One-Way ANOVA + Post-Hoc</div>
-                                <div class="od-test-desc">Bandingkan ≥3 variasi perlakuan (Teknik Sipil, Lab, Eksperimen) + Levene &amp; Bonferroni.</div>
+                                <div class="od-test-desc">Bandingkan ≥3 variasi perlakuan (Teknik Sipil, Lab,
+                                    Eksperimen) + Levene &amp; Bonferroni.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="ttest_ind" onclick="odSelectTest('ttest_ind')">
+                            <button type="button" class="od-test-card" data-test="ttest_ind"
+                                onclick="odSelectTest('ttest_ind')">
                                 <div class="od-test-name">Independent Sample t-Test</div>
-                                <div class="od-test-desc">Uji beda 2 kelompok bebas (Kontrol vs Eksperimen) + Levene, Welch &amp; Cohen's d.</div>
+                                <div class="od-test-desc">Uji beda 2 kelompok bebas (Kontrol vs Eksperimen) + Levene,
+                                    Welch &amp; Cohen's d.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="ttest_paired" onclick="odSelectTest('ttest_paired')">
+                            <button type="button" class="od-test-card" data-test="ttest_paired"
+                                onclick="odSelectTest('ttest_paired')">
                                 <div class="od-test-name">Paired Sample t-Test</div>
-                                <div class="od-test-desc">Uji beda berpasangan Pre-Test vs Post-Test / Sebelum vs Sesudah perlakuan.</div>
+                                <div class="od-test-desc">Uji beda berpasangan Pre-Test vs Post-Test / Sebelum vs
+                                    Sesudah perlakuan.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="correlation" onclick="odSelectTest('correlation')">
+                            <button type="button" class="od-test-card" data-test="correlation"
+                                onclick="odSelectTest('correlation')">
                                 <div class="od-test-name">Korelasi Pearson &amp; Spearman</div>
-                                <div class="od-test-desc">Matriks hubungan antar variabel parametrik (r) &amp; non-parametrik (ρ).</div>
+                                <div class="od-test-desc">Matriks hubungan antar variabel parametrik (r) &amp;
+                                    non-parametrik (ρ).</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="descriptive" onclick="odSelectTest('descriptive')">
+                            <button type="button" class="od-test-card" data-test="descriptive"
+                                onclick="odSelectTest('descriptive')">
                                 <div class="od-test-name">Deskriptif &amp; Normalitas</div>
-                                <div class="od-test-desc">N, Min, Max, Mean, Median, SD, Varians, Skewness, Kurtosis &amp; K-S.</div>
+                                <div class="od-test-desc">N, Min, Max, Mean, Median, SD, Varians, Skewness, Kurtosis
+                                    &amp; K-S.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="chisquare" onclick="odSelectTest('chisquare')">
+                            <button type="button" class="od-test-card" data-test="chisquare"
+                                onclick="odSelectTest('chisquare')">
                                 <div class="od-test-name">Chi-Square (χ²) &amp; Crosstab</div>
-                                <div class="od-test-desc">Uji hubungan 2 variabel kategorik (Kesehatan/Sosial) + Cramer's V.</div>
+                                <div class="od-test-desc">Uji hubungan 2 variabel kategorik (Kesehatan/Sosial) +
+                                    Cramer's V.</div>
                             </button>
-                            <button type="button" class="od-test-card" data-test="nonparam" onclick="odSelectTest('nonparam')">
+                            <button type="button" class="od-test-card" data-test="nonparam"
+                                onclick="odSelectTest('nonparam')">
                                 <div class="od-test-name">Non-Parametrik (MW / Wilcoxon / Kruskal)</div>
-                                <div class="od-test-desc">Alternatif uji beda data tidak normal: Mann-Whitney U, Wilcoxon, &amp; Kruskal-Wallis H (≥3 kelompok).</div>
+                                <div class="od-test-desc">Alternatif uji beda data tidak normal: Mann-Whitney U,
+                                    Wilcoxon, &amp; Kruskal-Wallis H (≥3 kelompok).</div>
                             </button>
                         </div>
 
                         <!-- Dynamic Variable Picker -->
                         <div class="od-var-box" id="od-var-picker">
-                            <div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>
+                            <div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih
+                                dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.
+                            </div>
                         </div>
 
                         <!-- Konteks & Alpha -->
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:12px; margin-bottom:14px;">
                             <div>
-                                <label class="form-label" for="od-topic-input">Judul / Konteks Penelitian (Opsional)</label>
-                                <input type="text" id="od-topic-input" class="form-input" placeholder="cth: Pengaruh Variasi Fly Ash terhadap Kuat Tekan Beton">
+                                <label class="form-label" for="od-topic-input">Judul / Konteks Penelitian
+                                    (Opsional)</label>
+                                <input type="text" id="od-topic-input" class="form-input"
+                                    placeholder="cth: Pengaruh Variasi Fly Ash terhadap Kuat Tekan Beton">
                             </div>
                             <div>
                                 <label class="form-label" for="od-major-input">Jurusan / Bidang Ilmu</label>
-                                <input type="text" id="od-major-input" class="form-input" placeholder="cth: Teknik Sipil / Manajemen / Pendidikan / Kesehatan">
+                                <input type="text" id="od-major-input" class="form-input"
+                                    placeholder="cth: Teknik Sipil / Manajemen / Pendidikan / Kesehatan">
                             </div>
                             <div>
                                 <label class="form-label" for="od-alpha-select">Taraf Signifikansi (α)</label>
@@ -5582,13 +6283,20 @@
                             </div>
                         </div>
 
-                        <div id="od-error-box" style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;"></div>
+                        <div id="od-error-box"
+                            style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;">
+                        </div>
                         <div id="od-loading-box" style="display:none; margin-bottom:12px;"></div>
 
-                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                            <div style="font-size:11.5px; color:var(--text-muted);">Semua angka dihitung langsung dengan rumus matematis murni (bukan tebakan AI).</div>
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <div style="font-size:11.5px; color:var(--text-muted);">Semua angka dihitung langsung dengan
+                                rumus matematis murni (bukan tebakan AI).</div>
                             <button type="button" class="btn-primary" id="od-btn-run" onclick="odRunAnalysis()">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
+                                </svg>
                                 <span>Hitung Statistik Valid (Setara SPSS)</span>
                             </button>
                         </div>
@@ -5597,39 +6305,75 @@
                     <!-- Hasil Analisis Statistik -->
                     <div id="od-result-section" style="display:none;">
                         <div class="card" style="margin-bottom:16px;">
-                            <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
+                            <div
+                                style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
                                 <div>
-                                    <div style="font-size:16px; font-weight:800; color:var(--text-main);" id="od-res-title">Hasil Analisis Statistik</div>
-                                    <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;" id="od-res-subtitle"></div>
+                                    <div style="font-size:16px; font-weight:800; color:var(--text-main);"
+                                        id="od-res-title">Hasil Analisis Statistik</div>
+                                    <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;"
+                                        id="od-res-subtitle"></div>
                                 </div>
                                 <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                                    <button type="button" class="btn-outline" onclick="odCopyTables(this)" style="padding:7px 11px; font-size:12px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <button type="button" class="btn-outline" onclick="odCopyTables(this)"
+                                        style="padding:7px 11px; font-size:12px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                        </svg>
                                         <span>Salin Tabel</span>
                                     </button>
-                                    <button type="button" class="btn-primary" id="od-btn-docx" onclick="odDownloadDocx()" style="padding:7px 13px; font-size:12px; background:#059669; border-color:#059669;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+                                    <button type="button" class="btn-primary" id="od-btn-docx"
+                                        onclick="odDownloadDocx()"
+                                        style="padding:7px 13px; font-size:12px; background:#059669; border-color:#059669;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                            <polyline points="14 2 14 8 20 8" />
+                                            <path d="M12 18v-6" />
+                                            <path d="M9 15l3 3 3-3" />
+                                        </svg>
                                         <span>Unduh Word (.docx)</span>
                                     </button>
-                                    <button type="button" class="btn-primary" id="od-btn-pdf" onclick="odDownloadPdf()" style="padding:7px 13px; font-size:12px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <button type="button" class="btn-primary" id="od-btn-pdf" onclick="odDownloadPdf()"
+                                        style="padding:7px 13px; font-size:12px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
                                         <span>Unduh PDF</span>
                                     </button>
                                 </div>
                             </div>
 
                             <div class="od-hl-grid" id="od-res-highlights"></div>
-                            <div id="od-res-advisory" style="display:none; padding:11px 14px; border-radius:10px; font-size:12.5px; line-height:1.55; margin-bottom:14px;"></div>
-                            <div id="od-res-equation" style="display:none; padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:13px; font-weight:700; margin-bottom:14px;"></div>
-                            <div id="od-res-academic-guide" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 15px; margin-bottom:14px; font-size:12.3px; color:var(--text-secondary); line-height:1.55;"></div>
+                            <div id="od-res-advisory"
+                                style="display:none; padding:11px 14px; border-radius:10px; font-size:12.5px; line-height:1.55; margin-bottom:14px;">
+                            </div>
+                            <div id="od-res-equation"
+                                style="display:none; padding:11px 14px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; font-size:13px; font-weight:700; margin-bottom:14px;">
+                            </div>
+                            <div id="od-res-academic-guide"
+                                style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 15px; margin-bottom:14px; font-size:12.3px; color:var(--text-secondary); line-height:1.55;">
+                            </div>
                             <div id="od-res-tables"></div>
 
                             <!-- Grafik Statistik SVG (Dukung Multi-Grafik Asli SPSS untuk Regresi) -->
                             <div class="od-chart-box" id="od-res-chart-wrap" style="display:none;">
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);" id="od-chart-title">Visualisasi Grafik</div>
-                                    <button type="button" class="btn-outline" onclick="odDownloadChartPng()" style="padding:5px 10px; font-size:11.5px;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <div
+                                    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                                    <div style="font-size:13px; font-weight:700; color:var(--text-main);"
+                                        id="od-chart-title">Visualisasi Grafik</div>
+                                    <button type="button" class="btn-outline" onclick="odDownloadChartPng()"
+                                        style="padding:5px 10px; font-size:11.5px;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
                                         <span>Unduh Grafik PNG HD</span>
                                     </button>
                                 </div>
@@ -5638,25 +6382,45 @@
                             </div>
 
                             <!-- Keputusan Statistik -->
-                            <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:14px;">
-                                <div style="font-size:13px; font-weight:700; color:var(--text-main); margin-bottom:6px;">Ringkasan Keputusan Statistik</div>
-                                <ul id="od-res-conclusions" style="margin:0 0 0 18px; padding:0; font-size:12.8px; color:var(--text-secondary); line-height:1.65;"></ul>
+                            <div
+                                style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:14px;">
+                                <div
+                                    style="font-size:13px; font-weight:700; color:var(--text-main); margin-bottom:6px;">
+                                    Ringkasan Keputusan Statistik</div>
+                                <ul id="od-res-conclusions"
+                                    style="margin:0 0 0 18px; padding:0; font-size:12.8px; color:var(--text-secondary); line-height:1.65;">
+                                </ul>
                             </div>
 
                             <!-- Narasi Interpretasi Bab IV (AI Berbasis Angka Eksak) -->
                             <div style="border-top:1px solid var(--border-light); padding-top:14px;">
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                <div
+                                    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                                     <div>
-                                        <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Narasi Interpretasi Bab IV Siap Tempel Word</div>
-                                        <div style="font-size:12px; color:var(--text-muted);">AI menerjemahkan tabel hasil hitung eksak di atas menjadi paragraf akademis baku tanpa mengubah angka satu digit pun.</div>
+                                        <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Narasi
+                                            Interpretasi Bab IV Siap Tempel Word</div>
+                                        <div style="font-size:12px; color:var(--text-muted);">AI menerjemahkan tabel
+                                            hasil hitung eksak di atas menjadi paragraf akademis baku tanpa mengubah
+                                            angka satu digit pun.</div>
                                     </div>
                                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                        <button type="button" class="btn-primary" id="od-btn-narrate" onclick="odGenerateNarration()" style="padding:8px 14px; font-size:12.5px;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                        <button type="button" class="btn-primary" id="od-btn-narrate"
+                                            onclick="odGenerateNarration()" style="padding:8px 14px; font-size:12.5px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M12 20h9" />
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                            </svg>
                                             <span>Buat Narasi Bab IV (AI)</span>
                                         </button>
-                                        <button type="button" class="btn-outline" id="od-btn-copy-narr" onclick="odCopyNarration(this)" style="display:none; padding:8px 12px; font-size:12.5px;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        <button type="button" class="btn-outline" id="od-btn-copy-narr"
+                                            onclick="odCopyNarration(this)"
+                                            style="display:none; padding:8px 12px; font-size:12.5px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" />
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                            </svg>
                                             <span>Salin Narasi</span>
                                         </button>
                                     </div>
@@ -5671,79 +6435,124 @@
                 <!-- SUB-TAB 2: BELUM PUNYA KUESIONER / LEMBAR PENCATATAN EKSPERIMEN LAB -->
                 <div id="od-subpane-inst" style="display:none;">
                     <div class="card" style="margin-bottom:16px;">
-                        <div style="font-size:14.5px; font-weight:700; color:var(--text-main); margin-bottom:4px;">Generator Instrumen Pengumpulan Data + Template Tabulasi Excel</div>
-                        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:14px;">Belum punya kuesioner atau format tabel uji laboratorium? Susun otomatis kisi-kisi Bab III, daftar butir/parameter ukur, lalu unduh file Excel (.xlsx / .csv) kosong yang siap diisi dan diunggah langsung ke tab Hitung Statistik!</div>
+                        <div style="font-size:14.5px; font-weight:700; color:var(--text-main); margin-bottom:4px;">
+                            Generator Instrumen Pengumpulan Data + Template Tabulasi Excel</div>
+                        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:14px;">Belum punya
+                            kuesioner atau format tabel uji laboratorium? Susun otomatis kisi-kisi Bab III, daftar
+                            butir/parameter ukur, lalu unduh file Excel (.xlsx / .csv) kosong yang siap diisi dan
+                            diunggah langsung ke tab Hitung Statistik!</div>
 
                         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
-                            <button type="button" class="od-test-card active" id="od-inst-mode-kuesioner" onclick="odSetInstrumentMode('kuesioner')" style="flex:1 1 240px;">
+                            <button type="button" class="od-test-card active" id="od-inst-mode-kuesioner"
+                                onclick="odSetInstrumentMode('kuesioner')" style="flex:1 1 240px;">
                                 <div class="od-test-name">Kuesioner Survei (Skala Likert)</div>
-                                <div class="od-test-desc">Cocok untuk Manajemen, Ekonomi, Pendidikan, Psikologi, Sosial, Komunikasi, Kesehatan Masyarakat.</div>
+                                <div class="od-test-desc">Cocok untuk Manajemen, Ekonomi, Pendidikan, Psikologi, Sosial,
+                                    Komunikasi, Kesehatan Masyarakat.</div>
                             </button>
-                            <button type="button" class="od-test-card" id="od-inst-mode-eksperimen" onclick="odSetInstrumentMode('eksperimen')" style="flex:1 1 240px;">
+                            <button type="button" class="od-test-card" id="od-inst-mode-eksperimen"
+                                onclick="odSetInstrumentMode('eksperimen')" style="flex:1 1 240px;">
                                 <div class="od-test-name">Lembar Data Eksperimen / Uji Lab</div>
-                                <div class="od-test-desc">Cocok untuk Teknik Sipil (Beton/Aspal), Teknik Mesin, Pertanian, Biologi, Farmasi, Keperawatan &amp; IT.</div>
+                                <div class="od-test-desc">Cocok untuk Teknik Sipil (Beton/Aspal), Teknik Mesin,
+                                    Pertanian, Biologi, Farmasi, Keperawatan &amp; IT.</div>
                             </button>
                         </div>
 
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap:12px; margin-bottom:12px;">
                             <div>
-                                <label class="form-label" for="od-inst-topic">Judul / Topik Penelitian <span style="color:#dc2626;">*</span></label>
-                                <input type="text" id="od-inst-topic" class="form-input" placeholder="cth: Pengaruh Motivasi & Disiplin Kerja terhadap Kinerja Karyawan">
+                                <label class="form-label" for="od-inst-topic">Judul / Topik Penelitian <span
+                                        style="color:#dc2626;">*</span></label>
+                                <input type="text" id="od-inst-topic" class="form-input"
+                                    placeholder="cth: Pengaruh Motivasi & Disiplin Kerja terhadap Kinerja Karyawan">
                             </div>
                             <div>
                                 <label class="form-label" for="od-inst-major">Jurusan / Program Studi</label>
-                                <input type="text" id="od-inst-major" class="form-input" placeholder="cth: Manajemen / Teknik Sipil / Pendidikan / Kesehatan">
+                                <input type="text" id="od-inst-major" class="form-input"
+                                    placeholder="cth: Manajemen / Teknik Sipil / Pendidikan / Kesehatan">
                             </div>
                         </div>
 
                         <div class="od-inst-grid">
                             <div>
-                                <label class="form-label" for="od-inst-vars" id="od-inst-vars-label">Daftar Variabel Penelitian (pisahkan dengan koma) <span style="color:#dc2626;">*</span></label>
-                                <input type="text" id="od-inst-vars" class="form-input" placeholder="cth: Motivasi Kerja (X1), Disiplin Kerja (X2), Kinerja Karyawan (Y)">
+                                <label class="form-label" for="od-inst-vars" id="od-inst-vars-label">Daftar Variabel
+                                    Penelitian (pisahkan dengan koma) <span style="color:#dc2626;">*</span></label>
+                                <input type="text" id="od-inst-vars" class="form-input"
+                                    placeholder="cth: Motivasi Kerja (X1), Disiplin Kerja (X2), Kinerja Karyawan (Y)">
                             </div>
                             <div>
-                                <label class="form-label" for="od-inst-count" id="od-inst-count-label">Item per Variabel</label>
+                                <label class="form-label" for="od-inst-count" id="od-inst-count-label">Item per
+                                    Variabel</label>
                                 <input type="number" id="od-inst-count" class="form-input" min="2" max="12" value="5">
                             </div>
                             <div>
-                                <label class="form-label" for="od-inst-scale" id="od-inst-scale-label">Skala / Satuan</label>
+                                <label class="form-label" for="od-inst-scale" id="od-inst-scale-label">Skala /
+                                    Satuan</label>
                                 <select id="od-inst-scale" class="form-select">
                                     <option value="Likert 1-5 (STS - SS)">Skala Likert 1–5 (STS – SS)</option>
                                     <option value="Likert 1-4 (STS - SS)">Skala Likert 1–4 (Tanpa Netral)</option>
                                     <option value="Guttman (Ya = 1, Tidak = 0)">Skala Guttman (Ya / Tidak)</option>
-                                    <option value="Pengukuran Numerik / Satuan SI">Pengukuran Numerik / Lab (MPa, mm, g, s)</option>
+                                    <option value="Pengukuran Numerik / Satuan SI">Pengukuran Numerik / Lab (MPa, mm, g,
+                                        s)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div id="od-inst-error" style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;"></div>
+                        <div id="od-inst-error"
+                            style="display:none; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:12.5px; font-weight:600; margin-bottom:12px;">
+                        </div>
                         <div id="od-inst-loading" style="display:none; margin-bottom:12px;"></div>
 
                         <div style="display:flex; justify-content:flex-end;">
-                            <button type="button" class="btn-primary" id="od-btn-gen-inst" onclick="odGenerateInstrument()">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                            <button type="button" class="btn-primary" id="od-btn-gen-inst"
+                                onclick="odGenerateInstrument()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="12" y1="18" x2="12" y2="12" />
+                                    <line x1="9" y1="15" x2="15" y2="15" />
+                                </svg>
                                 <span>Buat Instrumen &amp; Template Excel</span>
                             </button>
                         </div>
                     </div>
 
                     <div id="od-inst-result" style="display:none;" class="card">
-                        <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
+                        <div
+                            style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-light);">
                             <div>
-                                <div style="font-size:15.5px; font-weight:800; color:var(--text-main);" id="od-inst-res-title">Instrumen Penelitian</div>
-                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;" id="od-inst-res-meta"></div>
+                                <div style="font-size:15.5px; font-weight:800; color:var(--text-main);"
+                                    id="od-inst-res-title">Instrumen Penelitian</div>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;"
+                                    id="od-inst-res-meta"></div>
                             </div>
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                                <button type="button" class="btn-outline" onclick="odCopyInstrument(this)" style="padding:7px 12px; font-size:12px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <button type="button" class="btn-outline" onclick="odCopyInstrument(this)"
+                                    style="padding:7px 12px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
                                     <span>Salin Kisi-Kisi &amp; Butir</span>
                                 </button>
-                                <button type="button" class="btn-outline" onclick="odDownloadTemplateCsv()" style="padding:7px 12px; font-size:12px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <button type="button" class="btn-outline" onclick="odDownloadTemplateCsv()"
+                                    style="padding:7px 12px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
                                     <span>Unduh Template .CSV</span>
                                 </button>
-                                <button type="button" class="btn-primary" onclick="odDownloadTemplateXlsx()" style="padding:7px 13px; font-size:12px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <button type="button" class="btn-primary" onclick="odDownloadTemplateXlsx()"
+                                    style="padding:7px 13px; font-size:12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
                                     <span>Unduh Template Excel (.xlsx)</span>
                                 </button>
                             </div>
@@ -5773,8 +6582,7 @@
                             <span style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Dosen Pembimbing
                                 AI (Aktif 24 Jam)</span>
                         </div>
-                        <button type="button" class="qa-copy-btn"
-                            onclick="resetQaChat()">
+                        <button type="button" class="qa-copy-btn" onclick="resetQaChat()">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
@@ -5902,7 +6710,8 @@
                         @endphp
                         <span
                             style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: {{ $accPaid ? '#f0fdf4' : '#f1f5f9' }}; color: {{ $accPaid ? '#16a34a' : '#475569' }}; border: 1px solid {{ $accPaid ? '#bbf7d0' : '#cbd5e1' }}; font-size: 12.5px; font-weight: 700;">
-                            <span style="width: 7px; height: 7px; border-radius: 50%; background: {{ $accPaid ? '#16a34a' : '#64748b' }};"></span>
+                            <span
+                                style="width: 7px; height: 7px; border-radius: 50%; background: {{ $accPaid ? '#16a34a' : '#64748b' }};"></span>
                             {{ $accPlanName }}
                         </span>
                     </div>
@@ -5933,17 +6742,28 @@
                                 style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">
                                 Status Tier &amp; Kuota Naskah</div>
                             <div style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 6px;">
-                                {{ $accPlanName }}</div>
-                            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.55;">
+                                {{ $accPlanName }}
+                            </div>
+                            <div
+                                style="font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.55;">
                                 @if($accUnlimited)
-                                    Akses <strong>Unlimited</strong> semua Proposal, Skripsi (Bab I–V), Download Word/PDF, &amp; seluruh AI Tools. Berlaku hingga: <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
+                                    Akses <strong>Unlimited</strong> semua Proposal, Skripsi (Bab I–V), Download Word/PDF,
+                                    &amp; seluruh AI Tools. Berlaku hingga:
+                                    <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
                                 @elseif($accPaid)
-                                    Sisa kuota: <strong>{{ $billingSummary['remaining_quota'] ?? 0 }} Proposal/Skripsi Full</strong> (Terpakai {{ $billingSummary['quota_used'] ?? 0 }}/{{ $billingSummary['quota_limit'] ?? 0 }}). Berlaku hingga: <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
+                                    Sisa kuota: <strong>{{ $billingSummary['remaining_quota'] ?? 0 }} Proposal/Skripsi
+                                        Full</strong> (Terpakai
+                                    {{ $billingSummary['quota_used'] ?? 0 }}/{{ $billingSummary['quota_limit'] ?? 0 }}).
+                                    Berlaku hingga: <strong>{{ $billingSummary['expires_at_label'] ?? '-' }}</strong>.
                                 @else
-                                    Jatah Free: <strong>1 proyek uji coba</strong> (Sampul, Bab I &amp; Daftar Pustaka), <strong>Dosen AI gratis</strong>, &amp; <strong>1x coba gratis</strong> fitur AI Tools lainnya.
+                                    Jatah Free: <strong>1 proyek uji coba</strong> (Sampul, Bab I &amp; Daftar Pustaka),
+                                    <strong>Dosen AI gratis</strong>, &amp; <strong>1x coba gratis</strong> fitur AI Tools
+                                    lainnya.
                                 @endif
                             </div>
-                            <button type="button" class="btn-primary" style="margin-top: 12px; padding: 8px 14px; font-size: 12.5px;" onclick="openTab('pricing', 'Paket')">
+                            <button type="button" class="btn-primary"
+                                style="margin-top: 12px; padding: 8px 14px; font-size: 12.5px;"
+                                onclick="openTab('pricing', 'Paket')">
                                 {{ $accPaid ? 'Tambah Kuota / Perpanjang Paket →' : 'Upgrade Paket Mulai Rp15.000 →' }}
                             </button>
                         </div>
@@ -5973,7 +6793,8 @@
                 @endphp
                 <div class="page-eyebrow">Tanpa Sistem Kredit · Bayar Pakai Kuota atau Unlimited</div>
                 <h1 class="page-title">Paket</h1>
-                <p class="page-subtitle">Cek status akun Anda atau pilih paket mulai Rp15.000 dengan aktivasi langsung bersama Admin.</p>
+                <p class="page-subtitle">Cek status akun Anda atau pilih paket mulai Rp15.000 dengan aktivasi langsung
+                    bersama Admin.</p>
 
                 <!-- Kartu Status Tier & Sisa Kuota/Fitur -->
                 @include('partials.billing_status_card', ['bs' => $bs, 'inWorkspace' => true])
@@ -5985,7 +6806,8 @@
 
                 @if(!empty($bs['recent_transactions']) && count($bs['recent_transactions']) > 0)
                     <div class="card">
-                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Riwayat Transaksi Paket Saya</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">
+                            Riwayat Transaksi Paket Saya</div>
                         <div style="overflow-x: auto;">
                             <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
                                 <thead>
@@ -6004,11 +6826,15 @@
                                             <td style="padding:8px 6px; font-weight:600;">{{ $tx->plan_name }}</td>
                                             <td style="padding:8px 6px;">Rp {{ number_format($tx->amount, 0, ',', '.') }}</td>
                                             <td style="padding:8px 6px;">
-                                                <span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; background:{{ $tx->status === 'completed' ? '#dcfce7' : '#fef3c7' }}; color:{{ $tx->status === 'completed' ? '#15803d' : '#b45309' }};">
+                                                <span
+                                                    style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; background:{{ $tx->status === 'completed' ? '#dcfce7' : '#fef3c7' }}; color:{{ $tx->status === 'completed' ? '#15803d' : '#b45309' }};">
                                                     {{ strtoupper($tx->status) }}
                                                 </span>
                                             </td>
-                                            <td style="padding:8px 6px; color:#64748b;">{{ \Carbon\Carbon::parse($tx->created_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB</td>
+                                            <td style="padding:8px 6px; color:#64748b;">
+                                                {{ \Carbon\Carbon::parse($tx->created_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                                WIB
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -6033,26 +6859,36 @@
                 @endphp
                 <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral 10%)</h1>
-                <p class="page-subtitle">Setiap teman yang mendaftar lewat link Anda lalu membeli paket berbayar, Anda langsung mendapat komisi 10% yang bisa dicairkan atau ditukar menjadi paket.
+                <p class="page-subtitle">Setiap teman yang mendaftar lewat link Anda lalu membeli paket berbayar, Anda
+                    langsung mendapat komisi 10% yang bisa dicairkan atau ditukar menjadi paket.
                 </p>
 
                 <!-- Statistik Live Referral -->
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 165px), 1fr)); gap:12px; margin-bottom:18px;">
                     <div class="card" style="padding:14px 16px;">
                         <div style="font-size:11.5px; font-weight:600; color:#64748b;">Teman Mendaftar</div>
-                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">{{ number_format((int) ($refStats['invited_count'] ?? 0)) }}</div>
+                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">
+                            {{ number_format((int) ($refStats['invited_count'] ?? 0)) }}
+                        </div>
                     </div>
                     <div class="card" style="padding:14px 16px;">
                         <div style="font-size:11.5px; font-weight:600; color:#64748b;">Transaksi Berhasil</div>
-                        <div style="font-size:22px; font-weight:800; color:#2563eb; margin-top:4px;">{{ number_format((int) ($refStats['converted_count'] ?? 0)) }}x</div>
+                        <div style="font-size:22px; font-weight:800; color:#2563eb; margin-top:4px;">
+                            {{ number_format((int) ($refStats['converted_count'] ?? 0)) }}x
+                        </div>
                     </div>
                     <div class="card" style="padding:14px 16px;">
                         <div style="font-size:11.5px; font-weight:600; color:#64748b;">Total Komisi Terkumpul</div>
-                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">Rp {{ number_format((int) ($refStats['total_earned'] ?? 0), 0, ',', '.') }}</div>
+                        <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">Rp
+                            {{ number_format((int) ($refStats['total_earned'] ?? 0), 0, ',', '.') }}
+                        </div>
                     </div>
                     <div class="card" style="padding:14px 16px; border-color:#bbf7d0; background:#f0fdf4;">
                         <div style="font-size:11.5px; font-weight:700; color:#15803d;">Saldo Komisi Tersedia</div>
-                        <div id="ref-balance-text" style="font-size:22px; font-weight:800; color:#16a34a; margin-top:4px;">Rp {{ number_format($refBalance, 0, ',', '.') }}</div>
+                        <div id="ref-balance-text"
+                            style="font-size:22px; font-weight:800; color:#16a34a; margin-top:4px;">Rp
+                            {{ number_format($refBalance, 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
 
@@ -6067,7 +6903,9 @@
                             <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
                                 Dapatkan Komisi 10% dari Setiap Pembelian Paket Teman</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
-                                seangkatan atau tim bimbinganmu. Setiap teman membeli paket (Rp15rb–Rp399rb), <strong>komisi 10%</strong> masuk ke saldo Anda.</p>
+                                seangkatan atau tim bimbinganmu. Setiap teman membeli paket (Rp15rb–Rp399rb),
+                                <strong>komisi 10%</strong> masuk ke saldo Anda.
+                            </p>
                         </div>
                         <div
                             style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
@@ -6103,23 +6941,28 @@
                 <!-- Pencairan atau Tukar Saldo Komisi -->
                 <div class="form-row" style="margin-bottom: 18px;">
                     <div class="card">
-                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Tukar Saldo Jadi Paket Otomatis</div>
-                        <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">Gunakan saldo komisi langsung tanpa menunggu pencairan bank.</p>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+                            Tukar Saldo Jadi Paket Otomatis</div>
+                        <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">Gunakan saldo
+                            komisi langsung tanpa menunggu pencairan bank.</p>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                             <select id="ref-redeem-plan" class="form-select" style="flex:1; min-width:180px;">
                                 <option value="starter">Paket Starter 1 Naskah (Rp15.000)</option>
                                 <option value="hemat">Paket Hemat 3 Naskah (Rp29.000)</option>
                                 <option value="unlimited_1m">Unlimited 1 Bulan (Rp50.000)</option>
                             </select>
-                            <button type="button" class="btn-primary" onclick="submitReferralRedeem(this)" {{ $refBalance < 15000 ? 'disabled' : '' }} style="opacity:{{ $refBalance < 15000 ? '0.55' : '1' }};">
+                            <button type="button" class="btn-primary" onclick="submitReferralRedeem(this)" {{ $refBalance < 15000 ? 'disabled' : '' }}
+                                style="opacity:{{ $refBalance < 15000 ? '0.55' : '1' }};">
                                 Tukar Paket →
                             </button>
                         </div>
-                        <div style="font-size:11.5px; color:#64748b; margin-top:8px;">Minimal saldo Rp15.000 untuk tukar ke Paket Starter.</div>
+                        <div style="font-size:11.5px; color:#64748b; margin-top:8px;">Minimal saldo Rp15.000 untuk tukar
+                            ke Paket Starter.</div>
                     </div>
 
                     <div class="card">
-                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Ajukan Pencairan Dana / Rekening</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+                            Ajukan Pencairan Dana / Rekening</div>
                         <div class="responsive-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
                             <select id="ref-wd-channel" class="form-select">
                                 <option value="DANA">DANA</option>
@@ -6128,13 +6971,15 @@
                                 <option value="ShopeePay">ShopeePay</option>
                                 <option value="Transfer Bank (BCA/BRI/Mandiri)">Transfer Bank</option>
                             </select>
-                            <input type="number" id="ref-wd-amount" class="form-input" placeholder="Nominal (min 10000)" min="10000" value="{{ max(10000, $refBalance) }}">
+                            <input type="number" id="ref-wd-amount" class="form-input" placeholder="Nominal (min 10000)"
+                                min="10000" value="{{ max(10000, $refBalance) }}">
                         </div>
                         <div class="responsive-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
                             <input type="text" id="ref-wd-number" class="form-input" placeholder="Nomor HP / Rekening">
                             <input type="text" id="ref-wd-name" class="form-input" placeholder="Atas Nama Pemilik">
                         </div>
-                        <button type="button" class="btn-outline" onclick="submitReferralWithdraw(this)" {{ $refBalance < 10000 ? 'disabled' : '' }} style="width:100%; opacity:{{ $refBalance < 10000 ? '0.55' : '1' }};">
+                        <button type="button" class="btn-outline" onclick="submitReferralWithdraw(this)" {{ $refBalance < 10000 ? 'disabled' : '' }}
+                            style="width:100%; opacity:{{ $refBalance < 10000 ? '0.55' : '1' }};">
                             Ajukan Pencairan Komisi (Min. Rp10.000)
                         </button>
                     </div>
@@ -6142,7 +6987,8 @@
 
                 @if(count($invitedUsers) > 0 || count($refHistory) > 0 || count($refWithdrawals) > 0)
                     <div class="card" style="margin-bottom: 18px;">
-                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Aktivitas Teman &amp; Riwayat Komisi</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">
+                            Aktivitas Teman &amp; Riwayat Komisi</div>
                         @if(count($invitedUsers) > 0)
                             <div style="overflow-x:auto; margin-bottom:14px;">
                                 <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
@@ -6160,9 +7006,12 @@
                                                 $masked = substr($parts[0], 0, 2) . '***@' . ($parts[1] ?? '');
                                             @endphp
                                             <tr style="border-bottom:1px solid #f1f5f9;">
-                                                <td style="padding:7px 6px;"><strong>{{ $iu->name }}</strong> <span style="color:#64748b;">({{ $masked }})</span></td>
+                                                <td style="padding:7px 6px;"><strong>{{ $iu->name }}</strong> <span
+                                                        style="color:#64748b;">({{ $masked }})</span></td>
                                                 <td style="padding:7px 6px;">{{ strtoupper($iu->plan_code ?? 'free') }}</td>
-                                                <td style="padding:7px 6px; color:#64748b;">{{ $iu->created_at ? $iu->created_at->timezone('Asia/Jakarta')->format('d M Y') : '-' }}</td>
+                                                <td style="padding:7px 6px; color:#64748b;">
+                                                    {{ $iu->created_at ? $iu->created_at->timezone('Asia/Jakarta')->format('d M Y') : '-' }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -6170,12 +7019,15 @@
                             </div>
                         @endif
                         @if(count($refWithdrawals) > 0)
-                            <div style="font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">Riwayat Penarikan Komisi</div>
+                            <div style="font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">Riwayat Penarikan
+                                Komisi</div>
                             <div style="display:flex; flex-direction:column; gap:6px;">
                                 @foreach($refWithdrawals as $wd)
-                                    <div style="font-size:12px; padding:8px 10px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; display:flex; justify-content:space-between;">
+                                    <div
+                                        style="font-size:12px; padding:8px 10px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; display:flex; justify-content:space-between;">
                                         <span>{{ $wd->channel }} · {{ $wd->account_number }} ({{ $wd->account_name }})</span>
-                                        <span><strong>Rp {{ number_format($wd->amount, 0, ',', '.') }}</strong> · {{ strtoupper($wd->status) }}</span>
+                                        <span><strong>Rp {{ number_format($wd->amount, 0, ',', '.') }}</strong> ·
+                                            {{ strtoupper($wd->status) }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -6204,7 +7056,8 @@
                             style="padding: 14px; border: 1px solid #bbf7d0; border-radius: 10px; background: #f0fdf4;">
                             <div style="font-size: 12px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">3.
                                 Komisi 10% Langsung Masuk</div>
-                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Saldo otomatis masuk dan bisa ditukar jadi paket atau dicairkan ke Dana/GoPay/Rekening.</div>
+                            <div style="font-size: 12.5px; color: #15803d; line-height: 1.55;">Saldo otomatis masuk dan
+                                bisa ditukar jadi paket atau dicairkan ke Dana/GoPay/Rekening.</div>
                         </div>
                     </div>
                 </div>
@@ -6301,6 +7154,130 @@
                         </button>
                     </form>
                 </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- 13. TAB PANDUAN LENGKAP IN-APP WORKSPACE                  -->
+            <!-- ========================================================= -->
+            <section class="tab-pane" id="pane-panduan">
+                <div class="page-eyebrow">Pusat Bantuan Internal · {{ count($guides ?? []) }} Modul SkripsiLab AI</div>
+                <h1 class="page-title">Panduan Lengkap Workspace</h1>
+                <p class="page-subtitle">Pelajari langkah cepat menyusun judul, mencari jurnal ber-DOI, menulis Bab I–V,
+                    membuat PPT sidang, hingga olah data statistik langsung dari dalam Workspace.</p>
+
+                @php
+                    $guideList = $guides ?? [];
+                @endphp
+                @if(count($guideList) > 0)
+                    <div class="panduan-layout">
+                        <aside class="panduan-sidebar-card" aria-label="Daftar Modul Panduan">
+                            <div class="panduan-sidebar-title">Pilih Modul Panduan</div>
+                            <div class="panduan-mod-list">
+                                @foreach($guideList as $idx => $g)
+                                    <button type="button"
+                                        class="panduan-mod-btn {{ $idx === 0 ? 'active' : '' }}"
+                                        id="panduan-btn-{{ $g['slug'] }}"
+                                        data-guide-slug="{{ $g['slug'] }}"
+                                        onclick="selectPanduanGuide('{{ $g['slug'] }}')">
+                                        <span class="panduan-mod-num">{{ $g['num'] }}</span>
+                                        <span style="min-width: 0; flex: 1;">
+                                            <span style="display: block; font-size: 13px; font-weight: 700; line-height: 1.3;">{{ $g['short_title'] }}</span>
+                                            <span style="display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px;">{{ $g['category'] }}</span>
+                                        </span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </aside>
+
+                        <div style="min-width: 0;">
+                            @foreach($guideList as $idx => $g)
+                                @php
+                                    $prevG = $idx > 0 ? $guideList[$idx - 1] : null;
+                                    $nextG = $idx < count($guideList) - 1 ? $guideList[$idx + 1] : null;
+                                @endphp
+                                <article class="panduan-mod-panel {{ $idx === 0 ? 'active' : '' }}"
+                                    id="panduan-panel-{{ $g['slug'] }}"
+                                    data-guide-panel="{{ $g['slug'] }}">
+                                    <div class="panduan-meta-row">
+                                        <span style="font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #eff6ff; color: var(--primary);">Panduan {{ $g['num'] }} &bull; {{ $g['category'] }}</span>
+                                        <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: var(--text-secondary);">{{ $g['reading_time'] }}</span>
+                                    </div>
+
+                                    <h2 style="font-size: clamp(19px, 2.5vw, 24px); font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; line-height: 1.3; margin: 0 0 8px;">{{ $g['title'] }}</h2>
+                                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin: 0;">{{ $g['hero_subtitle'] }}</p>
+
+                                    <div class="panduan-step-list">
+                                        @foreach($g['steps'] as $sIdx => $st)
+                                            <div class="panduan-step-card">
+                                                <div class="panduan-step-head">
+                                                    <span class="panduan-step-num">{{ $sIdx + 1 }}</span>
+                                                    <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.4;">{{ $st['title'] }}</h3>
+                                                </div>
+                                                <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; margin: 0;">{{ $st['desc'] }}</p>
+                                                @if(!empty($st['tip']))
+                                                    <div class="panduan-tip-box"><strong>Tips:</strong> {{ $st['tip'] }}</div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                    @if(!empty($g['mistakes']))
+                                        <div class="panduan-warn-box">
+                                            <div style="font-size: 13px; font-weight: 800; color: #92400e; margin-bottom: 6px;">Kesalahan Umum yang Sebaiknya Dihindari</div>
+                                            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #78350f; line-height: 1.55;">
+                                                @foreach($g['mistakes'] as $ms)
+                                                    <li>{{ $ms }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
+
+                                    @if(!empty($g['faqs']))
+                                        <div style="margin-bottom: 8px;">
+                                            <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">Pertanyaan yang Sering Ditanyakan</div>
+                                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                @foreach($g['faqs'] as $fq)
+                                                    <div class="panduan-faq-item">
+                                                        <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">{{ $fq['q'] }}</div>
+                                                        <div style="font-size: 12.8px; color: var(--text-secondary); line-height: 1.6;">{{ $fq['a'] }}</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <div class="panduan-cta-bar">
+                                        <div style="min-width: 0; flex: 1;">
+                                            <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Siap langsung mempraktikkannya sekarang?</div>
+                                            <div style="font-size: 12.8px; color: var(--text-secondary); margin-top: 2px;">Buka modul <strong>{{ $g['short_title'] }}</strong> langsung di Workspace tanpa keluar halaman.</div>
+                                        </div>
+                                        <button type="button" class="btn-primary" onclick="openPanduanFeatureTab('{{ $g['tab'] }}')">{{ $g['cta_label'] }}</button>
+                                    </div>
+
+                                    <div class="panduan-pager">
+                                        @if($prevG)
+                                            <button type="button" class="panduan-pager-btn" onclick="selectPanduanGuide('{{ $prevG['slug'] }}')">
+                                                <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">&larr; Panduan Sebelumnya</span>
+                                                <span style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main);">{{ $prevG['num'] }}. {{ $prevG['short_title'] }}</span>
+                                            </button>
+                                        @else
+                                            <div></div>
+                                        @endif
+
+                                        @if($nextG)
+                                            <button type="button" class="panduan-pager-btn" style="text-align: right;" onclick="selectPanduanGuide('{{ $nextG['slug'] }}')">
+                                                <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Panduan Berikutnya &rarr;</span>
+                                                <span style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main);">{{ $nextG['num'] }}. {{ $nextG['short_title'] }}</span>
+                                            </button>
+                                        @else
+                                            <div></div>
+                                        @endif
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </section>
 
         </main>
@@ -6464,6 +7441,7 @@
                     const cleanUrl = new URL(window.location.href);
                     cleanUrl.searchParams.delete('tab');
                     cleanUrl.searchParams.delete('create');
+                    cleanUrl.searchParams.delete('guide');
                     cleanUrl.hash = tabId;
                     window.history.replaceState(null, '', cleanUrl.toString());
                 }
@@ -6474,42 +7452,69 @@
             window.scrollTo(0, 0);
         }
 
+        const DASHBOARD_TAB_LABELS = {
+            'dashboard': 'Dashboard',
+            'projects': 'Proyek Saya',
+            'skripsi': 'Proyek Saya',
+            'proposal': 'Proyek Saya',
+            'titles': 'Cari Judul',
+            'ppt': 'Generate PPT Sidang',
+            'defense': 'Simulasi Sidang',
+            'journals': 'Cari Jurnal',
+            'paraphrase': 'Parafrase',
+            'olahdata': 'Olah Data',
+            'qa': 'Dosen AI',
+            'pricing': 'Paket',
+            'account': 'Akun Saya',
+            'referral': 'Ajak Teman',
+            'panduan': 'Panduan Lengkap',
+            'feedback': 'Saran & Laporan'
+        };
+
+        function selectPanduanGuide(slug) {
+            if (!slug) return;
+            const targetPanel = document.querySelector(`.panduan-mod-panel[data-guide-panel="${slug}"]`);
+            if (!targetPanel) return;
+            document.querySelectorAll('.panduan-mod-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.guideSlug === slug);
+            });
+            document.querySelectorAll('.panduan-mod-panel').forEach(panel => {
+                panel.classList.toggle('active', panel === targetPanel);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        function openPanduanFeatureTab(tabKey) {
+            if (tabKey === 'projects') {
+                openCreateProjectForm();
+                return;
+            }
+            const label = DASHBOARD_TAB_LABELS[tabKey] || 'Dashboard';
+            openTab(tabKey, label);
+        }
+
         // Buka tab sesuai URL hash / query param / localStorage (Refresh tetap konsisten)
         (function initTabFromUrl() {
-            const map = {
-                'dashboard': 'Dashboard',
-                'projects': 'Proyek Saya',
-                'skripsi': 'Proyek Saya',
-                'proposal': 'Proyek Saya',
-                'titles': 'Cari Judul',
-                'ppt': 'Generate PPT Sidang',
-                'defense': 'Simulasi Sidang',
-                'journals': 'Cari Jurnal',
-                'paraphrase': 'Parafrase',
-                'olahdata': 'Olah Data',
-                'qa': 'Dosen AI',
-                'pricing': 'Paket',
-                'account': 'Akun Saya',
-                'referral': 'Ajak Teman',
-                'feedback': 'Saran & Laporan'
-            };
-
             const params = new URLSearchParams(window.location.search);
             const tabParam = params.get('tab');
+            const guideParam = params.get('guide');
             const hashTab = (window.location.hash || '').replace('#', '').trim();
             const storedTab = localStorage.getItem('skripsiai_active_tab');
 
             let targetTab = null;
-            if (tabParam && map[tabParam]) {
+            if (tabParam && DASHBOARD_TAB_LABELS[tabParam]) {
                 targetTab = (tabParam === 'skripsi' || tabParam === 'proposal') ? 'projects' : tabParam;
-            } else if (hashTab && map[hashTab]) {
+            } else if (hashTab && DASHBOARD_TAB_LABELS[hashTab]) {
                 targetTab = hashTab;
-            } else if (storedTab && map[storedTab]) {
+            } else if (storedTab && DASHBOARD_TAB_LABELS[storedTab]) {
                 targetTab = storedTab;
             }
 
-            if (targetTab && map[targetTab]) {
-                openTab(targetTab, map[targetTab]);
+            if (targetTab && DASHBOARD_TAB_LABELS[targetTab]) {
+                openTab(targetTab, DASHBOARD_TAB_LABELS[targetTab]);
+                if (targetTab === 'panduan' && guideParam) {
+                    selectPanduanGuide(guideParam);
+                }
                 if (params.get('create') === '1') {
                     openCreateProjectForm();
                 }
@@ -6834,7 +7839,7 @@
                     }
                     const lbl = document.getElementById('new-proj-logo-label');
                     if (lbl) lbl.innerText = file.name.substring(0, 16);
-                    
+
                     // Simpan raw base64 tanpa prefix data:image/... untuk menghindari pencekalan WAF Vercel (CRS rule 931130 RFI)
                     const rawB64 = dataUrl.split(',')[1] || '';
                     const hidden = document.getElementById('input-logo-base64');
@@ -7650,7 +8655,7 @@
                         }
                     });
                 }
-            } catch (e) {}
+            } catch (e) { }
         })();
 
         function persistSavedPptsToLocal() {
@@ -7666,7 +8671,7 @@
                     updated_at_human: d.updated_at_human || 'baru saja'
                 }));
                 localStorage.setItem(PPT_LOCAL_STORAGE_KEY, JSON.stringify(compact));
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function upsertSavedPptLocal(deck) {
@@ -7757,7 +8762,7 @@
                         method: 'DELETE',
                         headers: { 'X-CSRF-TOKEN': csrfToken }
                     });
-                } catch (e) {}
+                } catch (e) { }
             }
         }
 
@@ -7792,7 +8797,7 @@
                         if (statusEl) statusEl.textContent = '✓ Tersimpan di PPT Saya';
                         return;
                     }
-                } catch (e) {}
+                } catch (e) { }
                 // Fallback simpan lokal
                 const localId = activeSavedPptId || ('local_' + Date.now());
                 upsertSavedPptLocal({
@@ -9449,1707 +10454,6 @@
 
             btn.disabled = true;
             btn.innerHTML = '<span class="ai-spinner"></span><span>Memeriksa Kemiripan...</span>';
-            if (resWrap) resWrap.style.display = 'none';
-            document.getElementById('plag-inline-editor').style.display = 'none';
-            renderLoadingCard('plag-loading-box', 'Memeriksa Kemiripan Naskah (Ala Turnitin)...', 'Membandingkan frasa naskah dengan OpenAlex, Crossref, Wikipedia & Web secara paralel...');
-
-            try {
-                const res = await fetch("{{ route('tools.plagiarism.check') }}", {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: fd
-                });
-                const rawBody = await res.text();
-                let data = {};
-                try { data = JSON.parse(rawBody); } catch (_) { data = { message: 'Respon server tidak valid (' + res.status + ').' }; }
-                hideLoadingCard('plag-loading-box');
-
-                if (res.ok && data.status === 'success' && data.report) {
-                    plagCurrentReport = data.report;
-                    renderPlagiarismReport(plagCurrentReport);
-                    if (resWrap) {
-                        resWrap.style.display = 'block';
-                        resWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                } else {
-                    handleToolQuotaOrError(res, data, 'Gagal memeriksa kemiripan naskah.', showPlagError);
-                }
-            } catch (err) {
-                hideLoadingCard('plag-loading-box');
-                showPlagError('Terjadi kesalahan jaringan saat memeriksa plagiasi. Silakan coba lagi.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = defaultBtnHtml;
-            }
-        }
-
-        function renderPlagiarismReport(rep) {
-            const overall = Number(rep.overall_score || 0);
-            const pctEl = document.getElementById('plag-big-pct');
-            const pillEl = document.getElementById('plag-status-pill');
-
-            let scoreColor = '#059669';
-            let pillBg = '#ecfdf5';
-            let pillColor = '#047857';
-            if (overall > 25) {
-                scoreColor = '#dc2626'; pillBg = '#fef2f2'; pillColor = '#b91c1c';
-            } else if (overall > 15) {
-                scoreColor = '#d97706'; pillBg = '#fffbeb'; pillColor = '#b45309';
-            }
-
-            if (pctEl) {
-                pctEl.textContent = overall.toFixed(1) + '%';
-                pctEl.style.color = scoreColor;
-            }
-            if (pillEl) {
-                pillEl.textContent = rep.status_label || 'Selesai';
-                pillEl.style.background = pillBg;
-                pillEl.style.color = pillColor;
-            }
-
-            const wSum = document.getElementById('plag-word-summary');
-            if (wSum) {
-                wSum.textContent = `${rep.checked_words || 0} kata dicek · ${rep.matched_words || 0} kata mirip`;
-            }
-            document.getElementById('plag-acad-pct').textContent = Number(rep.academic_score || 0).toFixed(1) + '%';
-            document.getElementById('plag-web-pct').textContent = Number(rep.web_score || 0).toFixed(1) + '%';
-            document.getElementById('plag-local-pct').textContent = Number(rep.local_score || 0).toFixed(1) + '%';
-            document.getElementById('plag-ttr-val').textContent = Number(rep.lexical_diversity || 0).toFixed(1) + '%';
-
-            // Render dokumen dengan highlight warna persis Turnitin
-            const viewer = document.getElementById('plag-doc-viewer');
-            if (viewer) {
-                let html = '';
-                (rep.sentences || []).forEach((s, i) => {
-                    const safeText = escapeHtml(s.text || '');
-                    if (s.is_heading) {
-                        html += `<div style="font-weight:700; color:#0f172a; margin:12px 0 4px;">${safeText}</div>`;
-                    } else if (s.matched && s.color) {
-                        const tip = `Mirip ${s.match_percent}% (${s.contiguous_words} kata berurutan) · Sumber [${s.source_number}]: ${escapeHtml(s.source_title || '')}`;
-                        html += `<span class="plag-sent-hl" data-sidx="${i}" title="${tip}" onclick="openPlagInlineParaphrase(${i})" style="background:${s.color.bg}; border-bottom-color:${s.color.border};"><span class="plag-sent-num" style="background:${s.color.badge};">${s.source_number}</span>${safeText}</span> `;
-                    } else if (s.paraphrased) {
-                        html += `<span style="background:#ecfdf5; border-bottom:2px solid #10b981; padding:2px 4px; border-radius:4px;" title="Sudah diparafrase">${safeText}</span> `;
-                    } else {
-                        html += `${safeText} `;
-                    }
-                });
-                viewer.innerHTML = html || '<div style="color:#64748b;">Tidak ada teks untuk ditampilkan.</div>';
-            }
-
-            // Render daftar sumber cocok
-            const srcList = document.getElementById('plag-sources-list');
-            const srcCount = document.getElementById('plag-src-count');
-            const sources = rep.sources || [];
-            if (srcCount) srcCount.textContent = `${sources.length} sumber`;
-            if (srcList) {
-                if (!sources.length) {
-                    srcList.innerHTML = `<div style="padding:14px; text-align:center; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:9px; font-size:12.5px; color:#047857;">
-                        ✓ Tidak ditemukan kemiripan signifikan pada jurnal ilmiah terbuka &amp; web!
-                    </div>`;
-                } else {
-                    srcList.innerHTML = sources.map(src => {
-                        const linkHtml = src.url
-                            ? `<a href="${escapeHtml(src.url)}" target="_blank" rel="noopener" style="font-size:11.5px; color:#2563eb; text-decoration:underline; word-break:break-all;">Buka Sumber ↗</a>`
-                            : `<span style="font-size:11.5px; color:#64748b;">Dokumen Pembanding Lokal</span>`;
-                        return `
-                            <div class="plag-src-item">
-                                <span class="plag-sent-num" style="background:${src.color.badge}; margin-top:2px; flex-shrink:0;">${src.number}</span>
-                                <div style="flex:1; min-width:0;">
-                                    <div style="font-size:12.5px; font-weight:700; color:#0f172a; line-height:1.35;">${escapeHtml(src.title)}</div>
-                                    <div style="font-size:11px; color:#64748b; margin-top:2px;">${escapeHtml(src.origin)}${src.year ? ' · ' + src.year : ''} · ${src.matched_sentences} kalimat</div>
-                                    <div style="margin-top:3px;">${linkHtml}</div>
-                                </div>
-                                <div style="font-size:13.5px; font-weight:800; color:${src.color.badge}; flex-shrink:0;">${Number(src.percent).toFixed(1)}%</div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            }
-        }
-
-        function openPlagInlineParaphrase(idx) {
-            if (!plagCurrentReport || !plagCurrentReport.sentences[idx]) return;
-            plagSelectedSentenceIdx = idx;
-            const s = plagCurrentReport.sentences[idx];
-            const box = document.getElementById('plag-inline-editor');
-            document.getElementById('plag-inline-meta').textContent = `Sumber [${s.source_number}] · Kemiripan ${s.match_percent}% (${s.contiguous_words} kata berurutan)`;
-            document.getElementById('plag-inline-orig').textContent = s.text;
-            const srcLinkEl = document.getElementById('plag-inline-source-link');
-            srcLinkEl.innerHTML = s.source_url
-                ? `Mirip dengan: <strong>${escapeHtml(s.source_title || '')}</strong> — <a href="${escapeHtml(s.source_url)}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">Lihat Sumber ↗</a>`
-                : `Mirip dengan: <strong>${escapeHtml(s.source_title || 'Sumber terdeteksi')}</strong>`;
-            document.getElementById('plag-inline-result-box').style.display = 'none';
-            document.getElementById('plag-inline-new-text').value = '';
-            box.style.display = 'block';
-            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
         async function paraphraseFlaggedSentence() {
             if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
-            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
-            const btn = document.getElementById('btn-plag-inline-para');
-            const origHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Memparafrase kalimat...</span>';
-            try {
-                const res = await fetch("{{ route('tools.paraphrase') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: JSON.stringify({ text: s.text, style: 'natural', model: getSelectedModel() })
-                });
-                const data = await res.json();
-                if (data.status === 'success' && data.result) {
-                    document.getElementById('plag-inline-new-text').value = data.result.trim();
-                    document.getElementById('plag-inline-result-box').style.display = 'block';
-                } else {
-                    showPlagError(data.message || 'Gagal memparafrase kalimat.');
-                }
-            } catch (e) {
-                showPlagError('Gagal menghubungi layanan parafrase.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = origHtml;
-            }
-        }
-
-        function applyParaphrasedSentence() {
-            if (plagSelectedSentenceIdx === null || !plagCurrentReport) return;
-            const newTxt = (document.getElementById('plag-inline-new-text')?.value || '').trim();
-            if (!newTxt) return;
-            const s = plagCurrentReport.sentences[plagSelectedSentenceIdx];
-            const removedWords = Math.round((s.word_count || 0) * Math.min(1, Math.max(0.35, (s.match_percent || 0) / 100)));
-            s.text = newTxt;
-            s.matched = false;
-            s.match_percent = 0;
-            s.paraphrased = true;
-
-            // Perbarui estimasi skor similarity secara langsung setelah kalimat diparafrase
-            plagCurrentReport.matched_words = Math.max(0, (plagCurrentReport.matched_words || 0) - removedWords);
-            const denom = Math.max(1, plagCurrentReport.checked_words || 1);
-            plagCurrentReport.overall_score = Math.round((plagCurrentReport.matched_words / denom) * 1000) / 10;
-            if (plagCurrentReport.overall_score <= 15) {
-                plagCurrentReport.status_label = 'Aman · Lolos Standar Kampus (< 15%)';
-            } else if (plagCurrentReport.overall_score <= 25) {
-                plagCurrentReport.status_label = 'Cukup Aman · Periksa Kalimat Berwarna (15–25%)';
-            }
-
-            document.getElementById('plag-inline-editor').style.display = 'none';
-            renderPlagiarismReport(plagCurrentReport);
-        }
-
-        function copyUpdatedPlagDoc(btn) {
-            if (!plagCurrentReport || !plagCurrentReport.sentences) return;
-            const fullText = plagCurrentReport.sentences.map(s => s.is_heading ? ('\n\n' + s.text + '\n') : s.text).join(' ').replace(/\s+\n/g, '\n').trim();
-            navigator.clipboard.writeText(fullText).then(() => {
-                const origHtml = btn.innerHTML;
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Naskah Tersalin</span>';
-                setTimeout(() => btn.innerHTML = origHtml, 1800);
-            });
-        }
-
-        async function downloadPlagiarismPdf() {
-            if (!plagCurrentReport) return;
-            const btn = document.getElementById('btn-plag-pdf');
-            const origHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan Laporan PDF...</span>';
-            try {
-                const res = await fetch("{{ route('tools.plagiarism.pdf') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ report: plagCurrentReport })
-                });
-                if (!res.ok) {
-                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
-                        const errData = await res.json().catch(() => ({}));
-                        window.openUpgradeModal(errData.message || 'Download PDF Cek Plagiarisme tersedia untuk Paket Starter mulai Rp15.000.');
-                        return;
-                    }
-                    throw new Error('Gagal membuat PDF.');
-                }
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Laporan_Similarity_SkripsiLab.pdf';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1500);
-            } catch (e) {
-                showPlagError('Gagal mengunduh laporan PDF.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = origHtml;
-            }
-        }
-
-        // =========================================================================
-        // OLAH DATA STATISTIK VALID (SETARA IBM SPSS — STANDALONE MENU SIDEBAR)
-        // =========================================================================
-        let odDataset = { columns: [], rows: [], title: '' };
-        let odColMeta = { numeric: [], categorical: [] };
-        let odActiveTest = 'regression';
-        let odCurrentResult = null;
-        let odCurrentNarration = '';
-        let odInstMode = 'kuesioner';
-        let odCurrentInstrument = null;
-
-        function odEscape(str) {
-            return String(str ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function odSwitchSubTab(tab) {
-            document.getElementById('od-subpane-calc').style.display = tab === 'calc' ? 'block' : 'none';
-            document.getElementById('od-subpane-inst').style.display = tab === 'inst' ? 'block' : 'none';
-            document.getElementById('od-tab-btn-calc').classList.toggle('active', tab === 'calc');
-            document.getElementById('od-tab-btn-inst').classList.toggle('active', tab === 'inst');
-        }
-
-        function odShowError(msg) {
-            const box = document.getElementById('od-error-box');
-            if (!box) return;
-            if (!msg) {
-                box.style.display = 'none';
-                box.textContent = '';
-            } else {
-                box.style.display = 'block';
-                box.textContent = msg;
-            }
-        }
-
-        function odLoadSheetJs() {
-            if (window.XLSX) return Promise.resolve(window.XLSX);
-            return new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-                s.onload = () => window.XLSX ? resolve(window.XLSX) : reject(new Error('Library Excel gagal dimuat.'));
-                s.onerror = () => reject(new Error('Gagal memuat pembaca file Excel (.xlsx). Coba simpan sebagai .CSV lalu unggah ulang.'));
-                document.head.appendChild(s);
-            });
-        }
-
-        function odParseDelimitedText(raw) {
-            const cleaned = String(raw || '').replace(/^\uFEFF/, '').trim();
-            const lines = cleaned.split(/\r\n|\r|\n/).filter(l => l.trim() !== '');
-            if (lines.length < 2) return { columns: [], rows: [] };
-            const first = lines[0];
-            const counts = {
-                '\t': (first.match(/\t/g) || []).length,
-                ';': (first.match(/;/g) || []).length,
-                ',': (first.match(/,/g) || []).length
-            };
-            let delim = ',';
-            if (counts['\t'] >= counts[';'] && counts['\t'] >= counts[','] && counts['\t'] > 0) delim = '\t';
-            else if (counts[';'] > counts[',']) delim = ';';
-
-            const splitLine = (line) => {
-                const out = [];
-                let cur = '';
-                let inQ = false;
-                for (let i = 0; i < line.length; i++) {
-                    const ch = line[i];
-                    if (ch === '"') {
-                        if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-                        else inQ = !inQ;
-                    } else if (ch === delim && !inQ) {
-                        out.push(cur.trim());
-                        cur = '';
-                    } else {
-                        cur += ch;
-                    }
-                }
-                out.push(cur.trim());
-                return out;
-            };
-
-            const rawHeaders = splitLine(lines[0]).map((h, i) => h || ('Kolom_' + (i + 1)));
-            const columns = rawHeaders.filter(Boolean);
-            const rows = [];
-            for (let i = 1; i < lines.length; i++) {
-                const vals = splitLine(lines[i]);
-                const obj = {};
-                let hasVal = false;
-                columns.forEach((col, idx) => {
-                    const v = vals[idx] !== undefined ? vals[idx] : '';
-                    if (v !== '') hasVal = true;
-                    obj[col] = v;
-                });
-                if (hasVal) rows.push(obj);
-            }
-            return { columns, rows };
-        }
-
-        async function odHandleFileUpload(input) {
-            odShowError('');
-            const file = input?.files?.[0];
-            if (!file) return;
-            const ext = (file.name.split('.').pop() || '').toLowerCase();
-            try {
-                if (ext === 'xlsx' || ext === 'xls') {
-                    const XLSX = await odLoadSheetJs();
-                    const buf = await file.arrayBuffer();
-                    const wb = XLSX.read(buf, { type: 'array' });
-                    const firstSheet = wb.SheetNames[0];
-                    const sheet = wb.Sheets[firstSheet];
-                    const arr = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-                    if (!arr || arr.length < 2) throw new Error('Sheet Excel kosong atau hanya berisi 1 baris.');
-                    const columns = arr[0].map((h, i) => String(h || '').trim() || ('Kolom_' + (i + 1)));
-                    const rows = [];
-                    for (let i = 1; i < arr.length; i++) {
-                        const r = arr[i];
-                        if (!r || !r.some(v => String(v ?? '').trim() !== '')) continue;
-                        const obj = {};
-                        columns.forEach((c, idx) => { obj[c] = r[idx] !== undefined ? String(r[idx]).trim() : ''; });
-                        rows.push(obj);
-                    }
-                    odSetDataset(columns, rows, file.name);
-                } else {
-                    const txt = await file.text();
-                    const parsed = odParseDelimitedText(txt);
-                    if (!parsed.rows.length) throw new Error('File CSV/teks tidak memiliki baris data yang valid.');
-                    odSetDataset(parsed.columns, parsed.rows, file.name);
-                }
-            } catch (err) {
-                odShowError(err.message || 'Gagal membaca file data.');
-            }
-        }
-
-        function odLoadFromPaste() {
-            odShowError('');
-            const raw = (document.getElementById('od-paste-area')?.value || '').trim();
-            if (!raw) {
-                odShowError('Tempel data tabel (CSV atau salinan Excel) terlebih dahulu.');
-                return;
-            }
-            const parsed = odParseDelimitedText(raw);
-            if (!parsed.columns.length || parsed.rows.length < 2) {
-                odShowError('Minimal harus ada 1 baris header kolom dan 2 baris data.');
-                return;
-            }
-            odSetDataset(parsed.columns, parsed.rows, 'Data Tempel Manual');
-        }
-
-        function odClearDataset() {
-            odDataset = { columns: [], rows: [], title: '' };
-            odColMeta = { numeric: [], categorical: [] };
-            odCurrentResult = null;
-            odCurrentNarration = '';
-            document.getElementById('od-data-preview-wrap').style.display = 'none';
-            document.getElementById('od-btn-clear-data').style.display = 'none';
-            document.getElementById('od-result-section').style.display = 'none';
-            document.getElementById('od-file-input').value = '';
-            document.getElementById('od-var-picker').innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>';
-        }
-
-        function odIsNumericVal(v) {
-            const s = String(v ?? '').trim();
-            if (!s) return false;
-            const norm = s.includes(',') && !s.includes('.') ? s.replace(',', '.') : s.replace(/,/g, '');
-            return !isNaN(parseFloat(norm)) && isFinite(norm);
-        }
-
-        function odSetDataset(columns, rows, title) {
-            // Auto-Compute Skor Total Variabel (seperti Transform -> Compute Variable di IBM SPSS)
-            // jika dataset punya butir kuesioner X1_1..X1_4, Y_1..Y_4 namun belum punya X1_Total / Y_Total
-            const colsCopy = [...columns];
-            const rowsCopy = rows.map(r => ({ ...r }));
-            const prefixGroups = {};
-            colsCopy.forEach(c => {
-                if (/^(id|no|nomor|responden|kode|total|skor|sum)/i.test(c)) return;
-                const m = c.match(/^([A-Za-z]+\d*)[_\.\-\s]+(\d+)$/);
-                if (m) {
-                    const pfx = m[1];
-                    if (!prefixGroups[pfx]) prefixGroups[pfx] = [];
-                    prefixGroups[pfx].push(c);
-                }
-            });
-            const autoComputed = [];
-            Object.entries(prefixGroups).forEach(([pfx, itemCols]) => {
-                if (itemCols.length < 2) return;
-                const allNumeric = itemCols.every(ic => rowsCopy.slice(0, 30).some(r => odIsNumericVal(r[ic])));
-                if (!allNumeric) return;
-                const existingTotal = colsCopy.find(c => new RegExp('^' + pfx + '[ _\\-]?total$', 'i').test(c) || c.toLowerCase() === pfx.toLowerCase());
-                if (!existingTotal) {
-                    const totalCol = pfx + '_Total';
-                    colsCopy.push(totalCol);
-                    rowsCopy.forEach(r => {
-                        let s = 0; let ok = 0;
-                        itemCols.forEach(ic => {
-                            const raw = String(r[ic] ?? '').trim().replace(',', '.');
-                            const num = parseFloat(raw);
-                            if (!isNaN(num)) { s += num; ok++; }
-                        });
-                        r[totalCol] = ok === itemCols.length ? String(Math.round(s * 1000) / 1000) : '';
-                    });
-                    autoComputed.push(totalCol);
-                }
-            });
-
-            odDataset = { columns: colsCopy, rows: rowsCopy, title: title || 'Data Penelitian', autoComputed };
-            const numeric = [];
-            const categorical = [];
-            colsCopy.forEach(col => {
-                let numCount = 0;
-                let nonEmpty = 0;
-                rowsCopy.slice(0, 120).forEach(r => {
-                    const v = String(r[col] ?? '').trim();
-                    if (v !== '') {
-                        nonEmpty++;
-                        if (odIsNumericVal(v)) numCount++;
-                    }
-                });
-                if (nonEmpty > 0 && numCount / nonEmpty >= 0.7) numeric.push(col);
-                else categorical.push(col);
-            });
-            odColMeta = { numeric, categorical };
-
-            // Pemeriksaan Kualitas Data Otomatis (Data Preparation: Missing Values, Duplikat, & Outlier IQR)
-            let missingCells = 0;
-            const seenRowSigs = new Set();
-            let dupRows = 0;
-            rowsCopy.forEach(r => {
-                const sig = colsCopy.map(c => {
-                    const v = String(r[c] ?? '').trim();
-                    if (v === '') missingCells++;
-                    return v;
-                }).join('||');
-                if (seenRowSigs.has(sig)) dupRows++;
-                else seenRowSigs.add(sig);
-            });
-            let outlierCount = 0;
-            numeric.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c)).forEach(col => {
-                const vals = rowsCopy.map(r => parseFloat(String(r[col] ?? '').replace(',', '.'))).filter(v => !isNaN(v)).sort((a, b) => a - b);
-                if (vals.length >= 6) {
-                    const q1 = vals[Math.floor(vals.length * 0.25)];
-                    const q3 = vals[Math.floor(vals.length * 0.75)];
-                    const iqr = q3 - q1;
-                    if (iqr > 0) {
-                        const lo = q1 - 1.5 * iqr, hi = q3 + 1.5 * iqr;
-                        outlierCount += vals.filter(v => v < lo || v > hi).length;
-                    }
-                }
-            });
-
-            // Render preview
-            document.getElementById('od-data-preview-wrap').style.display = 'block';
-            document.getElementById('od-btn-clear-data').style.display = 'inline-flex';
-            document.getElementById('od-data-summary-label').textContent = `${title} · ${rowsCopy.length} baris × ${colsCopy.length} kolom`;
-            const dqParts = [
-                `${numeric.length} numerik`,
-                `${categorical.length} kategorik`,
-                missingCells === 0 ? '0 data kosong' : `${missingCells} sel kosong`,
-                dupRows === 0 ? '0 duplikat' : `${dupRows} baris duplikat`,
-                outlierCount === 0 ? '0 outlier IQR' : `${outlierCount} indikasi outlier`
-            ];
-            if (autoComputed.length) dqParts.push(`Skor total otomatis: ${autoComputed.join(', ')}`);
-            document.getElementById('od-data-col-types').textContent = dqParts.join(' · ');
-
-            const tbl = document.getElementById('od-preview-table');
-            let html = '<thead><tr>' + colsCopy.map(c => `<th>${odEscape(c)}</th>`).join('') + '</tr></thead><tbody>';
-            rowsCopy.slice(0, 6).forEach(r => {
-                html += '<tr>' + colsCopy.map(c => `<td>${odEscape(r[c] ?? '')}</td>`).join('') + '</tr>';
-            });
-            if (rowsCopy.length > 6) {
-                html += `<tr><td colspan="${colsCopy.length}" style="text-align:center; color:#64748b; font-style:italic;">... dan ${rowsCopy.length - 6} baris lainnya</td></tr>`;
-            }
-            html += '</tbody>';
-            tbl.innerHTML = html;
-
-            odRenderVarPicker();
-        }
-
-        function odLoadSample(kind) {
-            odShowError('');
-            if (kind === 'likert') {
-                const cols = ['Responden', 'X1_1', 'X1_2', 'X1_3', 'X1_4', 'X2_1', 'X2_2', 'X2_3', 'X2_4', 'Y_1', 'Y_2', 'Y_3', 'Y_4', 'X1_Total', 'X2_Total', 'Y_Total'];
-                const baseX1 = [4,2,5,4,2,5,3,2,4,5,3,4,2,5,3,2,4,5,3,4,2,4,5,2,4,5,3,4,5,3];
-                const baseX2 = [3,4,4,2,3,5,5,3,3,4,4,2,3,4,5,4,2,5,4,3,4,3,4,3,5,4,2,5,3,5];
-                const rows = baseX1.map((b1, i) => {
-                    const b2 = baseX2[i];
-                    const clamp = v => Math.max(1, Math.min(5, v));
-                    const x11 = clamp(b1), x12 = clamp(b1 + ((i % 3) === 0 ? 0 : (i % 2 ? 1 : -1))), x13 = clamp(b1), x14 = clamp(b1 + ((i % 4) === 0 ? -1 : 0));
-                    const x21 = clamp(b2), x22 = clamp(b2 + ((i % 3) === 1 ? -1 : 0)), x23 = clamp(b2), x24 = clamp(b2 + ((i % 2) === 0 ? 0 : 1));
-                    const x1Tot = x11 + x12 + x13 + x14;
-                    const x2Tot = x21 + x22 + x23 + x24;
-                    const yTarget = Math.round((x1Tot * 0.46 + x2Tot * 0.50 + ((i % 3) - 1)) / 4);
-                    const y1 = clamp(yTarget), y2 = clamp(yTarget + ((i % 5) === 0 ? -1 : 0)), y3 = clamp(yTarget), y4 = clamp(yTarget + ((i % 4) === 1 ? 1 : 0));
-                    return {
-                        Responden: 'R-' + String(i + 1).padStart(2, '0'),
-                        X1_1: x11, X1_2: x12, X1_3: x13, X1_4: x14,
-                        X2_1: x21, X2_2: x22, X2_3: x23, X2_4: x24,
-                        Y_1: y1, Y_2: y2, Y_3: y3, Y_4: y4,
-                        X1_Total: x1Tot,
-                        X2_Total: x2Tot,
-                        Y_Total: y1 + y2 + y3 + y4
-                    };
-                });
-                document.getElementById('od-topic-input').value = 'Pengaruh Motivasi Kerja (X1) dan Disiplin Kerja (X2) terhadap Kinerja Karyawan (Y)';
-                document.getElementById('od-major-input').value = 'Manajemen / Ekonomi';
-                odActiveTest = 'regression';
-                odSyncTestCardUI();
-                odSetDataset(cols, rows, 'Contoh Kuesioner Likert (N=30)');
-            } else if (kind === 'beton') {
-                const cols = ['Kode_Benda_Uji', 'Variasi_Campuran', 'Kuat_Tekan_MPa', 'Slump_cm'];
-                const rows = [
-                    { Kode_Benda_Uji: 'B-01', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.4, Slump_cm: 10.5 },
-                    { Kode_Benda_Uji: 'B-02', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 26.1, Slump_cm: 10.2 },
-                    { Kode_Benda_Uji: 'B-03', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 24.9, Slump_cm: 10.8 },
-                    { Kode_Benda_Uji: 'B-04', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.8, Slump_cm: 10.4 },
-                    { Kode_Benda_Uji: 'B-05', Variasi_Campuran: 'Normal_0%', Kuat_Tekan_MPa: 25.2, Slump_cm: 10.6 },
-                    { Kode_Benda_Uji: 'B-06', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.6, Slump_cm: 9.8 },
-                    { Kode_Benda_Uji: 'B-07', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 29.2, Slump_cm: 9.5 },
-                    { Kode_Benda_Uji: 'B-08', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.1, Slump_cm: 9.9 },
-                    { Kode_Benda_Uji: 'B-09', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 28.9, Slump_cm: 9.6 },
-                    { Kode_Benda_Uji: 'B-10', Variasi_Campuran: 'FlyAsh_10%', Kuat_Tekan_MPa: 29.0, Slump_cm: 9.7 },
-                    { Kode_Benda_Uji: 'B-11', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.8, Slump_cm: 9.0 },
-                    { Kode_Benda_Uji: 'B-12', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 32.4, Slump_cm: 8.8 },
-                    { Kode_Benda_Uji: 'B-13', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.5, Slump_cm: 9.2 },
-                    { Kode_Benda_Uji: 'B-14', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 32.1, Slump_cm: 8.9 },
-                    { Kode_Benda_Uji: 'B-15', Variasi_Campuran: 'FlyAsh_20%', Kuat_Tekan_MPa: 31.9, Slump_cm: 9.1 },
-                    { Kode_Benda_Uji: 'B-16', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.1, Slump_cm: 8.4 },
-                    { Kode_Benda_Uji: 'B-17', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 26.6, Slump_cm: 8.2 },
-                    { Kode_Benda_Uji: 'B-18', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.5, Slump_cm: 8.5 },
-                    { Kode_Benda_Uji: 'B-19', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 26.9, Slump_cm: 8.3 },
-                    { Kode_Benda_Uji: 'B-20', Variasi_Campuran: 'FlyAsh_30%', Kuat_Tekan_MPa: 27.3, Slump_cm: 8.4 }
-                ];
-                document.getElementById('od-topic-input').value = 'Pengaruh Variasi Substitusi Fly Ash terhadap Kuat Tekan Beton Mutu fc 25 MPa Umur 28 Hari';
-                document.getElementById('od-major-input').value = 'Teknik Sipil';
-                odActiveTest = 'anova';
-                odSyncTestCardUI();
-                odSetDataset(cols, rows, 'Contoh Uji Kuat Tekan Beton Teknik Sipil (N=20)');
-            } else if (kind === 'prepost') {
-                const cols = ['Kode_Sampel', 'Pretest', 'Posttest'];
-                const pre = [56,62,58,64,52,60,66,54,59,63,57,61,55,65,58,60,53,62,59,64];
-                const post = [78,84,80,86,74,82,88,75,81,85,79,83,76,87,80,83,74,85,82,86];
-                const rows = pre.map((p, i) => ({ Kode_Sampel: 'S-' + String(i + 1).padStart(2, '0'), Pretest: p, Posttest: post[i] }));
-                document.getElementById('od-topic-input').value = 'Efektivitas Model Pembelajaran Berbasis Proyek terhadap Hasil Belajar Siswa';
-                document.getElementById('od-major-input').value = 'Pendidikan';
-                odActiveTest = 'ttest_paired';
-                odSyncTestCardUI();
-                odSetDataset(cols, rows, 'Contoh Pre-Test vs Post-Test (N=20)');
-            } else if (kind === 'eksperimen') {
-                const cols = ['Kode', 'Kelompok', 'Skor_Hasil', 'Status_Tuntas'];
-                const expScores = [84,88,82,90,86,85,89,83,87,91,84,86];
-                const ctrlScores = [72,75,70,74,69,76,71,73,68,75,72,74];
-                const rows = [];
-                expScores.forEach((s, i) => rows.push({ Kode: 'E-' + (i + 1), Kelompok: 'Eksperimen', Skor_Hasil: s, Status_Tuntas: s >= 75 ? 'Tuntas' : 'Belum' }));
-                ctrlScores.forEach((s, i) => rows.push({ Kode: 'K-' + (i + 1), Kelompok: 'Kontrol', Skor_Hasil: s, Status_Tuntas: s >= 75 ? 'Tuntas' : 'Belum' }));
-                document.getElementById('od-topic-input').value = 'Perbandingan Hasil Intervensi Kelompok Eksperimen dan Kelompok Kontrol';
-                document.getElementById('od-major-input').value = 'Kesehatan / Pendidikan';
-                odActiveTest = 'ttest_ind';
-                odSyncTestCardUI();
-                odSetDataset(cols, rows, 'Contoh Kontrol vs Eksperimen (N=24)');
-            }
-        }
-
-        function odSyncTestCardUI() {
-            document.querySelectorAll('#od-test-selector .od-test-card').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.test === odActiveTest);
-            });
-        }
-
-        function odSelectTest(testKey) {
-            odActiveTest = testKey;
-            odSyncTestCardUI();
-            odRenderVarPicker();
-        }
-
-        function odGetFactorColumns(mode = 'any') {
-            const allCols = odDataset.columns || [];
-            const rows = odDataset.rows || [];
-            const nRows = rows.length;
-            if (!nRows) return [];
-
-            const isIdName = c => /^(id|no|nomor|responden|kode_benda_uji|kode_benda|kode_sampel|kode|nim|npm)$/i.test(c.trim());
-            const stats = allCols.map(c => {
-                const uniq = new Set();
-                let nonEmpty = 0;
-                rows.forEach(r => {
-                    const v = String(r[c] ?? '').trim();
-                    if (v !== '') { nonEmpty++; uniq.add(v); }
-                });
-                const isCat = odColMeta.categorical.includes(c);
-                const repeats = uniq.size >= 2 && uniq.size < nonEmpty;
-                const lowCard = uniq.size >= 2 && uniq.size <= Math.min(15, Math.max(2, Math.floor(nonEmpty / 2)));
-                return { col: c, uniq: uniq.size, nonEmpty, isCat, repeats, lowCard, isId: isIdName(c) };
-            });
-
-            // 1. Kolom faktor ideal: bukan ID, nilai berulang (bukan kode unik per baris), kategorik atau kardinalitas rendah
-            let filtered = stats.filter(s => !s.isId && s.repeats && (s.isCat || s.lowCard));
-            if (mode === 'two') {
-                const exactTwo = filtered.filter(s => s.uniq === 2);
-                if (exactTwo.length) filtered = exactTwo;
-            } else if (mode === 'multi') {
-                const multi = filtered.filter(s => s.uniq >= 3);
-                if (multi.length) filtered = multi;
-            }
-
-            if (filtered.length) return filtered.map(s => s.col);
-
-            // Fallback aman jika dataset sangat kecil atau kolom faktor berkode numerik
-            const fallback = stats.filter(s => !s.isId && s.uniq >= 2 && s.uniq < s.nonEmpty);
-            if (fallback.length) return fallback.map(s => s.col);
-            return allCols.filter(c => !isIdName(c));
-        }
-
-        function odRenderVarPicker() {
-            const host = document.getElementById('od-var-picker');
-            if (!host) return;
-            if (!odDataset.columns.length) {
-                host.innerHTML = '<div style="font-size:12.5px; color:var(--text-muted);">Unggah file Excel/CSV atau pilih dataset contoh di atas terlebih dahulu agar kolom variabel muncul otomatis di sini.</div>';
-                return;
-            }
-
-            const allCols = odDataset.columns;
-            const numCols = odColMeta.numeric.length ? odColMeta.numeric : allCols;
-            const nonIdNum = numCols.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
-            const factorMulti = odGetFactorColumns('multi');
-            const factorTwo = odGetFactorColumns('two');
-            const factorAny = odGetFactorColumns('any');
-            const optHtml = (list, selectedVal) => list.map(c => `<option value="${odEscape(c)}" ${c === selectedVal ? 'selected' : ''}>${odEscape(c)}</option>`).join('');
-
-            if (odActiveTest === 'regression') {
-                // Pisahkan kolom skor variabel utama (non-item) vs kolom butir item kuesioner (X1_1, Y_1, dst.)
-                const isItemCol = c => /^[A-Za-z]+\d*[_\.\-\s]+\d+$/.test(c) && !/total|skor|sum/i.test(c);
-                const summaryCols = nonIdNum.filter(c => !isItemCol(c));
-                const rawItemCols = nonIdNum.filter(c => isItemCol(c));
-                const regPool = summaryCols.length >= 2 ? summaryCols : nonIdNum;
-                const prevY = document.getElementById('od-reg-y')?.value;
-                const defY = (prevY && regPool.includes(prevY)) ? prevY : (regPool[regPool.length - 1] || numCols[numCols.length - 1] || '');
-
-                // Ekstrak prefix variabel Y agar butir milik Y (cth: Y_1..Y_4 saat Y = Y_Total) tidak pernah bisa dicentang sebagai X!
-                const yPrefix = defY.replace(/[_\-\s]*(total|skor|sum)$/i, '').toLowerCase();
-                const isSameVarAsY = c => {
-                    if (c === defY) return true;
-                    const cp = c.replace(/[_\-\s]*(\d+|total|skor|sum)$/i, '').toLowerCase();
-                    return yPrefix.length >= 1 && cp === yPrefix;
-                };
-
-                const availSummaryX = regPool.filter(c => c !== defY);
-                const availRawItems = rawItemCols.filter(c => !isSameVarAsY(c));
-                const chipsMain = availSummaryX.map(c => `<label class="od-col-chip checked"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" checked onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
-                const chipsRaw = availRawItems.map(c => `<label class="od-col-chip"><input type="checkbox" class="od-reg-x" value="${odEscape(c)}" onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`).join('');
-
-                const rawToggleHtml = availRawItems.length ? `
-                    <div style="margin-top:8px;">
-                        <label style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-muted); cursor:pointer;">
-                            <input type="checkbox" onchange="document.getElementById('od-reg-raw-items').style.display = this.checked ? 'flex' : 'none'">
-                            <span>Tampilkan ${availRawItems.length} kolom butir mentah (hanya untuk keperluan lanjutan)</span>
-                        </label>
-                        <div id="od-reg-raw-items" class="od-chip-list" style="display:none; margin-top:6px;">${chipsRaw}</div>
-                    </div>` : '';
-
-                host.innerHTML = `
-                    <div class="od-reg-grid">
-                        <div>
-                            <label class="form-label" for="od-reg-y">Variabel Dependen (Y — Terikat)</label>
-                            <select id="od-reg-y" class="form-select" onchange="odRenderVarPicker()">${optHtml(regPool, defY)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label">Variabel Independen (X — Bebas, otomatis mengecualikan Y)</label>
-                            <div class="od-chip-list">${chipsMain || '<span style="font-size:12px; color:#64748b;">Tidak ada variabel X tersisa.</span>'}</div>
-                            ${rawToggleHtml}
-                        </div>
-                    </div>
-                    <div style="margin-top:10px; padding:8px 11px; border-radius:8px; background:#eff6ff; border:1px solid #dbeafe; font-size:11.5px; color:#1e40af; line-height:1.45;">
-                        <strong>Standar SPSS:</strong> Regresi Linier menggunakan <strong>Skor Total Variabel</strong> (mis. <code>X1_Total</code>, <code>X2_Total</code> terhadap <code>Y_Total</code>), bukan butir pertanyaan satuan. Variabel yang dipilih sebagai Y otomatis dikunci agar tidak ikut masuk sebagai prediktor X.
-                    </div>`;
-            } else if (odActiveTest === 'validity_reliability') {
-                const itemCols = nonIdNum.filter(c => !/total|sum/i.test(c));
-                const useCols = itemCols.length >= 2 ? itemCols : nonIdNum;
-                const chips = nonIdNum.map(c => {
-                    const checked = useCols.includes(c);
-                    return `<label class="od-col-chip ${checked ? 'checked' : ''}"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" ${checked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
-                }).join('');
-                host.innerHTML = `
-                    <label class="form-label">Pilih Kolom Butir Item Kuesioner (otomatis dikelompokkan berdasarkan prefix seperti X1_1..X1_4, Y_1..Y_4)</label>
-                    <div class="od-chip-list">${chips}</div>`;
-            } else if (odActiveTest === 'anova' || odActiveTest === 'ttest_ind') {
-                const factorList = odActiveTest === 'ttest_ind' ? factorTwo : factorMulti;
-                const defG = factorList[0] || factorAny[0] || allCols[0] || '';
-                const valList = nonIdNum.length ? nonIdNum : numCols;
-                const defV = valList[0] || '';
-                host.innerHTML = `
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-                        <div>
-                            <label class="form-label" for="od-group-col">Kolom Kelompok / Variasi Perlakuan (Faktor)</label>
-                            <select id="od-group-col" class="form-select">${optHtml(factorList.length ? factorList : factorAny, defG)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="od-value-col">Kolom Nilai Pengukuran (Numerik)</label>
-                            <select id="od-value-col" class="form-select">${optHtml(valList, defV)}</select>
-                        </div>
-                    </div>`;
-            } else if (odActiveTest === 'ttest_paired') {
-                const valList = nonIdNum.length ? nonIdNum : numCols;
-                const defA = valList[0] || '';
-                const defB = valList[1] || defA;
-                host.innerHTML = `
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-                        <div>
-                            <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (cth: Pre-Test / Sebelum)</label>
-                            <select id="od-pair-a" class="form-select">${optHtml(valList, defA)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (cth: Post-Test / Sesudah)</label>
-                            <select id="od-pair-b" class="form-select">${optHtml(valList, defB)}</select>
-                        </div>
-                    </div>`;
-            } else if (odActiveTest === 'chisquare') {
-                const catPool = factorAny.length >= 2 ? factorAny : allCols.filter(c => !/^(id|no|nomor|responden|kode)/i.test(c));
-                const defA = catPool[0] || allCols[0] || '';
-                const defB = catPool[1] || catPool[catPool.length - 1] || '';
-                host.innerHTML = `
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-                        <div>
-                            <label class="form-label" for="od-cat-a">Variabel Kategorik Baris</label>
-                            <select id="od-cat-a" class="form-select">${optHtml(catPool, defA)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="od-cat-b">Variabel Kategorik Kolom</label>
-                            <select id="od-cat-b" class="form-select">${optHtml(catPool, defB)}</select>
-                        </div>
-                    </div>`;
-            } else if (odActiveTest === 'nonparam') {
-                const prevMode = document.getElementById('od-np-mode')?.value || (factorMulti.length && !factorTwo.length ? 'kruskal_wallis' : 'mann_whitney');
-                const factorList = prevMode === 'kruskal_wallis' ? (factorMulti.length ? factorMulti : factorAny) : (factorTwo.length ? factorTwo : factorAny);
-                const defG = factorList[0] || factorAny[0] || allCols[0] || '';
-                const valList = nonIdNum.length ? nonIdNum : numCols;
-                const defV = valList[0] || '';
-                const defA = valList[0] || '';
-                const defB = valList[1] || defA;
-                host.innerHTML = `
-                    <div style="margin-bottom:10px;">
-                        <label class="form-label" for="od-np-mode">Pilih Jenis Uji Non-Parametrik</label>
-                        <select id="od-np-mode" class="form-select" onchange="odRenderVarPicker()">
-                            <option value="mann_whitney" ${prevMode === 'mann_whitney' ? 'selected' : ''}>Mann-Whitney U (2 Kelompok Bebas — Pengganti Independent t-Test)</option>
-                            <option value="kruskal_wallis" ${prevMode === 'kruskal_wallis' ? 'selected' : ''}>Kruskal-Wallis H (≥ 3 Kelompok Bebas — Pengganti One-Way ANOVA)</option>
-                            <option value="wilcoxon" ${prevMode === 'wilcoxon' ? 'selected' : ''}>Wilcoxon Signed-Rank (2 Data Berpasangan — Pengganti Paired t-Test)</option>
-                        </select>
-                    </div>
-                    <div id="od-np-mw-fields" style="display:${prevMode === 'wilcoxon' ? 'none' : 'grid'}; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-                        <div>
-                            <label class="form-label" for="od-group-col">${prevMode === 'kruskal_wallis' ? 'Kolom Kelompok / Variasi Perlakuan (≥ 3 Grup)' : 'Kolom Kelompok (2 Grup)'}</label>
-                            <select id="od-group-col" class="form-select">${optHtml(factorList, defG)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="od-value-col">Kolom Nilai Pengukuran (Numerik)</label>
-                            <select id="od-value-col" class="form-select">${optHtml(valList, defV)}</select>
-                        </div>
-                    </div>
-                    <div id="od-np-wx-fields" style="display:${prevMode === 'wilcoxon' ? 'grid' : 'none'}; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-                        <div>
-                            <label class="form-label" for="od-pair-a">Variabel Kondisi 1 (Sebelum)</label>
-                            <select id="od-pair-a" class="form-select">${optHtml(valList, defA)}</select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="od-pair-b">Variabel Kondisi 2 (Sesudah)</label>
-                            <select id="od-pair-b" class="form-select">${optHtml(valList, defB)}</select>
-                        </div>
-                    </div>`;
-            } else {
-                // descriptive / correlation: jika ada skor total (X1_Total..Y_Total), pilih skor total secara default untuk Korelasi agar rapi
-                const isItemCol = c => /^[A-Za-z]+\d*[_\.\-\s]+\d+$/.test(c) && !/total|skor|sum/i.test(c);
-                const summaryCols = nonIdNum.filter(c => !isItemCol(c));
-                const defChecked = (odActiveTest === 'correlation' && summaryCols.length >= 2) ? summaryCols : nonIdNum;
-                const chips = nonIdNum.map(c => {
-                    const chk = defChecked.includes(c);
-                    return `<label class="od-col-chip ${chk ? 'checked' : ''}"><input type="checkbox" class="od-multi-col" value="${odEscape(c)}" ${chk ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">${odEscape(c)}</label>`;
-                }).join('');
-                host.innerHTML = `
-                    <label class="form-label">Pilih Kolom Variabel Numerik yang Akan Dianalisis</label>
-                    <div class="od-chip-list">${chips}</div>`;
-            }
-        }
-
-        function odToggleNonparamInputs() {
-            const m = document.getElementById('od-np-mode')?.value || 'mann_whitney';
-            const mw = document.getElementById('od-np-mw-fields');
-            const wx = document.getElementById('od-np-wx-fields');
-            if (mw) mw.style.display = m === 'mann_whitney' ? 'grid' : 'none';
-            if (wx) wx.style.display = m === 'wilcoxon' ? 'grid' : 'none';
-        }
-
-        async function odRunAnalysis() {
-            odShowError('');
-            if (!odDataset.columns.length || !odDataset.rows.length) {
-                odShowError('Belum ada data yang dimuat. Unggah file Excel/CSV, tempel tabel, atau klik salah satu dataset contoh di atas.');
-                return;
-            }
-
-            const payload = {
-                columns: odDataset.columns,
-                rows: odDataset.rows,
-                test_type: odActiveTest,
-                alpha: parseFloat(document.getElementById('od-alpha-select')?.value || '0.05'),
-                dataset_title: (document.getElementById('od-topic-input')?.value || '').trim() || odDataset.title
-            };
-
-            if (odActiveTest === 'regression') {
-                payload.y_col = document.getElementById('od-reg-y')?.value || '';
-                payload.x_cols = Array.from(document.querySelectorAll('.od-reg-x:checked')).map(el => el.value).filter(v => v !== payload.y_col);
-                if (!payload.x_cols.length) {
-                    odShowError('Pilih minimal 1 variabel independen (X) yang berbeda dari variabel Y.');
-                    return;
-                }
-            } else if (odActiveTest === 'validity_reliability' || odActiveTest === 'descriptive' || odActiveTest === 'correlation') {
-                payload.cols = Array.from(document.querySelectorAll('.od-multi-col:checked')).map(el => el.value);
-                if (!payload.cols.length) {
-                    odShowError('Pilih minimal 1 kolom variabel numerik.');
-                    return;
-                }
-            } else if (odActiveTest === 'anova' || odActiveTest === 'ttest_ind') {
-                payload.group_col = document.getElementById('od-group-col')?.value || '';
-                payload.value_col = document.getElementById('od-value-col')?.value || '';
-            } else if (odActiveTest === 'ttest_paired') {
-                payload.pair_a = document.getElementById('od-pair-a')?.value || '';
-                payload.pair_b = document.getElementById('od-pair-b')?.value || '';
-            } else if (odActiveTest === 'chisquare') {
-                payload.cat_a = document.getElementById('od-cat-a')?.value || '';
-                payload.cat_b = document.getElementById('od-cat-b')?.value || '';
-            } else if (odActiveTest === 'nonparam') {
-                payload.nonparam_mode = document.getElementById('od-np-mode')?.value || 'mann_whitney';
-                if (payload.nonparam_mode === 'wilcoxon') {
-                    payload.pair_a = document.getElementById('od-pair-a')?.value || '';
-                    payload.pair_b = document.getElementById('od-pair-b')?.value || '';
-                } else {
-                    payload.group_col = document.getElementById('od-group-col')?.value || '';
-                    payload.value_col = document.getElementById('od-value-col')?.value || '';
-                }
-            }
-
-            const btn = document.getElementById('od-btn-run');
-            const origHtml = btn.innerHTML;
-            btn.disabled = true;
-            renderLoadingCard('od-loading-box', 'Menghitung Statistik Deterministik (Setara SPSS)...', 'Menghitung matriks, distribusi eksak, derajat bebas, dan p-value.');
-
-            try {
-                const res = await fetch("{{ route('tools.stats.analyze') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (isUpgradeRequiredResponse(res, data)) {
-                    handleToolQuotaOrError(res, data, 'Kuota fitur Olah Data habis.');
-                    return;
-                }
-                if (!res.ok || data.status !== 'success') {
-                    throw new Error(data.message || 'Perhitungan gagal.');
-                }
-                odCurrentResult = data.result;
-                odCurrentNarration = '';
-                document.getElementById('od-narr-output').style.display = 'none';
-                document.getElementById('od-btn-copy-narr').style.display = 'none';
-                odRenderResult(data.result);
-            } catch (err) {
-                odShowError(err.message || 'Gagal menghitung statistik.');
-            } finally {
-                hideLoadingCard('od-loading-box');
-                btn.disabled = false;
-                btn.innerHTML = origHtml;
-            }
-        }
-
-        function odRenderResult(result) {
-            const sec = document.getElementById('od-result-section');
-            sec.style.display = 'block';
-            document.getElementById('od-res-title').textContent = result.title || 'Hasil Analisis Statistik';
-            document.getElementById('od-res-subtitle').textContent = (result.subtitle || '') + ' · ' + (result.engine_note || '');
-
-            // Highlights
-            const hlHost = document.getElementById('od-res-highlights');
-            hlHost.innerHTML = (result.highlights || []).map(h => `
-                <div class="od-hl-card tone-${odEscape(h.tone || 'slate')}">
-                    <div class="od-hl-lbl">${odEscape(h.label)}</div>
-                    <div class="od-hl-val">${odEscape(h.value)}</div>
-                </div>`).join('');
-
-            // Method Advisory Banner (Pemeriksaan Asumsi & Rekomendasi Alternatif)
-            const advEl = document.getElementById('od-res-advisory');
-            if (advEl) {
-                if (result.method_advisory) {
-                    const isWarn = result.method_advisory.tone === 'amber';
-                    advEl.style.display = 'block';
-                    advEl.style.background = isWarn ? '#fffbeb' : '#ecfdf5';
-                    advEl.style.border = isWarn ? '1px solid #fde68a' : '1px solid #a7f3d0';
-                    advEl.style.color = isWarn ? '#92400e' : '#065f46';
-                    advEl.innerHTML = `<strong>${odEscape(result.method_advisory.title)}:</strong> ${odEscape(result.method_advisory.message)}`;
-                } else {
-                    advEl.style.display = 'none';
-                }
-            }
-
-            // Equation banner
-            const eqEl = document.getElementById('od-res-equation');
-            if (result.equation) {
-                eqEl.style.display = 'block';
-                eqEl.textContent = 'Persamaan Regresi: ' + result.equation;
-            } else {
-                eqEl.style.display = 'none';
-            }
-
-            // Academic Guide (Tujuan, H0, H1, Dasar Keputusan & Referensi Metode)
-            const agEl = document.getElementById('od-res-academic-guide');
-            if (agEl) {
-                const g = result.academic_guide;
-                if (g) {
-                    agEl.style.display = 'block';
-                    agEl.innerHTML = `
-                        <div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">Kerangka Uji Hipotesis &amp; Dasar Pengambilan Keputusan</div>
-                        <div><strong>Tujuan:</strong> ${odEscape(g.tujuan)}</div>
-                        <div><strong>Hipotesis:</strong> ${odEscape(g.h0)} | ${odEscape(g.h1)}</div>
-                        <div><strong>Kriteria:</strong> ${odEscape(g.kriteria)}</div>
-                        <div style="margin-top:3px; font-size:11.5px; color:var(--text-muted);"><strong>Referensi Metode:</strong> ${odEscape(g.referensi)}</div>`;
-                } else {
-                    agEl.style.display = 'none';
-                }
-            }
-
-            // Tables
-            const tblHost = document.getElementById('od-res-tables');
-            tblHost.innerHTML = (result.tables || []).map(tbl => {
-                const ths = (tbl.headers || []).map(h => `<th>${odEscape(h)}</th>`).join('');
-                const lastColIdx = (tbl.headers || []).length - 1;
-                const trs = (tbl.rows || []).map(row => '<tr>' + row.map((cell, idx) => {
-                    const txt = String(cell ?? '');
-                    let extra = '';
-                    // Hanya beri warna status pada kolom terakhir (Keputusan / Status / Kategori / Distribusi)
-                    if (idx === lastColIdx && lastColIdx > 0) {
-                        if (/^(VALID|LOLOS|Signifikan|Berbeda Signifikan|Ada Hubungan Signifikan|Sangat Reliabel|Reliabel|Normal|Homoskedastis|Varians Homogen)/i.test(txt)) {
-                            extra = ' style="color:#047857; font-weight:700;"';
-                        } else if (/^(TIDAK VALID|TERINDIKASI|Tidak Normal|Kurang Reliabel|PERLU PERHATIAN|Indikasi Heteroskedastisitas|Varians Tidak Homogen)/i.test(txt)) {
-                            extra = ' style="color:#b91c1c; font-weight:700;"';
-                        }
-                    }
-                    return `<td${extra}>${odEscape(txt)}</td>`;
-                }).join('') + '</tr>').join('');
-                const fn = tbl.footnote ? `<div class="od-footnote">${odEscape(tbl.footnote)}</div>` : '';
-                return `<div class="od-table-card">
-                    <div class="od-table-title">${odEscape(tbl.title)}</div>
-                    <div class="od-table-wrap"><table class="od-spss-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>
-                    ${fn}
-                </div>`;
-            }).join('');
-
-            // Chart(s) — dukung multi-grafik SPSS untuk Regresi (P-P Plot, ZRESID vs ZPRED, Histogram, Aktual vs Prediksi)
-            const chartsList = Array.isArray(result.charts) && result.charts.length ? result.charts : (result.chart ? [result.chart] : []);
-            const tabsHost = document.getElementById('od-chart-tabs');
-            if (chartsList.length) {
-                document.getElementById('od-res-chart-wrap').style.display = 'block';
-                if (chartsList.length > 1 && tabsHost) {
-                    tabsHost.style.display = 'flex';
-                    tabsHost.innerHTML = chartsList.map((ch, idx) => `<button type="button" class="od-chart-tab ${idx === 0 ? 'active' : ''}" onclick="odSwitchResultChart(${idx})">${odEscape(ch.tab || ch.title || ('Grafik ' + (idx + 1)))}</button>`).join('');
-                } else if (tabsHost) {
-                    tabsHost.style.display = 'none';
-                    tabsHost.innerHTML = '';
-                }
-                odRenderChartByIndex(0);
-            } else {
-                document.getElementById('od-res-chart-wrap').style.display = 'none';
-            }
-
-            // Conclusions
-            document.getElementById('od-res-conclusions').innerHTML = (result.conclusions || [])
-                .map(c => `<li>${odEscape(c)}</li>`).join('');
-
-            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function odSwitchResultChart(idx) {
-            document.querySelectorAll('#od-chart-tabs .od-chart-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
-            odRenderChartByIndex(idx);
-        }
-
-        function odRenderChartByIndex(idx) {
-            if (!odCurrentResult) return;
-            const list = Array.isArray(odCurrentResult.charts) && odCurrentResult.charts.length
-                ? odCurrentResult.charts
-                : (odCurrentResult.chart ? [odCurrentResult.chart] : []);
-            const ch = list[idx] || list[0];
-            if (!ch) return;
-            document.getElementById('od-chart-title').textContent = ch.title || 'Visualisasi Statistik';
-            document.getElementById('od-chart-svg-host').innerHTML = odBuildChartSvg(ch);
-        }
-
-        function odBuildChartSvg(chart) {
-            const W = 680, H = 310, padL = 62, padR = 26, padT = 24, padB = 60;
-            const plotW = W - padL - padR;
-            const plotH = H - padT - padB;
-
-            // 1. SPSS Normal P-P Plot of Regression Standardized Residual (0.0 - 1.0)
-            if (chart.type === 'pp_plot' && Array.isArray(chart.points) && chart.points.length) {
-                const sx = v => padL + v * plotW;
-                const sy = v => padT + plotH - v * plotH;
-                let grid = '';
-                for (let g = 0; g <= 5; g++) {
-                    const val = g * 0.2;
-                    const px = sx(val), py = sy(val);
-                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
-                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
-                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
-                }
-                const dots = chart.points.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.8"/>`).join('');
-                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
-                    <rect width="${W}" height="${H}" fill="#ffffff"/>
-                    ${grid}
-                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
-                    <line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(1)}" y2="${sy(1)}" stroke="#0f172a" stroke-width="1.5"/>
-                    ${dots}
-                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Observed Cum Prob')}</text>
-                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Expected Cum Prob')}</text>
-                </svg>`;
-            }
-
-            // 2. SPSS Scatterplot Uji Heteroskedastisitas (ZRESID vs ZPRED)
-            if (chart.type === 'zresid_zpred' && Array.isArray(chart.points) && chart.points.length) {
-                const pts = chart.points;
-                const maxAbsX = Math.max(2.5, Math.ceil(Math.max(...pts.map(p => Math.abs(p.x))) * 1.15));
-                const maxAbsY = Math.max(2.5, Math.ceil(Math.max(...pts.map(p => Math.abs(p.y))) * 1.15));
-                const sx = v => padL + ((v + maxAbsX) / (2 * maxAbsX)) * plotW;
-                const sy = v => padT + plotH - ((v + maxAbsY) / (2 * maxAbsY)) * plotH;
-                let grid = '';
-                for (let g = 0; g <= 4; g++) {
-                    const vx = -maxAbsX + (g / 4) * (2 * maxAbsX);
-                    const vy = -maxAbsY + (g / 4) * (2 * maxAbsY);
-                    const px = sx(vx), py = sy(vy);
-                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
-                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${vy.toFixed(1)}</text>`;
-                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${vx.toFixed(1)}</text>`;
-                }
-                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.8"/>`).join('');
-                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
-                    <rect width="${W}" height="${H}" fill="#ffffff"/>
-                    ${grid}
-                    <line x1="${padL}" y1="${sy(0).toFixed(1)}" x2="${W - padR}" y2="${sy(0).toFixed(1)}" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="5,4"/>
-                    <line x1="${sx(0).toFixed(1)}" y1="${padT}" x2="${sx(0).toFixed(1)}" y2="${padT + plotH}" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4,4"/>
-                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
-                    ${dots}
-                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'ZPRED')}</text>
-                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'ZRESID')}</text>
-                </svg>`;
-            }
-
-            // 3. SPSS Histogram of Regression Standardized Residual + Kurva Normal
-            if (chart.type === 'residual_hist' && Array.isArray(chart.bins) && chart.bins.length) {
-                const bins = chart.bins;
-                const maxCount = Math.max(3, ...bins.map(b => Math.max(b.count, b.normal_y))) * 1.18;
-                const zMin = Number(chart.z_min ?? -2.5);
-                const zMax = Number(chart.z_max ?? 2.5);
-                const sx = v => padL + ((v - zMin) / Math.max(0.1, zMax - zMin)) * plotW;
-                const sy = v => padT + plotH - (v / maxCount) * plotH;
-                let grid = '';
-                for (let g = 0; g <= 4; g++) {
-                    const vy = (g / 4) * maxCount;
-                    const py = sy(vy);
-                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${vy.toFixed(0)}</text>`;
-                }
-                for (let z = Math.ceil(zMin); z <= Math.floor(zMax); z++) {
-                    const px = sx(z);
-                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${z}</text>`;
-                }
-                const rects = bins.map(b => {
-                    const x1 = sx(b.lo), x2 = sx(b.hi), yTop = sy(b.count);
-                    return `<rect x="${(x1 + 1).toFixed(1)}" y="${yTop.toFixed(1)}" width="${Math.max(4, x2 - x1 - 2).toFixed(1)}" height="${(padT + plotH - yTop).toFixed(1)}" fill="#93c5fd" stroke="#1d4ed8" stroke-width="1"/>`;
-                }).join('');
-                // Smooth normal curve
-                const binW = (zMax - zMin) / bins.length;
-                const curvePts = [];
-                for (let s = 0; s <= 60; s++) {
-                    const zv = zMin + (s / 60) * (zMax - zMin);
-                    const yExp = (chart.n || 30) * binW * (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * zv * zv);
-                    curvePts.push(`${sx(zv).toFixed(1)},${sy(yExp).toFixed(1)}`);
-                }
-                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
-                    <rect width="${W}" height="${H}" fill="#ffffff"/>
-                    ${grid}
-                    ${rects}
-                    <polyline fill="none" stroke="#0f172a" stroke-width="2" points="${curvePts.join(' ')}"/>
-                    <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#334155" stroke-width="1.2"/>
-                    <rect x="${W - padR - 118}" y="${padT + 8}" width="110" height="46" rx="6" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1"/>
-                    <text x="${W - padR - 110}" y="${padT + 23}" font-size="10" fill="#334155">Mean = 0.00</text>
-                    <text x="${W - padR - 110}" y="${padT + 36}" font-size="10" fill="#334155">Std. Dev = 0.966</text>
-                    <text x="${W - padR - 110}" y="${padT + 49}" font-size="10" fill="#334155">N = ${chart.n || ''}</text>
-                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Regression Standardized Residual')}</text>
-                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Frequency')}</text>
-                </svg>`;
-            }
-
-            // 4. Scatter Aktual vs Prediksi (dengan angka sumbu X & Y lengkap!)
-            if (chart.type === 'scatter_fit' && Array.isArray(chart.points) && chart.points.length) {
-                const pts = chart.points;
-                const allVals = pts.flatMap(p => [p.x, p.y]);
-                let vMin = Math.min(...allVals);
-                let vMax = Math.max(...allVals);
-                if (vMax - vMin < 1e-6) { vMin -= 1; vMax += 1; }
-                const pad = (vMax - vMin) * 0.08;
-                vMin -= pad; vMax += pad;
-                const sx = v => padL + ((v - vMin) / (vMax - vMin)) * plotW;
-                const sy = v => padT + plotH - ((v - vMin) / (vMax - vMin)) * plotH;
-
-                let grid = '';
-                for (let g = 0; g <= 4; g++) {
-                    const val = vMin + (g / 4) * (vMax - vMin);
-                    const px = sx(val), py = sy(val);
-                    grid += `<line x1="${padL}" y1="${py.toFixed(1)}" x2="${W - padR}" y2="${py.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
-                    grid += `<line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#f1f5f9" stroke-width="1"/>`;
-                    grid += `<text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
-                    grid += `<text x="${px.toFixed(1)}" y="${padT + plotH + 17}" text-anchor="middle" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
-                }
-                const dots = pts.map(p => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="#2563eb" fill-opacity="0.82" stroke="#ffffff" stroke-width="1"/>`).join('');
-                return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
-                    <rect width="${W}" height="${H}" fill="#ffffff"/>
-                    ${grid}
-                    <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
-                    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
-                    <line x1="${sx(vMin)}" y1="${sy(vMin)}" x2="${sx(vMax)}" y2="${sy(vMax)}" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5,4"/>
-                    ${dots}
-                    <text x="${padL + plotW / 2}" y="${H - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">${odEscape(chart.x_label || 'Prediksi')}</text>
-                    <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Aktual')}</text>
-                </svg>`;
-            }
-
-            // Bar / Bar + Error Bars
-            const labels = chart.labels || [];
-            const values = (chart.values || []).map(Number);
-            const errors = (chart.errors || []).map(Number);
-            if (!labels.length) return '';
-
-            let maxV = Math.max(...values.map((v, i) => v + (errors[i] || 0)), chart.threshold || 0, 0.1);
-            let minV = Math.min(0, ...values.map((v, i) => v - (errors[i] || 0)));
-            maxV *= 1.12;
-            const range = maxV - minV || 1;
-            const sy = v => padT + plotH - ((v - minV) / range) * plotH;
-            const y0 = sy(0);
-
-            let grid = '';
-            for (let g = 0; g <= 4; g++) {
-                const val = minV + (g / 4) * range;
-                const py = sy(val);
-                grid += `<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e2e8f0" stroke-width="1"/>`;
-                grid += `<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="10.5" fill="#64748b">${val.toFixed(1)}</text>`;
-            }
-
-            const slotW = plotW / labels.length;
-            const barW = Math.min(58, Math.max(18, slotW * 0.56));
-            const palette = ['#2563eb', '#059669', '#0284c7', '#4f46e5', '#0d9488', '#d97706'];
-            let bars = '';
-            labels.forEach((lbl, i) => {
-                const v = values[i] || 0;
-                const cx = padL + i * slotW + slotW / 2;
-                const bx = cx - barW / 2;
-                const py = sy(v);
-                const top = Math.min(py, y0);
-                const bh = Math.max(2, Math.abs(y0 - py));
-                const color = palette[i % palette.length];
-                bars += `<rect x="${bx.toFixed(1)}" y="${top.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="${color}" fill-opacity="0.88"/>`;
-                if (errors[i] && errors[i] > 0) {
-                    const yHi = sy(v + errors[i]);
-                    const yLo = sy(v - errors[i]);
-                    bars += `<line x1="${cx.toFixed(1)}" y1="${yHi.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLo.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
-                    bars += `<line x1="${(cx - 6).toFixed(1)}" y1="${yHi.toFixed(1)}" x2="${(cx + 6).toFixed(1)}" y2="${yHi.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
-                    bars += `<line x1="${(cx - 6).toFixed(1)}" y1="${yLo.toFixed(1)}" x2="${(cx + 6).toFixed(1)}" y2="${yLo.toFixed(1)}" stroke="#0f172a" stroke-width="1.5"/>`;
-                }
-                const valY = (v >= 0 ? Math.min(top, errors[i] ? sy(v + errors[i]) : top) - 6 : top + bh + 13);
-                bars += `<text x="${cx.toFixed(1)}" y="${valY.toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f172a">${v.toFixed(2)}</text>`;
-                const shortLbl = lbl.length > 14 ? lbl.slice(0, 13) + '…' : lbl;
-                bars += `<text x="${cx.toFixed(1)}" y="${padT + plotH + 18}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#334155">${odEscape(shortLbl)}</text>`;
-            });
-
-            let threshLine = '';
-            if (chart.threshold) {
-                const ty = sy(chart.threshold);
-                threshLine = `<line x1="${padL}" y1="${ty}" x2="${W - padR}" y2="${ty}" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,4"/>
-                    <text x="${W - padR - 4}" y="${ty - 5}" text-anchor="end" font-size="10" font-weight="700" fill="#dc2626">Batas ${chart.threshold}</text>`;
-            }
-
-            return `<svg id="od-chart-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; max-width:680px; display:block; margin:0 auto; font-family:Inter,Arial,sans-serif;">
-                <rect width="${W}" height="${H}" fill="#ffffff"/>
-                ${grid}
-                <line x1="${padL}" y1="${y0}" x2="${W - padR}" y2="${y0}" stroke="#334155" stroke-width="1.3"/>
-                <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#334155" stroke-width="1.3"/>
-                ${bars}
-                ${threshLine}
-                <text x="16" y="${padT + plotH / 2}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 16 ${padT + plotH / 2})">${odEscape(chart.y_label || 'Nilai')}</text>
-            </svg>`;
-        }
-
-        function odDownloadChartPng() {
-            const svgEl = document.getElementById('od-chart-svg');
-            if (!svgEl) return;
-            const xml = new XMLSerializer().serializeToString(svgEl);
-            const img = new Image();
-            const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 1360;
-                canvas.height = 620;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                URL.revokeObjectURL(url);
-                const titleSlug = (document.getElementById('od-chart-title')?.textContent || 'Grafik_Statistik')
-                    .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 42) || 'Grafik_Statistik';
-                const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/png');
-                a.download = titleSlug + '.png';
-                a.click();
-            };
-            img.src = url;
-        }
-
-        function odCopyTables(btn) {
-            if (!odCurrentResult || !odCurrentResult.tables) return;
-            const lines = [];
-            lines.push(odCurrentResult.title || 'Hasil Olah Data Statistik');
-            if (odCurrentResult.equation) lines.push('Persamaan: ' + odCurrentResult.equation);
-            lines.push('');
-            odCurrentResult.tables.forEach(tbl => {
-                lines.push(tbl.title);
-                lines.push((tbl.headers || []).join('\t'));
-                (tbl.rows || []).forEach(r => lines.push(r.join('\t')));
-                if (tbl.footnote) lines.push('Catatan: ' + tbl.footnote);
-                lines.push('');
-            });
-            navigator.clipboard.writeText(lines.join('\n')).then(() => {
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Tersalin ke Clipboard</span>';
-                setTimeout(() => btn.innerHTML = orig, 1800);
-            });
-        }
-
-        async function odGenerateNarration() {
-            if (!odCurrentResult) return;
-            const btn = document.getElementById('od-btn-narrate');
-            const orig = btn.innerHTML;
-            btn.disabled = true;
-            renderLoadingCard('od-narr-loading', 'Menyusun Narasi Interpretasi Bab IV...', 'Menulis pembahasan ilmiah baku dari angka eksak hasil SPSS.');
-            try {
-                const res = await fetch("{{ route('tools.stats.interpret') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({
-                        result: odCurrentResult,
-                        topic: (document.getElementById('od-topic-input')?.value || '').trim() || odDataset.title,
-                        major: (document.getElementById('od-major-input')?.value || '').trim() || 'Umum'
-                    })
-                });
-                const data = await res.json();
-                if (isUpgradeRequiredResponse(res, data)) {
-                    handleToolQuotaOrError(res, data, 'Kuota Interpretasi Bab IV habis.');
-                    return;
-                }
-                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun interpretasi.');
-                const cleanText = String(data.narration || '')
-                    .replace(/^\s*#{1,6}\s*/gm, '')
-                    .replace(/\*\*|__/g, '')
-                    .replace(/^\s*[\*\-]\s+/gm, '')
-                    .trim();
-                odCurrentNarration = cleanText;
-                const out = document.getElementById('od-narr-output');
-                out.style.display = 'block';
-                const blocks = cleanText.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
-                out.innerHTML = blocks.map(b => {
-                    if (/^(?:4\.\d+(?:\.\d+)?|[A-C]\.)\s+.{3,100}$/.test(b)) {
-                        return `<h4>${odEscape(b)}</h4>`;
-                    }
-                    return `<p>${odEscape(b).replace(/\n/g, '<br>')}</p>`;
-                }).join('');
-                document.getElementById('od-btn-copy-narr').style.display = 'inline-flex';
-            } catch (err) {
-                odShowError(err.message || 'Gagal menghubungi layanan interpretasi AI.');
-            } finally {
-                hideLoadingCard('od-narr-loading');
-                btn.disabled = false;
-                btn.innerHTML = orig;
-            }
-        }
-
-        function odCopyNarration(btn) {
-            if (!odCurrentNarration) return;
-            navigator.clipboard.writeText(odCurrentNarration).then(() => {
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Narasi Tersalin</span>';
-                setTimeout(() => btn.innerHTML = orig, 1800);
-            });
-        }
-
-        function odSvgStringToPngDataUrl(svgMarkup, width = 960, height = 438) {
-            return new Promise((resolve) => {
-                try {
-                    const img = new Image();
-                    const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, width, height);
-                        ctx.drawImage(img, 0, 0, width, height);
-                        URL.revokeObjectURL(url);
-                        // JPEG kualitas tinggi dengan latar putih: 100% bebas GD di Dompdf Vercel & PHPWord, ukuran 5x lebih ringkas
-                        resolve(canvas.toDataURL('image/jpeg', 0.94));
-                    };
-                    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-                    img.src = url;
-                } catch (e) {
-                    resolve(null);
-                }
-            });
-        }
-
-        async function odCollectAllChartPngs() {
-            if (!odCurrentResult) return [];
-            const list = Array.isArray(odCurrentResult.charts) && odCurrentResult.charts.length
-                ? odCurrentResult.charts
-                : (odCurrentResult.chart ? [odCurrentResult.chart] : []);
-            const out = [];
-            for (const ch of list) {
-                const svgMarkup = odBuildChartSvg(ch);
-                if (!svgMarkup) continue;
-                const dataUrl = await odSvgStringToPngDataUrl(svgMarkup, 960, 438);
-                if (dataUrl) {
-                    out.push({ title: ch.title || ch.tab || 'Grafik Statistik', data_url: dataUrl });
-                }
-            }
-            return out;
-        }
-
-        async function odDownloadPdf() {
-            if (!odCurrentResult) return;
-            const btn = document.getElementById('od-btn-pdf');
-            const orig = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan PDF + Grafik...</span>';
-            try {
-                const chartsImages = await odCollectAllChartPngs();
-                const res = await fetch("{{ route('tools.stats.pdf') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({
-                        result: odCurrentResult,
-                        narration: odCurrentNarration,
-                        major: (document.getElementById('od-major-input')?.value || '').trim(),
-                        charts_images: chartsImages
-                    })
-                });
-                if (!res.ok) {
-                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
-                        const errData = await res.json().catch(() => ({}));
-                        window.openUpgradeModal(errData.message || 'Download laporan PDF Olah Data tersedia untuk Paket Starter mulai Rp15.000.');
-                        return;
-                    }
-                    throw new Error('Gagal membuat laporan PDF.');
-                }
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Laporan_Olah_Data_Statistik.pdf';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1500);
-            } catch (err) {
-                odShowError(err.message || 'Gagal mengunduh PDF.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = orig;
-            }
-        }
-
-        async function odDownloadDocx() {
-            if (!odCurrentResult) return;
-            const btn = document.getElementById('od-btn-docx');
-            const orig = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="ai-spinner"></span><span>Menyiapkan Word (.docx)...</span>';
-            try {
-                const chartsImages = await odCollectAllChartPngs();
-                const res = await fetch("{{ route('tools.stats.docx') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({
-                        result: odCurrentResult,
-                        narration: odCurrentNarration,
-                        major: (document.getElementById('od-major-input')?.value || '').trim(),
-                        charts_images: chartsImages
-                    })
-                });
-                if (!res.ok) {
-                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
-                        const errData = await res.json().catch(() => ({}));
-                        window.openUpgradeModal(errData.message || 'Download laporan Word (.docx) Olah Data tersedia untuk Paket Starter mulai Rp15.000.');
-                        return;
-                    }
-                    throw new Error('Gagal membuat file Word (.docx).');
-                }
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Laporan_Olah_Data_Statistik.docx';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1500);
-            } catch (err) {
-                odShowError(err.message || 'Gagal mengunduh file Word (.docx).');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = orig;
-            }
-        }
-
-        // --- SUB-TAB 2: GENERATOR KUESIONER / LEMBAR LAB + TEMPLATE EXCEL ---
-        function odSetInstrumentMode(mode) {
-            odInstMode = mode;
-            document.getElementById('od-inst-mode-kuesioner').classList.toggle('active', mode === 'kuesioner');
-            document.getElementById('od-inst-mode-eksperimen').classList.toggle('active', mode === 'eksperimen');
-            const vLbl = document.getElementById('od-inst-vars-label');
-            const vInp = document.getElementById('od-inst-vars');
-            const cLbl = document.getElementById('od-inst-count-label');
-            if (mode === 'eksperimen') {
-                vLbl.innerHTML = 'Parameter Pengukuran &amp; Variasi Perlakuan (pisahkan koma) <span style="color:#dc2626;">*</span>';
-                vInp.placeholder = 'cth: Kuat Tekan Beton MPa, Slump Test cm, Variasi Fly Ash 0% 10% 20% 30%';
-                cLbl.textContent = 'Ulangan per Perlakuan';
-                document.getElementById('od-inst-scale').value = 'Pengukuran Numerik / Satuan SI';
-            } else {
-                vLbl.innerHTML = 'Daftar Variabel Penelitian (pisahkan dengan koma) <span style="color:#dc2626;">*</span>';
-                vInp.placeholder = 'cth: Motivasi Kerja (X1), Disiplin Kerja (X2), Kinerja Karyawan (Y)';
-                cLbl.textContent = 'Item per Variabel';
-                document.getElementById('od-inst-scale').value = 'Likert 1-5 (STS - SS)';
-            }
-        }
-
-        async function odGenerateInstrument() {
-            const errBox = document.getElementById('od-inst-error');
-            errBox.style.display = 'none';
-            const topic = (document.getElementById('od-inst-topic')?.value || '').trim();
-            const major = (document.getElementById('od-inst-major')?.value || '').trim() || 'Umum';
-            const variables = (document.getElementById('od-inst-vars')?.value || '').trim();
-            const itemsPerVar = parseInt(document.getElementById('od-inst-count')?.value || '5', 10);
-            const scaleType = document.getElementById('od-inst-scale')?.value || 'Likert 1-5';
-
-            if (!topic || !variables) {
-                errBox.style.display = 'block';
-                errBox.textContent = 'Isi Judul/Topik Penelitian dan Daftar Variabel/Parameter terlebih dahulu.';
-                return;
-            }
-
-            const btn = document.getElementById('od-btn-gen-inst');
-            const orig = btn.innerHTML;
-            btn.disabled = true;
-            renderLoadingCard('od-inst-loading', 'Menyusun Instrumen & Template Excel...', 'Membuat kisi-kisi Bab III, butir pernyataan/parameter ukur, dan struktur tabulasi siap olah.');
-
-            try {
-                const res = await fetch("{{ route('tools.stats.instrument') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ mode: odInstMode, topic, major, variables, items_per_var: itemsPerVar, scale_type: scaleType })
-                });
-                const data = await res.json();
-                if (isUpgradeRequiredResponse(res, data)) {
-                    handleToolQuotaOrError(res, data, 'Kuota generator instrumen habis.');
-                    return;
-                }
-                if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membuat instrumen.');
-                odCurrentInstrument = data;
-                odRenderInstrument(data);
-            } catch (err) {
-                errBox.style.display = 'block';
-                errBox.textContent = err.message || 'Terjadi kesalahan saat menyusun instrumen.';
-            } finally {
-                hideLoadingCard('od-inst-loading');
-                btn.disabled = false;
-                btn.innerHTML = orig;
-            }
-        }
-
-        function odRenderInstrument(data) {
-            const inst = data.instrument || {};
-            const box = document.getElementById('od-inst-result');
-            box.style.display = 'block';
-            document.getElementById('od-inst-res-title').textContent = inst.instrument_title || 'Instrumen Penelitian';
-            document.getElementById('od-inst-res-meta').textContent = (inst.scale_guide || '') + (inst.recommended_test ? ' · Rekomendasi Uji: ' + inst.recommended_test : '');
-
-            let html = '';
-            if (data.mode === 'eksperimen') {
-                const params = inst.parameters || [];
-                html += `<div class="od-table-title">Tabel 1. Parameter Pengukuran &amp; Metode Uji Laboratorium</div>
-                    <div class="od-table-wrap" style="margin-bottom:14px;"><table class="od-spss-table">
-                        <thead><tr><th>Kode Kolom</th><th>Parameter Pengukuran</th><th>Satuan</th><th>Standar / Metode</th></tr></thead>
-                        <tbody>${params.map(p => `<tr><td><strong>${odEscape(p.code)}</strong></td><td>${odEscape(p.name)}</td><td>${odEscape(p.unit)}</td><td>${odEscape(p.method)}</td></tr>`).join('')}</tbody>
-                    </table></div>`;
-                if (Array.isArray(inst.treatments) && inst.treatments.length) {
-                    html += `<div style="margin-bottom:12px; font-size:12.5px;"><strong>Variasi Perlakuan:</strong> ${inst.treatments.map(t => `<span class="od-col-chip" style="cursor:default; margin-right:5px;">${odEscape(t)}</span>`).join('')} (${inst.replications || 5} ulangan/perlakuan)</div>`;
-                }
-                if (Array.isArray(inst.protocol_steps) && inst.protocol_steps.length) {
-                    html += `<div class="od-table-title">Prosedur Pencatatan Data</div><ol style="margin:0 0 12px 18px; font-size:12.5px; color:var(--text-secondary); line-height:1.65;">${inst.protocol_steps.map(s => `<li>${odEscape(s)}</li>`).join('')}</ol>`;
-                }
-            } else {
-                const vars = inst.variables || [];
-                html += `<div class="od-table-title">Tabel 1. Kisi-Kisi Instrumen Penelitian (Bab III)</div>
-                    <div class="od-table-wrap" style="margin-bottom:14px;"><table class="od-spss-table">
-                        <thead><tr><th>Kode</th><th>Nama Variabel</th><th>Peran</th><th>Indikator</th><th>Jumlah Butir</th></tr></thead>
-                        <tbody>${vars.map(v => `<tr><td><strong>${odEscape(v.code)}</strong></td><td>${odEscape(v.name)}</td><td>${odEscape(v.role)}</td><td>${odEscape((v.indicators || []).join(', '))}</td><td>${(v.items || []).length}</td></tr>`).join('')}</tbody>
-                    </table></div>`;
-                html += `<div class="od-table-title">Tabel 2. Daftar Butir Pernyataan Kuesioner Siap Sebar</div>
-                    <div class="od-table-wrap" style="margin-bottom:12px;"><table class="od-spss-table" style="white-space:normal;">
-                        <thead><tr><th style="width:75px;">Kode</th><th style="width:160px;">Indikator</th><th>Pernyataan Operasional</th></tr></thead>
-                        <tbody>${vars.flatMap(v => (v.items || []).map(it => `<tr><td><strong>${odEscape(it.code)}</strong></td><td>${odEscape(it.indicator)}</td><td>${odEscape(it.statement)}</td></tr>`)).join('')}</tbody>
-                    </table></div>`;
-            }
-
-            const hdrs = data.template?.headers || [];
-            html += `<div style="padding:11px 14px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; font-size:12px; color:#166534;">
-                <strong>Template Tabulasi Siap Olah:</strong> Header Excel/CSV otomatis disiapkan (<code>${odEscape(hdrs.join(', '))}</code>). Setelah responden / hasil uji lab diisikan, unggah langsung file tersebut di tab <strong>Sudah Punya Data</strong> untuk dihitung otomatis!
-            </div>`;
-            document.getElementById('od-inst-res-body').innerHTML = html;
-            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function odCopyInstrument(btn) {
-            if (!odCurrentInstrument) return;
-            const inst = odCurrentInstrument.instrument || {};
-            const lines = [inst.instrument_title || 'Instrumen Penelitian', inst.scale_guide || '', ''];
-            if (odCurrentInstrument.mode === 'eksperimen') {
-                lines.push('Parameter\tSatuan\tMetode');
-                (inst.parameters || []).forEach(p => lines.push(`${p.name}\t${p.unit}\t${p.method}`));
-            } else {
-                lines.push('Kode\tVariabel\tIndikator\tPernyataan');
-                (inst.variables || []).forEach(v => (v.items || []).forEach(it => lines.push(`${it.code}\t${v.name}\t${it.indicator}\t${it.statement}`)));
-            }
-            navigator.clipboard.writeText(lines.join('\n')).then(() => {
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg><span>Tersalin</span>';
-                setTimeout(() => btn.innerHTML = orig, 1800);
-            });
-        }
-
-        function odDownloadTemplateCsv() {
-            if (!odCurrentInstrument?.template) return;
-            const { headers, rows } = odCurrentInstrument.template;
-            const esc = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-            const csv = [headers.map(esc).join(','), ...rows.map(r => r.map(esc).join(','))].join('\r\n');
-            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen.csv' : 'Template_Tabulasi_Kuesioner.csv';
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 1200);
-        }
-
-        async function odDownloadTemplateXlsx() {
-            if (!odCurrentInstrument?.template) return;
-            try {
-                const XLSX = await odLoadSheetJs();
-                const { headers, rows } = odCurrentInstrument.template;
-                const aoa = [headers, ...rows];
-                const ws = XLSX.utils.aoa_to_sheet(aoa);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Data_Penelitian');
-                XLSX.writeFile(wb, odInstMode === 'eksperimen' ? 'Template_Data_Eksperimen.xlsx' : 'Template_Tabulasi_Kuesioner.xlsx');
-            } catch (e) {
-                odDownloadTemplateCsv();
-            }
-        }
-
-        // Drag & Drop support pada zona unggah Olah Data
-        (function initOdDropzone() {
-            const dz = document.getElementById('od-dropzone');
-            if (!dz) return;
-            ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
-                e.preventDefault();
-                dz.classList.add('dragover');
-            }));
-            ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
-                e.preventDefault();
-                dz.classList.remove('dragover');
-            }));
-            dz.addEventListener('drop', e => {
-                const file = e.dataTransfer?.files?.[0];
-                if (file) {
-                    odHandleFileUpload({ files: [file] });
-                }
-            });
-        })();
-
-        async function submitReferralRedeem(btn) {
-            const planCode = document.getElementById('ref-redeem-plan')?.value || 'starter';
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            if (btn) btn.disabled = true;
-            try {
-                const res = await fetch("{{ route('referral.action') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                    body: JSON.stringify({ action: 'redeem', plan_code: planCode })
-                });
-                const data = await res.json();
-                if (!res.ok || data.status !== 'success') {
-                    alert(data.message || 'Gagal menukar saldo referral.');
-                    if (btn) btn.disabled = false;
-                    return;
-                }
-                alert(data.message);
-                window.location.reload();
-            } catch (e) {
-                alert('Gagal memproses penukaran komisi.');
-                if (btn) btn.disabled = false;
-            }
-        }
-
-        async function submitReferralWithdraw(btn) {
-            const channel = document.getElementById('ref-wd-channel')?.value || 'DANA';
-            const amount = parseInt(document.getElementById('ref-wd-amount')?.value || '0', 10);
-            const accountNumber = (document.getElementById('ref-wd-number')?.value || '').trim();
-            const accountName = (document.getElementById('ref-wd-name')?.value || '').trim();
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            if (!accountNumber || !accountName || amount < 10000) {
-                alert('Lengkapi nomor tujuan, nama pemilik, dan nominal minimal Rp10.000.');
-                return;
-            }
-            if (btn) btn.disabled = true;
-            try {
-                const res = await fetch("{{ route('referral.action') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                    body: JSON.stringify({
-                        action: 'withdraw',
-                        channel,
-                        amount,
-                        account_number: accountNumber,
-                        account_name: accountName
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok || data.status !== 'success') {
-                    alert(data.message || 'Gagal mengajukan pencairan.');
-                    if (btn) btn.disabled = false;
-                    return;
-                }
-                alert(data.message);
-                window.location.reload();
-            } catch (e) {
-                alert('Gagal mengajukan pencairan komisi.');
-                if (btn) btn.disabled = false;
-            }
-        }
-    </script>
-    @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])
-</body>
-
-</html>
+...[truncated for diff preview]

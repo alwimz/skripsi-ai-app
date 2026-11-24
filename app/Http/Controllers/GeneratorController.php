@@ -2280,8 +2280,9 @@ class GeneratorController extends Controller
         $savedPpts = $this->getSavedPptsForUser($user->id);
         $billingSummary = $this->billing()->getUserSummary($user, true);
         $plans = $this->billing()->getPlans(true);
+        $guides = PanduanController::getGuides();
 
-        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans'));
+        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans', 'guides'));
     }
 
     private function ensureSavedPptsTable(): bool

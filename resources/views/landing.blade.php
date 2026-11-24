@@ -1680,7 +1680,7 @@
                 <li><a href="#contoh-hasil" class="nav-link">Contoh Hasil</a></li>
                 <li><a href="#tools-gratis" class="nav-link">Tools</a></li>
                 <li><a href="#harga-paket" class="nav-link">Harga Paket</a></li>
-                <li><a href="{{ url('/panduan') }}" class="nav-link">Panduan</a></li>
+                <li><a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="nav-link">Panduan</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
             </ul>
 
@@ -1715,7 +1715,7 @@
                 <span>→</span></a>
             <a href="#harga-paket" class="mobile-nav-link" onclick="closeLandingMobileNav()">Harga Paket (Mulai Rp15rb)
                 <span>→</span></a>
-            <a href="{{ url('/panduan') }}" class="mobile-nav-link" onclick="closeLandingMobileNav()">Panduan Skripsi (7 Modul)
+            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="mobile-nav-link" onclick="closeLandingMobileNav()">Panduan Skripsi (7 Modul)
                 <span>→</span></a>
             <a href="#fitur-lengkap" class="mobile-nav-link" onclick="closeLandingMobileNav()">Semua 9 Modul SkripsiLab
                 AI
@@ -2396,7 +2396,7 @@
                 SkripsiLab AI
             </div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-                <a href="{{ url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
+                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
                 <a href="{{ url('/tools') }}">Tools Gratis</a>
                 <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>

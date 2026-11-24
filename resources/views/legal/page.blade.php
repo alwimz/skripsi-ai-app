@@ -517,7 +517,7 @@
             </a>
             <nav class="nav-links" aria-label="Navigasi Utama">
                 <a href="{{ url('/') }}" class="nav-link">Beranda</a>
-                <a href="{{ url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
+                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
                 <a href="{{ url('/tools') }}" class="nav-link hide-xs">Tools Gratis</a>
                 <a href="{{ url('/paket') }}" class="nav-link hide-xs">Paket</a>
                 <a href="{{ url('/kebijakan-privasi') }}" class="nav-link hide-xs {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
@@ -536,7 +536,7 @@
                     <a href="{{ url('/kebijakan-privasi') }}" class="side-item {{ $page['key'] === 'privacy' ? 'active' : '' }}">Kebijakan Privasi</a>
                     <a href="{{ url('/syarat-ketentuan') }}" class="side-item {{ $page['key'] === 'terms' ? 'active' : '' }}">Syarat &amp; Ketentuan</a>
                     <a href="{{ url('/tentang') }}" class="side-item {{ $page['key'] === 'about' ? 'active' : '' }}">Tentang &amp; Pengembang</a>
-                    <a href="{{ url('/panduan') }}" class="side-item">Panduan Lengkap</a>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="side-item">Panduan Lengkap</a>
                 </nav>
                 <div class="side-divider"></div>
                 <div class="trust-box">
@@ -593,8 +593,8 @@
                     <p>Anda dapat membaca panduan penggunaan lengkap atau menghubungi pengelola resmi.</p>
                 </div>
                 <div class="banner-actions">
-                    <a href="{{ url('/panduan') }}" class="btn-outline">Baca Panduan</a>
-                    <a href="{{ route('register') }}" class="nav-cta">Daftar Gratis →</a>
+                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="btn-outline">Baca Panduan</a>
+                    <a href="{{ auth()->check() ? route('app.create') : route('register') }}" class="nav-cta">{{ auth()->check() ? 'Buka Workspace →' : 'Daftar Gratis →' }}</a>
                 </div>
             </div>
         </article>
@@ -603,7 +603,7 @@
     <footer class="site-footer">
         <div class="footer-links">
             <a href="{{ url('/') }}">Beranda</a>
-            <a href="{{ url('/panduan') }}">Panduan Lengkap</a>
+            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}">Panduan Lengkap</a>
             <a href="{{ url('/tools') }}">Tools Gratis</a>
             <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
             <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>

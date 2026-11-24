@@ -321,6 +321,10 @@ class PanduanController extends Controller
 
     public function index()
     {
+        if (auth()->check()) {
+            return redirect()->to(route('app.create', ['tab' => 'panduan']) . '#panduan');
+        }
+
         $guides = self::getGuides();
         return view('panduan.index', compact('guides'));
     }
@@ -337,6 +341,10 @@ class PanduanController extends Controller
         }
         if ($currentIndex === null) {
             abort(404);
+        }
+
+        if (auth()->check()) {
+            return redirect()->to(route('app.create', ['tab' => 'panduan', 'guide' => $slug]) . '#panduan');
         }
 
         $guide = $guides[$currentIndex];
