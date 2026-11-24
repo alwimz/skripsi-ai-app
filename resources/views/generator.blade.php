@@ -108,6 +108,7 @@
         }
 
         .sidebar-header {
+            flex-shrink: 0;
             padding: 14px 16px;
             border-bottom: 1px solid var(--border);
         }
@@ -189,6 +190,7 @@
 
         .sidebar-nav {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
             padding: 10px;
             display: flex;
@@ -550,6 +552,7 @@
         }
 
         .chapter-bar {
+            flex-shrink: 0;
             width: 100%;
             max-width: 820px;
             background: #ffffff;
@@ -584,13 +587,15 @@
         }
 
         #sheets-container {
+            flex-shrink: 0;
             width: 100%;
             max-width: 840px;
+            height: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 0;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .a4-sheet-stage {

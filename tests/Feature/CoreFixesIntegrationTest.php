@@ -172,6 +172,7 @@ class CoreFixesIntegrationTest extends TestCase
         $this->assertStringContainsString('measureContainerWithNode', $wsHtml);
         $this->assertStringContainsString('padding: 4cm 3cm 3cm 4cm;', $wsHtml);
         $this->assertStringContainsString('width: 794px;', $wsHtml);
+        $this->assertDoesNotMatchRegularExpression('/#sheets-container\s*\{[^}]*overflow\s*:\s*hidden/s', $wsHtml);
         $this->assertSame(
             preg_match_all('/<script\b/i', $wsHtml),
             preg_match_all('/<\/script>/i', $wsHtml),
