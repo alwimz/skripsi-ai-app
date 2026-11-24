@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <style>
         *,
         *::before,
@@ -5804,7 +5803,7 @@
             </section>
 
             <!-- ========================================================= -->
-            <!-- 10B. TAB PAKET & TIER AKUN (HARGA PAKET + PAKASIR QRIS) -->
+            <!-- 10B. TAB PAKET & TIER AKUN -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-pricing">
                 @php
@@ -5812,7 +5811,7 @@
                 @endphp
                 <div class="page-eyebrow">Tanpa Sistem Kredit · Bayar Pakai Kuota atau Unlimited</div>
                 <h1 class="page-title">Paket</h1>
-                <p class="page-subtitle">Cek sisa kuota &amp; masa aktif akun Anda, atau pilih paket mulai Rp15.000 via QRIS.</p>
+                <p class="page-subtitle">Cek status akun Anda atau pilih paket mulai Rp15.000 dengan aktivasi langsung bersama Admin.</p>
 
                 <!-- Kartu Status Tier & Sisa Kuota/Fitur -->
                 @include('partials.billing_status_card', ['bs' => $bs, 'inWorkspace' => true])
@@ -5870,7 +5869,7 @@
                     $refHistory = $refStats['history'] ?? collect();
                     $refWithdrawals = $refStats['withdrawals'] ?? collect();
                 @endphp
-                <div class="page-eyebrow">Program Komunitas Mahasiswa · Aktif Otomatis</div>
+                <div class="page-eyebrow">Program Komunitas Mahasiswa</div>
                 <h1 class="page-title">Ajak Teman (Referral 10%)</h1>
                 <p class="page-subtitle">Setiap teman yang mendaftar lewat link Anda lalu membeli paket berbayar, Anda langsung mendapat komisi 10% yang bisa dicairkan atau ditukar menjadi paket.
                 </p>
@@ -5906,7 +5905,7 @@
                             <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
                                 Dapatkan Komisi 10% dari Setiap Pembelian Paket Teman</h3>
                             <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
-                                seangkatan atau tim bimbinganmu. Begitu teman membeli paket via QRIS Pakasir (Rp15rb–Rp399rb), <strong>komisi 10%</strong> otomatis masuk ke saldo Anda.</p>
+                                seangkatan atau tim bimbinganmu. Setiap teman membeli paket (Rp15rb–Rp399rb), <strong>komisi 10%</strong> masuk ke saldo Anda.</p>
                         </div>
                         <div
                             style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 170px;">
@@ -7753,10 +7752,31 @@
             }
         });
 
-        function downloadPptxFile() {
+        let pptxGenPromise = null;
+        function ensurePptxGenLoaded() {
+            if (window.PptxGenJS) return Promise.resolve();
+            if (!pptxGenPromise) {
+                pptxGenPromise = new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+                    s.onload = resolve;
+                    s.onerror = () => reject(new Error('Gagal memuat modul PowerPoint.'));
+                    document.head.appendChild(s);
+                });
+            }
+            return pptxGenPromise;
+        }
+
+        async function downloadPptxFile() {
             syncCurrentSlideEdit();
             if (!pptSlides.length) return;
 
+            try {
+                await ensurePptxGenLoaded();
+            } catch (err) {
+                alert(err.message || 'Gagal memuat library PowerPoint (.pptx).');
+                return;
+            }
             const pptx = new PptxGenJS();
             pptx.layout = 'LAYOUT_16x9';
 

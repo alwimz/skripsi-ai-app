@@ -232,6 +232,25 @@ class BillingService
         }
         self::$schemaChecked = true;
 
+        $connName = (string) config('database.default', 'sqlite');
+        $dbName = (string) config("database.connections.{$connName}.database", '');
+        $flagPath = sys_get_temp_dir() . '/sl_billing_schema_v2_' . md5($connName . '|' . $dbName) . '.ok';
+        if (@is_file($flagPath)) {
+            return;
+        }
+
+        try {
+            DB::select('SELECT plan_code, project_quota_limit, project_quota_used, free_project_used, plan_expires_at, free_tool_usage, referral_code, referred_by_user_id, referral_balance, canonical_email, signup_ip FROM users LIMIT 1');
+            DB::select('SELECT is_full_unlocked FROM projects LIMIT 1');
+            DB::select('SELECT 1 FROM transactions LIMIT 1');
+            DB::select('SELECT 1 FROM referral_commissions LIMIT 1');
+            DB::select('SELECT 1 FROM referral_withdrawals LIMIT 1');
+            @file_put_contents($flagPath, '1');
+            return;
+        } catch (Throwable $probeEx) {
+            // Lanjutkan DDL jika ada kolom/tabel yang belum tersedia
+        }
+
         try {
             if (Schema::hasTable('users')) {
                 Schema::table('users', function (Blueprint $table) {
@@ -325,6 +344,7 @@ class BillingService
                     $table->timestamps();
                 });
             }
+            @file_put_contents($flagPath, '1');
         } catch (Throwable $e) {
             Log::warning('BillingService ensureSchema warning: ' . $e->getMessage());
         }
@@ -808,7 +828,7 @@ class BillingService
         });
     }
 
-    public function getUserSummary(User $user): array
+    public function getUserSummary(User $user, bool $includeDetails = true): array
     {
         $this->ensureSchema();
         $isAdmin = $this->isAdminUser($user);
@@ -822,31 +842,15 @@ class BillingService
             $plan = $this->getPlan('free');
             $planCode = 'free';
         }
-        $isPaidActive = $isAdmin || $isUnlimited || ($planCode !== 'free' && $remainingQuota > 0) || ($planCode !== 'free' && $this->userHasUnlockedProject($user));
 
-        $refCode = $this->ensureUserReferralCode($user);
-        $invitedUsers = User::where('referred_by_user_id', $user->id)
-            ->orderByDesc('created_at')
-            ->limit(15)
-            ->get(['id', 'name', 'email', 'plan_code', 'created_at']);
-        $invitedCount = User::where('referred_by_user_id', $user->id)->count();
-        $commissions = DB::table('referral_commissions')
-            ->where('referrer_id', $user->id)
-            ->orderByDesc('created_at')
-            ->get();
-        $withdrawals = DB::table('referral_withdrawals')
-            ->where('user_id', $user->id)
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-        $totalEarned = (int) $commissions->sum('commission_amount');
+        $projStats = Project::where('user_id', $user->id)
+            ->selectRaw('COUNT(*) as total_cnt, SUM(CASE WHEN is_full_unlocked = 1 THEN 1 ELSE 0 END) as unlocked_cnt')
+            ->first();
+        $totalProjectsCount = (int) ($projStats->total_cnt ?? 0);
+        $unlockedProjectsCount = (int) ($projStats->unlocked_cnt ?? 0);
 
+        $isPaidActive = $isAdmin || $isUnlimited || ($planCode !== 'free' && $remainingQuota > 0) || ($planCode !== 'free' && $unlockedProjectsCount > 0);
         $freeUsage = $this->getFreeToolUsage($user);
-        $recentTransactions = DB::table('transactions')
-            ->where('user_id', $user->id)
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
 
         $remainingSeconds = $expiresAt ? Carbon::now()->diffInSeconds($expiresAt, false) : 0;
         $remainingDays = (!$isAdmin && $planCode !== 'free' && $expiresAt)
@@ -855,8 +859,38 @@ class BillingService
         $totalDays = (!$isAdmin && $planCode !== 'free' && $expiresAt)
             ? max((int) ($plan['duration_days'] ?? 30), (int) ($remainingDays ?? 0))
             : null;
-        $unlockedProjectsCount = Project::where('user_id', $user->id)->where('is_full_unlocked', true)->count();
-        $totalProjectsCount = Project::where('user_id', $user->id)->count();
+
+        $refCode = '';
+        $invitedUsers = collect();
+        $invitedCount = 0;
+        $commissions = collect();
+        $withdrawals = collect();
+        $totalEarned = 0;
+        $recentTransactions = collect();
+
+        if ($includeDetails) {
+            $refCode = $this->ensureUserReferralCode($user);
+            $invitedUsers = User::where('referred_by_user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(15)
+                ->get(['id', 'name', 'email', 'plan_code', 'created_at']);
+            $invitedCount = User::where('referred_by_user_id', $user->id)->count();
+            $commissions = DB::table('referral_commissions')
+                ->where('referrer_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            $withdrawals = DB::table('referral_withdrawals')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get();
+            $totalEarned = (int) $commissions->sum('commission_amount');
+            $recentTransactions = DB::table('transactions')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get();
+        }
 
         return [
             'is_admin' => $isAdmin,

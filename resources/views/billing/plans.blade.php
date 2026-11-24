@@ -124,7 +124,7 @@
                 Paket Harga &amp; Tier Akun
             </h1>
             <p style="font-size: 14px; color: #475569; max-width: 680px; margin: 0;">
-                Bayar sekali sesuai kuota naskah atau pilih Unlimited — semua fitur AI langsung aktif via QRIS.
+                Bayar sekali sesuai kuota naskah atau pilih Unlimited — semua fitur aktif setelah konfirmasi Admin.
             </p>
         </div>
 

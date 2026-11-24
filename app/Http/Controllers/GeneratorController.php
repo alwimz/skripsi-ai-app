@@ -2233,22 +2233,38 @@ class GeneratorController extends Controller
     {
         $user = Auth::user();
 
+        $history = Project::where('user_id', $user->id)
+            ->select([
+                'id', 'user_id', 'judul', 'prodi', 'metode_penelitian', 'sumber_data',
+                'is_full_unlocked', 'citation_validation', 'created_at', 'updated_at',
+                DB::raw("CASE WHEN COALESCE(bab1_content, '') <> '' THEN '1' ELSE '' END as bab1_content"),
+                DB::raw("CASE WHEN COALESCE(bab2_content, '') <> '' THEN '1' ELSE '' END as bab2_content"),
+                DB::raw("CASE WHEN COALESCE(bab3_content, '') <> '' THEN '1' ELSE '' END as bab3_content"),
+                DB::raw("CASE WHEN COALESCE(bab4_content, '') <> '' THEN '1' ELSE '' END as bab4_content"),
+                DB::raw("CASE WHEN COALESCE(bab5_content, '') <> '' THEN '1' ELSE '' END as bab5_content"),
+            ])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         try {
-            $allProjects = Project::where('user_id', $user->id)->orderBy('id', 'asc')->get();
             $seen = [];
-            foreach ($allProjects as $proj) {
+            $dupeIds = [];
+            foreach ($history->sortBy('id') as $proj) {
                 $key = strtolower(trim($proj->judul)) . '|' . strtolower(trim($proj->prodi ?? ''));
                 $isEmpty = empty($proj->bab1_content) && empty($proj->bab2_content) && empty($proj->bab3_content);
                 if (isset($seen[$key]) && $isEmpty) {
-                    $proj->delete();
+                    $dupeIds[] = $proj->id;
                 } else {
                     $seen[$key] = $proj->id;
                 }
             }
+            if (!empty($dupeIds)) {
+                Project::where('user_id', $user->id)->whereIn('id', $dupeIds)->delete();
+                $history = $history->reject(fn($p) => in_array($p->id, $dupeIds, true))->values();
+            }
         } catch (Throwable $e) {
         }
 
-        $history = Project::where('user_id', $user->id)->orderBy('updated_at', 'desc')->get();
         $defaultIdentity = $this->getDefaultUserIdentity($user->id);
 
         try {
@@ -2258,7 +2274,7 @@ class GeneratorController extends Controller
         }
 
         $savedPpts = $this->getSavedPptsForUser($user->id);
-        $billingSummary = $this->billing()->getUserSummary($user);
+        $billingSummary = $this->billing()->getUserSummary($user, true);
         $plans = $this->billing()->getPlans(true);
 
         return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans'));
@@ -2266,6 +2282,24 @@ class GeneratorController extends Controller
 
     private function ensureSavedPptsTable(): bool
     {
+        static $checked = false;
+        if ($checked) {
+            return true;
+        }
+        $connName = (string) config('database.default', 'sqlite');
+        $dbName = (string) config("database.connections.{$connName}.database", '');
+        $flagPath = sys_get_temp_dir() . '/sl_saved_ppts_v1_' . md5($connName . '|' . $dbName) . '.ok';
+        if (@is_file($flagPath)) {
+            $checked = true;
+            return true;
+        }
+        try {
+            DB::select('SELECT 1 FROM saved_ppts LIMIT 1');
+            $checked = true;
+            @file_put_contents($flagPath, '1');
+            return true;
+        } catch (Throwable $probeEx) {
+        }
         try {
             if (!Schema::hasTable('saved_ppts')) {
                 Schema::create('saved_ppts', function (\Illuminate\Database\Schema\Blueprint $table) {
@@ -2280,6 +2314,8 @@ class GeneratorController extends Controller
                     $table->timestamps();
                 });
             }
+            $checked = true;
+            @file_put_contents($flagPath, '1');
             return true;
         } catch (Throwable $e) {
             Log::warning('ensureSavedPptsTable notice: ' . $e->getMessage());
@@ -2813,7 +2849,7 @@ class GeneratorController extends Controller
         }
 
         $authUser = Auth::user();
-        $billingSummary = $authUser ? $this->billing()->getUserSummary($authUser) : null;
+        $billingSummary = $authUser ? $this->billing()->getUserSummary($authUser, false) : null;
         $plans = $this->billing()->getPlans(false);
         $projectUnlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : false;
 

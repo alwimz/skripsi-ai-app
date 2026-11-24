@@ -1327,6 +1327,7 @@
                 font-size: 11px;
                 padding: 0 9px;
                 white-space: nowrap;
+                text-decoration: none;
             }
 
             .chapter-bar {
@@ -1944,11 +1945,11 @@
                 @endphp
                 <div class="topbar-actions">
                     <input type="hidden" id="studio-model" value="auto">
-                    <a href="{{ route('billing.plans') }}" class="btn-top topbar-tier-pill"
-                        style="background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }}; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }}; font-weight: 700; white-space: nowrap;">
+                    <a href="{{ route('app.create', ['tab' => 'pricing']) }}" class="btn-top topbar-tier-pill"
+                        style="background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }}; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }}; font-weight: 700; white-space: nowrap; text-decoration: none;">
                         <span>{{ $isGenUnlocked ? '✓ Full Akses' : 'Paket Free' }}</span>
                         @if(!$isGenUnlocked)
-                            <span style="color: #2563eb; font-weight: 800;">Upgrade →</span>
+                            <span style="color: #2563eb; font-weight: 800; text-decoration: none;">Upgrade →</span>
                         @endif
                     </a>
                     <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;"

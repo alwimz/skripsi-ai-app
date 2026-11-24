@@ -228,7 +228,7 @@
                 </li>
                 <li>
                     <span class="sl-sparkle">✦</span>
-                    <span>Pembayaran <strong>QRIS instan</strong> — paket langsung aktif otomatis</span>
+                    <span>Aktivasi paket cepat &amp; dibantu langsung oleh <strong>Admin</strong></span>
                 </li>
                 <li>
                     <span class="sl-sparkle">✦</span>
@@ -244,12 +244,12 @@
     </div>
 </div>
 
-<!-- MODAL 2: QRIS LANGSUNG (KHUSUS PAKET YANG DIPILIH) -->
+<!-- MODAL 2: KONFIRMASI AKTIVASI PAKET -->
 <div id="sl-checkout-modal" class="sl-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sl-checkout-title">
     <div class="sl-checkout-card">
         <div style="padding: 18px 22px; background: #0f172a; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
             <div>
-                <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Pembayaran QRIS Instan</div>
+                <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Konfirmasi Pembelian</div>
                 <div id="sl-checkout-title" style="font-size: 16px; font-weight: 800; margin-top: 2px;">Aktivasi Paket</div>
             </div>
             <button type="button" onclick="closeCheckoutModal()" style="background: none; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
@@ -263,7 +263,7 @@
             </div>
 
             <div id="sl-checkout-loading" style="padding: 22px 10px;">
-                <div style="font-size: 13.5px; font-weight: 600; color: #334155;">⏳ Sedang membuat kode QRIS...</div>
+                <div style="font-size: 13.5px; font-weight: 600; color: #334155;">⏳ Menyiapkan rincian paket...</div>
             </div>
 
             <div id="sl-checkout-error" class="sl-checkout-error-box"></div>
@@ -273,12 +273,8 @@
                     <canvas id="sl-qris-canvas" width="220" height="220" style="display:block; margin:0 auto;"></canvas>
                 </div>
 
-                <div style="font-size:12px; color:#64748b; margin-bottom:10px;">
-                    Scan menggunakan <strong>ShopeePay, DANA, GoPay, OVO, atau Mobile Banking</strong> apa saja.
-                </div>
-
                 <div id="sl-pay-status-badge" style="font-size:12.5px; font-weight:600; color:#0284c7; margin-bottom:14px;">
-                    ⏳ Menunggu pembayaran... Status aktif otomatis setelah dibayar.
+                    ⏳ Menunggu konfirmasi pembayaran...
                 </div>
 
                 <div class="sl-checkout-actions">
@@ -286,7 +282,7 @@
                         🔄 Cek Status Sekarang
                     </button>
                     <a id="sl-pakasir-direct-link" href="#" target="_blank" rel="noopener" class="sl-checkout-btn primary">
-                        Buka Link QRIS ↗
+                        Buka Halaman Pembayaran ↗
                     </a>
                 </div>
             </div>
@@ -294,7 +290,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
 <script>
     (function () {
         const PLANS_MAP = @json($modalPlans);
@@ -377,15 +372,19 @@
                 if (loadingEl) loadingEl.style.display = 'none';
 
                 if (data.status === 'pakasir_unconfigured') {
+                    if (data.order_id) {
+                        const ordEl = document.getElementById('sl-pay-order-id');
+                        if (ordEl) ordEl.textContent = 'Kode Pesanan: ' + data.order_id;
+                    }
                     if (errEl) {
-                        errEl.innerHTML = `<div style="margin-bottom:12px;color:#475569;">Pembayaran QRIS otomatis sedang dalam proses aktivasi gateway baru. Sementara waktu Anda dapat aktivasi langsung via Admin:</div><a href="${data.whatsapp_url}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">Aktivasi Paket via WhatsApp Admin →</a>`;
+                        errEl.innerHTML = `<div style="margin-bottom:12px;color:#334155;">Untuk mengaktifkan paket ini, silakan lanjutkan konfirmasi pembayaran melalui WhatsApp Admin:</div><a href="${data.whatsapp_url}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">Aktifkan via WhatsApp Admin →</a>`;
                         errEl.style.display = 'block';
                     }
                     return;
                 }
 
                 if (!res.ok || data.status !== 'success' || !data.transaction) {
-                    throw new Error(data.message || 'Gagal membuat kode QRIS.');
+                    throw new Error(data.message || 'Gagal menyiapkan pesanan paket.');
                 }
 
                 const tx = data.transaction;
@@ -395,9 +394,20 @@
                 document.getElementById('sl-pay-order-id').textContent = 'Order ID: ' + tx.order_id;
                 document.getElementById('sl-pakasir-direct-link').href = tx.checkout_url || '#';
 
-                if (tx.payment_number && window.QRCode) {
-                    const canvas = document.getElementById('sl-qris-canvas');
-                    window.QRCode.toCanvas(canvas, tx.payment_number, { width: 220, margin: 1 });
+                if (tx.payment_number) {
+                    if (!window.QRCode) {
+                        await new Promise((resolve) => {
+                            const s = document.createElement('script');
+                            s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+                            s.onload = resolve;
+                            s.onerror = resolve;
+                            document.head.appendChild(s);
+                        });
+                    }
+                    if (window.QRCode) {
+                        const canvas = document.getElementById('sl-qris-canvas');
+                        window.QRCode.toCanvas(canvas, tx.payment_number, { width: 220, margin: 1 });
+                    }
                 }
 
                 if (payEl) payEl.style.display = 'block';
@@ -405,7 +415,7 @@
             } catch (e) {
                 if (loadingEl) loadingEl.style.display = 'none';
                 if (errEl) {
-                    errEl.textContent = e.message || 'Gagal memuat pembayaran QRIS.';
+                    errEl.textContent = e.message || 'Gagal memproses permintaan aktivasi.';
                     errEl.style.display = 'block';
                 }
             }

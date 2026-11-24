@@ -55,7 +55,7 @@ class PaymentController extends Controller
             $waMsg = urlencode("Halo Admin SkripsiLab AI, saya ingin mengaktifkan {$plan['name']} (Rp " . number_format($amount, 0, ',', '.') . ") untuk akun {$user->email} (Kode Pesanan: {$orderId}).");
             return response()->json([
                 'status' => 'pakasir_unconfigured',
-                'message' => 'Gateway pembayaran Pakasir belum disetel di server (.env PAKASIR_PROJECT & PAKASIR_API_KEY). Anda dapat menyelesaikan aktivasi manual melalui WhatsApp Admin sementara waktu.',
+                'message' => 'Silakan lanjutkan konfirmasi pembayaran dan aktivasi paket melalui WhatsApp Admin.',
                 'order_id' => $orderId,
                 'plan' => $plan,
                 'whatsapp_url' => "https://wa.me/6282195036971?text={$waMsg}",
