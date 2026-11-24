@@ -182,6 +182,8 @@ class AdminController extends Controller
             $user->plan_code = 'free';
             $user->project_quota_limit = 0;
             $user->project_quota_used = 0;
+            $user->paid_tool_limits = null;
+            $user->paid_tool_used = null;
             $user->plan_expires_at = null;
             $user->save();
             return back()->with('success', "Tier {$user->name} dikembalikan ke Free.");

@@ -28,6 +28,12 @@ return new class extends Migration
                 if (!Schema::hasColumn('users', 'free_tool_usage')) {
                     $table->text('free_tool_usage')->nullable();
                 }
+                if (!Schema::hasColumn('users', 'paid_tool_limits')) {
+                    $table->text('paid_tool_limits')->nullable();
+                }
+                if (!Schema::hasColumn('users', 'paid_tool_used')) {
+                    $table->text('paid_tool_used')->nullable();
+                }
                 if (!Schema::hasColumn('users', 'referral_code')) {
                     $table->string('referral_code', 32)->nullable()->index();
                 }

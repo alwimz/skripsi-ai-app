@@ -3289,13 +3289,18 @@
             @endphp
             <div class="topbar-right">
                 <input type="hidden" id="global-model" value="auto">
-                <button type="button" class="token-pill" onclick="openTab('pricing', 'Paket')"
-                    style="background: {{ $topPaid ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $topPaid ? '#bbf7d0' : '#fde68a' }}; color: {{ $topPaid ? '#15803d' : '#b45309' }}; font-weight: 700;">
-                    <span>{{ $topPaid ? '✓ ' . $topPlanName : 'Paket Free' }}</span>
-                    @if(!$topPaid)
+                @if($topPaid)
+                    <span class="token-pill"
+                        style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; font-weight: 700; cursor: default;">
+                        <span>✓ {{ $topPlanName }}</span>
+                    </span>
+                @else
+                    <button type="button" class="token-pill" onclick="openTab('pricing', 'Paket')"
+                        style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 700;">
+                        <span>Paket Free</span>
                         <span style="color: #2563eb; font-weight: 800;">Upgrade →</span>
-                    @endif
-                </button>
+                    </button>
+                @endif
             </div>
         </header>
 

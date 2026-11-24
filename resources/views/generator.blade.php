@@ -1945,13 +1945,18 @@
                 @endphp
                 <div class="topbar-actions">
                     <input type="hidden" id="studio-model" value="auto">
-                    <a href="{{ route('app.create', ['tab' => 'pricing']) }}" class="btn-top topbar-tier-pill"
-                        style="background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }}; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }}; font-weight: 700; white-space: nowrap; text-decoration: none;">
-                        <span>{{ $isGenUnlocked ? '✓ Full Akses' : 'Paket Free' }}</span>
-                        @if(!$isGenUnlocked)
+                    @if($isGenUnlocked)
+                        <span class="btn-top topbar-tier-pill"
+                            style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; font-weight: 700; white-space: nowrap; cursor: default;">
+                            <span>✓ Full Akses</span>
+                        </span>
+                    @else
+                        <a href="{{ route('app.create', ['tab' => 'pricing']) }}" class="btn-top topbar-tier-pill"
+                            style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 700; white-space: nowrap; text-decoration: none;">
+                            <span>Paket Free</span>
                             <span style="color: #2563eb; font-weight: 800; text-decoration: none;">Upgrade →</span>
-                        @endif
-                    </a>
+                        </a>
+                    @endif
                     <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;"
                         onclick="saveActiveEdit()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"

@@ -20,6 +20,7 @@
     $unlockedCount = (int) ($bs['unlocked_projects_count'] ?? 0);
     $totalProjectsCount = (int) ($bs['total_projects_count'] ?? $unlockedCount);
     $freeUsage = $bs['free_tool_usage'] ?? [];
+    $toolQuotaStatus = $bs['tool_quota_status'] ?? [];
 
     $toolItems = [
         ['key' => 'titles', 'label' => 'Cari Ide Judul AI'],
@@ -29,8 +30,6 @@
         ['key' => 'paraphrase', 'label' => 'Parafrase Bab 1–5'],
         ['key' => 'stats_analyze', 'label' => 'Olah Data SPSS AI'],
         ['key' => 'stats_interpret', 'label' => 'Interpretasi Bab IV'],
-        ['key' => 'stats_instrument', 'label' => 'Kuesioner AI'],
-        ['key' => 'revise', 'label' => 'Lab Revisi AI'],
     ];
 @endphp
 
@@ -260,12 +259,12 @@
 
         <div class="sl-quota-box">
             <div class="sl-quota-label">Unduh Word (.docx) &amp; PDF</div>
-            @if($bsAdmin || $bsUnlim)
+            @if($bsAdmin)
                 <div class="sl-quota-val" style="color: #4ade80;">Unlimited Bebas</div>
                 <div class="sl-quota-sub">Format 4-4-3-3 siap cetak</div>
             @elseif($bsPaid)
-                <div class="sl-quota-val" style="color: #4ade80;">Aktif ({{ $unlockedCount }} naskah)</div>
-                <div class="sl-quota-sub">Bebas unduh ulang selama masa aktif</div>
+                <div class="sl-quota-val" style="color: #4ade80;">Unlimited</div>
+                <div class="sl-quota-sub">Semua paket berlangganan bebas unduh ({{ $remainingDays ?? 30 }} hari)</div>
             @else
                 <div class="sl-quota-val">Siap setelah aktif paket</div>
                 <div class="sl-quota-sub">Draf Anda tersimpan otomatis</div>
@@ -277,19 +276,29 @@
         <div class="sl-feat-status-head">
             <span>{{ $bsPaid ? 'Rincian Sisa & Status Akses Fitur Anda:' : 'Sisa Jatah Coba Fitur AI (Tier Free):' }}</span>
             @if($bsPaid && $remainingDays !== null)
-                <span style="color: #93c5fd; font-weight: 600;">Semua AI Workspace terbuka selama {{ $remainingDays }} hari lagi</span>
+                <span style="color: #93c5fd; font-weight: 600;">
+                    {{ $bsUnlim ? "Semua AI Workspace Unlimited selama {$remainingDays} hari lagi" : "Download, Revisi & 10 Tools Unlimited selama {$remainingDays} hari" }}
+                </span>
             @endif
         </div>
         <div class="sl-feat-status-grid">
             @foreach($toolItems as $item)
                 @php
-                    $usedCount = (int) ($freeUsage[$item['key']] ?? 0);
+                    $tKey = $item['key'];
+                    $usedCount = (int) ($freeUsage[$tKey] ?? 0);
                     $leftFree = max(0, 1 - $usedCount);
+                    $qInfo = $toolQuotaStatus[$tKey] ?? ['limit' => 2, 'used' => 0, 'remaining' => 2];
+                    $qRem = (int) ($qInfo['remaining'] ?? 0);
+                    $qLim = (int) ($qInfo['limit'] ?? 0);
                 @endphp
                 <div class="sl-feat-chip">
                     <span class="sl-feat-chip-name">{{ $item['label'] }}</span>
-                    @if($bsPaid)
+                    @if($bsAdmin || $bsUnlim)
                         <span class="sl-feat-chip-val ok">Unlimited</span>
+                    @elseif($bsPaid && $qLim > 0)
+                        <span class="sl-feat-chip-val {{ $qRem > 0 ? 'ok' : 'empty' }}">
+                            Sisa {{ $qRem }} dari {{ $qLim }}
+                        </span>
                     @else
                         <span class="sl-feat-chip-val {{ $leftFree > 0 ? 'ok' : 'empty' }}">
                             Sisa {{ $leftFree }} dari 1
@@ -297,6 +306,14 @@
                     @endif
                 </div>
             @endforeach
+            <div class="sl-feat-chip">
+                <span class="sl-feat-chip-name">Lab Revisi AI</span>
+                <span class="sl-feat-chip-val ok">{{ $bsPaid ? 'Unlimited' : 'Sisa ' . max(0, 1 - (int) ($freeUsage['revise'] ?? 0)) . ' dari 1' }}</span>
+            </div>
+            <div class="sl-feat-chip">
+                <span class="sl-feat-chip-name">Unduh Word &amp; PDF</span>
+                <span class="sl-feat-chip-val ok">{{ $bsPaid ? 'Unlimited' : 'Setelah Aktif' }}</span>
+            </div>
             <div class="sl-feat-chip">
                 <span class="sl-feat-chip-name">Konsultasi Dosen AI</span>
                 <span class="sl-feat-chip-val ok">Gratis Unlimited</span>
