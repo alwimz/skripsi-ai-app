@@ -83,7 +83,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
 
 // 3. APLIKASI UTAMA (DASHBOARD, WORKSPACE, TOOLS MAHASISWA & AI TOOLS — WAJIB LOGIN)
 Route::middleware(['auth'])->group(function () {

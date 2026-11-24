@@ -168,15 +168,46 @@ class CoreFixesIntegrationTest extends TestCase
         $wsHtml = $this->actingAs($user)->get('/project/' . $project->id)->assertStatus(200)->getContent();
         $this->assertStringContainsString('buildAcademicFlowchartSvgJs', $wsHtml);
         $this->assertStringContainsString('splitListAtLines', $wsHtml);
-        $this->assertStringContainsString('scaleA4SheetsToViewport', $wsHtml);
+        $this->assertStringContainsString('collectSentenceSplitPoints', $wsHtml);
+        $this->assertStringContainsString('split-li-cont', $wsHtml);
         $this->assertStringContainsString('measureContainerWithNode', $wsHtml);
-        $this->assertStringContainsString('padding: 4cm 3cm 3cm 4cm;', $wsHtml);
-        $this->assertStringContainsString('width: 794px;', $wsHtml);
+        $this->assertStringContainsString('padding: 4cm 3cm 2.15cm 4cm;', $wsHtml);
+        $this->assertStringContainsString('max-width: 794px;', $wsHtml);
+        $this->assertStringContainsString('function updateMargins(silent = false)', $wsHtml);
+        $this->assertStringContainsString('updateMargins(true);', $wsHtml);
+        $this->assertStringNotContainsString('scaleA4SheetsToViewport', $wsHtml);
         $this->assertDoesNotMatchRegularExpression('/#sheets-container\s*\{[^}]*overflow\s*:\s*hidden/s', $wsHtml);
         $this->assertSame(
             preg_match_all('/<script\b/i', $wsHtml),
             preg_match_all('/<\/script>/i', $wsHtml),
             'Every <script> tag in generator workspace HTML must be closed properly.'
         );
+
+        // Verify PDF formatter keeps compact tables intact & allows long <li> items to flow without orphan blank pages
+        $mPdfFmt = new ReflectionMethod($controller, 'formatAcademicContentForPdf');
+        $mPdfFmt->setAccessible(true);
+        $longLiText = str_repeat('Kalimat kesimpulan penelitian mengenai klasifikasi multikelas Naive Bayes pada komentar kosmetik lokal yang panjang dan rinci. ', 3);
+        $sampleMd = "Tabel 4.4 Confusion Matrix\n| Aktual | Pujian | Keluhan |\n| --- | --- | --- |\n| Pujian | 218 | 12 |\n| Keluhan | 9 | 156 |\n| Total | 227 | 168 |\n\n5.1 Kesimpulan\n1. Item pendek pertama.\n2. {$longLiText}";
+        $pdfFormatted = $mPdfFmt->invoke($controller, $sampleMd, 'Judul Uji');
+        $this->assertStringContainsString('page-break-inside:avoid;', $pdfFormatted);
+        $this->assertStringContainsString('page-break-inside:auto;', $pdfFormatted);
+
+        // Verify Daftar Pustaka linkify adds safe wrapping for DOI links
+        $mLinkDp = new ReflectionMethod($controller, 'linkifyDaftarPustakaHtml');
+        $mLinkDp->setAccessible(true);
+        $linkedDp = $mLinkDp->invoke($controller, 'Surya, B. (2024). Artikel. Jurnal X, 1(1), 1-10. https://doi.org/10.1234/abc');
+        $this->assertStringContainsString('overflow-wrap:anywhere;', $linkedDp);
+
+        // Verify Panduan Lengkap mobile CTA bar in /app/create stacks responsively without squeezing text
+        $preGenHtml = $this->actingAs($user)->get('/app/create')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('panduan-cta-text', $preGenHtml);
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*640px\)\s*\{[^}]*\.panduan-cta-bar\s*\{[^}]*flex-direction:\s*column/s', $preGenHtml);
+
+        // Verify GET & POST /logout both redirect cleanly (no 405 Method Not Allowed)
+        $this->actingAs($user)->get('/logout')->assertRedirect('/');
+        $this->assertGuest();
+        $this->get('/logout')->assertRedirect('/');
+        $this->actingAs($user)->post('/logout')->assertRedirect('/');
+        $this->assertGuest();
     }
 }

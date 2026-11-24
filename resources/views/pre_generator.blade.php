@@ -3506,6 +3506,16 @@
             border: 1px solid #bfdbfe;
         }
 
+        .panduan-cta-text {
+            min-width: 0;
+            flex: 1 1 240px;
+        }
+
+        .panduan-cta-bar .btn-primary {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
         .panduan-pager {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3543,6 +3553,31 @@
 
             .panduan-pager {
                 grid-template-columns: 1fr;
+            }
+
+            .panduan-pager-btn {
+                text-align: left !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .panduan-cta-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .panduan-cta-text {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .panduan-cta-bar .btn-primary {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+                white-space: normal;
             }
         }
 
@@ -7247,7 +7282,7 @@
                                     @endif
 
                                     <div class="panduan-cta-bar">
-                                        <div style="min-width: 0; flex: 1;">
+                                        <div class="panduan-cta-text">
                                             <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Siap langsung mempraktikkannya sekarang?</div>
                                             <div style="font-size: 12.8px; color: var(--text-secondary); margin-top: 2px;">Buka modul <strong>{{ $g['short_title'] }}</strong> langsung di Workspace tanpa keluar halaman.</div>
                                         </div>

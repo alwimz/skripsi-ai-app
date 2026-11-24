@@ -489,7 +489,7 @@ class GeneratorController extends Controller
         foreach ($chapterKeys as $k) {
             $text = trim(strip_tags((string) ($project->{$k . '_content'} ?? '')));
             if ($text !== '') {
-                $pages = max(1, (int) ceil(mb_strlen($text) / 2450));
+                $pages = max(1, (int) ceil(mb_strlen($text) / 2200));
                 $map[$k] = ['start' => $curPage, 'count' => $pages, 'end' => $curPage + $pages - 1];
                 $curPage += $pages;
             } else {
@@ -1661,7 +1661,7 @@ class GeneratorController extends Controller
                     $trailing = $tm[0] . $trailing;
                     $rawUrl = substr($rawUrl, 0, -1);
                 }
-                return '<a href="' . $rawUrl . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline;">' . $rawUrl . '</a>' . $trailing;
+                return '<a href="' . $rawUrl . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline; word-break:break-word; overflow-wrap:anywhere;">' . $rawUrl . '</a>' . $trailing;
             },
             $safe
         );
@@ -1676,7 +1676,7 @@ class GeneratorController extends Controller
                     $doiVal = substr($doiVal, 0, -1);
                 }
                 $href = 'https://doi.org/' . $doiVal;
-                return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline;">doi:' . $doiVal . '</a>' . $trailing;
+                return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8; text-decoration:underline; word-break:break-word; overflow-wrap:anywhere;">doi:' . $doiVal . '</a>' . $trailing;
             },
             $safe
         );
@@ -5253,7 +5253,14 @@ ATURAN REVISI (SANGAT KETAT):
                     }
                 }
 
-                $avoidSplit = count($rows) <= 5 ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
+                $totalTableChars = 0;
+                foreach ($rows as $rCheck) {
+                    foreach ($rCheck as $cCheck) {
+                        $totalTableChars += mb_strlen((string) $cCheck);
+                    }
+                }
+                // Tabel ringkas (<= 8 baris) dijaga utuh 1 halaman agar header tidak yatim atau menyisakan 1 baris di halaman berikutnya
+                $avoidSplit = (count($rows) <= 8 && $totalTableChars <= 950) ? 'page-break-inside:avoid;' : 'page-break-inside:auto;';
                 $fontSize = ($colCount >= 6) ? '8.5pt' : (($colCount === 5) ? '9pt' : '10pt');
                 $headerSize = ($colCount >= 6) ? '9pt' : (($colCount === 5) ? '9.5pt' : '10pt');
                 $lineHeight = '1.25';
@@ -5269,7 +5276,7 @@ ATURAN REVISI (SANGAT KETAT):
                 foreach ($rows as $rIdx => $cols) {
                     $isHeader = ($rIdx === 0);
                     if ($isHeader) {
-                        $html .= "<thead style='display:table-header-group;'><tr style='background:#f1f5f9; page-break-inside:avoid;'>";
+                        $html .= "<thead style='display:table-header-group; page-break-after:avoid; break-after:avoid;'><tr style='background:#f1f5f9; page-break-inside:avoid; page-break-after:avoid; break-after:avoid;'>";
                         foreach ($cols as $cIdx => $col) {
                             $cleanCol = $this->formatAcademicMathText(trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $col)));
                             $wStyle = isset($colWidths[$cIdx]) ? "width:{$colWidths[$cIdx]};" : "";
@@ -5489,7 +5496,10 @@ ATURAN REVISI (SANGAT KETAT):
                     $inOl = true;
                 }
                 $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[2])));
-                $html .= "<li value='{$itemNum}' style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
+                $liBreakCss = mb_strlen(strip_tags($cleanLi)) <= 220
+                    ? 'page-break-inside:avoid;'
+                    : 'orphans:2; widows:2; page-break-inside:auto;';
+                $html .= "<li value='{$itemNum}' style='text-align:justify; line-height:1.5; margin-bottom:4pt; {$liBreakCss}'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
@@ -5504,7 +5514,10 @@ ATURAN REVISI (SANGAT KETAT):
                     $inUl = true;
                 }
                 $cleanLi = $this->formatAcademicMathText(trim(preg_replace('/^(?:<b>)+|(?:<\/b>)+$/i', '', $m[1])));
-                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; page-break-inside:avoid;'>" . $this->pdfSafeText($cleanLi) . "</li>";
+                $liBreakCss = mb_strlen(strip_tags($cleanLi)) <= 220
+                    ? 'page-break-inside:avoid;'
+                    : 'orphans:2; widows:2; page-break-inside:auto;';
+                $html .= "<li style='text-align:justify; line-height:1.5; margin-bottom:4pt; {$liBreakCss}'>" . $this->pdfSafeText($cleanLi) . "</li>";
                 continue;
             }
 
@@ -7237,8 +7250,8 @@ ATURAN REVISI (SANGAT KETAT):
             foreach ($dpLines as $dpl) {
                 $trimDpl = trim($dpl);
                 if ($trimDpl !== '') {
-                    // Standar APA 7th: 1 spasi dalam 1 entri, jarak 8pt antar entri, hanging indent 1,27 cm + LINK DOI/URL BISA DIKLIK
-                    $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:justify; line-height:1.15; font-size:12pt;'>" . $this->linkifyDaftarPustakaHtml($trimDpl) . "</p>";
+                    // Standar APA 7th: rata kiri + hanging indent 1,27 cm, spasi 1,15 agar bebas renggang kata akibat URL DOI
+                    $html .= "<p style='text-indent:-1.27cm; padding-left:1.27cm; margin:0 0 8pt 0; text-align:left; line-height:1.15; font-size:12pt;'>" . $this->linkifyDaftarPustakaHtml($trimDpl) . "</p>";
                 }
             }
             $html .= "</div>";

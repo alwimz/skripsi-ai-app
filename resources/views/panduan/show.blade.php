@@ -144,15 +144,17 @@
             .side-link.active { border-color: #93c5fd; }
             .article-card { padding: 18px 16px; border-radius: 14px; }
         }
+        @media (max-width: 640px) {
+            .cta-banner { flex-direction: column; align-items: stretch; padding: 16px; gap: 12px; }
+            .cta-banner .btn { width: 100%; }
+            .pager-card.next { text-align: left; align-items: flex-start; }
+        }
         @media (max-width: 520px) {
             .container { padding: 0 14px; }
             .topbar-inner { height: 56px; }
             .brand { font-size: 15px; }
             .btn { padding: 7px 12px; font-size: 12.5px; }
             .step-card { padding: 14px; }
-            .cta-banner { padding: 16px; }
-            .cta-banner .btn { width: 100%; }
-            .pager-card.next { text-align: left; align-items: flex-start; }
             .footer-inner { flex-direction: column; text-align: center; gap: 8px; }
         }
     </style>
@@ -257,7 +259,7 @@
                 @endif
 
                 <div class="cta-banner">
-                    <div>
+                    <div style="min-width:0;flex:1 1 240px;">
                         <div style="font-size:15px;font-weight:800;color:#0f172a;">Siap langsung mempraktikkannya di skripsimu?</div>
                         <div style="font-size:13.3px;color:#475569;">Daftar gratis atau buka langsung modul {{ $guide['short_title'] }} di Workspace SkripsiLab AI.</div>
                     </div>

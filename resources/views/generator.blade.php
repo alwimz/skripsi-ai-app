@@ -589,31 +589,24 @@
         #sheets-container {
             flex-shrink: 0;
             width: 100%;
-            max-width: 840px;
+            max-width: 820px;
             height: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0;
+            gap: 20px;
             overflow: visible;
         }
 
-        .a4-sheet-stage {
-            position: relative;
-            margin: 0 auto 20px auto;
-            flex-shrink: 0;
-        }
-
         .a4-sheet {
-            width: 794px;
-            min-width: 794px;
+            width: 100%;
             max-width: 794px;
             min-height: 1123px; /* Ukuran persis kertas A4 (210mm x 297mm @ 96dpi) */
             background: #ffffff;
             border: 1px solid #dbe3ee;
             border-radius: 4px;
             box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
-            padding: 4cm 3cm 3cm 4cm;
+            padding: 4cm 3cm 2.15cm 4cm;
             /* Ukuran, margin 4-4-3-3 cm & tipografi identik 1:1 dengan Word/PDF */
             color: #000000;
             font-family: "Times New Roman", Times, serif;
@@ -624,18 +617,13 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            margin: 0 auto 20px auto;
+            margin: 0 auto !important;
             position: relative;
-        }
-
-        .a4-sheet-stage > .a4-sheet {
-            margin: 0 !important;
         }
 
         .a4-sheet.empty-sheet,
         .a4-sheet.empty-sheet-premium {
             width: 100% !important;
-            min-width: 0 !important;
             max-width: 794px !important;
             min-height: 360px !important;
         }
@@ -766,10 +754,8 @@
         }
 
         .sheet-footer {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 1.35cm;
+            margin-top: auto;
+            padding-top: 16px;
             text-align: center;
             font-size: 11pt;
             font-family: inherit;
@@ -777,6 +763,7 @@
             color: #000000;
             user-select: none;
             pointer-events: none;
+            flex-shrink: 0;
         }
 
         .paper-editor {
@@ -785,6 +772,8 @@
             display: flow-root;
             font-size: inherit;
             line-height: 1.5;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .paper-editor:focus {
@@ -837,6 +826,14 @@
         .paper-editor ol[data-split-list="1"],
         .paper-editor ul[data-split-list="1"] {
             margin-top: 0;
+        }
+
+        .paper-editor .split-li-cont {
+            text-indent: 0 !important;
+            padding-left: 22pt;
+            margin: 0 0 3pt 0;
+            text-align: justify;
+            line-height: 1.5;
         }
 
         .paper-editor .dp-entry {
@@ -1295,6 +1292,31 @@
                 z-index: 100;
             }
 
+            .a4-sheet {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 760px !important;
+                height: auto !important;
+                padding: 36px 24px 32px 30px !important;
+                font-size: 14px !important;
+                line-height: 1.55 !important;
+                box-sizing: border-box !important;
+            }
+            .a4-sheet.cover-sheet {
+                min-height: 640px !important;
+                padding: 40px 24px 36px 28px !important;
+            }
+            .paper-editor p {
+                text-indent: 24px !important;
+            }
+            .paper-editor ul,
+            .paper-editor ol {
+                padding-left: 22px !important;
+            }
+            .paper-editor .split-li-cont {
+                padding-left: 22px !important;
+                text-indent: 0 !important;
+            }
             .a4-sheet.empty-sheet,
             .a4-sheet.empty-sheet-premium {
                 width: 100% !important;
@@ -4022,6 +4044,8 @@
                     sandboxPage.style.fontFamily = metrics.fontCss;
                     sandboxPage.style.fontSize = metrics.fontSize;
                     sandboxPage.style.lineHeight = '1.5';
+                    sandboxPage.style.wordBreak = 'break-word';
+                    sandboxPage.style.overflowWrap = 'break-word';
                     sandboxPage.style.padding = '0';
                     sandboxPage.style.margin = '0';
                     sandboxPage.style.boxSizing = 'border-box';
@@ -4082,21 +4106,20 @@
                     return sandboxPage.getBoundingClientRect().height;
                 };
 
-                const splitParagraphBySandbox = (pEl, baseNodes) => {
-                    const html = pEl.innerHTML;
+                const collectSentenceSplitPoints = (rawHtml, minHeadLen = 80, minTailLen = 40) => {
                     const candidates = [];
                     let inTag = false;
-                    for (let i = 0; i < html.length; i++) {
-                        const ch = html[i];
+                    for (let i = 0; i < rawHtml.length; i++) {
+                        const ch = rawHtml[i];
                         if (ch === '<') { inTag = true; continue; }
                         if (ch === '>') { inTag = false; continue; }
                         if (inTag) continue;
-                        if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < html.length && /\s/.test(html[i + 1]))) {
-                            const beforeChunk = html.slice(Math.max(0, i - 12), i).replace(/<[^>]+>/g, '').trim();
+                        if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < rawHtml.length && /\s/.test(rawHtml[i + 1]))) {
+                            const beforeChunk = rawHtml.slice(Math.max(0, i - 12), i).replace(/<[^>]+>/g, '').trim();
                             if (!/(?:et\s+al|dkk|no|hlm|hal|dr|prof)$/i.test(beforeChunk)) {
-                                const headCandidate = html.slice(0, i + 1).trim();
-                                const tailCandidate = html.slice(i + 1).trim();
-                                if (headCandidate.replace(/<[^>]+>/g, '').trim().length >= 80 && tailCandidate.replace(/<[^>]+>/g, '').trim().length >= 40) {
+                                const headCandidate = rawHtml.slice(0, i + 1).trim();
+                                const tailCandidate = rawHtml.slice(i + 1).trim();
+                                if (headCandidate.replace(/<[^>]+>/g, '').trim().length >= minHeadLen && tailCandidate.replace(/<[^>]+>/g, '').trim().length >= minTailLen) {
                                     const openSpans = (headCandidate.match(/<span\b/gi) || []).length;
                                     const closeSpans = (headCandidate.match(/<\/span>/gi) || []).length;
                                     if (openSpans === closeSpans) candidates.push(i + 1);
@@ -4104,6 +4127,12 @@
                             }
                         }
                     }
+                    return candidates;
+                };
+
+                const splitParagraphBySandbox = (pEl, baseNodes) => {
+                    const html = pEl.innerHTML;
+                    const candidates = collectSentenceSplitPoints(html, 80, 40);
                     if (!candidates.length) return null;
 
                     let lo = 0, hi = candidates.length - 1, bestIdx = -1;
@@ -4136,11 +4165,12 @@
                     const listTag = (listEl.tagName || '').toLowerCase();
                     if (listTag !== 'ol' && listTag !== 'ul') return null;
                     const items = Array.from(listEl.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
-                    if (items.length < 2) return null;
+                    if (items.length < 1) return null;
 
                     const startAttr = listEl.getAttribute('start');
+                    const baseStart = parseInt(startAttr || '1', 10);
                     let fitCount = 0;
-                    for (let k = 1; k < items.length; k++) {
+                    for (let k = 1; k <= items.length; k++) {
                         const probeList = document.createElement(listTag);
                         if (listTag === 'ol' && startAttr) probeList.setAttribute('start', startAttr);
                         for (let j = 0; j < k; j++) probeList.appendChild(items[j].cloneNode(true));
@@ -4150,18 +4180,70 @@
                             break;
                         }
                     }
-                    if (fitCount < 1 || fitCount >= items.length) return null;
+                    if (fitCount >= items.length) return null;
 
                     const headList = document.createElement(listTag);
                     if (listTag === 'ol' && startAttr) headList.setAttribute('start', startAttr);
                     for (let j = 0; j < fitCount; j++) headList.appendChild(items[j].cloneNode(true));
 
+                    // Cocokkan perilaku Word/PDF: bila sisa ruang masih cukup, isi awal item daftar berikutnya lalu sambung sisanya ke halaman berikutnya
+                    const overflowLi = items[fitCount];
+                    const overflowHtml = overflowLi ? overflowLi.innerHTML : '';
+                    const liCandidates = collectSentenceSplitPoints(overflowHtml, 75, 40);
+                    if (liCandidates.length) {
+                        const overflowVal = parseInt(overflowLi.getAttribute('value') || '', 10);
+                        let lo = 0, hi = liCandidates.length - 1, bestLiIdx = -1;
+                        while (lo <= hi) {
+                            const mid = Math.floor((lo + hi) / 2);
+                            const splitAt = liCandidates[mid];
+                            const probeList = headList.cloneNode(true);
+                            const partialLi = document.createElement('li');
+                            if (listTag === 'ol' && !isNaN(overflowVal)) partialLi.setAttribute('value', String(overflowVal));
+                            partialLi.innerHTML = overflowHtml.slice(0, splitAt).trim();
+                            probeList.appendChild(partialLi);
+                            if (measureContainerWithNode([...baseNodes, probeList]) <= MAX_CONTENT_PX) {
+                                bestLiIdx = splitAt;
+                                lo = mid + 1;
+                            } else {
+                                hi = mid - 1;
+                            }
+                        }
+
+                        if (bestLiIdx !== -1) {
+                            const headPartialLi = document.createElement('li');
+                            if (listTag === 'ol' && !isNaN(overflowVal)) headPartialLi.setAttribute('value', String(overflowVal));
+                            headPartialLi.innerHTML = overflowHtml.slice(0, bestLiIdx).trim();
+                            headList.appendChild(headPartialLi);
+
+                            const contPara = document.createElement('p');
+                            contPara.className = 'split-li-cont';
+                            contPara.setAttribute('data-split-cont', '1');
+                            contPara.innerHTML = overflowHtml.slice(bestLiIdx).trim();
+
+                            const restItems = items.slice(fitCount + 1).map(li => li.cloneNode(true));
+                            if (!restItems.length) {
+                                return [headList, contPara];
+                            }
+                            const restList = document.createElement(listTag);
+                            restList.setAttribute('data-split-list', '1');
+                            if (listTag === 'ol') {
+                                const firstRestVal = parseInt(restItems[0].getAttribute('value') || '', 10);
+                                const nextStartAfter = !isNaN(firstRestVal)
+                                    ? firstRestVal
+                                    : ((!isNaN(overflowVal) ? overflowVal : (baseStart + fitCount)) + 1);
+                                restList.setAttribute('start', String(nextStartAfter));
+                            }
+                            restItems.forEach(li => restList.appendChild(li));
+                            return [headList, contPara, restList];
+                        }
+                    }
+
+                    if (fitCount < 1) return null;
                     const tailList = document.createElement(listTag);
                     tailList.setAttribute('data-split-list', '1');
                     const tailItems = items.slice(fitCount).map(li => li.cloneNode(true));
                     if (listTag === 'ol') {
                         const firstTailVal = parseInt(tailItems[0].getAttribute('value') || '', 10);
-                        const baseStart = parseInt(startAttr || '1', 10);
                         const nextStart = !isNaN(firstTailVal) ? firstTailVal : (baseStart + fitCount);
                         tailList.setAttribute('start', String(nextStart));
                     }
@@ -4280,12 +4362,12 @@
                             }
 
                             if (isListBlock && remPx >= 46) {
-                                const splitListPair = splitListBySandbox(block, curPageBlocks);
-                                if (splitListPair) {
-                                    curPageBlocks.push(splitListPair[0]);
+                                const splitListNodes = splitListBySandbox(block, curPageBlocks);
+                                if (splitListNodes && splitListNodes.length >= 2) {
+                                    curPageBlocks.push(splitListNodes[0]);
                                     pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
                                     curPageBlocks = [];
-                                    queue.splice(idx + 1, 0, splitListPair[1]);
+                                    queue.splice(idx + 1, 0, ...splitListNodes.slice(1));
                                     continue;
                                 }
                             }
@@ -6086,71 +6168,28 @@
             }
         }
 
-        function scaleA4SheetsToViewport() {
-            const container = document.getElementById('sheets-container');
-            if (!container) return;
-            const availW = container.clientWidth;
-            if (!availW || availW < 120) return;
-
-            const sheets = Array.from(container.querySelectorAll('.a4-sheet:not(.empty-sheet):not(.empty-sheet-premium)'));
-            const scale = Math.min(1, availW / 794);
-
-            sheets.forEach((sheet) => {
-                if (!sheet.parentElement || !sheet.parentElement.classList.contains('a4-sheet-stage')) {
-                    const stage = document.createElement('div');
-                    stage.className = 'a4-sheet-stage';
-                    sheet.parentNode.insertBefore(stage, sheet);
-                    stage.appendChild(sheet);
-                }
-                const stage = sheet.parentElement;
-                const naturalH = Math.max(1123, sheet.offsetHeight || 1123);
-                if (scale < 0.999) {
-                    stage.style.width = `${Math.round(794 * scale)}px`;
-                    stage.style.height = `${Math.round(naturalH * scale)}px`;
-                    sheet.style.transformOrigin = 'top left';
-                    sheet.style.transform = `scale(${scale.toFixed(4)})`;
-                    sheet.style.position = 'absolute';
-                    sheet.style.top = '0';
-                    sheet.style.left = '0';
-                } else {
-                    stage.style.width = '794px';
-                    stage.style.height = 'auto';
-                    sheet.style.transform = '';
-                    sheet.style.transformOrigin = '';
-                    sheet.style.position = 'relative';
-                    sheet.style.top = '';
-                    sheet.style.left = '';
-                }
-            });
-        }
-
         function applyCurrentDocFormatting() {
             const cfg = DOC_FONT_MAP[activeDocFontKey] || DOC_FONT_MAP.times;
             const top = document.getElementById('m-top')?.value || '4';
             const left = document.getElementById('m-left')?.value || '4';
             const bottom = document.getElementById('m-bottom')?.value || '3';
             const right = document.getElementById('m-right')?.value || '3';
+            const isCompactViewport = window.innerWidth <= 900;
 
             document.querySelectorAll('.a4-sheet, .paper-editor').forEach(el => {
                 el.style.fontFamily = cfg.css;
                 if (el.classList.contains('a4-sheet') && !el.classList.contains('empty-sheet') && !el.classList.contains('empty-sheet-premium')) {
-                    el.style.fontSize = cfg.size;
-                    el.style.padding = `${top}cm ${right}cm ${bottom}cm ${left}cm`;
+                    const bottomVal = Math.max(0.8, (parseFloat(bottom) || 3) - 0.85);
+                    el.style.fontSize = isCompactViewport ? '' : cfg.size;
+                    el.style.padding = isCompactViewport ? '' : `${top}cm ${right}cm ${bottomVal.toFixed(2)}cm ${left}cm`;
                 }
                 if (el.classList.contains('paper-editor')) {
-                    el.style.fontSize = cfg.size;
+                    el.style.fontSize = isCompactViewport ? '14px' : cfg.size;
                 }
             });
-            scaleA4SheetsToViewport();
         }
 
-        window.addEventListener('resize', scaleA4SheetsToViewport);
-        if (typeof ResizeObserver !== 'undefined') {
-            const sheetsWrapEl = document.getElementById('sheets-container');
-            if (sheetsWrapEl) {
-                new ResizeObserver(() => scaleA4SheetsToViewport()).observe(sheetsWrapEl);
-            }
-        }
+        window.addEventListener('resize', applyCurrentDocFormatting);
 
         function updateDocFont(val, silent = false) {
             const cfg = DOC_FONT_MAP[val] || DOC_FONT_MAP.times;
@@ -6171,7 +6210,7 @@
             }
         }
 
-        function updateMargins() {
+        function updateMargins(silent = false) {
             const top = document.getElementById('m-top')?.value || document.getElementById('setting-margin-top')?.value || '4';
             const left = document.getElementById('m-left')?.value || document.getElementById('setting-margin-left')?.value || '4';
             const bottom = document.getElementById('m-bottom')?.value || document.getElementById('setting-margin-bottom')?.value || '3';
@@ -6260,7 +6299,7 @@
                 openUpgradeModal('Download Word (.docx) & PDF (.pdf) siap cetak tersedia untuk Paket Starter mulai Rp15.000. Pekerjaanmu sudah tersimpan aman!', 'download_locked');
                 return;
             }
-            updateMargins();
+            updateMargins(true);
             const form = document.getElementById('quick-download-form');
             const coverImg = document.querySelector('.cover-logo-img');
             const activeLogo = (projectMeta && projectMeta.logo_base64) || (coverImg && coverImg.src && coverImg.src.startsWith('data:image/') ? coverImg.src : '') || localStorage.getItem(`skripsi_logo_${projectId}`) || '';
