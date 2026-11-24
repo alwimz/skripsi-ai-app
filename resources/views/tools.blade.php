@@ -4458,10 +4458,11 @@
                     }
 
                     // Baca atau siapkan word/_rels/document.xml.rels dan [Content_Types].xml
+                    const XML_DECL = '<' + '?xml version="1.0" encoding="UTF-8" standalone="yes"?' + '>';
                     const relsPath = 'word/_rels/document.xml.rels';
                     let relsStr = await zip.file(relsPath)?.async('string');
                     if (!relsStr) {
-                        relsStr = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+                        relsStr = XML_DECL + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
                     }
                     const relsDoc = parser.parseFromString(relsStr, 'application/xml');
                     if (relsDoc.getElementsByTagName('parsererror').length) {
@@ -4528,11 +4529,11 @@
                     const escapeXmlAttr = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     const numSz = Math.max(22, bodySz - 2);
                     const safeFont = escapeXmlAttr(fontName);
-                    const buildEmptyPartXml = (rootTag) => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+                    const buildEmptyPartXml = (rootTag) => XML_DECL
                         + `<w:${rootTag} xmlns:w="${W_NS}"><w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr></w:p></w:${rootTag}>`;
                     const buildPageFieldPartXml = (rootTag, alignVal) => {
                         const rPrXml = `<w:rPr><w:rFonts w:ascii="${safeFont}" w:hAnsi="${safeFont}" w:cs="${safeFont}" w:eastAsia="${safeFont}"/><w:color w:val="000000"/><w:sz w:val="${numSz}"/><w:szCs w:val="${numSz}"/></w:rPr>`;
-                        return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+                        return XML_DECL
                             + `<w:${rootTag} xmlns:w="${W_NS}">`
                             + `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/><w:jc w:val="${alignVal}"/></w:pPr>`
                             + `<w:r>${rPrXml}<w:fldChar w:fldCharType="begin"/></w:r>`
