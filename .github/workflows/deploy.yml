@@ -1,4 +1,4 @@
-name: Deploy SkripsiLab AI ke Web Hosting (FTP/FTPS)
+name: Deploy SkripsiLab AI ke Web Hosting (FTPS TLSv1.2)
 
 on:
   push:
@@ -28,45 +28,56 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, json, pdo, pdo_mysql, openssl, curl, zip, gd, fileinfo
 
-      - name: Siapkan folder runtime Laravel (storage & bootstrap/cache)
+      - name: Verifikasi script FTPS sync (unit test)
+        run: python3 -m unittest discover -s .github/scripts -p "test_*.py" -v
+
+      - name: Siapkan folder runtime Laravel (non-empty .keep) & daftar exclude
         run: |
           mkdir -p storage/framework/views storage/framework/sessions storage/framework/cache/data storage/logs bootstrap/cache
-          touch storage/framework/views/.keep storage/framework/sessions/.keep storage/framework/cache/data/.keep storage/logs/.keep bootstrap/cache/.keep
+          printf '# keep\n' | tee storage/framework/views/.keep storage/framework/sessions/.keep storage/framework/cache/data/.keep storage/logs/.keep bootstrap/cache/.keep > /dev/null
           rm -f bootstrap/cache/*.php
 
-      - name: Deploy aplikasi Laravel ke cPanel (skripsilabai)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
-          security: loose
-          port: ${{ vars.FTP_PORT || '21' }}
-          timeout: 180000
-          server-dir: ${{ vars.FTP_SERVER_DIR || '/' }}
-          state-name: .ftp-deploy-sync-state-app-v2.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .github/**
-            **/node_modules/**
-            **/vendor/**
-            vendor/**
-            *.zip
-            **/tests/**
-            **/.env
-            _cpanel_public_html/**
-            storage/logs/*.log
-            storage/framework/sessions/*
-            !storage/framework/sessions/.keep
-            storage/framework/cache/data/**
-            !storage/framework/cache/data/.keep
-            promo_skripsilab_tiktok.mp4
-            *.sqlite
-            database/*.sqlite
-            api/**
-            vercel.json
+          cat <<'EOF' > /tmp/app_exclude.txt
+          **/.git*
+          **/.git*/**
+          .github/**
+          **/node_modules/**
+          **/vendor/**
+          vendor/**
+          *.zip
+          **/tests/**
+          **/.env
+          **/.env.*
+          !.env.example
+          _cpanel_public_html/**
+          storage/logs/*.log
+          storage/framework/sessions/**
+          !storage/framework/sessions/.keep
+          storage/framework/cache/data/**
+          !storage/framework/cache/data/.keep
+          storage/framework/views/**
+          !storage/framework/views/.keep
+          promo_skripsilab_tiktok.mp4
+          *.sqlite
+          database/*.sqlite
+          api/**
+          vercel.json
+          EOF
+
+      - name: Deploy aplikasi Laravel ke cPanel (FTPS TLSv1.2 + Session Reuse)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          python3 .github/scripts/ftps_sync.py \
+            --local-dir "." \
+            --server-dir "${{ vars.FTP_SERVER_DIR || '/' }}" \
+            --state-name ".ftp-deploy-manifest-app-v3.json" \
+            --protocol "${{ vars.FTP_PROTOCOL || 'ftps' }}" \
+            --port "${{ vars.FTP_PORT || '21' }}" \
+            --exclude-file "/tmp/app_exclude.txt" \
+            --clear-views
 
       - name: Siapkan folder public_html (cPanel Primary Domain)
         if: ${{ env.DEPLOY_PUBLIC_FTP_USER != '' && env.DEPLOY_PUBLIC_FTP_PASS != '' }}
@@ -89,23 +100,25 @@ jobs:
           php -l _cpanel_public_html/index.php
           test -f _cpanel_public_html/.htaccess
 
-      - name: Deploy public_html lewat FTP/FTPS
+          cat <<'EOF' > /tmp/public_exclude.txt
+          **/.git*
+          .well-known/**
+          cgi-bin/**
+          error_log
+          .user.ini
+          EOF
+
+      - name: Deploy public_html ke cPanel (FTPS TLSv1.2 + Session Reuse)
         if: ${{ env.DEPLOY_PUBLIC_FTP_USER != '' && env.DEPLOY_PUBLIC_FTP_PASS != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_PUBLIC_USERNAME }}
-          password: ${{ secrets.FTP_PUBLIC_PASSWORD }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
-          security: loose
-          port: ${{ vars.FTP_PORT || '21' }}
-          timeout: 180000
-          local-dir: ./_cpanel_public_html/
-          server-dir: ${{ vars.FTP_PUBLIC_SERVER_DIR || '/' }}
-          state-name: .ftp-deploy-sync-state-public.json
-          exclude: |
-            **/.git*
-            .well-known/**
-            cgi-bin/**
-            error_log
-            .user.ini
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_PUBLIC_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PUBLIC_PASSWORD }}
+        run: |
+          python3 .github/scripts/ftps_sync.py \
+            --local-dir "./_cpanel_public_html" \
+            --server-dir "${{ vars.FTP_PUBLIC_SERVER_DIR || '/' }}" \
+            --state-name ".ftp-deploy-manifest-public-v3.json" \
+            --protocol "${{ vars.FTP_PROTOCOL || 'ftps' }}" \
+            --port "${{ vars.FTP_PORT || '21' }}" \
+            --exclude-file "/tmp/public_exclude.txt"
