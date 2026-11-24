@@ -99,7 +99,15 @@ class AuthController extends Controller
         session()->forget('pending_referral_code');
         Auth::login($user);
 
-        return redirect()->route('app.create');
+        return redirect()->route('app.create')->with('meta_pixel_event', [
+            'name' => 'CompleteRegistration',
+            'params' => [
+                'content_name' => 'SkripsiLab AI Account',
+                'method' => 'email',
+                'status' => true,
+            ],
+            'event_id' => 'reg_' . $user->id,
+        ]);
     }
 
     public function quickGoogleLogin(Request $request)
@@ -183,6 +191,7 @@ class AuthController extends Controller
             $user = User::where('email', $email)
                 ->orWhere('canonical_email', $canonical)
                 ->first();
+            $isNewUser = !$user;
 
             if (!$user) {
                 $refCode = trim((string) session('pending_referral_code', ''));
@@ -212,7 +221,19 @@ class AuthController extends Controller
             session()->forget('pending_referral_code');
 
             Auth::login($user, true);
-            return redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Google berhasil.");
+            $redirect = redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Google berhasil.");
+            if ($isNewUser) {
+                $redirect->with('meta_pixel_event', [
+                    'name' => 'CompleteRegistration',
+                    'params' => [
+                        'content_name' => 'SkripsiLab AI Account',
+                        'method' => 'google',
+                        'status' => true,
+                    ],
+                    'event_id' => 'reg_' . $user->id,
+                ]);
+            }
+            return $redirect;
         } catch (\Throwable $e) {
             return redirect()->route('login')->withErrors(['email' => 'Gagal login via Google: ' . $e->getMessage()]);
         }

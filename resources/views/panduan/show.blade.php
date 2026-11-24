@@ -158,6 +158,7 @@
             .footer-inner { flex-direction: column; text-align: center; gap: 8px; }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 
 <body>

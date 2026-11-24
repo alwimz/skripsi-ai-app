@@ -329,6 +329,7 @@
             }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 
 <body>

@@ -96,6 +96,7 @@
             .topbar-actions .btn-nav { flex: 1 1 130px; }
         }
     </style>
+    @include('partials.meta_pixel', ['metaViewEvent' => ['name' => 'ViewContent', 'params' => ['content_name' => 'Paket Harga SkripsiLab AI', 'content_category' => 'pricing', 'currency' => 'IDR']]])
 </head>
 <body>
     <header class="topbar">

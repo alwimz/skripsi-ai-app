@@ -66,4 +66,8 @@ return [
         'api_key' => env('PAKASIR_API_KEY'),
         'base_url' => env('PAKASIR_BASE_URL', 'https://app.pakasir.com'),
     ],
+
+    'meta' => [
+        'pixel_id' => env('META_PIXEL_ID', '1487586500131939'),
+    ],
 ];

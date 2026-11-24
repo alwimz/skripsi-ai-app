@@ -146,6 +146,10 @@ class PaymentController extends Controller
         if ($tx->status === 'completed') {
             return response()->json([
                 'status' => 'completed',
+                'order_id' => $tx->order_id,
+                'plan_code' => $tx->plan_code,
+                'plan_name' => $tx->plan_name,
+                'amount' => (int) $tx->amount,
                 'message' => 'Pembayaran berhasil dikonfirmasi! Paket Anda sudah aktif.',
                 'summary' => $this->billing->getUserSummary($user->fresh()),
             ]);
@@ -169,6 +173,10 @@ class PaymentController extends Controller
 
             return response()->json([
                 'status' => 'completed',
+                'order_id' => $tx->order_id,
+                'plan_code' => $tx->plan_code,
+                'plan_name' => $tx->plan_name,
+                'amount' => (int) $tx->amount,
                 'message' => 'Pembayaran berhasil dikonfirmasi! Paket Anda langsung aktif.',
                 'summary' => $this->billing->getUserSummary($user->fresh()),
             ]);

@@ -205,6 +205,7 @@
             .btn, .btn-google { min-height: 40px; font-size: 0.85rem; }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 <body>
     <main class="auth-card">

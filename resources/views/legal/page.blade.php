@@ -506,6 +506,7 @@
             .banner-actions a { flex: 1 1 auto; text-align: center; justify-content: center; }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 
 <body>

@@ -97,6 +97,7 @@
             .btn { padding: 7px 12px; font-size: 12.5px; }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 
 <body>

@@ -242,4 +242,73 @@ class CoreFixesIntegrationTest extends TestCase
         $this->actingAs($user)->post('/logout')->assertRedirect('/');
         $this->assertGuest();
     }
+
+    public function test_meta_pixel_renders_and_tracks_registration_and_checkout_purchase_events(): void
+    {
+        config(['services.meta.pixel_id' => '1487586500131939']);
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('https://connect.facebook.net/en_US/fbevents.js', false)
+            ->assertSee('fbq(\'init\', "1487586500131939");', false)
+            ->assertSee("fbq('track', 'PageView');", false);
+
+        $this->get('/paket')
+            ->assertStatus(200)
+            ->assertSee('window.slTrackMetaEvent("ViewContent"', false);
+
+        $this->get('/admin')
+            ->assertStatus(200)
+            ->assertDontSee('connect.facebook.net/en_US/fbevents.js', false);
+
+        $regResp = $this->post('/register', [
+            'name' => 'Mahasiswa Uji Pixel',
+            'email' => 'pixel.mahasiswa@gmail.com',
+            'password' => 'Rahasia123!',
+            'password_confirmation' => 'Rahasia123!',
+        ]);
+        $regResp->assertRedirect(route('app.create'));
+        $newUser = User::where('email', 'pixel.mahasiswa@gmail.com')->first();
+        $this->assertNotNull($newUser);
+
+        $createHtml = $this->get('/app/create')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('window.slTrackMetaEvent("CompleteRegistration"', $createHtml);
+        $this->assertStringContainsString('reg_' . $newUser->id, $createHtml);
+        $this->assertStringContainsString("trackMetaCheckoutEvent('InitiateCheckout'", $createHtml);
+        $this->assertStringContainsString("trackMetaCheckoutEvent('Purchase'", $createHtml);
+
+        \Illuminate\Support\Facades\DB::table('transactions')->insert([
+            'user_id' => $newUser->id,
+            'order_id' => 'SL-TEST-PIXEL-1',
+            'plan_code' => 'starter',
+            'plan_name' => 'Paket Starter (1 Naskah)',
+            'amount' => 15000,
+            'quota_granted' => 1,
+            'duration_days' => 30,
+            'is_unlimited' => false,
+            'payment_method' => 'qris',
+            'payment_number' => '',
+            'checkout_url' => '',
+            'status' => 'completed',
+            'paid_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($newUser)
+            ->getJson('/payment/status/SL-TEST-PIXEL-1')
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => 'completed',
+                'order_id' => 'SL-TEST-PIXEL-1',
+                'plan_code' => 'starter',
+                'plan_name' => 'Paket Starter (1 Naskah)',
+                'amount' => 15000,
+            ]);
+
+        config(['services.meta.pixel_id' => '']);
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertDontSee('connect.facebook.net/en_US/fbevents.js', false);
+    }
 }

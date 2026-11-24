@@ -50,6 +50,7 @@
             border-radius: 8px;
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 <body>
 

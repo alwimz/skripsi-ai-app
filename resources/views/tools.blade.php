@@ -1247,6 +1247,7 @@
             .wc-head-actions { width: 100%; display: grid !important; grid-template-columns: 1fr auto; }
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 <body>
     @auth

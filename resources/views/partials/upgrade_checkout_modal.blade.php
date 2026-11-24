@@ -294,7 +294,25 @@
     (function () {
         const PLANS_MAP = @json($modalPlans);
         let activeOrderId = null;
+        let activePlanMeta = null;
         let pollTimer = null;
+
+        function trackMetaCheckoutEvent(eventName, planInfo, orderId) {
+            if (typeof window.slTrackMetaEvent !== 'function') return;
+            const p = planInfo || activePlanMeta || {};
+            const code = String(p.code || p.plan_code || '');
+            const name = String(p.name || p.plan_name || (code ? ('Paket ' + code) : 'Paket SkripsiLab AI'));
+            const val = Number(p.amount ?? p.price ?? 0);
+            const prefix = eventName === 'Purchase' ? 'pur_' : 'ic_';
+            window.slTrackMetaEvent(eventName, {
+                content_name: name,
+                content_ids: code ? [code] : [],
+                content_type: 'product',
+                value: isFinite(val) ? val : 0,
+                currency: 'IDR',
+                num_items: 1
+            }, orderId ? (prefix + String(orderId)) : null);
+        }
 
         window.openUpgradeModal = function (message) {
             const modal = document.getElementById('sl-upgrade-modal');
@@ -335,6 +353,7 @@
                 pollTimer = null;
             }
             activeOrderId = null;
+            activePlanMeta = PLANS_MAP[planCode] || { code: planCode, name: 'Paket ' + planCode, price: 0 };
 
             const modal = document.getElementById('sl-checkout-modal');
             const loadingEl = document.getElementById('sl-checkout-loading');
@@ -376,6 +395,7 @@
                         const ordEl = document.getElementById('sl-pay-order-id');
                         if (ordEl) ordEl.textContent = 'Kode Pesanan: ' + data.order_id;
                     }
+                    trackMetaCheckoutEvent('InitiateCheckout', data.plan || activePlanMeta, data.order_id || null);
                     if (errEl) {
                         errEl.innerHTML = `<div style="margin-bottom:12px;color:#334155;">Untuk mengaktifkan paket ini, silakan lanjutkan konfirmasi pembayaran melalui WhatsApp Admin:</div><a href="${data.whatsapp_url}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">Aktifkan via WhatsApp Admin →</a>`;
                         errEl.style.display = 'block';
@@ -389,6 +409,8 @@
 
                 const tx = data.transaction;
                 activeOrderId = tx.order_id;
+                activePlanMeta = { code: tx.plan_code, name: tx.plan_name, amount: tx.amount };
+                trackMetaCheckoutEvent('InitiateCheckout', activePlanMeta, tx.order_id);
                 document.getElementById('sl-pay-plan-name').textContent = tx.plan_name;
                 document.getElementById('sl-pay-total').textContent = 'Rp ' + Number(tx.total_payment || tx.amount).toLocaleString('id-ID');
                 document.getElementById('sl-pay-order-id').textContent = 'Order ID: ' + tx.order_id;
@@ -431,6 +453,11 @@
                 const badge = document.getElementById('sl-pay-status-badge');
                 if (data.status === 'completed') {
                     if (pollTimer) clearInterval(pollTimer);
+                    trackMetaCheckoutEvent('Purchase', data.plan_code ? {
+                        code: data.plan_code,
+                        name: data.plan_name,
+                        amount: data.amount
+                    } : activePlanMeta, data.order_id || activeOrderId);
                     if (badge) {
                         badge.style.color = '#16a34a';
                         badge.textContent = '✅ Pembayaran berhasil! Paket langsung aktif. Memuat ulang...';

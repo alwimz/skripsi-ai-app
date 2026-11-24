@@ -1730,6 +1730,7 @@
             color: #1e293b;
         }
     </style>
+    @include('partials.meta_pixel')
 </head>
 
 <body>
