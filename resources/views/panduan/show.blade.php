@@ -79,11 +79,12 @@
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1060px; width: 100%; margin: 0 auto; padding: 0 20px; }
         .topbar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 40; }
-        .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16.5px; color: #0f172a; }
+        .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #0f172a; white-space: nowrap; flex-shrink: 0; }
         .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; font-weight: 500; color: #475569; }
         .nav-links a:hover, .nav-links a.active { color: #2563eb; }
-        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 17px; border-radius: 9px; font-size: 13.5px; font-weight: 600; transition: all 0.15s; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 17px; border-radius: 9px; font-size: 13.5px; font-weight: 600; transition: all 0.15s; white-space: nowrap; }
+        .topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .btn-primary { background: #2563eb; color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
         .btn-outline { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; }
@@ -120,8 +121,14 @@
         .faq-q { font-size: 14.2px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
         .faq-a { font-size: 13.8px; color: #475569; }
         .cta-banner { margin-top: 24px; padding: 20px; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #f8fafc); border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
-        .pager { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13.5px; font-weight: 600; color: #2563eb; }
-        .footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 24px 0; font-size: 13px; color: #64748b; }
+        .pager { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+        .pager-card { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; transition: all 0.15s ease; min-width: 0; }
+        .pager-card:hover { border-color: #93c5fd; background: #eff6ff; }
+        .pager-card.next { text-align: right; align-items: flex-end; }
+        .pager-kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; }
+        .pager-title { font-size: 13.5px; font-weight: 700; color: #2563eb; line-height: 1.35; }
+        .footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 22px 0; font-size: 13px; color: #64748b; }
+        .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         @media (max-width: 900px) {
             .nav-links { display: none; }
             .mobile-subbar { display: flex; gap: 6px; overflow-x: auto; padding: 8px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
@@ -139,9 +146,14 @@
         }
         @media (max-width: 520px) {
             .container { padding: 0 14px; }
-            .topbar-inner { height: 58px; }
+            .topbar-inner { height: 56px; }
+            .brand { font-size: 15px; }
             .btn { padding: 7px 12px; font-size: 12.5px; }
             .step-card { padding: 14px; }
+            .cta-banner { padding: 16px; }
+            .cta-banner .btn { width: 100%; }
+            .pager-card.next { text-align: left; align-items: flex-start; }
+            .footer-inner { flex-direction: column; text-align: center; gap: 8px; }
         }
     </style>
 </head>
@@ -158,9 +170,9 @@
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Gratis (10)</a>
             </nav>
-            <div style="display:flex;align-items:center;gap:8px;">
+            <div class="topbar-actions">
                 @auth
-                    <a href="{{ route('app.create', ['tab' => $guide['tab']]) }}" class="btn btn-primary">{{ $guide['cta_label'] }}</a>
+                    <a href="{{ route('app.create', ['tab' => $guide['tab']]) }}" class="btn btn-primary">Buka Workspace →</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Daftar Gratis</a>
@@ -251,27 +263,38 @@
                 </div>
 
                 <div class="pager">
-                    <div>
-                        @if($prevGuide)
-                            <a href="{{ route('panduan.show', $prevGuide['slug']) }}">← {{ $prevGuide['num'] }}. {{ $prevGuide['short_title'] }}</a>
-                        @else
-                            <a href="{{ url('/panduan') }}">← Semua Panduan</a>
-                        @endif
-                    </div>
-                    <div>
-                        @if($nextGuide)
-                            <a href="{{ route('panduan.show', $nextGuide['slug']) }}">{{ $nextGuide['num'] }}. {{ $nextGuide['short_title'] }} →</a>
-                        @endif
-                    </div>
+                    @if($prevGuide)
+                        <a href="{{ route('panduan.show', $prevGuide['slug']) }}" class="pager-card">
+                            <span class="pager-kicker">← Panduan Sebelumnya</span>
+                            <span class="pager-title">{{ $prevGuide['num'] }}. {{ $prevGuide['short_title'] }}</span>
+                        </a>
+                    @else
+                        <a href="{{ url('/panduan') }}" class="pager-card">
+                            <span class="pager-kicker">← Indeks Panduan</span>
+                            <span class="pager-title">Semua 7 Panduan</span>
+                        </a>
+                    @endif
+
+                    @if($nextGuide)
+                        <a href="{{ route('panduan.show', $nextGuide['slug']) }}" class="pager-card next">
+                            <span class="pager-kicker">Panduan Berikutnya →</span>
+                            <span class="pager-title">{{ $nextGuide['num'] }}. {{ $nextGuide['short_title'] }}</span>
+                        </a>
+                    @else
+                        <a href="{{ url('/tools') }}" class="pager-card next">
+                            <span class="pager-kicker">Lanjut Jelajahi →</span>
+                            <span class="pager-title">10 Tools Mahasiswa Gratis</span>
+                        </a>
+                    @endif
                 </div>
             </article>
         </div>
     </main>
 
     <footer class="footer">
-        <div class="container" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div class="container footer-inner">
             <div>&copy; {{ date('Y') }} <strong>SkripsiLab AI</strong> &bull; Panduan Akademik Mahasiswa Indonesia.</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}">Semua Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Gratis</a>

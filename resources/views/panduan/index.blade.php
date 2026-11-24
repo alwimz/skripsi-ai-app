@@ -61,11 +61,12 @@
         a { text-decoration: none; color: inherit; }
         .container { max-width: 1120px; width: 100%; margin: 0 auto; padding: 0 20px; }
         .topbar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 40; }
-        .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16.5px; color: #0f172a; }
+        .topbar-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #0f172a; white-space: nowrap; flex-shrink: 0; }
         .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; font-weight: 500; color: #475569; }
         .nav-links a:hover, .nav-links a.active { color: #2563eb; }
-        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 13.5px; font-weight: 600; transition: all 0.15s; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 13.5px; font-weight: 600; transition: all 0.15s; white-space: nowrap; }
+        .topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .btn-primary { background: #2563eb; color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
         .btn-outline { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; }
@@ -110,9 +111,9 @@
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Gratis (10)</a>
             </nav>
-            <div style="display:flex;align-items:center;gap:8px;">
+            <div class="topbar-actions">
                 @auth
-                    <a href="{{ route('app.create') }}" class="btn btn-primary">Buka Workspace →</a>
+                    <a href="{{ route('app.create') }}" class="btn btn-primary">Workspace →</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Daftar Gratis</a>
