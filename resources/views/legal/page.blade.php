@@ -518,7 +518,7 @@
             <nav class="nav-links" aria-label="Navigasi Utama">
                 <a href="{{ url('/') }}" class="nav-link">Beranda</a>
                 <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
-                <a href="{{ url('/tools') }}" class="nav-link hide-xs">Tools Gratis</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="nav-link hide-xs">Tools Mahasiswa</a>
                 <a href="{{ url('/paket') }}" class="nav-link hide-xs">Paket</a>
                 <a href="{{ url('/kebijakan-privasi') }}" class="nav-link hide-xs {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}" class="nav-link hide-xs {{ $page['key'] === 'terms' ? 'active' : '' }}">Ketentuan</a>
@@ -604,7 +604,7 @@
         <div class="footer-links">
             <a href="{{ url('/') }}">Beranda</a>
             <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}">Panduan Lengkap</a>
-            <a href="{{ url('/tools') }}">Tools Gratis</a>
+            <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
             <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
             <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
             <a href="{{ url('/tentang') }}">Tentang Pengembang</a>

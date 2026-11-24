@@ -765,38 +765,48 @@
         .paper-editor h1,
         .paper-editor h2 {
             text-align: center;
-            font-size: 17px;
+            font-size: 14pt;
             font-weight: 700;
-            margin: 0 0 22px;
-            line-height: 1.45;
+            margin: 0 0 16pt;
+            line-height: 1.35;
         }
 
         .paper-editor h3 {
-            font-size: 15.5px;
+            font-size: 1em;
             font-weight: 700;
-            margin: 22px 0 10px;
+            margin: 14pt 0 6pt;
+            line-height: 1.4;
         }
 
         .paper-editor h4 {
-            font-size: 15px;
+            font-size: 1em;
             font-weight: 700;
-            margin: 14px 0 8px;
+            margin: 10pt 0 4pt;
+            line-height: 1.4;
         }
 
         .paper-editor p {
             text-align: justify;
-            text-indent: 36px;
-            margin-bottom: 6px;
+            text-indent: 1.27cm;
+            line-height: 1.5;
+            margin-bottom: 6pt;
         }
 
         .paper-editor ul,
         .paper-editor ol {
-            margin: 10px 0 14px 36px;
+            margin: 4pt 0 8pt 0;
+            padding-left: 1.27cm;
         }
 
         .paper-editor li {
             text-align: justify;
-            margin-bottom: 6px;
+            line-height: 1.5;
+            margin-bottom: 4pt;
+        }
+
+        .paper-editor ol[data-split-list="1"],
+        .paper-editor ul[data-split-list="1"] {
+            margin-top: 2pt;
         }
 
         .paper-editor .dp-entry {
@@ -1263,6 +1273,13 @@
                 font-size: 14.5px !important;
                 line-height: 1.56 !important;
                 box-sizing: border-box !important;
+            }
+            .paper-editor p {
+                text-indent: 24px !important;
+            }
+            .paper-editor ul,
+            .paper-editor ol {
+                padding-left: 24px !important;
             }
             .a4-sheet.empty-sheet,
             .a4-sheet.empty-sheet-premium {
@@ -2315,7 +2332,7 @@
                 <div style="min-width: 0; flex: 1;">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         <span id="cite-pop-label" style="font-size: 13px; font-weight: 700; color: #1e3a8a; word-break: break-word;">Sitasi</span>
-                        <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">APA 7th</span>
+                        <span id="cite-pop-rule" style="font-size: 10.5px; font-weight: 600; color: #2563eb; background: #dbeafe; padding: 1px 7px; border-radius: 999px;">{{ $meta['sitasi']['gaya'] ?? 'APA 7th' }}</span>
                     </div>
                     <div id="cite-pop-match" style="font-size: 11.5px; color: #334155; margin-top: 5px; line-height: 1.5; max-height: 115px; overflow-y: auto; padding-right: 4px; word-break: break-word;"></div>
                 </div>
@@ -2598,12 +2615,15 @@
             const pctLabel = document.getElementById('loading-progress-pct');
             const stepLabel = document.getElementById('loading-progress-step');
 
+            const activeGayaStyle = (typeof projectMeta === 'object' && projectMeta && projectMeta.sitasi && projectMeta.sitasi.gaya)
+                ? projectMeta.sitasi.gaya
+                : 'APA 7th';
             const stages = [
                 { pct: 15, text: 'Menganalisis struktur prodi & rumusan masalah...' },
                 { pct: 35, text: 'Menyusun struktur sub-bab akademik standar S1...' },
                 { pct: 55, text: 'Merumuskan landasan teori & komparasi ilmiah...' },
                 { pct: 75, text: 'Mengintegrasikan data empiris & sitasi jurnal...' },
-                { pct: 90, text: 'Memvalidasi koherensi kalimat & standar APA 7th...' },
+                { pct: 90, text: `Memvalidasi koherensi kalimat & standar ${activeGayaStyle}...` },
                 { pct: 96, text: 'Memformat naskah sesuai standar kertas A4...' }
             ];
 
@@ -3521,6 +3541,8 @@
                 tableRawLines = [];
             };
 
+            const isBab2Context = /BAB\s+II\b|TINJAUAN\s+PUSTAKA|2\.1\s+Landasan\s+Teori|Kerangka\s+(?:Berpikir|Pemikiran)/i.test(mdText);
+
             lines.forEach((raw) => {
                 const line = raw.trim();
 
@@ -3529,12 +3551,12 @@
                     flushLists();
                     flushTable();
                     if (inCode) {
-                        const diagHtml = renderAcademicDiagramHtml(codeBuffer.trim());
+                        const isFrameworkHint = isBab2Context || /2\.1\b|kerangka/i.test(pendingFigureCaption || '');
                         const figCap = pendingFigureCaption
-                            ? `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:center; margin:6px 0 16px; font-size:11pt; color:#000000;">${pendingFigureCaption}</p>`
+                            ? `<p class="academic-caption" style="text-indent:0; font-weight:700; text-align:center; margin:6pt 0 14pt; font-size:11pt; color:#000000;">${pendingFigureCaption}</p>`
                             : '';
                         pendingFigureCaption = '';
-                        html += `<div style="page-break-inside: avoid;">${diagHtml}${figCap}</div>`;
+                        html += renderAcademicDiagramHtml(codeBuffer.trim(), isFrameworkHint, figCap);
                         inCode = false;
                         codeBuffer = '';
                     } else {
@@ -3608,9 +3630,15 @@
                     if (!inUl) { html += '<ul>'; inUl = true; }
                     html += `<li>${formatInlineMarkdown(normLine.replace(/^[-*]\s+/, ''))}</li>`;
                 } else if (/^\d+\.\s+/.test(normLine)) {
+                    const olMatch = normLine.match(/^(\d+)\.\s+(.+)$/);
+                    const itemNum = olMatch ? Math.max(1, parseInt(olMatch[1], 10)) : 1;
+                    const itemBody = olMatch ? olMatch[2] : normLine.replace(/^\d+\.\s+/, '');
                     if (inUl) { html += '</ul>'; inUl = false; }
-                    if (!inOl) { html += '<ol>'; inOl = true; }
-                    html += `<li>${formatInlineMarkdown(normLine.replace(/^\d+\.\s+/, ''))}</li>`;
+                    if (!inOl) {
+                        html += itemNum > 1 ? `<ol start="${itemNum}">` : '<ol>';
+                        inOl = true;
+                    }
+                    html += `<li value="${itemNum}">${formatInlineMarkdown(itemBody)}</li>`;
                 } else if (/^Sumber\s*:/i.test(normLine)) {
                     flushLists();
                     flushTable();
@@ -3656,12 +3684,177 @@
             if (label) label.textContent = `${curScale}%`;
         }
 
-        function renderAcademicDiagramHtml(rawCode) {
-            if (!rawCode || !rawCode.trim()) return '';
+        function classifyFlowchartNodeJs(nodeText, idx, total, isFramework, decisionIdx) {
+            if (isFramework) return 'framework';
+            const lower = String(nodeText || '').trim().toLowerCase();
+            if (idx === 0 || idx === total - 1 || /^(mulai|start|selesai|end|finish)$/i.test(lower)) {
+                return 'terminator';
+            }
+            if (decisionIdx >= 0 && idx === decisionIdx) {
+                return 'decision';
+            }
+            if (/dataset|pengumpulan|input|output|korpus|kuesioner|angket|wawancara|observasi|scraping|crawling|dokumentasi|penyusunan\s+laporan|laporan\s+hasil/i.test(lower)) {
+                return 'io';
+            }
+            if (/pra-pemrosesan|preprocessing|sub-proses|ekstraksi\s+fitur|pembobotan|tf-idf|uji\s+coba|uji\s+validitas|uji\s+reliabilitas|uji\s+prasyarat|uji\s+asumsi|triangulasi|perancangan\s+sistem|tokeniz|stemming/i.test(lower)) {
+                return 'subprocess';
+            }
+            return 'process';
+        }
+
+        function wrapDiagramLinesJs(text, maxChars = 34, maxLines = 5) {
+            const clean = String(text || '').replace(/\s+/g, ' ').trim();
+            if (!clean) return [''];
+            const words = clean.split(' ');
+            const lines = [];
+            let current = '';
+            for (let i = 0; i < words.length; i++) {
+                const w = words[i];
+                if (!current) {
+                    current = w;
+                } else if ((current.length + 1 + w.length) <= maxChars) {
+                    current += ' ' + w;
+                } else {
+                    lines.push(current);
+                    current = w;
+                    if (lines.length >= maxLines - 1) {
+                        const rest = words.slice(i + 1).join(' ');
+                        if (rest) current += ' ' + rest;
+                        break;
+                    }
+                }
+            }
+            if (current) lines.push(current);
+            if (lines.length > 0 && lines[lines.length - 1].length > maxChars + 6) {
+                lines[lines.length - 1] = lines[lines.length - 1].slice(0, maxChars + 3).trimEnd() + '...';
+            }
+            return lines;
+        }
+
+        function buildAcademicFlowchartSvgJs(nodes, isFramework = false) {
+            const total = nodes.length;
+            if (!total) return { svg: '', height: 0 };
+
+            let decisionIdx = -1;
+            if (!isFramework && total >= 5) {
+                decisionIdx = nodes.findIndex((nt, idx) =>
+                    idx > 1 && idx < total - 1 && /evaluasi|confusion|akurasi|validasi|memenuhi|uji\s+hipotesis|kelayakan|layak|\?/i.test(nt)
+                );
+            }
+
+            const w = 560;
+            const cx = decisionIdx >= 0 ? 265 : 280;
+            const gap = 24;
+            let y = 12;
+            const layouts = [];
+
+            nodes.forEach((rawNode, idx) => {
+                const text = String(rawNode || '')
+                    .replace(/[\u2192\u21D2]/g, '->')
+                    .replace(/\u2190/g, '<-')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                const type = classifyFlowchartNodeJs(text, idx, total, isFramework, decisionIdx);
+                const maxChars = type === 'terminator' ? 24
+                    : (type === 'decision' ? 28
+                    : (type === 'framework' ? 48
+                    : ((type === 'io' || type === 'subprocess') ? 40 : 44)));
+                const lines = wrapDiagramLinesJs(text, maxChars, 5);
+                const lineCount = lines.length;
+
+                let boxW = 330;
+                let boxH = Math.max(38, lineCount * 15 + 16);
+                if (type === 'terminator') {
+                    boxW = 180;
+                    boxH = Math.max(34, lineCount * 14 + 14);
+                } else if (type === 'decision') {
+                    boxW = 244;
+                    boxH = Math.max(72, lineCount * 14 + 34);
+                } else if (type === 'framework') {
+                    boxW = 410;
+                    boxH = Math.max(44, lineCount * 15 + 18);
+                }
+
+                layouts.push({
+                    type,
+                    lines,
+                    x: Math.round(cx - boxW / 2),
+                    y,
+                    w: boxW,
+                    h: boxH,
+                    cy: Math.round(y + boxH / 2),
+                });
+                y += boxH + (type === 'decision' ? gap + 8 : gap);
+            });
+
+            const totalH = y - gap + 14;
+            const parts = [];
+            parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${totalH}" style="width:100%; max-width:525px; height:auto; display:block; margin:0 auto;">`);
+            parts.push(`<rect x="0" y="0" width="${w}" height="${totalH}" fill="#ffffff"/>`);
+
+            layouts.forEach((item, idx) => {
+                const { x, y: iy, w: bw, h: bh, cy, type, lines } = item;
+
+                if (type === 'terminator') {
+                    const rx = Math.round(bh / 2);
+                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" rx="${rx}" ry="${rx}" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>`);
+                } else if (type === 'io') {
+                    const skew = 20;
+                    const pts = `${x + skew},${iy} ${x + bw},${iy} ${x + bw - skew},${iy + bh} ${x},${iy + bh}`;
+                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>`);
+                } else if (type === 'decision') {
+                    const pts = `${cx},${iy} ${x + bw},${cy} ${cx},${iy + bh} ${x},${cy}`;
+                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>`);
+
+                    const targetIdx = Math.max(1, idx - 2);
+                    const targetBox = layouts[targetIdx] || layouts[Math.max(0, idx - 1)];
+                    const loopX = Math.min(w - 22, x + bw + 66);
+                    const targetRightX = targetBox.x + targetBox.w;
+                    const targetCy = targetBox.cy;
+
+                    parts.push(`<line x1="${x + bw}" y1="${cy}" x2="${loopX}" y2="${cy}" stroke="#000000" stroke-width="1.2"/>`);
+                    parts.push(`<line x1="${loopX}" y1="${cy}" x2="${loopX}" y2="${targetCy}" stroke="#000000" stroke-width="1.2"/>`);
+                    parts.push(`<line x1="${loopX}" y1="${targetCy}" x2="${targetRightX + 6}" y2="${targetCy}" stroke="#000000" stroke-width="1.2"/>`);
+                    parts.push(`<polygon points="${targetRightX + 7},${targetCy - 4} ${targetRightX + 7},${targetCy + 4} ${targetRightX},${targetCy}" fill="#000000"/>`);
+                    parts.push(`<text x="${x + bw + 8}" y="${cy - 5}" font-family="'Times New Roman', Times, serif" font-size="9.5" font-weight="bold" fill="#000000">Tidak</text>`);
+                } else {
+                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>`);
+                }
+
+                const fontSize = type === 'decision' ? 9.5 : 10.5;
+                const lineH = type === 'decision' ? 13 : 14.5;
+                const isBold = type === 'terminator';
+                const startTextY = cy - ((lines.length - 1) * lineH / 2) + 3.5;
+
+                lines.forEach((lt, li) => {
+                    const ty = (startTextY + li * lineH).toFixed(1);
+                    const displayLine = type === 'terminator' ? lt.toUpperCase() : lt;
+                    const weightAttr = isBold ? ' font-weight="bold"' : '';
+                    parts.push(`<text x="${cx}" y="${ty}" text-anchor="middle" font-family="'Times New Roman', Times, serif" font-size="${fontSize}"${weightAttr} fill="#000000">${escapeHtml(displayLine)}</text>`);
+                });
+
+                if (idx < total - 1) {
+                    const nextY = layouts[idx + 1].y;
+                    const fromY = iy + bh;
+                    parts.push(`<line x1="${cx}" y1="${fromY}" x2="${cx}" y2="${nextY - 6}" stroke="#000000" stroke-width="1.3"/>`);
+                    parts.push(`<polygon points="${cx - 4.5},${nextY - 7} ${cx + 4.5},${nextY - 7} ${cx},${nextY}" fill="#000000"/>`);
+                    if (type === 'decision') {
+                        parts.push(`<text x="${cx + 8}" y="${Math.round((fromY + nextY) / 2 + 3)}" font-family="'Times New Roman', Times, serif" font-size="9.5" font-weight="bold" fill="#000000">Ya</text>`);
+                    }
+                }
+            });
+
+            parts.push('</svg>');
+            return { svg: parts.join(''), height: totalH };
+        }
+
+        function renderAcademicDiagramHtml(rawCode, isFrameworkHint = false, captionHtml = '') {
+            if (!rawCode || !rawCode.trim()) return captionHtml || '';
             const clean = rawCode.trim();
-            const isFlowchartLike = clean.includes('-->') || clean.includes('->') || clean.includes('↓') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing|kerangka/i.test(clean);
+            const hasBoxDrawing = /[┌┐└┘─│├┤┬┴┼═║╔╗╚╝╠╣╦╩╬►▼▲◄]/.test(clean);
+            const isFlowchartLike = !hasBoxDrawing && (clean.includes('-->') || clean.includes('->') || clean.includes('↓') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing|kerangka/i.test(clean));
             if (!isFlowchartLike) {
-                return `<div class="academic-diagram-box" style="margin: 18px 0; padding: 14px 18px; background: #ffffff; border: 1.5px solid #000000; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; color: #000000;">${escapeHtml(clean)}</div>`;
+                return `<div class="academic-figure-container" style="margin: 12pt 0 14pt; page-break-inside: avoid;"><div class="academic-diagram-box" style="margin: 0; padding: 12pt 14pt; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 9pt; line-height: 1.3; white-space: pre; overflow-x: auto; color: #0f172a;">${escapeHtml(clean)}</div>${captionHtml}</div>`;
             }
 
             const projJudul = (typeof projectTitle !== 'undefined' && projectTitle) ? projectTitle.trim() : 'Topik Penelitian';
@@ -3672,8 +3865,13 @@
             let nodes = [];
             const matches = [...sanitizedClean.matchAll(/\[([\s\S]*?)\]/g)];
             if (matches.length >= 2) {
-                nodes = matches.map(m => m[1].replace(/^[+\-=_|~#\s]+|[+\-=_|~#\s]+$/g, '').trim())
-                    .filter(t => t.length >= 2 && !/^[+\-=_|~#\s]+$/.test(t));
+                nodes = matches.map((m) => {
+                    let cn = m[1].replace(/^[+\-=_|~#\s\/]+|[+\-=_|~#\s\/]+$/g, '').trim();
+                    if (cn.startsWith('(') && cn.endsWith(')') && (cn.match(/\(/g) || []).length === 1 && (cn.match(/\)/g) || []).length === 1) {
+                        cn = cn.slice(1, -1).trim();
+                    }
+                    return cn;
+                }).filter(t => t.length >= 2 && !/^[+\-=_|~#\s{}\[\]()]+$/.test(t));
             }
             if (nodes.length < 2) {
                 const rawLines = sanitizedClean.split(/\n|↓|-->|->/);
@@ -3691,47 +3889,16 @@
             });
 
             const hasStartEnd = nodes.some(n => /^(mulai|start|selesai|finish|end)$/i.test(n.trim())) || /mulai|flowchart|prosedur/i.test(clean);
-            const isFramework = !hasStartEnd && (/kerangka|bagan|konseptual|pemikiran|kondisi\s*awal|tindakan|permasalahan|landasan\s*teori/i.test(clean) || nodes.length <= 4);
+            const isFramework = Boolean(isFrameworkHint) || (!hasStartEnd && (/kerangka|bagan|konseptual|pemikiran|kondisi\s*awal|tindakan|permasalahan|landasan\s*teori/i.test(clean) || nodes.length <= 4));
 
-            const arrowHtml = `
-                <div style="display: flex; flex-direction: column; align-items: center; margin: 2px 0;">
-                    <div style="width: 1.5px; height: 16px; background: #000000;"></div>
-                    <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #000000;"></div>
-                </div>
-            `;
-
-            // A. BAGAN KERANGKA BERPIKIR / KONSEPTUAL (BAB II)
-            if (isFramework) {
-                if (nodes.length < 2) {
-                    nodes = [
-                        'Kondisi Empiris: Permasalahan nyata dan kesenjangan fenomena terkait ' + projJudul,
-                        'Landasan Teoretis: Kajian grand theory, dimensi variabel, dan sintesis riset terdahulu',
-                        'Pendekatan Metodologis: Pengumpulan data empiris, uji validitas instrumen, dan analisis data terstruktur',
-                        'Luaran Penelitian: Pembuktian hipotesis ilmiah dan rekomendasi solutif'
-                    ];
-                }
-                let frameworkContent = '';
-                nodes.forEach((nodeText, idx) => {
-                    let cleanLabel = nodeText.replace(/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/g, '').trim();
-                    frameworkContent += `
-                        <div style="width: 100%; max-width: 520px; border: 1.5px solid #000000; background: #ffffff; padding: 10px 16px; text-align: center; box-sizing: border-box;">
-                            <div style="font-size: 10.5pt; line-height: 1.35; color: #000000;">${escapeHtml(cleanLabel)}</div>
-                        </div>
-                    `;
-                    if (idx < nodes.length - 1) frameworkContent += arrowHtml;
-                });
-
-                return `
-                    <div class="academic-figure-container" style="margin: 18px auto; max-width: 640px; background: transparent; padding: 8px 12px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                        <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
-                            ${frameworkContent}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // B. FLOWCHART PROSEDUR PENELITIAN STANDAR ANSI (BAB III)
-            if (nodes.length < 3) {
+            if (isFramework && nodes.length < 2) {
+                nodes = [
+                    'Kondisi Empiris: Permasalahan nyata dan kesenjangan fenomena terkait ' + projJudul,
+                    'Landasan Teoretis: Kajian grand theory, dimensi variabel, dan sintesis riset terdahulu',
+                    'Pendekatan Metodologis: Pengumpulan data empiris, uji validitas instrumen, dan analisis data terstruktur',
+                    'Luaran Penelitian: Pembuktian hipotesis ilmiah dan rekomendasi solutif'
+                ];
+            } else if (!isFramework && nodes.length < 3) {
                 nodes = [
                     'Mulai',
                     'Identifikasi Masalah & Kajian Literatur: ' + projJudul,
@@ -3744,82 +3911,11 @@
                 ];
             }
 
-            const decIdx = nodes.length >= 5
-                ? nodes.findIndex((n, i) => i > 1 && i < nodes.length - 1 && /evaluasi|confusion|akurasi|validasi|memenuhi|uji\s*hipotesis|kelayakan|layak|\?/i.test(n))
-                : -1;
-
-            let flowContent = '';
-            nodes.forEach((nodeText, idx) => {
-                let cleanLabel = nodeText.replace(/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/g, '').trim();
-                cleanLabel = cleanLabel.replace(/\[\s*(PROSES SISTEM|SIMBOL DATA|SUB-PROSES|EVALUASI|PREDEFINED PROCESS)[^\]]*\]/gi, '').trim();
-                cleanLabel = cleanLabel.replace(/^(\s*───\s*|\s*—\s*)+|(\s*───\s*|\s*—\s*)+$/g, '').trim();
-
-                const isFirst = idx === 0 || /^(mulai|start)$/i.test(cleanLabel);
-                const isLast = idx === nodes.length - 1 || /^(selesai|finish|end)$/i.test(cleanLabel);
-                const isDecision = idx === decIdx;
-                const isData = !isFirst && !isLast && !isDecision && /dataset|pengumpulan|input|output|korpus|kuesioner|angket|wawancara|observasi|scraping|crawling|dokumentasi|laporan\s+hasil/i.test(cleanLabel);
-                const isSubProcess = !isFirst && !isLast && !isDecision && !isData && /pra-pemrosesan|preprocessing|sub-proses|ekstraksi\s+fitur|pembobotan|tf-idf|uji\s+coba|uji\s+validitas|uji\s+reliabilitas|uji\s+prasyarat|uji\s+asumsi|triangulasi|perancangan\s+sistem/i.test(cleanLabel);
-
-                if (isFirst || isLast) {
-                    // TERMINATOR: Kapsul Oval
-                    flowContent += `
-                        <div style="display: inline-block; min-width: 150px; padding: 7px 32px; border: 1.8px solid #000000; border-radius: 999px; background: #ffffff; font-weight: 700; font-size: 10.5pt; font-family: 'Times New Roman', serif; text-align: center; text-transform: uppercase; color: #000000;">
-                            ${escapeHtml(cleanLabel || (isFirst ? 'MULAI' : 'SELESAI'))}
-                        </div>
-                    `;
-                } else if (isData) {
-                    // DATA / INPUT-OUTPUT: Jajar Genjang (Parallelogram)
-                    flowContent += `
-                        <div style="display: inline-block; width: 360px; max-width: 90%; padding: 8px 22px; border: 1.5px solid #000000; background: #ffffff; transform: skewX(-14deg); box-sizing: border-box;">
-                            <div style="transform: skewX(14deg); font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000;">
-                                ${escapeHtml(cleanLabel)}
-                            </div>
-                        </div>
-                    `;
-                } else if (isSubProcess) {
-                    // PROSES / SUB-PROSES: Kotak tunggal bersih tanpa garis ganda vertikal agar rapi & seragam dengan Word
-                    flowContent += `
-                        <div style="width: 360px; max-width: 92%; padding: 8px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
-                            ${escapeHtml(cleanLabel)}
-                        </div>
-                    `;
-                } else if (isDecision) {
-                    // DECISION: Belah Ketupat SVG asli dengan label Ya / Tidak
-                    flowContent += `
-                        <div style="position: relative; width: 100%; max-width: 500px; margin: 2px auto; display: flex; justify-content: center; align-items: center;">
-                            <div style="position: relative; width: 250px; height: 92px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="250" height="92" viewBox="0 0 250 92" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                                    <polygon points="125,2 248,46 125,90 2,46" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
-                                </svg>
-                                <div style="position: relative; z-index: 2; font-family: 'Times New Roman', serif; font-size: 9.5pt; text-align: center; line-height: 1.25; padding: 0 34px; color: #000000;">
-                                    ${escapeHtml(cleanLabel)}
-                                </div>
-                            </div>
-                            <div style="position: absolute; right: 24px; top: 34px; font-size: 9.5pt; font-weight: 700; font-family: 'Times New Roman', serif; color: #000000;">Tidak → Ulangi</div>
-                        </div>
-                    `;
-                } else {
-                    // PROSES STANDAR: Persegi Panjang
-                    flowContent += `
-                        <div style="width: 360px; max-width: 92%; padding: 8px 18px; border: 1.5px solid #000000; background: #ffffff; font-family: 'Times New Roman', serif; font-size: 10.5pt; text-align: center; line-height: 1.35; color: #000000; box-sizing: border-box;">
-                            ${escapeHtml(cleanLabel)}
-                        </div>
-                    `;
-                }
-
-                if (idx < nodes.length - 1) {
-                    if (isDecision) {
-                        flowContent += `<div style="font-size: 9.5pt; font-weight: 700; font-family: 'Times New Roman', serif; color: #000000; line-height: 1;">Ya</div>`;
-                    }
-                    flowContent += arrowHtml;
-                }
-            });
-
+            const rendered = buildAcademicFlowchartSvgJs(nodes, isFramework);
             return `
-                <div class="academic-figure-container" style="margin: 18px auto; max-width: 640px; background: transparent; padding: 8px 12px; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                    <div class="academic-diagram-scalable" style="display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;">
-                        ${flowContent}
-                    </div>
+                <div class="academic-figure-container" data-diagram-height="${rendered.height}" style="margin: 14pt auto 16pt auto; max-width: 560px; width: 100%; background: transparent; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
+                    <div class="academic-diagram-scalable" data-scale="100" style="width: 100%;">${rendered.svg}</div>
+                    ${captionHtml}
                 </div>
             `;
         }
@@ -3843,9 +3939,9 @@
                 const hasHeaderAlready = (curH.num && testUpper.includes(curH.num)) || testUpper.includes(curH.title);
                 if (!hasHeaderAlready) {
                     const hHtml = `
-                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 26px; line-height: 1.45;">
-                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">${curH.num}</div>` : ''}
-                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-top: ${curH.num ? '4px' : '0'};">${curH.title}</div>
+                <div class="academic-chapter-header" style="text-align: center; margin-bottom: 16pt; line-height: 1.3;">
+                    ${curH.num ? `<div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;">${curH.num}</div>` : ''}
+                    <div style="font-size: 14pt; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-top: ${curH.num ? '2px' : '0'};">${curH.title}</div>
                 </div>
             `;
                     bodyHtml = hHtml + bodyHtml;
@@ -3860,15 +3956,21 @@
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = fullBodyHtml;
 
-                const blocks = Array.from(tempDiv.children);
-                if (!blocks.length) {
+                const queue = Array.from(tempDiv.children);
+                if (!queue.length) {
                     return [fullBodyHtml];
                 }
 
                 // Kalibrasi presisi 1:1 sesuai halaman A4 Microsoft Word & PDF (Times New Roman 12pt, 1,5 spasi, margin 4-4-3-3 cm):
-                // ~84 karakter per baris, ~33.5 baris isi per halaman A4 penuh.
-                const CHARS_PER_LINE = 84;
+                // ~74 karakter per baris, ~33.5 baris isi per halaman A4 penuh.
+                const CHARS_PER_LINE = 74;
                 const MAX_LINES_PER_PAGE = 33.5;
+
+                const estimateListItemLines = (li) => {
+                    const len = (li.innerText || li.textContent || '').replace(/\s+/g, ' ').trim().length;
+                    return Math.max(1, Math.ceil((len + 6) / 68)) + 0.35;
+                };
+
                 const estimateBlockLines = (block) => {
                     const textLen = (block.innerText || block.textContent || '').replace(/\s+/g, ' ').trim().length;
                     const tagName = (block.tagName || '').toLowerCase();
@@ -3881,30 +3983,35 @@
                     if (tagName === 'h3' || tagName === 'h4') {
                         return 1.8;
                     }
-                    if (block.classList && block.classList.contains('academic-figure-container')) {
-                        return 12.5;
+                    const figNode = (block.classList && block.classList.contains('academic-figure-container'))
+                        ? block
+                        : (block.querySelector ? block.querySelector('[data-diagram-height]') : null);
+                    if (figNode) {
+                        const svgH = parseFloat(figNode.getAttribute('data-diagram-height') || '0');
+                        if (svgH > 0) {
+                            const renderedPx = svgH * (525 / 560) + 46;
+                            return Math.min(31, Math.max(8, renderedPx / 24));
+                        }
+                        return 14.0;
                     }
                     if (tagName === 'table' || (block.classList && block.classList.contains('table-wrap')) || (block.querySelector && block.querySelector('table'))) {
                         const rows = block.querySelectorAll ? block.querySelectorAll('tr').length : 4;
-                        return Math.min(24, Math.max(5.5, rows * 1.45 + 2.2));
+                        return Math.min(28, Math.max(5.5, rows * 1.65 + 2.5));
                     }
                     if (block.querySelector && block.querySelector('img')) {
                         return 12.0;
                     }
                     if (tagName === 'ul' || tagName === 'ol') {
-                        const items = Array.from(block.querySelectorAll ? block.querySelectorAll('li') : []);
+                        const items = Array.from(block.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
                         if (items.length) {
-                            return items.reduce((sum, li) => {
-                                const len = (li.innerText || li.textContent || '').trim().length;
-                                return sum + Math.max(1, Math.ceil(len / 76)) + 0.25;
-                            }, 0.6);
+                            return items.reduce((sum, li) => sum + estimateListItemLines(li), 0.5);
                         }
-                        return Math.max(2, Math.ceil(textLen / 76) + 0.6);
+                        return Math.max(2, Math.ceil(textLen / 68) + 0.5);
                     }
                     if (block.classList && block.classList.contains('dp-entry')) {
-                        return Math.max(1.5, Math.ceil(textLen / 78)) + 0.45;
+                        return Math.max(1.5, Math.ceil(textLen / 70)) + 0.45;
                     }
-                    return Math.max(1, Math.ceil((textLen + 8) / CHARS_PER_LINE)) + 0.4;
+                    return Math.max(1, Math.ceil((textLen + 8) / CHARS_PER_LINE)) + 0.35;
                 };
 
                 const pages = [];
@@ -3915,10 +4022,9 @@
                 const splitParagraphHtmlAtLines = (pEl, targetLines) => {
                     const html = pEl.innerHTML;
                     const plain = (pEl.innerText || pEl.textContent || '').replace(/\s+/g, ' ').trim();
-                    const targetChars = Math.max(140, Math.floor((targetLines - 0.4) * CHARS_PER_LINE));
-                    if (plain.length <= targetChars + 90) return null;
+                    const targetChars = Math.max(130, Math.floor((targetLines - 0.35) * CHARS_PER_LINE));
+                    if (plain.length <= targetChars + 80) return null;
 
-                    // Cari posisi titik akhir kalimat terdekat <= targetChars di dalam HTML (aman di luar tag <...>)
                     let inTag = false;
                     let visibleCount = 0;
                     let bestSplitHtmlIdx = -1;
@@ -3931,7 +4037,7 @@
                         if ((ch === '.' || ch === '!' || ch === '?') && (i + 1 < html.length && /\s/.test(html[i + 1]))) {
                             const beforeChunk = html.slice(Math.max(0, i - 12), i).replace(/<[^>]+>/g, '').trim();
                             if (!/(?:et\s+al|dkk|no|hlm|hal|dr|prof)$/i.test(beforeChunk)) {
-                                if (visibleCount <= targetChars + 40 && visibleCount >= 110) {
+                                if (visibleCount <= targetChars + 40 && visibleCount >= 100) {
                                     bestSplitHtmlIdx = i + 1;
                                 } else if (visibleCount > targetChars + 40) {
                                     break;
@@ -3945,7 +4051,6 @@
                     const tailHtml = html.slice(bestSplitHtmlIdx).trim();
                     if (!headHtml || !tailHtml) return null;
 
-                    // Pastikan tidak memotong di dalam tag terbuka (mis. <span> sitasi)
                     const openSpans = (headHtml.match(/<span\b/gi) || []).length;
                     const closeSpans = (headHtml.match(/<\/span>/gi) || []).length;
                     if (openSpans !== closeSpans) return null;
@@ -3959,22 +4064,74 @@
                     return [pHead, pTail];
                 };
 
-                blocks.forEach((block) => {
+                // Pecah daftar bernomor/bullet (<ol>/<ul>) antar poin <li> seperti aliran Word & PDF agar halaman penuh sebelum pindah kertas
+                const splitListAtLines = (listEl, targetLines) => {
+                    const listTag = (listEl.tagName || '').toLowerCase();
+                    if ((listTag !== 'ol' && listTag !== 'ul') || targetLines < 3.0) return null;
+                    const items = Array.from(listEl.children || []).filter(el => (el.tagName || '').toLowerCase() === 'li');
+                    if (items.length < 2) return null;
+
+                    let accLines = 0.4;
+                    const headItems = [];
+                    const tailItems = [];
+                    for (let i = 0; i < items.length; i++) {
+                        const liLines = estimateListItemLines(items[i]);
+                        if (tailItems.length === 0 && (accLines + liLines <= targetLines + 0.8)) {
+                            headItems.push(items[i].cloneNode(true));
+                            accLines += liLines;
+                        } else {
+                            tailItems.push(items[i].cloneNode(true));
+                        }
+                    }
+                    if (!headItems.length || !tailItems.length) return null;
+
+                    const headList = document.createElement(listTag);
+                    const startAttr = listEl.getAttribute('start');
+                    if (listTag === 'ol' && startAttr) headList.setAttribute('start', startAttr);
+                    headItems.forEach(li => headList.appendChild(li));
+
+                    const tailList = document.createElement(listTag);
+                    tailList.setAttribute('data-split-list', '1');
+                    if (listTag === 'ol') {
+                        const firstTailVal = parseInt(tailItems[0].getAttribute('value') || '', 10);
+                        const baseStart = parseInt(startAttr || '1', 10);
+                        const nextStart = !isNaN(firstTailVal) ? firstTailVal : (baseStart + headItems.length);
+                        tailList.setAttribute('start', String(nextStart));
+                    }
+                    tailItems.forEach(li => tailList.appendChild(li));
+                    return [headList, tailList];
+                };
+
+                for (let idx = 0; idx < queue.length; idx++) {
+                    const block = queue[idx];
                     const blockLines = estimateBlockLines(block);
                     const tagName = (block.tagName || '').toLowerCase();
-                    const isPlainPara = tagName === 'p' && (!block.classList || (!block.classList.contains('academic-caption') && !block.classList.contains('dp-entry')));
+                    const isPlainPara = tagName === 'p' && (!block.classList || (!block.classList.contains('academic-caption') && !block.classList.contains('dp-entry') && !block.classList.contains('academic-formula')));
+                    const isListBlock = tagName === 'ul' || tagName === 'ol';
 
                     if (curPageBlocks.length > 0 && (curLines + blockLines > MAX_LINES_PER_PAGE + 1.5)) {
                         const remainingLines = MAX_LINES_PER_PAGE - curLines;
-                        // Jika masih tersisa >= 2.5 baris di halaman ini dan blok adalah paragraf biasa, alirkan kalimat awalnya ke halaman ini (cocok 1:1 dengan Word & PDF!)
                         if (isPlainPara && remainingLines >= 2.5) {
                             const splitPair = splitParagraphHtmlAtLines(block, remainingLines);
                             if (splitPair) {
                                 curPageBlocks.push(splitPair[0]);
                                 pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
-                                curPageBlocks = [splitPair[1]];
-                                curLines = estimateBlockLines(splitPair[1]);
-                                return;
+                                curPageBlocks = [];
+                                curLines = 0;
+                                queue.splice(idx + 1, 0, splitPair[1]);
+                                continue;
+                            }
+                        }
+
+                        if (isListBlock && remainingLines >= 3.0) {
+                            const splitListPair = splitListAtLines(block, remainingLines);
+                            if (splitListPair) {
+                                curPageBlocks.push(splitListPair[0]);
+                                pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
+                                curPageBlocks = [];
+                                curLines = 0;
+                                queue.splice(idx + 1, 0, splitListPair[1]);
+                                continue;
                             }
                         }
 
@@ -3998,7 +4155,7 @@
                         curPageBlocks.push(block);
                         curLines += blockLines;
                     }
-                });
+                }
 
                 if (curPageBlocks.length > 0) {
                     pages.push(curPageBlocks.map(b => b.outerHTML).join(''));
@@ -5429,7 +5586,10 @@
             if (dot) dot.classList.add('generating');
 
             if (activeView === 'daftar_pustaka') {
-                renderLoadingSheet('Menyusun & Merapikan Daftar Pustaka...', 'AI sedang memformat referensi terverifikasi dalam gaya APA 7th Edition.');
+                const activeGayaDp = (typeof projectMeta === 'object' && projectMeta && projectMeta.sitasi && projectMeta.sitasi.gaya)
+                    ? projectMeta.sitasi.gaya
+                    : 'APA 7th';
+                renderLoadingSheet('Menyusun & Merapikan Daftar Pustaka...', `AI sedang memformat referensi terverifikasi dalam gaya ${activeGayaDp}.`);
                 try {
                     const res = await fetch(`/project/${projectId}/refine-references`, {
                         method: 'POST',

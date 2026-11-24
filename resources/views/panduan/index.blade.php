@@ -109,7 +109,7 @@
             <nav class="nav-links" aria-label="Navigasi Panduan">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
-                <a href="{{ url('/tools') }}">Tools Gratis (10)</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
                 <a href="{{ url('/paket') }}">Paket</a>
             </nav>
             <div class="topbar-actions">
@@ -125,7 +125,7 @@
     <div class="mobile-subbar">
         <a href="{{ url('/') }}">Beranda</a>
         <a href="{{ url('/panduan') }}" class="active">Semua Panduan (7)</a>
-        <a href="{{ url('/tools') }}">10 Tools Gratis</a>
+        <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">10 Tools Mahasiswa</a>
         <a href="{{ url('/paket') }}">Paket</a>
     </div>
 
@@ -137,7 +137,7 @@
                 <p>Ikuti 7 alur terstruktur dari pencarian ide judul hingga simulasi sidang penguji agar naskah Proposal &amp; Skripsimu rapi, valid secara metodologi, dan bebas plagiasi.</p>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                     <a href="{{ auth()->check() ? route('app.create') : route('register') }}" class="btn btn-primary">Mulai Susun Skripsi Sekarang →</a>
-                    <a href="{{ url('/tools') }}" class="btn btn-outline">Coba 10 Tools Mahasiswa Gratis</a>
+                    <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="btn btn-outline">{{ auth()->check() ? 'Buka 10 Tools Mahasiswa' : 'Masuk untuk 10 Tools Mahasiswa' }}</a>
                 </div>
             </div>
         </section>
@@ -170,7 +170,7 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}">Panduan</a>
-                <a href="{{ url('/tools') }}">Tools Mahasiswa</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
                 <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
                 <a href="{{ url('/tentang') }}">Tentang</a>

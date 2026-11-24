@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Allow: /tools
+Allow: /paket
 Allow: /panduan
 Allow: /panduan/
 Allow: /kebijakan-privasi
@@ -9,9 +9,10 @@ Allow: /tentang
 Allow: /login
 Allow: /register
 Allow: /sample/download/
+Disallow: /tools
+Disallow: /tools/
 Disallow: /app/
 Disallow: /project/
-Disallow: /tools/convert/
 Disallow: /chat/
 Disallow: /api-key/
 Disallow: /reward/

@@ -27,11 +27,11 @@ Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
 Route::get('/paket', [PaymentController::class, 'plans'])->name('billing.plans');
 Route::post('/webhook/pakasir', [PaymentController::class, 'webhook'])->name('pakasir.webhook');
 Route::get('/sitemap.xml', function () {
-    $baseUrl = rtrim(url('/'), '/');
+    $rawBase = rtrim(url('/'), '/');
+    $baseUrl = str_contains($rawBase, 'skripsilabai.com') ? 'https://skripsilabai.com' : $rawBase;
     $today = now()->toDateString();
     $urls = [
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
-        ['loc' => $baseUrl . '/tools', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/paket', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/kebijakan-privasi', 'priority' => '0.7', 'changefreq' => 'monthly'],
@@ -72,13 +72,6 @@ Route::get('/sitemap.xml', function () {
 Route::get('/sample/download/{major}/{format}', [GeneratorController::class, 'downloadSample'])->name('sample.download');
 Route::get('/galeri/project/{id}/download/{format}', [GeneratorController::class, 'downloadPublicProject'])->name('public.project.download');
 
-// 1B. HUB TOOLS MAHASISWA PUBLIK (PDF <-> WORD, FLOWCHART AI, GABUNG/PISAH PDF, SLOVIN, HITUNG KATA)
-Route::get('/tools', [StudentToolsController::class, 'index'])->name('tools.hub');
-Route::post('/tools/convert/docx-to-pdf', [StudentToolsController::class, 'docxToPdf'])->name('tools.convert.docxToPdf');
-Route::post('/tools/convert/pdf-to-docx', [StudentToolsController::class, 'pdfToDocx'])->name('tools.convert.pdfToDocx');
-Route::post('/tools/convert/extract-docx-text', [StudentToolsController::class, 'extractDocxText'])->name('tools.extract.docxText');
-Route::post('/tools/flowchart/generate', [StudentToolsController::class, 'generateFlowchart'])->name('tools.flowchart.generate');
-
 // 2. AUTHENTICATION (Login, Register, Logout)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -92,8 +85,15 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// 3. APLIKASI UTAMA (DASHBOARD, WORKSPACE & AI TOOLS)
+// 3. APLIKASI UTAMA (DASHBOARD, WORKSPACE, TOOLS MAHASISWA & AI TOOLS — WAJIB LOGIN)
 Route::middleware(['auth'])->group(function () {
+
+    // --- HUB TOOLS MAHASISWA (PDF <-> WORD, FLOWCHART AI, GABUNG/PISAH PDF, SLOVIN, HITUNG KATA) ---
+    Route::get('/tools', [StudentToolsController::class, 'index'])->name('tools.hub');
+    Route::post('/tools/convert/docx-to-pdf', [StudentToolsController::class, 'docxToPdf'])->name('tools.convert.docxToPdf');
+    Route::post('/tools/convert/pdf-to-docx', [StudentToolsController::class, 'pdfToDocx'])->name('tools.convert.pdfToDocx');
+    Route::post('/tools/convert/extract-docx-text', [StudentToolsController::class, 'extractDocxText'])->name('tools.extract.docxText');
+    Route::post('/tools/flowchart/generate', [StudentToolsController::class, 'generateFlowchart'])->name('tools.flowchart.generate');
 
     // --- DASHBOARD & PROJECT MANAGEMENT ---
     Route::get('/app/create', [GeneratorController::class, 'preGeneratorForm'])->name('app.create');

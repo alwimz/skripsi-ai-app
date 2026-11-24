@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Paket Harga &amp; Tier Akun — SkripsiLab AI</title>
+    <meta name="description"
+        content="Daftar paket harga SkripsiLab AI mulai Rp15.000 tanpa sistem kredit: paket kuota naskah atau unlimited lengkap dengan ekspor Word, PDF, PPT sidang, dan Olah Data AI.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="{{ url('/paket') }}">
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,7 +108,7 @@
                 @if(!empty($summary) && empty($summary['is_paid_active']))
                     <span class="btn-nav" style="background:#fffbeb; border-color:#fde68a; color:#b45309; cursor:default; font-weight:700;">Paket Free</span>
                 @endif
-                <a href="{{ url('/tools') }}" class="btn-nav">10 Tools Gratis</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="btn-nav">10 Tools Mahasiswa</a>
                 @auth
                     <a href="{{ route('app.create') }}" class="btn-nav primary">Kembali ke Workspace →</a>
                 @else

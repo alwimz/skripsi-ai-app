@@ -5,6 +5,15 @@
 
     RewriteEngine On
 
+    # Canonical Redirect: www -> non-www HTTPS & HTTP -> HTTPS (cPanel/LiteSpeed safe)
+    RewriteCond %{HTTP_HOST} ^www\.skripsilabai\.com$ [NC]
+    RewriteRule ^(.*)$ https://skripsilabai.com/$1 [L,R=301]
+
+    RewriteCond %{HTTP_HOST} ^skripsilabai\.com$ [NC]
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+    RewriteRule ^(.*)$ https://skripsilabai.com/$1 [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

@@ -506,6 +506,139 @@ class GeneratorController extends Controller
         return $map;
     }
 
+    private function buildCitationStyleGuide(string $gayaSitasi = 'APA 7th'): array
+    {
+        $raw = trim($gayaSitasi) !== '' ? trim($gayaSitasi) : 'APA 7th';
+        $g = strtolower($raw);
+
+        if (str_contains($g, 'ieee')) {
+            return [
+                'key' => 'ieee',
+                'label' => 'IEEE',
+                'is_numbered' => true,
+                'sort_instruction' => 'URUT BERDASARKAN NOMOR URUT KEMUNCULAN [1], [2], [3], dst. (BUKAN urut abjad A-Z)',
+                'in_text_example' => 'contoh: ...memiliki akurasi tinggi [1]. atau Menurut studi [2], metode ini...',
+                'in_text_rule' => 'WAJIB memakai penomoran IEEE kurung siku [1], [2], [3] berurutan sesuai kemunculan pertama di teks (contoh: "...berpengaruh signifikan [1]."). DILARANG KERAS menulis sitasi nama-tahun APA seperti (Penulis, 2024) atau Penulis (2024)!',
+                'bib_example' => '[1] B. Surya and A. Wijaya, "Judul artikel penelitian secara spesifik," Nama Jurnal Bereputasi, vol. 12, no. 2, pp. 45-58, 2024. https://doi.org/10.xxxx/...',
+                'bib_rule' => 'Format WAJIB IEEE: awali [1], [2], dst., nama penulis Inisial diikuti Nama Belakang (A. Wijaya), judul artikel diapit tanda kutip ganda ("Judul,"), nama jurnal, vol., no., pp., tahun di akhir sebelum DOI. DILARANG memakai format APA seperti Nama, I. (2024). Judul!',
+            ];
+        }
+
+        if (str_contains($g, 'vancouver')) {
+            return [
+                'key' => 'vancouver',
+                'label' => 'Vancouver',
+                'is_numbered' => true,
+                'sort_instruction' => 'URUT BERDASARKAN NOMOR URUT KEMUNCULAN 1., 2., 3., dst. (BUKAN urut abjad A-Z)',
+                'in_text_example' => 'contoh: ...terbukti signifikan (1). atau Studi terdahulu (2) menunjukkan...',
+                'in_text_rule' => 'WAJIB memakai penomoran Vancouver angka urut dalam kurung (1), (2), (3) sesuai kemunculan di teks. DILARANG KERAS menulis sitasi nama-tahun APA seperti (Penulis, 2024) atau Penulis (2024)!',
+                'bib_example' => '1. Surya B, Wijaya A. Judul artikel penelitian secara spesifik. Nama Jurnal Bereputasi. 2024;12(2):45-58. https://doi.org/10.xxxx/...',
+                'bib_rule' => 'Format WAJIB Vancouver: bernomor 1., 2., dst., nama belakang diikuti inisial TANPA titik & tanda & (Surya B, Wijaya A.), judul tanpa tanda kutip, jurnal, tahun;volume(nomor):halaman.',
+            ];
+        }
+
+        if (str_contains($g, 'chicago')) {
+            return [
+                'key' => 'chicago',
+                'label' => 'Chicago',
+                'is_numbered' => false,
+                'sort_instruction' => 'URUT ABJAD A-Z berdasarkan nama belakang penulis pertama',
+                'in_text_example' => 'contoh: (Surya 2023) atau Surya (2023) atau (Wijaya et al. 2024)',
+                'in_text_rule' => 'WAJIB memakai format Chicago Author-Date TANPA tanda koma sebelum tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Wijaya 2024)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma APA seperti "(Surya, 2023)"!',
+                'bib_example' => 'Surya, B., dan A. Wijaya. "Judul artikel penelitian secara spesifik." Nama Jurnal Bereputasi 12, no. 2 (2024): 45-58. https://doi.org/10.xxxx/...',
+                'bib_rule' => 'Format WAJIB Chicago: tahun diletakkan SETELAH volume/nomor sebelum titik dua halaman — Penulis. "Judul artikel." Nama Jurnal Vol, no. No (Tahun): Halaman. DILARANG meletakkan (Tahun) tepat setelah nama penulis seperti gaya APA!',
+            ];
+        }
+
+        if (str_contains($g, 'harvard')) {
+            return [
+                'key' => 'harvard',
+                'label' => 'Harvard',
+                'is_numbered' => false,
+                'sort_instruction' => 'URUT ABJAD A-Z berdasarkan nama belakang penulis pertama',
+                'in_text_example' => 'contoh: (Surya 2023), (Surya & Putra 2023), (Wijaya et al. 2024), atau Surya (2023)',
+                'in_text_rule' => 'WAJIB memakai format Harvard TANPA tanda koma antara nama penulis dan tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Putra 2023)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma ala APA seperti "(Surya, 2023)" atau "(Wijaya et al., 2024)"!',
+                'bib_example' => "Surya, B. & Wijaya, A. (2024) 'Judul artikel penelitian secara spesifik', Nama Jurnal Bereputasi, 12(2), pp. 45-58. https://doi.org/10.xxxx/...",
+                'bib_rule' => "Format WAJIB Harvard: Penulis (Tahun) TANPA titik setelah kurung tahun, judul artikel diapit tanda kutip tunggal ('Judul artikel'), dipisah koma sebelum nama jurnal, serta awalan 'pp.' sebelum rentang halaman: Penulis, I. (Tahun) 'Judul artikel', Nama Jurnal, Vol(No), pp. Halaman. DILARANG memakai format APA '(Tahun). Judul.' tanpa kutip tunggal!",
+            ];
+        }
+
+        return [
+            'key' => 'apa',
+            'label' => 'APA 7th',
+            'is_numbered' => false,
+            'sort_instruction' => 'URUT ABJAD A-Z berdasarkan nama belakang penulis pertama',
+            'in_text_example' => 'contoh: Menurut Wijaya et al. (2024) atau (Surya, 2023) / (Wijaya et al., 2024)',
+            'in_text_rule' => 'WAJIB memakai format APA 7th Edition DENGAN tanda koma sebelum tahun di dalam kurung: contoh "(Surya, 2023)", "(Surya & Putra, 2023)", "(Wijaya et al., 2024)", atau naratif "Surya (2023)".',
+            'bib_example' => 'Wijaya, A., & Putra, B. (2024). Judul artikel penelitian secara spesifik. Nama Jurnal Bereputasi, 12(2), 45-58. https://doi.org/10.xxxx/...',
+            'bib_rule' => 'Format WAJIB APA 7th: Penulis, I., & Penulis2, I. (Tahun). Judul artikel. Nama Jurnal, Vol(No), Halaman. DOI',
+        ];
+    }
+
+    private function formatVerifiedInTextCitation(array $ref, string $gayaSitasi = 'APA 7th', int $index = 1, bool $parenthetical = false): string
+    {
+        $guide = $this->buildCitationStyleGuide($gayaSitasi);
+        if ($guide['key'] === 'ieee') {
+            return "[{$index}]";
+        }
+        if ($guide['key'] === 'vancouver') {
+            return "({$index})";
+        }
+        $inText = trim((string) ($ref['in_text'] ?? ($ref['first_surname'] ?? 'Anonim')));
+        $year = (string) ($ref['year'] ?? date('Y'));
+        if ($guide['key'] === 'harvard' || $guide['key'] === 'chicago') {
+            return $parenthetical ? "({$inText} {$year})" : "{$inText} ({$year})";
+        }
+        return $parenthetical ? "({$inText}, {$year})" : "{$inText} ({$year})";
+    }
+
+    private function normalizeInTextCitationsForStyle(string $content, string $gayaSitasi = 'APA 7th'): string
+    {
+        $guide = $this->buildCitationStyleGuide($gayaSitasi);
+        if ($content === '' || $guide['is_numbered']) {
+            return $content;
+        }
+
+        $nonAuthorWords = [
+            'tabel', 'gambar', 'bagan', 'lampiran', 'bab', 'pasal', 'ayat', 'uu', 'pp', 'permen',
+            'permendikbud', 'kemenkes', 'tahun', 'bulan', 'periode', 'sejak', 'hingga', 'sampai',
+            'antara', 'no', 'nomor', 'edisi', 'jakarta', 'bandung', 'surabaya', 'yogyakarta',
+            'semarang', 'medan', 'makassar', 'indonesia', 'januari', 'februari', 'maret', 'april',
+            'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember',
+            'misalnya', 'contohnya', 'yakni', 'yaitu', 'seperti', 'sekitar', 'kira-kira',
+        ];
+
+        $pattern = '/\(([A-Z][a-zA-ZÀ-ÿ\-]+(?:\s+et\s+al\.?|\s+(?:&|dan)\s+[A-Z][a-zA-ZÀ-ÿ\-]+|(?:,\s+[A-Z][a-zA-ZÀ-ÿ\-]+){1,4}(?:,?\s+(?:&|dan)\s+[A-Z][a-zA-ZÀ-ÿ\-]+))?)(,?)\s*((?:19|20)\d{2}[a-z]?(?:,\s*(?:hlm|hal|p|pp)\.?\s*\d+(?:-\d+)?)?)\)/u';
+
+        $normalized = (string) preg_replace_callback($pattern, function (array $m) use ($guide, $nonAuthorWords): string {
+            $authorPart = trim($m[1]);
+            $comma = $m[2];
+            $yearPart = trim($m[3]);
+            $firstTok = strtolower((string) preg_split('/[\s,]+/', $authorPart)[0]);
+            if ($firstTok === '' || in_array($firstTok, $nonAuthorWords, true)) {
+                return $m[0];
+            }
+
+            if ($guide['key'] === 'harvard' || $guide['key'] === 'chicago') {
+                // Harvard/Chicago Author-Date: hilangkan koma antara penulis dan tahun "(Wijaya 2024)" / "(Surya & Putra 2023)"
+                $cleanAuth = rtrim((string) preg_replace('/,\s*(&|dan)\s*/', ' $1 ', $authorPart), ', ');
+                return "({$cleanAuth} {$yearPart})";
+            }
+
+            // APA 7th: pastikan ada koma antara penulis dan tahun
+            if ($comma === '') {
+                return "({$authorPart}, {$yearPart})";
+            }
+            return $m[0];
+        }, $content);
+
+        if ($guide['key'] === 'harvard' || $guide['key'] === 'chicago') {
+            $normalized = (string) preg_replace('/\b(et\s+al\.),\s*\(((?:19|20)\d{2}[a-z]?)\)/i', '$1 ($2)', $normalized);
+        }
+
+        return $normalized;
+    }
+
     /**
      * Ambil referensi ilmiah terverifikasi dari OpenAlex & Crossref sesuai aturan sitasi proyek (tahun_min, asal, SINTA/Scopus)
      */
@@ -576,7 +709,8 @@ class GeneratorController extends Controller
             if ($pages !== '') {
                 $bib .= ", pp. {$pages}";
             }
-            return "{$authorsApa} ({$year}) '{$title}', {$venue}{$bib}.{$doiSuffix}";
+            $harvardAuthors = str_replace(', & ', ' & ', $authorsApa);
+            return "{$harvardAuthors} ({$year}) '{$title}', {$venue}{$bib}.{$doiSuffix}";
         }
 
         // Default: APA 7th
@@ -890,13 +1024,18 @@ class GeneratorController extends Controller
     {
         $meta = $this->getProjectMeta($project);
         $gayaSitasi = (string) ($meta['sitasi']['gaya'] ?? 'APA 7th');
+        $guide = $this->buildCitationStyleGuide($gayaSitasi);
         $structured = $this->getVerifiedRefsStructured($project, $forceRefresh);
         $lines = [];
         foreach ($structured as $idx => $ref) {
-            $inText = (string) ($ref['in_text'] ?? 'Penulis');
-            $year = (string) ($ref['year'] ?? '');
-            $formatted = $this->formatVerifiedReferenceEntry($ref, $gayaSitasi, $idx + 1);
-            $lines[] = "[Sitasi: {$inText} ({$year})] {$formatted}";
+            $n = $idx + 1;
+            $formatted = $this->formatVerifiedReferenceEntry($ref, $gayaSitasi, $n);
+            $citeParen = $this->formatVerifiedInTextCitation($ref, $gayaSitasi, $n, true);
+            $citeNarr = $this->formatVerifiedInTextCitation($ref, $gayaSitasi, $n, false);
+            $hint = $guide['is_numbered']
+                ? "[Sitasi teks wajib: {$citeParen}]"
+                : "[Sitasi teks ({$guide['label']}): {$citeNarr} atau {$citeParen}]";
+            $lines[] = "{$hint} {$formatted}";
         }
         return array_slice($lines, 0, 15);
     }
@@ -1013,6 +1152,7 @@ class GeneratorController extends Controller
     private function buildVerifiedMatchedDaftarPustaka(Project $project, array $citationsList, string $gayaSitasi): array
     {
         $verifiedBank = $this->getVerifiedRefsStructured($project);
+        $guide = $this->buildCitationStyleGuide($gayaSitasi);
         $matchedEntries = [];
         $unmatchedCitations = [];
         $usedTitles = [];
@@ -1021,6 +1161,19 @@ class GeneratorController extends Controller
             $citClean = trim((string) $cit);
             if ($citClean === '') {
                 continue;
+            }
+            // Dukung sitasi numerik IEEE [1] / Vancouver (1) yang merujuk urutan bank referensi terverifikasi
+            if (preg_match('/^\[(\d{1,2})\]$/', $citClean, $nm) || ($guide['is_numbered'] && preg_match('/^\((\d{1,2})\)$/', $citClean, $nm))) {
+                $idxNum = (int) $nm[1];
+                if ($idxNum >= 1 && isset($verifiedBank[$idxNum - 1])) {
+                    $found = $verifiedBank[$idxNum - 1];
+                    $tKey = strtolower((string) ($found['title'] ?? ''));
+                    if ($tKey !== '' && !isset($usedTitles[$tKey])) {
+                        $usedTitles[$tKey] = true;
+                        $matchedEntries[] = $this->formatVerifiedReferenceEntry($found, $gayaSitasi, count($matchedEntries) + 1);
+                    }
+                    continue;
+                }
             }
             preg_match('/\b((?:19|20)\d{2})\b/', $citClean, $ym);
             $citYear = isset($ym[1]) ? (int) $ym[1] : 0;
@@ -1065,6 +1218,9 @@ class GeneratorController extends Controller
         if (trim($content) === '') {
             return $content;
         }
+
+        $projMeta = $this->getProjectMeta($project);
+        $gayaSitasi = (string) ($projMeta['sitasi']['gaya'] ?? 'APA 7th');
 
         // 1. Bersihkan sisa LaTeX, judul bab ganda, bocoran prompt, kata Inggris sisipan, & frasa klise pembuka AI
         $content = $this->formatAcademicMathText($content);
@@ -1111,16 +1267,18 @@ class GeneratorController extends Controller
 
             $isHeadingOrList = (bool) preg_match('/^(?:BAB\s+[IVX0-9]+|\d+\.\d+(?:\.\d+)?\.?\s+|[A-H]\.\s+|\d+[\.\)]\s+|[a-z][\.\)]\s+|Tabel\s+\d|Gambar\s+\d|Bagan\s+\d|Grafik\s+\d|Sumber\s*:)/i', $trim);
 
-            // Pastikan Paragraf 1 Bab I minimal memuat 1 sitasi terverifikasi
+            // Pastikan Paragraf 1 Bab I minimal memuat 1 sitasi terverifikasi sesuai gaya sitasi proyek
             if (!$firstBab1ParaFixed && !$isHeadingOrList && mb_strlen($trim) >= 120) {
                 $firstBab1ParaFixed = true;
                 $cites = $this->extractInTextCitations($trim);
                 if (empty($cites)) {
                     $bank = $this->getVerifiedRefsStructured($project);
                     if (!empty($bank[0]['in_text']) && !empty($bank[0]['year'])) {
-                        $inTxt = trim((string) $bank[0]['in_text']);
-                        $yr = (string) $bank[0]['year'];
-                        $trim = rtrim($trim, '. ') . ". Urgensi kajian empiris tersebut sejalan dengan temuan {$inTxt} ({$yr}).";
+                        $citeToken = $this->formatVerifiedInTextCitation($bank[0], $gayaSitasi, 1, false);
+                        $guideFirst = $this->buildCitationStyleGuide($gayaSitasi);
+                        $trim = $guideFirst['is_numbered']
+                            ? rtrim($trim, '. ') . ". Urgensi kajian empiris tersebut sejalan dengan temuan penelitian terdahulu {$citeToken}."
+                            : rtrim($trim, '. ') . ". Urgensi kajian empiris tersebut sejalan dengan temuan {$citeToken}.";
                     }
                 }
             }
@@ -1268,6 +1426,9 @@ class GeneratorController extends Controller
             }
             $result = implode("\n", $tLines);
         }
+
+        // 4. Normalisasi sitasi in-text agar konsisten mengikuti gaya sitasi yang dipilih mahasiswa (Harvard/Chicago tanpa koma, APA pakai koma)
+        $result = $this->normalizeInTextCitationsForStyle($result, $gayaSitasi);
 
         return $result;
     }
@@ -1715,7 +1876,7 @@ class GeneratorController extends Controller
         $layouts = [];
 
         foreach ($nodes as $idx => $rawNode) {
-            $text = $this->formatAcademicMathText($rawNode);
+            $text = str_replace(['→', '⇒', '←', '↔'], ['->', '->', '<-', '<->'], $this->formatAcademicMathText($rawNode));
             $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
             $maxChars = match ($type) {
                 'terminator' => 24,
@@ -1855,7 +2016,7 @@ class GeneratorController extends Controller
         $layouts = [];
 
         foreach ($nodes as $idx => $rawNode) {
-            $text = $this->formatAcademicMathText($rawNode);
+            $text = str_replace(['→', '⇒', '←', '↔'], ['->', '->', '<-', '<->'], $this->formatAcademicMathText($rawNode));
             $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
             $maxChars = match ($type) {
                 'terminator' => 24,
@@ -3324,12 +3485,8 @@ Pertanyaan Mahasiswa:
             $extraContext .= "\nREFERENSI WAJIB DARI UNGGAHAN MAHASISWA (WAJIB DISITASI):\n\"\"\"\n" . Str::limit($meta['referensi_khusus'], 4000) . "\n\"\"\"\n";
         }
 
-        $gayaLowerMaster = strtolower((string) $gayaSitasi);
-        $inTextExampleMaster = str_contains($gayaLowerMaster, 'ieee')
-            ? 'contoh: [1] atau peneliti [2]'
-            : (str_contains($gayaLowerMaster, 'vancouver')
-                ? 'contoh: (1) atau [1]'
-                : 'contoh: Menurut Wijaya et al. (2024) atau (Surya, 2023)');
+        $styleGuideMaster = $this->buildCitationStyleGuide((string) $gayaSitasi);
+        $inTextExampleMaster = $styleGuideMaster['in_text_example'];
 
         return "PERAN: Anda adalah Profesor dan Pembimbing Tugas Akhir Senior di Perguruan Tinggi Indonesia.
 
@@ -3349,8 +3506,11 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
 3. Kedalaman Materi & Ritme Paragraf Proporsional (STANDAR SKRIPSI S1 NASIONAL):
    - Tuliskan setiap bab secara MENDALAM, KOMPREHENSIF, dan EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas.
    - WAJIB JAGA PROPORSIONALITAS PARAGRAF: Setiap paragraf idealnya berisi **5–7 kalimat padat (±80–115 kata atau ±7–10 baris di halaman A4 Word)** agar dalam 1 halaman A4 muat sekitar **2,5–3 paragraf yang rapi dan enak dibaca**. DILARANG KERAS menulis 1 paragraf raksasa bertele-tele (14–20 baris) yang membuat 1 halaman hanya berisi 1–2 paragraf! Pecah gagasan berbeda ke paragraf baru yang kohesif.
-4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR ASLI):
-   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, {$inTextExampleMaster}).
+4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB PATUH GAYA {$styleGuideMaster['label']}):
+   - WAJIB menyertakan sitasi dalam teks KHUSUS gaya {$gayaSitasi} ({$inTextExampleMaster}).
+   - KETENTUAN GAYA {$styleGuideMaster['label']}: {$styleGuideMaster['in_text_rule']}
+   - ATURAN DAFTAR PUSTAKA {$styleGuideMaster['label']}: {$styleGuideMaster['bib_rule']}
+   - CONTOH DAFTAR PUSTAKA {$styleGuideMaster['label']}: {$styleGuideMaster['bib_example']}
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
    - DILARANG KERAS MENGARANG ATAU MEMBUAT SUMBER/PENULIS/JURNAL FIKTIF! Setiap nama peneliti, tahun, judul publikasi, dan nama jurnal ilmiah yang dikutip WAJIB berasal dari literatur ilmiah asli yang benar-benar terbit di jurnal nasional (SINTA/Garuda/Kemdikbud) atau internasional (Scopus/IEEE/Elsevier/Springer/OpenAlex) atau laporan otoritas data resmi (BPS, Kemendikbudristek, APJII, We Are Social / DataReportal). DILARANG menulis contoh nama fiktif seperti 'Pratama dan Pamungkas' atau 'Nahdhudin'!
    - Di Bab I (Latar Belakang): Prioritaskan kutipan dari 'REFERENSI JURNAL ILMIAH TERVERIFIKASI' di atas dan data resmi institusi.
@@ -4252,6 +4412,8 @@ WAJIB MEMUAT TABEL DATA DAN ANALISIS EMPIRIS LENGKAP:
             ? "WAJIB ditulis dalam format DAFTAR POIN BERNOMOR persis `1.`, `2.`, ... hingga `{$rmCountAuto}.` (TEPAT {$rmCountAuto} butir bernomor, BUKAN paragraf naratif tanpa nomor!) yang menjawab satu per satu {$rmCountAuto} butir Rumusan Masalah pada Bab I secara presisi dan berbasis angka temuan Bab IV."
             : "WAJIB ditulis dalam format daftar poin bernomor (`1.`, `2.`, `3.`, dst.) yang menjawab satu per satu seluruh butir rumusan masalah Bab I secara tegas berdasarkan capaian empiris Bab IV.";
 
+        $styleGuideBab = $this->buildCitationStyleGuide((string) $gayaSitasi);
+
         // Bab V Penutup & Daftar Pustaka Lengkap & Terverifikasi (Bebas Mendeley)
         $bab5Prompt = "
 TUGAS: Tulis Isi BAB V (PENUTUP) beserta DAFTAR PUSTAKA LENGKAP & OTOMATIS (STANDAR {$gayaSitasi}).
@@ -4261,16 +4423,17 @@ Sub-bab:
 
 Setelah sub-bab 5.2 selesai, buat baris baru bertuliskan persis:
 ===DAFTAR PUSTAKA===
-Lalu tuliskan DAFTAR PUSTAKA LENGKAP URUT ABJAD A-Z (format {$gayaSitasi}) YANG WAJIB MENGAMBIL DARI SELURUH SITASI ASLI YANG MUNCUL DALAM NASKAH BAB 1 HINGGA BAB 4 (lihat daftar sitasi yang tertera di atas)" . (!empty($meta['referensi_khusus']) ? " serta SELURUH ARTIKEL / BUKU UNGGAHAN MAHASISWA" : "") . ".
+Lalu tuliskan DAFTAR PUSTAKA LENGKAP {$styleGuideBab['sort_instruction']} (FORMAT WAJIB: {$gayaSitasi}) YANG WAJIB MENGAMBIL DARI SELURUH SITASI ASLI YANG MUNCUL DALAM NASKAH BAB 1 HINGGA BAB 4 (lihat daftar sitasi yang tertera di atas)" . (!empty($meta['referensi_khusus']) ? " serta SELURUH ARTIKEL / BUKU UNGGAHAN MAHASISWA" : "") . ".
 
-ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (JANGAN MENGARANG ASAL-ASALAN):
+ATURAN MUTLAK SITASI & DAFTAR PUSTAKA (GAYA {$styleGuideBab['label']} — DILARANG FALLBACK KE GAYA LAIN):
 1. DAFTAR PUSTAKA WAJIB DIBUAT DARI SITASI NYATA YANG BENAR-BENAR DIKUTIP DALAM BAB 1 S/D 4! Dilarang keras mengarang referensi fiktif yang tidak pernah disebut dalam naskah.
-2. Setiap entri DAFTAR PUSTAKA WAJIB memiliki format publikasi lengkap sesuai {$gayaSitasi}:
-   Nama Penulis. (Tahun). Judul artikel penelitian secara spesifik. Nama Jurnal Bereputasi, Volume(Nomor), Halaman. https://doi.org/10.xxxx/...
+2. {$styleGuideBab['bib_rule']}
+   CONTOH FORMAT WAJIB ({$gayaSitasi}):
+   {$styleGuideBab['bib_example']}
 3. Referensi WAJIB ASLI dan NYATA (terindeks {$sumberArr} / SINTA/Garuda Kemdikbud untuk Indonesia, atau Scopus/IEEE/ACM/Elsevier/Springer untuk Internasional).
 4. Tahun terbit referensi WAJIB minimal tahun {$tahunMin} dan maksimal tahun 2026.
-5. Konsistensi 100%: Setiap nama penulis dan tahun yang disitasi dalam teks (in-text citation) Bab I sampai Bab IV WAJIB ADA di dalam daftar pustaka ini.
-6. Tanpa kalimat pengantar AI, langsung baris referensi pertama A-Z.";
+5. Konsistensi 100%: Setiap rujukan yang disitasi dalam teks Bab I sampai Bab IV WAJIB ADA di dalam daftar pustaka ini dengan gaya {$gayaSitasi}.
+6. Tanpa kalimat pengantar AI, langsung baris referensi pertama sesuai urutan {$styleGuideBab['label']}.";
 
         $customStructureNote = !empty($meta['struktur_kustom'])
             ? "PERHATIAN PENTING: MAHASISWA MEMILIKI STRUKTUR SUB-BAB KUSTOM DARI KAMPUSNYA (LIHAT DI ATAS). AI WAJIB MENGIKUTI STRUKTUR KUSTOM TERSEBUT SECARA PERSIS, BUKAN STRUKTUR STANDAR DEFAULT!\n"
@@ -4463,12 +4626,19 @@ INSTRUKSI MUTLAK:
                             $citBlock = !empty($unmatchedCits)
                                 ? "SITASI TAMBAHAN DALAM NASKAH YANG PERLU DILENGKAPI BIBLIOGRAFINYA:\n- " . implode("\n- ", $unmatchedCits) . "\n"
                                 : (!empty($citationsList) ? "DAFTAR SITASI ASLI YANG MUNCUL DI NASKAH:\n- " . implode("\n- ", $citationsList) . "\n" : "");
-                            $dpPrompt = "Tulis DAFTAR PUSTAKA gaya {$gayaSitasiCh} berdasarkan sitasi nama penulis dan tahun yang dikutip pada naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\n" .
+                            $styleGuideDpCh = $this->buildCitationStyleGuide((string) $gayaSitasiCh);
+                            $dpPrompt = "Tulis DAFTAR PUSTAKA gaya {$gayaSitasiCh} berdasarkan sitasi yang dikutip pada naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}).\n" .
                                 $verifiedBlock .
                                 $citBlock .
                                 (!empty($meta['referensi_khusus']) ? "REFERENSI WAJIB UNGGAHAN MAHASISWA (WAJIB MASUK):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n" : "") .
                                 "Tahun penerbitan WAJIB minimal tahun {$tahunMinCh} dan maksimal 2026 (DILARANG di bawah {$tahunMinCh}).\n" .
-                                "ATURAN KETAT:\n1. LANGSUNG tuliskan baris referensi pertama (urut sesuai kaidah {$gayaSitasiCh}) TANPA kalimat pembuka/pengantar.\n2. WAJIB menyertakan seluruh ENTRI TERVERIFIKASI di atas secara utuh tanpa mengubah DOI-nya.\n3. DILARANG mengarang DOI palsu untuk sitasi yang tidak memiliki DOI.\n4. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 5500);
+                                "ATURAN KETAT GAYA {$styleGuideDpCh['label']}:\n" .
+                                "1. {$styleGuideDpCh['bib_rule']}\n" .
+                                "   Contoh format WAJIB: {$styleGuideDpCh['bib_example']}\n" .
+                                "2. LANGSUNG tuliskan baris referensi pertama ({$styleGuideDpCh['sort_instruction']}) TANPA kalimat pembuka/pengantar.\n" .
+                                "3. WAJIB menyertakan seluruh ENTRI TERVERIFIKASI di atas secara utuh tanpa mengubah DOI-nya.\n" .
+                                "4. DILARANG mengarang DOI palsu untuk sitasi yang tidak memiliki DOI.\n" .
+                                "5. Tanpa tanda bintang markdown (*).\n\nNASKAH:\n" . Str::limit($allText, 5500);
                             $dpRaw = $this->ai->generateText($dpPrompt, $model);
                             $cleanedDp = $this->cleanDaftarPustaka($dpRaw, $tahunMinCh, $gayaSitasiCh);
                             if (!empty($cleanedDp)) {
@@ -5801,6 +5971,17 @@ ATURAN REVISI (SANGAT KETAT):
                 $firstAuthor = trim((string) preg_split('/[\s,]+/', $author)[0]);
                 if (!in_array(strtolower($firstAuthor), ['tabel', 'gambar', 'bab', 'lampiran', 'bagan', 'pasal', 'tahun', 'ayat'])) {
                     $citations["{$author} ({$year})"] = true;
+                }
+            }
+        }
+        // Format 3: Sitasi numerik IEEE ([1], [1, 2]) bila digunakan
+        if (preg_match_all('/\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]/', $text, $numMatches)) {
+            foreach ($numMatches[1] as $group) {
+                foreach (explode(',', $group) as $n) {
+                    $num = trim($n);
+                    if ($num !== '' && (int) $num >= 1 && (int) $num <= 40) {
+                        $citations["[{$num}]"] = true;
+                    }
                 }
             }
         }
@@ -7373,6 +7554,7 @@ ATURAN REVISI (SANGAT KETAT):
         $text = str_replace(['*', '#', '_', '`'], '', $text);
         $lines = explode("\n", $text);
         $cleaned = [];
+        $guideDp = $this->buildCitationStyleGuide($gayaSitasi);
         $minYr = (int) $tahunMin;
         $gayaLower = strtolower(trim($gayaSitasi));
         $isNumberedStyle = str_contains($gayaLower, 'ieee') || str_contains($gayaLower, 'vancouver');
@@ -7397,6 +7579,14 @@ ATURAN REVISI (SANGAT KETAT):
                 if ($yr < $minYr) {
                     continue;
                 }
+            }
+            // Normalisasi format entri APA-style menjadi Harvard bila mahasiswa memilih gaya Harvard
+            if ($guideDp['key'] === 'harvard' && !str_contains($l, "'") && preg_match('/^(.+?)\s+\(((?:19|20)\d{2}[a-z]?)\)\.\s+([^.?!]{6,220})\.\s+(.+)$/u', $l, $hm)) {
+                $hAuth = rtrim(str_replace(', & ', ' & ', trim($hm[1])), ', ');
+                $hYr = $hm[2];
+                $hTitle = trim($hm[3]);
+                $hRest = trim($hm[4]);
+                $l = "{$hAuth} ({$hYr}) '{$hTitle}', {$hRest}";
             }
             $cleaned[] = trim($l);
         }
@@ -7573,18 +7763,23 @@ ATURAN REVISI (SANGAT KETAT):
             ? "\nREFERENSI WAJIB DARI UNGGAHAN MAHASISWA (WAJIB MASUK KE DALAM DAFTAR PUSTAKA):\n" . Str::limit($meta['referensi_khusus'], 2500) . "\n"
             : "";
 
-        $prompt = "Tulis DAFTAR PUSTAKA lengkap dengan format {$gayaSitasi} berdasarkan naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}) berikut ini.
+        $styleGuideRefine = $this->buildCitationStyleGuide($gayaSitasi);
+        $prompt = "Tulis DAFTAR PUSTAKA lengkap KHUSUS format {$gayaSitasi} berdasarkan naskah proposal/skripsi berjudul '{$project->judul}' (Prodi: {$project->prodi}) berikut ini.
 Asal Referensi: {$asalRef}.
 Tahun terbit referensi: minimal tahun {$tahunMin} dan maksimal tahun 2026.
 {$verifiedBlock}
 {$citationsBlock}
 {$refUploadNote}
-ATURAN MUTLAK & TEGAS:
+ATURAN MUTLAK & TEGAS (GAYA {$styleGuideRefine['label']}):
 1. WAJIB menyertakan SELURUH ENTRI REFERENSI TERVERIFIKASI di atas secara utuh tanpa mengubah judul, penulis, tahun, ataupun link DOI aslinya!
-2. DAFTAR PUSTAKA WAJIB 100% SINKRON 1-to-1 dengan sitasi asli yang benar-benar muncul dalam naskah. DILARANG KERAS mengarang referensi fiktif yang tidak pernah disitasi di dalam naskah!
-3. LANGSUNG tulis baris daftar pustaka pertama (urut sesuai kaidah {$gayaSitasi}) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
-4. DILARANG menulis placeholder atau mengarang link DOI palsu untuk buku/regulasi/laporan yang tidak memiliki DOI.
-5. Jangan gunakan tanda bintang markdown (*).
+2. WAJIB memformat SELURUH entri (termasuk referensi non-terverifikasi/tambahan) mengikuti aturan gaya {$gayaSitasi} berikut:
+   {$styleGuideRefine['bib_rule']}
+   Contoh format WAJIB: {$styleGuideRefine['bib_example']}
+   DILARANG KERAS menulis dengan gaya APA bila mahasiswa memilih gaya {$gayaSitasi}!
+3. DAFTAR PUSTAKA WAJIB 100% SINKRON dengan sitasi asli yang benar-benar muncul dalam naskah. DILARANG KERAS mengarang referensi fiktif!
+4. LANGSUNG tulis baris daftar pustaka pertama ({$styleGuideRefine['sort_instruction']}) TANPA kalimat pengantar seperti 'Berikut adalah daftar pustaka...'.
+5. DILARANG menulis placeholder atau mengarang link DOI palsu untuk buku/regulasi/laporan yang tidak memiliki DOI.
+6. Jangan gunakan tanda bintang markdown (*).
 
 NASKAH BAB I - BAB V:
 " . substr($allText, 0, 9500);
@@ -7787,18 +7982,29 @@ NASKAH BAB I - BAB V:
         $missingFromDp = [];
         $matchedDpIdx = [];
         foreach ($inTextCites as $cit) {
-            preg_match('/\b((?:19|20)\d{2})\b/', $cit, $ym);
-            $yr = $ym[1] ?? '';
-            $authorRaw = trim((string) preg_replace('/\s*\(?\d{4}[a-z]?\)?.*$/', '', $cit));
-            $firstTok = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $authorRaw)[0] ?? ''));
             $found = false;
-            if ($firstTok !== '' && strlen($firstTok) >= 2) {
+            if (preg_match('/^\[(\d{1,2})\]$/', trim($cit), $nm)) {
+                $numPattern = '/^\[' . $nm[1] . '\]\s+/';
                 foreach ($dpLines as $idx => $line) {
-                    $ll = strtolower($line);
-                    if (str_contains($ll, $firstTok) && ($yr === '' || str_contains($ll, $yr))) {
+                    if (preg_match($numPattern, $line)) {
                         $found = true;
                         $matchedDpIdx[$idx] = true;
                         break;
+                    }
+                }
+            } else {
+                preg_match('/\b((?:19|20)\d{2})\b/', $cit, $ym);
+                $yr = $ym[1] ?? '';
+                $authorRaw = trim((string) preg_replace('/\s*\(?\d{4}[a-z]?\)?.*$/', '', $cit));
+                $firstTok = strtolower((string) preg_replace('/[^a-zA-Z]/', '', explode(' ', $authorRaw)[0] ?? ''));
+                if ($firstTok !== '' && strlen($firstTok) >= 2) {
+                    foreach ($dpLines as $idx => $line) {
+                        $ll = strtolower($line);
+                        if (str_contains($ll, $firstTok) && ($yr === '' || str_contains($ll, $yr))) {
+                            $found = true;
+                            $matchedDpIdx[$idx] = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -8123,11 +8329,17 @@ NASKAH BAB I - BAB V:
             return response()->json(['status' => 'error', 'message' => 'Konten bab masih kosong.'], 422);
         }
 
+        $verifiedBankForReplace = $this->getVerifiedRefsStructured($project);
+        $refIndex = 1;
+        foreach ($verifiedBankForReplace as $vIdx => $vr) {
+            if (strtolower((string) ($vr['title'] ?? '')) === strtolower((string) ($chosenRef['title'] ?? ''))) {
+                $refIndex = $vIdx + 1;
+                break;
+            }
+        }
         $isParenthetical = str_starts_with(trim($oldCite), '(') && str_ends_with(trim($oldCite), ')');
-        $newInText = $isParenthetical
-            ? '(' . $chosenRef['in_text'] . ', ' . $chosenRef['year'] . ')'
-            : $chosenRef['in_text'] . ' (' . $chosenRef['year'] . ')';
-        $newFormattedRef = $this->formatVerifiedReferenceEntry($chosenRef, $gayaSitasi);
+        $newInText = $this->formatVerifiedInTextCitation($chosenRef, $gayaSitasi, $refIndex, $isParenthetical);
+        $newFormattedRef = $this->formatVerifiedReferenceEntry($chosenRef, $gayaSitasi, $refIndex);
 
         // Temukan blok paragraf yang memuat sitasi lama di dalam naskah mentah bab
         $lines = preg_split("/(\r\n|\n)/", $chapterContent) ?: [];

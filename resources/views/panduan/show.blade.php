@@ -168,7 +168,7 @@
             <nav class="nav-links" aria-label="Navigasi">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
-                <a href="{{ url('/tools') }}">Tools Gratis (10)</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
                 <a href="{{ url('/paket') }}">Paket</a>
             </nav>
             <div class="topbar-actions">
@@ -184,7 +184,7 @@
     <div class="mobile-subbar">
         <a href="{{ url('/') }}">Beranda</a>
         <a href="{{ url('/panduan') }}" class="active">Semua Panduan</a>
-        <a href="{{ url('/tools') }}">10 Tools Gratis</a>
+        <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">10 Tools Mahasiswa</a>
         <a href="{{ url('/paket') }}">Paket</a>
     </div>
 
@@ -201,7 +201,7 @@
                     @endforeach
                 </div>
                 <div class="sidebar-tools-link" style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
-                    <a href="{{ url('/tools') }}" class="side-link">10 Tools Mahasiswa Gratis →</a>
+                    <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="side-link">10 Tools Mahasiswa →</a>
                 </div>
             </aside>
 
@@ -283,9 +283,9 @@
                             <span class="pager-title">{{ $nextGuide['num'] }}. {{ $nextGuide['short_title'] }}</span>
                         </a>
                     @else
-                        <a href="{{ url('/tools') }}" class="pager-card next">
+                        <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="pager-card next">
                             <span class="pager-kicker">Lanjut Jelajahi →</span>
-                            <span class="pager-title">10 Tools Mahasiswa Gratis</span>
+                            <span class="pager-title">10 Tools Mahasiswa</span>
                         </a>
                     @endif
                 </div>
@@ -299,7 +299,7 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}">Semua Panduan</a>
-                <a href="{{ url('/tools') }}">Tools Gratis</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
                 <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
                 <a href="{{ url('/tentang') }}">Tentang</a>

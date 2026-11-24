@@ -72,7 +72,7 @@
                         'Penyusunan Proposal (Bab I–III) dan Skripsi Lengkap (Bab I–V) Otomatis Menggunakan AI',
                         'Referensi Ilmiah & Jurnal Relevan Nasional/Internasional Terverifikasi DOI (Crossref & OpenAlex)',
                         'Format Kertas A4 Margin 4-4-3-3, Daftar Isi, Daftar Tabel, Daftar Gambar & Daftar Lampiran Otomatis',
-                        'Daftar Pustaka APA 7th Otomatis dengan Tautan DOI Aktif',
+                        'Daftar Pustaka APA 7th, Harvard, IEEE, Chicago & Vancouver Otomatis dengan Tautan DOI Aktif',
                         'Ekspor Dokumen Word (.docx) dan PDF (.pdf) Siap Cetak',
                         'Cari Judul Penelitian untuk 9 Metode (Kuantitatif, Kualitatif, R&D, PTK, Hukum Normatif, Mixed Method, dll.)',
                         'Generator PPT Sidang 13 Tema Akademik & Ekspor PowerPoint (.pptx)',
@@ -94,10 +94,10 @@
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis APA 7th?',
+                            'name' => 'Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis sesuai gaya sitasi?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional dan internasional terverifikasi DOI (Crossref & OpenAlex) sehingga sitasi dan Daftar Pustaka tersusun otomatis dalam format APA 7th lengkap dengan tautan DOI aktif.',
+                                'text' => 'SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional dan internasional terverifikasi DOI (Crossref & OpenAlex) sehingga sitasi in-text dan Daftar Pustaka tersusun otomatis sesuai pilihan APA 7th, Harvard, IEEE, Chicago, atau Vancouver lengkap dengan tautan DOI aktif.',
                             ],
                         ],
                         [
@@ -1797,7 +1797,7 @@
                     <span class="section-label">Pratinjau Workspace</span>
                     <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi &amp; Terstandar</h2>
                     <p class="section-desc">Lihat simulasi tampilan Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) di
-                        editor kertas A4 lengkap dengan sampul, tabel akademik, sitasi ilmiah, dan Daftar Pustaka APA 7th.</p>
+                        editor kertas A4 lengkap dengan sampul, tabel akademik, sitasi ilmiah, dan Daftar Pustaka (APA 7th, Harvard, IEEE, Chicago, atau Vancouver).</p>
                 </div>
 
                 <div class="major-selector" id="preview-project-pills">
@@ -2034,8 +2034,8 @@
                             </div>
                             <h3>Cari Jurnal &amp; Referensi DOI</h3>
                             <p>Temukan artikel jurnal nasional &amp; internasional terverifikasi Crossref/OpenAlex tahun
-                                2021–2026 lengkap dengan tautan DOI aktif, filter cakupan, dan tombol salin sitasi APA
-                                7th siap pakai.</p>
+                                2021–2026 lengkap dengan tautan DOI aktif, filter cakupan, dan tombol salin sitasi
+                                sesuai gaya pilihanmu (APA 7th, Harvard, IEEE, Chicago, Vancouver).</p>
                         </div>
                         <a href="{{ auth()->check() ? route('app.create', ['tab' => 'journals']) : route('login') }}"
                             class="feature-link">Cari Jurnal →</a>
@@ -2289,11 +2289,11 @@
                     </details>
 
                     <details class="faq-item">
-                        <summary>Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis APA 7th?</summary>
+                        <summary>Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis sesuai gaya sitasi?</summary>
                         <div class="faq-answer">
                             SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional &amp; internasional
                             terverifikasi DOI (<strong>Crossref &amp; OpenAlex</strong>), sehingga sitasi di dalam teks
-                            dan <strong>Daftar Pustaka APA 7th</strong> tersusun otomatis lengkap dengan tautan DOI aktif.
+                            dan <strong>Daftar Pustaka (APA 7th, Harvard, IEEE, Chicago, atau Vancouver)</strong> tersusun otomatis lengkap dengan tautan DOI aktif.
                         </div>
                     </details>
 
@@ -2397,7 +2397,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                 <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
-                <a href="{{ url('/tools') }}">Tools Gratis</a>
+                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
                 <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
                 <a href="{{ url('/tentang') }}">Tentang &amp; Pengembang</a>

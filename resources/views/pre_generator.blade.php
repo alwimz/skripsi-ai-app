@@ -3957,7 +3957,7 @@
                             </div>
                             <div class="dash-card-body" style="margin-top: 12px;">
                                 <h3>Cari Jurnal &amp; Download PDF</h3>
-                                <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi APA.</p>
+                                <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi otomatis.</p>
                             </div>
                         </div>
                         <div class="dash-card-foot">
@@ -4509,42 +4509,41 @@
                                 </select>
                             </div>
 
-                            <label class="form-label">Sumber referensi</label>
-                            <div class="responsive-grid-3" <label class="form-label">Sumber referensi <span
+                            <label class="form-label">Sumber referensi <span
                                     class="req">*</span> <span
                                     style="font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-left: 4px;">(Pilih
                                     minimal 1)</span></label>
-                                @php $oldSumberRef = is_array(old('sumber_referensi')) ? old('sumber_referensi') : []; @endphp
-                                <div id="sumber-referensi-group" class="responsive-grid-3"
-                                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                                    <label
-                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                        <input type="checkbox" name="sumber_referensi[]" value="Umum" checked <input
-                                            type="checkbox" name="sumber_referensi[]" value="Umum" {{ in_array('Umum', $oldSumberRef, true) ? 'checked' : '' }}
-                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                            style="accent-color: var(--primary);">
-                                        <span>Umum</span>
-                                    </label>
-                                    <label
-                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                        <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" checked
-                                            <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" {{ in_array('Terindeks Sinta', $oldSumberRef, true) ? 'checked' : '' }}
-                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                            style="accent-color: var(--primary);">
-                                        <span>Terindeks Sinta</span>
-                                    </label>
-                                    <label
-                                        style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
-                                        <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus" {{ in_array('Terindeks Scopus', $oldSumberRef, true) ? 'checked' : '' }}
-                                            onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
-                                            style="accent-color: var(--primary);">
-                                        <span>Terindeks Scopus</span>
-                                    </label>
-                                </div>
-                                <div id="sumber-referensi-error"
-                                    style="display: {{ $errors->has('sumber_referensi') ? 'block' : 'none' }}; margin-top: 8px; font-size: 12.5px; color: #dc2626; font-weight: 500;">
-                                    {{ $errors->first('sumber_referensi') ?: 'Silakan pilih minimal 1 Sumber Referensi.' }}
-                                </div>
+                            @php
+                                $hasOldSumber = is_array(old('sumber_referensi'));
+                                $oldSumberRef = $hasOldSumber ? old('sumber_referensi') : ['Umum', 'Terindeks Sinta'];
+                            @endphp
+                            <div id="sumber-referensi-group" class="responsive-grid-3"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Umum" {{ in_array('Umum', $oldSumberRef, true) ? 'checked' : '' }}
+                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                        style="accent-color: var(--primary);">
+                                    <span>Umum</span>
+                                </label>
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Sinta" {{ in_array('Terindeks Sinta', $oldSumberRef, true) ? 'checked' : '' }}
+                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                        style="accent-color: var(--primary);">
+                                    <span>Terindeks Sinta</span>
+                                </label>
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" name="sumber_referensi[]" value="Terindeks Scopus" {{ in_array('Terindeks Scopus', $oldSumberRef, true) ? 'checked' : '' }}
+                                        onchange="const err=document.getElementById('sumber-referensi-error'); const grp=document.getElementById('sumber-referensi-group'); if(document.querySelectorAll('input[name=\'sumber_referensi[]\']:checked').length>0){if(err)err.style.display='none'; if(grp)grp.style.outline='none';}"
+                                        style="accent-color: var(--primary);">
+                                    <span>Terindeks Scopus</span>
+                                </label>
+                            </div>
+                            <div id="sumber-referensi-error"
+                                style="display: {{ $errors->has('sumber_referensi') ? 'block' : 'none' }}; margin-top: 8px; font-size: 12.5px; color: #dc2626; font-weight: 500;">
+                                {{ $errors->first('sumber_referensi') ?: 'Silakan pilih minimal 1 Sumber Referensi.' }}
                             </div>
 
                             <!-- Card 8: Unggah Artikel atau Buku Referensi Wajib (Opsional) -->
@@ -5432,7 +5431,7 @@
                 <div class="page-eyebrow">Referensi Ilmiah Open-Access</div>
                 <h1 class="page-title">Cari Jurnal &amp; Unduh PDF Asli</h1>
                 <p class="page-subtitle">Temukan jurnal penelitian relevan dari Indonesia (Sinta/Garuda) maupun
-                    Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi APA.</p>
+                    Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi ilmiah otomatis.</p>
 
                 <div class="card">
                     <div class="form-row" style="margin-bottom: 0;">

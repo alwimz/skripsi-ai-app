@@ -34,21 +34,70 @@
 @endphp
 
 @if($bsPaid)
+    @php
+        $bsCardUid = 'sl-quota-' . substr(md5(($inWorkspace ? 'ws' : 'pub') . '|' . ($bsPlanName ?? 'plan')), 0, 8);
+        $quotaSummaryShort = ($bsAdmin || $bsUnlim)
+            ? '∞ Unlimited · ' . ($bsAdmin ? 'Selamanya' : ('Aktif s.d. ' . ($bs['expires_at_label'] ?? '-')))
+            : ("Sisa {$remainingQuota}/" . max($quotaLimit, $unlockedCount) . " naskah · " . ($remainingDays !== null ? "Sisa {$remainingDays} hari" : 'Aktif'));
+    @endphp
 <style>
     .sl-status-banner {
         background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
         color: #ffffff;
-        border-radius: 18px;
-        padding: 20px 22px;
-        margin-bottom: 20px;
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+        border-radius: 16px;
+        padding: 15px 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
     }
     .sl-status-top {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
-        gap: 14px;
+        gap: 12px;
         flex-wrap: wrap;
+    }
+    .sl-status-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .sl-quota-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .sl-quota-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(147, 197, 253, 0.55);
+    }
+    .sl-quota-toggle-btn svg {
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+    }
+    .sl-quota-toggle-btn[aria-expanded="true"] svg.sl-chevron {
+        transform: rotate(180deg);
+    }
+    .sl-status-details {
+        display: none;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .sl-status-details.open {
+        display: block;
     }
     .sl-status-pill {
         display: inline-flex;
@@ -69,8 +118,8 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 10px 16px;
-        border-radius: 12px;
+        padding: 9px 14px;
+        border-radius: 11px;
         background: #2563eb;
         border: 1px solid #3b82f6;
         color: #ffffff;
@@ -89,7 +138,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
         gap: 10px;
-        margin-top: 16px;
+        margin-top: 0;
     }
     .sl-quota-box {
         background: rgba(255, 255, 255, 0.09);
@@ -128,7 +177,7 @@
     }
 
     .sl-feat-status-wrap {
-        margin-top: 16px;
+        margin-top: 14px;
         padding-top: 14px;
         border-top: 1px solid rgba(255, 255, 255, 0.14);
     }
@@ -185,44 +234,66 @@
         border: 1px solid rgba(248, 113, 113, 0.35);
     }
     @media (max-width: 640px) {
-        .sl-status-banner { padding: 16px; border-radius: 14px; }
-        .sl-status-ref-btn { width: 100%; }
+        .sl-status-banner { padding: 14px; border-radius: 14px; }
+        .sl-status-actions { width: 100%; }
+        .sl-quota-toggle-btn, .sl-status-ref-btn { width: 100%; }
     }
 </style>
 
-<div class="sl-status-banner">
+<div class="sl-status-banner" id="{{ $bsCardUid }}">
     <div class="sl-status-top">
-        <div>
-            <span class="sl-status-pill">
-                {{ $bsPaid ? '✓ Langganan Aktif' : 'Tier Akun Saat Ini' }}
-            </span>
-            <div style="font-size: 21px; font-weight: 800; margin-top: 8px; line-height: 1.2;">
+        <div style="min-width: 0;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="sl-status-pill">
+                    {{ $bsPaid ? '✓ Langganan Aktif' : 'Tier Akun Saat Ini' }}
+                </span>
+                <span style="font-size: 12px; color: #93c5fd; font-weight: 600;">{{ $quotaSummaryShort }}</span>
+            </div>
+            <div style="font-size: 18px; font-weight: 800; margin-top: 6px; line-height: 1.25;">
                 {{ $bsPlanName }}
             </div>
-            <div style="font-size: 12.5px; color: #cbd5e1; margin-top: 4px;">
-                @if($bsAdmin)
-                    Akses penuh Administrator · Selamanya
-                @elseif($bsUnlim)
-                    Semua fitur AI &amp; generator Bab 1–5 aktif tanpa batas naskah hingga <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
-                @elseif($bsPaid)
-                    Paket kuota aktif hingga <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong> · bebas revisi tanpa sistem kredit
-                @else
-                    Proyek uji coba: <strong>Sisa {{ $freeProjectLeft }} dari 1 proyek</strong> (Sampul, Bab I &amp; Pustaka)
-                @endif
-            </div>
         </div>
-        @if($inWorkspace)
-            <button type="button" onclick="openTab('referral', 'Ajak Teman')" class="sl-status-ref-btn">
-                🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
+        <div class="sl-status-actions">
+            <button type="button"
+                class="sl-quota-toggle-btn"
+                id="{{ $bsCardUid }}-toggle"
+                aria-expanded="false"
+                aria-controls="{{ $bsCardUid }}-details"
+                onclick="var d=document.getElementById('{{ $bsCardUid }}-details'); var open=!d.classList.contains('open'); d.classList.toggle('open', open); this.setAttribute('aria-expanded', open ? 'true' : 'false'); var lbl=this.querySelector('.sl-toggle-label'); if(lbl) lbl.textContent=open ? 'Tutup Sisa Kuota' : 'Lihat Sisa Kuota';">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+                    <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+                </svg>
+                <span class="sl-toggle-label">Lihat Sisa Kuota</span>
+                <svg class="sl-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
             </button>
-        @else
-            <a href="{{ route('app.create', ['tab' => 'referral']) }}" class="sl-status-ref-btn">
-                🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
-            </a>
-        @endif
+            @if($inWorkspace)
+                <button type="button" onclick="openTab('referral', 'Ajak Teman')" class="sl-status-ref-btn">
+                    🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
+                </button>
+            @else
+                <a href="{{ route('app.create', ['tab' => 'referral']) }}" class="sl-status-ref-btn">
+                    🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
+                </a>
+            @endif
+        </div>
     </div>
 
-    <div class="sl-quota-cards">
+    <div id="{{ $bsCardUid }}-details" class="sl-status-details">
+        <div style="font-size: 12.5px; color: #cbd5e1; margin-bottom: 12px;">
+            @if($bsAdmin)
+                Akses penuh Administrator · Selamanya
+            @elseif($bsUnlim)
+                Semua fitur AI &amp; generator Bab 1–5 aktif tanpa batas naskah hingga <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
+            @elseif($bsPaid)
+                Paket kuota aktif hingga <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong> · bebas revisi tanpa sistem kredit
+            @else
+                Proyek uji coba: <strong>Sisa {{ $freeProjectLeft }} dari 1 proyek</strong> (Sampul, Bab I &amp; Pustaka)
+            @endif
+        </div>
+
+        <div class="sl-quota-cards">
         <div class="sl-quota-box">
             <div class="sl-quota-label">Kuota Proposal &amp; Skripsi (Bab 1–5)</div>
             @if($bsAdmin || $bsUnlim)
@@ -323,6 +394,7 @@
                 <span class="sl-feat-chip-val ok">Gratis Unlimited</span>
             </div>
         </div>
+    </div>
     </div>
 </div>
 @endif

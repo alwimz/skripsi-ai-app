@@ -9,7 +9,7 @@
         content="Kumpulan 10 tools mahasiswa gratis dari SkripsiLab AI: generator flowchart skripsi AI, rapikan format skripsi Word (.docx) tanpa ubah isi, konversi PDF ke Word, gabung &amp; pisah PDF, kompres PDF/Word/gambar, hapus background tanda tangan &amp; pas foto, JPG ke PDF A4, kalkulator Slovin &amp; Lemeshow, dan hitung kata.">
     <meta name="keywords"
         content="buat flowchart skripsi otomatis, rapikan format skripsi word otomatis, tools mahasiswa gratis, pdf ke word gratis, word ke pdf online, gabung pdf skripsi, pisah halaman pdf, kompres pdf siakad, kompres word docx, kompres gambar, hapus background tanda tangan pas foto, jpg ke pdf a4, kalkulator slovin lemeshow bab 3, hitung kata skripsi, skripsilab ai">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="{{ url('/tools') }}">
     <meta name="theme-color" content="#2563eb">
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
