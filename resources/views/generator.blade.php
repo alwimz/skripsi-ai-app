@@ -1322,6 +1322,13 @@
                 white-space: nowrap;
             }
 
+            .topbar-actions .topbar-tier-pill {
+                height: 32px;
+                font-size: 11px;
+                padding: 0 9px;
+                white-space: nowrap;
+            }
+
             .chapter-bar {
                 padding: 10px 12px;
                 flex-direction: column;
@@ -1710,17 +1717,6 @@
                 <span class="project-mode-badge" style="margin-top: 2px;">
                     {{ $isProposal ? 'Proposal (Bab I–III)' : 'Skripsi Penuh (Bab I–V)' }}
                 </span>
-                @php
-                    $isGenUnlocked = !empty($projectUnlocked);
-                @endphp
-                <div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 8px; background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border: 1px solid {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }};">
-                    <span style="font-size: 10.5px; font-weight: 700; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }};">
-                        {{ $isGenUnlocked ? '✓ Full Akses Aktif' : 'Paket Free' }}
-                    </span>
-                    <a href="{{ route('billing.plans') }}" style="font-size: 10.5px; font-weight: 700; color: #2563eb; text-decoration: none;">
-                        {{ $isGenUnlocked ? 'Paket' : 'Upgrade →' }}
-                    </a>
-                </div>
             </div>
 
             <div class="progress-wrap">
@@ -1824,19 +1820,22 @@
                     <div class="auto-box-title" style="display: flex; align-items: center; gap: 6px;">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
                         </svg>
-                        <span>Susun Otomatis</span>
+                        <span>Penulisan Berurutan</span>
                     </div>
                     <div class="auto-box-desc">
                         @if ($isProposal)
-                            Susun Bab I–III & Daftar Pustaka berurutan sesuai pengaturan awal proyekmu.
+                            Susun Bab I–III & Daftar Pustaka berurutan sesuai pengaturan proyekmu.
                         @else
-                            Susun berurutan Bab I–V & Daftar Pustaka sesuai struktur akademik.
+                            Susun berurutan Bab I–V & Daftar Pustaka sesuai struktur naskah.
                         @endif
                     </div>
                     <button type="button" class="btn-auto" id="btn-generate-all" onclick="generateSequential()">
-                        {{ $isProposal ? 'Generate Proposal (Bab I–III)' : 'Generate Skripsi (Bab I–V)' }}
+                        {{ $isProposal ? 'Susun Proposal (Bab I–III)' : 'Susun Skripsi (Bab I–V)' }}
                     </button>
                     @if ($isProposal)
                         <button type="button" class="btn-auto btn-auto-secondary" onclick="upgradeToFullSkripsi()">
@@ -1940,8 +1939,18 @@
                     </div>
                 </div>
 
+                @php
+                    $isGenUnlocked = !empty($projectUnlocked);
+                @endphp
                 <div class="topbar-actions">
                     <input type="hidden" id="studio-model" value="auto">
+                    <a href="{{ route('billing.plans') }}" class="btn-top topbar-tier-pill"
+                        style="background: {{ $isGenUnlocked ? '#f0fdf4' : '#fffbeb' }}; border-color: {{ $isGenUnlocked ? '#bbf7d0' : '#fde68a' }}; color: {{ $isGenUnlocked ? '#15803d' : '#b45309' }}; font-weight: 700; white-space: nowrap;">
+                        <span>{{ $isGenUnlocked ? '✓ Full Akses' : 'Paket Free' }}</span>
+                        @if(!$isGenUnlocked)
+                            <span style="color: #2563eb; font-weight: 800;">Upgrade →</span>
+                        @endif
+                    </a>
                     <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;"
                         onclick="saveActiveEdit()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1955,10 +1964,10 @@
                         onclick="generateCurrentView()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
-                            <polygon
-                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                         </svg>
-                        <span>Tulis / Susun Ulang Bab Ini</span>
+                        <span id="btn-generate-current-label">Tulis Bab Ini</span>
                     </button>
                 </div>
             </header>
@@ -2517,9 +2526,15 @@
             } else {
                 titleEl.textContent = chapterLabels[viewKey] || 'WORKSPACE';
                 genBtn.style.display = 'inline-flex';
-                genBtn.textContent = viewKey === 'daftar_pustaka'
-                    ? 'Rapikan / Susun Daftar Pustaka'
+                const genLblEl = document.getElementById('btn-generate-current-label');
+                const nextBtnLabel = viewKey === 'daftar_pustaka'
+                    ? 'Rapikan Daftar Pustaka'
                     : ((chapterContents[viewKey] || '').trim() ? 'Susun Ulang Bab Ini' : 'Tulis Bab Ini');
+                if (genLblEl) {
+                    genLblEl.textContent = nextBtnLabel;
+                } else {
+                    genBtn.textContent = nextBtnLabel;
+                }
             }
 
             if (window.innerWidth <= 900) {
@@ -5357,42 +5372,36 @@
 
             const raw = (chapterContents[activeView] || '').trim();
             if (!raw) {
+                const shortLabel = curH.num ? curH.num : curH.title;
                 container.innerHTML = `
-            <div class="a4-sheet empty-sheet-premium" style="min-height: 520px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 48px 32px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05); margin-bottom: 24px;">
-                <div style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #2563eb; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2);">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            <div class="a4-sheet empty-sheet-premium" style="min-height: 500px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 48px 32px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04); margin-bottom: 24px;">
+                <div style="width: 56px; height: 56px; border-radius: 14px; background: #f8fafc; border: 1px solid #e2e8f0; color: #1e3a8a; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 18px;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
                     </svg>
                 </div>
-                <div style="display: inline-block; padding: 4px 14px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">
+                <div style="display: inline-block; padding: 4px 12px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px;">
                     ${escapeHtml(curH.num ? (curH.num + ' · ' + curH.title) : curH.title)}
                 </div>
-                <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.01em;">
-                    Bagian Ini Belum Disusun
+                <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.01em;">
+                    Draf ${escapeHtml(shortLabel)} Belum Diisi
                 </h3>
-                <p style="font-size: 13.5px; color: #64748b; max-width: 480px; margin: 0 auto 24px; line-height: 1.6;">
-                    Klik tombol di bawah agar asisten AI menyusun seluruh sub-bab secara komprehensif, terstruktur, dan siap uji sidang sesuai kaidah akademik Indonesia.
+                <p style="font-size: 13.5px; color: #64748b; max-width: 450px; margin: 0 auto 22px; line-height: 1.6;">
+                    Susun draf awal ${escapeHtml(shortLabel)} secara terurut sesuai judul, metode, dan pustaka penelitian Anda.
                 </p>
                 <button type="button" class="btn-primary" onclick="generateCurrentView()"
-                    style="height: 46px; padding: 0 28px; font-size: 14px; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35); transition: all 0.15s;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    style="height: 44px; padding: 0 24px; font-size: 13.5px; font-weight: 700; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: background 0.15s;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                     </svg>
-                    <span>Mulai Susun ${escapeHtml(curH.num ? curH.num : curH.title)}</span>
+                    <span>Tulis ${escapeHtml(shortLabel)}</span>
                 </button>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; flex-wrap: wrap; font-size: 12px; color: #94a3b8;">
-                    <span style="display: inline-flex; align-items: center; gap: 5px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Sitasi Otomatis (APA 7th)
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 5px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Sesuai EYD V / KBBI
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 5px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Format Standar Skripsi S1
-                    </span>
+                <div style="margin-top: 20px; font-size: 12px; color: #94a3b8;">
+                    Format A4 &middot; Margin 4-4-3-3 &middot; Referensi Ber-DOI
                 </div>
             </div>
         `;
@@ -5453,7 +5462,7 @@
                 return;
             }
 
-            renderLoadingSheet(`Menyusun ${chapterLabels[activeView]}...`, 'AI sedang menulis paragraf akademik mendalam beserta referensi ilmiah.');
+            renderLoadingSheet(`Menyusun ${chapterLabels[activeView]}...`, 'Menyusun draf naskah sesuai struktur dan referensi penelitian Anda.');
             try {
                 const res = await fetch(`/project/${projectId}/generate`, {
                     method: 'POST',
@@ -5489,7 +5498,7 @@
                 selectChapterView(key);
                 const dot = document.getElementById(`dot-${key}`);
                 if (dot) dot.classList.add('generating');
-                renderLoadingSheet(`Menyusun Berurutan: ${chapterLabels[key]}...`, 'Mohon tunggu, AI sedang menulis setiap bab secara konsisten.');
+                renderLoadingSheet(`Menyusun Berurutan: ${chapterLabels[key]}...`, 'Menyusun setiap bab secara berurutan agar tetap konsisten.');
                 try {
                     const res = await fetch(`/project/${projectId}/generate`, {
                         method: 'POST',

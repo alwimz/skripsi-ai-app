@@ -101,6 +101,9 @@
                 <span>SkripsiLab AI</span>
             </a>
             <div class="topbar-actions">
+                @if(!empty($summary) && empty($summary['is_paid_active']))
+                    <span class="btn-nav" style="background:#fffbeb; border-color:#fde68a; color:#b45309; cursor:default; font-weight:700;">Paket Free</span>
+                @endif
                 <a href="{{ url('/tools') }}" class="btn-nav">10 Tools Gratis</a>
                 @auth
                     <a href="{{ route('app.create') }}" class="btn-nav primary">Kembali ke Workspace →</a>

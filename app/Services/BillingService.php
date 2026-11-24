@@ -362,13 +362,35 @@ class BillingService
         }
         [, $domain] = explode('@', $email, 2);
         $blocked = [
-            'mailinator.com', '10minutemail.com', '10minutemail.net', 'guerrillamail.com',
-            'guerrillamail.info', 'guerrillamail.biz', 'sharklasers.com', 'grr.la',
-            'tempmail.com', 'temp-mail.org', 'temp-mail.io', 'yopmail.com', 'yopmail.fr',
-            'getnada.com', 'maildrop.cc', 'throwawaymail.com', 'trashmail.com',
-            'dispostable.com', 'fakeinbox.com', 'mintemail.com', 'mohmal.com',
-            'emailondeck.com', 'mailnesia.com', 'tempr.email', 'burnermail.io',
-            'inboxbear.com', 'dropmail.me', 'mytemp.email', 'tmpmail.org',
+            'mailinator.com',
+            '10minutemail.com',
+            '10minutemail.net',
+            'guerrillamail.com',
+            'guerrillamail.info',
+            'guerrillamail.biz',
+            'sharklasers.com',
+            'grr.la',
+            'tempmail.com',
+            'temp-mail.org',
+            'temp-mail.io',
+            'yopmail.com',
+            'yopmail.fr',
+            'getnada.com',
+            'maildrop.cc',
+            'throwawaymail.com',
+            'trashmail.com',
+            'dispostable.com',
+            'fakeinbox.com',
+            'mintemail.com',
+            'mohmal.com',
+            'emailondeck.com',
+            'mailnesia.com',
+            'tempr.email',
+            'burnermail.io',
+            'inboxbear.com',
+            'dropmail.me',
+            'mytemp.email',
+            'tmpmail.org',
         ];
         if (in_array($domain, $blocked, true)) {
             return true;
@@ -533,7 +555,7 @@ class BillingService
             'allowed' => false,
             'upgrade_required' => true,
             'reason' => 'free_project_limit',
-            'message' => 'Akun Free hanya mencakup 1 proyek uji coba. Pilih Paket Starter (Rp15.000) atau Paket Hemat (Rp29.000) untuk membuat proyek baru dan generate full Bab I–V.',
+            'message' => 'Akun Free hanya mencakup 1 proyek uji coba. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka proyek baru secara penuh.',
         ];
     }
 
@@ -658,7 +680,7 @@ class BillingService
             'allowed' => false,
             'upgrade_required' => true,
             'reason' => 'chapter_locked',
-            'message' => 'Akun Free hanya dapat menyusun Sampul, Bab I, dan Daftar Pustaka. Aktifkan Paket Starter (Rp15.000) atau Paket Hemat (Rp29.000) untuk membuka Bab II–V secara penuh.',
+            'message' => 'Akun Free hanya dapat menyusun Sampul, Bab I, dan Daftar Pustaka. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka Bab II–V secara penuh.',
         ];
     }
 
@@ -677,7 +699,7 @@ class BillingService
             'allowed' => false,
             'upgrade_required' => true,
             'reason' => 'download_locked',
-            'message' => 'Download Word (.docx) & PDF (.pdf) siap cetak tersedia untuk Paket Starter mulai Rp15.000. Pekerjaan Anda tetap tersimpan dan langsung bisa diunduh setelah aktif.',
+            'message' => 'Download Word (.docx) & PDF (.pdf) siap cetak tersedia. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh — pekerjaan Anda tetap tersimpan.',
         ];
     }
 
@@ -701,7 +723,7 @@ class BillingService
                 'allowed' => false,
                 'upgrade_required' => true,
                 'reason' => 'free_tool_limit',
-                'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Upgrade ke Paket Starter (Rp15.000) atau Unlimited untuk akses bebas.",
+                'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
             ];
         }
 
@@ -733,7 +755,7 @@ class BillingService
                     'allowed' => false,
                     'upgrade_required' => true,
                     'reason' => 'free_tool_limit',
-                    'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Upgrade ke Paket Starter (Rp15.000) atau Unlimited untuk akses bebas.",
+                    'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
                 ];
             }
 

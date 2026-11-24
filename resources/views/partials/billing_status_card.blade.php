@@ -34,6 +34,7 @@
     ];
 @endphp
 
+@if($bsPaid)
 <style>
     .sl-status-banner {
         background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
@@ -307,3 +308,4 @@
         </div>
     </div>
 </div>
+@endif

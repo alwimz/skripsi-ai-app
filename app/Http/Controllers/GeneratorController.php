@@ -2743,7 +2743,7 @@ class GeneratorController extends Controller
                     ]);
 
                     if (!$this->billing()->markProjectStarted($authUser, $proj)) {
-                        throw new \RuntimeException('Akun Free hanya mencakup 1 proyek uji coba. Pilih Paket Starter (Rp15.000) atau Paket Hemat (Rp29.000) untuk membuat proyek baru.');
+                        throw new \RuntimeException('Akun Free hanya mencakup 1 proyek uji coba. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.');
                     }
 
                     return $proj;
