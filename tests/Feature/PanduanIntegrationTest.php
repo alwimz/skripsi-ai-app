@@ -49,6 +49,16 @@ class PanduanIntegrationTest extends TestCase
         $response->assertSee('Panduan Lengkap Workspace', false);
         $response->assertSee('Panduan Cari Judul Skripsi Otomatis Sesuai Jurusan &amp; 9 Metode Penelitian', false);
         $response->assertDontSee('route(\'panduan.index\')', false);
+
+        $html = $response->getContent();
+        $this->assertStringContainsString('</html>', $html);
+        $this->assertStringContainsString('function toggleSidebar()', $html);
+        $this->assertStringContainsString('function submitReferralWithdraw(', $html);
+        $this->assertSame(
+            preg_match_all('/<script\b/i', $html),
+            preg_match_all('/<\/script>/i', $html),
+            'Every <script> tag in dashboard HTML must be closed properly.'
+        );
     }
 
     public function test_landing_page_routes_authenticated_users_to_internal_panduan_tab(): void
