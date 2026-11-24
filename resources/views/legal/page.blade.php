@@ -91,7 +91,7 @@
         }
         html, body {
             max-width: 100%;
-            overflow-x: hidden;
+            overflow-x: clip;
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -112,6 +112,7 @@
         }
         .topbar-inner {
             max-width: 1040px;
+            width: 100%;
             margin: 0 auto;
             padding: 12px 20px;
             display: flex;
@@ -122,12 +123,13 @@
         .brand {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             text-decoration: none;
             font-weight: 800;
             font-size: 1.02rem;
             letter-spacing: -0.02em;
             white-space: nowrap;
+            min-width: 0;
         }
         .brand img {
             width: 30px;
@@ -140,14 +142,15 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
         }
         .nav-link {
             text-decoration: none;
             font-size: 0.84rem;
             font-weight: 600;
             color: var(--muted);
-            padding: 7px 12px;
+            padding: 7px 11px;
             border-radius: 9px;
             white-space: nowrap;
             transition: background 0.15s ease, color 0.15s ease;
@@ -169,17 +172,25 @@
             padding: 8px 14px;
             border-radius: 9px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .nav-cta:hover { background: var(--primary-hover); }
 
         .page-wrap {
             max-width: 1040px;
+            width: 100%;
             margin: 0 auto;
             padding: 28px 20px 56px;
             display: grid;
             grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
             gap: 24px;
             align-items: start;
+        }
+        .page-wrap > aside,
+        .page-wrap > article {
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
         }
 
         .side-card {
@@ -189,6 +200,9 @@
             padding: 18px;
             position: sticky;
             top: 76px;
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
         }
         .side-label {
             font-size: 0.72rem;
@@ -202,7 +216,10 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            width: 100%;
+            min-width: 0;
         }
+        .side-nav::-webkit-scrollbar { display: none; }
         .side-item {
             display: block;
             text-decoration: none;
@@ -264,6 +281,10 @@
             border-radius: 20px;
             padding: 32px;
             box-shadow: 0 12px 30px -22px rgba(15, 23, 42, 0.25);
+            min-width: 0;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
         .breadcrumb {
             display: flex;
@@ -327,6 +348,9 @@
             border: 1px solid var(--border);
             border-radius: 14px;
             background: #ffffff;
+            min-width: 0;
+            max-width: 100%;
+            overflow-wrap: anywhere;
         }
         .legal-section h2 {
             display: flex;
@@ -433,9 +457,9 @@
 
         @media (max-width: 840px) {
             .page-wrap {
-                grid-template-columns: 1fr;
-                padding: 18px 14px 40px;
-                gap: 16px;
+                grid-template-columns: minmax(0, 1fr);
+                padding: 16px 14px 40px;
+                gap: 14px;
             }
             .side-card {
                 position: static;
@@ -446,24 +470,40 @@
                 overflow-x: auto;
                 gap: 6px;
                 padding-bottom: 2px;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
             }
             .side-item {
                 white-space: nowrap;
                 flex-shrink: 0;
+                padding: 8px 11px;
+                font-size: 0.83rem;
             }
             .content-card {
-                padding: 22px 18px;
+                padding: 20px 16px;
                 border-radius: 16px;
             }
             .legal-section {
-                padding: 16px;
+                padding: 15px;
+            }
+            .legal-section h2 {
+                font-size: 0.98rem;
+                align-items: flex-start;
             }
         }
-        @media (max-width: 600px) {
-            .topbar-inner { padding: 10px 14px; }
+        @media (max-width: 640px) {
+            .topbar-inner { padding: 10px 14px; gap: 8px; }
             .nav-links .hide-xs { display: none; }
-            .brand { font-size: 0.95rem; }
+            .brand { font-size: 0.94rem; gap: 7px; }
+            .brand img { width: 27px; height: 27px; }
+            .nav-link { padding: 6px 9px; font-size: 0.8rem; }
             .nav-cta { padding: 7px 11px; font-size: 0.8rem; }
+            h1 { font-size: 1.35rem; }
+            .subtitle { font-size: 0.9rem; padding-bottom: 16px; margin-bottom: 18px; }
+            .legal-section p, .legal-section li { font-size: 0.88rem; }
+            .bottom-banner { padding: 14px; }
+            .banner-actions { width: 100%; }
+            .banner-actions a { flex: 1 1 auto; text-align: center; justify-content: center; }
         }
     </style>
 </head>
@@ -476,11 +516,11 @@
                 <span>{{ $brand_name }}</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Utama">
-                <a href="{{ url('/') }}" class="nav-link hide-xs">Beranda</a>
+                <a href="{{ url('/') }}" class="nav-link">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
                 <a href="{{ url('/tools') }}" class="nav-link hide-xs">Tools Gratis</a>
-                <a href="{{ url('/kebijakan-privasi') }}" class="nav-link {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
-                <a href="{{ url('/syarat-ketentuan') }}" class="nav-link {{ $page['key'] === 'terms' ? 'active' : '' }}">Ketentuan</a>
+                <a href="{{ url('/kebijakan-privasi') }}" class="nav-link hide-xs {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
+                <a href="{{ url('/syarat-ketentuan') }}" class="nav-link hide-xs {{ $page['key'] === 'terms' ? 'active' : '' }}">Ketentuan</a>
                 <a href="{{ url('/tentang') }}" class="nav-link hide-xs {{ $page['key'] === 'about' ? 'active' : '' }}">Tentang</a>
                 <a href="{{ route('login') }}" class="nav-cta">Masuk</a>
             </nav>

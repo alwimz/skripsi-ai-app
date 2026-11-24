@@ -1691,18 +1691,18 @@
                             <input type="checkbox" id="tidy-opt-pagenum" onchange="onToggleTidyPageNum()">
                             <span><strong>Rapikan Penomoran Halaman Skripsi Otomatis:</strong> Pisahkan Section <code>Cover</code> (tanpa nomor), <code>Bagian Awal</code> (Romawi <code>i, ii, iii</code> tengah bawah), dan <code>BAB I–V</code> + <code>DAFTAR PUSTAKA</code> (mulai angka <code>1, 2, 3</code>) dengan Word native <em>Section Break</em> &amp; <em>Page Field</em> tanpa merusak tata letak atau bagian Landscape.</span>
                         </label>
-                        <div id="tidy-pagenum-subopts" class="form-grid-2" style="display:none; width:100%; padding-left:24px; margin-bottom:0; gap:10px;">
-                            <div>
+                        <div id="tidy-pagenum-subopts" class="form-grid-2" style="display:none; width:100%; min-width:0; padding-left:0; margin-bottom:0; gap:10px;">
+                            <div style="min-width:0;">
                                 <label class="form-label" for="tidy-pagenum-layout" style="font-size:11.5px; margin-bottom:4px;">Letak Nomor Bagian Isi (BAB I–V &amp; Pustaka)</label>
-                                <select id="tidy-pagenum-layout" class="form-select" style="font-size:12.5px; min-height:36px;">
+                                <select id="tidy-pagenum-layout" class="form-select" style="font-size:12.5px; min-height:36px; width:100%;">
                                     <option value="bab_bottom_right" selected>Standar Skripsi (Awal BAB Tengah Bawah, Isi Kanan Atas)</option>
                                     <option value="all_bottom_center">Semua Tengah Bawah (Awal BAB &amp; Isi di Tengah Bawah)</option>
                                     <option value="all_top_right">Kanan Atas Semua (Seluruh Halaman BAB I–V di Kanan Atas)</option>
                                 </select>
                             </div>
-                            <div>
+                            <div style="min-width:0;">
                                 <label class="form-label" for="tidy-pagenum-roman-start" style="font-size:11.5px; margin-bottom:4px;">Nomor Awal Bagian Depan (Jika Ada Cover)</label>
-                                <select id="tidy-pagenum-roman-start" class="form-select" style="font-size:12.5px; min-height:36px;">
+                                <select id="tidy-pagenum-roman-start" class="form-select" style="font-size:12.5px; min-height:36px; width:100%;">
                                     <option value="2" selected>Mulai ii (Cover dihitung i tersembunyi — Umum di Kampus)</option>
                                     <option value="1">Mulai i (Halaman pertama setelah Cover bernomor i)</option>
                                 </select>
