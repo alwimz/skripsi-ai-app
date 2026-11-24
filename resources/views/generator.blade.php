@@ -412,8 +412,7 @@
         .studio-topbar {
             min-height: var(--topbar-h);
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
+            background: #ffffff;
             border-bottom: 1px solid var(--border);
             padding: 8px 20px;
             display: flex;
@@ -421,7 +420,7 @@
             justify-content: space-between;
             gap: 10px;
             z-index: 30;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .topbar-left {
@@ -435,6 +434,7 @@
         .btn-icon {
             width: 34px;
             height: 34px;
+            flex-shrink: 0;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: #ffffff;
@@ -1282,7 +1282,8 @@
             }
 
             .topbar-left {
-                width: auto;
+                min-width: 0;
+                flex: 1;
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -1290,10 +1291,15 @@
 
             .topbar-brand-label {
                 font-size: 13px !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
             }
 
             .topbar-actions {
                 width: auto;
+                flex-shrink: 0;
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
@@ -1320,14 +1326,6 @@
                 font-size: 11.5px;
                 padding: 0 10px;
                 white-space: nowrap;
-            }
-
-            .topbar-actions .topbar-tier-pill {
-                height: 32px;
-                font-size: 11px;
-                padding: 0 9px;
-                white-space: nowrap;
-                text-decoration: none;
             }
 
             .chapter-bar {
@@ -1933,30 +1931,15 @@
                 <div class="topbar-left">
                     <button type="button" class="btn-icon" onclick="toggleStudioSidebar()" aria-label="Toggle Sidebar"
                         title="Buka/Tutup Sidebar">☰</button>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="min-width: 0; flex: 1;">
                         <span class="topbar-brand-label"
                             style="font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.01em;">Workspace
                             Penulisan</span>
                     </div>
                 </div>
 
-                @php
-                    $isGenUnlocked = !empty($projectUnlocked);
-                @endphp
                 <div class="topbar-actions">
                     <input type="hidden" id="studio-model" value="auto">
-                    @if($isGenUnlocked)
-                        <span class="btn-top topbar-tier-pill"
-                            style="background: #f0fdf4; border-color: #bbf7d0; color: #15803d; font-weight: 700; white-space: nowrap; cursor: default;">
-                            <span>✓ Full Akses</span>
-                        </span>
-                    @else
-                        <a href="{{ route('app.create', ['tab' => 'pricing']) }}" class="btn-top topbar-tier-pill"
-                            style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 700; white-space: nowrap; text-decoration: none;">
-                            <span>Paket Free</span>
-                            <span style="color: #2563eb; font-weight: 800; text-decoration: none;">Upgrade →</span>
-                        </a>
-                    @endif
                     <button type="button" class="btn-top success" id="btn-save-edit" style="display: none;"
                         onclick="saveActiveEdit()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"

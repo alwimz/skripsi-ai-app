@@ -412,7 +412,11 @@ class GeneratorController extends Controller
         ];
 
         try {
-            $recentProjects = Project::where('user_id', $userId)->orderBy('updated_at', 'desc')->take(10)->get();
+            $recentProjects = Project::where('user_id', $userId)
+                ->select(['id', 'prodi', 'citation_validation'])
+                ->orderBy('updated_at', 'desc')
+                ->take(10)
+                ->get();
             foreach ($recentProjects as $proj) {
                 $m = $this->getProjectMeta($proj);
                 if (empty($identity['nama']) && !empty($m['nama']))

@@ -47,6 +47,7 @@
             color: var(--text-main);
             line-height: 1.55;
             -webkit-font-smoothing: antialiased;
+            overflow-wrap: break-word;
             display: flex;
             min-height: 100vh;
             min-height: 100dvh;
@@ -283,8 +284,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
+            gap: 10px;
+            background: #ffffff;
             position: sticky;
             top: 0;
             z-index: 20;
@@ -357,28 +358,19 @@
         .page-content {
             width: 100%;
             max-width: 1180px;
+            min-width: 0;
             margin: 0 auto;
             padding: 32px 32px 80px;
         }
 
         .tab-pane {
             display: none;
-        }
-
-        @keyframes tabFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            contain: layout style;
+            min-width: 0;
         }
 
         .tab-pane.active {
             display: block;
-            animation: tabFadeIn 0.22s var(--ease-out);
         }
 
         .page-eyebrow {
@@ -415,6 +407,8 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 24px;
+            min-width: 0;
+            max-width: 100%;
             box-shadow: var(--shadow-card);
         }
 
@@ -422,8 +416,18 @@
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 16px;
+            min-width: 0;
+            max-width: 100%;
             overflow: hidden;
             box-shadow: var(--shadow-card);
+        }
+
+        .form-row > *,
+        .dash-grid > *,
+        .responsive-grid-2 > *,
+        .responsive-grid-3 > *,
+        .responsive-grid-title-logo > * {
+            min-width: 0;
         }
 
         .card-header-bar {
@@ -485,6 +489,8 @@
         .form-select,
         .form-textarea {
             width: 100%;
+            max-width: 100%;
+            min-width: 0;
             min-height: 44px;
             font-family: inherit;
             font-size: 14px;
@@ -722,11 +728,11 @@
             margin-top: 2px;
         }
 
-        /* Dashboard Grid */
+        /* Dashboard Grid — Balanced 3-Column Bento UI/UX */
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
             margin-top: 20px;
         }
 
@@ -734,13 +740,16 @@
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 20px 22px;
+            padding: 18px 20px;
             cursor: pointer;
             box-shadow: var(--shadow-card);
-            transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+            transition: border-color 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out), transform 0.16s var(--ease-out);
             display: flex;
-            align-items: flex-start;
-            gap: 15px;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+            position: relative;
         }
 
         .dash-card:hover {
@@ -753,9 +762,25 @@
             transform: translateY(0) scale(0.99);
         }
 
+        .dash-card--featured {
+            background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
+            border-color: #93c5fd;
+        }
+
+        .dash-card--featured:hover {
+            border-color: var(--primary);
+        }
+
+        .dash-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
         .dash-icon {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 11px;
             background: var(--bg-muted);
             color: var(--primary);
@@ -763,7 +788,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out);
+            transition: background 0.16s var(--ease-out), color 0.16s var(--ease-out);
         }
 
         .dash-card:hover .dash-icon {
@@ -771,19 +796,80 @@
             color: #ffffff;
         }
 
-        .dash-card h3 {
+        .dash-card--featured .dash-icon {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .dash-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .dash-card--featured .dash-tag {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        .dash-tag--green {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .dash-card-body h3 {
             font-size: 15px;
             font-weight: 700;
             color: var(--text-main);
             margin-bottom: 5px;
             letter-spacing: -0.01em;
+            line-height: 1.3;
         }
 
-        .dash-card p {
-            font-size: 13px;
+        .dash-card-body p {
+            font-size: 12.8px;
             color: var(--text-muted);
             line-height: 1.5;
             text-wrap: pretty;
+        }
+
+        .dash-card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .dash-card--featured .dash-card-foot {
+            border-top-color: #dbeafe;
+        }
+
+        .dash-arrow {
+            transition: transform 0.16s var(--ease-out);
+        }
+
+        .dash-card:hover .dash-arrow {
+            transform: translateX(3px);
+        }
+
+        @media (max-width: 1080px) {
+            .dash-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         /* Interactive PPT Studio (16:9 Slide Canvas & 13 Premium Designer Templates) */
@@ -1818,13 +1904,6 @@
                 gap: 8px !important;
             }
 
-            @media (max-width: 440px) {
-                .theme-card-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                    gap: 6px !important;
-                }
-            }
-
             .theme-chip {
                 padding: 8px 6px !important;
                 border-radius: 8px !important;
@@ -1891,20 +1970,26 @@
             }
         }
 
+        @media (max-width: 440px) {
+            .theme-card-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 6px !important;
+            }
+        }
+
         @media (max-width: 640px) {
-            body {
-                overflow-x: hidden;
+            .dash-card {
+                padding: 15px 16px;
+                gap: 10px;
             }
 
             .form-input,
             .form-select,
             .form-textarea {
                 font-size: 16px;
-                min-height: 46px;
-                font-size: 13.5px;
-                min-height: 39px;
-                padding: 8px 11px;
-                border-radius: 9px;
+                min-height: 44px;
+                padding: 9px 12px;
+                border-radius: 10px;
             }
 
             .form-label {
@@ -3357,131 +3442,203 @@
                 @endif
 
                 <div class="dash-grid">
-                    <div class="dash-card" onclick="openCreateProjectForm()">
-                        <div class="dash-icon" style="background: var(--primary-soft); color: var(--primary);">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                        </div>
+                    <div class="dash-card dash-card--featured" onclick="openCreateProjectForm()">
                         <div>
-                            <h3>Buat Proyek Baru (Proposal / Skripsi)</h3>
-                            <p>Susun Proposal (Bab 1–3) atau Full Skripsi (Bab 1–5) lengkap sesuai pedoman kampus.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">Utama</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Buat Proyek Baru</h3>
+                                <p>Susun Proposal (Bab 1–3) atau Full Skripsi (Bab 1–5) lengkap sesuai pedoman kampus.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Mulai susun naskah</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('titles', 'Cari Judul')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Cari Judul Skripsi</h3>
-                            <p>Dapatkan saran judul penelitian sesuai topik, jurusan, dan metodologi.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #eef2ff; color: #4338ca;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">10 Ide AI</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Cari Judul Skripsi</h3>
+                                <p>Dapatkan saran judul penelitian sesuai topik, jurusan, dan metodologi.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Cari rekomendasi</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('ppt', 'Generate PPT Sidang')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <rect x="2" y="3" width="20" height="14" rx="2" />
-                                <line x1="8" y1="21" x2="16" y2="21" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Generate PPT Sidang</h3>
-                            <p>Buat slide sidang otomatis dari proyek skripsimu, edit tema, lalu unduh .pptx.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #fff7ed; color: #c2410c;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">Auto Slide</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Generate PPT Sidang</h3>
+                                <p>Buat slide sidang otomatis dari proyek skripsimu, edit tema, lalu unduh .pptx.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Buka PPT Studio</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('defense', 'Simulasi Sidang')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                                <path d="M6 12v5c3 3 9 3 12 0v-5" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Simulasi Sidang</h3>
-                            <p>Latihan tanya-jawab dengan penguji AI lengkap dengan skor dan saran jawaban.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #f5f3ff; color: #6d28d9;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">Uji Penguji</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Simulasi Sidang</h3>
+                                <p>Latihan tanya-jawab dengan penguji AI lengkap dengan skor dan saran jawaban.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Mulai latihan</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('journals', 'Cari Jurnal')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Cari Jurnal & Download PDF</h3>
-                            <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi APA.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #ecfeff; color: #0e7490;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">DOI &amp; PDF</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Cari Jurnal &amp; Download PDF</h3>
+                                <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi APA.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Telusuri jurnal</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('paraphrase', 'Parafrase')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Parafrase Akademik</h3>
-                            <p>Ubah kalimat kutipan menjadi bahasa ilmiah baku tanpa mengubah makna.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #fdf2f8; color: #be185d;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">Anti-Plagiat</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Parafrase Akademik</h3>
+                                <p>Ubah kalimat kutipan menjadi bahasa ilmiah baku tanpa mengubah makna.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Mulai parafrase</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('olahdata', 'Olah Data')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M18 20V10" />
-                                <path d="M12 20V4" />
-                                <path d="M6 20v-6" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Olah Data Statistik (Setara SPSS)</h3>
-                            <p>Hitung Validitas, Reliabilitas, Regresi, Asumsi Klasik, ANOVA (Teknik/Lab), t-Test, Chi-Square &amp; Generator Kuesioner.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #ecfdf5; color: #047857;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M18 20V10" />
+                                        <path d="M12 20V4" />
+                                        <path d="M6 20v-6" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag dash-tag--green">SPSS &amp; Kuesioner</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Olah Data Statistik (Setara SPSS)</h3>
+                                <p>Hitung Validitas, Reliabilitas, Regresi, Asumsi Klasik, ANOVA, t-Test &amp; Generator Kuesioner.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Buka olah data</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('qa', 'Dosen AI')">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Dosen AI (Konsultasi 24 Jam)</h3>
-                            <p>Diskusi metodologi, olah data statistik, revisi dosen, hingga unggah foto soal atau tabel.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #eff6ff; color: #1d4ed8;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag dash-tag--green">Gratis 24 Jam</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Dosen AI (Konsultasi 24 Jam)</h3>
+                                <p>Diskusi metodologi, olah data statistik, revisi dosen, hingga unggah foto soal atau tabel.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Tanya Dosen AI</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
 
                     <div class="dash-card" onclick="openTab('projects', 'Proyek Saya'); showProjectListView();">
-                        <div class="dash-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" />
-                            </svg>
-                        </div>
                         <div>
-                            <h3>Proyek Saya ({{ $history->count() }})</h3>
-                            <p>Kelola seluruh naskah Proposal &amp; Skripsi, unggah Lampiran, dan ekspor Word/PDF.</p>
+                            <div class="dash-card-top">
+                                <div class="dash-icon" style="background: #f8fafc; color: #334155;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" y1="13" x2="8" y2="13" />
+                                        <line x1="16" y1="17" x2="8" y2="17" />
+                                    </svg>
+                                </div>
+                                <span class="dash-tag">{{ $history->count() }} Proyek</span>
+                            </div>
+                            <div class="dash-card-body" style="margin-top: 12px;">
+                                <h3>Proyek Saya</h3>
+                                <p>Kelola seluruh naskah Proposal &amp; Skripsi, unggah Lampiran, dan ekspor Word/PDF.</p>
+                            </div>
+                        </div>
+                        <div class="dash-card-foot">
+                            <span>Buka daftar proyek</span>
+                            <span class="dash-arrow">→</span>
                         </div>
                     </div>
                 </div>
@@ -3656,7 +3813,7 @@
                                 style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">
                                 Pilih Target Penulisan <span class="req">*</span></div>
                             <div class="responsive-grid-2"
-                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px;">
                                 <label id="label-target-proposal" class="target-choice-card"
                                     style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 15px; border: 1.5px solid var(--primary); border-radius: 11px; cursor: pointer; background: #f8fbff; transition: all 0.2s;">
                                     <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 170px;">
@@ -4475,7 +4632,7 @@
                     </div>
 
                     <div id="ppt-grid-preview-list"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px;">
                         <!-- Di-render oleh JS: semua slide tampil rapi sebelum download -->
                     </div>
                 </div>
@@ -4940,7 +5097,7 @@
                     </div>
 
                     <!-- Opsi Gaya, Intensitas, & Istilah Terkunci (2 baris sejajar & 100% responsif) -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 12px; align-items: end;">
+                    <div class="responsive-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin-bottom: 12px; align-items: end;">
                         <div>
                             <label class="form-label" for="para-style">Mode Parafrase</label>
                             <select id="para-style" class="form-select" style="height: 40px;">
@@ -4954,10 +5111,10 @@
                         </div>
                         <div>
                             <label class="form-label">Intensitas Perubahan</label>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; height: 40px;">
-                                <button type="button" class="btn-outline para-int-btn" data-intensity="ringan" onclick="setParaIntensity('ringan', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center;">Ringan</button>
-                                <button type="button" class="btn-outline para-int-btn active" data-intensity="sedang" onclick="setParaIntensity('sedang', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 700;">Sedang</button>
-                                <button type="button" class="btn-outline para-int-btn" data-intensity="maksimal" onclick="setParaIntensity('maksimal', this)" style="height: 40px; padding: 0 8px; font-size: 12.5px; justify-content: center;">Maksimal</button>
+                            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; min-height: 40px;">
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="ringan" onclick="setParaIntensity('ringan', this)" style="min-height: 40px; padding: 6px; font-size: 12.5px; justify-content: center;">Ringan</button>
+                                <button type="button" class="btn-outline para-int-btn active" data-intensity="sedang" onclick="setParaIntensity('sedang', this)" style="min-height: 40px; padding: 6px; font-size: 12.5px; justify-content: center; background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; font-weight: 700;">Sedang</button>
+                                <button type="button" class="btn-outline para-int-btn" data-intensity="maksimal" onclick="setParaIntensity('maksimal', this)" style="min-height: 40px; padding: 6px; font-size: 12.5px; justify-content: center;">Maksimal</button>
                             </div>
                             <input type="hidden" id="para-intensity" value="sedang">
                         </div>
@@ -5014,7 +5171,7 @@
                             <span style="display: inline-block; padding: 1px 6px; background: #dcfce7; color: #166534; border-radius: 4px; font-weight: 600;">Hijau</span> = frasa/kata baru hasil parafrase &nbsp;·&nbsp;
                             <span style="display: inline-block; padding: 1px 6px; background: #fee2e2; color: #991b1b; border-radius: 4px; text-decoration: line-through;">Merah</span> = kata asli yang diganti
                         </div>
-                        <div class="responsive-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                        <div class="responsive-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px;">
                             <div style="padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #fafafa;">
                                 <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Teks Asli</div>
                                 <div id="para-diff-orig" style="font-size: 13.5px; line-height: 1.75; color: #334155;"></div>
@@ -5406,7 +5563,7 @@
                         </div>
 
                         <!-- Konteks & Alpha -->
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:14px;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:12px; margin-bottom:14px;">
                             <div>
                                 <label class="form-label" for="od-topic-input">Judul / Konteks Penelitian (Opsional)</label>
                                 <input type="text" id="od-topic-input" class="form-input" placeholder="cth: Pengaruh Variasi Fly Ash terhadap Kuat Tekan Beton">
@@ -5528,7 +5685,7 @@
                             </button>
                         </div>
 
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-bottom:12px;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap:12px; margin-bottom:12px;">
                             <div>
                                 <label class="form-label" for="od-inst-topic">Judul / Topik Penelitian <span style="color:#dc2626;">*</span></label>
                                 <input type="text" id="od-inst-topic" class="form-input" placeholder="cth: Pengaruh Motivasi & Disiplin Kerja terhadap Kinerja Karyawan">
@@ -5880,7 +6037,7 @@
                 </p>
 
                 <!-- Statistik Live Referral -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:12px; margin-bottom:18px;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 165px), 1fr)); gap:12px; margin-bottom:18px;">
                     <div class="card" style="padding:14px 16px;">
                         <div style="font-size:11.5px; font-weight:600; color:#64748b;">Teman Mendaftar</div>
                         <div style="font-size:22px; font-weight:800; color:#0f172a; margin-top:4px;">{{ number_format((int) ($refStats['invited_count'] ?? 0)) }}</div>
@@ -5963,7 +6120,7 @@
 
                     <div class="card">
                         <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Ajukan Pencairan Dana / Rekening</div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <div class="responsive-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
                             <select id="ref-wd-channel" class="form-select">
                                 <option value="DANA">DANA</option>
                                 <option value="GoPay">GoPay</option>
@@ -5973,7 +6130,7 @@
                             </select>
                             <input type="number" id="ref-wd-amount" class="form-input" placeholder="Nominal (min 10000)" min="10000" value="{{ max(10000, $refBalance) }}">
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <div class="responsive-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
                             <input type="text" id="ref-wd-number" class="form-input" placeholder="Nomor HP / Rekening">
                             <input type="text" id="ref-wd-name" class="form-input" placeholder="Atas Nama Pemilik">
                         </div>
@@ -6183,6 +6340,25 @@
             return el ? (el.value || 'auto') : 'auto';
         }
 
+        function isUpgradeRequiredResponse(res, data) {
+            return !!(res && res.status === 402)
+                || !!(data && (data.status === 'upgrade_required' || data.requires_upgrade));
+        }
+
+        function handleToolQuotaOrError(res, data, fallbackMsg, inlineErrorFn) {
+            const msg = (data && data.message) || fallbackMsg;
+            if (isUpgradeRequiredResponse(res, data) && typeof window.openUpgradeModal === 'function') {
+                window.openUpgradeModal(msg, data && data.reason);
+                return true;
+            }
+            if (typeof inlineErrorFn === 'function') {
+                inlineErrorFn(msg);
+            } else {
+                alert(msg);
+            }
+            return false;
+        }
+
         function renderLoadingCard(boxId, titleText, subText) {
             const box = document.getElementById(boxId);
             if (!box) return;
@@ -6256,7 +6432,7 @@
             if (createView) createView.style.display = 'block';
 
             closeSidebarMobile();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo(0, 0);
         }
 
         function showProjectCreateForm() {
@@ -6295,7 +6471,7 @@
             } catch (e) { }
 
             closeSidebarMobile();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo(0, 0);
         }
 
         // Buka tab sesuai URL hash / query param / localStorage (Refresh tetap konsisten)
@@ -6748,7 +6924,7 @@
                     });
                     document.getElementById('titles-result-box').style.display = 'block';
                 } else {
-                    alert(data.message || 'Gagal mencari judul.');
+                    handleToolQuotaOrError(res, data, 'Gagal mencari judul.');
                 }
             } catch (e) {
                 alert('Terjadi kesalahan koneksi.');
@@ -7121,6 +7297,10 @@
                     renderCurrentSlide();
                     setPptStep(3);
                 } else {
+                    if (isUpgradeRequiredResponse(res, data) && typeof window.openUpgradeModal === 'function') {
+                        window.openUpgradeModal(data.message || 'Jatah coba gratis PPT Sidang sudah terpakai. Aktifkan paket mulai Rp15.000.');
+                        return;
+                    }
                     applyClientFallbackPptSlides();
                     activeSavedPptId = null;
                     scheduleAutoSavePptDeck(true);
@@ -8344,7 +8524,7 @@
                     renderDefenseQuestion();
                     setDefenseStep(2);
                 } else {
-                    alert(data.message || 'Gagal menyiapkan pertanyaan sidang.');
+                    handleToolQuotaOrError(res, data, 'Gagal menyiapkan pertanyaan sidang.');
                 }
             } catch (e) {
                 alert('Terjadi kesalahan saat memulai simulasi sidang.');
@@ -8414,7 +8594,7 @@
                     renderDefenseEvaluation(data.evaluation);
                     setDefenseStep(3);
                 } else {
-                    alert(data.message || 'Gagal mengevaluasi jawaban.');
+                    handleToolQuotaOrError(res, data, 'Gagal mengevaluasi jawaban.');
                 }
             } catch (e) {
                 alert('Gagal mengevaluasi sesi sidang.');
@@ -8526,7 +8706,7 @@
                     renderJournalsList('all');
                     document.getElementById('journals-result-box').style.display = 'block';
                 } else {
-                    alert(data.message || 'Gagal mencari jurnal.');
+                    handleToolQuotaOrError(res, data, 'Gagal mencari jurnal.');
                 }
             } catch (e) {
                 alert('Terjadi kesalahan saat mencari jurnal.');
@@ -8924,7 +9104,7 @@
                     document.getElementById('para-result-card').style.display = 'block';
                     document.getElementById('para-result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } else {
-                    alert(data.message || 'Gagal memproses parafrase.');
+                    handleToolQuotaOrError(res, data, 'Gagal memproses parafrase.');
                 }
             } catch (e) {
                 alert('Gagal memproses parafrase.');
@@ -9124,7 +9304,7 @@
                         msgBox.scrollTop = msgBox.scrollHeight;
                     }
                 } else {
-                    alert(data.message || 'Gagal memproses pertanyaan.');
+                    handleToolQuotaOrError(res, data, 'Gagal memproses pertanyaan.');
                 }
             } catch (e) {
                 const typingEl = document.getElementById(typingId);
@@ -9292,7 +9472,7 @@
                         resWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 } else {
-                    showPlagError(data.message || 'Gagal memeriksa kemiripan naskah.');
+                    handleToolQuotaOrError(res, data, 'Gagal memeriksa kemiripan naskah.', showPlagError);
                 }
             } catch (err) {
                 hideLoadingCard('plag-loading-box');
@@ -9479,7 +9659,14 @@
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                     body: JSON.stringify({ report: plagCurrentReport })
                 });
-                if (!res.ok) throw new Error('Gagal membuat PDF.');
+                if (!res.ok) {
+                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
+                        const errData = await res.json().catch(() => ({}));
+                        window.openUpgradeModal(errData.message || 'Download PDF Cek Plagiarisme tersedia untuk Paket Starter mulai Rp15.000.');
+                        return;
+                    }
+                    throw new Error('Gagal membuat PDF.');
+                }
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -10148,6 +10335,10 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
+                if (isUpgradeRequiredResponse(res, data)) {
+                    handleToolQuotaOrError(res, data, 'Kuota fitur Olah Data habis.');
+                    return;
+                }
                 if (!res.ok || data.status !== 'success') {
                     throw new Error(data.message || 'Perhitungan gagal.');
                 }
@@ -10554,6 +10745,10 @@
                     })
                 });
                 const data = await res.json();
+                if (isUpgradeRequiredResponse(res, data)) {
+                    handleToolQuotaOrError(res, data, 'Kuota Interpretasi Bab IV habis.');
+                    return;
+                }
                 if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal menyusun interpretasi.');
                 const cleanText = String(data.narration || '')
                     .replace(/^\s*#{1,6}\s*/gm, '')
@@ -10650,7 +10845,14 @@
                         charts_images: chartsImages
                     })
                 });
-                if (!res.ok) throw new Error('Gagal membuat laporan PDF.');
+                if (!res.ok) {
+                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
+                        const errData = await res.json().catch(() => ({}));
+                        window.openUpgradeModal(errData.message || 'Download laporan PDF Olah Data tersedia untuk Paket Starter mulai Rp15.000.');
+                        return;
+                    }
+                    throw new Error('Gagal membuat laporan PDF.');
+                }
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -10686,7 +10888,14 @@
                         charts_images: chartsImages
                     })
                 });
-                if (!res.ok) throw new Error('Gagal membuat file Word (.docx).');
+                if (!res.ok) {
+                    if (res.status === 402 && typeof window.openUpgradeModal === 'function') {
+                        const errData = await res.json().catch(() => ({}));
+                        window.openUpgradeModal(errData.message || 'Download laporan Word (.docx) Olah Data tersedia untuk Paket Starter mulai Rp15.000.');
+                        return;
+                    }
+                    throw new Error('Gagal membuat file Word (.docx).');
+                }
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -10752,6 +10961,10 @@
                     body: JSON.stringify({ mode: odInstMode, topic, major, variables, items_per_var: itemsPerVar, scale_type: scaleType })
                 });
                 const data = await res.json();
+                if (isUpgradeRequiredResponse(res, data)) {
+                    handleToolQuotaOrError(res, data, 'Kuota generator instrumen habis.');
+                    return;
+                }
                 if (!res.ok || data.status !== 'success') throw new Error(data.message || 'Gagal membuat instrumen.');
                 odCurrentInstrument = data;
                 odRenderInstrument(data);
