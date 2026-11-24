@@ -1322,6 +1322,11 @@
                 </a>
 
                 <div class="ws-group">Akun &amp; Bonus</div>
+                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'pricing']) : route('billing.plans') }}" class="ws-nav-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    <span style="flex:1;">Paket</span>
+                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:#eff6ff; color:#2563eb;">15rb</span>
+                </a>
                 <a href="{{ route('app.create', ['tab' => 'account']) }}" class="ws-nav-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>Akun Saya</span>

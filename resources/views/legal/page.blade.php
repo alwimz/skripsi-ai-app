@@ -519,6 +519,7 @@
                 <a href="{{ url('/') }}" class="nav-link">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
                 <a href="{{ url('/tools') }}" class="nav-link hide-xs">Tools Gratis</a>
+                <a href="{{ url('/paket') }}" class="nav-link hide-xs">Paket</a>
                 <a href="{{ url('/kebijakan-privasi') }}" class="nav-link hide-xs {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
                 <a href="{{ url('/syarat-ketentuan') }}" class="nav-link hide-xs {{ $page['key'] === 'terms' ? 'active' : '' }}">Ketentuan</a>
                 <a href="{{ url('/tentang') }}" class="nav-link hide-xs {{ $page['key'] === 'about' ? 'active' : '' }}">Tentang</a>

@@ -169,6 +169,7 @@
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Gratis (10)</a>
+                <a href="{{ url('/paket') }}">Paket</a>
             </nav>
             <div class="topbar-actions">
                 @auth
@@ -184,6 +185,7 @@
         <a href="{{ url('/') }}">Beranda</a>
         <a href="{{ url('/panduan') }}" class="active">Semua Panduan</a>
         <a href="{{ url('/tools') }}">10 Tools Gratis</a>
+        <a href="{{ url('/paket') }}">Paket</a>
     </div>
 
     <main class="container">

@@ -3192,18 +3192,6 @@ ATURAN KETAT:
             }
         }
 
-        $authUser = Auth::user();
-        if ($authUser) {
-            $access = $this->billing()->checkToolAccess($authUser, 'qa', 'Dosen Pembimbing AI');
-            if (empty($access['allowed'])) {
-                return response()->json([
-                    'status' => 'upgrade_required',
-                    'reason' => $access['reason'] ?? 'free_tool_limit',
-                    'message' => $access['message'],
-                ], 402);
-            }
-        }
-
         try {
             $prompt = "PERAN: Anda adalah Dosen Pembimbing Akademik yang cerdas, suportif, dan to the point.
 ATURAN WAJIB MENJAWAB:
@@ -3216,10 +3204,6 @@ Pertanyaan Mahasiswa:
 
             $response = $this->ai->generateText($prompt, $model);
             $cleanResponse = trim(strip_tags($response));
-
-            if ($authUser) {
-                $this->billing()->markToolUsed($authUser, 'qa');
-            }
 
             return response()->json([
                 'status' => 'success',
