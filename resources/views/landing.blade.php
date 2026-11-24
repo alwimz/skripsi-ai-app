@@ -17,6 +17,7 @@
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
     <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- Open Graph / WhatsApp / LinkedIn / Facebook -->
     <meta property="og:type" content="website">
@@ -2379,7 +2380,10 @@
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                 <a href="{{ url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
                 <a href="{{ url('/tools') }}">Tools Gratis</a>
-                <span>&copy; {{ date('Y') }} SkripsiLab AI &bull; Proposal &amp; skripsi otomatis AI dengan referensi jurnal yang relevan.</span>
+                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
+                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
+                <a href="{{ url('/tentang') }}">Tentang &amp; Pengembang</a>
+                <span>&copy; {{ date('Y') }} SkripsiLab AI &bull; Dikelola oleh Muh Alwi Syahrir.</span>
             </div>
         </div>
     </footer>

@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentToolsController;
 use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\PanduanController;
+use App\Http\Controllers\LegalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,9 @@ use App\Http\Controllers\PanduanController;
 Route::get('/', [GeneratorController::class, 'landingPage'])->name('home');
 Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index');
 Route::get('/panduan/{slug}', [PanduanController::class, 'show'])->name('panduan.show');
+Route::get('/kebijakan-privasi', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/syarat-ketentuan', [LegalController::class, 'terms'])->name('legal.terms');
+Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
 Route::get('/sitemap.xml', function () {
     $baseUrl = rtrim(url('/'), '/');
     $today = now()->toDateString();
@@ -26,6 +30,9 @@ Route::get('/sitemap.xml', function () {
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => $baseUrl . '/tools', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => $baseUrl . '/kebijakan-privasi', 'priority' => '0.7', 'changefreq' => 'monthly'],
+        ['loc' => $baseUrl . '/syarat-ketentuan', 'priority' => '0.7', 'changefreq' => 'monthly'],
+        ['loc' => $baseUrl . '/tentang', 'priority' => '0.7', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/register', 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/login', 'priority' => '0.7', 'changefreq' => 'monthly'],
     ];

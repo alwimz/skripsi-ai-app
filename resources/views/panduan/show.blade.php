@@ -298,6 +298,9 @@
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}">Semua Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Gratis</a>
+                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
+                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
+                <a href="{{ url('/tentang') }}">Tentang</a>
             </div>
         </div>
     </footer>

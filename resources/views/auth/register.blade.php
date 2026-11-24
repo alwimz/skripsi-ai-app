@@ -280,7 +280,12 @@
     </main>
 
     <footer class="footer-credit">
-        Demo by <strong>Muh Alwi Syahrir</strong> &bull; SkripsiLab AI &copy; {{ date('Y') }}
+        <div style="margin-bottom:6px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+            <a href="{{ url('/kebijakan-privasi') }}" style="color:#475569;text-decoration:none;font-weight:600;">Kebijakan Privasi</a>
+            <a href="{{ url('/syarat-ketentuan') }}" style="color:#475569;text-decoration:none;font-weight:600;">Syarat &amp; Ketentuan</a>
+            <a href="{{ url('/tentang') }}" style="color:#475569;text-decoration:none;font-weight:600;">Tentang Pengembang</a>
+        </div>
+        Dikelola resmi oleh <strong>Muh Alwi Syahrir</strong> &bull; SkripsiLab AI &copy; {{ date('Y') }}
     </footer>
 
     <script>

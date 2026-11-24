@@ -23,6 +23,7 @@ if ($uri !== '/' && file_exists($publicFile) && !is_dir($publicFile)) {
     };
     header('Content-Type: ' . $mime);
     header('Cache-Control: public, max-age=86400');
+    header('X-Content-Type-Options: nosniff');
     readfile($publicFile);
     exit;
 }
@@ -75,6 +76,11 @@ $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
+
+$response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
+$response->headers->set('X-Content-Type-Options', 'nosniff', false);
+$response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin', false);
+$response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()', false);
 
 $response->send();
 

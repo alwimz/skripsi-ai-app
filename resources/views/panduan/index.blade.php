@@ -169,6 +169,9 @@
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}">Panduan</a>
                 <a href="{{ url('/tools') }}">Tools Mahasiswa</a>
+                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
+                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
+                <a href="{{ url('/tentang') }}">Tentang</a>
                 <a href="{{ url('/register') }}">Daftar</a>
             </div>
         </div>

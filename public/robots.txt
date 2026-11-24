@@ -3,6 +3,9 @@ Allow: /
 Allow: /tools
 Allow: /panduan
 Allow: /panduan/
+Allow: /kebijakan-privasi
+Allow: /syarat-ketentuan
+Allow: /tentang
 Allow: /login
 Allow: /register
 Allow: /sample/download/
