@@ -10,6 +10,9 @@ jobs:
   deploy:
     name: Build Composer & Sync ke Hosting
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_PUBLIC_FTP_USER: ${{ secrets.FTP_PUBLIC_USERNAME }}
+      DEPLOY_PUBLIC_FTP_PASS: ${{ secrets.FTP_PUBLIC_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -29,7 +32,7 @@ jobs:
           touch storage/framework/views/.keep storage/framework/sessions/.keep storage/framework/cache/data/.keep storage/logs/.keep bootstrap/cache/.keep
           rm -f bootstrap/cache/*.php
 
-      - name: Deploy ke Web Hosting lewat FTP/FTPS
+      - name: Deploy aplikasi Laravel ke cPanel (skripsilabai)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -39,6 +42,7 @@ jobs:
           security: loose
           port: ${{ vars.FTP_PORT || '21' }}
           server-dir: ${{ vars.FTP_SERVER_DIR || '/' }}
+          state-name: .ftp-deploy-sync-state-app.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -46,6 +50,7 @@ jobs:
             **/node_modules/**
             **/tests/**
             **/.env
+            _cpanel_public_html/**
             storage/logs/*.log
             storage/framework/sessions/*
             !storage/framework/sessions/.keep
@@ -56,3 +61,44 @@ jobs:
             database/*.sqlite
             api/**
             vercel.json
+
+      - name: Siapkan folder public_html (cPanel Primary Domain)
+        if: ${{ env.DEPLOY_PUBLIC_FTP_USER != '' && env.DEPLOY_PUBLIC_FTP_PASS != '' }}
+        env:
+          CPANEL_APP_DIR: ${{ vars.CPANEL_APP_DIR || 'skripsilabai' }}
+        run: |
+          rm -rf _cpanel_public_html
+          mkdir -p _cpanel_public_html
+          cp -R public/. _cpanel_public_html/
+          php -r '
+            $dir = trim(getenv("CPANEL_APP_DIR") ?: "skripsilabai", "/");
+            $php = file_get_contents("public/index.php");
+            $php = str_replace(["/../vendor/", "/../bootstrap/"], ["/../{$dir}/vendor/", "/../{$dir}/bootstrap/"], $php);
+            if (!str_contains($php, "/../{$dir}/vendor/autoload.php") || !str_contains($php, "/../{$dir}/bootstrap/app.php")) {
+                fwrite(STDERR, "Gagal rewrite public_html/index.php\n");
+                exit(1);
+            }
+            file_put_contents("_cpanel_public_html/index.php", $php);
+          '
+          php -l _cpanel_public_html/index.php
+          test -f _cpanel_public_html/.htaccess
+
+      - name: Deploy public_html lewat FTP/FTPS
+        if: ${{ env.DEPLOY_PUBLIC_FTP_USER != '' && env.DEPLOY_PUBLIC_FTP_PASS != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_PUBLIC_USERNAME }}
+          password: ${{ secrets.FTP_PUBLIC_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          security: loose
+          port: ${{ vars.FTP_PORT || '21' }}
+          local-dir: ./_cpanel_public_html/
+          server-dir: ${{ vars.FTP_PUBLIC_SERVER_DIR || '/' }}
+          state-name: .ftp-deploy-sync-state-public.json
+          exclude: |
+            **/.git*
+            .well-known/**
+            cgi-bin/**
+            error_log
+            .user.ini
