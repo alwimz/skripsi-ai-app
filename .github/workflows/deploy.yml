@@ -1,0 +1,58 @@
+name: Deploy SkripsiLab AI ke Web Hosting (FTP/FTPS)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build Composer & Sync ke Hosting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, json, pdo, pdo_mysql, openssl, curl, zip, gd, fileinfo
+          tools: composer:v2
+
+      - name: Install Composer dependencies (production)
+        run: |
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+          mkdir -p storage/framework/views storage/framework/sessions storage/framework/cache/data storage/logs bootstrap/cache
+          touch storage/framework/views/.keep storage/framework/sessions/.keep storage/framework/cache/data/.keep storage/logs/.keep bootstrap/cache/.keep
+          rm -f bootstrap/cache/*.php
+
+      - name: Deploy ke Web Hosting lewat FTP/FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          security: loose
+          port: ${{ vars.FTP_PORT || '21' }}
+          server-dir: ${{ vars.FTP_SERVER_DIR || '/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            **/node_modules/**
+            **/tests/**
+            **/.env
+            storage/logs/*.log
+            storage/framework/sessions/*
+            !storage/framework/sessions/.keep
+            storage/framework/cache/data/**
+            !storage/framework/cache/data/.keep
+            promo_skripsilab_tiktok.mp4
+            *.sqlite
+            database/*.sqlite
+            api/**
+            vercel.json
