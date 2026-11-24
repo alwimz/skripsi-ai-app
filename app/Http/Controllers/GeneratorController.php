@@ -817,7 +817,8 @@ class GeneratorController extends Controller
         $asal = (string) ($sitasi['asal'] ?? 'Indonesia + Internasional');
         $gayaSitasi = (string) ($sitasi['gaya'] ?? 'APA 7th');
         $sumberKey = is_array($sitasi['sumber'] ?? null) ? implode(',', $sitasi['sumber']) : 'default';
-        $sig = "{$tahunMin}|{$asal}|{$gayaSitasi}|{$sumberKey}";
+        $topicHash = substr(md5(mb_strtolower(trim((string) $project->judul)) . '|' . mb_strtolower(trim((string) $project->prodi))), 0, 8);
+        $sig = "{$tahunMin}|{$asal}|{$gayaSitasi}|{$sumberKey}|{$topicHash}";
 
         if (
             !$forceRefresh
@@ -3195,6 +3196,13 @@ Pertanyaan Mahasiswa:
             $extraContext .= "\nREFERENSI WAJIB DARI UNGGAHAN MAHASISWA (WAJIB DISITASI):\n\"\"\"\n" . Str::limit($meta['referensi_khusus'], 4000) . "\n\"\"\"\n";
         }
 
+        $gayaLowerMaster = strtolower((string) $gayaSitasi);
+        $inTextExampleMaster = str_contains($gayaLowerMaster, 'ieee')
+            ? 'contoh: [1] atau peneliti [2]'
+            : (str_contains($gayaLowerMaster, 'vancouver')
+                ? 'contoh: (1) atau [1]'
+                : 'contoh: Menurut Wijaya et al. (2024) atau (Surya, 2023)');
+
         return "PERAN: Anda adalah Profesor dan Pembimbing Tugas Akhir Senior di Perguruan Tinggi Indonesia.
 
 KONTEKS PENELITIAN:
@@ -3214,18 +3222,18 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
    - Tuliskan setiap bab secara MENDALAM, KOMPREHENSIF, dan EKSTENSIF (target minimal 1500 - 2500+ kata per bab). DILARANG membuat naskah yang singkat, dangkal, atau sekadar poin-poin ringkas.
    - WAJIB JAGA PROPORSIONALITAS PARAGRAF: Setiap paragraf idealnya berisi **5–7 kalimat padat (±80–115 kata atau ±7–10 baris di halaman A4 Word)** agar dalam 1 halaman A4 muat sekitar **2,5–3 paragraf yang rapi dan enak dibaca**. DILARANG KERAS menulis 1 paragraf raksasa bertele-tele (14–20 baris) yang membuat 1 halaman hanya berisi 1–2 paragraf! Pecah gagasan berbeda ke paragraf baru yang kohesif.
 4. Sitasi & Bebas Mendeley (ANTI-HALUSINASI & WAJIB LITERATUR ASLI):
-   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, contoh: Menurut Wijaya et al. (2024)).
+   - WAJIB menyertakan sitasi dalam teks (in-text citation gaya {$gayaSitasi}, {$inTextExampleMaster}).
    - TAHUN TERBIT REFERENSI WAJIB MINIMAL TAHUN {$tahunMin} DAN MAKSIMAL TAHUN 2026.
    - DILARANG KERAS MENGARANG ATAU MEMBUAT SUMBER/PENULIS/JURNAL FIKTIF! Setiap nama peneliti, tahun, judul publikasi, dan nama jurnal ilmiah yang dikutip WAJIB berasal dari literatur ilmiah asli yang benar-benar terbit di jurnal nasional (SINTA/Garuda/Kemdikbud) atau internasional (Scopus/IEEE/Elsevier/Springer/OpenAlex) atau laporan otoritas data resmi (BPS, Kemendikbudristek, APJII, We Are Social / DataReportal). DILARANG menulis contoh nama fiktif seperti 'Pratama dan Pamungkas' atau 'Nahdhudin'!
    - Di Bab I (Latar Belakang): Prioritaskan kutipan dari 'REFERENSI JURNAL ILMIAH TERVERIFIKASI' di atas dan data resmi institusi.
    - Pada Tabel Penelitian Terdahulu (Bab II): Cantumkan 3-5 penelitian terdahulu yang ASLI dan RELEVAN dengan topik judul '{$project->judul}', mencakup nama peneliti riil, tahun publikasi riil ({$tahunMin}-2026), judul artikel riil, metode/desain, metrik hasil terukur, dan celah penelitian (research gap).
 5. Standar Rumus & Notasi Statistik (DILARANG KODE LATEX MENTAH):
    - DILARANG KERAS menghasilkan sintaks LaTeX mentah seperti \\frac{}{}, \\hat{}, {,}, \\approx, atau tanda dollar \$ ... \$.
-   - Tuliskan rumus dalam teks akademik bersih:
-     * Pecahan: n = N / (1 + N(e)²) = 288 / (1 + 288(0,05)²) = 167,44 ≈ 168 responden
-     * Estimasi Regresi: Ŷ = a + bX atau Ŷ = 96,482 - 0,253X
-     * Koefisien Determinasi: R² = 0,154
-     * Gunakan superskrip Unicode: ², ³, ᵗ dan tanda koma desimal Indonesia: 0,05, 96,482 (bukan {,}).
+   - Tuliskan rumus dalam teks akademik bersih dengan notasi simbolik (lalu isi angka perhitungan orisinal sesuai topik/data proyek saat ini):
+     * Pecahan (Slovin): n = N / (1 + N(e)²)
+     * Estimasi Regresi: Ŷ = a + bX (atau Ŷ = a + b₁X₁ + b₂X₂ untuk berganda)
+     * Koefisien Determinasi: R² = r² atau R² = F / (F + n - k - 1)
+     * Gunakan superskrip Unicode: ², ³, ᵗ dan tanda koma desimal Indonesia (contoh: 0,05 — bukan {,}).
 6. Format Tabel Akademik Rapi:
    - Setiap tabel wajib memiliki nomor dan judul pada baris tersendiri (contoh: Tabel 3.1 Operasionalisasi Variabel).
    - Sajikan dalam format Markdown Table lengkap dan presisi, pastikan sel-sel terisi pada kolom yang tepat dan tidak bergeser.
@@ -4076,7 +4084,7 @@ WAJIB MEMUAT TABEL DATA STATISTIK LENGKAP DAN PEMBAHASAN MENDALAM (MINIMAL 1500 
 a. Sajikan TABEL Ringkasan Model Regresi (Nilai Korelasi R dan Koefisien Determinasi R-Square / R²).
 b. Sajikan TABEL Uji Koefisien Regresi (Konstanta a, Koefisien Regresi b, nilai t-hitung, dan nilai signifikansi p-value / Sig.).
 c. Tuliskan persamaan regresi yang terbentuk secara jelas: Ŷ = a + bX beserta interpretasi maknanya.
-d. KONSISTENSI RUMUS & INDIKATOR WAJIB: Pada regresi linier sederhana (1 variabel bebas X), wajib pastikan F-hitung = t-hitung² (contoh: jika t = -5,624 maka F = 31,629) dan konsisten dengan R² = F / (F + n - 2), SERTA apabila menyebut nomor butir angket (misal X7 atau X8), pastikan nama indikatornya sama persis dengan Tabel Kisi-kisi Operasionalisasi Variabel Bab III!
+d. KONSISTENSI RUMUS & INDIKATOR WAJIB: Pada regresi linier sederhana (1 variabel bebas X), wajib pastikan F-hitung = t-hitung² tepat 100% dan konsisten dengan R² = F / (F + n - 2), SERTA apabila menyebut nomor butir angket (misal X7 atau X8), pastikan nama indikatornya sama persis dengan Tabel Kisi-kisi Operasionalisasi Variabel Bab III!
 4.6 Pembahasan Hasil Penelitian (Bahas secara kritis dan mendalam minimal 6-8 paragraf: konfrontasikan temuan angka empiris dengan teori Bab II dan temuan penelitian terdahulu, implikasi hasil terhadap responden, serta faktor-faktor pemicu temuan tersebut).
 4.7 Keterbatasan Penelitian (Uraikan kendala metodologis atau lingkup yang dihadapi selama penelitian).",
 
@@ -4788,6 +4796,19 @@ ATURAN REVISI (SANGAT KETAT):
         $escaped = preg_replace(
             '/([α-ωΑ-Ω∑∏√≈≤≥≠±∞∝−∈∉⊂⊆∪∩∂∫∇→←↔⇒⇔↓↑×÷·∙∧∨∀∃≡∼≃′″•—–‘’“”]+)/u',
             '<span style="font-family:\'DejaVu Serif\', serif;">$1</span>',
+            $escaped
+        );
+
+        // Pertahankan tanda centang/silang jadwal & matriks dengan font DejaVu Sans sebelum pembersihan emoji (Times-Roman CPDF tidak punya U+2713)
+        $escaped = str_replace(
+            ['✓', '✔', '✕', '✖', '✗'],
+            [
+                '<span style="font-family:\'DejaVu Sans\', sans-serif;">&#x2713;</span>',
+                '<span style="font-family:\'DejaVu Sans\', sans-serif;">&#x2714;</span>',
+                '<span style="font-family:\'DejaVu Sans\', sans-serif;">&#x2715;</span>',
+                '<span style="font-family:\'DejaVu Sans\', sans-serif;">&#x2716;</span>',
+                '<span style="font-family:\'DejaVu Sans\', sans-serif;">&#x2717;</span>',
+            ],
             $escaped
         );
 

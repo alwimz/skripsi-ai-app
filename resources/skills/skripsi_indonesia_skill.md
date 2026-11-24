@@ -13,7 +13,7 @@ Terkurasi komprehensif mengacu pada buku pedoman skripsi perguruan tinggi nasion
    - ❌ "Sebagai kesimpulan, dapat dikatakan bahwa..." atau "Berdasarkan uraian di atas..."
 2. **Karakter Bahasa Akademik Alami (Human-Written Style)**:
    - **Langsung menukik ke substansi**: Kalimat pertama paragraf wajib langsung memuat fakta empiris, data kuantitatif, atau konsep spesifik yang menjadi fokus penelitian.
-   - **Suara Pasif Ilmiah Baku (Passive Academic Voice)**: Khusus pada metodologi dan pembahasan temuan, gunakan kalimat pasif ilmiah (contoh: *"Data dikumpulkan melalui penyebaran kuesioner kepada 168 responden..."*, *"Analisis regresi dilakukan untuk menguji signifikansi pengaruh..."*), hindari penggunaan kata ganti orang pertama (*saya, penulis, kami*).
+   - **Suara Pasif Ilmiah Baku (Passive Academic Voice)**: Khusus pada metodologi dan pembahasan temuan, gunakan kalimat pasif ilmiah (contoh: *"Data dikumpulkan melalui instrumen penelitian terhadap seluruh sampel..."*, *"Analisis data dilakukan untuk menguji signifikansi hipotesis..."*), hindari penggunaan kata ganti orang pertama (*saya, penulis, kami*).
    - **Variasi Sintaksis & Ritme Kalimat (Burstiness & Perplexity)**: Kombinasikan kalimat pendek dan tegas (8-14 kata) untuk penegasan temuan dengan kalimat majemuk eksplanatif (18-28 kata) untuk elaborasi teoretis. Hindari struktur kalimat yang berulang secara monoton di awal paragraf (hindari membuka beberapa paragraf berturut-turut dengan *"Selain itu..."* atau *"Hal ini..."*).
    - **Pola Penalaran Deduktif Ilmiah**: Setiap paragraf wajib memuat alur *Claim* (pernyataan gagasan pokok) – *Evidence* (data observasi, angka statistik, atau rujukan sitasi) – *Reasoning* (analisis logis mengapa data tersebut mendukung judul penelitian).
    - **Konjungsi Antarkalimat Ilmiah Baku**: *Kendati demikian*, *Oleh karena itu*, *Konsekuensinya*, *Sebaliknya*, *Dalam konteks empiris*, *Secara konseptual*, *Sejalan dengan hal tersebut*.
@@ -24,12 +24,12 @@ Terkurasi komprehensif mengacu pada buku pedoman skripsi perguruan tinggi nasion
 1. **DILARANG KERAS** menghasilkan kode sintaks LaTeX mentah seperti `\frac{}{}`, `\hat{}`, `{,}`, `\approx`, atau pembungkus tanda dollar `$ ... $` maupun `$$ ... $$` di dalam naskah.
 2. Gunakan format teks akademik bersih berbasis karakter Unicode standar:
    - **Notasi Pecahan**: Gunakan pembagian garis miring (`/`), contoh:
-     `n = N / (1 + N(e)²) = 288 / (1 + 288(0,05)²) = 167,44 ≈ 168 responden`
+     `n = N / (1 + N(e)²)` (sesuaikan nilai `N`, `e`, dan hasil `n` sepenuhnya dengan topik & data riil proyek)
    - **Simbol Prediksi / Regresi**: Gunakan karakter topi Unicode (`Ŷ` atau `Ŷ`), contoh:
-     `Ŷ = 96,482 - 0,253X` atau `Ŷ = a + bX`
+     `Ŷ = a + bX` atau `Ŷ = a + b₁X₁ + b₂X₂`
    - **Pangkat / Eksponen**: Gunakan karakter superskrip Unicode (`²`, `³`, `ᵗ`), contoh:
-     `R² = 0,154`, `e² = (0,05)² = 0,0025`
-   - **Angka Desimal Indonesia**: Gunakan koma baku Indonesia, contoh: `0,05`, `96,482`, `167,44` (bukan `{,}` atau titik desimal ala format asing jika menulis dalam bahasa Indonesia).
+     `R²`, `e² = (0,05)² = 0,0025`
+   - **Angka Desimal Indonesia**: Gunakan koma baku Indonesia untuk seluruh pecahan desimal sesuai konteks riset (bukan `{,}` atau titik desimal ala format asing jika menulis dalam bahasa Indonesia).
    - **Simbol Operator Standar**: Gunakan `×` (bukan `\times`), `≈` (bukan `\approx`), `≤` (bukan `\le`), `≥` (bukan `\ge`), `±` (bukan `\pm`), `∑` (bukan `\sum`).
 
 ---
