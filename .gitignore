@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/vendor.zip
 /bootstrap/cache/*.php
 !/bootstrap/cache/.gitignore
 Homestead.json
