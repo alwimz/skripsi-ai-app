@@ -58,15 +58,18 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            // BAGIAN PENTING UNTUK TIDB CLOUD:
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
+            // Aktifkan SSL CA otomatis hanya untuk DB remote (misal TiDB Cloud) atau saat MYSQL_ATTR_SSL_CA diisi:
+            'options' => (extension_loaded('pdo_mysql') && (
+                !empty(env('MYSQL_ATTR_SSL_CA')) ||
+                !in_array((string) env('DB_HOST', '127.0.0.1'), ['127.0.0.1', 'localhost', '::1', ''], true)
+            )) ? array_filter([
                 (defined('Pdo\Mysql::ATTR_SSL_CA') ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA') ?? (
                     file_exists('/etc/ssl/certs/ca-certificates.crt')
                         ? '/etc/ssl/certs/ca-certificates.crt'  // Jalur Vercel/Linux
                         : base_path('cacert.pem')               // Jalur Laptop/Windows
                 ),
                 (defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT) => false,
-            ]) : [],
+            ], static fn ($v) => $v !== null) : [],
         ],
 
         'mariadb' => [
