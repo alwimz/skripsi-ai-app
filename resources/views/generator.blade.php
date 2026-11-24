@@ -2473,7 +2473,7 @@
             document.getElementById('progress-fill').style.width = `${pct}%`;
         }
 
-        function selectChapterView(viewKey) {
+        function selectChapterView(viewKey, options = {}) {
             activeView = viewKey;
             document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
             const navEl = document.getElementById(`nav-item-${viewKey}`);
@@ -2531,9 +2531,9 @@
                 }
             }
 
-            // Auto-scroll ke paling atas halaman saat navigasi bab diklik
+            // Auto-scroll ke paling atas halaman saat navigasi bab diklik (kecuali saat preserveScroll aktif)
             const canvasScroll = document.querySelector('.canvas-scroll');
-            if (canvasScroll) {
+            if (canvasScroll && !options.preserveScroll) {
                 canvasScroll.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
@@ -3156,14 +3156,66 @@
                     throw new Error(data.message || 'Gagal mengganti sitasi.');
                 }
 
+                const canvasScroll = document.querySelector('.canvas-scroll');
+                const prevScrollTop = canvasScroll ? canvasScroll.scrollTop : 0;
+                const prevWindowY = window.scrollY || window.pageYOffset || 0;
+                const prevAnchorTop = activeCitationCtx.el ? activeCitationCtx.el.getBoundingClientRect().top : null;
+                const replacedChapter = data.chapter;
+                const replacedCite = (data.new_cite || '').trim();
+
                 chapterContents[data.chapter] = data.updated_chapter_content;
                 if (typeof data.updated_daftar_pustaka === 'string') {
                     chapterContents.daftar_pustaka = data.updated_daftar_pustaka;
                 }
                 isReplacingCitation = false;
                 closeCitationPopover(true);
-                selectChapterView(activeView);
+                selectChapterView(activeView, { preserveScroll: true });
                 updateProgressUI();
+
+                // Pertahankan posisi baca yang sama tanpa mental ke paling atas, lalu sorot sitasi pengganti
+                if (canvasScroll) canvasScroll.scrollTop = prevScrollTop;
+                if (prevWindowY > 0) window.scrollTo(0, prevWindowY);
+
+                requestAnimationFrame(() => {
+                    if (canvasScroll) canvasScroll.scrollTop = prevScrollTop;
+                    if (prevWindowY > 0) window.scrollTo(0, prevWindowY);
+
+                    const scopeRoot = document.querySelector(`.paper-editor[data-chapter="${replacedChapter}"], [data-chapter="${replacedChapter}"]`)?.closest('#sheets-container') || document.getElementById('sheets-container');
+                    if (scopeRoot && replacedCite) {
+                        const chapterNodes = Array.from(scopeRoot.querySelectorAll(`[data-chapter="${replacedChapter}"] .academic-cite-badge, .paper-editor[data-chapter="${replacedChapter}"] .academic-cite-badge, .academic-cite-badge`));
+                        const matches = chapterNodes.filter((b) => {
+                            const sheet = b.closest('[data-chapter]');
+                            if (sheet && sheet.getAttribute('data-chapter') !== replacedChapter) return false;
+                            const txt = (b.getAttribute('data-cite') || b.innerText || '').trim();
+                            return txt === replacedCite || txt.includes(replacedCite);
+                        });
+                        if (matches.length) {
+                            let targetBadge = matches[0];
+                            if (prevAnchorTop !== null) {
+                                targetBadge = matches.reduce((best, cur) => {
+                                    const dCur = Math.abs(cur.getBoundingClientRect().top - prevAnchorTop);
+                                    const dBest = Math.abs(best.getBoundingClientRect().top - prevAnchorTop);
+                                    return dCur < dBest ? cur : best;
+                                }, matches[0]);
+                            }
+                            const rect = targetBadge.getBoundingClientRect();
+                            if (rect.top < 72 || rect.bottom > window.innerHeight - 60) {
+                                targetBadge.scrollIntoView({ block: 'center', behavior: 'auto' });
+                            }
+                            targetBadge.style.transition = 'background-color 0.4s ease, box-shadow 0.4s ease';
+                            targetBadge.style.backgroundColor = '#dcfce7';
+                            targetBadge.style.boxShadow = '0 0 0 3px rgba(22, 163, 74, 0.35)';
+                            targetBadge.style.borderRadius = '4px';
+                            setTimeout(() => {
+                                if (document.body.contains(targetBadge)) {
+                                    targetBadge.style.backgroundColor = '';
+                                    targetBadge.style.boxShadow = '';
+                                }
+                            }, 2400);
+                        }
+                    }
+                });
+
                 showToast(`Sitasi diganti menjadi ${data.new_cite} & Daftar Pustaka otomatis diperbarui!`, 'success');
             } catch (err) {
                 showToast(err.message || 'Gagal mengganti sitasi.', 'error');
