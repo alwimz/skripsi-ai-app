@@ -203,6 +203,38 @@ class CoreFixesIntegrationTest extends TestCase
         $this->assertStringContainsString('panduan-cta-text', $preGenHtml);
         $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*640px\)\s*\{[^}]*\.panduan-cta-bar\s*\{[^}]*flex-direction:\s*column/s', $preGenHtml);
 
+        // Verify cross-device parity: no-store HTTP headers, sync-state endpoint, DB doc_format persistence & server-first data_riil
+        $appCreateResp = $this->actingAs($user)->get('/app/create');
+        $appCreateResp->assertStatus(200);
+        $this->assertStringContainsString('no-store', (string) $appCreateResp->headers->get('Cache-Control'));
+
+        $wsResp = $this->actingAs($user)->get('/project/' . $project->id);
+        $wsResp->assertStatus(200);
+        $this->assertStringContainsString('no-store', (string) $wsResp->headers->get('Cache-Control'));
+        $wsSyncedHtml = $wsResp->getContent();
+        $this->assertStringContainsString('syncProjectFromServer', $wsSyncedHtml);
+        $this->assertStringContainsString('applyServerDataRiil', $wsSyncedHtml);
+        $this->assertStringContainsString('applyServerDocFormat', $wsSyncedHtml);
+        $this->assertStringContainsString('.a4-sheet .paper-editor p', $wsSyncedHtml);
+        $this->assertStringContainsString('family=Tinos', $wsSyncedHtml);
+        $this->assertStringContainsString('-webkit-text-size-adjust: 100%', $wsSyncedHtml);
+
+        $fmtResp = $this->actingAs($user)->postJson('/project/' . $project->id . '/save-chapter', [
+            'chapter' => 'doc_format',
+            'font_family' => 'arial',
+            'margin_top' => 3,
+            'margin_left' => 4,
+            'margin_bottom' => 3,
+            'margin_right' => 3,
+        ])->assertStatus(200);
+        $this->assertSame('arial', $fmtResp->json('doc_format.font'));
+
+        $syncResp = $this->actingAs($user)->getJson('/project/' . $project->id . '/sync-state');
+        $syncResp->assertStatus(200);
+        $this->assertStringContainsString('no-store', (string) $syncResp->headers->get('Cache-Control'));
+        $this->assertSame('arial', $syncResp->json('meta.doc_format.font'));
+        $this->assertNotEmpty($syncResp->json('state_hash'));
+
         // Verify GET & POST /logout both redirect cleanly (no 405 Method Not Allowed)
         $this->actingAs($user)->get('/logout')->assertRedirect('/');
         $this->assertGuest();

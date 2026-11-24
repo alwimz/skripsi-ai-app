@@ -2443,7 +2443,15 @@ class GeneratorController extends Controller
         $plans = $this->billing()->getPlans(true);
         $guides = PanduanController::getGuides();
 
-        return view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans', 'guides'));
+        return $this->applyNoStoreHeaders(response()->view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans', 'guides')));
+    }
+
+    private function applyNoStoreHeaders($response)
+    {
+        return $response
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     private function ensureSavedPptsTable(): bool
@@ -2904,11 +2912,15 @@ class GeneratorController extends Controller
             'format_nomor' => $request->input('format_nomor', '1.1'),
         ];
 
-        // Jika proyek dengan judul sama sudah ada, perbarui metadata/tahap agar sinkron
+        // Jika proyek dengan judul sama sudah ada (normalisasi spasi & tanda titik akhir agar konsisten di semua device), perbarui metadata/tahap agar sinkron
+        $normTargetTitle = (string) preg_replace('/\s+/', ' ', mb_strtolower(rtrim(trim($cleanJudul), '. ')));
         $existing = Project::where('user_id', Auth::id())
-            ->whereRaw('LOWER(judul) = ?', [strtolower($cleanJudul)])
             ->orderBy('id', 'desc')
-            ->first();
+            ->get()
+            ->first(function ($candidate) use ($normTargetTitle) {
+                $candNorm = (string) preg_replace('/\s+/', ' ', mb_strtolower(rtrim(trim((string) $candidate->judul), '. ')));
+                return $candNorm === $normTargetTitle;
+            });
 
         if ($existing) {
             $oldMeta = $this->getProjectMeta($existing);
@@ -3019,7 +3031,41 @@ class GeneratorController extends Controller
         $plans = $this->billing()->getPlans(false);
         $projectUnlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : false;
 
-        return view('generator', compact('project', 'history', 'meta', 'billingSummary', 'plans', 'projectUnlocked'));
+        return $this->applyNoStoreHeaders(response()->view('generator', compact('project', 'history', 'meta', 'billingSummary', 'plans', 'projectUnlocked')));
+    }
+
+    public function syncProjectState($id)
+    {
+        $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        $meta = $this->getProjectMeta($project);
+        $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
+        foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
+            if (empty($meta[$field]) && !empty($defaultIdentity[$field])) {
+                $meta[$field] = $defaultIdentity[$field];
+            }
+        }
+        $chapters = [
+            'bab1' => (string) ($project->bab1_content ?? ''),
+            'bab2' => (string) ($project->bab2_content ?? ''),
+            'bab3' => (string) ($project->bab3_content ?? ''),
+            'bab4' => (string) ($project->bab4_content ?? ''),
+            'bab5' => (string) ($project->bab5_content ?? ''),
+            'daftar_pustaka' => (string) ($project->daftar_pustaka ?? ''),
+        ];
+        $authUser = Auth::user();
+        $unlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : false;
+        $stateHash = md5((string) json_encode([$chapters, $meta, $project->judul, $project->prodi, $unlocked], JSON_UNESCAPED_UNICODE));
+
+        return $this->applyNoStoreHeaders(response()->json([
+            'status' => 'success',
+            'state_hash' => $stateHash,
+            'updated_ts' => optional($project->updated_at)->timestamp ?? 0,
+            'judul' => $project->judul,
+            'prodi' => $project->prodi,
+            'chapters' => $chapters,
+            'meta' => $meta,
+            'project_unlocked' => $unlocked,
+        ]));
     }
 
     /**
@@ -4921,11 +4967,34 @@ ATURAN REVISI (SANGAT KETAT):
     public function saveChapterManual(Request $request, $id)
     {
         $request->validate([
-            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo,identity,data_riil,lampiran',
-            'content' => 'required_unless:chapter,identity,data_riil,lampiran|string',
+            'chapter' => 'required|in:bab1,bab2,bab3,bab4,bab5,daftar_pustaka,front,front_logo,identity,data_riil,lampiran,doc_format',
+            'content' => 'required_unless:chapter,identity,data_riil,lampiran,doc_format|string',
         ]);
 
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($request->chapter === 'doc_format') {
+            $meta = $this->getProjectMeta($project);
+            $font = strtolower(trim((string) $request->input('font_family', 'times')));
+            if (!in_array($font, ['times', 'arial', 'georgia'], true)) {
+                $font = 'times';
+            }
+            $docFormat = [
+                'font' => $font,
+                'top' => (string) max(1, min(6, (float) $request->input('margin_top', 4))),
+                'left' => (string) max(1, min(6, (float) $request->input('margin_left', 4))),
+                'bottom' => (string) max(1, min(6, (float) $request->input('margin_bottom', 3))),
+                'right' => (string) max(1, min(6, (float) $request->input('margin_right', 3))),
+            ];
+            $meta['doc_format'] = $docFormat;
+            $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
+            $project->save();
+
+            return $this->applyNoStoreHeaders(response()->json([
+                'status' => 'success',
+                'doc_format' => $docFormat,
+            ]));
+        }
 
         if ($request->chapter === 'lampiran') {
             $meta = $this->getProjectMeta($project);
@@ -8764,7 +8833,7 @@ TEKS ASLI:
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
         $authUser = Auth::user();
         $unlocked = $authUser ? ($this->billing()->isAdminUser($authUser) || $this->billing()->isUnlimitedActive($authUser) || !empty($project->is_full_unlocked)) : true;
-        return response()->json([
+        return $this->applyNoStoreHeaders(response()->json([
             'status' => 'success',
             'judul' => $project->judul,
             'unlocked' => $unlocked,
@@ -8775,7 +8844,7 @@ TEKS ASLI:
                 'bab4' => $unlocked ? trim(strip_tags((string) ($project->bab4_content ?? ''))) : '',
                 'bab5' => $unlocked ? trim(strip_tags((string) ($project->bab5_content ?? ''))) : '',
             ],
-        ]);
+        ]));
     }
 
     public function generatePpt(Request $request)

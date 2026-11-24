@@ -7528,6 +7528,13 @@
             openTab(tabKey, label);
         }
 
+        // Cegah browser (Safari/Chrome mobile BFCache) menampilkan cache lama saat pindah perangkat atau kembali ke tab ini
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+
         // Buka tab sesuai URL hash / query param / localStorage (Refresh tetap konsisten)
         (function initTabFromUrl() {
             const params = new URLSearchParams(window.location.search);

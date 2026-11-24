@@ -61,7 +61,7 @@ class AIManagerService
                     ->post($pollUrl, [
                         'model' => $freeModel,
                         'messages' => $messages,
-                        'temperature' => 0.65,
+                        'temperature' => 0.25,
                     ]);
 
                     if ($response->successful()) {

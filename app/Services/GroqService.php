@@ -24,7 +24,7 @@ class GroqService
                         $q->orWhereIn('provider', ['deepseek', 'groq']);
                     }
                 })
-                ->orderBy('usage_count', 'asc')
+                ->orderBy('id', 'asc')
                 ->get(['id', 'key']);
 
             foreach ($dbKeys as $item) {
@@ -90,7 +90,7 @@ class GroqService
                             ['role' => 'system', 'content' => $systemMsg],
                             ['role' => 'user', 'content' => $prompt],
                         ],
-                        'temperature' => 0.55,
+                        'temperature' => 0.25,
                         'max_tokens' => 8192,
                     ]);
 
@@ -124,7 +124,7 @@ class GroqService
                             ['role' => 'user', 'content' => $prompt],
                         ],
                         'model' => $freeModel,
-                        'temperature' => 0.65,
+                        'temperature' => 0.25,
                     ];
 
                     $freeResp = Http::withHeaders(['Content-Type' => 'application/json'])

@@ -8,7 +8,7 @@
     <title>{{ $project->judul }} — SkripsiLab AI Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-app: #f8fafc;
@@ -41,6 +41,8 @@
 
         html {
             accent-color: var(--accent);
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
         html,
@@ -1306,14 +1308,14 @@
                 min-height: 640px !important;
                 padding: 40px 24px 36px 28px !important;
             }
-            .paper-editor p {
+            .a4-sheet .paper-editor p {
                 text-indent: 24px !important;
             }
-            .paper-editor ul,
-            .paper-editor ol {
+            .a4-sheet .paper-editor ul,
+            .a4-sheet .paper-editor ol {
                 padding-left: 22px !important;
             }
-            .paper-editor .split-li-cont {
+            .a4-sheet .paper-editor .split-li-cont {
                 padding-left: 22px !important;
                 text-indent: 0 !important;
             }
@@ -2442,6 +2444,7 @@
         let allowBab45 = !isProposalMode;
         let activeView = 'all';
         let isDirty = false;
+        let isGenerating = false;
         let currentReviseMode = 'content';
 
         const chapterLabels = {
@@ -3969,9 +3972,9 @@
         };
 
         const DOC_FONT_MAP = {
-            times: { css: "'Times New Roman', Times, serif", size: '12pt', label: 'Times New Roman 12pt' },
-            arial: { css: "Arial, Helvetica, sans-serif", size: '11pt', label: 'Arial 11pt' },
-            georgia: { css: "Georgia, 'Times New Roman', serif", size: '11pt', label: 'Georgia 11pt' }
+            times: { css: "'Times New Roman', 'Tinos', Times, serif", size: '12pt', label: 'Times New Roman 12pt' },
+            arial: { css: "Arial, 'Arimo', Helvetica, sans-serif", size: '11pt', label: 'Arial 11pt' },
+            georgia: { css: "Georgia, 'Tinos', 'Times New Roman', serif", size: '11pt', label: 'Georgia 11pt' }
         };
         let activeDocFontKey = 'times';
 
@@ -4046,6 +4049,8 @@
                     sandboxPage.style.lineHeight = '1.5';
                     sandboxPage.style.wordBreak = 'break-word';
                     sandboxPage.style.overflowWrap = 'break-word';
+                    sandboxPage.style.webkitTextSizeAdjust = '100%';
+                    sandboxPage.style.textSizeAdjust = '100%';
                     sandboxPage.style.padding = '0';
                     sandboxPage.style.margin = '0';
                     sandboxPage.style.boxSizing = 'border-box';
@@ -5236,11 +5241,24 @@
     `;
         }
 
-        let researchDataRiil = projectMeta.data_riil || {};
-        try {
-            const cached = localStorage.getItem(`skripsi_data_riil_${projectId}`);
-            if (cached) researchDataRiil = Object.assign({}, researchDataRiil, JSON.parse(cached));
-        } catch (e) { }
+        // Data Olah Data dari server DB SELALU diprioritaskan agar PC dan HP selalu memakai data riset yang sama persis
+        let researchDataRiil = {};
+        function applyServerDataRiil(serverData) {
+            const cleanServer = (serverData && typeof serverData === 'object') ? serverData : {};
+            const hasServerValue = Object.values(cleanServer).some(v => String(v || '').trim().length > 0);
+            if (hasServerValue) {
+                researchDataRiil = Object.assign({}, cleanServer);
+                try { localStorage.setItem(`skripsi_data_riil_${projectId}`, JSON.stringify(researchDataRiil)); } catch (e) { }
+            } else {
+                let cachedParsed = {};
+                try {
+                    const cached = localStorage.getItem(`skripsi_data_riil_${projectId}`);
+                    if (cached) cachedParsed = JSON.parse(cached) || {};
+                } catch (e) { }
+                researchDataRiil = Object.assign({}, cachedParsed, cleanServer);
+            }
+        }
+        applyServerDataRiil(projectMeta.data_riil);
 
         function applyOlahDataPreset(type) {
             if (type === 'spss') {
@@ -5870,6 +5888,7 @@
             const model = document.getElementById('studio-model').value;
             const dot = document.getElementById(`dot-${activeView}`);
             if (dot) dot.classList.add('generating');
+            isGenerating = true;
 
             if (activeView === 'daftar_pustaka') {
                 const activeGayaDp = (typeof projectMeta === 'object' && projectMeta && projectMeta.sitasi && projectMeta.sitasi.gaya)
@@ -5889,6 +5908,7 @@
                 } catch (err) {
                     showToast(err.message || 'Terjadi kesalahan.', 'error');
                 } finally {
+                    isGenerating = false;
                     finishLoadingSheet();
                     if (dot) dot.classList.remove('generating');
                     updateProgressUI();
@@ -5916,6 +5936,7 @@
             } catch (err) {
                 showToast(err.message || 'Gagal memproses AI.', 'error');
             } finally {
+                isGenerating = false;
                 finishLoadingSheet();
                 if (dot) dot.classList.remove('generating');
                 updateProgressUI();
@@ -5928,6 +5949,7 @@
             const keys = allowBab45 ? ['bab1', 'bab2', 'bab3', 'bab4', 'bab5'] : ['bab1', 'bab2', 'bab3'];
             const model = document.getElementById('studio-model').value;
             btn.disabled = true;
+            isGenerating = true;
 
             for (const key of keys) {
                 selectChapterView(key);
@@ -5962,6 +5984,7 @@
             }
 
             btn.disabled = false;
+            isGenerating = false;
             renderActiveSheet();
             showToast('Penyusunan otomatis selesai!', 'success');
         }
@@ -6035,6 +6058,7 @@
                 formData.append('revision_file', fileEl.files[0]);
             }
 
+            isGenerating = true;
             renderLoadingSheet(`Memproses Revisi ${subLabel}...`, 'AI sedang menyempurnakan sub-bab target sesuai catatan & mode yang dipilih.');
             try {
                 const res = await fetch(`/project/${projectId}/revise`, {
@@ -6044,6 +6068,7 @@
                 });
                 const data = await res.json();
                 if (res.status === 402 || data.status === 'upgrade_required') {
+                    isGenerating = false;
                     finishLoadingSheet();
                     openUpgradeModal(data.message || 'Revisi bagian ini tersedia di Paket Starter mulai Rp15.000.', data.reason);
                     renderLabRevisi();
@@ -6053,6 +6078,8 @@
                     throw new Error(data.message || data.error || 'Gagal memproses revisi.');
                 }
                 chapterContents[chapterKey] = data.content || chapterContents[chapterKey];
+                lastServerStateHash = '';
+                syncProjectFromServer(false);
                 finishLoadingSheet();
                 updateProgressUI();
                 showToast(`Revisi ${subLabel} berhasil diterapkan!`, 'success');
@@ -6061,6 +6088,8 @@
                 finishLoadingSheet();
                 showToast(err.message || 'Terjadi kesalahan saat revisi.', 'error');
                 renderLabRevisi();
+            } finally {
+                isGenerating = false;
             }
         }
 
@@ -6191,6 +6220,29 @@
 
         window.addEventListener('resize', applyCurrentDocFormatting);
 
+        function saveDocFormatToServer() {
+            const font = activeDocFontKey || 'times';
+            const top = document.getElementById('m-top')?.value || '4';
+            const left = document.getElementById('m-left')?.value || '4';
+            const bottom = document.getElementById('m-bottom')?.value || '3';
+            const right = document.getElementById('m-right')?.value || '3';
+            projectMeta.doc_format = { font, top, left, bottom, right };
+            try {
+                fetch(`/project/${projectId}/save-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({
+                        chapter: 'doc_format',
+                        font_family: font,
+                        margin_top: top,
+                        margin_left: left,
+                        margin_bottom: bottom,
+                        margin_right: right
+                    })
+                }).catch(() => {});
+            } catch (e) { }
+        }
+
         function updateDocFont(val, silent = false) {
             const cfg = DOC_FONT_MAP[val] || DOC_FONT_MAP.times;
             activeDocFontKey = DOC_FONT_MAP[val] ? val : 'times';
@@ -6206,6 +6258,7 @@
                 applyCurrentDocFormatting();
             }
             if (!silent) {
+                saveDocFormatToServer();
                 showToast(`Font naskah & ekspor Word/PDF diubah ke ${cfg.label}`, 'info');
             }
         }
@@ -6229,8 +6282,13 @@
                 }
             });
 
-            if (!silent && typeof renderActiveSheet === 'function' && activeView !== 'revisi' && activeView !== 'lampiran') {
-                renderActiveSheet();
+            if (!silent) {
+                saveDocFormatToServer();
+                if (typeof renderActiveSheet === 'function' && activeView !== 'revisi' && activeView !== 'lampiran') {
+                    renderActiveSheet();
+                } else {
+                    applyCurrentDocFormatting();
+                }
             } else {
                 applyCurrentDocFormatting();
             }
@@ -6632,18 +6690,115 @@
             applyCurrentDocFormatting();
         }
 
-        try {
-            const savedFont = localStorage.getItem(`skripsi_font_${projectId}`);
-            if (savedFont && DOC_FONT_MAP[savedFont]) {
+        function applyServerDocFormat(docFmt) {
+            if (!docFmt || typeof docFmt !== 'object') return false;
+            const mTop = document.getElementById('m-top');
+            const mLeft = document.getElementById('m-left');
+            const mBottom = document.getElementById('m-bottom');
+            const mRight = document.getElementById('m-right');
+            if (docFmt.top && mTop) mTop.value = docFmt.top;
+            if (docFmt.left && mLeft) mLeft.value = docFmt.left;
+            if (docFmt.bottom && mBottom) mBottom.value = docFmt.bottom;
+            if (docFmt.right && mRight) mRight.value = docFmt.right;
+            updateMargins(true);
+            if (docFmt.font && DOC_FONT_MAP[docFmt.font]) {
                 const fontSel = document.getElementById('doc-font-select');
-                if (fontSel) fontSel.value = savedFont;
-                updateDocFont(savedFont, true);
+                if (fontSel) fontSel.value = docFmt.font;
+                updateDocFont(docFmt.font, true);
             }
-        } catch (e) { }
+            return true;
+        }
+
+        if (!applyServerDocFormat(projectMeta.doc_format)) {
+            try {
+                const savedFont = localStorage.getItem(`skripsi_font_${projectId}`);
+                if (savedFont && DOC_FONT_MAP[savedFont]) {
+                    const fontSel = document.getElementById('doc-font-select');
+                    if (fontSel) fontSel.value = savedFont;
+                    updateDocFont(savedFont, true);
+                }
+            } catch (e) { }
+        }
+
+        let lastServerStateHash = '';
+        let lastSyncCheckAt = 0;
+        let syncInFlight = false;
+
+        async function syncProjectFromServer(forceReRender = true) {
+            if (syncInFlight || isDirty || isGenerating) return;
+            const now = Date.now();
+            if (now - lastSyncCheckAt < 2500) return;
+            lastSyncCheckAt = now;
+            syncInFlight = true;
+            try {
+                const res = await fetch(`/project/${projectId}/sync-state?_=${now}`, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || data.status !== 'success') return;
+                if (!lastServerStateHash) {
+                    lastServerStateHash = data.state_hash || '';
+                    return;
+                }
+                if (data.state_hash && data.state_hash !== lastServerStateHash) {
+                    lastServerStateHash = data.state_hash;
+                    if (data.chapters && typeof data.chapters === 'object') {
+                        Object.assign(chapterContents, data.chapters);
+                    }
+                    if (data.meta && typeof data.meta === 'object') {
+                        Object.assign(projectMeta, data.meta);
+                        applyServerDataRiil(data.meta.data_riil);
+                        applyServerDocFormat(data.meta.doc_format);
+                        if (Array.isArray(data.meta.lampiran)) {
+                            projectLampiran = [...data.meta.lampiran];
+                        }
+                        if (data.meta.logo_base64) {
+                            const prev = document.getElementById('sidebar-logo-preview');
+                            if (prev) prev.src = data.meta.logo_base64;
+                        }
+                    }
+                    updateLampiranSidebarBadge();
+                    updateOlahDataIndicator();
+                    updateProgressUI();
+                    if (forceReRender && typeof renderActiveSheet === 'function' && activeView !== 'revisi') {
+                        renderActiveSheet();
+                    }
+                }
+            } catch (e) { } finally {
+                syncInFlight = false;
+            }
+        }
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                window.location.reload();
+                return;
+            }
+            syncProjectFromServer(true);
+        });
+        window.addEventListener('focus', () => syncProjectFromServer(true));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') syncProjectFromServer(true);
+        });
+        setInterval(() => {
+            if (document.visibilityState === 'visible') syncProjectFromServer(true);
+        }, 8000);
+        syncProjectFromServer(false);
+
         updateLampiranSidebarBadge();
         updateOlahDataIndicator();
         updateProgressUI();
         selectChapterView('all');
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                if (!isDirty && !isGenerating && typeof renderActiveSheet === 'function' && activeView !== 'revisi' && activeView !== 'lampiran') {
+                    renderActiveSheet();
+                }
+            }).catch(() => {});
+        }
     </script>
     @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])
 </body>

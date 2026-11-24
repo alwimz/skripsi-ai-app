@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
     // --- WORKSPACE GENERATOR (BAB 1-3 PROPOSAL / BAB 1-5 SKRIPSI) ---
     Route::get('/project/{id}', [GeneratorController::class, 'generatorIndex'])->name('app.index');
+    Route::get('/project/{id}/sync-state', [GeneratorController::class, 'syncProjectState'])->name('project.syncState');
     Route::get('/project/{id}/chapters-text', [GeneratorController::class, 'getProjectChaptersText'])->name('project.chapters.text');
     Route::post('/project/{id}/generate', [GeneratorController::class, 'generateChapter'])->name('project.generate');
     Route::post('/project/{id}/revise', [GeneratorController::class, 'reviseChapter'])->name('project.revise');
