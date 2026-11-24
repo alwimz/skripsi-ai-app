@@ -5796,69 +5796,16 @@
             <section class="tab-pane" id="pane-pricing">
                 @php
                     $bs = $billingSummary ?? [];
-                    $bsPaid = !empty($bs['is_paid_active']);
-                    $bsUnlim = !empty($bs['is_unlimited']);
-                    $freeUsage = $bs['free_tool_usage'] ?? [];
-                    $toolTrialMap = [
-                        'titles' => 'Cari Ide Judul AI',
-                        'journals' => 'Cari Jurnal Ber-DOI',
-                        'ppt' => 'Generator PPT Sidang',
-                        'defense' => 'Simulasi Sidang AI',
-                        'paraphrase' => 'Parafrase Akademik',
-                        'plagiarism' => 'Cek Plagiarisme',
-                        'stats_analyze' => 'Olah Data Statistik',
-                        'stats_interpret' => 'Interpretasi Bab IV AI',
-                        'stats_instrument' => 'Generator Kuesioner',
-                        'revise' => 'Revisi Bab I AI',
-                    ];
                 @endphp
                 <div class="page-eyebrow">Tanpa Sistem Kredit · Bayar Pakai Kuota atau Unlimited</div>
                 <h1 class="page-title">Paket</h1>
-                <p class="page-subtitle">Cek status kuota akun Anda dan pilih paket paling hemat (mulai Rp15.000) dengan aktivasi otomatis via QRIS.</p>
+                <p class="page-subtitle">Cek sisa kuota &amp; masa aktif akun Anda, atau pilih paket mulai Rp15.000 via QRIS.</p>
 
-                <!-- Kartu Status Tier Aktif -->
-                <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; border: none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
-                        <div>
-                            <div style="font-size: 11px; font-weight: 700; color: #7dd3fc; text-transform: uppercase; letter-spacing: 0.06em;">Tier Akun Aktif Sekarang</div>
-                            <div style="font-size: 22px; font-weight: 800; margin-top: 4px;">
-                                {{ ($bs['is_admin'] ?? false) ? 'Administrator (Unlimited)' : ($bs['plan']['name'] ?? 'Free (Coba Dulu)') }}
-                            </div>
-                            <div style="font-size: 13px; color: #cbd5e1; margin-top: 5px; line-height: 1.5;">
-                                @if($bsUnlim)
-                                    Status: <strong style="color:#4ade80;">Unlimited Aktif</strong> &bull; Berlaku sampai <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
-                                @elseif($bsPaid)
-                                    Sisa Kuota Full: <strong style="color:#4ade80;">{{ $bs['remaining_quota'] ?? 0 }} Proposal/Skripsi</strong> (Terpakai {{ $bs['quota_used'] ?? 0 }}/{{ $bs['quota_limit'] ?? 0 }}) &bull; Berlaku sampai <strong>{{ $bs['expires_at_label'] ?? '-' }}</strong>
-                                @else
-                                    Jatah Proyek Free: <strong>{{ $bs['free_project_used'] ?? 0 }}/1</strong> (Sampul, Bab I &amp; Daftar Pustaka) &bull; Konsultasi Dosen AI aktif gratis
-                                @endif
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button type="button" onclick="openTab('referral', 'Ajak Teman')"
-                                style="padding:9px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.1); color:#ffffff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
-                                🎁 Saldo Referral: Rp {{ number_format($bs['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
-                            </button>
-                        </div>
-                    </div>
-
-                    @if(!$bsPaid)
-                        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.14);">
-                            <div style="font-size: 11.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">Status Jatah Coba Gratis (1x per Fitur AI untuk Tier Free):</div>
-                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                                @foreach($toolTrialMap as $tKey => $tLabel)
-                                    @php $used = ((int) ($freeUsage[$tKey] ?? 0)) >= 1; @endphp
-                                    <span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: {{ $used ? 'rgba(248,113,113,0.18)' : 'rgba(74,222,128,0.18)' }}; color: {{ $used ? '#fecaca' : '#bbf7d0' }}; border: 1px solid {{ $used ? 'rgba(248,113,113,0.35)' : 'rgba(74,222,128,0.35)' }};">
-                                        {{ $used ? '✕ Habis:' : '✓ Tersedia (1x):' }} {{ $tLabel }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </div>
+                <!-- Kartu Status Tier & Sisa Kuota/Fitur -->
+                @include('partials.billing_status_card', ['bs' => $bs, 'inWorkspace' => true])
 
                 <!-- Katalog Paket Lengkap (15rb, 29rb, 50rb/bln, 2bln, 3bln, 6bln, 1thn) -->
-                <div class="card" style="margin-bottom: 20px;">
+                <div style="margin-bottom: 20px;">
                     @include('partials.pricing_catalog', ['plans' => $plans ?? [], 'billingSummary' => $billingSummary ?? []])
                 </div>
 
@@ -5990,7 +5937,7 @@
                                 <option value="hemat">Paket Hemat 3 Naskah (Rp29.000)</option>
                                 <option value="unlimited_1m">Unlimited 1 Bulan (Rp50.000)</option>
                             </select>
-                            <button type="button" class="btn-primary" onclick="submitReferralRedeem()" {{ $refBalance < 15000 ? 'disabled' : '' }} style="opacity:{{ $refBalance < 15000 ? '0.55' : '1' }};">
+                            <button type="button" class="btn-primary" onclick="submitReferralRedeem(this)" {{ $refBalance < 15000 ? 'disabled' : '' }} style="opacity:{{ $refBalance < 15000 ? '0.55' : '1' }};">
                                 Tukar Paket →
                             </button>
                         </div>
@@ -6013,7 +5960,7 @@
                             <input type="text" id="ref-wd-number" class="form-input" placeholder="Nomor HP / Rekening">
                             <input type="text" id="ref-wd-name" class="form-input" placeholder="Atas Nama Pemilik">
                         </div>
-                        <button type="button" class="btn-outline" onclick="submitReferralWithdraw()" {{ $refBalance < 10000 ? 'disabled' : '' }} style="width:100%; opacity:{{ $refBalance < 10000 ? '0.55' : '1' }};">
+                        <button type="button" class="btn-outline" onclick="submitReferralWithdraw(this)" {{ $refBalance < 10000 ? 'disabled' : '' }} style="width:100%; opacity:{{ $refBalance < 10000 ? '0.55' : '1' }};">
                             Ajukan Pencairan Komisi (Min. Rp10.000)
                         </button>
                     </div>
@@ -10890,9 +10837,10 @@
             });
         })();
 
-        async function submitReferralRedeem() {
+        async function submitReferralRedeem(btn) {
             const planCode = document.getElementById('ref-redeem-plan')?.value || 'starter';
             const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            if (btn) btn.disabled = true;
             try {
                 const res = await fetch("{{ route('referral.action') }}", {
                     method: 'POST',
@@ -10902,16 +10850,18 @@
                 const data = await res.json();
                 if (!res.ok || data.status !== 'success') {
                     alert(data.message || 'Gagal menukar saldo referral.');
+                    if (btn) btn.disabled = false;
                     return;
                 }
                 alert(data.message);
                 window.location.reload();
             } catch (e) {
                 alert('Gagal memproses penukaran komisi.');
+                if (btn) btn.disabled = false;
             }
         }
 
-        async function submitReferralWithdraw() {
+        async function submitReferralWithdraw(btn) {
             const channel = document.getElementById('ref-wd-channel')?.value || 'DANA';
             const amount = parseInt(document.getElementById('ref-wd-amount')?.value || '0', 10);
             const accountNumber = (document.getElementById('ref-wd-number')?.value || '').trim();
@@ -10921,6 +10871,7 @@
                 alert('Lengkapi nomor tujuan, nama pemilik, dan nominal minimal Rp10.000.');
                 return;
             }
+            if (btn) btn.disabled = true;
             try {
                 const res = await fetch("{{ route('referral.action') }}", {
                     method: 'POST',
@@ -10936,12 +10887,14 @@
                 const data = await res.json();
                 if (!res.ok || data.status !== 'success') {
                     alert(data.message || 'Gagal mengajukan pencairan.');
+                    if (btn) btn.disabled = false;
                     return;
                 }
                 alert(data.message);
                 window.location.reload();
             } catch (e) {
                 alert('Gagal mengajukan pencairan komisi.');
+                if (btn) btn.disabled = false;
             }
         }
     </script>

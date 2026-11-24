@@ -49,33 +49,12 @@
             margin: 0 auto;
             padding: 28px 20px 64px;
         }
-        .tier-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-            color: #ffffff;
-            border-radius: 18px;
-            padding: 22px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
-        }
-        .tier-pill {
+        .btn-nav {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 999px;
-            background: rgba(56, 189, 248, 0.18);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #7dd3fc;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .btn-nav {
-            padding: 8px 14px;
+            justify-content: center;
+            min-height: 40px;
+            padding: 9px 15px;
             border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
@@ -83,11 +62,34 @@
             border: 1px solid #cbd5e1;
             color: #0f172a;
             background: #ffffff;
+            white-space: nowrap;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .btn-nav:hover {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #1d4ed8;
         }
         .btn-nav.primary {
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
-            border-color: #2563eb;
+            border-color: #1d4ed8;
+        }
+        .btn-nav.primary:hover {
+            filter: brightness(1.06);
+            color: #ffffff;
+        }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 640px) {
+            .wrap { padding: 18px 14px 48px; }
+            .topbar { padding: 12px 14px; }
+            .topbar-actions { width: 100%; }
+            .topbar-actions .btn-nav { flex: 1 1 130px; }
         }
     </style>
 </head>
@@ -98,7 +100,7 @@
                 <img src="/images/logo.svg" alt="SkripsiLab AI" width="30" height="30" style="border-radius:8px;">
                 <span>SkripsiLab AI</span>
             </a>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div class="topbar-actions">
                 <a href="{{ url('/tools') }}" class="btn-nav">10 Tools Gratis</a>
                 @auth
                     <a href="{{ route('app.create') }}" class="btn-nav primary">Kembali ke Workspace →</a>
@@ -115,37 +117,16 @@
             <span style="display:inline-block; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;">
                 HARGA RAMAH MAHASISWA · TANPA SISTEM KREDIT
             </span>
-            <h1 style="font-size: 28px; font-weight: 800; margin: 10px 0 6px; letter-spacing: -0.02em;">
-                Pilih Paket Kuota Naskah atau Unlimited
+            <h1 style="font-size: 26px; font-weight: 800; margin: 10px 0 6px; letter-spacing: -0.02em;">
+                Paket Harga &amp; Tier Akun
             </h1>
-            <p style="font-size: 14.5px; color: #475569; max-width: 720px; margin: 0;">
-                Tidak pakai hitungan kredit yang bikin pusing saat revisi. Bayar sekali untuk kuota naskah atau pilih Unlimited bulanan — revisi AI, parafrase, PPT sidang, dan download Word/PDF langsung aktif otomatis via QRIS Pakasir.
+            <p style="font-size: 14px; color: #475569; max-width: 680px; margin: 0;">
+                Bayar sekali sesuai kuota naskah atau pilih Unlimited — semua fitur AI langsung aktif via QRIS.
             </p>
         </div>
 
         @if(!empty($summary))
-            <div class="tier-banner">
-                <div>
-                    <span class="tier-pill">Tier Akun Anda Saat Ini</span>
-                    <div style="font-size: 22px; font-weight: 800; margin-top: 8px;">
-                        {{ $summary['is_admin'] ? 'Administrator (Unlimited)' : ($summary['plan']['name'] ?? 'Free (Coba Dulu)') }}
-                    </div>
-                    <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">
-                        @if($summary['is_unlimited'])
-                            Status: <strong style="color:#4ade80;">Unlimited Aktif</strong> · Berlaku hingga: <strong>{{ $summary['expires_at_label'] }}</strong>
-                        @elseif($summary['is_paid_active'])
-                            Sisa Kuota Proyek Full: <strong style="color:#4ade80;">{{ $summary['remaining_quota'] }} Naskah</strong> (Terpakai {{ $summary['quota_used'] }}/{{ $summary['quota_limit'] }}) · Berlaku hingga {{ $summary['expires_at_label'] }}
-                        @else
-                            Proyek Uji Coba Free: <strong>{{ $summary['free_project_used'] }}/1</strong> (Sampul, Bab I &amp; Daftar Pustaka) · Download Word/PDF terkunci
-                        @endif
-                    </div>
-                </div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="{{ route('app.create', ['tab' => 'referral']) }}" style="padding:10px 14px; border-radius:10px; background:rgba(255,255,255,0.12); color:#fff; text-decoration:none; font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,0.2);">
-                        🎁 Komisi Referral: Rp {{ number_format($summary['referral_stats']['balance'] ?? 0, 0, ',', '.') }}
-                    </a>
-                </div>
-            </div>
+            @include('partials.billing_status_card', ['bs' => $summary, 'inWorkspace' => false])
         @endif
 
         @include('partials.pricing_catalog', ['plans' => $plans, 'billingSummary' => $summary])

@@ -28,17 +28,6 @@ class PlagiarismController extends Controller
      */
     public function check(Request $request)
     {
-        $user = Auth::user();
-        if ($user) {
-            $access = $this->billing->checkToolAccess($user, 'plagiarism', 'Cek Plagiarisme');
-            if (!$access['allowed']) {
-                return response()->json([
-                    'status' => 'upgrade_required',
-                    'reason' => $access['reason'] ?? 'free_tool_limit',
-                    'message' => $access['message'],
-                ], 402);
-            }
-        }
         $request->validate([
             'text' => 'nullable|string|max:180000',
             'project_id' => 'nullable|integer',
@@ -83,6 +72,20 @@ class PlagiarismController extends Controller
             ], 422);
         }
 
+        $user = Auth::user();
+        $toolReserved = false;
+        if ($user) {
+            $access = $this->billing->reserveToolAccess($user, 'plagiarism', 'Cek Plagiarisme');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+            $toolReserved = !empty($access['reserved']);
+        }
+
         $compareText = trim((string) $request->input('compare_text', ''));
         $compareTitle = 'Dokumen Pembanding';
         if ($request->hasFile('compare_file')) {
@@ -106,15 +109,15 @@ class PlagiarismController extends Controller
 
             $report['doc_title'] = $docTitle !== '' ? $docTitle : 'Naskah Skripsi / Proposal';
             $report['checked_at'] = now()->format('d M Y, H:i') . ' WIB';
-            if ($user) {
-                $this->billing->markToolUsed($user, 'plagiarism');
-            }
 
             return response()->json([
                 'status' => 'success',
                 'report' => $report,
             ]);
         } catch (\Throwable $e) {
+            if ($user && $toolReserved) {
+                $this->billing->releaseToolReservation($user, 'plagiarism');
+            }
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal menganalisis kemiripan naskah: ' . $e->getMessage(),

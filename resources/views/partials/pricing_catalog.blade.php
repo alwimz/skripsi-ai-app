@@ -30,7 +30,7 @@
     }
     .sl-pricing-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
         gap: 16px;
         margin-bottom: 16px;
     }
@@ -200,6 +200,7 @@
     }
     .sl-plan-btn {
         width: 100%;
+        min-height: 44px;
         padding: 11px 16px;
         border-radius: 999px;
         font-size: 13.5px;
@@ -214,6 +215,9 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
+        line-height: 1.25;
+        white-space: normal;
+        box-sizing: border-box;
         transition: all 0.15s;
         font-family: inherit;
     }
@@ -238,6 +242,20 @@
         cursor: default;
         border-color: #e2e8f0;
     }
+    @media (max-width: 640px) {
+        .sl-plan-card {
+            padding: 16px;
+            border-radius: 16px;
+        }
+        .sl-price-main {
+            font-size: 24px;
+        }
+        .sl-plan-btn {
+            min-height: 44px;
+            font-size: 13px;
+            padding: 11px 14px;
+        }
+    }
 </style>
 
 <div class="sl-pricing-group-title" style="margin-top: 4px;">
@@ -257,9 +275,13 @@
                     <span class="sl-plan-badge" style="background: {{ $p['badge_color'] ?? '#2563eb' }};">
                         {{ $p['badge'] ?? 'Paket' }}
                     </span>
-                    <span class="sl-plan-sold">
-                        🔥 {{ number_format((int) ($p['sold_count'] ?? 0), 0, ',', '.') }}+ {{ $p['code'] === 'free' ? 'pengguna' : 'terjual' }}
-                    </span>
+                    @if($isCurrent && !empty($billingSummary['is_paid_active']))
+                        <span class="sl-plan-badge" style="background: #16a34a;">✓ Paket Aktif</span>
+                    @else
+                        <span class="sl-plan-sold">
+                            🔥 {{ number_format((int) ($p['sold_count'] ?? 0), 0, ',', '.') }}+ {{ $p['code'] === 'free' ? 'pengguna' : 'terjual' }}
+                        </span>
+                    @endif
                 </div>
 
                 <div class="sl-plan-name">{{ $p['name'] }}</div>
@@ -339,6 +361,7 @@
     @foreach($unlimitedPlans as $p)
         @php
             $isPopular = in_array($p['code'], ['unlimited_1m', 'unlimited_3m'], true);
+            $isCurrent = $activeCode === $p['code'] && !$isAdminUser;
         @endphp
         <div class="sl-plan-card {{ $p['code'] === 'unlimited_3m' ? 'popular' : '' }}">
             <div>
@@ -346,9 +369,13 @@
                     <span class="sl-plan-badge" style="background: {{ $p['badge_color'] ?? '#4f46e5' }};">
                         {{ $p['badge'] ?? 'Unlimited' }}
                     </span>
-                    <span class="sl-plan-sold">
-                        🔥 {{ number_format((int) ($p['sold_count'] ?? 0), 0, ',', '.') }}+ terjual
-                    </span>
+                    @if($isCurrent && !empty($billingSummary['is_paid_active']))
+                        <span class="sl-plan-badge" style="background: #16a34a;">✓ Paket Aktif</span>
+                    @else
+                        <span class="sl-plan-sold">
+                            🔥 {{ number_format((int) ($p['sold_count'] ?? 0), 0, ',', '.') }}+ terjual
+                        </span>
+                    @endif
                 </div>
 
                 <div class="sl-plan-name">{{ $p['name'] }}</div>

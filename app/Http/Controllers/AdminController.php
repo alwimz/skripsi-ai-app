@@ -202,10 +202,13 @@ class AdminController extends Controller
             abort(403);
         }
         $this->billing->ensureSchema();
-        DB::table('referral_withdrawals')->where('id', $id)->update([
-            'status' => 'paid',
-            'updated_at' => now(),
-        ]);
+        DB::table('referral_withdrawals')
+            ->where('id', $id)
+            ->where('status', 'pending')
+            ->update([
+                'status' => 'paid',
+                'updated_at' => now(),
+            ]);
         return back()->with('success', 'Status pencairan referral ditandai sudah dibayar.');
     }
 

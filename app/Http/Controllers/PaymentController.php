@@ -253,20 +253,33 @@ class PaymentController extends Controller
         if ($action === 'redeem') {
             $planCode = trim((string) $request->input('plan_code', 'starter'));
             $plan = $this->billing->getPlan($planCode);
-            if (!$plan || $planCode === 'free') {
+            if (!$plan || $planCode === 'free' || (int) ($plan['price'] ?? 0) <= 0) {
                 return response()->json(['status' => 'error', 'message' => 'Paket tidak valid.'], 422);
             }
             $price = (int) $plan['price'];
-            $balance = (int) ($user->referral_balance ?? 0);
-            if ($balance < $price) {
+
+            $redeemed = DB::transaction(function () use ($user, $planCode, $price): bool {
+                $affected = DB::table('users')
+                    ->where('id', $user->id)
+                    ->where('referral_balance', '>=', $price)
+                    ->decrement('referral_balance', $price);
+                if ($affected < 1) {
+                    return false;
+                }
+                $freshUser = User::find($user->id);
+                if ($freshUser) {
+                    $this->billing->activatePackageForUser($freshUser, $planCode, null);
+                }
+                return true;
+            });
+
+            if (!$redeemed) {
+                $balance = (int) ($user->fresh()->referral_balance ?? 0);
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Saldo komisi Anda (Rp' . number_format($balance, 0, ',', '.') . ') belum mencukupi untuk menukar ' . $plan['name'] . ' (Rp' . number_format($price, 0, ',', '.') . ').',
                 ], 422);
             }
-
-            $user->decrement('referral_balance', $price);
-            $this->billing->activatePackageForUser($user->fresh(), $planCode, null);
 
             return response()->json([
                 'status' => 'success',
@@ -285,26 +298,36 @@ class PaymentController extends Controller
         ]);
 
         $amount = (int) $request->input('amount');
-        $balance = (int) ($user->referral_balance ?? 0);
-        if ($amount > $balance) {
+        $withdrawn = DB::transaction(function () use ($request, $user, $amount): bool {
+            $affected = DB::table('users')
+                ->where('id', $user->id)
+                ->where('referral_balance', '>=', $amount)
+                ->decrement('referral_balance', $amount);
+            if ($affected < 1) {
+                return false;
+            }
+
+            DB::table('referral_withdrawals')->insert([
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'channel' => trim((string) $request->input('channel')),
+                'account_number' => trim((string) $request->input('account_number')),
+                'account_name' => trim((string) $request->input('account_name')),
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return true;
+        });
+
+        if (!$withdrawn) {
+            $balance = (int) ($user->fresh()->referral_balance ?? 0);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Nominal penarikan melebihi saldo komisi tersedia (Rp' . number_format($balance, 0, ',', '.') . ').',
             ], 422);
         }
-
-        DB::table('referral_withdrawals')->insert([
-            'user_id' => $user->id,
-            'amount' => $amount,
-            'channel' => trim((string) $request->input('channel')),
-            'account_number' => trim((string) $request->input('account_number')),
-            'account_name' => trim((string) $request->input('account_name')),
-            'status' => 'pending',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $user->decrement('referral_balance', $amount);
 
         return response()->json([
             'status' => 'success',

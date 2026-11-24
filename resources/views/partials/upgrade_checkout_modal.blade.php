@@ -143,6 +143,67 @@
         font-family: inherit;
     }
     .sl-upgrade-later:hover { color: #64748b; }
+    .sl-checkout-body {
+        padding: 20px;
+        overflow-y: auto;
+        text-align: center;
+    }
+    .sl-checkout-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .sl-checkout-btn {
+        flex: 1 1 160px;
+        min-height: 44px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: filter 0.15s, background 0.15s;
+    }
+    .sl-checkout-btn.primary {
+        border: none;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .sl-checkout-btn.primary:hover { filter: brightness(1.07); color: #ffffff; }
+    .sl-checkout-btn.secondary {
+        border: 1.5px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+    .sl-checkout-btn.secondary:hover { background: #dbeafe; }
+    .sl-checkout-error-box {
+        display: none;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        color: #334155;
+        font-size: 13px;
+        text-align: center;
+        line-height: 1.55;
+    }
+    @media (max-width: 520px) {
+        .sl-modal-backdrop { padding: 12px; }
+        .sl-upgrade-top { padding: 22px 18px 18px; }
+        .sl-upgrade-body, .sl-checkout-body { padding: 16px; }
+        .sl-checkout-actions { flex-direction: column; }
+        .sl-checkout-btn { width: 100%; flex: none; }
+        #sl-qris-canvas { width: 190px !important; height: 190px !important; }
+    }
 </style>
 
 <!-- MODAL 1: PAYWALL / UPGRADE PROMPT -->
@@ -194,7 +255,7 @@
             <button type="button" onclick="closeCheckoutModal()" style="background: none; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <div style="padding: 22px; overflow-y: auto; text-align: center;">
+        <div class="sl-checkout-body">
             <div style="padding: 12px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; margin-bottom: 14px;">
                 <div id="sl-pay-plan-name" style="font-size: 13.5px; font-weight: 700; color: #1e40af;">Menyiapkan Paket...</div>
                 <div id="sl-pay-total" style="font-size: 24px; font-weight: 800; color: #0f172a; margin-top: 2px;">-</div>
@@ -205,7 +266,7 @@
                 <div style="font-size: 13.5px; font-weight: 600; color: #334155;">⏳ Sedang membuat kode QRIS...</div>
             </div>
 
-            <div id="sl-checkout-error" style="display:none; padding:12px 14px; border-radius:12px; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; font-size:12.5px; text-align:left; line-height:1.55;"></div>
+            <div id="sl-checkout-error" class="sl-checkout-error-box"></div>
 
             <div id="sl-checkout-step-pay" style="display:none;">
                 <div id="sl-qris-box" style="display:inline-block; padding:14px; background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; margin-bottom:10px;">
@@ -220,12 +281,11 @@
                     ⏳ Menunggu pembayaran... Status aktif otomatis setelah dibayar.
                 </div>
 
-                <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-                    <button type="button" onclick="pollPakasirStatusOnce()" style="padding:10px 14px; border-radius:10px; border:1px solid #bfdbfe; background:#eff6ff; color:#1d4ed8; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">
+                <div class="sl-checkout-actions">
+                    <button type="button" onclick="pollPakasirStatusOnce()" class="sl-checkout-btn secondary">
                         🔄 Cek Status Sekarang
                     </button>
-                    <a id="sl-pakasir-direct-link" href="#" target="_blank" rel="noopener"
-                        style="padding:10px 14px; border-radius:10px; border:none; background:#16a34a; color:#ffffff; font-size:13px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center;">
+                    <a id="sl-pakasir-direct-link" href="#" target="_blank" rel="noopener" class="sl-checkout-btn primary">
                         Buka Link QRIS ↗
                     </a>
                 </div>
@@ -318,7 +378,7 @@
 
                 if (data.status === 'pakasir_unconfigured') {
                     if (errEl) {
-                        errEl.innerHTML = `<div>Pembayaran QRIS otomatis sedang dalam proses aktivasi gateway baru.</div><div style="margin-top:8px;"><a href="${data.whatsapp_url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#16a34a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">Aktivasi Paket via WhatsApp Admin →</a></div>`;
+                        errEl.innerHTML = `<div style="margin-bottom:12px;color:#475569;">Pembayaran QRIS otomatis sedang dalam proses aktivasi gateway baru. Sementara waktu Anda dapat aktivasi langsung via Admin:</div><a href="${data.whatsapp_url}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">Aktivasi Paket via WhatsApp Admin →</a>`;
                         errEl.style.display = 'block';
                     }
                     return;

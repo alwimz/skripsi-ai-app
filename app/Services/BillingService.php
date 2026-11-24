@@ -36,17 +36,16 @@ class BillingService
         }
 
         $fullImportantFeatures = [
-            'Proposal (Bab 1–3) & Skripsi lengkap Bab 1–5',
-            'Unduh Word (.docx) 4-4-3-3 & PDF (.pdf) siap cetak',
-            'Sitasi & Daftar Pustaka ber-DOI asli (APA, IEEE, dll.)',
-            'Parafrase Anti-Turnitin (EYD V) Bab 1–5',
-            'Lab Revisi per sub-bab + upload coretan dosen',
-            'Generate PPT Sidang (.pptx) & catatan presenter',
-            'Latihan pertanyaan & Simulasi Sidang dengan AI',
-            'Cek Plagiarisme (Pre-Check) & laporan PDF',
-            'Olah Data SPSS + grafik & narasi Bab IV',
-            'Konsultasi Dosen AI 24 jam & Generator Ide Judul',
-            '10 Tools Mahasiswa Gratis + dukungan WA Admin',
+            'Proposal & Skripsi Bab 1–5',
+            'Unduh Word & PDF siap cetak',
+            'Sitasi otomatis ber-DOI',
+            'Parafrase Bab 1–5',
+            'Lab Revisi AI',
+            'Generate PPT Sidang',
+            'Simulasi Sidang AI',
+            'Olah Data SPSS & Bab IV',
+            'Cari Ide Judul & Jurnal',
+            'Dosen AI & 10 Tools Gratis',
         ];
 
         $plans = [
@@ -65,17 +64,17 @@ class BillingService
                 'is_unlimited' => false,
                 'sold_count' => 12400,
                 'summary_title' => '1 Proyek Uji Coba + Sampul, Bab I & Pustaka',
-                'summary_desc' => 'Coba langsung kualitas penulisan AI, sitasi ber-DOI asli, dan 1x coba gratis per fitur AI Tools.',
-                'tagline' => 'Coba kualitas penulisan AI & sitasi DOI asli sebelum memilih paket.',
+                'summary_desc' => 'Coba Bab I, sitasi DOI & 1x semua fitur AI.',
+                'tagline' => 'Coba gratis sebelum memilih paket.',
                 'features' => [
-                    '1 proyek uji coba (Sampul, Bab I, & Daftar Pustaka)',
-                    'Sitasi & Daftar Pustaka otomatis ber-DOI asli',
-                    'Generator Ide Judul & Cari Jurnal (1x coba gratis)',
-                    'Parafrase AI & Cek Plagiarisme (1x coba gratis)',
-                    'PPT Sidang & Simulasi Sidang AI (1x coba gratis)',
-                    'Olah Data Statistik SPSS AI (1x coba gratis)',
-                    'Konsultasi Dosen AI 24 jam (Gratis)',
-                    'Akses penuh 10 Tools Mahasiswa Gratis (/tools)',
+                    '1 proyek (Sampul, Bab 1 & Pustaka)',
+                    'Sitasi otomatis ber-DOI',
+                    'Cari Judul & Jurnal (1x coba)',
+                    'Parafrase AI (1x coba)',
+                    'PPT & Simulasi Sidang (1x)',
+                    'Olah Data SPSS AI (1x coba)',
+                    'Dosen AI 24 jam (Gratis)',
+                    '10 Tools Mahasiswa gratis',
                 ],
             ],
             'starter' => [
@@ -93,8 +92,8 @@ class BillingService
                 'is_unlimited' => false,
                 'sold_count' => 2840 + ($soldCounts['starter'] ?? 0),
                 'summary_title' => '1 Proposal atau Skripsi Lengkap (Bab 1–5)',
-                'summary_desc' => 'Masa aktif 1 bulan (30 hari), kuota 1 naskah penuh. Bebas revisi, parafrase, olah data, PPT & unduh Word/PDF tanpa kredit.',
-                'tagline' => 'Paling hemat untuk menuntaskan 1 Proposal atau 1 Skripsi full sampai cetak.',
+                'summary_desc' => 'Kuota 1 naskah · aktif 30 hari · tanpa kredit.',
+                'tagline' => 'Hemat untuk 1 Proposal atau Skripsi full sampai cetak.',
                 'features' => $fullImportantFeatures,
             ],
             'hemat' => [
@@ -112,8 +111,8 @@ class BillingService
                 'is_unlimited' => false,
                 'sold_count' => 4190 + ($soldCounts['hemat'] ?? 0),
                 'summary_title' => '3 Proposal atau Skripsi Lengkap (Bab 1–5)',
-                'summary_desc' => 'Masa aktif 1 bulan (30 hari) dengan kuota 3 naskah penuh (mis. 1 Proposal + 1 Skripsi + 1 cadangan). Bebas revisi & unduh tanpa kredit.',
-                'tagline' => 'Ideal untuk 1 Proposal + 1 Skripsi Full + 1 cadangan jika ganti judul.',
+                'summary_desc' => 'Kuota 3 naskah · aktif 30 hari · tanpa kredit.',
+                'tagline' => 'Pas untuk Proposal + Skripsi Full + cadangan.',
                 'features' => $fullImportantFeatures,
             ],
             'unlimited_1m' => [
@@ -131,8 +130,8 @@ class BillingService
                 'is_unlimited' => true,
                 'sold_count' => 1960 + ($soldCounts['unlimited_1m'] ?? 0),
                 'summary_title' => 'Unlimited Proposal & Skripsi (30 Hari)',
-                'summary_desc' => 'Buat proposal & skripsi tanpa batas jumlah proyek selama 1 bulan penuh — semua fitur AI terbuka tanpa kredit.',
-                'tagline' => 'Generate proposal & skripsi tanpa batas jumlah proyek selama 1 bulan penuh.',
+                'summary_desc' => 'Naskah tanpa batas · aktif 30 hari · tanpa kredit.',
+                'tagline' => 'Bebas buat banyak naskah selama 1 bulan.',
                 'features' => $fullImportantFeatures,
             ],
             'unlimited_2m' => [
@@ -150,8 +149,8 @@ class BillingService
                 'is_unlimited' => true,
                 'sold_count' => 870 + ($soldCounts['unlimited_2m'] ?? 0),
                 'summary_title' => 'Unlimited Proposal & Skripsi (60 Hari)',
-                'summary_desc' => 'Pendamping penuh 2 bulan dari pengajuan judul hingga revisi sempro tanpa batasan proyek & tanpa kredit.',
-                'tagline' => 'Pendamping intensif 2 bulan dari pengajuan judul sampai revisi pasca-sempro.',
+                'summary_desc' => 'Naskah tanpa batas · aktif 60 hari · tanpa kredit.',
+                'tagline' => 'Kawal dari pengajuan judul sampai revisi sempro.',
                 'features' => $fullImportantFeatures,
             ],
             'unlimited_3m' => [
@@ -169,8 +168,8 @@ class BillingService
                 'is_unlimited' => true,
                 'sold_count' => 1540 + ($soldCounts['unlimited_3m'] ?? 0),
                 'summary_title' => 'Unlimited Proposal & Skripsi (90 Hari)',
-                'summary_desc' => 'Pilihan favorit mahasiswa: kawal lengkap 3 bulan sampai sidang akhir — lebih murah dari paket bulanan kompetitor.',
-                'tagline' => 'Pilihan favorit mahasiswa: kawal lengkap 3 bulan sampai sidang skripsi.',
+                'summary_desc' => 'Naskah tanpa batas · aktif 90 hari · tanpa kredit.',
+                'tagline' => 'Favorit mahasiswa untuk 3 bulan sampai sidang.',
                 'features' => $fullImportantFeatures,
             ],
             'unlimited_6m' => [
@@ -188,8 +187,8 @@ class BillingService
                 'is_unlimited' => true,
                 'sold_count' => 640 + ($soldCounts['unlimited_6m'] ?? 0),
                 'summary_title' => 'Unlimited Proposal & Skripsi (180 Hari)',
-                'summary_desc' => 'Tenang 1 semester penuh dari Bab I sampai revisi sidang yudisium — semua fitur aktif penuh.',
-                'tagline' => 'Tenang 1 semester penuh dari Bab I sampai revisi sidang akhir.',
+                'summary_desc' => 'Naskah tanpa batas · aktif 180 hari · tanpa kredit.',
+                'tagline' => 'Tenang 1 semester penuh sampai revisi sidang.',
                 'features' => $fullImportantFeatures,
             ],
             'unlimited_1y' => [
@@ -207,8 +206,8 @@ class BillingService
                 'is_unlimited' => true,
                 'sold_count' => 420 + ($soldCounts['unlimited_1y'] ?? 0),
                 'summary_title' => 'Unlimited Proposal & Skripsi (1 Tahun Penuh)',
-                'summary_desc' => 'Setara Rp33.000/bulan untuk akses Unlimited penuh sepanjang tahun — paling hemat untuk riset jangka panjang.',
-                'tagline' => 'Akses paling hemat untuk 1 tahun penuh — cocok juga untuk riset berkelanjutan.',
+                'summary_desc' => 'Naskah tanpa batas · setara Rp33rb/bulan.',
+                'tagline' => 'Paling hemat untuk akses Unlimited 1 tahun.',
                 'features' => $fullImportantFeatures,
             ],
         ];
@@ -538,27 +537,93 @@ class BillingService
         ];
     }
 
-    public function markProjectStarted(User $user, Project $project): void
+    /**
+     * Klaim jatah pembuatan proyek baru secara atomik agar permintaan paralel tidak menembus batas Free/Kuota.
+     */
+    public function markProjectStarted(User $user, Project $project): bool
     {
         $this->ensureSchema();
         if ($this->isAdminUser($user) || $this->isUnlimitedActive($user)) {
-            $project->is_full_unlocked = true;
-            $project->save();
-            return;
+            // Unlimited selalu dievaluasi live berdasarkan plan_expires_at (tidak dikunci permanen di proyek)
+            return true;
         }
 
-        if ($this->remainingProjectQuota($user) > 0) {
-            $project->is_full_unlocked = true;
-            $project->save();
-            $user->increment('project_quota_used');
-            return;
+        if ($this->tryUnlockProjectWithPaidQuota($user, $project)) {
+            return true;
         }
 
-        // Konsumsi jatah 1 proyek Free
-        if ((int) ($user->free_project_used ?? 0) < 1) {
+        return DB::transaction(function () use ($user) {
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                return false;
+            }
+            if ((int) ($lockedUser->free_project_used ?? 0) >= 1) {
+                return false;
+            }
+            $otherProjectsCount = Project::where('user_id', $lockedUser->id)->count();
+            if ($otherProjectsCount > 1) {
+                return false;
+            }
+            $affected = DB::table('users')
+                ->where('id', $lockedUser->id)
+                ->whereRaw('COALESCE(free_project_used, 0) = 0')
+                ->update(['free_project_used' => 1]);
             $user->free_project_used = 1;
-            $user->save();
+            return $affected > 0;
+        });
+    }
+
+    private function tryUnlockProjectWithPaidQuota(User $user, Project $project): bool
+    {
+        if (!empty($project->is_full_unlocked)) {
+            return true;
         }
+
+        return DB::transaction(function () use ($user, $project): bool {
+            $lockedProj = Project::where('id', $project->id)
+                ->where('user_id', $user->id)
+                ->lockForUpdate()
+                ->first();
+            if (!$lockedProj) {
+                return false;
+            }
+            if (!empty($lockedProj->is_full_unlocked)) {
+                $project->is_full_unlocked = true;
+                return true;
+            }
+
+            $now = Carbon::now();
+            $claimed = DB::table('users')
+                ->where('id', $user->id)
+                ->whereRaw('COALESCE(project_quota_used, 0) < COALESCE(project_quota_limit, 0)')
+                ->where(function ($q) use ($now) {
+                    $q->whereNull('plan_expires_at')->orWhere('plan_expires_at', '>', $now);
+                })
+                ->increment('project_quota_used');
+
+            if ($claimed < 1) {
+                return false;
+            }
+
+            $flipped = DB::table('projects')
+                ->where('id', $project->id)
+                ->where('user_id', $user->id)
+                ->where(function ($q) {
+                    $q->where('is_full_unlocked', false)->orWhereNull('is_full_unlocked');
+                })
+                ->update(['is_full_unlocked' => true]);
+
+            if ($flipped < 1) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->whereRaw('COALESCE(project_quota_used, 0) > 0')
+                    ->decrement('project_quota_used');
+            }
+
+            $project->is_full_unlocked = true;
+            $user->refresh();
+            return true;
+        });
     }
 
     public function canGenerateChapter(User $user, Project $project, string $chapter): array
@@ -566,15 +631,21 @@ class BillingService
         $this->ensureSchema();
         $chapter = strtolower(trim($chapter));
 
+        if (!in_array($chapter, ['bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'front', 'daftar_pustaka'], true)) {
+            return [
+                'allowed' => false,
+                'upgrade_required' => false,
+                'reason' => 'invalid_chapter',
+                'message' => 'Bagian bab yang diminta tidak valid.',
+            ];
+        }
+
         if ($this->isAdminUser($user) || $this->isUnlimitedActive($user) || !empty($project->is_full_unlocked)) {
             return ['allowed' => true];
         }
 
-        // Jika user punya kuota berbayar tersedia, buka kunci proyek ini otomatis saat masuk Bab II-V
-        if ($this->remainingProjectQuota($user) > 0) {
-            $project->is_full_unlocked = true;
-            $project->save();
-            $user->increment('project_quota_used');
+        // Jika user punya kuota berbayar tersedia, klaim 1 slot proyek secara atomik saat masuk Bab II-V
+        if ($this->tryUnlockProjectWithPaidQuota($user, $project)) {
             return ['allowed' => true];
         }
 
@@ -598,10 +669,7 @@ class BillingService
             return ['allowed' => true];
         }
 
-        if ($this->remainingProjectQuota($user) > 0) {
-            $project->is_full_unlocked = true;
-            $project->save();
-            $user->increment('project_quota_used');
+        if ($this->tryUnlockProjectWithPaidQuota($user, $project)) {
             return ['allowed' => true];
         }
 
@@ -640,16 +708,82 @@ class BillingService
         return ['allowed' => true];
     }
 
+    /**
+     * Cek dan reservasi atomik 1x jatah coba fitur AI Free agar request paralel tidak bisa menembus kuota.
+     */
+    public function reserveToolAccess(User $user, string $toolKey, string $toolLabel): array
+    {
+        $this->ensureSchema();
+        if ($this->isAdminUser($user) || $this->hasActivePaidAccess($user)) {
+            return ['allowed' => true, 'reserved' => false];
+        }
+
+        return DB::transaction(function () use ($user, $toolKey, $toolLabel): array {
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                return ['allowed' => false, 'upgrade_required' => true, 'reason' => 'free_tool_limit', 'message' => 'Akun tidak ditemukan.'];
+            }
+            if ($this->hasActivePaidAccess($lockedUser)) {
+                return ['allowed' => true, 'reserved' => false];
+            }
+
+            $usage = $this->getFreeToolUsage($lockedUser);
+            if ((int) ($usage[$toolKey] ?? 0) >= 1) {
+                return [
+                    'allowed' => false,
+                    'upgrade_required' => true,
+                    'reason' => 'free_tool_limit',
+                    'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Upgrade ke Paket Starter (Rp15.000) atau Unlimited untuk akses bebas.",
+                ];
+            }
+
+            $usage[$toolKey] = 1;
+            $lockedUser->free_tool_usage = json_encode($usage);
+            $lockedUser->save();
+            $user->free_tool_usage = $lockedUser->free_tool_usage;
+
+            return ['allowed' => true, 'reserved' => true];
+        });
+    }
+
+    /**
+     * Kembalikan reservasi jatah coba Free jika panggilan AI eksternal gagal teknis.
+     */
+    public function releaseToolReservation(User $user, string $toolKey): void
+    {
+        $this->ensureSchema();
+        DB::transaction(function () use ($user, $toolKey): void {
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                return;
+            }
+            $usage = $this->getFreeToolUsage($lockedUser);
+            if ((int) ($usage[$toolKey] ?? 0) > 0) {
+                $usage[$toolKey] = max(0, (int) $usage[$toolKey] - 1);
+                $lockedUser->free_tool_usage = json_encode($usage);
+                $lockedUser->save();
+                $user->free_tool_usage = $lockedUser->free_tool_usage;
+            }
+        });
+    }
+
     public function markToolUsed(User $user, string $toolKey): void
     {
         $this->ensureSchema();
         if ($this->isAdminUser($user) || $this->hasActivePaidAccess($user)) {
             return;
         }
-        $usage = $this->getFreeToolUsage($user);
-        $usage[$toolKey] = ((int) ($usage[$toolKey] ?? 0)) + 1;
-        $user->free_tool_usage = json_encode($usage);
-        $user->save();
+        DB::transaction(function () use ($user, $toolKey): void {
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                return;
+            }
+            $usage = $this->getFreeToolUsage($lockedUser);
+            $usage[$toolKey] = max(1, (int) ($usage[$toolKey] ?? 0));
+            $lockedUser->free_tool_usage = json_encode($usage);
+            $lockedUser->save();
+            $user->free_tool_usage = $lockedUser->free_tool_usage;
+        });
     }
 
     public function getUserSummary(User $user): array
@@ -692,6 +826,16 @@ class BillingService
             ->limit(10)
             ->get();
 
+        $remainingSeconds = $expiresAt ? Carbon::now()->diffInSeconds($expiresAt, false) : 0;
+        $remainingDays = (!$isAdmin && $planCode !== 'free' && $expiresAt)
+            ? max(0, (int) ceil($remainingSeconds / 86400))
+            : null;
+        $totalDays = (!$isAdmin && $planCode !== 'free' && $expiresAt)
+            ? max((int) ($plan['duration_days'] ?? 30), (int) ($remainingDays ?? 0))
+            : null;
+        $unlockedProjectsCount = Project::where('user_id', $user->id)->where('is_full_unlocked', true)->count();
+        $totalProjectsCount = Project::where('user_id', $user->id)->count();
+
         return [
             'is_admin' => $isAdmin,
             'plan_code' => $planCode,
@@ -702,6 +846,10 @@ class BillingService
             'quota_used' => (int) ($user->project_quota_used ?? 0),
             'remaining_quota' => $remainingQuota,
             'free_project_used' => (int) ($user->free_project_used ?? 0),
+            'remaining_days' => $remainingDays,
+            'total_days' => $totalDays,
+            'unlocked_projects_count' => $unlockedProjectsCount,
+            'total_projects_count' => $totalProjectsCount,
             'expires_at' => $expiresAt,
             'expires_at_label' => $isAdmin ? 'Selamanya (Admin)' : ($expiresAt ? $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB' : 'Selamanya'),
             'free_tool_usage' => $freeUsage,
@@ -734,33 +882,37 @@ class BillingService
         $now = Carbon::now();
         $days = (int) ($plan['duration_days'] ?? 30);
         $currentExp = !empty($user->plan_expires_at) ? Carbon::parse($user->plan_expires_at) : null;
-        $baseExp = ($currentExp && $currentExp->isFuture()) ? $currentExp : $now;
+        $hasActivePrevious = $currentExp && $currentExp->isFuture();
+        $baseExp = $hasActivePrevious ? $currentExp : $now;
         $newExp = $baseExp->copy()->addDays($days);
+
+        // Bersihkan sisa kuota lama yang sudah hangus agar tidak hidup kembali saat membeli paket baru
+        if (!$hasActivePrevious) {
+            $user->project_quota_limit = (int) ($user->project_quota_used ?? 0);
+        }
 
         if (!empty($plan['is_unlimited'])) {
             $user->plan_code = $planCode;
             $user->plan_expires_at = $newExp;
         } else {
-            $user->plan_code = $planCode;
+            if (!$this->isUnlimitedActive($user)) {
+                $user->plan_code = $planCode;
+            }
             $user->project_quota_limit = (int) ($user->project_quota_limit ?? 0) + (int) ($plan['quota_projects'] ?? 1);
             $user->plan_expires_at = $newExp;
         }
         $user->save();
 
-        // Buka kunci proyek Free milik user jika ada yang sudah terlanjur dibuat agar tidak mengulang dari nol
-        if (!empty($plan['is_unlimited'])) {
-            Project::where('user_id', $user->id)->update(['is_full_unlocked' => true]);
-        } else {
+        // Khusus paket kuota: otomatis buka 1 naskah Free yang sudah terlanjur dibuat memakai slot kuota yang baru dibeli
+        if (empty($plan['is_unlimited'])) {
             $lockedProj = Project::where('user_id', $user->id)
                 ->where(function ($q) {
                     $q->where('is_full_unlocked', false)->orWhereNull('is_full_unlocked');
                 })
                 ->orderBy('updated_at', 'desc')
                 ->first();
-            if ($lockedProj && $this->remainingProjectQuota($user) > 0) {
-                $lockedProj->is_full_unlocked = true;
-                $lockedProj->save();
-                $user->increment('project_quota_used');
+            if ($lockedProj) {
+                $this->tryUnlockProjectWithPaidQuota($user, $lockedProj);
             }
         }
 

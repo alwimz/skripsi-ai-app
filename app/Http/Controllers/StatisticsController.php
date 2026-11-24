@@ -36,16 +36,6 @@ class StatisticsController extends Controller
     public function analyze(Request $request)
     {
         $user = Auth::user();
-        if ($user) {
-            $access = $this->billing->checkToolAccess($user, 'stats_analyze', 'Olah Data Statistik');
-            if (!$access['allowed']) {
-                return response()->json([
-                    'status' => 'upgrade_required',
-                    'reason' => $access['reason'] ?? 'free_tool_limit',
-                    'message' => $access['message'],
-                ], 402);
-            }
-        }
         $columns = $request->input('columns', []);
         $rows = $request->input('rows', []);
         $testType = (string) $request->input('test_type', 'descriptive');
@@ -76,6 +66,19 @@ class StatisticsController extends Controller
             ], 422);
         }
 
+        $toolReserved = false;
+        if ($user) {
+            $access = $this->billing->reserveToolAccess($user, 'stats_analyze', 'Olah Data Statistik');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+            $toolReserved = !empty($access['reserved']);
+        }
+
         $options = [
             'alpha' => (float) $request->input('alpha', 0.05),
             'cols' => $request->input('cols', []),
@@ -94,20 +97,23 @@ class StatisticsController extends Controller
         try {
             $result = $this->engine->analyze($columns, $rows, $testType, $options);
             $result['dataset_title'] = trim((string) $request->input('dataset_title', '')) ?: 'Data Penelitian Mahasiswa';
-            if ($user) {
-                $this->billing->markToolUsed($user, 'stats_analyze');
-            }
 
             return response()->json([
                 'status' => 'success',
                 'result' => $result,
             ]);
         } catch (\InvalidArgumentException $e) {
+            if ($user && $toolReserved) {
+                $this->billing->releaseToolReservation($user, 'stats_analyze');
+            }
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
             ], 422);
         } catch (\Throwable $e) {
+            if ($user && $toolReserved) {
+                $this->billing->releaseToolReservation($user, 'stats_analyze');
+            }
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat menghitung statistik: ' . $e->getMessage(),
@@ -121,16 +127,6 @@ class StatisticsController extends Controller
     public function interpret(Request $request)
     {
         $user = Auth::user();
-        if ($user) {
-            $access = $this->billing->checkToolAccess($user, 'stats_interpret', 'Interpretasi Bab IV Statistik');
-            if (!$access['allowed']) {
-                return response()->json([
-                    'status' => 'upgrade_required',
-                    'reason' => $access['reason'] ?? 'free_tool_limit',
-                    'message' => $access['message'],
-                ], 402);
-            }
-        }
         $result = $request->input('result');
         if (is_string($result)) {
             $result = json_decode($result, true);
@@ -140,6 +136,19 @@ class StatisticsController extends Controller
                 'status' => 'error',
                 'message' => 'Belum ada hasil perhitungan statistik untuk diinterpretasikan.',
             ], 422);
+        }
+
+        $toolReserved = false;
+        if ($user) {
+            $access = $this->billing->reserveToolAccess($user, 'stats_interpret', 'Interpretasi Bab IV Statistik');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+            $toolReserved = !empty($access['reserved']);
         }
 
         $topic = trim((string) $request->input('topic', 'Penelitian Skripsi'));
@@ -178,14 +187,14 @@ class StatisticsController extends Controller
 
         try {
             $narration = $this->cleanAcademicNarration($this->ai->generateText($prompt));
-            if ($user) {
-                $this->billing->markToolUsed($user, 'stats_interpret');
-            }
             return response()->json([
                 'status' => 'success',
                 'narration' => $narration,
             ]);
         } catch (\Throwable $e) {
+            if ($user && !empty($toolReserved)) {
+                $this->billing->releaseToolReservation($user, 'stats_interpret');
+            }
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal menyusun interpretasi AI: ' . $e->getMessage(),
@@ -231,17 +240,6 @@ class StatisticsController extends Controller
      */
     public function generateInstrument(Request $request)
     {
-        $user = Auth::user();
-        if ($user) {
-            $access = $this->billing->checkToolAccess($user, 'stats_instrument', 'Generator Kuesioner & Instrumen');
-            if (!$access['allowed']) {
-                return response()->json([
-                    'status' => 'upgrade_required',
-                    'reason' => $access['reason'] ?? 'free_tool_limit',
-                    'message' => $access['message'],
-                ], 402);
-            }
-        }
         $request->validate([
             'mode' => 'required|in:kuesioner,eksperimen',
             'topic' => 'required|string|max:300',
@@ -250,6 +248,17 @@ class StatisticsController extends Controller
             'items_per_var' => 'nullable|integer|min:2|max:12',
             'scale_type' => 'nullable|string|max:80',
         ]);
+        $user = Auth::user();
+        if ($user) {
+            $access = $this->billing->reserveToolAccess($user, 'stats_instrument', 'Generator Kuesioner & Instrumen');
+            if (!$access['allowed']) {
+                return response()->json([
+                    'status' => 'upgrade_required',
+                    'reason' => $access['reason'] ?? 'free_tool_limit',
+                    'message' => $access['message'],
+                ], 402);
+            }
+        }
 
         $mode = (string) $request->input('mode');
         $topic = trim((string) $request->input('topic'));
@@ -318,9 +327,6 @@ class StatisticsController extends Controller
 
         // Bangun header & baris kosong template Excel/CSV yang langsung kompatibel dengan Kalkulator Olah Data
         [$headers, $templateRows] = $this->buildTemplateSheet($mode, $parsed, $itemsPerVar);
-        if ($user) {
-            $this->billing->markToolUsed($user, 'stats_instrument');
-        }
 
         return response()->json([
             'status' => 'success',

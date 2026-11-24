@@ -152,6 +152,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/masuk', function () {
+    if (!app()->environment('local')) {
+        abort(404);
+    }
     $user = \App\Models\User::where('email', 'alwi@gmail.com')->first();
     if ($user) {
         $user->password = bcrypt('admin123');
