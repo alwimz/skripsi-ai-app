@@ -1647,14 +1647,14 @@ class GeneratorController extends Controller
             $text = $this->formatAcademicMathText($rawNode);
             $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
             $maxChars = match ($type) {
-                'terminator' => 22,
-                'decision' => 24,
-                'io' => 36,
-                'subprocess' => 36,
-                'framework' => 46,
-                default => 40,
+                'terminator' => 24,
+                'decision' => 28,
+                'io' => 40,
+                'subprocess' => 40,
+                'framework' => 48,
+                default => 44,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 3);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
@@ -1787,14 +1787,14 @@ class GeneratorController extends Controller
             $text = $this->formatAcademicMathText($rawNode);
             $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
             $maxChars = match ($type) {
-                'terminator' => 22,
-                'decision' => 22,
-                'io' => 34,
-                'subprocess' => 34,
-                'framework' => 44,
-                default => 38,
+                'terminator' => 24,
+                'decision' => 28,
+                'io' => 38,
+                'subprocess' => 38,
+                'framework' => 48,
+                default => 42,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 3);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
@@ -3171,6 +3171,7 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
 6. Format Tabel Akademik Rapi:
    - Setiap tabel wajib memiliki nomor dan judul pada baris tersendiri (contoh: Tabel 3.1 Operasionalisasi Variabel).
    - Sajikan dalam format Markdown Table lengkap dan presisi, pastikan sel-sel terisi pada kolom yang tepat dan tidak bergeser.
+   - DILARANG membiarkan tabel jadwal penelitian kosong: pada tabel jadwal (misalnya kolom Bulan ke-1 s.d. Bulan ke-4), WAJIB isi tanda centang `✓` di kolom bulan yang sesuai pada setiap baris kegiatan.
 7. Kepatuhan Pedoman Kampus: Jika terdapat Pedoman Kampus Mahasiswa di atas, terapkan seluruh konvensi penamaan, pembagian sub-bab, dan kaidah yang diminta kampus sebagai aturan tertinggi.
 {$formatNomorRule}
 9. Tanpa Simbol Markdown Heading: Jangan gunakan tanda bintang (**) atau pagar (###). Jangan tulis kalimat pengantar AI. Langsung mulai dari sub-bab pertama.";
@@ -3510,7 +3511,7 @@ Uraikan alur penalaran logis deduktif dari kondisi fenomena empiris, landasan te
 Lalu WAJIB sajikan DIAGRAM KERANGKA BERPIKIR dalam blok kode:
 Gambar 2.1 Bagan Kerangka Berpikir Penelitian
 ```
-[Kondisi Empiris: Masalah Nyata pada '{$project->judul}']
+[Kondisi Empiris: Masalah Nyata pada {$project->judul}]
 ↓
 [Kajian Teoretis: Teori Variabel Bebas (X) & Teori Variabel Terikat (Y)]
 ↓
@@ -3835,7 +3836,7 @@ TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUANTITATIF ASOSIATIF / KAUSAL) 
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
 3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal).
-3.2 Tempat dan Waktu Penelitian (Deskripsi lokasi setting penelitian dan jadwal pelaksanaan).
+3.2 Tempat dan Waktu Penelitian (Deskripsi lokasi setting penelitian dan tabel jadwal pelaksanaan — WAJIB isi tanda `✓` pada kolom bulan yang aktif, DILARANG membiarkan sel tabel jadwal kosong!).
 3.3 Populasi dan Penentuan Sampel (Populasi target, teknik sampling, serta perhitungan ukuran sampel menggunakan rumus Slovin / Taro Yamane secara lengkap langkah demi langkah).
 3.4 Definisi Operasional dan Pengukuran Variabel (WAJIB sajikan Tabel 3.1 Kisi-kisi Operasionalisasi Variabel dengan kolom: | Variabel | Konsep Teori | Dimensi | Indikator Empiris | Nomor Butir | Skala Pengukuran |).
 3.5 Teknik dan Instrumen Pengumpulan Data (Kuesioner/Angket Skala Likert dan Dokumentasi Nilai).
@@ -4017,6 +4018,7 @@ WAJIB MEMUAT TABEL DATA STATISTIK LENGKAP DAN PEMBAHASAN MENDALAM (MINIMAL 1500 
 a. Sajikan TABEL Ringkasan Model Regresi (Nilai Korelasi R dan Koefisien Determinasi R-Square / R²).
 b. Sajikan TABEL Uji Koefisien Regresi (Konstanta a, Koefisien Regresi b, nilai t-hitung, dan nilai signifikansi p-value / Sig.).
 c. Tuliskan persamaan regresi yang terbentuk secara jelas: Ŷ = a + bX beserta interpretasi maknanya.
+d. KONSISTENSI RUMUS & INDIKATOR WAJIB: Pada regresi linier sederhana (1 variabel bebas X), wajib pastikan F-hitung = t-hitung² (contoh: jika t = -5,624 maka F = 31,629) dan konsisten dengan R² = F / (F + n - 2), SERTA apabila menyebut nomor butir angket (misal X7 atau X8), pastikan nama indikatornya sama persis dengan Tabel Kisi-kisi Operasionalisasi Variabel Bab III!
 4.6 Pembahasan Hasil Penelitian (Bahas secara kritis dan mendalam minimal 6-8 paragraf: konfrontasikan temuan angka empiris dengan teori Bab II dan temuan penelitian terdahulu, implikasi hasil terhadap responden, serta faktor-faktor pemicu temuan tersebut).
 4.7 Keterbatasan Penelitian (Uraikan kendala metodologis atau lingkup yang dihadapi selama penelitian).",
 
@@ -4928,7 +4930,10 @@ ATURAN REVISI (SANGAT KETAT):
                     if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
                         continue;
                     }
-                    $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
+                    $cn = preg_replace('/^[\[\/\s\-—]+|[\]\/\s\-—]+$/', '', $cn);
+                    if (str_starts_with($cn, '(') && str_ends_with($cn, ')') && substr_count($cn, '(') === 1 && substr_count($cn, ')') === 1) {
+                        $cn = trim(substr($cn, 1, -1));
+                    }
                     if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#={}()\\[\\]]+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
                         $validNodes[] = $cn;
                     }
@@ -5275,7 +5280,10 @@ ATURAN REVISI (SANGAT KETAT):
                         if (preg_match('/^(?:SIMBOL\s+DATA|DATA\s*\/\s*INPUT|SUB-PROSES|PREDEFINED\s+PROCESS|PROSES\s+SISTEM|PROSES|KEPUTUSAN|DECISION|TERMINATOR)$/i', $cn)) {
                             continue;
                         }
-                        $cn = preg_replace('/^[\(\[\/\s\-—]+|[\)\]\/\s\-—]+$/', '', $cn);
+                        $cn = preg_replace('/^[\[\/\s\-—]+|[\]\/\s\-—]+$/', '', $cn);
+                    if (str_starts_with($cn, '(') && str_ends_with($cn, ')') && substr_count($cn, '(') === 1 && substr_count($cn, ')') === 1) {
+                        $cn = trim(substr($cn, 1, -1));
+                    }
                         if (!empty($cn) && !preg_match('/^[↓V\-\->\s|+~#=]+$/', $cn) && !preg_match('/^\+[-+]+\+$/', $cn) && !in_array($cn, ['{', '}', '(', ')', '[', ']', ';'])) {
                             $cleanNodes[] = $cn;
                         }
@@ -5624,30 +5632,35 @@ ATURAN REVISI (SANGAT KETAT):
             $metodeAktual = trim($mm[1]);
         }
 
-        // Ekstrak angka dataset final / sampel (prioritaskan "dataset final/bersih ... berjumlah X" daripada angka data mentah)
+        // Ekstrak angka dataset final / sampel (prioritaskan ukuran sampel N= / "ditarik sampel sebanyak X" daripada angka populasi!)
         $samplePhraseId = '';
         $samplePhraseEn = '';
         $srcSample = $b4 !== '' ? $b4 : $b3;
-        if ($srcSample !== '' && preg_match('/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|digunakan\s+dalam\s+penelitian\s+berjumlah)[^.\n]{0,40}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i', $srcSample, $ms)) {
-            $samplePhraseId = " dengan melibatkan {$ms[1]} {$ms[2]}";
-            $unitMap = [
-                'komentar' => 'comments', 'responden' => 'respondents', 'sampel' => 'samples',
-                'dokumen' => 'documents', 'data' => 'records', 'citra' => 'images',
-                'siswa' => 'students', 'mahasiswa' => 'students', 'pasien' => 'patients',
-                'karyawan' => 'employees', 'observasi' => 'observations',
-            ];
-            $enUnit = $unitMap[strtolower($ms[2])] ?? 'samples';
+        $unitMap = [
+            'komentar' => 'comments', 'responden' => 'respondents', 'sampel' => 'samples',
+            'dokumen' => 'documents', 'data' => 'records', 'citra' => 'images',
+            'siswa' => 'students', 'mahasiswa' => 'students', 'pasien' => 'patients',
+            'karyawan' => 'employees', 'observasi' => 'observations',
+        ];
+        if ($srcSample !== '' && preg_match('/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)?\b/i', $srcSample, $ms)) {
+            $unitId = !empty($ms[2]) ? $ms[2] : 'responden';
+            $samplePhraseId = " dengan melibatkan {$ms[1]} {$unitId}";
+            $enUnit = $unitMap[strtolower($unitId)] ?? 'respondents';
             $samplePhraseEn = " involving {$ms[1]} {$enUnit}";
-        } elseif ($srcSample !== '' && preg_match('/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i', $srcSample, $ms)) {
-            $samplePhraseId = " dengan melibatkan {$ms[1]} {$ms[2]}";
-            $unitMap = [
-                'komentar' => 'comments', 'responden' => 'respondents', 'sampel' => 'samples',
-                'dokumen' => 'documents', 'data' => 'records', 'citra' => 'images',
-                'siswa' => 'students', 'mahasiswa' => 'students', 'pasien' => 'patients',
-                'karyawan' => 'employees', 'observasi' => 'observations',
-            ];
-            $enUnit = $unitMap[strtolower($ms[2])] ?? 'samples';
-            $samplePhraseEn = " involving {$ms[1]} {$enUnit}";
+        } elseif ($srcSample !== '' && preg_match_all('/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i', $srcSample, $allMs, PREG_OFFSET_CAPTURE)) {
+            foreach ($allMs[0] as $k => $fullMatch) {
+                $offset = $fullMatch[1];
+                $beforeCtx = substr($srcSample, max(0, $offset - 40), min(40, $offset));
+                if (preg_match('/(?:populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak)/i', $beforeCtx)) {
+                    continue;
+                }
+                $numVal = $allMs[1][$k][0];
+                $unitId = $allMs[2][$k][0];
+                $samplePhraseId = " dengan melibatkan {$numVal} {$unitId}";
+                $enUnit = $unitMap[strtolower($unitId)] ?? 'samples';
+                $samplePhraseEn = " involving {$numVal} {$enUnit}";
+                break;
+            }
         }
 
         // Ekstrak kalimat capaian/hasil empiris utama dari Bab IV — WAJIB memuat angka riil (bukan kalimat peringatan metodologis!)

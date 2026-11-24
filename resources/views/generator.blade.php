@@ -809,6 +809,7 @@
 
         .paper-editor .table-wrap {
             width: 100%;
+            max-width: 100%;
             overflow-x: auto;
             margin: 18px 0;
             -webkit-overflow-scrolling: touch;
@@ -816,8 +817,9 @@
 
         .paper-editor table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
-            font-size: 10.5pt;
+            font-size: 9.5pt;
             line-height: 1.3;
             font-family: inherit;
             margin: 6px 0 16px;
@@ -830,12 +832,12 @@
         .paper-editor th,
         .paper-editor td {
             border: 1px solid #1e293b;
-            padding: 7px 10px;
+            padding: 5px 6px;
             vertical-align: top;
             text-align: left;
             text-indent: 0 !important;
-            word-break: normal;
-            overflow-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: anywhere;
             white-space: normal;
             color: #000000;
             box-sizing: border-box;
@@ -851,7 +853,7 @@
             color: #000000;
             text-align: center;
             vertical-align: middle;
-            font-size: 10.5pt;
+            font-size: 9.5pt;
             border: 1px solid #000000;
             border-bottom: 1.5px solid #000000;
         }
@@ -4401,9 +4403,26 @@
                         const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
                         const mMeth = b3Txt.match(/penelitian\s+(kuantitatif\s+eksperimental(?:\s+komputasi)?|eksperimental\s+komputasi|kualitatif\s+deskriptif|penelitian\s+dan\s+pengembangan\s*\(R&D\)|tindakan\s+kelas|yuridis\s+(?:normatif|empiris)|campuran\s*\(mixed\s+methods\))/i);
                         const meth = mMeth ? mMeth[1].trim() : (projectMeta.metode || 'ilmiah terstruktur');
-                        const mSampFinal = (b4Txt || b3Txt).match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|digunakan\s+dalam\s+penelitian\s+berjumlah)[^.\n]{0,40}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
-                        const mSamp = mSampFinal || (b4Txt || b3Txt).match(/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/i);
-                        const sampStr = mSamp ? ` dengan melibatkan ${mSamp[1]} ${mSamp[2]}` : '';
+                        const srcS = b4Txt || b3Txt;
+                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)?\b/i);
+                        let sampStr = '';
+                        let sampNum = '', sampUnit = '';
+                        if (mSampFinal) {
+                            sampNum = mSampFinal[1];
+                            sampUnit = mSampFinal[2] || 'responden';
+                            sampStr = ` dengan melibatkan ${sampNum} ${sampUnit}`;
+                        } else {
+                            const reGen = /\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/gi;
+                            let gm;
+                            while ((gm = reGen.exec(srcS)) !== null) {
+                                const prevCtx = srcS.slice(Math.max(0, gm.index - 40), gm.index);
+                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak/i.test(prevCtx)) continue;
+                                sampNum = gm[1];
+                                sampUnit = gm[2];
+                                sampStr = ` dengan melibatkan ${sampNum} ${sampUnit}`;
+                                break;
+                            }
+                        }
                         const b4Sents = b4Txt.replace(/([.!?])\s+(?=[A-ZÀ-Ÿ])/g, '$1\n').split(/\n+/).map(s => s.replace(/\s+/g, ' ').trim());
                         let bestFind = b4Sents.find(s => s.length >= 30 && s.length <= 280 && !s.startsWith('|') && /(?:akurasi(?:\s+keseluruhan)?|F1-?[Ss]core|R-?[Ss]quare|R²|koefisien\s+determinasi|berpengaruh\s+signifikan|meningkat\s+dari)/i.test(s) && /(?:\d+[,\.]\d+|\d+\s*(?:%|persen))/i.test(s) && !/dapat\s+menyesatkan|mengabaikan\s+kelas/i.test(s));
                         if (bestFind) {
@@ -4438,12 +4457,33 @@
                 <p style="text-align: justify; line-height: 1.15; font-size: 11pt; text-indent: 1.27cm; font-style: italic;">
                     ${(() => {
                         const cleanT = projectTitle.replace(/\.+\s*$/, '');
+                        const b3Txt = (chapterContents.bab3 || '').replace(/<[^>]+>/g, ' ');
                         const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
+                        const unitEnMap = { komentar: 'comments', responden: 'respondents', sampel: 'samples', dokumen: 'documents', data: 'records', citra: 'images', siswa: 'students', mahasiswa: 'students', pasien: 'patients', karyawan: 'employees', observasi: 'observations' };
+                        const srcS = b4Txt || b3Txt;
+                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)?\b/i);
+                        let sampEn = '';
+                        if (mSampFinal) {
+                            const u = (mSampFinal[2] || 'responden').toLowerCase();
+                            sampEn = ` involving ${mSampFinal[1]} ${unitEnMap[u] || 'respondents'}`;
+                        } else {
+                            const reGen = /\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|observasi)\b/gi;
+                            let gm;
+                            while ((gm = reGen.exec(srcS)) !== null) {
+                                const prevCtx = srcS.slice(Math.max(0, gm.index - 40), gm.index);
+                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak/i.test(prevCtx)) continue;
+                                sampEn = ` involving ${gm[1]} ${unitEnMap[gm[2].toLowerCase()] || 'samples'}`;
+                                break;
+                            }
+                        }
                         const mAcc = b4Txt.match(/(?:akurasi(?:\s+keseluruhan)?\s+(?:sebesar\s+)?|accuracy\s+(?:of\s+)?)(\d{1,3}[,\.]\d{1,2}\s*(?:persen|%)|0[,\.]\d{2,4})/i);
+                        const mR2 = !mAcc ? b4Txt.match(/(?:R²|R-?Square)\s*(?:sebesar|=)\s*(0[,\.]\d{2,4}|\d{1,2}[,\.]\d{1,2}\s*%)/i) : null;
                         const findEn = mAcc
                             ? `Empirical evaluation confirms the effectiveness of the proposed approach, achieving an overall accuracy of ${mAcc[1].replace(/persen/i, '%').replace(',', '.')} alongside consistent class-level performance metrics.`
-                            : `The empirical findings demonstrate that the implemented approach effectively addresses all research questions and provides verifiable evaluation outcomes.`;
-                        return escapeHtml(`This study aims to investigate, analyze, and resolve the empirical problems addressed in "${cleanT}". Employing a structured research methodology, this study systematically collects, processes, and evaluates empirical data. ${findEn} Overall, the results offer both theoretical contributions and practical implications for the field of ${projectProdi}.`);
+                            : (mR2
+                                ? `Empirical testing confirms a statistically significant effect with a coefficient of determination (R-Square) of ${mR2[1].replace(',', '.')}.`
+                                : `The empirical findings demonstrate that the implemented approach effectively addresses all research questions and provides verifiable evaluation outcomes.`);
+                        return escapeHtml(`This study aims to investigate, analyze, and resolve the empirical problems addressed in "${cleanT}". Employing a structured research methodology${sampEn}, this study systematically collects, processes, and evaluates empirical data. ${findEn} Overall, the results offer both theoretical contributions and practical implications for the field of ${projectProdi}.`);
                     })()}
                 </p>
                 <div style="font-size: 11pt; margin-top: 14px; font-style: italic; line-height: 1.15;">
