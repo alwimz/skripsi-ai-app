@@ -612,7 +612,7 @@ class GeneratorController extends Controller
                 'is_numbered' => false,
                 'sort_instruction' => 'URUT ABJAD A-Z berdasarkan nama belakang penulis pertama',
                 'in_text_example' => 'contoh: (Surya 2023) atau Surya (2023) atau (Wijaya et al. 2024)',
-                'in_text_rule' => 'WAJIB memakai format Chicago Author-Date TANPA tanda koma sebelum tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Wijaya 2024)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma APA seperti "(Surya, 2023)"!',
+                'in_text_rule' => 'WAJIB memakai format Chicago Author-Date TANPA tanda koma sebelum tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Wijaya 2024)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma APA seperti "(Surya, 2023)"! ATURAN NAMA PENULIS: WAJIB gunakan NAMA BELAKANG (SURNAME) SAJA pada sitasi dalam teks — DILARANG menulis nama depan/tengah lengkap.',
                 'bib_example' => 'Surya, B., dan A. Wijaya. "Judul artikel penelitian secara spesifik." Nama Jurnal Bereputasi 12, no. 2 (2024): 45-58. https://doi.org/10.xxxx/...',
                 'bib_rule' => 'Format WAJIB Chicago: tahun diletakkan SETELAH volume/nomor sebelum titik dua halaman — Penulis. "Judul artikel." Nama Jurnal Vol, no. No (Tahun): Halaman. DILARANG meletakkan (Tahun) tepat setelah nama penulis seperti gaya APA!',
             ];
@@ -625,7 +625,7 @@ class GeneratorController extends Controller
                 'is_numbered' => false,
                 'sort_instruction' => 'URUT ABJAD A-Z berdasarkan nama belakang penulis pertama',
                 'in_text_example' => 'contoh: (Surya 2023), (Surya & Putra 2023), (Wijaya et al. 2024), atau Surya (2023)',
-                'in_text_rule' => 'WAJIB memakai format Harvard TANPA tanda koma antara nama penulis dan tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Putra 2023)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma ala APA seperti "(Surya, 2023)" atau "(Wijaya et al., 2024)"!',
+                'in_text_rule' => 'WAJIB memakai format Harvard TANPA tanda koma antara nama penulis dan tahun di dalam kurung: contoh "(Surya 2023)", "(Surya & Putra 2023)", "(Wijaya et al. 2024)", atau naratif "Surya (2023)". DILARANG memakai tanda koma ala APA seperti "(Surya, 2023)" atau "(Wijaya et al., 2024)"! ATURAN NAMA PENULIS: WAJIB gunakan NAMA BELAKANG (SURNAME) SAJA pada sitasi dalam teks — DILARANG menulis nama depan/tengah lengkap.',
                 'bib_example' => "Surya, B. & Wijaya, A. (2024) 'Judul artikel penelitian secara spesifik', Nama Jurnal Bereputasi, 12(2), pp. 45-58. https://doi.org/10.xxxx/...",
                 'bib_rule' => "Format WAJIB Harvard: Penulis (Tahun) TANPA titik setelah kurung tahun, judul artikel diapit tanda kutip tunggal ('Judul artikel'), dipisah koma sebelum nama jurnal, serta awalan 'pp.' sebelum rentang halaman: Penulis, I. (Tahun) 'Judul artikel', Nama Jurnal, Vol(No), pp. Halaman. DILARANG memakai format APA '(Tahun). Judul.' tanpa kutip tunggal!",
             ];
