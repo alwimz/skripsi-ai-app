@@ -275,7 +275,7 @@
             color: var(--text-main);
             white-space: nowrap;
         }
-        .brand img { width: 30px; height: 30px; border-radius: 8px; display: block; }
+        .brand img { width: 36px; height: 36px; display: block; object-fit: contain; }
         .brand-pill {
             font-size: 10.5px;
             font-weight: 700;
@@ -1216,7 +1216,7 @@
             .container { padding: 0 14px; }
             .topbar { height: 56px; }
             .brand { font-size: 14.5px; gap: 7px; }
-            .brand img { width: 26px; height: 26px; }
+            .brand img { width: 32px; height: 32px; }
             .brand-pill { display: none; }
             .tools-nav-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
             .tool-tab-card { padding: 10px; }
@@ -1258,7 +1258,7 @@
             <div class="ws-sidebar-head">
                 <div class="ws-brand-left">
                     <a href="/" style="display:block; flex-shrink:0;">
-                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:32px; height:32px; border-radius:8px; display:block; object-fit:contain;">
+                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:38px; height:38px; display:block; object-fit:contain;">
                     </a>
                     <div style="overflow:hidden;">
                         <div class="ws-brand-name">SkripsiLab AI</div>
@@ -1362,7 +1362,7 @@
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                     </button>
                     <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" style="display:inline-flex; align-items:center; gap:8px; color:var(--text-main); font-weight:700; font-size:14px;">
-                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:24px; height:24px; border-radius:6px; display:block; object-fit:contain;">
+                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:30px; height:30px; display:block; object-fit:contain;">
                         <span>SkripsiLab AI</span>
                     </a>
                 </div>

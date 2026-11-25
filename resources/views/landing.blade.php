@@ -713,6 +713,8 @@
             border-radius: 18px;
             overflow: hidden;
             box-shadow: 0 24px 54px -18px rgba(15, 23, 42, 0.16);
+            pointer-events: none;
+            user-select: none;
         }
 
         .sf-window-bar {
@@ -1609,8 +1611,8 @@
             }
 
             .brand img {
-                width: 26px !important;
-                height: 26px !important;
+                width: 32px !important;
+                height: 32px !important;
             }
 
             .nav-actions {
@@ -1781,7 +1783,7 @@
         <div class="container nav-inner">
             <a href="/" class="brand">
                 <img src="/images/logo.png" alt="SkripsiLab AI"
-                    style="width: 32px; height: 32px; border-radius: 8px; display: block; object-fit: contain;">
+                    style="width: 38px; height: 38px; display: block; object-fit: contain;">
                 SkripsiLab AI
             </a>
 
@@ -2014,39 +2016,32 @@
             </div>
         </section>
 
-        <!-- Section 1: Pratinjau Workspace Generator -->
+        <!-- Section 1: Pratinjau Workspace Generator (Static Capture) -->
         <section id="workspace-preview" class="section section-subtle">
             <div class="container">
                 <div class="section-header">
                     <span class="section-label">Pratinjau Workspace Generate</span>
                     <h2 class="section-title">Tampilan Ruang Kerja Penyusunan Skripsi di Dalam Aplikasi</h2>
-                    <p class="section-desc">Lihat langsung antarmuka Workspace Generate SkripsiLab AI — mulai dari navigasi
-                        Bab I–V, pengatur margin 4-4-3-3, Olah Data Penelitian, Lab Revisi, hingga pratinjau kertas A4 siap ekspor Word &amp; PDF.</p>
+                    <p class="section-desc">Gambaran nyata antarmuka Workspace Generate SkripsiLab AI — mulai dari navigasi
+                        Bab I–V, pengatur margin 4-4-3-3, Olah Data Penelitian, Lab Revisi, hingga kertas A4 siap ekspor Word &amp; PDF.</p>
                 </div>
 
-                <div class="major-selector" id="preview-project-pills">
-                    <button type="button" class="major-pill active"
-                        onclick="switchPreviewProject(0, this)">Contoh Proposal (Bab 1–3)</button>
-                    <button type="button" class="major-pill"
-                        onclick="switchPreviewProject(1, this)">Contoh Skripsi (Bab 1–5)</button>
-                </div>
-
-                <div class="studio-window">
+                <div class="studio-window" aria-hidden="true">
                     <div class="sf-window-bar">
                         <div class="sf-mac-left">
-                            <div class="sf-mac-dots" aria-hidden="true">
+                            <div class="sf-mac-dots">
                                 <span class="sf-mac-dot red"></span>
                                 <span class="sf-mac-dot yellow"></span>
                                 <span class="sf-mac-dot green"></span>
                             </div>
                             <div class="sf-win-brand">
-                                <img src="/images/logo.png" alt="SkripsiLab AI" width="20" height="20" style="border-radius:5px;display:block;object-fit:contain;">
+                                <img src="/images/logo.png" alt="" width="24" height="24" style="display:block;object-fit:contain;">
                                 <span>SkripsiLab AI</span>
                             </div>
                         </div>
 
                         <div class="sf-win-url">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
@@ -2062,17 +2057,17 @@
                     <div class="studio-frame">
                         <div class="studio-frame-sidebar">
                             <div class="sf-back-chip">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                     <line x1="19" y1="12" x2="5" y2="12"></line>
                                     <polyline points="12 19 5 12 12 5"></polyline>
                                 </svg>
                                 <span>Kembali ke Proyek Saya</span>
                             </div>
-                            <span class="sf-mode-badge" id="sf-proj-stage">Proposal (Bab I–III)</span>
+                            <span class="sf-mode-badge">Skripsi Penuh (Bab I–V)</span>
 
                             <div>
                                 <div class="sf-progress-meta">
-                                    <span id="sf-progress-text">3 dari 3 Bab</span>
+                                    <span>5 dari 5 Bab</span>
                                     <span>100%</span>
                                 </div>
                                 <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
@@ -2082,45 +2077,42 @@
 
                             <div class="sf-sub">Struktur Naskah</div>
                             <div class="sf-nav-list">
-                                <button type="button" class="sf-nav-btn" id="sf-btn-cover"
-                                    onclick="switchPreviewChapter('cover')">
+                                <div class="sf-nav-btn">
+                                    <span>Lihat Semua Bab (Full)</span>
+                                    <span style="font-size:9.5px;font-weight:700;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:999px;">A4 Full</span>
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Sampul &amp; Bagian Depan</span>
                                     <span style="font-size:9.5px;font-weight:700;color:#16a34a;background:#dcfce7;padding:1px 6px;border-radius:999px;">Lengkap</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn active" id="sf-btn-bab1"
-                                    onclick="switchPreviewChapter('bab1')">
+                                </div>
+                                <div class="sf-nav-btn active">
                                     <span>Bab I Pendahuluan</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" id="sf-btn-bab2"
-                                    onclick="switchPreviewChapter('bab2')">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Bab II Tinjauan Pustaka</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" id="sf-btn-bab3"
-                                    onclick="switchPreviewChapter('bab3')">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Bab III Metodologi</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" id="sf-btn-bab4"
-                                    onclick="switchPreviewChapter('bab4')" style="display: none;">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Bab IV Hasil Penelitian</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" id="sf-btn-bab5"
-                                    onclick="switchPreviewChapter('bab5')" style="display: none;">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Bab V Penutup</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" id="sf-btn-dp"
-                                    onclick="switchPreviewChapter('dp')">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Daftar Pustaka</span>
                                     <span style="color: #10b981;">●</span>
-                                </button>
-                                <button type="button" class="sf-nav-btn" onclick="switchPreviewChapter('dp')">
+                                </div>
+                                <div class="sf-nav-btn">
                                     <span>Lampiran &amp; Revisi</span>
                                     <span style="font-size:9.5px;font-weight:700;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:999px;">Sub-bab</span>
-                                </button>
+                                </div>
                             </div>
 
                             <div class="sf-side-format">
@@ -2132,8 +2124,8 @@
                             </div>
 
                             <div class="sf-side-dl">
-                                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}" class="sf-dl-pill primary">⬇ Word (.docx)</a>
-                                <a href="#contoh-hasil" class="sf-dl-pill">⬇ PDF (.pdf)</a>
+                                <span class="sf-dl-pill primary">⬇ Word (.docx)</span>
+                                <span class="sf-dl-pill">⬇ PDF (.pdf)</span>
                             </div>
                         </div>
 
@@ -2141,24 +2133,13 @@
                             <div class="sf-topbar">
                                 <div class="sf-topbar-meta">
                                     <span class="sf-live-dot"></span>
-                                    <span id="sf-topbar-label">Workspace Penulisan · Manajemen · A4 Margin 4-4-3-3</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
-                                    <a href="#contoh-hasil" class="btn btn-outline"
-                                        style="padding: 5px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;">
-                                        <span>Lihat Galeri PDF</span>
-                                    </a>
-                                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}"
-                                        class="btn btn-primary"
-                                        style="padding: 5px 11px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;">
-                                        <span>Tulis Bab di Workspace →</span>
-                                    </a>
+                                    <span>Workspace Penulisan &bull; Manajemen &bull; A4 Margin 4-4-3-3</span>
                                 </div>
                             </div>
 
                             <div class="sf-chapter-bar">
-                                <div class="sf-chapter-bar-title" id="sf-chapter-bar-title">BAB I PENDAHULUAN</div>
-                                <div class="sf-chapter-bar-tools" aria-hidden="true">
+                                <div class="sf-chapter-bar-title">BAB I PENDAHULUAN</div>
+                                <div class="sf-chapter-bar-tools">
                                     <span class="sf-tool-chip">Lihat Semua Bab</span>
                                     <span class="sf-tool-chip">Olah Data Penelitian</span>
                                     <span class="sf-tool-chip">Buka Revisi</span>
@@ -2166,7 +2147,20 @@
                             </div>
 
                             <div class="sf-paper-area">
-                                <div class="sf-a4-paper" id="sf-paper-content"></div>
+                                <div class="sf-a4-paper">
+                                    <div class="sf-chapter-head">
+                                        <div class="sf-chapter-num">BAB I</div>
+                                        <div class="sf-chapter-name">PENDAHULUAN</div>
+                                    </div>
+                                    <h4>1.1 Latar Belakang Masalah</h4>
+                                    <p>Transformasi digital pada sektor industri telah menggeser standar kompetensi yang dibutuhkan dari lulusan perguruan tinggi. Menurut <span class="cite-blue">Naufal &amp; Wijaya (2024)</span>, penguasaan teori akademik saja tidak lagi cukup tanpa dibarengi kecakapan literasi digital serta regulasi diri yang matang dalam menyelesaikan target kerja.</p>
+                                    <p>Hasil observasi awal menunjukkan bahwa meskipun mahasiswa menggunakan perangkat digital lebih dari 7 jam per hari, pemanfaatannya untuk riset karier dan produktivitas profesional masih rendah (<span class="cite-blue">Kusuma et al., 2023</span>). Oleh karena itu, kajian empiris mengenai peran literasi digital, regulasi diri, dan dukungan institusi terhadap kesiapan kerja menjadi penting dilakukan.</p>
+                                    <h4>1.2 Rumusan Masalah</h4>
+                                    <p class="sf-list-line">1. Apakah literasi digital berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
+                                    <p class="sf-list-line">2. Apakah regulasi diri berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
+                                    <p class="sf-list-line">3. Apakah dukungan institusi memoderasi pengaruh literasi digital terhadap kesiapan kerja?</p>
+                                    <div class="sf-page-footer">1</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2711,223 +2705,6 @@
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 
-        const previewProjectsData = [
-            {
-                title: 'Pengaruh Literasi Digital, Regulasi Diri, dan Dukungan Institusi terhadap Kesiapan Kerja Mahasiswa',
-                prodi: 'Manajemen',
-                metode: 'Kuantitatif (Survei / Regresi)',
-                stage: 'proposal',
-                stage_label: 'PROPOSAL SKRIPSI · 3 DARI 3 BAB',
-                jenis: 'PROPOSAL SKRIPSI',
-                nama: 'Rizky Pratama Putra',
-                nim: '2021041082',
-                kampus: 'Universitas Indonesia',
-                fakultas: 'Fakultas Ekonomi dan Bisnis',
-                chapters: {
-                    bab1: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div>
-                        <h4>1.1 Latar Belakang Masalah</h4>
-                        <p>Transformasi digital pada sektor industri telah menggeser standar kompetensi yang dibutuhkan dari lulusan perguruan tinggi. Menurut <span class="cite-blue">Naufal &amp; Wijaya (2024)</span>, penguasaan teori akademik saja tidak lagi cukup tanpa dibarengi kecakapan literasi digital serta regulasi diri yang matang dalam menyelesaikan target kerja.</p>
-                        <p>Hasil observasi awal menunjukkan bahwa meskipun mahasiswa menggunakan perangkat digital lebih dari 7 jam per hari, pemanfaatannya untuk riset karier dan produktivitas profesional masih rendah (<span class="cite-blue">Kusuma et al., 2023</span>). Oleh karena itu, kajian empiris mengenai peran literasi digital, regulasi diri, dan dukungan institusi terhadap kesiapan kerja menjadi penting dilakukan.</p>
-                        <h4>1.2 Rumusan Masalah</h4>
-                        <p class="sf-list-line">1. Apakah literasi digital berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
-                        <p class="sf-list-line">2. Apakah regulasi diri berpengaruh positif dan signifikan terhadap kesiapan kerja mahasiswa?</p>
-                        <p class="sf-list-line">3. Apakah dukungan institusi memoderasi pengaruh literasi digital terhadap kesiapan kerja?</p>
-                    `,
-                    bab2: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div>
-                        <h4>2.1 Landasan Teori</h4>
-                        <p>Literasi digital didefinisikan oleh <span class="cite-blue">Rahmawati &amp; Hidayat (2023)</span> sebagai kemampuan individu untuk menelusuri, mengevaluasi, dan mengintegrasikan informasi digital secara kritis dan produktif. Sementara itu, regulasi diri (<em>self-regulation</em>) merupakan kapasitas merencanakan, memantau, dan mengevaluasi pencapaian target secara mandiri (<span class="cite-blue">Zimmerman, 2020</span>).</p>
-                        <div class="sf-caption">Tabel 2.1 Sintesis Penelitian Terdahulu</div>
-                        <div class="sf-table-wrap"><table class="sf-preview-table">
-                            <tr><th>Peneliti</th><th>Variabel</th><th>Metode</th><th>Temuan Utama</th></tr>
-                            <tr><td>Naufal &amp; Wijaya (2024)</td><td>Literasi Digital, Kesiapan Kerja</td><td>PLS-SEM (n=210)</td><td>Literasi digital berpengaruh signifikan (p &lt; 0,001).</td></tr>
-                            <tr><td>Kusuma et al. (2023)</td><td>Regulasi Diri, Dukungan Kampus</td><td>Regresi Berganda</td><td>Regulasi diri menyumbang 38,4% variasi kesiapan kerja.</td></tr>
-                        </table></div>
-                    `,
-                    bab3: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div>
-                        <h4>3.1 Desain dan Sampel Penelitian</h4>
-                        <p>Penelitian ini menggunakan pendekatan kuantitatif asosiatif kausal dengan metode survei kuesioner skala Likert 1–5 (<span class="cite-blue">Sugiyono, 2022</span>). Ukuran sampel ditentukan menggunakan rumus Slovin dengan taraf kesalahan 5% sehingga diperoleh 175 responden mahasiswa tingkat akhir.</p>
-                        <h4>3.2 Teknik Analisis Data</h4>
-                        <p>Analisis data dilakukan menggunakan <em>Partial Least Squares Structural Equation Modeling</em> (PLS-SEM) yang meliputi evaluasi <em>Outer Model</em> (validitas konvergen, diskriminan, reliabilitas komposit) serta <em>Inner Model</em> (R-Square dan uji hipotesis <em>bootstrapping</em>).</p>
-                    `,
-                    dp: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div>
-                        <p class="sf-dp-entry">Kusuma, A. R., Pratama, D., &amp; Wijaya, H. (2023). Transformasi digital dan kesiapan karier mahasiswa di Indonesia. <em>Jurnal Ekonomi dan Bisnis</em>, 18(1), 45–59. <span class="cite-blue">https://doi.org/10.22146/jeb.84122</span></p>
-                        <p class="sf-dp-entry">Naufal, M., &amp; Wijaya, B. (2024). Literasi digital dan adaptabilitas karier generasi Z. <em>Jurnal Riset Manajemen</em>, 11(3), 201–215. <span class="cite-blue">https://doi.org/10.31002/jrm.11308</span></p>
-                        <p class="sf-dp-entry">Rahmawati, S., &amp; Hidayat, T. (2023). Pengukuran kompetensi literasi digital mahasiswa perguruan tinggi. <em>Jurnal Pendidikan Vokasi</em>, 13(2), 112–126.</p>
-                        <p class="sf-dp-entry">Sugiyono. (2022). <em>Metode penelitian kuantitatif, kualitatif, dan R&amp;D</em>. Alfabeta.</p>
-                    `
-                }
-            },
-            {
-                title: 'Implementasi Algoritma Naive Bayes dan Ekstraksi Fitur TF-IDF untuk Klasifikasi Sentimen Ulasan Pengguna Aplikasi',
-                prodi: 'Teknik Informatika',
-                metode: 'Research & Development (R&D)',
-                stage: 'skripsi',
-                stage_label: 'FULL SKRIPSI · 5 DARI 5 BAB',
-                jenis: 'SKRIPSI',
-                nama: 'Aulia Rahmadani',
-                nim: '210299014',
-                kampus: 'Universitas Negeri Makassar',
-                fakultas: 'Fakultas Teknik',
-                chapters: {
-                    bab1: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB I</div><div class="sf-chapter-name">PENDAHULUAN</div></div>
-                        <h4>1.1 Latar Belakang Masalah</h4>
-                        <p>Pertumbuhan jumlah ulasan pengguna pada platform digital menghasilkan data teks tak terstruktur dalam volume besar yang menyimpan persepsi nyata terhadap kualitas layanan (<span class="cite-blue">Saputra et al., 2024</span>). Pengelompokan sentimen secara manual tidak efisien dan rentan subjektivitas, sehingga diperlukan model klasifikasi otomatis berbasis pembelajaran mesin.</p>
-                        <p>Algoritma Multinomial Naive Bayes dikombinasikan dengan pembobotan fitur <em>Term Frequency–Inverse Document Frequency</em> (TF-IDF) dikenal cepat, ringan, dan kompetitif untuk klasifikasi teks berbahasa Indonesia (<span class="cite-blue">Setiawan &amp; Nugroho, 2023</span>).</p>
-                        <h4>1.2 Tujuan Penelitian</h4>
-                        <p class="sf-list-line">1. Merancang tahapan pra-pemrosesan teks dan pembobotan TF-IDF yang sesuai karakteristik bahasa informal.</p>
-                        <p class="sf-list-line">2. Mengukur kinerja klasifikasi sentimen Multinomial Naive Bayes menggunakan akurasi, presisi, recall, dan F1-Score.</p>
-                    `,
-                    bab2: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB II</div><div class="sf-chapter-name">TINJAUAN PUSTAKA</div></div>
-                        <h4>2.1 Analisis Sentimen dan TF-IDF</h4>
-                        <p>Analisis sentimen (<em>opinion mining</em>) merupakan proses komputasi untuk mengidentifikasi polaritas opini ke dalam kelas positif, netral, maupun negatif (<span class="cite-blue">Liu, 2020</span>). Pembobotan TF-IDF menilai tingkat kepentingan suatu kata pada dokumen relatif terhadap seluruh korpus teks.</p>
-                        <h4>2.2 Algoritma Multinomial Naive Bayes</h4>
-                        <p>Multinomial Naive Bayes menghitung probabilitas posterior setiap kelas berdasarkan frekuensi kemunculan kata dengan asumsi independensi kondisional antarfitur dan penerapan <em>Laplace Smoothing</em> untuk menangani kata yang belum muncul pada data latih.</p>
-                    `,
-                    bab3: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB III</div><div class="sf-chapter-name">METODOLOGI PENELITIAN</div></div>
-                        <h4>3.1 Tahapan Penelitian</h4>
-                        <p>Penelitian dilaksanakan dengan metode eksperimen komputasional meliputi pengumpulan 2.400 data ulasan, pelabelan tiga kelas sentimen, pra-pemrosesan (<em>case folding</em>, pembersihan noise, normalisasi kata baku, <em>stopword removal</em>, <em>stemming</em>), ekstraksi TF-IDF, pembagian data 80:20, pelatihan model, dan evaluasi <em>Confusion Matrix</em>.</p>
-                    `,
-                    bab4: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB IV</div><div class="sf-chapter-name">HASIL PENELITIAN DAN PEMBAHASAN</div></div>
-                        <h4>4.1 Evaluasi Kinerja Klasifikasi</h4>
-                        <p>Hasil pengujian terhadap 480 data uji menunjukkan bahwa kombinasi normalisasi slang bahasa Indonesia, TF-IDF unigram-bigram, dan Multinomial Naive Bayes mencapai akurasi keseluruhan sebesar 86,25% dengan Macro F1-Score 85,40%.</p>
-                        <div class="sf-caption">Tabel 4.1 Perbandingan Metrik Evaluasi per Kelas Sentimen</div>
-                        <div class="sf-table-wrap"><table class="sf-preview-table">
-                            <tr><th>Kelas Sentimen</th><th>Presisi</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
-                            <tr><td>Positif</td><td>88,4%</td><td>90,1%</td><td>89,2%</td><td>212</td></tr>
-                            <tr><td>Netral</td><td>81,2%</td><td>78,5%</td><td>79,8%</td><td>116</td></tr>
-                            <tr><td>Negatif</td><td>86,8%</td><td>87,5%</td><td>87,1%</td><td>152</td></tr>
-                        </table></div>
-                    `,
-                    bab5: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-num">BAB V</div><div class="sf-chapter-name">PENUTUP</div></div>
-                        <h4>5.1 Kesimpulan</h4>
-                        <p>Model klasifikasi sentimen berbasis Multinomial Naive Bayes dan TF-IDF berhasil mengklasifikasikan ulasan pengguna dengan akurasi 86,25%. Tahap normalisasi kosakata tidak baku berkontribusi paling signifikan terhadap peningkatan F1-Score sebesar 4,8%.</p>
-                        <h4>5.2 Saran</h4>
-                        <p>Penelitian selanjutnya disarankan membandingkan model dengan arsitektur transformer ringan seperti IndoBERT untuk menangani kalimat sarkasme serta memperluas dataset lintas domain aplikasi.</p>
-                    `,
-                    dp: `
-                        <div class="sf-chapter-head"><div class="sf-chapter-name">DAFTAR PUSTAKA</div></div>
-                        <p class="sf-dp-entry">Liu, B. (2020). <em>Sentiment analysis: Mining opinions, sentiments, and emotions</em> (2nd ed.). Cambridge University Press.</p>
-                        <p class="sf-dp-entry">Saputra, D., Kurniawan, R., &amp; Hakim, L. (2024). Analisis sentimen ulasan aplikasi berbahasa Indonesia menggunakan TF-IDF dan Naive Bayes. <em>Jurnal Teknologi Informasi dan Ilmu Komputer</em>, 11(1), 33–44. <span class="cite-blue">https://doi.org/10.25126/jtiik.2024117891</span></p>
-                        <p class="sf-dp-entry">Setiawan, A., &amp; Nugroho, E. (2023). Evaluasi pra-pemrosesan teks informal terhadap akurasi klasifikasi sentimen. <em>Jurnal RESTI</em>, 7(4), 812–820. <span class="cite-blue">https://doi.org/10.29207/resti.v7i4.5102</span></p>
-                    `
-                }
-            }
-        ];
-
-        let activePreviewIdx = 0;
-        let activePreviewChap = 'bab1';
-
-        function escapePreviewHtml(str) {
-            return String(str || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function buildPreviewCoverHtml(p) {
-            const syarat = p.stage === 'skripsi'
-                ? 'Diajukan sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana pada Program Studi '
-                : 'Diajukan untuk Memenuhi Persyaratan Seminar Proposal Skripsi pada Program Studi ';
-            return `
-                <div class="sf-cover-box">
-                    <div class="sf-cover-kind">${escapePreviewHtml(p.jenis || 'SKRIPSI')}</div>
-                    <div class="sf-cover-title">${escapePreviewHtml(p.title)}</div>
-                    <div class="sf-cover-sub">${syarat}${escapePreviewHtml(p.prodi)}</div>
-                    <div class="sf-cover-seal">LOGO<br>KAMPUS</div>
-                    <div class="sf-cover-author">
-                        <div>OLEH:</div>
-                        <div style="margin-top:4px;"><u><strong>${escapePreviewHtml((p.nama || 'Mahasiswa Peneliti').toUpperCase())}</strong></u></div>
-                        ${p.nim ? `<div style="margin-top:2px;">NIM: ${escapePreviewHtml(p.nim)}</div>` : ''}
-                    </div>
-                    <div class="sf-cover-campus">
-                        <div>PROGRAM STUDI ${escapePreviewHtml((p.prodi || '').toUpperCase())}</div>
-                        ${p.fakultas ? `<div>${escapePreviewHtml(p.fakultas.toUpperCase())}</div>` : ''}
-                        <div>${escapePreviewHtml((p.kampus || 'UNIVERSITAS').toUpperCase())}</div>
-                        <div>${new Date().getFullYear()}</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderPreviewStudio() {
-            const p = previewProjectsData[activePreviewIdx] || previewProjectsData[0];
-            if (!p) return;
-
-            const isFull = p.stage === 'skripsi';
-            const b4 = document.getElementById('sf-btn-bab4');
-            const b5 = document.getElementById('sf-btn-bab5');
-            if (b4) b4.style.display = isFull ? 'flex' : 'none';
-            if (b5) b5.style.display = isFull ? 'flex' : 'none';
-
-            if (!isFull && (activePreviewChap === 'bab4' || activePreviewChap === 'bab5')) {
-                activePreviewChap = 'bab1';
-            }
-
-            const projTitleEl = document.getElementById('sf-proj-title');
-            if (projTitleEl) projTitleEl.textContent = p.title;
-            document.getElementById('sf-proj-stage').textContent = isFull ? 'Skripsi Penuh (Bab I–V)' : 'Proposal (Bab I–III)';
-            const progressText = document.getElementById('sf-progress-text');
-            if (progressText) progressText.textContent = isFull ? '5 dari 5 Bab' : '3 dari 3 Bab';
-            const topMeta = document.getElementById('sf-topbar-label');
-            if (topMeta) {
-                topMeta.textContent = `Workspace Penulisan · ${p.prodi} · A4 Margin 4-4-3-3`;
-            }
-
-            const chapterBarMap = {
-                cover: 'SAMPUL & BAGIAN DEPAN',
-                bab1: 'BAB I PENDAHULUAN',
-                bab2: 'BAB II TINJAUAN PUSTAKA',
-                bab3: 'BAB III METODOLOGI PENELITIAN',
-                bab4: 'BAB IV HASIL PENELITIAN & PEMBAHASAN',
-                bab5: 'BAB V PENUTUP',
-                dp: 'DAFTAR PUSTAKA'
-            };
-            const chapterBarTitle = document.getElementById('sf-chapter-bar-title');
-            if (chapterBarTitle) {
-                chapterBarTitle.textContent = chapterBarMap[activePreviewChap] || 'NASKAH SKRIPSI';
-            }
-
-            ['cover', 'bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'dp'].forEach(k => {
-                const btn = document.getElementById('sf-btn-' + k);
-                if (btn) btn.classList.toggle('active', k === activePreviewChap);
-            });
-
-            const paper = document.getElementById('sf-paper-content');
-            if (activePreviewChap === 'cover') {
-                paper.innerHTML = buildPreviewCoverHtml(p);
-            } else {
-                const pageNumMap = { bab1: '1', bab2: '8', bab3: '18', bab4: '26', bab5: '42', dp: isFull ? '45' : '24' };
-                const bodyHtml = (p.chapters && p.chapters[activePreviewChap]) ? p.chapters[activePreviewChap] : '<p>Isi bab tidak tersedia.</p>';
-                paper.innerHTML = bodyHtml + `<div class="sf-page-footer">${pageNumMap[activePreviewChap] || '1'}</div>`;
-            }
-
-            const paperArea = document.querySelector('.sf-paper-area');
-            if (paperArea) paperArea.scrollTop = 0;
-        }
-
-        function switchPreviewProject(idx, btn) {
-            activePreviewIdx = idx;
-            activePreviewChap = 'bab1';
-            document.querySelectorAll('#preview-project-pills .major-pill').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            renderPreviewStudio();
-        }
-
-        function switchPreviewChapter(ch) {
-            activePreviewChap = ch;
-            renderPreviewStudio();
-        }
-
         function filterGallery(stage, btn) {
             document.querySelectorAll('#gallery-filter-bar .major-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -2962,8 +2739,6 @@
             document.getElementById('pdf-dialog-frame').src = 'about:blank';
             dialog.close();
         }
-
-        renderPreviewStudio();
     </script>
     @auth
         @include('partials.upgrade_checkout_modal', ['plans' => $plans ?? []])

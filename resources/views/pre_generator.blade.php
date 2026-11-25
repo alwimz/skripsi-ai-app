@@ -3600,7 +3600,7 @@
             <div class="sidebar-brand-left">
                 <a href="/" class="brand-avatar" style="padding: 0; background: none; border: none;">
                     <img src="/images/logo.png" alt="SkripsiLab AI"
-                        style="width: 32px; height: 32px; border-radius: 8px; display: block; object-fit: contain;">
+                        style="width: 38px; height: 38px; display: block; object-fit: contain;">
                 </a>
                 <div class="brand-info">
                     <div class="brand-name">SkripsiLab AI</div>
@@ -3804,7 +3804,7 @@
                     onclick="openTab('dashboard', 'Dashboard'); return false;"
                     style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 14px; text-decoration: none;">
                     <img src="/images/logo.png" alt="SkripsiLab AI"
-                        style="width: 24px; height: 24px; border-radius: 6px; display: block; object-fit: contain;">
+                        style="width: 30px; height: 30px; display: block; object-fit: contain;">
                     <span>SkripsiLab AI</span>
                 </a>
                 <span class="breadcrumb-current" id="breadcrumb-label" style="display: none;">Dashboard</span>

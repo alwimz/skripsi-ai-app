@@ -119,6 +119,10 @@
         .sl-public-footer-bottom {
             margin-top: 28px;
             padding-top: 18px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding-inline-end: 68px;
         }
     }
 </style>
@@ -195,7 +199,7 @@
 
         <div class="sl-public-footer-bottom">
             <a href="{{ url('/') }}" class="sl-public-footer-brand">
-                <img src="/images/logo.png" alt="SkripsiLab AI" width="24" height="24" style="border-radius:6px;display:block;object-fit:contain;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" width="30" height="30" style="display:block;object-fit:contain;">
                 <span>SkripsiLab AI</span>
             </a>
             <span>&copy; {{ date('Y') }} SkripsiLab AI.</span>

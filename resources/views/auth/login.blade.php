@@ -71,11 +71,10 @@
         }
 
         .brand-logo-img {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
+            width: 40px;
+            height: 40px;
             display: block;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+            object-fit: contain;
         }
 
         h1 {
@@ -335,7 +334,7 @@
 <body>
     <main class="auth-card">
         <a href="/" class="brand">
-            <img src="/images/logo.png" alt="SkripsiLab AI" class="brand-logo-img" width="34" height="34" style="object-fit:contain;">
+            <img src="/images/logo.png" alt="SkripsiLab AI" class="brand-logo-img" width="40" height="40">
             <span>SkripsiLab AI</span>
         </a>
 

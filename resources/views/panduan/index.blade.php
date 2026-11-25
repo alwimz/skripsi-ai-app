@@ -104,7 +104,7 @@
     <header class="topbar">
         <div class="container topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.png" alt="SkripsiLab AI" style="width:28px;height:28px;border-radius:7px;object-fit:contain;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" style="width:36px;height:36px;object-fit:contain;display:block;">
                 <span>SkripsiLab AI</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Panduan">

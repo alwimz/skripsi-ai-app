@@ -132,10 +132,10 @@
             min-width: 0;
         }
         .brand img {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
+            width: 36px;
+            height: 36px;
             display: block;
+            object-fit: contain;
             flex-shrink: 0;
         }
         .nav-links {
@@ -495,7 +495,7 @@
             .topbar-inner { padding: 10px 14px; gap: 8px; }
             .nav-links .hide-xs { display: none; }
             .brand { font-size: 0.94rem; gap: 7px; }
-            .brand img { width: 27px; height: 27px; }
+            .brand img { width: 32px; height: 32px; }
             .nav-link { padding: 6px 9px; font-size: 0.8rem; }
             .nav-cta { padding: 7px 11px; font-size: 0.8rem; }
             h1 { font-size: 1.35rem; }

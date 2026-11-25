@@ -102,7 +102,7 @@
     <header class="topbar">
         <div class="topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.png" alt="SkripsiLab AI" width="30" height="30" style="border-radius:8px;object-fit:contain;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" width="36" height="36" style="object-fit:contain;display:block;">
                 <span>SkripsiLab AI</span>
             </a>
             <div class="topbar-actions">
