@@ -623,6 +623,8 @@ MD;
         $this->assertStringContainsString('encodeUtf8Base64', $editorHtml);
         $this->assertStringContainsString('serializeTableToMarkdown', $editorHtml);
         $this->assertStringContainsString('serializeFigureToMarkdown', $editorHtml);
+        $this->assertStringContainsString('academic-table-wide', $editorHtml);
+        $this->assertStringContainsString('[6, 15, 22, 14, 18, 25]', $editorHtml);
 
         $fakeAi = new class (app(\App\Services\GeminiService::class), app(\App\Services\GroqService::class)) extends \App\Services\AIManagerService {
             public int $callIndex = 0;

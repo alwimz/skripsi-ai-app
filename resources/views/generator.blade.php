@@ -890,11 +890,23 @@
             vertical-align: top;
             text-align: left;
             text-indent: 0 !important;
-            word-break: break-word;
-            overflow-wrap: anywhere;
+            word-break: normal;
+            overflow-wrap: break-word;
             white-space: normal;
             color: #000000;
             box-sizing: border-box;
+        }
+
+        .paper-editor table.academic-table-wide {
+            table-layout: fixed;
+            font-size: 8.8pt;
+            line-height: 1.28;
+        }
+
+        .paper-editor table.academic-table-wide th,
+        .paper-editor table.academic-table-wide td {
+            padding: 4.5px 5.5px;
+            font-size: 8.8pt;
         }
 
         .paper-editor tr:nth-child(even) td {
@@ -3606,7 +3618,39 @@
                 if (cleanRows[0].length < maxCols) {
                     while (cleanRows[0].length < maxCols) cleanRows[0].unshift('Kategori');
                 }
-                let tHtml = '<div class="table-wrap"><table class="academic-table">';
+                const isFirstColNo = /^(no|no\.?|#)$/i.test((cleanRows[0][0] || '').trim());
+                let colWidths = [];
+                if (maxCols >= 5) {
+                    const headerRow = cleanRows[0].map((h) => String(h || '').toLowerCase());
+                    const isLitReviewTable = maxCols === 6 && isFirstColNo && (
+                        headerRow[1].includes('peneliti') || headerRow[2].includes('judul') || headerRow[5].includes('celah') || headerRow[5].includes('posisi') || headerRow[5].includes('perbedaan')
+                    );
+                    if (isLitReviewTable) {
+                        colWidths = [6, 15, 22, 14, 18, 25];
+                    } else {
+                        const colScores = [];
+                        for (let ci = 0; ci < maxCols; ci++) {
+                            if (isFirstColNo && ci === 0) {
+                                colScores.push(0);
+                                continue;
+                            }
+                            const lens = cleanRows.map((r) => String(r[ci] || '').trim().length);
+                            const avgLen = lens.reduce((a, b) => a + b, 0) / Math.max(1, lens.length);
+                            colScores.push(Math.max(4, Math.sqrt(avgLen + 6)));
+                        }
+                        const availPct = isFirstColNo ? 94 : 100;
+                        const totalScore = colScores.reduce((a, b) => a + b, 0) || 1;
+                        const minPct = maxCols >= 6 ? 11 : 13;
+                        const rawPct = colScores.map((sc, ci) => (isFirstColNo && ci === 0) ? 6 : Math.max(minPct, (sc / totalScore) * availPct));
+                        const nonNoSum = rawPct.reduce((sum, v, ci) => sum + ((isFirstColNo && ci === 0) ? 0 : v), 0) || 1;
+                        colWidths = rawPct.map((v, ci) => (isFirstColNo && ci === 0) ? 6 : Number(((v / nonNoSum) * availPct).toFixed(2)));
+                    }
+                }
+                const tableClass = maxCols >= 5 ? 'academic-table academic-table-wide' : 'academic-table';
+                const colgroupHtml = colWidths.length === maxCols
+                    ? '<colgroup>' + colWidths.map((w) => `<col style="width:${w}%;">`).join('') + '</colgroup>'
+                    : '';
+                let tHtml = `<div class="table-wrap"><table class="${tableClass}">${colgroupHtml}`;
                 cleanRows.forEach((rawCols, idx) => {
                     const cols = [...rawCols];
                     while (cols.length < maxCols) cols.push('-');
