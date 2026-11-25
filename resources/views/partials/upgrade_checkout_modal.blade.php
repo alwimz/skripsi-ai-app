@@ -36,7 +36,8 @@
         overflow: hidden;
         box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
         animation: slPopIn 0.18s ease-out;
-        max-height: 92vh;
+        max-height: 90vh;
+        max-height: calc(100dvh - 24px);
         display: flex;
         flex-direction: column;
     }
@@ -144,8 +145,11 @@
     }
     .sl-upgrade-later:hover { color: #64748b; }
     .sl-checkout-body {
-        padding: 20px;
+        padding: 18px 20px 20px;
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
         text-align: center;
     }
@@ -295,11 +299,25 @@
         line-height: 1.55;
     }
     @media (max-width: 520px) {
-        .sl-modal-backdrop { padding: 12px; }
-        .sl-upgrade-top { padding: 22px 18px 18px; }
-        .sl-upgrade-body, .sl-checkout-body { padding: 16px; }
+        .sl-modal-backdrop {
+            padding: 10px;
+            align-items: center;
+        }
+        .sl-checkout-card {
+            max-height: calc(100dvh - 20px);
+            border-radius: 16px;
+        }
+        .sl-upgrade-top { padding: 20px 16px 16px; }
+        .sl-upgrade-body { padding: 16px; }
+        .sl-checkout-body { padding: 12px 14px 16px; }
+        .sl-invoice-summary { padding: 8px 10px; margin-bottom: 9px; font-size: 11.5px; }
+        .sl-invoice-row { padding: 3px 0; gap: 8px; }
+        .sl-invoice-tabs { margin-bottom: 9px; padding: 3px; }
+        .sl-invoice-tab { font-size: 12px; padding: 7px 4px; }
+        .sl-invoice-panel { padding: 10px; margin-bottom: 9px; }
+        .sl-qris-static-img { max-width: 190px; margin-bottom: 8px; }
         .sl-checkout-actions { flex-direction: column; }
-        .sl-checkout-btn { width: 100%; flex: none; }
+        .sl-checkout-btn { width: 100%; flex: none; min-height: 40px; font-size: 12.5px; padding: 9px 12px; }
         #sl-qris-canvas { width: 190px !important; height: 190px !important; }
     }
 </style>
@@ -354,7 +372,7 @@
         </div>
 
         <div class="sl-checkout-body">
-            <div style="padding: 12px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; margin-bottom: 14px;">
+            <div id="sl-checkout-top-summary" style="padding: 12px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; margin-bottom: 14px;">
                 <div id="sl-pay-plan-name" style="font-size: 13.5px; font-weight: 700; color: #1e40af;">Menyiapkan Paket...</div>
                 <div id="sl-pay-total" style="font-size: 24px; font-weight: 800; color: #0f172a; margin-top: 2px;">-</div>
                 <div id="sl-pay-order-id" style="font-size: 11.5px; color: #475569; font-family: monospace; margin-top: 2px;"></div>
@@ -531,6 +549,8 @@
             document.getElementById('sl-pay-total').textContent = planInfo ? ('Rp ' + Number(planInfo.price).toLocaleString('id-ID')) : '-';
             document.getElementById('sl-pay-order-id').textContent = '';
 
+            const topSummaryEl = document.getElementById('sl-checkout-top-summary');
+            if (topSummaryEl) topSummaryEl.style.display = 'block';
             if (errEl) errEl.style.display = 'none';
             if (payEl) payEl.style.display = 'none';
             if (loadingEl) loadingEl.style.display = 'block';
@@ -557,6 +577,7 @@
                 if (loadingEl) loadingEl.style.display = 'none';
 
                 if (data.status === 'pakasir_unconfigured') {
+                    if (topSummaryEl) topSummaryEl.style.display = 'none';
                     const inv = data.invoice || {};
                     activeManualInvoice = {
                         order_id: inv.order_id || data.order_id || '',

@@ -3699,7 +3699,7 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
                 "2. Pastikan nama penulis dan judul referensi wajib ini otomatis dicantumkan di dalam DAFTAR PUSTAKA.\n";
         }
 
-        // Deteksi Rumpun Keilmuan / Disiplin Mahasiswa
+        // Deteksi Rumpun Keilmuan / Disiplin Mahasiswa (prioritaskan prodi & metode eksplisit dari form Buat Proyek)
         $isInformatika = str_contains($prodiLower, 'informatika')
             || str_contains($prodiLower, 'komputer')
             || str_contains($prodiLower, 'sistem informasi')
@@ -3714,14 +3714,18 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
             || str_contains($judulLower, 'deep learning')
             || str_contains($judulLower, 'klasifikasi')
             || str_contains($judulLower, 'neural network')
-            || str_contains($judulLower, 'nlp')
-            || str_contains($judulLower, 'svm')
-            || str_contains($judulLower, 'cnn')
-            || str_contains($judulLower, 'lstm')
-            || str_contains($judulLower, 'k-means')
-            || str_contains($judulLower, 'decision tree')
-            || str_contains($judulLower, 'random forest')
-            || str_contains($judulLower, 'data mining');
+            || (bool) preg_match('/\b(nlp|svm|cnn|lstm|k-means|decision tree|random forest|data mining)\b/i', $judulLower);
+
+        $isTeknikNonIt = !$isInformatika && (
+            str_contains($prodiLower, 'teknik sipil')
+            || str_contains($prodiLower, 'arsitektur')
+            || str_contains($prodiLower, 'teknik mesin')
+            || str_contains($prodiLower, 'teknik elektro')
+            || str_contains($prodiLower, 'teknik industri')
+            || str_contains($prodiLower, 'teknik kimia')
+            || str_contains($prodiLower, 'pertambangan')
+            || str_contains($prodiLower, 'geologi')
+        );
 
         $isEkonomi = str_contains($prodiLower, 'manajemen')
             || str_contains($prodiLower, 'akuntansi')
@@ -3731,39 +3735,23 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
             || str_contains($prodiLower, 'keuangan')
             || str_contains($prodiLower, 'pemasaran');
 
-        $isPendidikan = str_contains($prodiLower, 'pendidikan')
-            || str_contains($prodiLower, 'fkip')
-            || str_contains($prodiLower, 'tarbiyah')
-            || str_contains($prodiLower, 'pembelajaran')
-            || str_contains($prodiLower, 'guru')
-            || str_contains($prodiLower, 'ppkn')
-            || str_contains($prodiLower, 'pkn')
-            || str_contains($prodiLower, 'pgsd')
-            || str_contains($prodiLower, 'pgpaud')
-            || str_contains($prodiLower, 'paud')
-            || str_contains($prodiLower, 'bimbingan konseling')
-            || str_contains($prodiLower, 'bk')
-            || str_contains($judulLower, 'siswa')
-            || str_contains($judulLower, 'peserta didik')
-            || str_contains($judulLower, 'prestasi belajar')
-            || str_contains($judulLower, 'hasil belajar')
-            || str_contains($judulLower, 'kelas xi')
-            || str_contains($judulLower, 'kelas x')
-            || str_contains($judulLower, 'kelas xii')
-            || str_contains($judulLower, 'sekolah');
-
         $isKesehatan = str_contains($prodiLower, 'farmasi')
             || str_contains($prodiLower, 'keperawatan')
             || str_contains($prodiLower, 'kebidanan')
             || str_contains($prodiLower, 'kesehatan')
             || str_contains($prodiLower, 'kedokteran')
             || str_contains($prodiLower, 'gizi')
+            || str_contains($prodiLower, 'kesmas')
             || str_contains($judulLower, 'pasien')
-            || str_contains($judulLower, 'klinis');
+            || str_contains($judulLower, 'klinis')
+            || str_contains($judulLower, 'hipertensi')
+            || str_contains($judulLower, 'puskesmas');
 
         $isHukum = str_contains($prodiLower, 'hukum')
             || str_contains($prodiLower, 'syariah')
             || str_contains($prodiLower, 'peradilan')
+            || str_contains($prodiLower, 'kenotariatan')
+            || str_contains($metodeLower, 'hukum')
             || str_contains($judulLower, 'yuridis')
             || str_contains($judulLower, 'pidana')
             || str_contains($judulLower, 'perdata')
@@ -3783,13 +3771,66 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
             || str_contains($prodiLower, 'hubungan internasional')
             || str_contains($prodiLower, 'ilmu politik')
             || str_contains($prodiLower, 'administrasi publik')
-            || str_contains($prodiLower, 'administrasi negara');
+            || str_contains($prodiLower, 'administrasi negara')
+            || str_contains($prodiLower, 'kesejahteraan sosial');
+
+        $isOlahraga = str_contains($prodiLower, 'olahraga')
+            || str_contains($prodiLower, 'football')
+            || str_contains($prodiLower, 'pjok')
+            || str_contains($prodiLower, 'penjas')
+            || str_contains($prodiLower, 'kepelatihan');
+
+        $isAgamaIslam = str_contains($prodiLower, 'agama islam')
+            || str_contains($prodiLower, 'tarbiyah')
+            || (bool) preg_match('/\b(pai|pgmi|kpi|mpi|syariah|fiqih|tafsir|hadis|dakwah|akhlaq|akidah)\b/i', $prodiLower);
+
+        $hasExplicitNonEduProdi = $isInformatika || $isTeknikNonIt || $isEkonomi || $isKesehatan || $isHukum || $isPsikologi || $isKomunikasiSosial;
+
+        $isPendidikan = str_contains($prodiLower, 'pendidikan')
+            || str_contains($prodiLower, 'fkip')
+            || str_contains($prodiLower, 'tarbiyah')
+            || str_contains($prodiLower, 'pembelajaran')
+            || str_contains($prodiLower, 'guru')
+            || (bool) preg_match('/\b(ppkn|pkn|pgsd|pgpaud|paud|bk|pai|pgmi)\b/i', $prodiLower)
+            || $isOlahraga
+            || (!$hasExplicitNonEduProdi && (
+                str_contains($judulLower, 'siswa')
+                || str_contains($judulLower, 'peserta didik')
+                || str_contains($judulLower, 'prestasi belajar')
+                || str_contains($judulLower, 'hasil belajar')
+                || str_contains($judulLower, 'kelas xi')
+                || str_contains($judulLower, 'kelas x')
+                || str_contains($judulLower, 'kelas xii')
+                || str_contains($judulLower, 'sekolah')
+            ));
+
+        $hasMlIntent = str_contains($judulLower, 'sentimen')
+            || str_contains($judulLower, 'sentiment')
+            || str_contains($judulLower, 'klasifikasi')
+            || str_contains($judulLower, 'prediksi')
+            || str_contains($judulLower, 'naive bayes')
+            || str_contains($judulLower, 'machine learning')
+            || str_contains($judulLower, 'deep learning')
+            || str_contains($judulLower, 'clustering')
+            || str_contains($judulLower, 'data mining')
+            || (bool) preg_match('/\b(svm|cnn|lstm|rnn|knn|k-means|decision tree|random forest|nlp)\b/i', $judulLower);
 
         $isRnD = str_contains($metodeLower, 'r&d')
             || str_contains($metodeLower, 'waterfall')
             || str_contains($metodeLower, 'agile')
             || str_contains($metodeLower, 'prototype')
-            || str_contains($metodeLower, 'rekayasa');
+            || str_contains($metodeLower, 'rekayasa')
+            || ($isInformatika && !$hasMlIntent && (
+                str_contains($judulLower, 'perancangan')
+                || str_contains($judulLower, 'rancang bangun')
+                || str_contains($judulLower, 'sistem informasi')
+                || str_contains($judulLower, 'pengembangan aplikasi')
+                || str_contains($judulLower, 'pengembangan sistem')
+                || str_contains($judulLower, 'berbasis web')
+                || str_contains($judulLower, 'berbasis mobile')
+                || str_contains($judulLower, 'website')
+                || str_contains($judulLower, 'android')
+            ));
 
         $isPtk = str_contains($metodeLower, 'ptk')
             || str_contains($metodeLower, 'tindakan kelas');
@@ -3866,8 +3907,45 @@ ATURAN PENULISAN AKADEMIK (STANDAR SKRIPSI S1 NASIONAL MANTAR RISET / SKRIPSITA)
             $context .= "\n\n=== RINGKASAN ISI TEKS DARI BAB 1 SAMPAI BAB 4 ===\n" . Str::limit(strip_tags($allText), 9000);
         }
 
+        // Penyesuaian Sub-bab 2.4 otomatis mengikuti metode penelitian di form (Kualitatif/Studi Pustaka TIDAK memakai hipotesis statistik H0/H1)
+        $isNonHipotesisStatistik = $isKualitatif || $isStudiPustaka;
+        $bab2Sub24Default = $isNonHipotesisStatistik
+            ? "2.4 Fokus Kajian / Proposisi Penelitian (Uraikan proposisi teoretis atau pertanyaan penuntun riset kualitatif/pustaka — DILARANG menuliskan hipotesis statistik H0/H1 karena metode penelitian ini bersifat kualitatif/deskriptif)."
+            : "2.4 Hipotesis Penelitian (Rumuskan hipotesis penelitian secara tegas berupa H0 dan H1/Ha berdasarkan argumentasi teoretis dan temuan empiris).";
+        $paiContextNote = ($isPendidikan && $isAgamaIslam)
+            ? "\nKHUSUS PRODI PENDIDIKAN AGAMA ISLAM / TARBIYAH (PTKIN): Integrasikan landasan pedagogis modern secara harmonis dengan nilai-nilai pendidikan Islam (akidah, syariat/ibadah, akhlak mulia, atau rujukan normatif ayat Al-Qur'an/Hadis yang relevan bila diperlukan sesuai konteks judul) dengan bahasa ilmiah akademik yang baku."
+            : "";
+        $olahragaContextNote = $isOlahraga
+            ? "\nKHUSUS PRODI KEOLAHRAGAAN / PENDIDIKAN JASMANI / FOOTBALL EDUCATION: Gunakan terminologi kepelatihan, pedagogi olahraga, kebugaran/keterampilan gerak, atau manajemen pembinaan atlet/SSB secara tepat sesuai fokus judul."
+            : "";
+
         // Bab II Sesuai Rumpun Ilmu & WAJIB KERANGKA BERPIKIR DISESUAIKAN DENGAN JUDUL & JURUSAN
         $bab2Prompt = match (true) {
+            $isRnD => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA DAN LANDASAN TEORI) BIDANG REKAYASA PERANGKAT LUNAK / PENGEMBANGAN SISTEM (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
+2.1 Landasan Teori (Uraikan konsep dasar sistem informasi/aplikasi sesuai objek judul, arsitektur web/mobile dan basis data yang relevan, model pengembangan SDLC [Waterfall / Prototype / Agile / ADDIE], pemodelan berorientasi objek UML [Use Case, Activity, Sequence, Class Diagram / ERD], serta teori pengujian sistem Black-Box Testing dan evaluasi kegunaan UAT / System Usability Scale [SUS]. DILARANG memasukkan materi Text Mining/TF-IDF/Confusion Matrix kecuali judulnya membahas Machine Learning!).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 penelitian sistem/aplikasi ASLI dari jurnal bereputasi SINTA/Scopus periode {$tahunMin}-2026 yang relevan dengan '{$project->judul}'. Sajikan dalam narasi kritis diikuti TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Metode Pengembangan & Teknologi | Hasil / Pengujian Sistem | Persamaan, Perbedaan & Celah Penelitian |
+Diakhiri 2 paragraf analisis kesenjangan dan kebaruan sistem yang dirancang).
+2.3 Kerangka Pemikiran (Uraikan alur logika dari permasalahan proses manual/eksisting di lapangan, analisis kebutuhan pengguna, perancangan UML/ERD dan implementasi sistem, hingga pengujian fungsional & usabilitas.
+Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN dalam blok kode vertikal:
+Gambar 2.1 Bagan Kerangka Pemikiran Perancangan Sistem
+```
+[Permasalahan Sistem Berjalan pada '{$project->judul}']
+↓
+[Analisis Kebutuhan Fungsional & Non-Fungsional Pengguna]
+↓
+[Perancangan Sistem (SDLC, UML, ERD & Antarmuka UI/UX)]
+↓
+[Implementasi Aplikasi & Pengujian (Black-Box Testing & SUS/UAT)]
+↓
+[Luaran: Sistem Informasi Teruji, Efektif & Mudah Digunakan]
+```
+).",
+
             $isInformatika => "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG INFORMATIKA / ILMU KOMPUTER / SISTEM CERDAS (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
@@ -3894,6 +3972,32 @@ Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 ).
 2.4 Batasan Kinerja / Hipotesis Penelitian (Kemukakan ekspektasi performa model atau hipotesis penelitian secara tegas).",
 
+            $isTeknikNonIt => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA DAN LANDASAN TEORI) BIDANG KETEKNIKAN ({$project->prodi}) (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
+2.1 Landasan Teori dan Standar Teknis Acuan (Uraikan teori rekayasa inti, spesifikasi material/sistem/struktur, persamaan matematis teknis dalam Unicode bersih, serta standar baku yang relevan seperti SNI, ASTM, PUIL, ASME, atau IEEE sesuai bidang {$project->prodi}).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal teknik bereputasi SINTA/Scopus periode {$tahunMin}-2026 dalam narasi kritis diikuti TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Material / Metode Uji | Hasil Teknis Utama | Celah & Kebaruan Penelitian |
+).
+2.3 Kerangka Pemikiran Teknis (Uraikan alur rekayasa dari permasalahan teknis di lapangan, standar acuan SNI/ASTM, perancangan/eksperimen laboratorium atau simulasi, hingga evaluasi kinerja aman/efisien.
+Lalu WAJIB sajikan DIAGRAM KERANGKA PEMIKIRAN dalam blok kode vertikal:
+Gambar 2.1 Bagan Kerangka Pemikiran Penelitian Teknis
+```
+[Permasalahan Rekayasa pada '{$project->judul}']
+↓
+[Landasan Teori Teknis & Standar Acuan (SNI / ASTM / IEEE)]
+↓
+[Perancangan Desain / Uji Laboratorium / Simulasi Numerik]
+↓
+[Evaluasi Parameter Kinerja & Kepatuhan Ambang Batas Standar]
+↓
+[Luaran: Rekomendasi Desain / Solusi Rekayasa Optimal]
+```
+).
+{$bab2Sub24Default}",
+
             $isEkonomi => "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG EKONOMI / MANAJEMEN / AKUNTANSI (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
@@ -3903,31 +4007,31 @@ WAJIB MEMUAT SELURUH SUB-BAB BERURUTAN:
 Tabel 2.1 Sintesis Penelitian Terdahulu
 | No | Peneliti & Tahun | Judul Penelitian | Variabel & Metode | Hasil Penelitian | Persamaan & Perbedaan (Research Gap) |
 Diikuti 2 paragraf analisis kesenjangan riset).
-2.3 Kerangka Konseptual (Uraikan hubungan kausalitas antarvariabel independen terhadap variabel dependen/mediasi berdasarkan landasan teori.
+2.3 Kerangka Konseptual (Uraikan hubungan kausalitas atau keterkaitan konseptual antarvariabel/fokus berdasarkan landasan teori.
 Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL dalam blok kode vertikal:
 Gambar 2.1 Bagan Kerangka Konseptual Penelitian
 ```
 [Fenomena Bisnis & Masalah Empiris pada '{$project->judul}']
 ↓
-[Grand Theory & Kajian Variabel Independen (X) serta Dependen (Y)]
+[Grand Theory & Kajian Variabel / Fokus Penelitian]
 ↓
-[Pengujian Empiris: Survei / Laporan Keuangan & Analisis Statistik]
+[Pendekatan Metodologis: Pengumpulan Data Empiris & Analisis]
 ↓
-[Pembuktian Pengaruh Signifikan & Implikasi Manajerial]
+[Temuan Empiris & Implikasi Manajerial]
 ```
 ).
-2.4 Pengembangan Hipotesis (Rumuskan hipotesis H1, H2, H3 dst. secara eksplisit dengan argumentasi teoretis dan empiris pendukung).",
+" . ($isNonHipotesisStatistik ? $bab2Sub24Default : "2.4 Pengembangan Hipotesis (Rumuskan hipotesis H1, H2, H3 dst. secara eksplisit dengan argumentasi teoretis dan empiris pendukung)."),
 
             $isHukum => "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG ILMU HUKUM / SYARIAH (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
-2.1 Tinjauan Umum dan Landasan Yuridis (Teori Hukum Utama [Teori Kepastian Hukum, Keadilan, Kemanfaatan, Perlindungan Hukum], asas-asas hukum, serta telaah peraturan perundang-undangan/pasal-pasal relevan di Indonesia).
+2.1 Tinjauan Umum dan Landasan Yuridis (Teori Hukum Utama [Teori Kepastian Hukum, Keadilan, Kemanfaatan, Perlindungan Hukum, Efektivitas Hukum], asas-asas hukum, definisi konseptual istilah hukum, serta telaah peraturan perundang-undangan/pasal-pasal relevan di Indonesia).
 2.2 Tinjauan Pustaka Terdahulu / Keaslian Penelitian (Cantumkan 3-5 jurnal hukum terakreditasi SINTA periode {$tahunMin}-2026 diikuti TABEL perbandingan:
 Tabel 2.1 Perbandingan Penelitian Hukum Terdahulu
 | No | Peneliti & Tahun | Judul Penelitian | Pendekatan Yuridis | Fokus & Temuan | Perbedaan & Kebaruan |
 ).
-2.3 Kerangka Pemikiran / Kerangka Konseptual Yuridis (Uraikan penalaran hukum dari norma/das Sollen, realitas penegakan hukum/das Sein, analisis perundang-undangan, hingga konstruksi hukum ideal.
+2.3 Kerangka Pemikiran / Kerangka Konseptual Yuridis (Uraikan penalaran hukum dari norma/das Sollen, realitas penegakan hukum/das Sein, analisis perundang-undangan, hingga konstruksi hukum ideal. DILARANG mencantumkan hipotesis statistik H0/H1.
 Sajikan diagram dalam blok kode vertikal:
 Gambar 2.1 Bagan Kerangka Pemikiran Yuridis
 ```
@@ -3941,32 +4045,56 @@ Gambar 2.1 Bagan Kerangka Pemikiran Yuridis
 ```
 ).",
 
-            $isPsikologi || $isKomunikasiSosial => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PSIKOLOGI / ILMU KOMUNIKASI / SOSIAL POLITIK (MINIMAL 1800 - 2500 KATA).
+            $isKesehatan => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA, KERANGKA TEORI & KERANGKA KONSEP) BIDANG KESEHATAN / KEPERAWATAN / KEBIDANAN / FARMASI / KEDOKTERAN (MINIMAL 1800 - 2500 KATA).
 Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
 WAJIB MEMUAT:
-2.1 Landasan Teori (Uraikan Grand Theory bidang terkait, definisi konseptual tiap variabel menurut 3-4 tokoh/ahli, aspek/dimensi psikologis atau sosial, faktor pembentuk, serta dinamika keterkaitan antarvariabel).
+2.1 Landasan Teori Klinis & Keperawatan/Kesehatan (Patofisiologi/etiologi, konsep variabel independen & dependen, mekanisme biologis/fisiologis atau asuhan keperawatan, standar klinis Kemenkes/WHO/SDKI-SLKI-SIKI bila relevan, dan alat ukur klinis terstandar).
+2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal kesehatan bereputasi SINTA/PubMed/Scopus periode {$tahunMin}-2026 diikuti TABEL perbandingan:
+Tabel 2.1 Sintesis Penelitian Terdahulu
+| No | Peneliti & Tahun | Judul Penelitian | Desain & Sampel | Hasil Klinis (p-value / OR) | Celah Penelitian |
+).
+2.3 Kerangka Teori dan Kerangka Konsep Penelitian (Jelaskan secara ringkas kerangka teori menyeluruh yang memengaruhi fenomena klinis, lalu turunkan menjadi Kerangka Konsep yang memfokuskan variabel independen terhadap variabel dependen yang diteliti.
+Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEP dalam blok kode:
+Gambar 2.1 Diagram Kerangka Konsep Penelitian
+```
+[Faktor Risiko / Intervensi / Variabel Independen Sesuai Judul]
+↓
+[Mekanisme Fisiologis / Psikologis / Asuhan Klinis]
+↓
+[Pengukuran Parameter Klinis & Uji Statistik Univariat–Bivariat]
+↓
+[Luaran Klinis / Variabel Dependen pada Pasien]
+```
+).
+{$bab2Sub24Default}",
+
+            $isPsikologi || $isKomunikasiSosial => "
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA / KERANGKA TEORETIS) BIDANG PSIKOLOGI / ILMU KOMUNIKASI / SOSIOLOGI / FISIP (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT:
+2.1 Landasan Teori / Kerangka Teoretis (Uraikan Grand Theory dan Middle-Range Theory bidang terkait [misal teori sosiologi/komunikasi/psikologi yang relevan dengan judul], definisi konseptual tiap konsep/variabel menurut 3-4 tokoh/ahli, aspek/dimensi, serta dinamika sosial atau psikologisnya).
 2.2 Penelitian Terdahulu (Cantumkan 3-5 jurnal bereputasi SINTA/Scopus periode {$tahunMin}-2026 diikuti TABEL perbandingan:
 Tabel 2.1 Matriks Penelitian Terdahulu
-| No | Peneliti & Tahun | Judul Penelitian | Variabel & Metode | Hasil Utama | Celah Penelitian |
+| No | Peneliti & Tahun | Judul Penelitian | Fokus / Variabel & Metode | Temuan Utama | Celah Penelitian |
 ).
-2.3 Kerangka Berpikir Penelitian (Uraikan alur penalaran deduktif dan sajikan diagram vertikal:
+2.3 Kerangka Berpikir Penelitian (Uraikan alur penalaran teoretis sebagai pisau analisis fenomena sosial/psikologis dan sajikan diagram vertikal:
 Gambar 2.1 Bagan Kerangka Berpikir Penelitian
 ```
 [Fenomena Sosial / Psikologis pada '{$project->judul}']
 ↓
-[Tinjauan Teoretis & Dimensi Variabel Penelitian]
+[Tinjauan Teoretis & Dimensi Konsep Penelitian]
 ↓
-[Pengumpulan Data Empiris & Analisis Statistik / Kualitatif]
+[Pengumpulan Data Empiris & Analisis " . ($isNonHipotesisStatistik ? "Kualitatif Interaktif" : "Statistik Inferensial") . "]
 ↓
 [Temuan Empiris & Kontribusi Keilmuan]
 ```
 ).
-2.4 Hipotesis / Proposisi Penelitian.",
+{$bab2Sub24Default}",
 
-            ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
+            ($isPendidikan && $isPengaruh && !$isNonHipotesisStatistik) || ($isPengaruh && !$isInformatika && !$isNonHipotesisStatistik && !$isKesehatan && !$isHukum) => "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) PENELITIAN KUANTITATIF (PENGARUH / HUBUNGAN ANTARVARIABEL).
-Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
 WAJIB MEMUAT SELURUH SUB-BAB SECARA MENDALAM DAN KOMPREHENSIF (MINIMAL 1800 - 2500 KATA):
 2.1 Landasan Teori
 Uraikan secara komprehensif (minimal 10-15 paragraf panjang):
@@ -3995,52 +4123,28 @@ Gambar 2.1 Bagan Kerangka Berpikir Penelitian
 Rumuskan hipotesis penelitian secara tegas (H1: Terdapat pengaruh yang signifikan... beserta hipotesis statistik H0 dan Ha).",
 
             $isPendidikan => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN / KEGURUAN (FKIP / TARBIYAH) (MINIMAL 1800 - 2500 KATA).
-Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG PENDIDIKAN / KEGURUAN / TARBIYAH / KEOLAHRAGAAN (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
 WAJIB MEMUAT:
-2.1 Landasan Teori (Hakikat pembelajaran, model/metode/media pembelajaran yang diuji, karakteristik hasil belajar/keterampilan siswa, materi ajar, dan indikator ketercapaian).
+2.1 Landasan Teori (Hakikat pembelajaran/pembinaan, strategi/model/metode/media yang dikaji, karakteristik peserta didik/atlet, dimensi capaian belajar/keterampilan, serta indikator ketercapaian).
 2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal pendidikan bereputasi SINTA periode {$tahunMin}-2026 dalam narasi kritis dan TABEL komparasi:
 Tabel 2.1 Sintesis Penelitian Terdahulu
 | No | Peneliti & Tahun | Judul Penelitian | Model / Metode | Temuan / Peningkatan | Posisi Penelitian Ini |
 ).
-2.3 Kerangka Berpikir Tindakan (Uraikan alur pemikiran dari kondisi awal rendahnya hasil belajar/keaktifan siswa, penerapan tindakan inovasi pembelajaran, hingga kondisi akhir peningkatan hasil belajar.
+2.3 Kerangka Berpikir (Uraikan alur pemikiran dari kondisi awal lapangan, penerapan strategi/program pembelajaran atau tindakan, hingga kondisi akhir yang diharapkan.
 Lalu WAJIB sajikan DIAGRAM KERANGKA BERPIKIR dalam blok kode:
 Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran
 ```
-[Kondisi Awal: Masalah Pembelajaran & Rendahnya Hasil Belajar Siswa]
+[Kondisi Awal: Permasalahan Empiris pada {$project->judul}]
 ↓
-[Tindakan: Penerapan Model / Media Pembelajaran Inovatif Sesuai Judul]
+[Tindakan / Fokus Kajian: Penerapan Strategi atau Program Pembelajaran]
 ↓
-[Proses: Pembelajaran Siklus I & II / Eksperimen Interaktif]
+[Proses: Pelaksanaan Terstruktur, Observasi & Umpan Balik]
 ↓
-[Kondisi Akhir: Peningkatan Pemahaman Konsep, Keterampilan & Skor N-Gain]
+[Kondisi Akhir: Peningkatan Capaian & Kompetensi Peserta Didik]
 ```
 ).
-2.4 Hipotesis Tindakan / Hipotesis Statistik.",
-
-            $isKesehatan => "
-TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) BIDANG KESEHATAN / FARMASI / KEPERAWATAN / KEDOKTERAN (MINIMAL 1800 - 2500 KATA).
-Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
-WAJIB MEMUAT:
-2.1 Landasan Teori (Patofisiologi/etiologi, senyawa aktif atau intervensi klinis/asuhan keperawatan, mekanisme biologis/fisiologis, standar Kemenkes/WHO, dan tolok ukur klinis).
-2.2 Penelitian Terdahulu (WAJIB cantumkan 3-5 jurnal kesehatan bereputasi SINTA/PubMed/Scopus periode {$tahunMin}-2026 diikuti TABEL perbandingan:
-Tabel 2.1 Sintesis Penelitian Terdahulu
-| No | Peneliti & Tahun | Judul Penelitian | Desain & Sampel | Hasil Klinis (p-value / OR) | Celah Penelitian |
-).
-2.3 Kerangka Konseptual (Uraikan alur keterkaitan antara agen/faktor intervensi, mekanisme respon biologis/klinis, hingga efek terapi/luaran kesehatan pasien.
-Lalu WAJIB sajikan DIAGRAM KERANGKA KONSEPTUAL dalam blok kode:
-Gambar 2.1 Diagram Kerangka Konseptual Penelitian
-```
-[Faktor Intervensi / Paparan / Asuhan Klinis Sesuai Judul]
-↓
-[Mekanisme Biologis / Fisiologis / Edukasi Kesehatan]
-↓
-[Pengukuran Parameter Klinis & Uji Statistik Bivariat]
-↓
-[Luaran Klinis: Penurunan Gejala, Efektivitas Terapi & Kualitas Hidup]
-```
-).
-2.4 Hipotesis Penelitian.",
+" . ($isPtk ? "2.4 Hipotesis Tindakan (Rumuskan dugaan peningkatan hasil belajar/keterampilan melalui tindakan siklus secara tegas)." : $bab2Sub24Default),
 
             default => "
 TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB II (TINJAUAN PUSTAKA) secara komprehensif berstandar skripsi S1 nasional Indonesia (MINIMAL 1800 - 2500 KATA).
@@ -4064,7 +4168,7 @@ Gambar 2.1 Bagan Kerangka Pemikiran Penelitian
 [Solusi Teruji, Rekomendasi Ilmiah & Kontribusi Praktis]
 ```
 ).
-2.4 Hipotesis / Proposisi Penelitian."
+{$bab2Sub24Default}"
         };
 
         // Bab III Sesuai Rumpun Ilmu & Metode Penelitian (WAJIB Flowchart Vertikal Standar ANSI & Metodologi Valid di SEMUA Jurusan)
@@ -4186,6 +4290,145 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Data Sekunder
 [Selesai]
 ```",
 
+            $isRnD => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENGEMBANGAN SISTEM / R&D) secara mendalam (MINIMAL 1800 - 2400 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+3.1 Model Pengembangan Sistem (SDLC Waterfall / Agile / Prototyping / ADDIE / Borg & Gall) disertai Diagram Alur:
+Gambar 3.1 Diagram Alur (Flowchart) Pengembangan Sistem
+```
+[Mulai]
+↓
+[Pengumpulan Data Kebutuhan (Wawancara & Observasi)]
+↓
+[Analisis Kebutuhan Fungsional & Non-Fungsional]
+↓
+[Perancangan Sistem (Arsitektur, UML, ERD, UI/UX)]
+↓
+[Implementasi Kode Program & Basis Data]
+↓
+[Evaluasi & Pengujian Sistem (Black-Box & SUS/UAT)]
+↓
+[Penyusunan Dokumentasi & Laporan Akhir]
+↓
+[Selesai]
+```
+3.2 Waktu dan Tempat Penelitian.
+3.3 Teknik Pengumpulan Data (Wawancara, Observasi, Studi Pustaka).
+3.4 Analisis Kebutuhan Sistem (Sajikan Tabel 3.1 Analisis Kebutuhan Fungsional & Non-Fungsional).
+3.5 Perancangan Sistem (Arsitektur Sistem, Use Case Diagram, Activity Diagram, ERD Basis Data, Wireframe Antarmuka).
+3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Testing / System Usability Scale).",
+
+            $isHukum => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN HUKUM) secara mendalam (MINIMAL 1600 - 2200 KATA).
+3.1 Jenis dan Pendekatan Penelitian (" . (str_contains($metodeLower, 'empiris') ? 'Yuridis Empiris / Sosiologi Hukum dengan pendekatan sosiologis, perundang-undangan [Statute Approach], dan kasus [Case Approach]' : 'Yuridis Normatif dengan pendekatan perundang-undangan [Statute Approach], konseptual [Conceptual Approach], dan kasus [Case Approach]') . ").
+3.2 Sumber Bahan Hukum dan Data Penelitian (Bahan Hukum Primer [UUD 1945, UU, PP, Putusan], Bahan Hukum Sekunder [Buku/Jurnal/Doktrin], Bahan Hukum Tersier [Kamus Hukum]" . (str_contains($metodeLower, 'empiris') ? ', serta Data Primer dari wawancara narasumber dan observasi lapangan' : '') . " — WAJIB sajikan Tabel 3.1 Klasifikasi Bahan Hukum).
+3.3 Teknik Pengumpulan Bahan Hukum / Data Lapangan (Studi Kepustakaan & Dokumentasi" . (str_contains($metodeLower, 'empiris') ? ' serta Wawancara Mendalam dengan Narasumber/Aparat' : '') . ").
+3.4 Teknik Analisis Bahan Hukum (Interpretasi Gramatikal, Sistematis, Teleologis, dan Penalaran Deduktif Silogisme Hukum secara deskriptif-preskriptif).
+3.5 Alur Prosedur Penelitian Hukum:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Hukum
+```
+[Mulai]
+↓
+[Identifikasi Isu Hukum pada '{$project->judul}']
+↓
+[Pengumpulan Bahan Hukum Primer, Sekunder & Tersier]
+↓
+[Inventarisasi dan Klasifikasi Norma Perundang-Undangan]
+↓
+[Analisis Yuridis & Sinkronisasi Hukum]
+↓
+[Validasi dan Evaluasi Kesesuaian Norma terhadap Fakta]
+↓
+[Penyusunan Preskripsi dan Kesimpulan Hukum]
+↓
+[Selesai]
+```",
+
+            $isKualitatif => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUALITATIF) secara mendalam (MINIMAL 1600 - 2200 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+3.1 Pendekatan dan Jenis Penelitian (Deskriptif Kualitatif / Studi Kasus / Fenomenologi).
+3.2 Lokasi, Waktu, dan Kehadiran Peneliti sebagai Instrumen Kunci.
+3.3 Fokus Penelitian (WAJIB sajikan Tabel 3.1 Matriks Fokus dan Indikator Penelitian — DILARANG menggunakan rumus Slovin/regresi karena ini penelitian kualitatif!).
+3.4 Sumber Data dan Teknik Pemilihan Informan (Data Primer dari informan kunci/utama & Data Sekunder dari dokumen/arsip; teknik Purposive Sampling / Snowball Sampling).
+3.5 Teknik Pengumpulan Data (Observasi Partisipatif, Wawancara Mendalam [In-Depth Interview], Studi Dokumentasi).
+3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi Sumber, Triangulasi Teknik, Triangulasi Waktu, dan Ketekunan Pengamatan).
+3.7 Teknik Analisis Data (Model Interaktif Miles, Huberman & Saldana: Pengumpulan Data, Kondensasi Data, Penyajian Data, dan Penarikan Kesimpulan/Verifikasi) beserta Diagram Alur:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Kualitatif
+```
+[Mulai]
+↓
+[Pra-Lapangan & Penentuan Informan Kunci]
+↓
+[Pengumpulan Data (Observasi, Wawancara Mendalam, Dokumentasi)]
+↓
+[Kondensasi Data & Kategorisasi Tema (Coding)]
+↓
+[Pemeriksaan Keabsahan Data (Triangulasi Sumber & Teknik)]
+↓
+[Validasi Kecukupan dan Kejenuhan Data]
+↓
+[Penyajian Data & Penarikan Kesimpulan]
+↓
+[Selesai]
+```",
+
+            $isKesehatan => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KESEHATAN / KEPERAWATAN / KLINIS) secara mendalam (MINIMAL 1600 - 2200 KATA).
+3.1 Desain Penelitian (Observasional Analitik Cross-Sectional / Case-Control / Kohort / Quasi-Eksperimental Klinis sesuai judul).
+3.2 Tempat dan Waktu Penelitian.
+3.3 Populasi, Sampel, dan Teknik Sampling (Populasi target & terjangkau, rumus penentuan besar sampel Lemeshow/Slovin, teknik sampling, serta Kriteria Inklusi & Kriteria Eksklusi yang rinci).
+3.4 Variabel Penelitian dan Definisi Operasional (WAJIB sajikan Tabel 3.1 Definisi Operasional Variabel: | Variabel | Definisi Operasional | Alat Ukur | Cara Ukur | Hasil Ukur | Skala |).
+3.5 Instrumen, Etika Penelitian (Informed Consent, Anonymity, Confidentiality, Justice, Ethical Clearance), dan Prosedur Pengumpulan Data:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Klinis
+```
+[Mulai]
+↓
+[Pengurusan Ethical Clearance & Izin Lokasi]
+↓
+[Seleksi Responden Berdasarkan Kriteria Inklusi & Eksklusi]
+↓
+[Pengumpulan Data Klinis / Kuesioner & Pengukuran Variabel]
+↓
+[Pengolahan Data (Editing, Coding, Entry, Cleaning)]
+↓
+[Analisis Univariat & Bivariat (Chi-Square / Spearman / Uji-t / Mann-Whitney)]
+↓
+[Evaluasi Signifikansi Klinis (p-value < 0,05 & Odds Ratio)]
+↓
+[Penyusunan Laporan Hasil Penelitian]
+↓
+[Selesai]
+```
+3.6 Pengolahan dan Teknik Analisis Data (Analisis Univariat berupa distribusi frekuensi & persentase/mean, serta Analisis Bivariat sesuai skala data [Chi-Square/Fisher Exact untuk kategorik, Spearman/Pearson untuk korelasi, atau Independent t-test/Mann-Whitney] dengan batas α = 0,05).",
+
+            $isTeknikNonIt => "
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KETEKNIKAN — {$project->prodi}) secara mendalam (MINIMAL 1700 - 2300 KATA).
+3.1 Jenis dan Desain Penelitian Teknis (Eksperimen Laboratorium / Perancangan Struktur-Sistem / Simulasi Numerik sesuai standar SNI/ASTM/IEEE).
+3.2 Lokasi dan Waktu Penelitian (Laboratorium / Lokasi Studi Lapangan).
+3.3 Alat, Bahan, dan Spesifikasi Teknis (WAJIB sajikan Tabel 3.1 Spesifikasi Alat, Bahan / Perangkat Lunak Pengujian).
+3.4 Variabel dan Parameter Pengujian (Variabel Bebas, Variabel Terikat, Variabel Kontrol serta standar ambang batas acuan SNI/ASTM/PUIL/IEEE).
+3.5 Prosedur Pengujian & Analisis Data Teknis (Langkah pembuatan benda uji/model, metode pengujian, rumus perhitungan teknis dalam Unicode bersih, serta evaluasi komparatif terhadap standar).
+3.6 Alur Prosedur Penelitian Teknis:
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Teknis
+```
+[Mulai]
+↓
+[Studi Literatur & Penetapan Standar Acuan (SNI / ASTM / IEEE)]
+↓
+[Persiapan Alat, Bahan & Kalibrasi Instrumen Uji]
+↓
+[Pembuatan Benda Uji / Pemodelan Desain Teknis]
+↓
+[Pelaksanaan Pengujian Laboratorium / Simulasi Numerik]
+↓
+[Pengolahan Data & Evaluasi Kepatuhan Ambang Batas Standar]
+↓
+[Analisis Hasil & Rekomendasi Rekayasa]
+↓
+[Selesai]
+```",
+
             $isInformatika => "
 TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KOMPUTASI / INFORMATIKA) secara mendalam (MINIMAL 1800 - 2500 KATA).
 WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
@@ -4248,64 +4491,9 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
 3.6 Uji Kualitas Instrumen Penelitian (Uji Validitas Pearson Product Moment dan Uji Reliabilitas Cronbach's Alpha > 0,60).
 3.7 Teknik Analisis Data & Uji Hipotesis (Uji Asumsi Klasik dan Analisis Regresi Linier Berganda / SEM-PLS lengkap dengan rumus Unicode bersih).",
 
-            $isHukum => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN HUKUM) secara mendalam (MINIMAL 1600 - 2200 KATA).
-3.1 Jenis dan Pendekatan Penelitian (Yuridis Normatif / Yuridis Empiris, Pendekatan Perundang-undangan [Statute Approach], Pendekatan Konseptual [Conceptual Approach], dan Pendekatan Kasus [Case Approach]).
-3.2 Lokasi dan Waktu Penelitian (jika empiris) atau Bahan Hukum Penelitian (Bahan Hukum Primer, Bahan Hukum Sekunder, Bahan Hukum Tersier — sajikan Tabel 3.1 Klasifikasi Bahan Hukum).
-3.3 Teknik Pengumpulan Bahan Hukum / Data Lapangan (Studi Kepustakaan & Wawancara Informan).
-3.4 Teknik Analisis Bahan Hukum (Interpretasi Gramatikal, Sistematis, Teleologis, dan Penalaran Deduktif Silogisme Hukum).
-3.5 Alur Prosedur Penelitian Hukum:
-Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Hukum
-```
-[Mulai]
-↓
-[Identifikasi Isu Hukum pada '{$project->judul}']
-↓
-[Pengumpulan Bahan Hukum Primer, Sekunder & Tersier]
-↓
-[Inventarisasi dan Klasifikasi Norma Perundang-Undangan]
-↓
-[Analisis Yuridis & Sinkronisasi Hukum]
-↓
-[Validasi dan Evaluasi Kesesuaian Norma terhadap Fakta]
-↓
-[Penyusunan Preskripsi dan Kesimpulan Hukum]
-↓
-[Selesai]
-```",
-
-            $isKesehatan => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KESEHATAN / KLINIS) secara mendalam (MINIMAL 1600 - 2200 KATA).
-3.1 Desain Penelitian (Observasional Analitik Cross-Sectional / Case-Control / Eksperimental Klinis).
-3.2 Tempat dan Waktu Penelitian.
-3.3 Populasi, Sampel, dan Teknik Sampling (Populasi target & terjangkau, rumus penentuan besar sampel Lemeshow/Slovin, Kriteria Inklusi & Kriteria Eksklusi).
-3.4 Variabel Penelitian dan Definisi Operasional (WAJIB sajikan Tabel 3.1 Definisi Operasional Variabel: | Variabel | Definisi Operasional | Alat Ukur | Cara Ukur | Hasil Ukur | Skala |).
-3.5 Instrumen, Etika Penelitian (Informed Consent, Anonymity, Confidentiality, Ethical Clearance), dan Prosedur Pengumpulan Data:
-Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Klinis
-```
-[Mulai]
-↓
-[Pengurusan Ethical Clearance & Izin Lokasi]
-↓
-[Seleksi Responden Berdasarkan Kriteria Inklusi & Eksklusi]
-↓
-[Pengumpulan Data Klinis / Kuesioner & Pengukuran Variabel]
-↓
-[Pengolahan Data (Editing, Coding, Entry, Cleaning)]
-↓
-[Analisis Univariat & Bivariat (Chi-Square / Uji-t / Mann-Whitney)]
-↓
-[Evaluasi Signifikansi Klinis (p-value < 0,05 & Odds Ratio)]
-↓
-[Penyusunan Laporan Hasil Penelitian]
-↓
-[Selesai]
-```
-3.6 Pengolahan dan Teknik Analisis Data (Univariat & Bivariat).",
-
             ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
 TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUANTITATIF ASOSIATIF / KAUSAL) secara mendalam (MINIMAL 1800 - 2500 KATA).
-Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
 WAJIB MEMUAT SUB-BAB TEKNIS LENGKAP:
 3.1 Jenis dan Desain Penelitian (Kuantitatif Asosiatif / Kausal).
 3.2 Tempat dan Waktu Penelitian (Deskripsi lokasi setting penelitian dan tabel jadwal pelaksanaan — WAJIB isi tanda `✓` pada kolom bulan yang aktif, DILARANG membiarkan sel tabel jadwal kosong!).
@@ -4344,12 +4532,12 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
 Jelaskan alur prosedur di atas secara rinci.",
 
             $isPendidikan => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN PENDIDIKAN / QUASI-EKSPERIMEN / PTK) secara mendalam (MINIMAL 1800 - 2400 KATA).
-3.1 Desain Penelitian (Nonequivalent Pretest-Posttest Control Group Design / PTK Siklus I-II).
+TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN PENDIDIKAN / QUASI-EKSPERIMEN / KEOLAHRAGAAN) secara mendalam (MINIMAL 1800 - 2400 KATA).{$paiContextNote}{$olahragaContextNote}
+3.1 Desain Penelitian (Nonequivalent Pretest-Posttest Control Group Design / Eksperimen / Deskriptif Kuantitatif sesuai judul).
 3.2 Tempat dan Waktu Penelitian.
-3.3 Populasi dan Sampel (Kelas eksperimen vs kelas kontrol).
+3.3 Populasi dan Sampel (Kelas eksperimen vs kelas kontrol atau subjek pelatihan/pembelajaran).
 3.4 Variabel Penelitian dan Definisi Operasional (Sajikan Tabel 3.1 Kisi-kisi Instrumen & Variabel).
-3.5 Instrumen Pengumpulan Data (Tes kognitif pretest-posttest dan lembar observasi).
+3.5 Instrumen Pengumpulan Data (Tes kognitif/keterampilan pretest-posttest dan lembar observasi).
 3.6 Uji Coba Instrumen (Uji Validitas Butir, Reliabilitas KR-20/Cronbach, Tingkat Kesukaran, Daya Beda).
 3.7 Teknik Analisis Data (Uji Normalitas, Homogenitas, Uji Hipotesis Independent Sample t-test, dan Skor N-Gain).
 3.8 Prosedur Penelitian:
@@ -4370,61 +4558,6 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Pendidikan
 [Evaluasi & Uji Hipotesis (Uji-t & N-Gain Score)]
 ↓
 [Penyusunan Laporan Hasil Penelitian]
-↓
-[Selesai]
-```",
-
-            $isRnD => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENGEMBANGAN SISTEM / R&D) secara mendalam (MINIMAL 1800 - 2400 KATA).
-3.1 Model Pengembangan Sistem (SDLC Waterfall / Agile / Prototyping / ADDIE / Borg & Gall) disertai Diagram Alur:
-Gambar 3.1 Diagram Alur (Flowchart) Pengembangan Sistem
-```
-[Mulai]
-↓
-[Pengumpulan Data Kebutuhan (Wawancara & Observasi)]
-↓
-[Analisis Kebutuhan Fungsional & Non-Fungsional]
-↓
-[Perancangan Sistem (Arsitektur, UML, ERD, UI/UX)]
-↓
-[Implementasi Kode Program & Basis Data]
-↓
-[Evaluasi & Pengujian Sistem (Black-Box & SUS/UAT)]
-↓
-[Penyusunan Dokumentasi & Laporan Akhir]
-↓
-[Selesai]
-```
-3.2 Waktu dan Tempat Penelitian.
-3.3 Teknik Pengumpulan Data (Wawancara, Observasi, Studi Pustaka).
-3.4 Analisis Kebutuhan Sistem (Sajikan Tabel 3.1 Analisis Kebutuhan Fungsional & Non-Fungsional).
-3.5 Perancangan Sistem (Arsitektur Sistem, Use Case Diagram, Activity Diagram, ERD Basis Data, Wireframe Antarmuka).
-3.6 Metode Pengujian Sistem (Black-Box Testing & User Acceptance Testing / System Usability Scale).",
-
-            $isKualitatif => "
-TUGAS: Tulis Isi BAB III (METODOLOGI PENELITIAN KUALITATIF) secara mendalam (MINIMAL 1600 - 2200 KATA).
-3.1 Pendekatan dan Jenis Penelitian (Deskriptif Kualitatif / Studi Kasus / Fenomenologi).
-3.2 Lokasi dan Waktu Penelitian.
-3.3 Fokus Penelitian (Sajikan Tabel 3.1 Matriks Fokus dan Indikator Penelitian).
-3.4 Sumber Data dan Teknik Pemilihan Informan (Purposive Sampling / Snowball Sampling).
-3.5 Teknik Pengumpulan Data (Observasi Partisipatif, Wawancara Mendalam, Dokumentasi).
-3.6 Teknik Pemeriksaan Keabsahan Data (Triangulasi Sumber, Triangulasi Teknik, Triangulasi Waktu).
-3.7 Teknik Analisis Data (Kondensasi Data, Penyajian Data, dan Penarikan Kesimpulan Model Miles, Huberman & Saldana) beserta Diagram Alur:
-Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian Kualitatif
-```
-[Mulai]
-↓
-[Pra-Lapangan & Penentuan Informan Kunci]
-↓
-[Pengumpulan Data (Observasi, Wawancara Mendalam, Dokumentasi)]
-↓
-[Kondensasi Data & Kategorisasi Tema (Coding)]
-↓
-[Pemeriksaan Keabsahan Data (Triangulasi Sumber & Teknik)]
-↓
-[Validasi Kecukupan dan Kejenuhan Data]
-↓
-[Penyajian Data & Penarikan Kesimpulan]
 ↓
 [Selesai]
 ```",
@@ -4458,8 +4591,17 @@ Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
 ```"
         };
 
-        // Bab IV Sesuai Rumpun Ilmu (Tabel Pengujian, Confusion Matrix / Regresi, Pembahasan Kritis)
+        // Bab IV Sesuai Rumpun Ilmu & Metode Penelitian (100% selaras dengan metode pilihan di form Buat Proyek)
         $bab4Prompt = match (true) {
+            $isRnD => "
+TUGAS: Tulis Isi BAB IV (HASIL PENGEMBANGAN DAN PEMBAHASAN SISTEM / R&D) (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT TABEL PENGUJIAN SISTEM LENGKAP (DILARANG memuat Confusion Matrix / TF-IDF kecuali judulnya membahas Machine Learning!):
+4.1 Analisis Sistem Berjalan dan Perancangan Sistem (Jabarkan kebutuhan fungsional/non-fungsional, arsitektur sistem, aktor & skenario Use Case, Activity Diagram, serta skema struktur tabel basis data/ERD dalam TABEL struktur basis data).
+4.2 Implementasi Sistem dan Antarmuka (Deskripsikan lingkungan implementasi [bahasa/framework/database] serta modul antarmuka utama yang dibangun untuk admin dan pengguna).
+4.3 Hasil Pengujian Sistem (WAJIB sajikan TABEL Pengujian Black-Box Testing [No, Modul/Skenario Uji, Data Masukan, Hasil yang Diharapkan, Hasil Aktual, Status Valid] dan TABEL Evaluasi Usability / UAT atau System Usability Scale [SUS] beserta skor akhir dan kategori penilaiannya).
+4.4 Pembahasan Kelebihan, Efektivitas, dan Keterbatasan Sistem (Konfrontasikan hasil pengujian terhadap rumusan masalah dan penelitian sistem terdahulu).",
+
             $isInformatika => "
 TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KOMPUTASI / INFORMATIKA).
 WAJIB MEMUAT TABEL DAN DATA EMPIRIS LENGKAP:
@@ -4467,6 +4609,59 @@ WAJIB MEMUAT TABEL DAN DATA EMPIRIS LENGKAP:
 4.2 Hasil Pra-Pemrosesan Teks (Sajikan TABEL contoh perbandingan 3-4 kalimat sebelum dan sesudah melewati setiap tahapan: Raw Text -> Cleaning -> Slang Normalization -> Stopword Removed -> Stemmed).
 4.3 Hasil Pengujian dan Evaluasi Kinerja Algoritma (WAJIB sajikan TABEL Confusion Matrix [True Positive, True Negative, False Positive, False Negative] dan TABEL Perbandingan Metrik Evaluasi [Akurasi, Presisi, Recall, F1-Score] dengan angka-angka terukur dan realistis).
 4.4 Pembahasan Kritis Hasil Penelitian (Analisis mendalam mengapa model mencapai akurasi tersebut, identifikasi faktor pemicu kesalahan klasifikasi [False Positive & False Negative], pengaruh preprocessing terhadap akurasi, serta perbandingan kinerja terhadap penelitian terdahulu).",
+
+            $isPtk => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN TINDAKAN KELAS DAN PEMBAHASAN) (MINIMAL 1800 - 2400 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
+WAJIB MEMUAT DATA PERKEMBANGAN ANTAR-SIKLUS:
+4.1 Deskripsi Kondisi Awal (Pra-Siklus) (Sajikan TABEL hasil belajar & ketuntasan klasikal sebelum tindakan).
+4.2 Pelaksanaan dan Hasil Tindakan Siklus I (Perencanaan, Pelaksanaan, Observasi aktivitas guru & siswa, TABEL hasil tes Siklus I, serta Refleksi kendala Siklus I).
+4.3 Pelaksanaan dan Hasil Tindakan Siklus II (Perbaikan dari refleksi Siklus I, Pelaksanaan, Observasi, TABEL hasil tes Siklus II, dan Refleksi ketercapaian indikator keberhasilan).
+4.4 Perbandingan Peningkatan Antar-Siklus (WAJIB sajikan TABEL Komparasi Pra-Siklus, Siklus I, dan Siklus II: Nilai Rata-rata, Jumlah Siswa Tuntas, Persentase Ketuntasan Klasikal).
+4.5 Pembahasan Temuan Penelitian (Konfrontasikan peningkatan belajar dengan teori Bab II dan penelitian terdahulu).",
+
+            $isStudiPustaka => "
+TUGAS: Tulis Isi BAB IV (HASIL KAJIAN LITERATUR DAN PEMBAHASAN) (MINIMAL 1700 - 2300 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT MATRIKS SINTESIS LITERATUR (DILARANG mengarang data survei lapangan fiktif!):
+4.1 Profil dan Karakteristik Literatur Terpilih (Sajikan TABEL klasifikasi sumber primer & sekunder terpilih berdasarkan tahun, metode, dan fokus).
+4.2 Analisis Isi (Content Analysis) dan Pemetaan Tema Utama (Sajikan TABEL matriks sintesis temuan antar-literatur sesuai rumusan masalah Bab I).
+4.3 Analisis Komparatif dan Sintesis Konseptual (Bandingkan persamaan, perbedaan, serta celah pemikiran antar-sumber pustaka).
+4.4 Pembahasan Kritis dan Implikasi Teoretis.",
+
+            $isHukum => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN YURIDIS) (MINIMAL 1800 - 2400 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB BERBASIS ANALISIS NORMA HUKUM & FAKTA (DILARANG memakai uji statistik SPSS/regresi!):
+4.1 Gambaran Umum Objek, Fakta Hukum, dan Inventarisasi Norma (" . (str_contains($metodeLower, 'empiris') ? 'Paparkan kondisi lokasi, hasil wawancara narasumber/penegak hukum, dan fakta implementasi di lapangan beserta TABEL ringkasan data lapangan & regulasi' : 'Inventarisasi norma hukum positif, pasal-pasal terkait, dan putusan/kasus yang relevan dalam TABEL matriks peraturan perundang-undangan') . ").
+4.2 Analisis Yuridis dan Sinkronisasi Peraturan terhadap Rumusan Masalah Pertama (Bedah kesesuaian das Sollen dan das Sein menggunakan asas hukum, doktrin ahli, dan pasal yang berlaku).
+4.3 Pembahasan Kendala, Efektivitas, dan Konstruksi Solusi Hukum (Menjawab rumusan masalah berikutnya dengan preskripsi hukum yang tegas dan argumentatif).",
+
+            $isKualitatif => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KUALITATIF) (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
+WAJIB BERBASIS DATA KUALITATIF MENDALAM (DILARANG memakai rumus SPSS/regresi/hipotesis H0-H1!):
+4.1 Gambaran Umum Lokasi / Situs Penelitian dan Profil Informan (Sajikan TABEL Profil Informan Kunci & Pendukung: Inisial/Kode Informan, Jabatan/Peran, Alasan Pemilihan).
+4.2 Paparan Data Temuan Lapangan Berdasarkan Fokus Penelitian (Uraikan temuan empiris hasil wawancara mendalam, observasi partisipatif, dan dokumentasi yang dikelompokkan rapi menjawab tiap rumusan masalah Bab I).
+4.3 Analisis Data dan Keabsahan Temuan (Sajikan TABEL Matriks Reduksi Data & Triangulasi Sumber/Teknik yang merangkum temuan kunci dari berbagai informan dan dokumen).
+4.4 Pembahasan / Analisis Teoretis (Dialogkan secara kritis temuan lapangan dengan Grand Theory/Middle Theory pada Bab II serta penelitian terdahulu untuk menjelaskan makna sosiologis/pedagogis/psikologis fenomena tersebut).",
+
+            $isKesehatan => "
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KLINIS / KEPERAWATAN / KESEHATAN) (MINIMAL 1800 - 2500 KATA).
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+WAJIB MEMUAT ANALISIS UNIVARIAT & BIVARIAT STANDAR KESEHATAN:
+4.1 Gambaran Umum Lokasi Pelayanan Kesehatan dan Karakteristik Responden (WAJIB sajikan TABEL Distribusi Frekuensi Karakteristik Responden: Usia, Jenis Kelamin, Pendidikan, Pekerjaan/Lama Menderita dalam n dan %).
+4.2 Hasil Analisis Univariat (WAJIB sajikan TABEL Distribusi Frekuensi Variabel Independen dan TABEL Distribusi Frekuensi Variabel Dependen secara lengkap dalam n dan % atau Mean ± SD).
+4.3 Hasil Analisis Bivariat dan Pengujian Hipotesis Klinis (WAJIB sajikan TABEL Tabulasi Silang [Cross-Tabulation] hubungan variabel independen terhadap variabel dependen dilengkapi hasil uji statistik yang tepat [Chi-Square / Fisher Exact / Spearman / Mann-Whitney / Independent t-test], nilai p-value, serta Odds Ratio [OR] / koefisien korelasi r jika relevan).
+4.4 Pembahasan Klinis dan Implikasi Keperawatan/Kesehatan (Bahas secara kritis mekanisme fisiologis/psikologis di balik nilai p-value tersebut, bandingkan dengan teori Bab II & jurnal kesehatan terdahulu, serta uraikan keterbatasan penelitian).",
+
+            $isTeknikNonIt => "
+TUGAS: Tulis Isi BAB IV (HASIL PENGUJIAN DAN PEMBAHASAN REKAYASA — {$project->prodi}) (MINIMAL 1800 - 2400 KATA).
+WAJIB MEMUAT DATA UJI TEKNIS & KOMPARASI STANDAR SNI/ASTM/IEEE:
+4.1 Karakteristik Material / Parameter Desain Awal (Sajikan TABEL data spesifikasi material/parameter input).
+4.2 Hasil Pengujian Laboratorium / Simulasi Numerik (WAJIB sajikan TABEL hasil pengukuran/pengujian setiap variasi sampel atau beban beserta nilai rata-rata dan deviasinya).
+4.3 Analisis Perbandingan terhadap Standar Acuan (Evaluasi apakah hasil memenuhi syarat ambang batas SNI, ASTM, PUIL, atau IEEE yang ditetapkan pada Bab II–III).
+4.4 Pembahasan Teknis dan Rekomendasi Optimalisasi Desain.",
 
             $isEkonomi => "
 TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN EKONOMI / MANAJEMEN).
@@ -4480,7 +4675,7 @@ WAJIB MEMUAT TABEL STATISTIK LENGKAP:
 
             ($isPendidikan && $isPengaruh) || ($isPengaruh && !$isInformatika) => "
 TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN KUANTITATIF).
-Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.
+Disesuaikan secara persis dengan Judul: '{$project->judul}' dan Program Studi: '{$project->prodi}'.{$paiContextNote}{$olahragaContextNote}
 WAJIB MEMUAT TABEL DATA STATISTIK LENGKAP DAN PEMBAHASAN MENDALAM (MINIMAL 1500 - 2500 KATA):
 4.1 Gambaran Umum Lokasi dan Karakteristik Responden (Sajikan TABEL Demografi Responden: Jenis Kelamin, Usia, Kelas/Latar Belakang).
 4.2 Deskripsi Data Variabel Penelitian (Sajikan TABEL Statistik Deskriptif Variabel X dan Variabel Y: N, Skor Minimum, Maksimum, Mean, Standar Deviasi, serta TABEL Kategori Distribusi Frekuensi).
@@ -4495,20 +4690,12 @@ d. KONSISTENSI RUMUS & INDIKATOR WAJIB: Pada regresi linier sederhana (1 variabe
 4.7 Keterbatasan Penelitian (Uraikan kendala metodologis atau lingkup yang dihadapi selama penelitian).",
 
             $isPendidikan => "
-TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN PENDIDIKAN).
+TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN PENDIDIKAN).{$paiContextNote}{$olahragaContextNote}
 WAJIB MEMUAT:
 4.1 Deskripsi Data Hasil Belajar (Sajikan TABEL nilai rata-rata Pretest & Posttest kelas eksperimen vs kelas kontrol).
 4.2 Hasil Uji Prasyarat Analisis (Sajikan TABEL Uji Normalitas & Uji Homogenitas Varian).
 4.3 Hasil Pengujian Hipotesis & Efektivitas (Sajikan TABEL Uji-t Independent Sample dan TABEL Peningkatan Skor N-Gain).
 4.4 Pembahasan Temuan Penelitian.",
-
-            $isRnD => "
-TUGAS: Tulis Isi BAB IV (HASIL PENGEMBANGAN DAN PEMBAHASAN SISTEM).
-WAJIB MEMUAT:
-4.1 Hasil Analisis dan Desain Sistem.
-4.2 Implementasi Antarmuka Sistem (Deskripsikan halaman-halaman utama antarmuka).
-4.3 Hasil Pengujian Sistem (Sajikan TABEL Pengujian Black-Box Testing dan TABEL Hasil Skor UAT / System Usability Scale).
-4.4 Pembahasan Kelebihan dan Keterbatasan Sistem.",
 
             default => "
 TUGAS: Tulis Isi BAB IV (HASIL PENELITIAN DAN PEMBAHASAN).

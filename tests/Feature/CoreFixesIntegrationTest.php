@@ -624,10 +624,7 @@ MD;
         $this->assertStringContainsString('serializeTableToMarkdown', $editorHtml);
         $this->assertStringContainsString('serializeFigureToMarkdown', $editorHtml);
 
-        $fakeAi = new class(
-            app(\App\Services\GeminiService::class),
-            app(\App\Services\GroqService::class)
-        ) extends \App\Services\AIManagerService {
+        $fakeAi = new class (app(\App\Services\GeminiService::class), app(\App\Services\GroqService::class)) extends \App\Services\AIManagerService {
             public int $callIndex = 0;
 
             public function generateWithImage(string $prompt, ?string $image = null, string $model = 'auto'): string
@@ -825,5 +822,125 @@ TXT;
         // Flag satu-kali mencegah penimpaan ulang jika nanti Andre menghapus/mengedit sesuatu lagi
         $meta = json_decode((string) $andreFresh->citation_validation, true);
         $this->assertTrue(!empty($meta[\App\Services\TargetedStructureRepairService::META_FLAG]));
+    }
+
+    public function test_multi_major_and_method_prompts_follow_standards_and_form_settings_without_breaking_existing_majors(): void
+    {
+        $user = User::factory()->create();
+        $ctrl = app(GeneratorController::class);
+        $promptBab = new ReflectionMethod($ctrl, 'promptBab');
+        $promptBab->setAccessible(true);
+
+        $makeProject = function (array $attrs) use ($user): Project {
+            $meta = array_merge([
+                'tahap_pengerjaan' => 'Proposal Skripsi (Bab I–III)',
+                'sitasi' => ['gaya' => 'APA 7th', 'tahun_min' => '2022', 'asal' => 'Indonesia + Internasional', 'bahasa' => 'Indonesia', 'sumber' => ['Terindeks Sinta']],
+                'verified_refs' => [['formatted' => 'Contoh, A. (2025). Artikel Ilmiah. Jurnal Sains, 1(1), 1-10. https://doi.org/10.1000/test']],
+            ], $attrs['meta'] ?? []);
+            unset($attrs['meta']);
+
+            return Project::create(array_merge([
+                'user_id' => $user->id,
+                'judul' => 'Judul Uji',
+                'prodi' => 'Manajemen',
+                'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+                'citation_validation' => json_encode($meta, JSON_UNESCAPED_UNICODE),
+            ], $attrs));
+        };
+
+        // 1. Ilmu Komputer - Perancangan Sistem Web (TIDAK boleh dipaksa Text Mining / TF-IDF / Confusion Matrix)
+        $webSys = $makeProject([
+            'judul' => 'Perancangan sistem di kampung parouto dengan berbasis web',
+            'prodi' => 'ILMU KOMPUTER',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+        ]);
+        $webBab2 = (string) $promptBab->invoke($ctrl, 'bab2', $webSys);
+        $webBab3 = (string) $promptBab->invoke($ctrl, 'bab3', $webSys);
+        $webBab4 = (string) $promptBab->invoke($ctrl, 'bab4', $webSys);
+        $this->assertStringContainsString('Black-Box Testing', $webBab2);
+        $this->assertStringContainsString('PENGEMBANGAN SISTEM / R&D', $webBab3);
+        $this->assertStringContainsString('Black-Box Testing', $webBab4);
+        $this->assertStringNotContainsString('Text/Data Preprocessing', $webBab2);
+        $this->assertStringNotContainsString('Tabel 3.2 Struktur Confusion Matrix', $webBab3);
+
+        // 2. Teknik Informatika - Machine Learning / Sentimen (tetap pakai TF-IDF & Confusion Matrix)
+        $mlProj = $makeProject([
+            'judul' => 'Pengembangan Modul Klasifikasi Multikelas Komentar TikTok dengan Algoritma Naive Bayes',
+            'prodi' => 'Teknik Informatika',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+        ]);
+        $mlBab3 = (string) $promptBab->invoke($ctrl, 'bab3', $mlProj);
+        $mlBab4 = (string) $promptBab->invoke($ctrl, 'bab4', $mlProj);
+        $this->assertStringContainsString('TF-IDF', $mlBab3);
+        $this->assertStringContainsString('Confusion Matrix', $mlBab4);
+
+        // 3. S1 Keperawatan - Hubungan Stres & Hipertensi (Bab IV wajib Univariat & Bivariat Klinis)
+        $nurseProj = $makeProject([
+            'judul' => 'Hubungan tingkat stres dengan tekanan darah pada pasien hipertensi di wilayah kerja puskesmas x',
+            'prodi' => 'S1 Keperawatan',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+        ]);
+        $nurseBab2 = (string) $promptBab->invoke($ctrl, 'bab2', $nurseProj);
+        $nurseBab3 = (string) $promptBab->invoke($ctrl, 'bab3', $nurseProj);
+        $nurseBab4 = (string) $promptBab->invoke($ctrl, 'bab4', $nurseProj);
+        $this->assertStringContainsString('Kerangka Teori dan Kerangka Konsep', $nurseBab2);
+        $this->assertStringContainsString('Ethical Clearance', $nurseBab3);
+        $this->assertStringContainsString('Analisis Bivariat', $nurseBab4);
+        $this->assertStringContainsString('Chi-Square', $nurseBab4);
+
+        // 4. Sosiologi FISIP - Kualitatif (Bab II tanpa hipotesis statistik H0/H1, Bab III/IV kualitatif Miles-Huberman & Triangulasi)
+        $socProj = $makeProject([
+            'judul' => 'Dinamika Sosial dalam Tata Kelola Birokrasi pada Sistem Pemasyarakatan',
+            'prodi' => 'PROGRAM STUDI SOSIOLOGI FISIP',
+            'metode_penelitian' => 'Kualitatif (Studi Kasus / Deskriptif)',
+        ]);
+        $socBab2 = (string) $promptBab->invoke($ctrl, 'bab2', $socProj);
+        $socBab3 = (string) $promptBab->invoke($ctrl, 'bab3', $socProj);
+        $socBab4 = (string) $promptBab->invoke($ctrl, 'bab4', $socProj);
+        $this->assertStringContainsString('DILARANG menuliskan hipotesis statistik H0/H1', $socBab2);
+        $this->assertStringContainsString('Miles, Huberman & Saldana', $socBab3);
+        $this->assertStringContainsString('Profil Informan', $socBab4);
+        $this->assertStringContainsString('Triangulasi', $socBab4);
+
+        // 5. Pendidikan Agama Islam - PTK & Pengaturan Form (struktur_kustom, pedoman_text, data_awal)
+        $paiPtk = $makeProject([
+            'judul' => 'Implementasi Strategi Pembelajaran Berdiferensiasi PAI',
+            'prodi' => 'PENDIDIKAN AGAMA ISLAM',
+            'metode_penelitian' => 'PTK (Penelitian Tindakan Kelas)',
+            'meta' => [
+                'tahap_pengerjaan' => 'Proposal Skripsi (Bab I–III)',
+                'data_awal' => 'Ketuntasan siswa awal 49% dengan rata-rata nilai 70.',
+                'struktur_kustom' => '2.1 Landasan Teori PAI, 2.2 Kajian Pustaka',
+            ],
+        ]);
+        $paiBab2 = (string) $promptBab->invoke($ctrl, 'bab2', $paiPtk);
+        $paiBab4 = (string) $promptBab->invoke($ctrl, 'bab4', $paiPtk);
+        $this->assertStringContainsString('PENDIDIKAN AGAMA ISLAM', $paiBab2);
+        $this->assertStringContainsString('2.1 Landasan Teori PAI', $paiBab2);
+        $this->assertStringContainsString('Siklus I', $paiBab4);
+        $this->assertStringContainsString('Siklus II', $paiBab4);
+
+        // 6. Hukum Empiris & Teknik Sipil
+        $lawProj = $makeProject([
+            'judul' => 'Efektivitas Penegakan Peraturan Daerah Pengelolaan Sampah',
+            'prodi' => 'Ilmu Pemerintahan',
+            'metode_penelitian' => 'Hukum Empiris',
+        ]);
+        $this->assertStringContainsString('Yuridis Empiris', (string) $promptBab->invoke($ctrl, 'bab3', $lawProj));
+        $this->assertStringContainsString('PEMBAHASAN YURIDIS', (string) $promptBab->invoke($ctrl, 'bab4', $lawProj));
+
+        $civilProj = $makeProject([
+            'judul' => 'Analisis Kuat Tekan Beton dengan Substitusi Abu Terbang',
+            'prodi' => 'Teknik Sipil',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+        ]);
+        $this->assertStringContainsString('SNI', (string) $promptBab->invoke($ctrl, 'bab2', $civilProj));
+        $this->assertStringContainsString('ASTM', (string) $promptBab->invoke($ctrl, 'bab3', $civilProj));
+        $this->assertStringContainsString('HASIL PENGUJIAN DAN PEMBAHASAN REKAYASA', (string) $promptBab->invoke($ctrl, 'bab4', $civilProj));
+
+        // 7. Pastikan modal checkout responsif di mobile (100dvh & anti-duplikasi header saat invoice manual)
+        $paketHtml = $this->actingAs($user)->get('/paket')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('id="sl-checkout-top-summary"', $paketHtml);
+        $this->assertStringContainsString('calc(100dvh - 20px)', $paketHtml);
     }
 }
