@@ -945,4 +945,204 @@ TXT;
         $this->assertStringContainsString('id="sl-checkout-top-summary"', $paketHtml);
         $this->assertStringContainsString('calc(100dvh - 20px)', $paketHtml);
     }
+
+    public function test_abstrak_faculty_prefix_cross_chapter_consistency_and_pdf_toc_calibration(): void
+    {
+        $user = User::create([
+            'name' => 'Muh Alwi Syahrir',
+            'email' => 'audit.konsistensi@gmail.com',
+            'password' => bcrypt('Secret123!'),
+            'plan_code' => 'starter',
+        ]);
+
+        $ctrl = app(\App\Http\Controllers\GeneratorController::class);
+        $refCtrl = new \ReflectionClass($ctrl);
+        $mFaculty = $refCtrl->getMethod('formatFacultyLabel');
+        $mFaculty->setAccessible(true);
+        $mAbstrak = $refCtrl->getMethod('buildDynamicAbstrakData');
+        $mAbstrak->setAccessible(true);
+        $mBenang = $refCtrl->getMethod('extractProjectBenangMerah');
+        $mBenang->setAccessible(true);
+        $mPromptBab = $refCtrl->getMethod('promptBab');
+        $mPromptBab->setAccessible(true);
+        $mFormatPdf = $refCtrl->getMethod('formatAcademicContentForPdf');
+        $mFormatPdf->setAccessible(true);
+
+        // 1. Fakultas prefix normalization (tidak pernah dobel)
+        $this->assertSame('Fakultas Teknik', $mFaculty->invoke($ctrl, 'Teknik'));
+        $this->assertSame('Fakultas Ilmu Komputer', $mFaculty->invoke($ctrl, 'Ilmu Komputer'));
+        $this->assertSame('Fakultas Agama Islam', $mFaculty->invoke($ctrl, 'Fakultas Agama Islam'));
+        $this->assertSame('Sekolah Teknik Elektro dan Informatika', $mFaculty->invoke($ctrl, 'Sekolah Teknik Elektro dan Informatika'));
+        $this->assertSame('', $mFaculty->invoke($ctrl, '   '));
+
+        // 2. Bangun proyek Skripsi Informatika lengkap dengan kalimat ablasi negatif sebelum headline akurasi + Bab IV panjang
+        $filler = str_repeat("Analisis distribusi fitur TF-IDF dan probabilitas posterior pada empat kelas opini menunjukkan pemisahan kosakata yang konsisten antar kategori komentar kosmetik lokal. ", 35);
+        $bab1 = <<<'TXT'
+1.1 Latar Belakang Masalah
+Volume komentar TikTok terhadap produk kosmetik lokal terus meningkat.
+
+1.3 Batasan Masalah
+1. Objek penelitian berupa komentar TikTok yang dikategorikan ke dalam empat kelas, yaitu pujian, keluhan, pertanyaan, dan saran.
+2. Metode klasifikasi yang diterapkan adalah algoritma Naive Bayes dengan pembobotan TF-IDF.
+
+1.4 Rumusan Masalah
+1. Bagaimana kinerja algoritma Naive Bayes dalam mengklasifikasikan komentar TikTok ke dalam empat kelas opini?
+2. Bagaimana tahapan pra-pemrosesan teks yang efektif?
+3. Bagaimana modul klasifikasi berbasis web diimplementasikan dan diuji secara fungsional?
+TXT;
+        $bab3 = <<<'TXT'
+3.1 Desain Penelitian dan Alur Sistem
+Penelitian ini dirancang sebagai penelitian pengembangan perangkat lunak (software development research) dengan eksperimen komputasional.
+
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+[Mulai]
+↓
+[Pengumpulan Dataset 3.000 Komentar]
+↓
+[Pra-Pemrosesan dan Pembobotan TF-IDF]
+↓
+[Pelatihan Naive Bayes dan Pengujian]
+↓
+[Selesai]
+```
+
+3.3 Tahapan Pra-Pemrosesan Data
+Penerapan stemming Sastrawi berhasil memadatkan kosakata dari 4.913 term menjadi 2.847 term, atau terjadi reduksi sebesar 42,05 persen.
+TXT;
+        $bab4 = <<<TXT
+4.1 Deskripsi dan Karakteristik Dataset Penelitian
+Dataset final yang layak dianalisis berjumlah 3.000 komentar berbahasa Indonesia.
+
+4.2 Hasil Pra-Pemrosesan Teks
+Setelah penerapan normalisasi slang dan stemming Sastrawi, kosakata berhasil dipadatkan dari 4.913 term menjadi 2.847 term, atau terjadi reduksi sebesar 42,05 persen. Hasil pengujian menunjukkan bahwa tanpa normalisasi slang dan stemming, akurasi model turun menjadi 81,67 persen, atau terjadi penurunan sebesar 5,66 poin persentase dibandingkan akurasi dengan pra-pemrosesan lengkap.
+
+4.3 Hasil Pengujian dan Evaluasi Kinerja Algoritma
+Tabel 4.4 Confusion Matrix Hasil Klasifikasi Multikelas pada Data Uji
+| Aktual \\ Prediksi | Pujian | Keluhan | Pertanyaan | Saran | Total Aktual |
+|---|---|---|---|---|---|
+| Pujian | 218 | 12 | 6 | 4 | 240 |
+| Keluhan | 9 | 156 | 5 | 10 | 180 |
+| Pertanyaan | 4 | 3 | 88 | 5 | 100 |
+| Saran | 3 | 11 | 4 | 62 | 80 |
+| Total Prediksi | 234 | 182 | 103 | 81 | 600 |
+
+{$filler}
+
+4.4 Pembahasan Kritis Hasil Penelitian
+Akurasi keseluruhan sebesar 87,33 persen pada klasifikasi empat kelas menunjukkan bahwa algoritma Naive Bayes mampu menangkap pola linguistik yang membedakan keempat kelas opini komentar TikTok terhadap produk kosmetik lokal. Validasi 5-fold cross validation menunjukkan rata-rata akurasi sebesar 86,12 persen dengan simpangan baku 1,34 persen. Hasil pengujian fungsional black-box menunjukkan bahwa seluruh skenario fungsional berhasil dijalankan dengan tingkat keberhasilan 100 persen.
+TXT;
+
+        $project = Project::create([
+            'user_id' => $user->id,
+            'judul' => 'Pengembangan Modul Klasifikasi Multikelas Komentar TikTok terhadap Produk Kosmetik Lokal dengan Algoritma Naive Bayes pada Aplikasi Berbasis Web',
+            'prodi' => 'Teknik Informatika',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+            'bab1_content' => $bab1,
+            'bab2_content' => "2.1 Landasan Teori\nKlasifikasi teks dengan Naive Bayes.\n\nTabel 2.1 Sintesis Penelitian Terdahulu\n| No | Peneliti | Judul | Metode | Hasil | Celah |\n|---|---|---|---|---|---|\n| 1 | Nasution & Sriani (2026) | Emosi TikTok | LDA, SVM | 85% | Domain kesehatan mental |",
+            'bab3_content' => $bab3,
+            'bab4_content' => $bab4,
+            'bab5_content' => "5.1 Kesimpulan\n1. Algoritma Naive Bayes mencapai akurasi keseluruhan 87,33% pada 600 data uji.\n\n5.2 Saran\nPerlu perluasan dataset kelas minoritas.",
+            'daftar_pustaka' => "Nasution, L. R., & Sriani. (2026). Klasifikasi emosi komentar pengguna TikTok. Rabit, 11(2), 3786-3800. https://doi.org/10.36341/rabit.v11i2.8185",
+            'is_full_unlocked' => true,
+            'meta_data' => json_encode([
+                'nama' => 'Muh Alwi Syahrir',
+                'nim' => '210299',
+                'kampus' => 'AI Universitas',
+                'fakultas' => 'Teknik',
+                'tahap_pengerjaan' => 'Skripsi Penuh (Bab I–V)',
+                'sitasi' => ['gaya' => 'APA 7th', 'tahun_min' => '2023', 'bahasa' => 'Indonesia'],
+            ]),
+        ]);
+
+        // 3. Abstrak ID & Abstract EN memilih capaian utama 87,33% (bukan ablasi 81,67%), metode tepat, tanpa spasi sebelum '%'
+        $abstrak = $mAbstrak->invoke($ctrl, $project);
+        $this->assertStringContainsString('87,33 persen', $abstrak['id_body']);
+        $this->assertStringNotContainsString('81,67', $abstrak['id_body']);
+        $this->assertStringNotContainsString('Survei / Regresi', $abstrak['id_body']);
+        $this->assertStringContainsString('87.33%', $abstrak['en_body']);
+        $this->assertStringNotContainsString('87.33 %', $abstrak['en_body']);
+
+        // 3b. Abstract EN juga mendukung jurusan Kesehatan (p-value) & R&D (SUS)
+        $healthProj = new Project([
+            'judul' => 'Hubungan Tingkat Stres dengan Tekanan Darah pada Pasien Hipertensi',
+            'prodi' => 'S1 Keperawatan',
+            'metode_penelitian' => 'Kuantitatif',
+            'bab3_content' => 'Penelitian ini menggunakan desain analitik observasional dengan desain cross-sectional pada 96 pasien.',
+            'bab4_content' => 'Hasil uji Chi-Square menunjukkan terdapat hubungan yang signifikan antara tingkat stres dengan tekanan darah dengan nilai p-value = 0,002.',
+        ]);
+        $healthAbs = $mAbstrak->invoke($ctrl, $healthProj);
+        $this->assertStringContainsString('0,002', $healthAbs['id_body']);
+        $this->assertStringContainsString('p = 0.002', $healthAbs['en_body']);
+
+        // 4. Benang Merah & Prompt Bab IV / Bab V mengunci angka stemming, Black-Box 100%, Batasan Masalah, Confusion Matrix, & APA surname-only
+        $benang = (string) $mBenang->invoke($ctrl, $project);
+        $this->assertStringContainsString('BATASAN MASALAH, NAMA KELAS & VARIABEL TERKUNCI BAB I', $benang);
+        $this->assertStringContainsString('2.847 term', $benang);
+        $this->assertStringContainsString('42,05 persen', $benang);
+        $this->assertStringContainsString('100 persen', $benang);
+
+        $bab4Prompt = (string) $mPromptBab->invoke($ctrl, 'bab4', $project);
+        $this->assertStringContainsString('ATURAN VERIFIKASI MATEMATIKA CONFUSION MATRIX', $bab4Prompt);
+        $this->assertStringContainsString('KOLOM prediksi kelas c', $bab4Prompt);
+        $this->assertStringContainsString('NAMA BELAKANG (SURNAME) SAJA', $bab4Prompt);
+
+        $bab5Prompt = (string) $mPromptBab->invoke($ctrl, 'bab5', $project);
+        $this->assertStringContainsString('100 persen', $bab5Prompt);
+        $this->assertStringContainsString('2.847 term', $bab5Prompt);
+        $this->assertStringContainsString('DILARANG KERAS MENGARANG ATAU MENGUBAH 1 DIGIT PUN', $bab5Prompt);
+
+        // 5. HTML PDF menandai data-toc-id pada sub-bab, tabel, dan gambar untuk kalibrasi 2-pass Dompdf
+        $pdfBodyHtml = (string) $mFormatPdf->invoke($ctrl, $bab3 . "\n\n" . $bab4, $project->judul);
+        $this->assertStringContainsString("data-toc-id='sub_3.1'", $pdfBodyHtml);
+        $this->assertStringContainsString("data-toc-id='fig_3.1'", $pdfBodyHtml);
+        $this->assertStringContainsString("data-toc-id='tbl_4.4'", $pdfBodyHtml);
+
+        // 6. Ekspor Word (.docx) & PDF (.pdf) jalan bersih dengan "Fakultas Teknik" (tidak pernah "Dekan Teknik")
+        $docxResp = $this->actingAs($user)->post("/project/{$project->id}/download/docx", [
+            'nama' => 'Muh Alwi Syahrir',
+            'npm' => '210299',
+            'kampus' => 'AI Universitas',
+            'fakultas' => 'Teknik',
+        ]);
+        $docxResp->assertStatus(200);
+        $docxPath = $docxResp->getFile()->getPathname();
+        $zip = new \ZipArchive();
+        $this->assertTrue($zip->open($docxPath) === true);
+        $docXml = (string) $zip->getFromName('word/document.xml');
+        $zip->close();
+        $this->assertStringContainsString('FAKULTAS TEKNIK', $docXml);
+        $this->assertStringContainsString('Dekan Fakultas Teknik', $docXml);
+        $this->assertStringNotContainsString('Dekan Teknik', $docXml);
+        $this->assertStringContainsString('87,33 persen', $docXml);
+        $this->assertStringNotContainsString('87.33 %', $docXml);
+
+        ob_start();
+        $pdfResp = $this->actingAs($user)->post("/project/{$project->id}/download/pdf", [
+            'nama' => 'Muh Alwi Syahrir',
+            'npm' => '210299',
+            'kampus' => 'AI Universitas',
+            'fakultas' => 'Teknik',
+        ]);
+        $pdfBytes = (string) ob_get_clean();
+        $pdfResp->assertStatus(200);
+        $this->assertStringStartsWith('%PDF-', $pdfBytes);
+
+        // Dekompresi stream PDF dan pastikan FAKULTAS TEKNIK & nomor halaman BAB V / DAFTAR PUSTAKA terkalibrasi persis
+        $decompressedPages = [];
+        if (preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $pdfBytes, $sm)) {
+            foreach ($sm[1] as $rawStream) {
+                $plain = @gzuncompress($rawStream);
+                if (is_string($plain) && $plain !== '') {
+                    $decompressedPages[] = $plain;
+                }
+            }
+        }
+        $joinedPdfText = implode("\n", $decompressedPages);
+        $this->assertStringContainsString('FAKULTAS TEKNIK', $joinedPdfText);
+        $this->assertStringContainsString('Dekan Fakultas Teknik', $joinedPdfText);
+        $this->assertStringNotContainsString('Dekan Teknik', $joinedPdfText);
+        $this->assertStringContainsString('87,33 persen', $joinedPdfText);
+        $this->assertStringNotContainsString('87.33 %', $joinedPdfText);
+    }
 }
