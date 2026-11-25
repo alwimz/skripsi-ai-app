@@ -1693,9 +1693,25 @@ class GeneratorController extends Controller
 
             $lines = explode("\n", str_replace(['<p>', '</p>', '<br>', '<br/>'], "\n", $content));
             $totalLines = max(1, count($lines));
+            $inFenceToc = false;
             foreach ($lines as $lIdx => $line) {
                 $clean = trim(strip_tags($line));
+                if (str_starts_with($clean, '```')) {
+                    $inFenceToc = !$inFenceToc;
+                    continue;
+                }
+                if ($inFenceToc) {
+                    continue;
+                }
                 if (preg_match('/^(\d+\.\d+)\.?\s+(.+)$/', $clean, $m)) {
+                    $subPage = $basePage + (int) floor(($lIdx / $totalLines) * $chapPages);
+                    $subPage = min($pageMap[$key]['end'], max($basePage, $subPage));
+                    $items[] = [
+                        'label' => $m[1] . ' ' . trim($m[2]),
+                        'page' => (string) $subPage,
+                        'level' => 2,
+                    ];
+                } elseif (preg_match('/^([A-Z]\.)\s+([A-Z][^\n]{2,110})$/', $clean, $m)) {
                     $subPage = $basePage + (int) floor(($lIdx / $totalLines) * $chapPages);
                     $subPage = min($pageMap[$key]['end'], max($basePage, $subPage));
                     $items[] = [
