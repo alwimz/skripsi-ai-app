@@ -2023,8 +2023,8 @@ class GeneratorController extends Controller
         if ($decisionIdx < 0) {
             $cx = 280;
         }
-        $gap = 24;
-        $y = 12;
+        $gap = $total >= 8 ? 16 : 19;
+        $y = 8;
         $layouts = [];
 
         foreach ($nodes as $idx => $rawNode) {
@@ -2033,26 +2033,26 @@ class GeneratorController extends Controller
             $maxChars = match ($type) {
                 'terminator' => 24,
                 'decision' => 28,
-                'io' => 40,
-                'subprocess' => 40,
-                'framework' => 48,
-                default => 44,
+                'io' => 44,
+                'subprocess' => 44,
+                'framework' => 52,
+                default => 46,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
-                $boxW = 180;
-                $boxH = max(34, $lineCount * 14 + 14);
+                $boxW = 160;
+                $boxH = max(28, $lineCount * 12 + 10);
             } elseif ($type === 'decision') {
-                $boxW = 244;
-                $boxH = max(72, $lineCount * 14 + 34);
+                $boxW = 228;
+                $boxH = max(56, $lineCount * 12 + 24);
             } elseif ($type === 'framework') {
-                $boxW = 410;
-                $boxH = max(44, $lineCount * 15 + 18);
+                $boxW = 396;
+                $boxH = max(36, $lineCount * 13 + 14);
             } else {
-                $boxW = 330;
-                $boxH = max(38, $lineCount * 15 + 16);
+                $boxW = 320;
+                $boxH = max(31, $lineCount * 13 + 12);
             }
 
             $layouts[] = [
@@ -2064,10 +2064,10 @@ class GeneratorController extends Controller
                 'h' => $boxH,
                 'cy' => (int) round($y + $boxH / 2),
             ];
-            $y += $boxH + ($type === 'decision' ? $gap + 8 : $gap);
+            $y += $boxH + ($type === 'decision' ? $gap + 5 : $gap);
         }
 
-        $totalH = $y - $gap + 14;
+        $totalH = $y - $gap + 10;
         $svgParts = [];
         $svgParts[] = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{$w}\" height=\"{$totalH}\" viewBox=\"0 0 {$w} {$totalH}\">";
         $svgParts[] = "<rect x=\"0\" y=\"0\" width=\"{$w}\" height=\"{$totalH}\" fill=\"#ffffff\"/>";
@@ -2083,17 +2083,17 @@ class GeneratorController extends Controller
 
             if ($type === 'terminator') {
                 $rx = (int) round($bh / 2);
-                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" rx=\"{$rx}\" ry=\"{$rx}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.6\"/>";
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" rx=\"{$rx}\" ry=\"{$rx}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.5\"/>";
             } elseif ($type === 'io') {
-                $skew = 20;
+                $skew = 18;
                 $pts = ($x + $skew) . ",{$iy} " . ($x + $bw) . ",{$iy} " . ($x + $bw - $skew) . "," . ($iy + $bh) . " {$x}," . ($iy + $bh);
-                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
             } elseif ($type === 'subprocess') {
                 // Kotak proses tunggal bersih tanpa garis ganda vertikal agar seragam dengan Word & rapi di PDF
-                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
             } elseif ($type === 'decision') {
                 $pts = "{$cx},{$iy} " . ($x + $bw) . ",{$cy} {$cx}," . ($iy + $bh) . " {$x},{$cy}";
-                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.5\"/>";
+                $svgParts[] = "<polygon points=\"{$pts}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
 
                 // Cabang Loopback "Tidak" di sisi kanan mengarah ke tahapan sebelumnya
                 $targetIdx = max(1, $idx - 2);
@@ -2106,16 +2106,16 @@ class GeneratorController extends Controller
                 $svgParts[] = "<line x1=\"{$loopX}\" y1=\"{$cy}\" x2=\"{$loopX}\" y2=\"{$targetCy}\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
                 $svgParts[] = "<line x1=\"{$loopX}\" y1=\"{$targetCy}\" x2=\"" . ($targetRightX + 6) . "\" y2=\"{$targetCy}\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
                 $svgParts[] = "<polygon points=\"" . ($targetRightX + 7) . "," . ($targetCy - 4) . " " . ($targetRightX + 7) . "," . ($targetCy + 4) . " {$targetRightX},{$targetCy}\" fill=\"#000000\"/>";
-                $svgParts[] = "<text x=\"" . ($x + $bw + 8) . "\" y=\"" . ($cy - 5) . "\" font-family=\"Times-Roman, serif\" font-size=\"9.5\" font-weight=\"bold\" fill=\"#000000\">Tidak</text>";
+                $svgParts[] = "<text x=\"" . ($x + $bw + 8) . "\" y=\"" . ($cy - 5) . "\" font-family=\"Times-Roman, serif\" font-size=\"9\" font-weight=\"bold\" fill=\"#000000\">Tidak</text>";
             } else {
-                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.4\"/>";
+                $svgParts[] = "<rect x=\"{$x}\" y=\"{$iy}\" width=\"{$bw}\" height=\"{$bh}\" fill=\"#ffffff\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
             }
 
             // Teks terpusat vertikal dan horizontal di dalam simbol
-            $fontSize = ($type === 'decision') ? 9.5 : 10.5;
-            $lineH = ($type === 'decision') ? 13 : 14.5;
+            $fontSize = ($type === 'decision') ? 8.8 : 9.8;
+            $lineH = ($type === 'decision') ? 11.5 : 13;
             $isBold = ($type === 'terminator');
-            $startTextY = $cy - ((count($lines) - 1) * $lineH / 2) + 3.5;
+            $startTextY = $cy - ((count($lines) - 1) * $lineH / 2) + 3.2;
 
             foreach ($lines as $li => $lt) {
                 $ty = round($startTextY + $li * $lineH, 1);
@@ -2129,10 +2129,10 @@ class GeneratorController extends Controller
             if ($idx < $total - 1) {
                 $nextY = $layouts[$idx + 1]['y'];
                 $fromY = $iy + $bh;
-                $svgParts[] = "<line x1=\"{$cx}\" y1=\"{$fromY}\" x2=\"{$cx}\" y2=\"" . ($nextY - 6) . "\" stroke=\"#000000\" stroke-width=\"1.3\"/>";
-                $svgParts[] = "<polygon points=\"" . ($cx - 4.5) . "," . ($nextY - 7) . " " . ($cx + 4.5) . "," . ($nextY - 7) . " {$cx},{$nextY}\" fill=\"#000000\"/>";
+                $svgParts[] = "<line x1=\"{$cx}\" y1=\"{$fromY}\" x2=\"{$cx}\" y2=\"" . ($nextY - 5) . "\" stroke=\"#000000\" stroke-width=\"1.2\"/>";
+                $svgParts[] = "<polygon points=\"" . ($cx - 4) . "," . ($nextY - 6) . " " . ($cx + 4) . "," . ($nextY - 6) . " {$cx},{$nextY}\" fill=\"#000000\"/>";
                 if ($type === 'decision') {
-                    $svgParts[] = "<text x=\"" . ($cx + 8) . "\" y=\"" . round(($fromY + $nextY) / 2 + 3) . "\" font-family=\"Times-Roman, serif\" font-size=\"9.5\" font-weight=\"bold\" fill=\"#000000\">Ya</text>";
+                    $svgParts[] = "<text x=\"" . ($cx + 8) . "\" y=\"" . round(($fromY + $nextY) / 2 + 3) . "\" font-family=\"Times-Roman, serif\" font-size=\"9\" font-weight=\"bold\" fill=\"#000000\">Ya</text>";
                 }
             }
         }
@@ -2163,8 +2163,8 @@ class GeneratorController extends Controller
 
         $w = 560;
         $cx = ($decisionIdx >= 0) ? 265 : 280;
-        $gap = 24;
-        $y = 10;
+        $gap = $total >= 8 ? 16 : 19;
+        $y = 8;
         $layouts = [];
 
         foreach ($nodes as $idx => $rawNode) {
@@ -2173,26 +2173,26 @@ class GeneratorController extends Controller
             $maxChars = match ($type) {
                 'terminator' => 24,
                 'decision' => 28,
-                'io' => 38,
-                'subprocess' => 38,
-                'framework' => 48,
-                default => 42,
+                'io' => 42,
+                'subprocess' => 42,
+                'framework' => 52,
+                default => 46,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
             $lineCount = count($lines);
 
             if ($type === 'terminator') {
-                $boxW = 180;
-                $boxH = max(36, $lineCount * 15 + 16);
+                $boxW = 160;
+                $boxH = max(30, $lineCount * 13 + 12);
             } elseif ($type === 'decision') {
-                $boxW = 244;
-                $boxH = max(76, $lineCount * 15 + 36);
+                $boxW = 228;
+                $boxH = max(60, $lineCount * 13 + 26);
             } elseif ($type === 'framework') {
-                $boxW = 410;
-                $boxH = max(46, $lineCount * 15 + 18);
+                $boxW = 396;
+                $boxH = max(38, $lineCount * 13 + 14);
             } else {
-                $boxW = 330;
-                $boxH = max(40, $lineCount * 15 + 16);
+                $boxW = 320;
+                $boxH = max(33, $lineCount * 13 + 12);
             }
 
             $layouts[] = [
@@ -2205,16 +2205,16 @@ class GeneratorController extends Controller
                 'h' => $boxH,
                 'cy' => (int) round($y + $boxH / 2),
             ];
-            $y += $boxH + ($type === 'decision' ? $gap + 8 : $gap);
+            $y += $boxH + ($type === 'decision' ? $gap + 5 : $gap);
         }
 
-        $totalH = $y - $gap + 12;
-        $displayW = 400; // pt (muat sempurna dalam lebar halaman A4 margin 4-3 cm = 14 cm ≈ 397pt)
+        $totalH = $y - $gap + 10;
+        $displayW = $isFramework ? 345 : 325; // pt proporsional & tidak mendominasi 1 halaman penuh
         $displayH = round($totalH * ($displayW / $w), 1);
-        // Pastikan tinggi tidak melebihi 1 halaman A4 (maksimal ~560pt agar caption di bawah ikut muat)
-        if ($displayH > 540) {
-            $scaleDown = 540 / $displayH;
-            $displayH = 540;
+        // Batasi tinggi maksimal 385pt (~13,6 cm ≈ 60% tinggi halaman A4) agar proporsional & tidak menyisakan halaman kosong di atasnya
+        if ($displayH > 385) {
+            $scaleDown = 385 / $displayH;
+            $displayH = 385;
             $displayW = round($displayW * $scaleDown, 1);
         }
 
@@ -6055,10 +6055,25 @@ ATURAN REVISI (SANGAT KETAT):
                     if (preg_match('/^(?:Gambar|Bagan)\s+(\d+\.\d+[\w.\-]*)/i', $caption, $mfId)) {
                         $figTocAttr = " data-toc-id='fig_" . e($mfId[1]) . "'";
                     }
-                    $html .= "<div class='academic-flowchart' style='margin:14pt auto 16pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
-                    $html .= "<img src='data:image/svg+xml;base64,{$svgB64}' style='width:395pt; max-width:100%; height:auto; display:block; margin:0 auto;'>";
+                    // Ukuran proporsional & ringkas agar diagram tidak menyita 1 halaman penuh dan tidak menyisakan ruang kosong besar di halaman sebelumnya
+                    $svgW = 560.0;
+                    $svgH = 420.0;
+                    if (preg_match('/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/i', $svg, $mVb)) {
+                        $svgW = max(1.0, (float) $mVb[1]);
+                        $svgH = max(1.0, (float) $mVb[2]);
+                    }
+                    $pdfImgW = $isFramework ? 345.0 : 325.0;
+                    $pdfImgH = round($svgH * ($pdfImgW / $svgW), 1);
+                    $maxPdfImgH = 385.0;
+                    if ($pdfImgH > $maxPdfImgH) {
+                        $scalePdf = $maxPdfImgH / $pdfImgH;
+                        $pdfImgH = $maxPdfImgH;
+                        $pdfImgW = round($pdfImgW * $scalePdf, 1);
+                    }
+                    $html .= "<div class='academic-flowchart' style='margin:10pt auto 12pt auto; text-align:center; width:100%; page-break-inside:avoid;'>";
+                    $html .= "<img src='data:image/svg+xml;base64,{$svgB64}' style='width:{$pdfImgW}pt; height:{$pdfImgH}pt; max-width:100%; display:block; margin:0 auto;'>";
                     // Standar Skripsi Indonesia: Judul Gambar WAJIB diletakkan di BAWAH gambar
-                    $html .= "<div{$figTocAttr} style='font-size:11pt; font-weight:bold; margin-top:6pt; text-align:center; text-indent:0; color:#000000; page-break-before:avoid;'>" . e($caption) . "</div>";
+                    $html .= "<div{$figTocAttr} style='font-size:10.5pt; font-weight:bold; margin-top:5pt; text-align:center; text-indent:0; color:#000000; page-break-before:avoid;'>" . e($caption) . "</div>";
                     $html .= "</div>";
                 }
             } else {

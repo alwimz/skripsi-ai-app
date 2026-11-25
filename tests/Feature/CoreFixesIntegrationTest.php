@@ -1096,11 +1096,15 @@ TXT;
         $this->assertStringContainsString('2.847 term', $bab5Prompt);
         $this->assertStringContainsString('DILARANG KERAS MENGARANG ATAU MENGUBAH 1 DIGIT PUN', $bab5Prompt);
 
-        // 5. HTML PDF menandai data-toc-id pada sub-bab, tabel, dan gambar untuk kalibrasi 2-pass Dompdf
+        // 5. HTML PDF menandai data-toc-id pada sub-bab, tabel, dan gambar untuk kalibrasi 2-pass Dompdf & ukuran flowchart proporsional (<= 385pt)
         $pdfBodyHtml = (string) $mFormatPdf->invoke($ctrl, $bab3 . "\n\n" . $bab4, $project->judul);
         $this->assertStringContainsString("data-toc-id='sub_3.1'", $pdfBodyHtml);
         $this->assertStringContainsString("data-toc-id='fig_3.1'", $pdfBodyHtml);
         $this->assertStringContainsString("data-toc-id='tbl_4.4'", $pdfBodyHtml);
+        $this->assertMatchesRegularExpression('/width:\d+(?:\.\d+)?pt; height:(\d+(?:\.\d+)?)pt;/', $pdfBodyHtml);
+        preg_match('/width:\d+(?:\.\d+)?pt; height:(\d+(?:\.\d+)?)pt;/', $pdfBodyHtml, $mFh);
+        $this->assertNotEmpty($mFh[1] ?? null);
+        $this->assertLessThanOrEqual(385.0, (float) $mFh[1]);
 
         // 6. Ekspor Word (.docx) & PDF (.pdf) jalan bersih dengan "Fakultas Teknik" (tidak pernah "Dekan Teknik")
         $docxResp = $this->actingAs($user)->post("/project/{$project->id}/download/docx", [

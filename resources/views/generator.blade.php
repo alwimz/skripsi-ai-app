@@ -3881,8 +3881,8 @@
 
             const w = 560;
             const cx = decisionIdx >= 0 ? 265 : 280;
-            const gap = 24;
-            let y = 12;
+            const gap = total >= 8 ? 16 : 19;
+            let y = 8;
             const layouts = [];
 
             nodes.forEach((rawNode, idx) => {
@@ -3894,22 +3894,22 @@
                 const type = classifyFlowchartNodeJs(text, idx, total, isFramework, decisionIdx);
                 const maxChars = type === 'terminator' ? 24
                     : (type === 'decision' ? 28
-                    : (type === 'framework' ? 48
-                    : ((type === 'io' || type === 'subprocess') ? 40 : 44)));
-                const lines = wrapDiagramLinesJs(text, maxChars, 5);
+                    : (type === 'framework' ? 52
+                    : ((type === 'io' || type === 'subprocess') ? 44 : 46)));
+                const lines = wrapDiagramLinesJs(text, maxChars, 4);
                 const lineCount = lines.length;
 
-                let boxW = 330;
-                let boxH = Math.max(38, lineCount * 15 + 16);
+                let boxW = 320;
+                let boxH = Math.max(31, lineCount * 13 + 12);
                 if (type === 'terminator') {
-                    boxW = 180;
-                    boxH = Math.max(34, lineCount * 14 + 14);
+                    boxW = 160;
+                    boxH = Math.max(28, lineCount * 12 + 10);
                 } else if (type === 'decision') {
-                    boxW = 244;
-                    boxH = Math.max(72, lineCount * 14 + 34);
+                    boxW = 228;
+                    boxH = Math.max(56, lineCount * 12 + 24);
                 } else if (type === 'framework') {
-                    boxW = 410;
-                    boxH = Math.max(44, lineCount * 15 + 18);
+                    boxW = 396;
+                    boxH = Math.max(36, lineCount * 13 + 14);
                 }
 
                 layouts.push({
@@ -3921,12 +3921,20 @@
                     h: boxH,
                     cy: Math.round(y + boxH / 2),
                 });
-                y += boxH + (type === 'decision' ? gap + 8 : gap);
+                y += boxH + (type === 'decision' ? gap + 5 : gap);
             });
 
-            const totalH = y - gap + 14;
+            const totalH = y - gap + 10;
+            let dispW = isFramework ? 455 : 430;
+            let dispH = Math.round(totalH * (dispW / w));
+            const maxDispH = 490;
+            if (dispH > maxDispH) {
+                const sc = maxDispH / dispH;
+                dispH = maxDispH;
+                dispW = Math.round(dispW * sc);
+            }
             const parts = [];
-            parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${totalH}" style="width:100%; max-width:525px; height:auto; display:block; margin:0 auto;">`);
+            parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${totalH}" style="width:100%; max-width:${dispW}px; height:auto; display:block; margin:0 auto;">`);
             parts.push(`<rect x="0" y="0" width="${w}" height="${totalH}" fill="#ffffff"/>`);
 
             layouts.forEach((item, idx) => {
@@ -3934,14 +3942,14 @@
 
                 if (type === 'terminator') {
                     const rx = Math.round(bh / 2);
-                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" rx="${rx}" ry="${rx}" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>`);
+                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" rx="${rx}" ry="${rx}" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>`);
                 } else if (type === 'io') {
-                    const skew = 20;
+                    const skew = 18;
                     const pts = `${x + skew},${iy} ${x + bw},${iy} ${x + bw - skew},${iy + bh} ${x},${iy + bh}`;
-                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>`);
+                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.3"/>`);
                 } else if (type === 'decision') {
                     const pts = `${cx},${iy} ${x + bw},${cy} ${cx},${iy + bh} ${x},${cy}`;
-                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>`);
+                    parts.push(`<polygon points="${pts}" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>`);
 
                     const targetIdx = Math.max(1, idx - 2);
                     const targetBox = layouts[targetIdx] || layouts[Math.max(0, idx - 1)];
@@ -3953,15 +3961,15 @@
                     parts.push(`<line x1="${loopX}" y1="${cy}" x2="${loopX}" y2="${targetCy}" stroke="#000000" stroke-width="1.2"/>`);
                     parts.push(`<line x1="${loopX}" y1="${targetCy}" x2="${targetRightX + 6}" y2="${targetCy}" stroke="#000000" stroke-width="1.2"/>`);
                     parts.push(`<polygon points="${targetRightX + 7},${targetCy - 4} ${targetRightX + 7},${targetCy + 4} ${targetRightX},${targetCy}" fill="#000000"/>`);
-                    parts.push(`<text x="${x + bw + 8}" y="${cy - 5}" font-family="'Times New Roman', Times, serif" font-size="9.5" font-weight="bold" fill="#000000">Tidak</text>`);
+                    parts.push(`<text x="${x + bw + 8}" y="${cy - 5}" font-family="'Times New Roman', Times, serif" font-size="9" font-weight="bold" fill="#000000">Tidak</text>`);
                 } else {
-                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>`);
+                    parts.push(`<rect x="${x}" y="${iy}" width="${bw}" height="${bh}" fill="#ffffff" stroke="#000000" stroke-width="1.3"/>`);
                 }
 
-                const fontSize = type === 'decision' ? 9.5 : 10.5;
-                const lineH = type === 'decision' ? 13 : 14.5;
+                const fontSize = type === 'decision' ? 8.8 : 9.8;
+                const lineH = type === 'decision' ? 11.5 : 13;
                 const isBold = type === 'terminator';
-                const startTextY = cy - ((lines.length - 1) * lineH / 2) + 3.5;
+                const startTextY = cy - ((lines.length - 1) * lineH / 2) + 3.2;
 
                 lines.forEach((lt, li) => {
                     const ty = (startTextY + li * lineH).toFixed(1);
@@ -3973,16 +3981,16 @@
                 if (idx < total - 1) {
                     const nextY = layouts[idx + 1].y;
                     const fromY = iy + bh;
-                    parts.push(`<line x1="${cx}" y1="${fromY}" x2="${cx}" y2="${nextY - 6}" stroke="#000000" stroke-width="1.3"/>`);
-                    parts.push(`<polygon points="${cx - 4.5},${nextY - 7} ${cx + 4.5},${nextY - 7} ${cx},${nextY}" fill="#000000"/>`);
+                    parts.push(`<line x1="${cx}" y1="${fromY}" x2="${cx}" y2="${nextY - 5}" stroke="#000000" stroke-width="1.2"/>`);
+                    parts.push(`<polygon points="${cx - 4},${nextY - 6} ${cx + 4},${nextY - 6} ${cx},${nextY}" fill="#000000"/>`);
                     if (type === 'decision') {
-                        parts.push(`<text x="${cx + 8}" y="${Math.round((fromY + nextY) / 2 + 3)}" font-family="'Times New Roman', Times, serif" font-size="9.5" font-weight="bold" fill="#000000">Ya</text>`);
+                        parts.push(`<text x="${cx + 8}" y="${Math.round((fromY + nextY) / 2 + 3)}" font-family="'Times New Roman', Times, serif" font-size="9" font-weight="bold" fill="#000000">Ya</text>`);
                     }
                 }
             });
 
             parts.push('</svg>');
-            return { svg: parts.join(''), height: totalH };
+            return { svg: parts.join(''), height: dispH };
         }
 
         function encodeUtf8Base64(str) {
