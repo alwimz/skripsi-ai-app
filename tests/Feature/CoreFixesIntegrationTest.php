@@ -555,14 +555,148 @@ class CoreFixesIntegrationTest extends TestCase
                 ],
             ]);
         $this->assertStringContainsString('qris-payment.jpg', (string) $invResp->json('invoice.qris_image_url'));
+        $decodedWa = urldecode((string) $invResp->json('whatsapp_url'));
+        $this->assertStringContainsString('KONFIRMASI PEMBAYARAN SKRIPSILAB AI', $decodedWa);
+        $this->assertStringContainsString('Metode Bayar:', $decodedWa);
         $invJson = json_encode($invResp->json('invoice'));
         $this->assertStringContainsString('082195036971', (string) $invJson);
         $this->assertStringContainsString('901889425034', (string) $invJson);
         $this->assertStringContainsString('Muh Alwi Syahrir', (string) $invJson);
+        $this->assertStringContainsString('wa_label', (string) $invJson);
 
         $this->actingAs($buyer)->get('/paket')
             ->assertStatus(200)
             ->assertSee('slSelectInvoiceMethod', false)
-            ->assertSee('sl-invoice-tabs', false);
+            ->assertSee('sl-invoice-tabs', false)
+            ->assertSee('sl-inv-selected-method', false)
+            ->assertSee('sl-wa-confirm-btn', false);
+    }
+
+    public function test_editor_and_revise_chapter_preserve_flowcharts_and_markdown_tables(): void
+    {
+        $user = User::create([
+            'name' => 'Peneliti Flowchart',
+            'email' => 'flowchart.tester@gmail.com',
+            'password' => bcrypt('Secret123!'),
+            'plan_code' => 'starter',
+        ]);
+
+        $bab3Original = <<<'MD'
+3.1 Desain Penelitian
+Penelitian ini dilaksanakan melalui tahapan sistematis sesuai prosedur berikut.
+
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+[Mulai]
+↓
+[Identifikasi Masalah & Kajian Literatur]
+↓
+[Pengumpulan Data Lapangan]
+↓
+[Analisis Data & Uji Hipotesis]
+↓
+[Selesai]
+```
+
+3.2 Jadwal Pelaksanaan Penelitian
+Jadwal pelaksanaan kegiatan penelitian disusun selama empat bulan sebagai berikut.
+
+Tabel 3.1 Jadwal Pelaksanaan Penelitian
+| No | Kegiatan Penelitian | Bulan ke-1 | Bulan ke-2 | Bulan ke-3 | Bulan ke-4 |
+|---|---|---|---|---|---|
+| 1 | Penyusunan proposal | ✓ | | | |
+| 2 | Pengumpulan data lapangan | | ✓ | ✓ | |
+| 3 | Analisis data dan pelaporan | | | ✓ | ✓ |
+MD;
+
+        $project = Project::create([
+            'user_id' => $user->id,
+            'judul' => 'Implementasi Strategi Pembelajaran Berdiferensiasi PAI',
+            'prodi' => 'Pendidikan Agama Islam',
+            'metode_penelitian' => 'Kuantitatif',
+            'bab3_content' => $bab3Original,
+            'is_full_unlocked' => true,
+        ]);
+
+        $editorHtml = $this->actingAs($user)->get("/project/{$project->id}")->assertStatus(200)->getContent();
+        $this->assertStringContainsString('data-raw-diagram', $editorHtml);
+        $this->assertStringContainsString('encodeUtf8Base64', $editorHtml);
+        $this->assertStringContainsString('serializeTableToMarkdown', $editorHtml);
+        $this->assertStringContainsString('serializeFigureToMarkdown', $editorHtml);
+
+        $fakeAi = new class(
+            app(\App\Services\GeminiService::class),
+            app(\App\Services\GroqService::class)
+        ) extends \App\Services\AIManagerService {
+            public int $callIndex = 0;
+
+            public function generateWithImage(string $prompt, ?string $image = null, string $model = 'auto'): string
+            {
+                $this->callIndex++;
+                if ($this->callIndex === 1) {
+                    // Simulasikan AI Lab Revisi yang merusak blok ``` flowchart menjadi box-drawing ASCII
+                    return <<<'TXT'
+3.1 Desain Penelitian
+Penelitian ini dilaksanakan secara terstruktur dan sistematis untuk mengukur efektivitas strategi pembelajaran.
+
+Gambar 3.1 Diagram Alur (Flowchart) Prosedur Penelitian
+```
+┌───────────────┐
+│     Mulai     │
+└───────────────┘
+```
+TXT;
+                }
+
+                // Panggilan ke-2: simulasikan AI Lab Revisi yang meratakan Tabel 3.1 tanpa tanda '|'
+                return <<<'TXT'
+3.2 Jadwal Pelaksanaan Penelitian
+Rincian jadwal penelitian yang telah diperbaiki bahasanya disajikan pada tabel di bawah ini.
+
+Tabel 3.1 Jadwal Pelaksanaan Penelitian
+No Kegiatan Penelitian Bulan ke-1 Bulan ke-2 Bulan ke-3 Bulan ke-4
+1 Penyusunan proposal ✓
+2 Pengumpulan data lapangan ✓ ✓
+3 Analisis data dan pelaporan ✓ ✓
+TXT;
+            }
+        };
+        $this->app->instance(\App\Services\AIManagerService::class, $fakeAi);
+
+        // 1. Revisi 3.1 (memperbaiki kalimat, bukan menghapus diagram) -> flowchart ``` [Mulai] ↓ ... ``` wajib tetap utuh
+        $rev1 = $this->actingAs($user)->postJson("/project/{$project->id}/revise", [
+            'chapter' => 'bab3',
+            'subchapter' => '3.1 Desain Penelitian',
+            'revision_mode' => 'format',
+            'instruction' => 'Rapikan bahasa agar sesuai EYD V.',
+        ]);
+        $rev1->assertStatus(200);
+        $contentAfterRev1 = (string) $rev1->json('content');
+        $this->assertStringContainsString('efektivitas strategi pembelajaran', $contentAfterRev1);
+        $this->assertStringContainsString("```\n[Mulai]\n↓", $contentAfterRev1);
+        $this->assertStringNotContainsString('┌───────────────┐', $contentAfterRev1);
+        $this->assertStringContainsString('| 1 | Penyusunan proposal | ✓ |', $contentAfterRev1);
+
+        // 2. Revisi 3.2 (memperbaiki kalimat, bukan menghapus tabel) -> tabel Markdown |...| wajib tetap utuh
+        $rev2 = $this->actingAs($user)->postJson("/project/{$project->id}/revise", [
+            'chapter' => 'bab3',
+            'subchapter' => '3.2 Jadwal Pelaksanaan Penelitian',
+            'revision_mode' => 'format',
+            'instruction' => 'Perbaiki kalimat pengantar tabel agar lebih formal.',
+        ]);
+        $rev2->assertStatus(200);
+        $contentAfterRev2 = (string) $rev2->json('content');
+        $this->assertStringContainsString('telah diperbaiki bahasanya', $contentAfterRev2);
+        $this->assertStringContainsString('| No | Kegiatan Penelitian | Bulan ke-1 | Bulan ke-2 | Bulan ke-3 | Bulan ke-4 |', $contentAfterRev2);
+        $this->assertStringContainsString('| 1 | Penyusunan proposal | ✓ |', $contentAfterRev2);
+        $this->assertStringNotContainsString('No Kegiatan Penelitian Bulan ke-1', $contentAfterRev2);
+
+        // 3. Pastikan parser PDF tetap merender SVG flowchart dan <table> HTML utuh dari naskah hasil revisi
+        $ctrl = app(GeneratorController::class);
+        $ref = new ReflectionMethod($ctrl, 'formatAcademicContentForPdf');
+        $ref->setAccessible(true);
+        $pdfHtml = (string) $ref->invoke($ctrl, $contentAfterRev2, $project->judul);
+        $this->assertStringContainsString('data:image/svg+xml;base64,', $pdfHtml);
+        $this->assertStringContainsString('<table', $pdfHtml);
     }
 }

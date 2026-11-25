@@ -48,7 +48,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $method = (string) $request->input('payment_method', 'qris');
         $amount = (int) $plan['price'];
-        $orderId = 'SL-' . date('ymdHi') . '-' . strtoupper(Str::random(5));
+        $orderId = 'SL-' . now('Asia/Jakarta')->format('ymdHi') . '-' . strtoupper(Str::random(5));
 
         $gatewayPref = strtolower(trim((string) config('services.payment_gateway', 'auto')));
         $mayarApiKey = trim((string) config('services.mayar.api_key'));
@@ -72,7 +72,15 @@ class PaymentController extends Controller
                 'num_items' => 1,
             ], 'ic_' . $orderId, $request, route('billing.plans'));
 
-            $waMsg = urlencode("Halo Admin SkripsiLab AI, saya ingin konfirmasi pembayaran {$plan['name']} (Rp " . number_format($amount, 0, ',', '.') . ") untuk akun {$user->email} — Kode Invoice: {$orderId}.");
+            $formattedAmount = 'Rp ' . number_format($amount, 0, ',', '.');
+            $waText = "*KONFIRMASI PEMBAYARAN SKRIPSILAB AI*\n\n"
+                . "• *No. Invoice:* {$orderId}\n"
+                . "• *Akun:* {$user->email}\n"
+                . "• *Paket:* {$plan['name']}\n"
+                . "• *Metode Bayar:* QRIS (MUH ALWI SYAHRIR)\n"
+                . "• *Total Bayar:* {$formattedAmount}\n\n"
+                . "Berikut saya lampirkan bukti pembayaran. Mohon bantu aktivasi paket saya. Terima kasih.";
+            $waMsg = rawurlencode($waText);
             return response()->json([
                 'status' => 'pakasir_unconfigured',
                 'gateway' => 'whatsapp',
@@ -85,12 +93,14 @@ class PaymentController extends Controller
                     'account_email' => (string) $user->email,
                     'plan_name' => (string) $plan['name'],
                     'amount' => $amount,
+                    'created_at_wib' => now('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
                     'qris_image_url' => asset('images/qris-payment.jpg'),
                     'methods' => [
                         [
                             'id' => 'qris',
                             'label' => 'QRIS',
                             'title' => 'QRIS (Semua E-Wallet & M-Banking)',
+                            'wa_label' => 'QRIS (MUH ALWI SYAHRIR)',
                             'holder' => 'MUH ALWI SYAHRIR - TELECOMMUNICATION',
                             'nmid' => 'ID1026628042909',
                         ],
@@ -98,6 +108,7 @@ class PaymentController extends Controller
                             'id' => 'dana',
                             'label' => 'DANA',
                             'title' => 'DANA',
+                            'wa_label' => 'DANA (082195036971 a.n. Muh Alwi Syahrir)',
                             'account' => '082195036971',
                             'holder' => 'Muh Alwi Syahrir',
                         ],
@@ -105,6 +116,7 @@ class PaymentController extends Controller
                             'id' => 'seabank',
                             'label' => 'SeaBank',
                             'title' => 'Transfer Bank SeaBank',
+                            'wa_label' => 'SeaBank (901889425034 a.n. Muh Alwi Syahrir)',
                             'account' => '901889425034',
                             'holder' => 'Muh Alwi Syahrir',
                         ],

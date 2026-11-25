@@ -3941,13 +3941,36 @@
             return { svg: parts.join(''), height: totalH };
         }
 
+        function encodeUtf8Base64(str) {
+            try {
+                const bytes = new TextEncoder().encode(String(str || ''));
+                let bin = '';
+                bytes.forEach((b) => { bin += String.fromCharCode(b); });
+                return btoa(bin);
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function decodeUtf8Base64(b64) {
+            try {
+                if (!b64) return '';
+                const bin = atob(String(b64));
+                const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+                return new TextDecoder().decode(bytes);
+            } catch (e) {
+                return '';
+            }
+        }
+
         function renderAcademicDiagramHtml(rawCode, isFrameworkHint = false, captionHtml = '') {
             if (!rawCode || !rawCode.trim()) return captionHtml || '';
             const clean = rawCode.trim();
+            const rawB64 = encodeUtf8Base64(clean);
             const hasBoxDrawing = /[┌┐└┘─│├┤┬┴┼═║╔╗╚╝╠╣╦╩╬►▼▲◄]/.test(clean);
             const isFlowchartLike = !hasBoxDrawing && (clean.includes('-->') || clean.includes('->') || clean.includes('↓') || /\[.+?\]/.test(clean) || /mulai|flowchart|prosedur|dataset|preprocessing|kerangka/i.test(clean));
             if (!isFlowchartLike) {
-                return `<div class="academic-figure-container" style="margin: 12pt 0 14pt; page-break-inside: avoid;"><div class="academic-diagram-box" style="margin: 0; padding: 12pt 14pt; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 9pt; line-height: 1.3; white-space: pre; overflow-x: auto; color: #0f172a;">${escapeHtml(clean)}</div>${captionHtml}</div>`;
+                return `<div class="academic-figure-container" data-raw-diagram="${rawB64}" style="margin: 12pt 0 14pt; page-break-inside: avoid;"><div class="academic-diagram-box" contenteditable="false" style="margin: 0; padding: 12pt 14pt; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 9pt; line-height: 1.3; white-space: pre; overflow-x: auto; color: #0f172a;">${escapeHtml(clean)}</div>${captionHtml}</div>`;
             }
 
             const projJudul = (typeof projectTitle !== 'undefined' && projectTitle) ? projectTitle.trim() : 'Topik Penelitian';
@@ -4006,8 +4029,8 @@
 
             const rendered = buildAcademicFlowchartSvgJs(nodes, isFramework);
             return `
-                <div class="academic-figure-container" data-diagram-height="${rendered.height}" style="margin: 14pt auto 16pt auto; max-width: 560px; width: 100%; background: transparent; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
-                    <div class="academic-diagram-scalable" data-scale="100" style="width: 100%;">${rendered.svg}</div>
+                <div class="academic-figure-container" data-diagram-height="${rendered.height}" data-raw-diagram="${rawB64}" style="margin: 14pt auto 16pt auto; max-width: 560px; width: 100%; background: transparent; text-align: center; page-break-inside: avoid; font-family: 'Times New Roman', serif;">
+                    <div class="academic-diagram-scalable" contenteditable="false" data-scale="100" style="width: 100%;">${rendered.svg}</div>
                     ${captionHtml}
                 </div>
             `;
@@ -5819,7 +5842,7 @@
                 editor.addEventListener('input', () => {
                     const chKey = editor.getAttribute('data-chapter');
                     const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${chKey}"]`);
-                    chapterContents[chKey] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                    chapterContents[chKey] = extractCleanChapterTextFromPages(allPages, { clearHighlight: false });
                     isDirty = true;
                     document.getElementById('btn-save-edit').style.display = 'inline-flex';
                 });
@@ -5924,7 +5947,7 @@
                     const saveBtn = document.getElementById('btn-save-edit');
                     if (saveBtn) saveBtn.style.display = 'inline-flex';
                     const allPages = container.querySelectorAll(`.paper-editor[data-chapter="${activeView}"]`);
-                    chapterContents[activeView] = Array.from(allPages).map(p => p.innerText.trim()).filter(Boolean).join('\n\n');
+                    chapterContents[activeView] = extractCleanChapterTextFromPages(allPages, { clearHighlight: false });
                 });
                 editor.addEventListener('keydown', (e) => {
                     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -6144,26 +6167,163 @@
             }
         }
 
-        function extractCleanChapterTextFromPages(pagesNodeList) {
-            clearActiveSentenceHighlight();
+        function extractCleanChapterTextFromPages(pagesNodeList, opts = {}) {
+            if (!opts || opts.clearHighlight !== false) {
+                clearActiveSentenceHighlight();
+            }
+
+            const readDomText = (el) => {
+                if (!el) return '';
+                const raw = (el.innerText !== undefined && el.isConnected) ? el.innerText : (el.textContent || '');
+                return String(raw || '');
+            };
+
+            const serializeTableToMarkdown = (tableEl) => {
+                if (!tableEl) return '';
+                const rows = [];
+                Array.from(tableEl.rows || []).forEach((tr) => {
+                    const cells = Array.from(tr.cells || []).map((cell) =>
+                        readDomText(cell).replace(/\r?\n+/g, ' ').replace(/\|/g, '/').replace(/\s+/g, ' ').trim()
+                    );
+                    if (cells.length >= 2 && !cells.every((c) => /^[:\-\s]*$/.test(c) && c.includes('-'))) {
+                        rows.push(cells);
+                    }
+                });
+                if (!rows.length) return '';
+                const maxCols = Math.max(...rows.map((r) => r.length));
+                const normalized = rows.map((r) => {
+                    const copy = [...r];
+                    while (copy.length < maxCols) copy.push('');
+                    return copy;
+                });
+                const lines = [];
+                lines.push('| ' + normalized[0].join(' | ') + ' |');
+                lines.push('| ' + Array(maxCols).fill('---').join(' | ') + ' |');
+                for (let i = 1; i < normalized.length; i++) {
+                    lines.push('| ' + normalized[i].join(' | ') + ' |');
+                }
+                return lines.join('\n');
+            };
+
+            const serializeFigureToMarkdown = (figEl) => {
+                if (!figEl) return '';
+                const capEl = figEl.querySelector ? figEl.querySelector('.academic-caption') : null;
+                const capText = capEl ? readDomText(capEl).replace(/\s+/g, ' ').trim() : '';
+
+                let rawCode = decodeUtf8Base64(figEl.getAttribute ? figEl.getAttribute('data-raw-diagram') : '').trim();
+                if (!rawCode && figEl.querySelector) {
+                    const boxEl = figEl.querySelector('.academic-diagram-box');
+                    if (boxEl) {
+                        rawCode = (boxEl.textContent || boxEl.innerText || '').trim();
+                    } else {
+                        const svgEl = figEl.querySelector('svg');
+                        if (svgEl) {
+                            const txtNodes = Array.from(svgEl.querySelectorAll('text'))
+                                .map((t) => {
+                                    const tspans = Array.from(t.querySelectorAll('tspan'));
+                                    const joined = tspans.length
+                                        ? tspans.map((ts) => (ts.textContent || '').trim()).filter(Boolean).join(' ')
+                                        : (t.textContent || '');
+                                    return joined.replace(/\s+/g, ' ').trim();
+                                })
+                                .filter((t) => t && !/^(ya|tidak)$/i.test(t));
+                            if (txtNodes.length >= 2) {
+                                rawCode = txtNodes.map((t) => `[${t}]`).join('\n↓\n');
+                            }
+                        }
+                    }
+                }
+
+                if (!rawCode) return capText;
+                return (capText ? `${capText}\n` : '') + '```\n' + rawCode + '\n```';
+            };
+
+            const appendNodeToBlocks = (node, blocks) => {
+                if (!node) return;
+                if (node.nodeType === 3) {
+                    const txt = (node.textContent || '').trim();
+                    if (txt) blocks.push(txt);
+                    return;
+                }
+                if (node.nodeType !== 1) return;
+
+                const cls = node.classList;
+                const tag = (node.tagName || '').toLowerCase();
+
+                if (cls && cls.contains('academic-chapter-header')) {
+                    return;
+                }
+
+                if (cls && cls.contains('academic-figure-container')) {
+                    const mdFig = serializeFigureToMarkdown(node);
+                    if (mdFig) blocks.push(mdFig);
+                    return;
+                }
+
+                if (tag === 'table' || (cls && (cls.contains('academic-table-container') || cls.contains('table-wrap')))) {
+                    const capEl = (cls && cls.contains('academic-table-container') && node.querySelector)
+                        ? node.querySelector('.academic-caption')
+                        : null;
+                    const capText = capEl ? readDomText(capEl).replace(/\s+/g, ' ').trim() : '';
+                    const tblEl = tag === 'table' ? node : (node.querySelector ? node.querySelector('table') : null);
+                    const mdTable = serializeTableToMarkdown(tblEl);
+                    const combined = [capText, mdTable].filter(Boolean).join('\n');
+                    if (combined) blocks.push(combined);
+                    return;
+                }
+
+                if (tag === 'ul' || tag === 'ol') {
+                    const items = Array.from(node.children || []).filter((c) => (c.tagName || '').toLowerCase() === 'li');
+                    const baseStart = parseInt(node.getAttribute('start') || '1', 10);
+                    const listLines = items.map((li, idx) => {
+                        const liTxt = readDomText(li).replace(/\r?\n+/g, ' ').trim();
+                        if (!liTxt) return '';
+                        if (tag === 'ul') return `- ${liTxt}`;
+                        const valAttr = parseInt(li.getAttribute('value') || '', 10);
+                        const num = !isNaN(valAttr) ? valAttr : (baseStart + idx);
+                        return `${num}. ${liTxt}`;
+                    }).filter(Boolean);
+                    if (!listLines.length) return;
+
+                    if (node.getAttribute('data-split-list') === '1' && blocks.length > 0) {
+                        const prev = blocks[blocks.length - 1];
+                        const matchesPrev = tag === 'ul'
+                            ? /(?:^|\n)-\s+\S/.test(prev)
+                            : /(?:^|\n)\d+\.\s+\S/.test(prev);
+                        if (matchesPrev) {
+                            blocks[blocks.length - 1] = prev + '\n' + listLines.join('\n');
+                            return;
+                        }
+                    }
+                    blocks.push(listLines.join('\n'));
+                    return;
+                }
+
+                const t = readDomText(node).trim();
+                if (!t) return;
+
+                if (node.getAttribute && node.getAttribute('data-split-cont') === '1' && blocks.length > 0) {
+                    blocks[blocks.length - 1] = blocks[blocks.length - 1] + ' ' + t;
+                    return;
+                }
+
+                if (tag === 'div' && node.querySelector && node.querySelector('.academic-figure-container, .academic-table-container, .table-wrap, table, ul, ol')) {
+                    Array.from(node.childNodes).forEach((grand) => appendNodeToBlocks(grand, blocks));
+                    return;
+                }
+
+                blocks.push(t);
+            };
+
             const blocks = [];
-            Array.from(pagesNodeList).forEach((pageEl) => {
-                const kids = Array.from(pageEl.children);
+            Array.from(pagesNodeList || []).forEach((pageEl) => {
+                const kids = Array.from(pageEl.childNodes || []);
                 if (!kids.length) {
-                    const t = pageEl.innerText.trim();
+                    const t = readDomText(pageEl).trim();
                     if (t) blocks.push(t);
                     return;
                 }
-                kids.forEach((child) => {
-                    const t = (child.innerText || '').trim();
-                    if (!t) return;
-                    // Gabungkan kembali paragraf lanjutan lintas halaman (data-split-cont="1") agar tidak terpecah jadi 2 paragraf saat disimpan
-                    if (child.getAttribute && child.getAttribute('data-split-cont') === '1' && blocks.length > 0) {
-                        blocks[blocks.length - 1] = blocks[blocks.length - 1] + ' ' + t;
-                    } else {
-                        blocks.push(t);
-                    }
-                });
+                kids.forEach((child) => appendNodeToBlocks(child, blocks));
             });
             return blocks.join('\n\n');
         }

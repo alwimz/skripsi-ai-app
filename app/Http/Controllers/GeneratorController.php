@@ -4816,13 +4816,21 @@ INSTRUKSI MUTLAK:
         }
 
         $startPos = $match[0][1] + ($match[1][0] === "\n" ? 1 : 0);
-        $tail = substr($content, $startPos + strlen($match[0][0]));
+        $tailStart = $startPos + strlen($match[0][0]);
+        $tail = substr($content, $tailStart);
         $nextPattern = '/\n(?:##\s*|<b>)?(?:\d+\.\d+(?:\.\d+)?|[A-Z]\.)[\s\.:\-\)][^\n]*/i';
 
-        if (preg_match($nextPattern, $tail, $nextMatch, PREG_OFFSET_CAPTURE)) {
-            $endPos = $startPos + strlen($match[0][0]) + $nextMatch[0][1];
-        } else {
-            $endPos = strlen($content);
+        $endPos = strlen($content);
+        if (preg_match_all($nextPattern, $tail, $nextMatches, PREG_OFFSET_CAPTURE)) {
+            foreach ($nextMatches[0] as $cand) {
+                $prefixBefore = substr($content, 0, $tailStart + $cand[1]);
+                // Hindari memotong di dalam blok ``` flowchart/kode
+                if (substr_count($prefixBefore, '```') % 2 === 1) {
+                    continue;
+                }
+                $endPos = $tailStart + $cand[1];
+                break;
+            }
         }
 
         $targetText = trim(substr($content, $startPos, $endPos - $startPos));
@@ -4834,6 +4842,222 @@ INSTRUKSI MUTLAK:
             'target_text' => $targetText,
             'heading' => $heading,
         ];
+    }
+
+    /**
+     * Ekstrak blok flowchart/kode valid dan tabel Markdown dari naskah untuk pengamanan revisi.
+     */
+    private function extractStructuredAcademicBlocks(string $text): array
+    {
+        $normalized = str_replace(["\r\n", "\r"], "\n", $text);
+        $lines = explode("\n", $normalized);
+        $diagrams = [];
+        $tables = [];
+
+        $inCode = false;
+        $codeLines = [];
+        $pendingFigCaption = '';
+
+        $inTable = false;
+        $tableLines = [];
+        $pendingTableCaption = '';
+
+        $flushTable = function () use (&$inTable, &$tableLines, &$pendingTableCaption, &$tables) {
+            if ($inTable && count($tableLines) >= 2) {
+                $hasSep = false;
+                $dataCount = 0;
+                foreach ($tableLines as $tl) {
+                    $inner = trim($tl, " \t|");
+                    if (preg_match('/^[:\-\s|]+$/', $inner) && str_contains($inner, '-')) {
+                        $hasSep = true;
+                    } elseif (substr_count($tl, '|') >= 2) {
+                        $dataCount++;
+                    }
+                }
+                if ($hasSep || $dataCount >= 2) {
+                    $tableMd = implode("\n", $tableLines);
+                    $tables[] = [
+                        'caption' => $pendingTableCaption,
+                        'body' => $tableMd,
+                        'full' => ($pendingTableCaption !== '' ? $pendingTableCaption . "\n" : '') . $tableMd,
+                    ];
+                }
+            }
+            $inTable = false;
+            $tableLines = [];
+            $pendingTableCaption = '';
+        };
+
+        foreach ($lines as $rawLine) {
+            $trimmed = trim($rawLine);
+
+            if (str_starts_with($trimmed, '```')) {
+                $flushTable();
+                if ($inCode) {
+                    $inCode = false;
+                    $body = trim(implode("\n", $codeLines));
+                    if ($body !== '') {
+                        $hasBoxDrawing = (bool) preg_match('/[┌┐└┘─│├┤┬┴┼═║╔╗╚╝╠╣╦╩╬►▼▲◄]/u', $body);
+                        $isFlowchart = !$hasBoxDrawing && (str_contains($body, '-->') || str_contains($body, '->') || str_contains($body, '↓') || preg_match('/\[.+?\]/', $body));
+                        $diagrams[] = [
+                            'caption' => $pendingFigCaption,
+                            'code' => $body,
+                            'is_flowchart' => $isFlowchart,
+                            'full' => ($pendingFigCaption !== '' ? $pendingFigCaption . "\n" : '') . "```\n" . $body . "\n```",
+                        ];
+                    }
+                    $codeLines = [];
+                    $pendingFigCaption = '';
+                } else {
+                    $inCode = true;
+                    $codeLines = [];
+                }
+                continue;
+            }
+
+            if ($inCode) {
+                $codeLines[] = rtrim($rawLine);
+                continue;
+            }
+
+            $strippedPipes = preg_replace(['/\|[A-Za-z0-9_,\s+\-]{1,8}\|/', '/[A-Za-z]\([^)]*\|[^)]*\)/'], ' ', $trimmed);
+            $isMdTableRow = (str_starts_with($trimmed, '|') && str_ends_with($trimmed, '|') && substr_count($trimmed, '|') >= 3)
+                || (str_starts_with($trimmed, '|') && substr_count((string) $strippedPipes, '|') >= 2)
+                || (substr_count((string) $strippedPipes, ' | ') >= 2);
+
+            if ($isMdTableRow) {
+                $inTable = true;
+                $tableLines[] = $trimmed;
+                continue;
+            }
+            if ($inTable) {
+                $flushTable();
+            }
+
+            if ($trimmed === '') {
+                continue;
+            }
+
+            if (preg_match('/^(?:\*{1,2}|<b>)?Tabel\s+\d+\.\d+[^\n]*/i', $trimmed)) {
+                $cleanCap = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
+                if (mb_strlen($cleanCap) <= 140 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $cleanCap)) {
+                    $pendingTableCaption = $cleanCap;
+                    continue;
+                }
+            }
+
+            if (preg_match('/^(?:\*{1,2}|<b>)?(?:Gambar|Bagan)\s+\d+\.\d+[^\n]*/i', $trimmed)) {
+                $cleanCap = trim(preg_replace('/^(\*{1,2}|<b>)+|(\*{1,2}|<\/b>)+$/i', '', $trimmed));
+                if (mb_strlen($cleanCap) <= 140 && !preg_match('/menunjukkan bahwa|dapat dilihat|memperlihatkan/i', $cleanCap)) {
+                    $pendingFigCaption = $cleanCap;
+                    continue;
+                }
+            }
+
+            $pendingFigCaption = '';
+            $pendingTableCaption = '';
+        }
+
+        $flushTable();
+
+        return ['diagrams' => $diagrams, 'tables' => $tables];
+    }
+
+    /**
+     * Pulihkan blok flowchart (```) dan tabel Markdown (|...|) jika AI merusak atau menghapusnya saat Lab Revisi.
+     */
+    private function preserveStructuredBlocksAfterRevision(string $originalText, string $revisedText, string $instruction = ''): string
+    {
+        $result = str_replace(["\r\n", "\r"], "\n", $revisedText);
+        $origBlocks = $this->extractStructuredAcademicBlocks($originalText);
+        if (empty($origBlocks['diagrams']) && empty($origBlocks['tables'])) {
+            return $result;
+        }
+
+        $instrLower = mb_strtolower($instruction);
+        $wantsDeleteDiagram = (bool) preg_match('/\b(hapus|hilangkan|buang)\b[^\n]{0,35}\b(flowchart|diagram|bagan|gambar|alur|kerangka\s+(?:berpikir|pemikiran|konseptual))\b|\b(flowchart|diagram|bagan|kerangka\s+berpikir)\b[^\n]{0,25}\b(dihapus|dibuang|dihilangkan)\b/i', $instrLower);
+        $wantsDeleteTable = (bool) preg_match('/\b(hapus|hilangkan|buang)\b[^\n]{0,35}\b(tabel|jadwal)\b|\b(tabel|jadwal)\b[^\n]{0,25}\b(dihapus|dibuang|dihilangkan)\b/i', $instrLower);
+
+        $revBlocks = $this->extractStructuredAcademicBlocks($result);
+
+        // 1. Pastikan blok diagram/flowchart tidak hilang atau berubah menjadi ASCII box-drawing
+        if (!empty($origBlocks['diagrams']) && !$wantsDeleteDiagram) {
+            $revValidFlowcharts = array_values(array_filter($revBlocks['diagrams'], fn ($d) => !empty($d['is_flowchart'])));
+            $origFlowcharts = array_values(array_filter($origBlocks['diagrams'], fn ($d) => !empty($d['is_flowchart'])));
+
+            if (count($origFlowcharts) > count($revValidFlowcharts)) {
+                foreach ($origFlowcharts as $idx => $origDiag) {
+                    $capNum = '';
+                    if (preg_match('/(?:Gambar|Bagan)\s+(\d+\.\d+)/i', $origDiag['caption'], $cm)) {
+                        $capNum = $cm[1];
+                    }
+
+                    $hasMatchingInRev = false;
+                    foreach ($revValidFlowcharts as $rd) {
+                        if ($capNum !== '' && str_contains($rd['caption'], $capNum)) {
+                            $hasMatchingInRev = true;
+                            break;
+                        }
+                    }
+                    if ($hasMatchingInRev || ($capNum === '' && count($revValidFlowcharts) >= count($origFlowcharts))) {
+                        continue;
+                    }
+
+                    // Cek apakah di hasil revisi ada caption Gambar X.Y yang diikuti blok box-drawing atau teks rusak
+                    if ($capNum !== '' && preg_match('/(^|\n)((?:\*{1,2})?(?:Gambar|Bagan)\s+' . preg_quote($capNum, '/') . '[^\n]*)(?:\n+(?:```[\s\S]*?```|(?:\[[^\n]+\]\s*\n?|[↓|Vv\-\+\┌┐└┘─│►▼\s]+)+))?/i', $result, $m, PREG_OFFSET_CAPTURE)) {
+                        $before = substr($result, 0, $m[2][1]);
+                        $after = substr($result, $m[0][1] + strlen($m[0][0]));
+                        $replacementBlock = ($origDiag['caption'] !== '' ? $origDiag['caption'] : trim($m[2][0])) . "\n```\n" . $origDiag['code'] . "\n```";
+                        $result = rtrim($before) . "\n\n" . $replacementBlock . "\n\n" . ltrim($after);
+                    } else {
+                        // Sisipkan kembali sebelum penutup sub-bab agar flowchart tetap utuh
+                        $result = rtrim($result) . "\n\n" . $origDiag['full'];
+                    }
+                    $revBlocks = $this->extractStructuredAcademicBlocks($result);
+                    $revValidFlowcharts = array_values(array_filter($revBlocks['diagrams'], fn ($d) => !empty($d['is_flowchart'])));
+                }
+            }
+        }
+
+        // 2. Pastikan tabel Markdown tidak rata jadi paragraf biasa tanpa tanda '|'
+        if (!empty($origBlocks['tables']) && !$wantsDeleteTable) {
+            $revBlocks = $this->extractStructuredAcademicBlocks($result);
+            if (count($origBlocks['tables']) > count($revBlocks['tables'])) {
+                foreach ($origBlocks['tables'] as $origTbl) {
+                    $capNum = '';
+                    if (preg_match('/Tabel\s+(\d+\.\d+)/i', $origTbl['caption'], $tm)) {
+                        $capNum = $tm[1];
+                    }
+
+                    $alreadyValid = false;
+                    foreach ($revBlocks['tables'] as $rt) {
+                        if ($capNum !== '' && str_contains($rt['caption'], $capNum)) {
+                            $alreadyValid = true;
+                            break;
+                        }
+                    }
+                    if ($alreadyValid) {
+                        continue;
+                    }
+
+                    if ($capNum !== '' && preg_match('/(^|\n)((?:\*{1,2})?Tabel\s+' . preg_quote($capNum, '/') . '[^\n]*)\n+([\s\S]*?)(?=\n(?:\d+\.\d+(?:\.\d+)?\s|[A-Z]\.\s|Sumber:|Gambar\s+\d|Tabel\s+\d)|\n\n(?=[A-Z])|$)/i', $result, $tmMatch, PREG_OFFSET_CAPTURE)) {
+                        $following = trim($tmMatch[3][0]);
+                        // Jika di bawah caption Tabel X.Y ternyata tidak ada baris bertanda '|', pulihkan tabel asli
+                        if (!str_contains($following, '|') || substr_count($following, '|') < 4) {
+                            $before = substr($result, 0, $tmMatch[2][1]);
+                            $after = substr($result, $tmMatch[0][1] + strlen($tmMatch[0][0]));
+                            $capOut = $origTbl['caption'] !== '' ? $origTbl['caption'] : trim($tmMatch[2][0]);
+                            $result = rtrim($before) . "\n\n" . $capOut . "\n" . $origTbl['body'] . "\n\n" . ltrim($after);
+                        }
+                    } elseif (count($revBlocks['tables']) < count($origBlocks['tables'])) {
+                        $result = rtrim($result) . "\n\n" . $origTbl['full'];
+                    }
+                    $revBlocks = $this->extractStructuredAcademicBlocks($result);
+                }
+            }
+        }
+
+        return preg_replace("/\n{3,}/", "\n\n", trim($result));
     }
 
     /**
@@ -4935,6 +5159,10 @@ INSTRUKSI MUTLAK:
         $isSpecificSub = !empty($subchapter) && !str_contains(strtolower($subchapter), 'semua') && !str_contains(strtolower($subchapter), 'utuh');
         $subBlock = $isSpecificSub ? $this->extractSubchapterText($currentContent, $subchapter) : null;
 
+        $structurePreservationRule = "ATURAN WAJIB DIAGRAM & TABEL MARKDOWN (DILARANG MERUSAK FORMAT):
+- Jika naskah berisi blok diagram/flowchart di dalam pagar tiga backtick (``` ... ```) atau caption \"Gambar X.Y ...\", WAJIB pertahankan blok ``` ... ``` dengan format node vertikal [Tahap] dipisahkan baris panah ↓ (contoh:\n```\n[Mulai]\n↓\n[Tahap 1]\n↓\n[Selesai]\n```). DILARANG keras mengubahnya menjadi kotak ASCII (┌─┐ / +---+ / │), sintaks Mermaid (graph TD), daftar angka biasa, atau menghapus pagar ```!
+- Jika naskah berisi tabel Markdown (| Kolom 1 | Kolom 2 | diikuti baris |---|---| dan baris data berpemisah |) atau caption \"Tabel X.Y ...\", WAJIB pertahankan tetap dalam format tabel Markdown berpemisah tanda |. DILARANG meratakan isi sel tabel menjadi teks paragraf biasa!";
+
         try {
             if ($subBlock && !empty($subBlock['target_text'])) {
                 // REVISI SURGIKAL / TERFOKUS HANYA PADA SUB-BAB INI (SUB-BAB LAIN 100% AMAN & UTUH)
@@ -4964,7 +5192,8 @@ ATURAN REVISI PRESISI (SANGAT KETAT):
 2. DILARANG MEROMBAK, MEMOTONG, ATAU MENGHAPUS argumen/fakta/data yang sudah benar dan TIDAK diminta diubah dalam instruksi. Seluruh kalimat dan data yang sudah benar WAJIB DIPERTAHANKAN UTUH!
 3. Awali teks langsung dengan judul sub-bab: \"{$targetHeading}\" pada baris tersendiri, lalu lanjutkan dengan paragraf/poin hasil revisi.
 4. DILARANG menulis pengantar AI (\"Berikut adalah hasil revisi...\", \"Tentu...\").
-5. HANYA KEMBALIKAN hasil revisi untuk sub-bab \"{$targetHeading}\" ini saja, BUKAN seluruh bab!";
+5. HANYA KEMBALIKAN hasil revisi untuk sub-bab \"{$targetHeading}\" ini saja, BUKAN seluruh bab!
+6. {$structurePreservationRule}";
 
                 $revised = $this->ai->generateWithImage($prompt, $request->image_base64, $model);
                 $cleanSub = $this->cleanTextKeepFormat($revised);
@@ -4975,17 +5204,21 @@ ATURAN REVISI PRESISI (SANGAT KETAT):
                     $cleanSub = $targetHeading . "\n" . $cleanSub;
                 }
 
+                // Pulihkan blok flowchart/tabel Markdown jika AI merusak atau menghilangkannya
+                $cleanSub = $this->preserveStructuredBlocksAfterRevision($targetSnippet, $cleanSub, $instruction);
+
                 // Gantikan HANYA sub-bab target ke dalam naskah bab lengkap
                 $cleanContent = $this->replaceSubchapterText($currentContent, $subBlock['start'], $subBlock['end'], $cleanSub);
             } else {
                 // Revisi seluruh bab jika user memilih 'Semua Bab' atau naskah bab masih kosong
+                $cleanPromptBody = preg_replace('/<\/?(?:p|div|span|strong|em|b|i|u|br|table|thead|tbody|tr|th|td|ul|ol|li|h[1-6])\b[^>]*>/i', '', (string) $currentContent);
                 $prompt = "PERAN: Anda adalah Profesor Pembimbing Skripsi Senior.
 TUGAS: Lakukan penyempurnaan pada {$chapterName} untuk skripsi berjudul \"{$project->judul}\" (Prodi: {$project->prodi}, Metode: {$project->metode_penelitian}).
 {$modeRule}
 
 NASKAH {$chapterName} SAAT INI:
 \"\"\"
-" . Str::limit(strip_tags($currentContent), 12000) . "
+" . Str::limit((string) $cleanPromptBody, 28000) . "
 \"\"\"
 {$docContext}
 INSTRUKSI REVISI DARI MAHASISWA / DOSEN PEMBIMBING:
@@ -4997,11 +5230,13 @@ ATURAN REVISI (SANGAT KETAT):
 1. Lakukan perubahan HANYA pada bagian yang diminta dalam catatan instruksi di atas.
 2. DILARANG MERINGKAS, MEMOTONG, ATAU MENGHILANGKAN sub-bab lain yang sudah benar dan tidak disebutkan dalam instruksi!
 3. Pertahankan format penomoran desimal (1.1, 1.2, dst.) pada baris tersendiri, tanpa tanda markdown bintang (**) atau pagar (###), dan tanpa kata pengantar AI.
-4. Kembalikan naskah {$chapterName} yang sudah direvisi secara lengkap dan utuh.";
+4. Kembalikan naskah {$chapterName} yang sudah direvisi secara lengkap dan utuh.
+5. {$structurePreservationRule}";
 
                 $revised = $this->ai->generateWithImage($prompt, $request->image_base64, $model);
                 $cleanContent = $this->cleanTextKeepFormat($revised);
                 $cleanContent = $this->processChapterContent($cleanContent, $chapter);
+                $cleanContent = $this->preserveStructuredBlocksAfterRevision((string) $currentContent, $cleanContent, $instruction);
             }
 
             if ($chapter !== 'bab5') {

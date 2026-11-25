@@ -183,6 +183,35 @@
         margin-bottom: 12px;
         text-align: center;
     }
+    .sl-invoice-summary {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        text-align: left;
+        font-size: 12px;
+    }
+    .sl-invoice-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10px;
+        padding: 4px 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+    .sl-invoice-row:last-child {
+        border-bottom: none;
+    }
+    .sl-invoice-row span {
+        color: #64748b;
+        flex-shrink: 0;
+    }
+    .sl-invoice-row strong {
+        color: #0f172a;
+        text-align: right;
+        word-break: break-word;
+    }
     .sl-qris-static-img {
         display: block;
         width: 100%;
@@ -406,6 +435,8 @@
             }
         };
 
+        let activeManualInvoice = null;
+
         window.slSelectInvoiceMethod = function (methodId) {
             ['qris', 'dana', 'seabank'].forEach((id) => {
                 const panel = document.getElementById('sl-inv-panel-' + id);
@@ -416,6 +447,31 @@
                 btn.classList.toggle('active', active);
                 btn.setAttribute('aria-selected', active ? 'true' : 'false');
             });
+
+            if (activeManualInvoice) {
+                const methods = Array.isArray(activeManualInvoice.methods) ? activeManualInvoice.methods : [];
+                const picked = methods.find((m) => m.id === methodId) || { title: methodId.toUpperCase(), wa_label: methodId.toUpperCase() };
+                const methodLabelEl = document.getElementById('sl-inv-selected-method');
+                if (methodLabelEl) {
+                    methodLabelEl.textContent = picked.title || picked.label || methodId.toUpperCase();
+                }
+                const waBtn = document.getElementById('sl-wa-confirm-btn');
+                if (waBtn) {
+                    const nominalStr = 'Rp ' + Number(activeManualInvoice.amount || 0).toLocaleString('id-ID');
+                    const lines = [
+                        '*KONFIRMASI PEMBAYARAN SKRIPSILAB AI*',
+                        '',
+                        `• *No. Invoice:* ${activeManualInvoice.order_id || '-'}`,
+                        `• *Akun:* ${activeManualInvoice.account_email || '-'}`,
+                        `• *Paket:* ${activeManualInvoice.plan_name || '-'}`,
+                        `• *Metode Bayar:* ${picked.wa_label || picked.title || methodId.toUpperCase()}`,
+                        `• *Total Bayar:* ${nominalStr}`,
+                        '',
+                        'Berikut saya lampirkan bukti pembayaran. Mohon bantu aktivasi paket saya. Terima kasih.'
+                    ];
+                    waBtn.href = 'https://wa.me/6282195036971?text=' + encodeURIComponent(lines.join('\n'));
+                }
+            }
         };
 
         window.slCopyPaymentText = async function (text, btnEl) {
@@ -502,24 +558,40 @@
 
                 if (data.status === 'pakasir_unconfigured') {
                     const inv = data.invoice || {};
+                    activeManualInvoice = {
+                        order_id: inv.order_id || data.order_id || '',
+                        account_email: inv.account_email || '',
+                        plan_name: inv.plan_name || (data.plan && data.plan.name) || (planInfo && planInfo.name) || '',
+                        amount: inv.amount ?? (data.plan && data.plan.price) ?? (planInfo && planInfo.price) ?? 0,
+                        created_at_wib: inv.created_at_wib || '',
+                        methods: Array.isArray(inv.methods) ? inv.methods : []
+                    };
                     const ordEl = document.getElementById('sl-pay-order-id');
                     if (ordEl && data.order_id) {
-                        ordEl.textContent = 'Invoice: ' + data.order_id + (inv.account_email ? (' • ' + inv.account_email) : '');
+                        ordEl.textContent = 'Invoice: ' + data.order_id + (inv.created_at_wib ? (' • ' + inv.created_at_wib) : '');
                     }
                     trackMetaCheckoutEvent('InitiateCheckout', data.plan || activePlanMeta, data.order_id || null);
                     if (errEl) {
                         const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
                         const qrisUrl = esc(inv.qris_image_url || "{{ asset('images/qris-payment.jpg') }}");
-                        const methods = Array.isArray(inv.methods) ? inv.methods : [];
+                        const methods = activeManualInvoice.methods;
                         const danaObj = methods.find((m) => m.id === 'dana') || { account: '082195036971', holder: 'Muh Alwi Syahrir' };
                         const seaObj = methods.find((m) => m.id === 'seabank') || { account: '901889425034', holder: 'Muh Alwi Syahrir' };
+                        const totalFmt = 'Rp ' + Number(activeManualInvoice.amount || 0).toLocaleString('id-ID');
 
                         errEl.style.background = '#ffffff';
                         errEl.style.border = 'none';
                         errEl.style.padding = '0';
                         errEl.innerHTML = `
-                            <div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px;">
-                                Pilih metode pembayaran di bawah untuk menyelesaikan invoice:
+                            <div class="sl-invoice-summary">
+                                <div class="sl-invoice-row"><span>No. Invoice</span><strong>${esc(activeManualInvoice.order_id)}</strong></div>
+                                <div class="sl-invoice-row"><span>Akun</span><strong>${esc(activeManualInvoice.account_email || '-')}</strong></div>
+                                <div class="sl-invoice-row"><span>Paket</span><strong>${esc(activeManualInvoice.plan_name)}</strong></div>
+                                <div class="sl-invoice-row"><span>Metode</span><strong id="sl-inv-selected-method">QRIS (Semua E-Wallet &amp; M-Banking)</strong></div>
+                                <div class="sl-invoice-row"><span>Total Bayar</span><strong style="color:#1d4ed8;">${esc(totalFmt)}</strong></div>
+                            </div>
+                            <div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:8px;">
+                                Pilih metode pembayaran di bawah ini:
                             </div>
                             <div class="sl-invoice-tabs" role="tablist" aria-label="Metode Pembayaran">
                                 <button type="button" class="sl-invoice-tab active" data-sl-tab="qris" role="tab" aria-selected="true" onclick="window.slSelectInvoiceMethod('qris')">QRIS</button>
@@ -560,10 +632,11 @@
                             <div style="font-size:11.5px;color:#64748b;margin-bottom:10px;line-height:1.45;">
                                 Setelah transfer, kirim screenshot bukti pembayaran agar paket Anda langsung diaktifkan Admin:
                             </div>
-                            <a href="${esc(data.whatsapp_url)}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">
+                            <a id="sl-wa-confirm-btn" href="${esc(data.whatsapp_url)}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">
                                 Kirim Bukti &amp; Aktifkan via WhatsApp →
                             </a>
                         `;
+                        window.slSelectInvoiceMethod('qris');
                         errEl.style.display = 'block';
                     }
                     return;
