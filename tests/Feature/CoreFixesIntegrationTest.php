@@ -1153,4 +1153,25 @@ TXT;
         $this->assertStringContainsString('87,33 persen', $joinedPdfText);
         $this->assertStringNotContainsString('87.33 %', $joinedPdfText);
     }
+
+    public function test_google_analytics_ga4_renders_across_public_and_authenticated_pages(): void
+    {
+        $landing = $this->get('/')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('https://www.googletagmanager.com/gtag/js?id=G-NTF72X1K93', $landing);
+        $this->assertStringContainsString("gtag('config', \"G-NTF72X1K93\")", $landing);
+        $this->assertStringContainsString('slTrackGaFromMeta', $landing);
+
+        $register = $this->get('/register')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('G-NTF72X1K93', $register);
+
+        $user = User::create([
+            'name' => 'GA Tester',
+            'email' => 'ga.tester@gmail.com',
+            'password' => bcrypt('Secret123!'),
+            'plan_code' => 'free',
+        ]);
+        $paket = $this->actingAs($user)->get('/paket')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('G-NTF72X1K93', $paket);
+        $this->assertStringContainsString('begin_checkout', $paket);
+    }
 }

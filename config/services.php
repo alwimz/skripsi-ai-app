@@ -82,4 +82,8 @@ return [
         'capi_token' => env('META_CAPI_TOKEN', ''),
         'domain_verification' => env('META_DOMAIN_VERIFICATION', 'sacfg5assusezhylfsz3vatv9hh7vr'),
     ],
+
+    'google_analytics' => [
+        'measurement_id' => env('GA_MEASUREMENT_ID', 'G-NTF72X1K93'),
+    ],
 ];

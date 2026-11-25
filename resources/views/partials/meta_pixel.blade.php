@@ -1,3 +1,4 @@
+@include('partials.google_analytics')
 @php
     $metaPixelId = preg_replace('/\D+/', '', (string) config('services.meta.pixel_id', ''));
     $metaFlashedEvent = session('meta_pixel_event');
@@ -32,7 +33,11 @@
         'https://connect.facebook.net/en_US/fbevents.js');
         window.__slFiredMetaIds = window.__slFiredMetaIds || new Set();
         window.slTrackMetaEvent = function (eventName, params, customEventId) {
-            if (typeof window.fbq !== 'function' || !eventName) return;
+            if (!eventName) return;
+            if (typeof window.slTrackGaFromMeta === 'function') {
+                window.slTrackGaFromMeta(eventName, params, customEventId);
+            }
+            if (typeof window.fbq !== 'function') return;
             if (customEventId) {
                 var key = eventName + ':' + String(customEventId);
                 if (window.__slFiredMetaIds.has(key)) return;
