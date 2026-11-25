@@ -72,14 +72,44 @@ class PaymentController extends Controller
                 'num_items' => 1,
             ], 'ic_' . $orderId, $request, route('billing.plans'));
 
-            $waMsg = urlencode("Halo Admin SkripsiLab AI, saya ingin mengaktifkan {$plan['name']} (Rp " . number_format($amount, 0, ',', '.') . ") untuk akun {$user->email} (Kode Pesanan: {$orderId}).");
+            $waMsg = urlencode("Halo Admin SkripsiLab AI, saya ingin konfirmasi pembayaran {$plan['name']} (Rp " . number_format($amount, 0, ',', '.') . ") untuk akun {$user->email} — Kode Invoice: {$orderId}.");
             return response()->json([
                 'status' => 'pakasir_unconfigured',
                 'gateway' => 'whatsapp',
-                'message' => 'Silakan lanjutkan konfirmasi pembayaran dan aktivasi paket melalui WhatsApp Admin.',
+                'message' => 'Silakan selesaikan pembayaran sesuai invoice berikut lalu kirim bukti ke WhatsApp Admin.',
                 'order_id' => $orderId,
                 'plan' => $plan,
                 'whatsapp_url' => "https://wa.me/6282195036971?text={$waMsg}",
+                'invoice' => [
+                    'order_id' => $orderId,
+                    'account_email' => (string) $user->email,
+                    'plan_name' => (string) $plan['name'],
+                    'amount' => $amount,
+                    'qris_image_url' => asset('images/qris-payment.jpg'),
+                    'methods' => [
+                        [
+                            'id' => 'qris',
+                            'label' => 'QRIS',
+                            'title' => 'QRIS (Semua E-Wallet & M-Banking)',
+                            'holder' => 'MUH ALWI SYAHRIR - TELECOMMUNICATION',
+                            'nmid' => 'ID1026628042909',
+                        ],
+                        [
+                            'id' => 'dana',
+                            'label' => 'DANA',
+                            'title' => 'DANA',
+                            'account' => '082195036971',
+                            'holder' => 'Muh Alwi Syahrir',
+                        ],
+                        [
+                            'id' => 'seabank',
+                            'label' => 'SeaBank',
+                            'title' => 'Transfer Bank SeaBank',
+                            'account' => '901889425034',
+                            'holder' => 'Muh Alwi Syahrir',
+                        ],
+                    ],
+                ],
             ], 200);
         }
 

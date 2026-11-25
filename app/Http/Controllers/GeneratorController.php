@@ -487,7 +487,11 @@ class GeneratorController extends Controller
         $curPage = 1;
 
         foreach ($chapterKeys as $k) {
-            $text = trim(strip_tags((string) ($project->{$k . '_content'} ?? '')));
+            $rawChapterText = (string) ($project->{$k . '_content'} ?? '');
+            if ($k !== 'bab5' && $rawChapterText !== '') {
+                [$rawChapterText] = $this->stripEmbeddedDaftarPustaka($rawChapterText);
+            }
+            $text = trim(strip_tags($rawChapterText));
             if ($text !== '') {
                 $pages = max(1, (int) ceil(mb_strlen($text) / 2200));
                 $map[$k] = ['start' => $curPage, 'count' => $pages, 'end' => $curPage + $pages - 1];
@@ -1213,10 +1217,66 @@ class GeneratorController extends Controller
      * 2) Pastikan Paragraf 1 Bab I selalu memiliki minimal 1 sitasi terverifikasi sesuai pengaturan form mahasiswa.
      * 3) Bersihkan sisa markdown/LaTeX mentah dan frasa klise pembuka AI secara otomatis.
      */
+    /**
+     * Memisahkan dan menghapus bagian Daftar Pustaka yang ikut tertulis di dalam naskah Bab I-IV
+     * agar Daftar Pustaka hanya muncul satu kali di section resmi.
+     *
+     * @return array{0: string, 1: string} [bodyTanpaDaftarPustaka, extractedDaftarPustaka]
+     */
+    private function stripEmbeddedDaftarPustaka(string $content): array
+    {
+        if (trim($content) === '') {
+            return [$content, ''];
+        }
+
+        $normalized = str_replace(["\r\n", "\r"], "\n", $content);
+        $lines = explode("\n", $normalized);
+        $totalLines = count($lines);
+        $inCodeBlock = false;
+        $cutIndex = null;
+
+        for ($i = 0; $i < $totalLines; $i++) {
+            $trim = trim(strip_tags($lines[$i]));
+            if (str_starts_with($trim, '```')) {
+                $inCodeBlock = !$inCodeBlock;
+                continue;
+            }
+            if ($inCodeBlock) {
+                continue;
+            }
+
+            if (preg_match('/^(?:#{1,4}\s*|\*{1,2}\s*|===+\s*)?(?:DAFTAR\s+PUSTAKA|DAFTAR\s+REFERENSI|REFERENSI\s+PENELITIAN|BIBLIOGRAFI)(?:\s*===+|\s*\*{1,2}|\s*:)?$/i', $trim)) {
+                $tailText = trim(implode("\n", array_slice($lines, $i + 1)));
+                if ($tailText === '') {
+                    $cutIndex = $i;
+                    break;
+                }
+                if (preg_match('/\((?:19|20)\d{2}[a-z]?\)|https?:\/\/|doi\.org|\[\d+\]|\b(?:19|20)\d{2}\.\b/i', $tailText)) {
+                    $cutIndex = $i;
+                    break;
+                }
+            }
+        }
+
+        if ($cutIndex === null) {
+            return [$content, ''];
+        }
+
+        $body = rtrim(implode("\n", array_slice($lines, 0, $cutIndex)));
+        $dp = trim(implode("\n", array_slice($lines, $cutIndex + 1)));
+        $dp = trim((string) preg_replace('/^===+\s*|\s*===+$/', '', $dp));
+
+        return [$body, $dp];
+    }
+
     private function enforceChapterQualityAutomatically(string $content, string $chapter, Project $project): string
     {
         if (trim($content) === '') {
             return $content;
+        }
+
+        if ($chapter !== 'bab5') {
+            [$content] = $this->stripEmbeddedDaftarPustaka($content);
         }
 
         $projMeta = $this->getProjectMeta($project);
@@ -3021,6 +3081,16 @@ class GeneratorController extends Controller
                 $project->$col = $this->formatAcademicMathText($project->$col);
                 $hasMathUpdate = true;
             }
+            if ($col !== 'bab5_content' && !empty($project->$col)) {
+                [$cleanBody, $extractedDp] = $this->stripEmbeddedDaftarPustaka((string) $project->$col);
+                if ($cleanBody !== $project->$col) {
+                    $project->$col = $cleanBody;
+                    if (empty(trim((string) $project->daftar_pustaka)) && $extractedDp !== '') {
+                        $project->daftar_pustaka = $extractedDp;
+                    }
+                    $hasMathUpdate = true;
+                }
+            }
         }
         if ($hasMathUpdate) {
             $project->save();
@@ -3045,10 +3115,10 @@ class GeneratorController extends Controller
             }
         }
         $chapters = [
-            'bab1' => (string) ($project->bab1_content ?? ''),
-            'bab2' => (string) ($project->bab2_content ?? ''),
-            'bab3' => (string) ($project->bab3_content ?? ''),
-            'bab4' => (string) ($project->bab4_content ?? ''),
+            'bab1' => $this->stripEmbeddedDaftarPustaka((string) ($project->bab1_content ?? ''))[0],
+            'bab2' => $this->stripEmbeddedDaftarPustaka((string) ($project->bab2_content ?? ''))[0],
+            'bab3' => $this->stripEmbeddedDaftarPustaka((string) ($project->bab3_content ?? ''))[0],
+            'bab4' => $this->stripEmbeddedDaftarPustaka((string) ($project->bab4_content ?? ''))[0],
             'bab5' => (string) ($project->bab5_content ?? ''),
             'daftar_pustaka' => (string) ($project->daftar_pustaka ?? ''),
         ];
@@ -4509,6 +4579,7 @@ TUGAS UTAMA: Tuliskan NASKAH LENGKAP BAB I (PENDAHULUAN) dari awal sampai akhir 
 INSTRUKSI MUTLAK:
 - Seluruh sub-bab HARUS ditulis lengkap tuntas dalam satu kali respons ini tanpa mengulang-ulang kalimat yang sama.
 - Jaga agar 1.1 Latar Belakang Masalah tepat 5-6 paragraf padat (±1,5-2 halaman) dan total Bab I proporsional (1.250-1.650 kata).
+- DILARANG KERAS menulis bagian 'Daftar Pustaka' / 'Referensi' di dalam Bab I; Daftar Pustaka dibuat terpisah oleh sistem.
 - Langsung mulai dari sub-bab pertama (1.1 Latar Belakang Masalah) tanpa judul 'BAB I' dan tanpa kata pengantar AI.",
 
             'bab2' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab2Prompt}\n
@@ -4516,17 +4587,20 @@ INSTRUKSI MUTLAK:
 INSTRUKSI MUTLAK:
 - Seluruh sub-bab, TABEL PENELITIAN TERDAHULU, dan DIAGRAM KERANGKA BERPIKIR HARUS ditulis lengkap tuntas tanpa terpotong.
 - Tahun terbit semua penelitian terdahulu WAJIB antara {$tahunMin}-2026.
+- DILARANG KERAS menulis bagian 'Daftar Pustaka' / 'Referensi' di dalam Bab II; Daftar Pustaka dibuat terpisah oleh sistem.
 - Langsung mulai dari sub-bab pertama tanpa kata pengantar AI.",
 
             'bab3' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab3Prompt}\n
 {$customStructureNote}
 INSTRUKSI MUTLAK:
-- Tulis seluruh sub-bab secara tuntas, wajib sertakan DIAGRAM ALUR (FLOWCHART) dalam blok kode vertikal `[Tahap]` dipisahkan panah `↓`, serta tabel operasional/instrumen yang rapi.",
+- Tulis seluruh sub-bab secara tuntas, wajib sertakan DIAGRAM ALUR (FLOWCHART) dalam blok kode vertikal `[Tahap]` dipisahkan panah `↓`, serta tabel operasional/instrumen yang rapi.
+- DILARANG KERAS menulis bagian 'Daftar Pustaka' atau 'Referensi' di akhir Bab III (meskipun untuk Proposal Skripsi); Daftar Pustaka dicetak otomatis di halaman terpisah oleh sistem.",
 
             'bab4' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab4Prompt}\n
 {$customStructureNote}
 INSTRUKSI MUTLAK:
-- WAJIB menyajikan TABEL pengolahan data empiris lengkap dengan nomor judul (Tabel 4.1, Tabel 4.2, dst.) beserta perhitungan rumus Unicode bersih dan pembahasan kritis mendalam.",
+- WAJIB menyajikan TABEL pengolahan data empiris lengkap dengan nomor judul (Tabel 4.1, Tabel 4.2, dst.) beserta perhitungan rumus Unicode bersih dan pembahasan kritis mendalam.
+- DILARANG KERAS menulis bagian 'Daftar Pustaka' / 'Referensi' di dalam Bab IV.",
 
             'bab5' => $master . "\n{$tahapKaryaPrompt}\n$context\n{$dataAwalPrompt}\n{$strukturKustomPrompt}\n{$referensiKhususPrompt}\n{$dataRiilPrompt}\n{$bab5Prompt}",
 
@@ -4930,6 +5004,10 @@ ATURAN REVISI (SANGAT KETAT):
                 $cleanContent = $this->processChapterContent($cleanContent, $chapter);
             }
 
+            if ($chapter !== 'bab5') {
+                [$cleanContent] = $this->stripEmbeddedDaftarPustaka($cleanContent);
+            }
+
             $project->{$chapter . '_content'} = $cleanContent;
             $project->save();
 
@@ -5128,8 +5206,12 @@ ATURAN REVISI (SANGAT KETAT):
         }
 
         $field = $request->chapter === 'daftar_pustaka' ? 'daftar_pustaka' : $request->chapter . '_content';
+        $saveVal = trim($request->content);
+        if (in_array($request->chapter, ['bab1', 'bab2', 'bab3', 'bab4'], true)) {
+            [$saveVal] = $this->stripEmbeddedDaftarPustaka($saveVal);
+        }
 
-        $project->{$field} = trim($request->content);
+        $project->{$field} = $saveVal;
         $project->save();
 
         return response()->json([
@@ -6629,6 +6711,12 @@ ATURAN REVISI (SANGAT KETAT):
 
         foreach ($chapters as $k => $v) {
             if ($htmlContent = $project->{$k . '_content'}) {
+                if ($k !== 'bab5') {
+                    [$htmlContent] = $this->stripEmbeddedDaftarPustaka((string) $htmlContent);
+                }
+                if (trim((string) $htmlContent) === '') {
+                    continue;
+                }
                 $chapStyle = $baseSectionStyle;
                 if ($isFirstMainSection) {
                     $chapStyle['pageNumberingStart'] = 1;
@@ -6794,6 +6882,16 @@ ATURAN REVISI (SANGAT KETAT):
             if (!empty($project->$col) && (str_contains($project->$col, '\frac') || str_contains($project->$col, '\hat') || str_contains($project->$col, '{,}') || str_contains($project->$col, '$'))) {
                 $project->$col = $this->formatAcademicMathText($project->$col);
                 $hasMathUpdate = true;
+            }
+            if ($col !== 'bab5_content' && !empty($project->$col)) {
+                [$cleanBody, $extractedDp] = $this->stripEmbeddedDaftarPustaka((string) $project->$col);
+                if ($cleanBody !== $project->$col) {
+                    $project->$col = $cleanBody;
+                    if (empty(trim((string) $project->daftar_pustaka)) && $extractedDp !== '') {
+                        $project->daftar_pustaka = $extractedDp;
+                    }
+                    $hasMathUpdate = true;
+                }
             }
         }
         if ($hasMathUpdate) {
@@ -7304,6 +7402,12 @@ ATURAN REVISI (SANGAT KETAT):
         $nums = ['bab1' => 'I', 'bab2' => 'II', 'bab3' => 'III', 'bab4' => 'IV', 'bab5' => 'V'];
         foreach ($chapters as $k => $v) {
             if ($c = $project->{$k . '_content'}) {
+                if ($k !== 'bab5') {
+                    [$c] = $this->stripEmbeddedDaftarPustaka((string) $c);
+                }
+                if (trim((string) $c) === '') {
+                    continue;
+                }
                 $html .= "<div class='page-break'>";
                 $html .= "<h2 style='text-align:center; font-weight:bold; font-size:14pt; margin-top:0; margin-bottom:16pt; page-break-after:avoid;'>BAB " . $nums[$k] . "<br>" . strtoupper($v) . "</h2>";
                 $html .= $this->formatAcademicContentForPdf($c, (string) ($project->judul ?? ''));

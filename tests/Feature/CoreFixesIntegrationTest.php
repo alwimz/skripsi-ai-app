@@ -467,4 +467,102 @@ class CoreFixesIntegrationTest extends TestCase
             ->assertRedirect(route('admin.dashboard'));
         $this->get('/admin')->assertStatus(200);
     }
+
+    public function test_pdf_export_strips_embedded_daftar_pustaka_from_bab3_and_admin_activation_records_revenue(): void
+    {
+        config([
+            'services.admin_password' => 'admin123',
+            'services.meta.pixel_id' => '1487586500131939',
+            'services.meta.capi_token' => 'test-capi-token',
+        ]);
+        \Illuminate\Support\Facades\Http::fake([
+            'https://graph.facebook.com/*' => \Illuminate\Support\Facades\Http::response(['events_received' => 1], 200),
+        ]);
+
+        $buyer = User::create([
+            'name' => 'Pembeli PAI',
+            'email' => 'pembeli.pai@gmail.com',
+            'password' => bcrypt('Secret123!'),
+        ]);
+
+        $project = Project::create([
+            'user_id' => $buyer->id,
+            'judul' => 'Implementasi Pembelajaran Berdiferensiasi PAI',
+            'prodi' => 'Pendidikan Agama Islam',
+            'metode_penelitian' => 'Kuantitatif (Survei / Regresi)',
+            'bab1_content' => "1.1 Latar Belakang Masalah\nPembelajaran PAI membutuhkan strategi adaptif (Aini et al., 2025).",
+            'bab2_content' => "2.1 Landasan Teori\nStrategi diferensiasi mendukung hasil belajar.",
+            'bab3_content' => "3.1 Jenis Penelitian\nPenelitian ini bersifat kuantitatif.\n\nDaftar Pustaka\nAini, N. (2025). Strategi PAI. https://doi.org/10.36668/jal.v14i1.1266",
+            'daftar_pustaka' => "Aini, N. (2025). Strategi PAI. https://doi.org/10.36668/jal.v14i1.1266",
+            'citation_validation' => json_encode(['tahap_pengerjaan' => 'Proposal Skripsi (Bab I-III)']),
+        ]);
+
+        // 1. Activate paid package via Admin Panel -> records completed transaction & increases revenue
+        $this->post('/admin/login', ['pin' => 'admin123'])
+            ->assertRedirect(route('admin.dashboard'))
+            ->assertSessionHas('success');
+        $this->post("/admin/users/{$buyer->id}/plan", ['plan_code' => 'starter'])
+            ->assertStatus(302)
+            ->assertSessionHas('success');
+
+        $this->assertSame('starter', $buyer->fresh()->plan_code);
+        $this->assertTrue((bool) $project->fresh()->is_full_unlocked);
+        $this->assertSame(15000, (int) \Illuminate\Support\Facades\DB::table('transactions')
+            ->where('user_id', $buyer->id)
+            ->where('status', 'completed')
+            ->sum('amount'));
+
+        $adminHtml = $this->get('/admin')->assertStatus(200)->getContent();
+        $this->assertStringContainsString('Rp 15.000', $adminHtml);
+
+        // 2. Sync state must not leak embedded Daftar Pustaka inside bab3
+        $syncResp = $this->actingAs($buyer)->getJson("/project/{$project->id}/sync-state");
+        $syncResp->assertStatus(200);
+        $this->assertStringContainsString('3.1 Jenis Penelitian', (string) $syncResp->json('chapters.bab3'));
+        $this->assertStringNotContainsString('Daftar Pustaka', (string) $syncResp->json('chapters.bab3'));
+
+        // 3. Opening project auto-cleans embedded Daftar Pustaka on Bab III in DB
+        $this->actingAs($buyer)->get("/project/{$project->id}")->assertStatus(200);
+        $this->assertStringNotContainsString('Daftar Pustaka', (string) $project->fresh()->bab3_content);
+        $this->assertStringContainsString('Aini, N. (2025)', (string) $project->fresh()->daftar_pustaka);
+
+        // 4. Manual chapter save also strips trailing Daftar Pustaka
+        $saveResp = $this->actingAs($buyer)->postJson("/project/{$project->id}/save-chapter", [
+            'chapter' => 'bab3',
+            'content' => "3.1 Jenis Penelitian\nRevisi manual.\n\nDaftar Pustaka\nHaryaty, E. (2025). Implementasi PAI. https://doi.org/10.22460/p2m.v12i1.5702",
+        ]);
+        $saveResp->assertStatus(200);
+        $this->assertStringNotContainsString('Daftar Pustaka', (string) $saveResp->json('content'));
+
+        // 5. Fallback checkout invoice exposes QRIS image, DANA, and SeaBank details cleanly
+        config([
+            'services.payment_gateway' => 'auto',
+            'services.mayar.api_key' => '',
+            'services.pakasir.project' => '',
+            'services.pakasir.api_key' => '',
+        ]);
+        $invResp = $this->actingAs($buyer)->postJson('/payment/create', [
+            'plan_code' => 'starter',
+            'payment_method' => 'qris',
+        ]);
+        $invResp->assertStatus(200)
+            ->assertJson([
+                'status' => 'pakasir_unconfigured',
+                'gateway' => 'whatsapp',
+                'invoice' => [
+                    'account_email' => 'pembeli.pai@gmail.com',
+                    'amount' => 15000,
+                ],
+            ]);
+        $this->assertStringContainsString('qris-payment.jpg', (string) $invResp->json('invoice.qris_image_url'));
+        $invJson = json_encode($invResp->json('invoice'));
+        $this->assertStringContainsString('082195036971', (string) $invJson);
+        $this->assertStringContainsString('901889425034', (string) $invJson);
+        $this->assertStringContainsString('Muh Alwi Syahrir', (string) $invJson);
+
+        $this->actingAs($buyer)->get('/paket')
+            ->assertStatus(200)
+            ->assertSee('slSelectInvoiceMethod', false)
+            ->assertSee('sl-invoice-tabs', false);
+    }
 }

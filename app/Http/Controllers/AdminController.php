@@ -9,6 +9,7 @@ use App\Services\MetaConversionsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -199,16 +200,41 @@ class AdminController extends Controller
             return back()->with('error', 'Kode paket tidak valid.');
         }
 
-        $this->billing->activatePackageForUser($user, $planCode, null);
-        if ((int) ($plan['price'] ?? 0) > 0) {
+        $txRecord = null;
+        $orderId = 'ADM-' . date('ymdHi') . '-' . strtoupper(Str::random(5));
+        $amount = (int) ($plan['price'] ?? 0);
+        if ($amount > 0) {
+            $txId = DB::table('transactions')->insertGetId([
+                'user_id' => $user->id,
+                'order_id' => $orderId,
+                'plan_code' => $plan['code'],
+                'plan_name' => $plan['name'],
+                'amount' => $amount,
+                'quota_granted' => (int) ($plan['quota_projects'] ?? 0),
+                'duration_days' => (int) ($plan['duration_days'] ?? 30),
+                'is_unlimited' => !empty($plan['is_unlimited']),
+                'payment_method' => 'whatsapp_admin',
+                'payment_number' => '',
+                'checkout_url' => '',
+                'status' => 'completed',
+                'paid_at' => now(),
+                'raw_response' => json_encode(['activated_by' => 'admin_panel'], JSON_UNESCAPED_UNICODE),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $txRecord = DB::table('transactions')->where('id', $txId)->first();
+        }
+
+        $this->billing->activatePackageForUser($user, $planCode, $txRecord);
+        if ($amount > 0) {
             $this->metaCapi->sendEvent('Purchase', $user, [
                 'content_name' => $plan['name'],
                 'content_ids' => [$plan['code']],
                 'content_type' => 'product',
-                'value' => (int) $plan['price'],
+                'value' => $amount,
                 'currency' => 'IDR',
                 'num_items' => 1,
-            ], 'adm_' . $user->id . '_' . $plan['code'] . '_' . date('YmdHi'), $request, route('billing.plans'));
+            ], 'pur_' . $orderId, $request, route('billing.plans'));
         }
         return back()->with('success', "Paket {$plan['name']} berhasil diaktifkan untuk {$user->name}.");
     }

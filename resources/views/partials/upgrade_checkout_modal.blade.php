@@ -146,8 +146,77 @@
     .sl-checkout-body {
         padding: 20px;
         overflow-y: auto;
+        overscroll-behavior: contain;
         text-align: center;
     }
+    .sl-invoice-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+    }
+    .sl-invoice-tab {
+        border: none;
+        background: transparent;
+        color: #475569;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 8px 6px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .sl-invoice-tab.active {
+        background: #ffffff;
+        color: #1d4ed8;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+    .sl-invoice-panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+    .sl-qris-static-img {
+        display: block;
+        width: 100%;
+        max-width: 245px;
+        height: auto;
+        margin: 0 auto 10px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+    .sl-copy-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-top: 8px;
+        text-align: left;
+    }
+    .sl-copy-btn {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 11px;
+        border-radius: 8px;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-family: inherit;
+    }
+    .sl-copy-btn:hover { background: #dbeafe; }
     .sl-checkout-actions {
         display: flex;
         gap: 10px;
@@ -337,6 +406,47 @@
             }
         };
 
+        window.slSelectInvoiceMethod = function (methodId) {
+            ['qris', 'dana', 'seabank'].forEach((id) => {
+                const panel = document.getElementById('sl-inv-panel-' + id);
+                if (panel) panel.style.display = id === methodId ? 'block' : 'none';
+            });
+            document.querySelectorAll('.sl-invoice-tab').forEach((btn) => {
+                const active = btn.getAttribute('data-sl-tab') === methodId;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+        };
+
+        window.slCopyPaymentText = async function (text, btnEl) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                if (btnEl) {
+                    const orig = btnEl.textContent;
+                    btnEl.textContent = '✓ Tersalin';
+                    setTimeout(() => { btnEl.textContent = orig; }, 1600);
+                }
+            } catch (e) { }
+        };
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCheckoutModal();
+                closeUpgradeModal();
+            }
+        });
+
         window.closeCheckoutModal = function () {
             if (pollTimer) {
                 clearInterval(pollTimer);
@@ -391,13 +501,69 @@
                 if (loadingEl) loadingEl.style.display = 'none';
 
                 if (data.status === 'pakasir_unconfigured') {
-                    if (data.order_id) {
-                        const ordEl = document.getElementById('sl-pay-order-id');
-                        if (ordEl) ordEl.textContent = 'Kode Pesanan: ' + data.order_id;
+                    const inv = data.invoice || {};
+                    const ordEl = document.getElementById('sl-pay-order-id');
+                    if (ordEl && data.order_id) {
+                        ordEl.textContent = 'Invoice: ' + data.order_id + (inv.account_email ? (' • ' + inv.account_email) : '');
                     }
                     trackMetaCheckoutEvent('InitiateCheckout', data.plan || activePlanMeta, data.order_id || null);
                     if (errEl) {
-                        errEl.innerHTML = `<div style="margin-bottom:12px;color:#334155;">Untuk mengaktifkan paket ini, silakan lanjutkan konfirmasi pembayaran melalui WhatsApp Admin:</div><a href="${data.whatsapp_url}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">Aktifkan via WhatsApp Admin →</a>`;
+                        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                        const qrisUrl = esc(inv.qris_image_url || "{{ asset('images/qris-payment.jpg') }}");
+                        const methods = Array.isArray(inv.methods) ? inv.methods : [];
+                        const danaObj = methods.find((m) => m.id === 'dana') || { account: '082195036971', holder: 'Muh Alwi Syahrir' };
+                        const seaObj = methods.find((m) => m.id === 'seabank') || { account: '901889425034', holder: 'Muh Alwi Syahrir' };
+
+                        errEl.style.background = '#ffffff';
+                        errEl.style.border = 'none';
+                        errEl.style.padding = '0';
+                        errEl.innerHTML = `
+                            <div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:10px;">
+                                Pilih metode pembayaran di bawah untuk menyelesaikan invoice:
+                            </div>
+                            <div class="sl-invoice-tabs" role="tablist" aria-label="Metode Pembayaran">
+                                <button type="button" class="sl-invoice-tab active" data-sl-tab="qris" role="tab" aria-selected="true" onclick="window.slSelectInvoiceMethod('qris')">QRIS</button>
+                                <button type="button" class="sl-invoice-tab" data-sl-tab="dana" role="tab" aria-selected="false" onclick="window.slSelectInvoiceMethod('dana')">DANA</button>
+                                <button type="button" class="sl-invoice-tab" data-sl-tab="seabank" role="tab" aria-selected="false" onclick="window.slSelectInvoiceMethod('seabank')">SeaBank</button>
+                            </div>
+                            <div id="sl-inv-panel-qris" class="sl-invoice-panel">
+                                <a href="${qrisUrl}" target="_blank" rel="noopener" title="Klik untuk perbesar QRIS">
+                                    <img src="${qrisUrl}" alt="QRIS Pembayaran SkripsiLab AI" class="sl-qris-static-img">
+                                </a>
+                                <div style="font-size:11.5px;color:#475569;margin-bottom:8px;">
+                                    Scan dengan QRIS (DANA, GoPay, OVO, ShopeePay, atau M-Banking apa saja).
+                                </div>
+                                <a href="${qrisUrl}" download="QRIS-SkripsiLab-AI.jpg" class="sl-checkout-btn secondary" style="width:100%;min-height:38px;font-size:12px;">
+                                    ⬇️ Unduh Gambar QRIS
+                                </a>
+                            </div>
+                            <div id="sl-inv-panel-dana" class="sl-invoice-panel" style="display:none;">
+                                <div style="font-size:12px;font-weight:700;color:#0f172a;">Transfer / Kirim ke DANA</div>
+                                <div class="sl-copy-row">
+                                    <div>
+                                        <div style="font-size:15px;font-weight:800;color:#0f172a;font-family:monospace;">${esc(danaObj.account)}</div>
+                                        <div style="font-size:11.5px;color:#64748b;">a.n. ${esc(danaObj.holder)}</div>
+                                    </div>
+                                    <button type="button" class="sl-copy-btn" onclick="window.slCopyPaymentText('${esc(danaObj.account)}', this)">Salin</button>
+                                </div>
+                            </div>
+                            <div id="sl-inv-panel-seabank" class="sl-invoice-panel" style="display:none;">
+                                <div style="font-size:12px;font-weight:700;color:#0f172a;">Transfer ke Bank SeaBank</div>
+                                <div class="sl-copy-row">
+                                    <div>
+                                        <div style="font-size:15px;font-weight:800;color:#0f172a;font-family:monospace;">${esc(seaObj.account)}</div>
+                                        <div style="font-size:11.5px;color:#64748b;">a.n. ${esc(seaObj.holder)}</div>
+                                    </div>
+                                    <button type="button" class="sl-copy-btn" onclick="window.slCopyPaymentText('${esc(seaObj.account)}', this)">Salin</button>
+                                </div>
+                            </div>
+                            <div style="font-size:11.5px;color:#64748b;margin-bottom:10px;line-height:1.45;">
+                                Setelah transfer, kirim screenshot bukti pembayaran agar paket Anda langsung diaktifkan Admin:
+                            </div>
+                            <a href="${esc(data.whatsapp_url)}" target="_blank" rel="noopener" class="sl-checkout-btn primary" style="width:100%;">
+                                Kirim Bukti &amp; Aktifkan via WhatsApp →
+                            </a>
+                        `;
                         errEl.style.display = 'block';
                     }
                     return;
