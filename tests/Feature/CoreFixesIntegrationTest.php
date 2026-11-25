@@ -328,4 +328,124 @@ class CoreFixesIntegrationTest extends TestCase
             ->assertStatus(200)
             ->assertDontSee('connect.facebook.net/en_US/fbevents.js', false);
     }
+
+    public function test_mayar_checkout_status_verification_and_webhook_activate_package_idempotently(): void
+    {
+        config([
+            'services.payment_gateway' => 'mayar',
+            'services.mayar.api_key' => 'mayar-secret-key',
+            'services.mayar.webhook_token' => 'mayar-wh-secret',
+            'services.mayar.base_url' => 'https://api.mayar.id/hl/v1',
+            'services.meta.pixel_id' => '1487586500131939',
+            'services.meta.capi_token' => 'test-capi-token',
+        ]);
+
+        \Illuminate\Support\Facades\Http::fake([
+            'https://api.mayar.id/hl/v1/payment/create' => \Illuminate\Support\Facades\Http::response([
+                'statusCode' => 200,
+                'messages' => 'success',
+                'data' => [
+                    'id' => 'mayar-pay-uuid-1',
+                    'transactionId' => 'mayar-tx-uuid-1',
+                    'link' => 'https://skripsilab.myr.id/hl/pay/demo-123',
+                ],
+            ], 200),
+            'https://api.mayar.id/hl/v1/payment/mayar-pay-uuid-1' => \Illuminate\Support\Facades\Http::response([
+                'statusCode' => 200,
+                'messages' => 'success',
+                'data' => [
+                    'id' => 'mayar-pay-uuid-1',
+                    'transactionId' => 'mayar-tx-uuid-1',
+                    'status' => 'paid',
+                    'amount' => 15000,
+                ],
+            ], 200),
+            'https://graph.facebook.com/*' => \Illuminate\Support\Facades\Http::response(['events_received' => 1], 200),
+        ]);
+
+        $user = User::create([
+            'name' => 'Pembeli Mayar',
+            'email' => 'pembeli.mayar@gmail.com',
+            'password' => bcrypt('Secret123!'),
+        ]);
+
+        $createResp = $this->actingAs($user)->postJson('/payment/create', [
+            'plan_code' => 'starter',
+            'payment_method' => 'qris',
+        ]);
+
+        $createResp->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'transaction' => [
+                    'gateway' => 'mayar',
+                    'payment_method' => 'mayar',
+                    'checkout_url' => 'https://skripsilab.myr.id/hl/pay/demo-123',
+                    'plan_code' => 'starter',
+                    'amount' => 15000,
+                ],
+            ]);
+
+        $orderId = (string) $createResp->json('transaction.order_id');
+        $this->assertNotEmpty($orderId);
+
+        \Illuminate\Support\Facades\Http::assertSent(function ($req) {
+            return str_contains($req->url(), 'https://graph.facebook.com/v21.0/1487586500131939/events')
+                && ($req['data'][0]['event_name'] ?? '') === 'InitiateCheckout';
+        });
+
+        // Wrong webhook token must be rejected
+        $this->postJson('/webhook/mayar?token=wrong-token', [
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'mayar-pay-uuid-1',
+                'status' => 'paid',
+                'amount' => 15000,
+            ],
+        ])->assertStatus(403);
+
+        // Valid webhook verifies with Mayar API, activates plan, and sends Purchase CAPI
+        $this->postJson('/webhook/mayar?token=mayar-wh-secret', [
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'mayar-pay-uuid-1',
+                'transactionId' => 'mayar-tx-uuid-1',
+                'status' => 'paid',
+                'amount' => 15000,
+            ],
+        ])->assertStatus(200)->assertJson(['status' => 'success']);
+
+        $user->refresh();
+        $this->assertSame('starter', $user->plan_code);
+        $this->assertSame(1, (int) $user->project_quota_limit);
+
+        \Illuminate\Support\Facades\Http::assertSent(function ($req) use ($orderId) {
+            return str_contains($req->url(), 'https://graph.facebook.com/v21.0/1487586500131939/events')
+                && ($req['data'][0]['event_name'] ?? '') === 'Purchase'
+                && ($req['data'][0]['event_id'] ?? '') === ('pur_' . $orderId);
+        });
+
+        // Replay webhook must be idempotent
+        $this->postJson('/webhook/mayar?token=mayar-wh-secret', [
+            'event' => 'payment.received',
+            'data' => [
+                'id' => 'mayar-pay-uuid-1',
+                'status' => 'paid',
+                'amount' => 15000,
+            ],
+        ])->assertStatus(200)->assertJson(['status' => 'already_completed']);
+
+        $this->assertSame(1, (int) $user->fresh()->project_quota_limit);
+
+        // Polling status endpoint reflects completed order
+        $this->actingAs($user)
+            ->getJson('/payment/status/' . $orderId)
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => 'completed',
+                'order_id' => $orderId,
+                'plan_code' => 'starter',
+                'amount' => 15000,
+            ]);
+    }
 }

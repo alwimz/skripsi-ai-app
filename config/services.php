@@ -61,6 +61,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'payment_gateway' => env('PAYMENT_GATEWAY', 'auto'),
+
+    'mayar' => [
+        'api_key' => env('MAYAR_API_KEY'),
+        'webhook_token' => env('MAYAR_WEBHOOK_TOKEN'),
+        'base_url' => env('MAYAR_BASE_URL', 'https://api.mayar.id/hl/v1'),
+    ],
+
     'pakasir' => [
         'project' => env('PAKASIR_PROJECT'),
         'api_key' => env('PAKASIR_API_KEY'),

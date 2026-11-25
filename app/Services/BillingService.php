@@ -1177,6 +1177,58 @@ class BillingService
         }
     }
 
+    public function isMayarPaidStatus(mixed $status): bool
+    {
+        if (is_bool($status)) {
+            return $status === true;
+        }
+
+        return in_array(strtolower(trim((string) $status)), ['paid', 'settled', 'completed', 'success'], true);
+    }
+
+    public function verifyMayarTransaction(string $mayarId, int $expectedAmount = 0): array
+    {
+        $apiKey = trim((string) config('services.mayar.api_key'));
+        $baseUrl = rtrim((string) config('services.mayar.base_url', 'https://api.mayar.id/hl/v1'), '/');
+
+        if ($apiKey === '' || trim($mayarId) === '') {
+            return ['verified' => false, 'reason' => 'Mayar credentials or transaction ID missing'];
+        }
+
+        try {
+            $res = Http::withToken($apiKey)
+                ->acceptJson()
+                ->timeout(12)
+                ->get("{$baseUrl}/payment/" . urlencode(trim($mayarId)));
+
+            if ($res->successful()) {
+                $json = $res->json() ?: [];
+                $data = is_array($json['data'] ?? null) ? $json['data'] : $json;
+                $rawStatus = $data['status'] ?? ($json['status'] ?? '');
+                $isPaid = $this->isMayarPaidStatus($rawStatus);
+
+                $amountOk = true;
+                if ($expectedAmount > 0 && isset($data['amount']) && is_numeric($data['amount'])) {
+                    $amountOk = (int) $data['amount'] >= $expectedAmount;
+                }
+
+                $statusText = is_bool($rawStatus)
+                    ? ($rawStatus ? 'paid' : 'unpaid')
+                    : strtolower(trim((string) $rawStatus));
+
+                return [
+                    'verified' => $isPaid && $amountOk,
+                    'status' => $statusText !== '' ? $statusText : 'pending',
+                    'data' => $json,
+                ];
+            }
+        } catch (Throwable $e) {
+            Log::warning('Mayar verify failed: ' . $e->getMessage());
+        }
+
+        return ['verified' => false, 'reason' => 'Mayar API verification failed'];
+    }
+
     public function verifyPakasirTransaction(string $orderId, int $amount): array
     {
         $project = trim((string) config('services.pakasir.project'));

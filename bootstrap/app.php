@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'project/*/save-chapter',
             'auth/google/quick',
             'webhook/pakasir',
+            'webhook/mayar',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

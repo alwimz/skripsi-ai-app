@@ -414,9 +414,23 @@
                 document.getElementById('sl-pay-plan-name').textContent = tx.plan_name;
                 document.getElementById('sl-pay-total').textContent = 'Rp ' + Number(tx.total_payment || tx.amount).toLocaleString('id-ID');
                 document.getElementById('sl-pay-order-id').textContent = 'Order ID: ' + tx.order_id;
-                document.getElementById('sl-pakasir-direct-link').href = tx.checkout_url || '#';
+
+                const qrisBoxEl = document.getElementById('sl-qris-box');
+                const statusBadgeEl = document.getElementById('sl-pay-status-badge');
+                const directLinkEl = document.getElementById('sl-pakasir-direct-link');
+                if (directLinkEl) {
+                    directLinkEl.href = tx.checkout_url || '#';
+                    directLinkEl.textContent = tx.gateway === 'mayar'
+                        ? 'Bayar Sekarang di Mayar ↗'
+                        : 'Buka Halaman Pembayaran ↗';
+                }
 
                 if (tx.payment_number) {
+                    if (qrisBoxEl) qrisBoxEl.style.display = 'inline-block';
+                    if (statusBadgeEl) {
+                        statusBadgeEl.style.color = '#0284c7';
+                        statusBadgeEl.textContent = '⏳ Menunggu konfirmasi pembayaran...';
+                    }
                     if (!window.QRCode) {
                         await new Promise((resolve) => {
                             const s = document.createElement('script');
@@ -429,6 +443,14 @@
                     if (window.QRCode) {
                         const canvas = document.getElementById('sl-qris-canvas');
                         window.QRCode.toCanvas(canvas, tx.payment_number, { width: 220, margin: 1 });
+                    }
+                } else {
+                    if (qrisBoxEl) qrisBoxEl.style.display = 'none';
+                    if (statusBadgeEl) {
+                        statusBadgeEl.style.color = '#0284c7';
+                        statusBadgeEl.textContent = tx.gateway === 'mayar'
+                            ? 'Klik tombol di bawah untuk bayar via QRIS, E-Wallet, atau Virtual Account di Mayar.'
+                            : '⏳ Menunggu konfirmasi pembayaran...';
                     }
                 }
 

@@ -29,6 +29,7 @@ Route::get('/syarat-ketentuan', [LegalController::class, 'terms'])->name('legal.
 Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
 Route::get('/paket', [PaymentController::class, 'plans'])->name('billing.plans');
 Route::post('/webhook/pakasir', [PaymentController::class, 'webhook'])->name('pakasir.webhook');
+Route::post('/webhook/mayar', [PaymentController::class, 'mayarWebhook'])->name('mayar.webhook');
 Route::get('/sitemap.xml', function () {
     $rawBase = rtrim(url('/'), '/');
     $baseUrl = str_contains($rawBase, 'skripsilabai.com') ? 'https://skripsilabai.com' : $rawBase;
