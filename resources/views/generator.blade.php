@@ -5000,7 +5000,7 @@
                             meth = 'penelitian dan pengembangan perangkat lunak (R&D)';
                         }
                         const srcS = b4Txt || b3Txt;
-                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i);
+                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+(?:ini\s+)?berjumlah|\bN\s*=\s*)[^.\n]{0,55}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i);
                         let sampStr = '';
                         if (mSampFinal) {
                             const sampNum = mSampFinal[1];
@@ -5010,8 +5010,9 @@
                             const reGen = /\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)\b/gi;
                             let gm;
                             while ((gm = reGen.exec(srcS)) !== null) {
-                                const prevCtx = srcS.slice(Math.max(0, gm.index - 40), gm.index);
-                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak/i.test(prevCtx)) continue;
+                                const prevCtx = srcS.slice(Math.max(0, gm.index - 50), gm.index);
+                                const nextCtx = srcS.slice(gm.index + gm[0].length, gm.index + gm[0].length + 25);
+                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak|perayapan\s+awal|pengumpulan\s+awal|data\s+mentah/i.test(prevCtx) || /^\s*mentah\b/i.test(nextCtx)) continue;
                                 sampStr = ` dengan melibatkan ${gm[1]} ${gm[2]}`;
                                 break;
                             }
@@ -5062,7 +5063,7 @@
                         const b4Txt = (chapterContents.bab4 || '').replace(/<[^>]+>/g, ' ');
                         const unitEnMap = { komentar: 'comments', responden: 'respondents', sampel: 'samples', dokumen: 'documents', data: 'records', citra: 'images', siswa: 'students', mahasiswa: 'students', pasien: 'patients', karyawan: 'employees', informan: 'informants', observasi: 'observations' };
                         const srcS = b4Txt || b3Txt;
-                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i);
+                        const mSampFinal = srcS.match(/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+(?:ini\s+)?berjumlah|\bN\s*=\s*)[^.\n]{0,55}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i);
                         let sampEn = '';
                         if (mSampFinal) {
                             const u = (mSampFinal[2] || 'responden').toLowerCase();
@@ -5071,8 +5072,9 @@
                             const reGen = /\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)\b/gi;
                             let gm;
                             while ((gm = reGen.exec(srcS)) !== null) {
-                                const prevCtx = srcS.slice(Math.max(0, gm.index - 40), gm.index);
-                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak/i.test(prevCtx)) continue;
+                                const prevCtx = srcS.slice(Math.max(0, gm.index - 50), gm.index);
+                                const nextCtx = srcS.slice(gm.index + gm[0].length, gm.index + gm[0].length + 25);
+                                if (/populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak|perayapan\s+awal|pengumpulan\s+awal|data\s+mentah/i.test(prevCtx) || /^\s*mentah\b/i.test(nextCtx)) continue;
                                 sampEn = ` involving ${gm[1]} ${unitEnMap[gm[2].toLowerCase()] || 'samples'}`;
                                 break;
                             }

@@ -1012,7 +1012,7 @@ Penerapan stemming Sastrawi berhasil memadatkan kosakata dari 4.913 term menjadi
 TXT;
         $bab4 = <<<TXT
 4.1 Deskripsi dan Karakteristik Dataset Penelitian
-Dataset final yang layak dianalisis berjumlah 3.000 komentar berbahasa Indonesia.
+Hasil perayapan awal menghasilkan 4.218 komentar mentah yang kemudian melewati penyaringan. Setelah penyaringan, volume dataset final yang digunakan dalam penelitian ini berjumlah 3.000 komentar berbahasa Indonesia.
 
 4.2 Hasil Pra-Pemrosesan Teks
 Setelah penerapan normalisasi slang dan stemming Sastrawi, kosakata berhasil dipadatkan dari 4.913 term menjadi 2.847 term, atau terjadi reduksi sebesar 42,05 persen. Hasil pengujian menunjukkan bahwa tanpa normalisasi slang dan stemming, akurasi model turun menjadi 81,67 persen, atau terjadi penurunan sebesar 5,66 poin persentase dibandingkan akurasi dengan pra-pemrosesan lengkap.
@@ -1055,8 +1055,12 @@ TXT;
             ]),
         ]);
 
-        // 3. Abstrak ID & Abstract EN memilih capaian utama 87,33% (bukan ablasi 81,67%), metode tepat, tanpa spasi sebelum '%'
+        // 3. Abstrak ID & Abstract EN memilih capaian utama 87,33% (bukan ablasi 81,67%), dataset final 3.000 (bukan 4.218 mentah), metode tepat, tanpa spasi sebelum '%'
         $abstrak = $mAbstrak->invoke($ctrl, $project);
+        $this->assertStringContainsString('3.000 komentar', $abstrak['id_body']);
+        $this->assertStringNotContainsString('4.218', $abstrak['id_body']);
+        $this->assertStringContainsString('3.000 comments', $abstrak['en_body']);
+        $this->assertStringNotContainsString('4.218', $abstrak['en_body']);
         $this->assertStringContainsString('87,33 persen', $abstrak['id_body']);
         $this->assertStringNotContainsString('81,67', $abstrak['id_body']);
         $this->assertStringNotContainsString('Survei / Regresi', $abstrak['id_body']);

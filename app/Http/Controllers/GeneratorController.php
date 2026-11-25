@@ -6792,7 +6792,7 @@ ATURAN REVISI (SANGAT KETAT):
             'siswa' => 'students', 'mahasiswa' => 'students', 'pasien' => 'patients',
             'karyawan' => 'employees', 'informan' => 'informants', 'observasi' => 'observations',
         ];
-        if ($srcSample !== '' && preg_match('/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+berjumlah|\bN\s*=\s*)[^.\n]{0,35}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i', $srcSample, $ms)) {
+        if ($srcSample !== '' && preg_match('/(?:dataset\s+(?:final|bersih)|lolos\s+verifikasi[^.\n]{0,35}|ditarik\s+sampel\s+sebanyak|ukuran\s+sampel\s+(?:penelitian\s+)?(?:ditetapkan\s+)?sebanyak|sampel\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|adalah)|responden\s+(?:penelitian\s+)?(?:sebanyak|berjumlah|yaitu)|informan\s+(?:penelitian\s+)?(?:sebanyak|berjumlah)|digunakan\s+dalam\s+penelitian\s+(?:ini\s+)?berjumlah|\bN\s*=\s*)[^.\n]{0,55}?\b(\d{1,3}(?:\.\d{3})+|\d{1,5})\s*(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)?\b/i', $srcSample, $ms)) {
             $unitId = !empty($ms[2]) ? $ms[2] : 'responden';
             $samplePhraseId = " dengan melibatkan {$ms[1]} {$unitId}";
             $enUnit = $unitMap[strtolower($unitId)] ?? 'respondents';
@@ -6800,8 +6800,9 @@ ATURAN REVISI (SANGAT KETAT):
         } elseif ($srcSample !== '' && preg_match_all('/\b(\d{1,3}(?:\.\d{3})+|\d{2,5})\s+(komentar|responden|sampel|dokumen|data|citra|siswa|mahasiswa|pasien|karyawan|informan|observasi)\b/i', $srcSample, $allMs, PREG_OFFSET_CAPTURE)) {
             foreach ($allMs[0] as $k => $fullMatch) {
                 $offset = $fullMatch[1];
-                $beforeCtx = substr($srcSample, max(0, $offset - 40), min(40, $offset));
-                if (preg_match('/(?:populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak)/i', $beforeCtx)) {
+                $beforeCtx = substr($srcSample, max(0, $offset - 50), min(50, $offset));
+                $afterCtx = substr($srcSample, $offset + strlen($fullMatch[0]), 25);
+                if (preg_match('/(?:populasi|jumlah\s+(?:siswa|mahasiswa|guru|karyawan)\s+sebanyak|perayapan\s+awal|pengumpulan\s+awal|data\s+mentah)/i', $beforeCtx) || preg_match('/^\s*mentah\b/i', $afterCtx)) {
                     continue;
                 }
                 $numVal = $allMs[1][$k][0];
