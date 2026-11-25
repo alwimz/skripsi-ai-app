@@ -10,8 +10,9 @@
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url($page['slug']) }}">
-    <link rel="icon" type="image/png" href="/images/logo.png">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
@@ -177,16 +178,11 @@
         .nav-cta:hover { background: var(--primary-hover); }
 
         .page-wrap {
-            max-width: 1040px;
+            max-width: 840px;
             width: 100%;
             margin: 0 auto;
             padding: 28px 20px 56px;
-            display: grid;
-            grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-            gap: 24px;
-            align-items: start;
         }
-        .page-wrap > aside,
         .page-wrap > article {
             min-width: 0;
             max-width: 100%;
@@ -513,45 +509,17 @@
     <header class="topbar">
         <div class="topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.png" alt="SkripsiLab AI">
+                <img src="/images/logo.png?v=3" alt="SkripsiLab AI">
                 <span>{{ $brand_name }}</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Utama">
                 <a href="{{ url('/') }}" class="nav-link">Beranda</a>
-                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="nav-link hide-xs">Panduan</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="nav-link hide-xs">Tools Mahasiswa</a>
-                <a href="{{ url('/paket') }}" class="nav-link hide-xs">Paket</a>
-                <a href="{{ url('/kebijakan-privasi') }}" class="nav-link hide-xs {{ $page['key'] === 'privacy' ? 'active' : '' }}">Privasi</a>
-                <a href="{{ url('/syarat-ketentuan') }}" class="nav-link hide-xs {{ $page['key'] === 'terms' ? 'active' : '' }}">Ketentuan</a>
-                <a href="{{ url('/tentang') }}" class="nav-link hide-xs {{ $page['key'] === 'about' ? 'active' : '' }}">Tentang</a>
-                <a href="{{ route('login') }}" class="nav-cta">Masuk</a>
+                <a href="{{ auth()->check() ? route('app.create') : route('login') }}" class="nav-cta">{{ auth()->check() ? 'Workspace →' : 'Masuk' }}</a>
             </nav>
         </div>
     </header>
 
     <main class="page-wrap">
-        <aside aria-label="Dokumen Legal dan Informasi Resmi">
-            <div class="side-card">
-                <div class="side-label">Legal &amp; Transparansi</div>
-                <nav class="side-nav">
-                    <a href="{{ url('/kebijakan-privasi') }}" class="side-item {{ $page['key'] === 'privacy' ? 'active' : '' }}">Kebijakan Privasi</a>
-                    <a href="{{ url('/syarat-ketentuan') }}" class="side-item {{ $page['key'] === 'terms' ? 'active' : '' }}">Syarat &amp; Ketentuan</a>
-                    <a href="{{ url('/tentang') }}" class="side-item {{ $page['key'] === 'about' ? 'active' : '' }}">Tentang &amp; Pengembang</a>
-                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="side-item">Panduan Lengkap</a>
-                </nav>
-                <div class="side-divider"></div>
-                <div class="trust-box">
-                    <strong>Pengelola Resmi</strong>
-                    <div>{{ $owner_name }}</div>
-                    <div>{{ $location }}</div>
-                    <div style="margin-top:4px;font-size:0.76rem;">Domain: <code>skripsilabai.com</code></div>
-                    <a href="https://wa.me/{{ $whatsapp_number }}?text=Halo%20Admin%20SkripsiLab%20AI%2C%20saya%20ingin%20bertanya%20terkait%20privasi%20atau%20layanan." target="_blank" rel="noopener noreferrer" class="wa-btn">
-                        Hubungi Support Resmi
-                    </a>
-                </div>
-            </div>
-        </aside>
-
         <article class="content-card">
             <div class="breadcrumb">
                 <a href="{{ url('/') }}">Beranda</a>
@@ -591,10 +559,10 @@
             <div class="bottom-banner">
                 <div>
                     <strong>Butuh klarifikasi atau bantuan akun?</strong>
-                    <p>Anda dapat membaca panduan penggunaan lengkap atau menghubungi pengelola resmi.</p>
+                    <p>Tim resmi {{ $brand_name }} ({{ $location }}) siap membantu pertanyaan kamu.</p>
                 </div>
                 <div class="banner-actions">
-                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" class="btn-outline">Baca Panduan</a>
+                    <a href="https://wa.me/{{ $whatsapp_number }}?text=Halo%20Admin%20SkripsiLab%20AI%2C%20saya%20ingin%20bertanya%20terkait%20privasi%20atau%20layanan." target="_blank" rel="noopener noreferrer" class="btn-outline">Hubungi Support</a>
                     <a href="{{ auth()->check() ? route('app.create') : route('register') }}" class="nav-cta">{{ auth()->check() ? 'Buka Workspace →' : 'Daftar Gratis →' }}</a>
                 </div>
             </div>

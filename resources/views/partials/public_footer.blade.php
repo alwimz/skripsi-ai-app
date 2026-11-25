@@ -158,9 +158,10 @@
                 <h3 class="sl-public-footer-heading">Lainnya</h3>
                 <ul class="sl-public-footer-links">
                     <li><a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}">Panduan Lengkap</a></li>
+                    <li><a href="{{ url('/blog') }}">Blog</a></li>
                     <li><a href="{{ url('/paket') }}">Harga</a></li>
                     <li><a href="{{ url('/#contoh-hasil') }}">Contoh Skripsi</a></li>
-                    <li><a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a></li>
+                    <li><a href="{{ auth()->check() ? route('tools.hub') : url('/#tools-gratis') }}">Tools Mahasiswa</a></li>
                     @auth
                         <li><a href="{{ route('app.create') }}">Buka Workspace</a></li>
                     @else
@@ -199,7 +200,7 @@
 
         <div class="sl-public-footer-bottom">
             <a href="{{ url('/') }}" class="sl-public-footer-brand">
-                <img src="/images/logo.png" alt="SkripsiLab AI" width="30" height="30" style="display:block;object-fit:contain;">
+                <img src="/images/logo.png?v=3" alt="SkripsiLab AI" width="30" height="30" style="display:block;object-fit:contain;">
                 <span>SkripsiLab AI</span>
             </a>
             <span>&copy; {{ date('Y') }} SkripsiLab AI.</span>

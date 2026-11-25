@@ -12,7 +12,9 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="{{ url('/tools') }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -6002,7 +6004,7 @@
             const d = imgData.data;
             let transparentCount = 0;
             for (let i = 3; i < d.length; i += 4) {
-                if (d[i] < 16) {
+                if (d[i] < 14) {
                     d[i] = 0;
                     transparentCount++;
                 } else if (d[i] < 128) {
@@ -6011,6 +6013,83 @@
             }
             ctx.putImageData(imgData, 0, 0);
             return (transparentCount / (canvas.width * canvas.height)) * 100;
+        }
+
+        function analyzeSourceTransparency(img) {
+            const w = img.naturalWidth, h = img.naturalHeight;
+            const cv = document.createElement('canvas');
+            cv.width = w;
+            cv.height = h;
+            const ctx = cv.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const d = ctx.getImageData(0, 0, w, h).data;
+
+            let borderTotal = 0, borderTransparent = 0;
+            const stepX = Math.max(1, Math.floor(w / 40));
+            const stepY = Math.max(1, Math.floor(h / 40));
+            for (let x = 0; x < w; x += stepX) {
+                borderTotal += 2;
+                if (d[x * 4 + 3] < 128) borderTransparent++;
+                if (d[((h - 1) * w + x) * 4 + 3] < 128) borderTransparent++;
+            }
+            for (let y = 0; y < h; y += stepY) {
+                borderTotal += 2;
+                if (d[(y * w) * 4 + 3] < 128) borderTransparent++;
+                if (d[(y * w + (w - 1)) * 4 + 3] < 128) borderTransparent++;
+            }
+
+            let totalTransparent = 0;
+            const sampleStep = Math.max(1, Math.floor((w * h) / 25000));
+            let sampleTotal = 0;
+            for (let p = 0; p < w * h; p += sampleStep) {
+                sampleTotal++;
+                if (d[p * 4 + 3] < 128) totalTransparent++;
+            }
+
+            return {
+                canvas: cv,
+                data: d,
+                borderTransparentRatio: borderTotal ? borderTransparent / borderTotal : 0,
+                totalTransparentRatio: sampleTotal ? totalTransparent / sampleTotal : 0,
+            };
+        }
+
+        function defringeAlphaEdges(canvas, bgRgb) {
+            if (!bgRgb) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const d = imgData.data;
+            const [br, bg, bb] = bgRgb;
+
+            for (let i = 0; i < d.length; i += 4) {
+                const a = d[i + 3];
+                if (a <= 12) {
+                    d[i + 3] = 0;
+                    continue;
+                }
+                if (a < 245) {
+                    const alphaF = a / 255;
+                    const invF = 1 - alphaF;
+                    d[i] = Math.max(0, Math.min(255, Math.round((d[i] - br * invF) / Math.max(0.18, alphaF))));
+                    d[i + 1] = Math.max(0, Math.min(255, Math.round((d[i + 1] - bg * invF) / Math.max(0.18, alphaF))));
+                    d[i + 2] = Math.max(0, Math.min(255, Math.round((d[i + 2] - bb * invF) / Math.max(0.18, alphaF))));
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function buildWhiteCompositedPngBlob(img) {
+            return new Promise((resolve) => {
+                const cv = document.createElement('canvas');
+                cv.width = img.naturalWidth;
+                cv.height = img.naturalHeight;
+                const ctx = cv.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, cv.width, cv.height);
+                ctx.drawImage(img, 0, 0);
+                cv.toBlob((b) => resolve(b), 'image/png');
+            });
         }
 
         function processRemoveBgSmart() {
@@ -6035,22 +6114,25 @@
             const imgData = ctx.getImageData(0, 0, w, h);
             const d = imgData.data;
 
-            // Kumpulkan beberapa sampel warna tepi agar tidak kacau bila 4 sudut berbeda warna
+            // Kumpulkan sampel warna tepi yang benar-benar opaque
             const borderSeeds = [];
-            const seedCoords = [
-                [2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3],
-                [Math.floor(w / 2), 2], [Math.floor(w / 2), h - 3],
-                [2, Math.floor(h / 2)], [w - 3, Math.floor(h / 2)]
-            ];
+            const seedCoords = [];
+            for (let k = 0; k < 8; k++) {
+                const rx = Math.min(w - 2, Math.max(1, Math.round((k + 0.5) * (w / 8))));
+                const ry = Math.min(h - 2, Math.max(1, Math.round((k + 0.5) * (h / 8))));
+                seedCoords.push([rx, 1], [rx, h - 2], [1, ry], [w - 2, ry]);
+            }
             for (const [sx, sy] of seedCoords) {
                 const idx = (Math.max(0, Math.min(h - 1, sy)) * w + Math.max(0, Math.min(w - 1, sx))) * 4;
-                if (d[idx + 3] > 200) {
+                if (d[idx + 3] > 210) {
                     borderSeeds.push([d[idx], d[idx + 1], d[idx + 2]]);
                 }
             }
+            const hasPreTransparentBg = borderSeeds.length < seedCoords.length * 0.5;
             if (!borderSeeds.length) borderSeeds.push([255, 255, 255]);
 
             const colorDist = (idx) => {
+                if (d[idx + 3] < 16) return 0;
                 let best = 999;
                 const r = d[idx], g = d[idx + 1], b = d[idx + 2];
                 for (let k = 0; k < borderSeeds.length; k++) {
@@ -6064,6 +6146,12 @@
             let removedPx = 0;
             if (inkEnhance) {
                 for (let i = 0; i < d.length; i += 4) {
+                    const origA = d[i + 3];
+                    if (origA < 16) {
+                        d[i + 3] = 0;
+                        removedPx++;
+                        continue;
+                    }
                     const dist = colorDist(i);
                     const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
                     const effDist = Math.min(dist, (255 - lum) * 1.35);
@@ -6071,8 +6159,8 @@
                         d[i + 3] = 0;
                         removedPx++;
                     } else if (effDist < tol + soft + 15) {
-                        const a = Math.round(((effDist - tol) / (soft + 15)) * 255);
-                        d[i + 3] = Math.min(d[i + 3], a);
+                        const a = Math.round(((effDist - tol) / (soft + 15)) * origA);
+                        d[i + 3] = Math.min(origA, a);
                         d[i] = 15; d[i + 1] = 23; d[i + 2] = 42;
                     } else {
                         d[i] = 15; d[i + 1] = 23; d[i + 2] = 42;
@@ -6087,7 +6175,13 @@
                 const tryPush = (x, y) => {
                     const p = y * w + x;
                     if (visited[p]) return;
-                    const dist = colorDist(p * 4);
+                    const idx = p * 4;
+                    if (d[idx + 3] < 16) {
+                        visited[p] = 1;
+                        queue[tail++] = p;
+                        return;
+                    }
+                    const dist = colorDist(idx);
                     if (dist <= thresh) {
                         visited[p] = 1;
                         queue[tail++] = p;
@@ -6100,14 +6194,20 @@
                     const p = queue[head++];
                     const x = p % w, y = (p - x) / w;
                     const idx = p * 4;
-                    const dist = colorDist(idx);
-                    if (dist <= tol) {
+                    const origA = d[idx + 3];
+                    if (origA < 16) {
                         d[idx + 3] = 0;
                         removedPx++;
                     } else {
-                        const ratio = (dist - tol) / Math.max(1, soft);
-                        d[idx + 3] = Math.round(d[idx + 3] * Math.max(0, Math.min(1, ratio)));
-                        if (d[idx + 3] < 128) removedPx++;
+                        const dist = colorDist(idx);
+                        if (dist <= tol) {
+                            d[idx + 3] = 0;
+                            removedPx++;
+                        } else {
+                            const ratio = (dist - tol) / Math.max(1, soft);
+                            d[idx + 3] = Math.min(origA, Math.round(origA * Math.max(0, Math.min(1, ratio))));
+                            if (d[idx + 3] < 128) removedPx++;
+                        }
                     }
                     if (x > 0) tryPush(x - 1, y);
                     if (x < w - 1) tryPush(x + 1, y);
@@ -6117,6 +6217,9 @@
             }
 
             ctx.putImageData(imgData, 0, 0);
+            if (!inkEnhance && !hasPreTransparentBg && borderSeeds.length) {
+                defringeAlphaEdges(cv, borderSeeds[0]);
+            }
             rmbgTransparentCanvas = cv;
             renderRmbgComposite();
             const removedPct = (removedPx / (w * h)) * 100;
@@ -6127,14 +6230,14 @@
             }
         }
 
-        async function runAiWithImgly(file) {
+        async function runAiWithImgly(inputBlob, origAlphaInfo) {
             if (!rmbgImglyFn) {
                 setProc('rmbg', true, 'Memuat mesin AI pemisah objek (ISNet · tersimpan di cache browser)...', 15);
                 const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
                 rmbgImglyFn = mod.removeBackground || mod.default;
                 if (typeof rmbgImglyFn !== 'function') throw new Error('Modul AI ISNet tidak tersedia.');
             }
-            const resultBlob = await rmbgImglyFn(file, {
+            const resultBlob = await rmbgImglyFn(inputBlob, {
                 model: 'isnet_quint8',
                 device: 'cpu',
                 progress: (key, cur, tot) => {
@@ -6147,13 +6250,31 @@
             });
             const outImg = await loadImageFromFile(resultBlob);
             const cv = document.createElement('canvas');
-            cv.width = outImg.naturalWidth;
-            cv.height = outImg.naturalHeight;
-            cv.getContext('2d').drawImage(outImg, 0, 0);
+            cv.width = rmbgSourceImg.naturalWidth;
+            cv.height = rmbgSourceImg.naturalHeight;
+            const ctx = cv.getContext('2d');
+            ctx.drawImage(outImg, 0, 0, cv.width, cv.height);
+
+            if (origAlphaInfo && origAlphaInfo.data) {
+                const resData = ctx.getImageData(0, 0, cv.width, cv.height);
+                const rd = resData.data;
+                const od = origAlphaInfo.data;
+                for (let i = 0; i < rd.length; i += 4) {
+                    const aiAlpha = rd[i + 3];
+                    const origAlpha = od[i + 3];
+                    const mergedAlpha = Math.round((aiAlpha / 255) * origAlpha);
+                    rd[i] = od[i];
+                    rd[i + 1] = od[i + 1];
+                    rd[i + 2] = od[i + 2];
+                    rd[i + 3] = mergedAlpha < 14 ? 0 : mergedAlpha;
+                }
+                ctx.putImageData(resData, 0, 0);
+            }
+            defringeAlphaEdges(cv, [255, 255, 255]);
             return cv;
         }
 
-        async function runAiWithTransformers(file) {
+        async function runAiWithTransformers(inputBlob, origAlphaInfo) {
             if (!rmbgTransformersCache) {
                 setProc('rmbg', true, 'Memuat model AI cadangan (BRIA RMBG-1.4)...', 25);
                 const tf = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.0/dist/transformers.min.js');
@@ -6174,7 +6295,7 @@
             }
             setProc('rmbg', true, 'AI RMBG-1.4 sedang memisahkan objek dari background...', 70);
             const { tf, model, processor } = rmbgTransformersCache;
-            const objUrl = URL.createObjectURL(file);
+            const objUrl = URL.createObjectURL(inputBlob);
             try {
                 const image = await tf.RawImage.fromURL(objUrl);
                 const { pixel_values } = await processor(image);
@@ -6187,10 +6308,15 @@
                 ctx.drawImage(rmbgSourceImg, 0, 0, cv.width, cv.height);
                 const imgData = ctx.getImageData(0, 0, cv.width, cv.height);
                 const px = imgData.data;
+                const od = origAlphaInfo ? origAlphaInfo.data : null;
                 for (let i = 0; i < mask.data.length; i++) {
-                    px[i * 4 + 3] = mask.data[i];
+                    const aiA = mask.data[i];
+                    const origA = od ? od[i * 4 + 3] : 255;
+                    const merged = Math.round((aiA / 255) * origA);
+                    px[i * 4 + 3] = merged < 14 ? 0 : merged;
                 }
                 ctx.putImageData(imgData, 0, 0);
+                defringeAlphaEdges(cv, [255, 255, 255]);
                 return cv;
             } finally {
                 URL.revokeObjectURL(objUrl);
@@ -6210,17 +6336,35 @@
             const btn = document.getElementById('btn-rmbg-run');
             btn.disabled = true;
             setStatus('status-rmbg', '', '');
-            setProc('rmbg', true, 'Menyiapkan AI Hapus Background di browser...', 12);
+            setProc('rmbg', true, 'Menganalisis gambar & menyiapkan AI Hapus Background...', 12);
 
             try {
+                const origInfo = analyzeSourceTransparency(rmbgSourceImg);
+
+                // Jika gambar sudah berlatar transparan (mis. logo/ikon PNG), pertahankan transparansi aslinya agar tepi/efek tidak rusak oleh segmentasi
+                if (origInfo.borderTransparentRatio >= 0.6 && origInfo.totalTransparentRatio >= 0.12) {
+                    const removedPct = cleanFaintAlphaHalo(origInfo.canvas);
+                    rmbgTransparentCanvas = origInfo.canvas;
+                    renderRmbgComposite();
+                    setProc('rmbg', true, 'Selesai!', 100);
+                    setTimeout(() => setProc('rmbg', false), 200);
+                    setStatus('status-rmbg', 'success', `✓ Gambar ini sudah memiliki background transparan yang bersih (${removedPct.toFixed(0)}% area transparan dipertahankan). Silakan pilih warna latar pengganti atau langsung unduh PNG/JPG.`);
+                    return;
+                }
+
+                // Jika sebagian ada transparansi, komposisikan dulu ke putih sebelum masuk ke model AI agar area alpha=0 tidak berubah warna solid
+                const aiInputBlob = origInfo.totalTransparentRatio > 0.01
+                    ? await buildWhiteCompositedPngBlob(rmbgSourceImg)
+                    : rmbgSourceFile;
+
                 let cv = null;
                 let engineName = 'AI ISNet';
                 try {
-                    cv = await runAiWithImgly(rmbgSourceFile);
+                    cv = await runAiWithImgly(aiInputBlob, origInfo);
                 } catch (primaryErr) {
                     console.warn('Primary AI (ISNet) gagal, mencoba BRIA RMBG-1.4:', primaryErr);
                     engineName = 'AI RMBG-1.4';
-                    cv = await runAiWithTransformers(rmbgSourceFile);
+                    cv = await runAiWithTransformers(aiInputBlob, origInfo);
                 }
 
                 const removedPct = cleanFaintAlphaHalo(cv);

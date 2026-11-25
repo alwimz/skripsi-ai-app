@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $project->judul }} — SkripsiLab AI Workspace</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -598,6 +601,17 @@
             align-items: center;
             gap: 20px;
             overflow: visible;
+        }
+
+        #front-sheets-wrap {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-sizing: border-box;
         }
 
         .a4-sheet {
@@ -1412,29 +1426,65 @@
                 padding: 10px 8px 60px;
             }
 
-            #sheets-container {
+            #sheets-container,
+            #front-sheets-wrap {
                 width: 100%;
                 max-width: 100%;
+                min-width: 0;
             }
 
-            .a4-sheet {
-                width: 100%;
-                max-width: 100%;
+            .a4-sheet,
+            .a4-sheet.front-body {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
                 min-height: 760px !important;
                 height: auto !important;
-                box-sizing: border-box;
-                padding: 34px 22px 28px 26px !important;
+                box-sizing: border-box !important;
+                padding: 34px 20px 28px 22px !important;
                 font-size: 13.5px !important;
                 line-height: 1.55 !important;
                 border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
                 word-break: break-word;
+                overflow-wrap: anywhere;
                 overflow-x: clip;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
                 margin-bottom: 24px;
                 position: relative;
+            }
+
+            .a4-sheet.front-body > div {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .a4-sheet.front-body p {
+                text-indent: 24px !important;
+                font-size: 13.5px !important;
+                line-height: 1.55 !important;
+            }
+
+            .a4-sheet.front-body div[style*="margin: 14px 0 20px 24px"] {
+                margin-left: 0 !important;
+            }
+
+            .a4-sheet.front-body ol {
+                margin-left: 16px !important;
+                padding-left: 10px !important;
+            }
+
+            .a4-sheet.front-body div[style*="grid-template-columns: 1fr 1fr"] {
+                gap: 10px !important;
+                font-size: 12px !important;
+            }
+
+            .a4-sheet.front-body div[style*="width: 220px"] {
+                width: auto !important;
+                max-width: 100% !important;
             }
 
             .cover-sheet {

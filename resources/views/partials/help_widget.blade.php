@@ -10,17 +10,17 @@
     }
 
     @keyframes slHelpPillCycle {
-        0%, 8% {
+        0%, 10% {
             opacity: 0;
             transform: translateX(8px) scale(0.96);
             pointer-events: none;
         }
-        14%, 48% {
+        16%, 46% {
             opacity: 1;
             transform: translateX(0) scale(1);
             pointer-events: auto;
         }
-        55%, 100% {
+        52%, 100% {
             opacity: 0;
             transform: translateX(8px) scale(0.96);
             pointer-events: none;
@@ -40,7 +40,7 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         line-height: 1.2;
         transition: background 0.15s ease;
-        animation: slHelpPillCycle 8s ease-in-out infinite;
+        animation: slHelpPillCycle 16s ease-in-out infinite;
     }
 
     .sl-help-pill:hover {
@@ -320,7 +320,7 @@
         </a>
     </div>
 
-    <div class="sl-help-pop-foot">Respon cepat setiap hari &bull; 09.00–21.00 WITA</div>
+    <div class="sl-help-pop-foot">Respon cepat setiap hari &bull; 09.00–21.00 WIB</div>
 </div>
 
 <script type="module">

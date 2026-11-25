@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentToolsController;
 use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\PanduanController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\PaymentController;
 
@@ -21,6 +22,8 @@ use App\Http\Controllers\PaymentController;
 Route::get('/', [GeneratorController::class, 'landingPage'])->name('home');
 Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index');
 Route::get('/panduan/{slug}', [PanduanController::class, 'show'])->name('panduan.show');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/kebijakan-privasi', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('/syarat-ketentuan', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
@@ -34,6 +37,7 @@ Route::get('/sitemap.xml', function () {
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => $baseUrl . '/paket', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => $baseUrl . '/blog', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/kebijakan-privasi', 'priority' => '0.7', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/syarat-ketentuan', 'priority' => '0.7', 'changefreq' => 'monthly'],
         ['loc' => $baseUrl . '/tentang', 'priority' => '0.7', 'changefreq' => 'monthly'],
@@ -43,6 +47,13 @@ Route::get('/sitemap.xml', function () {
     foreach (PanduanController::getGuides() as $g) {
         $urls[] = [
             'loc' => $baseUrl . '/panduan/' . $g['slug'],
+            'priority' => '0.8',
+            'changefreq' => 'weekly',
+        ];
+    }
+    foreach (BlogController::getArticles() as $art) {
+        $urls[] = [
+            'loc' => $baseUrl . '/blog/' . $art['slug'],
             'priority' => '0.8',
             'changefreq' => 'weekly',
         ];

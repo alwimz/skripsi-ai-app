@@ -17,8 +17,9 @@
     @endif
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
-    <link rel="icon" type="image/png" href="/images/logo.png">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
 
     <!-- Open Graph / WhatsApp / LinkedIn / Facebook -->
     <meta property="og:type" content="website">

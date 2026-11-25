@@ -3,6 +3,8 @@ Allow: /
 Allow: /paket
 Allow: /panduan
 Allow: /panduan/
+Allow: /blog
+Allow: /blog/
 Allow: /kebijakan-privasi
 Allow: /syarat-ketentuan
 Allow: /tentang

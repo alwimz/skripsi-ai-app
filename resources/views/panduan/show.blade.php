@@ -10,7 +10,9 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ url('/panduan/' . $guide['slug']) }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
 
     <meta property="og:type" content="article">
     <meta property="og:locale" content="id_ID">
@@ -171,8 +173,6 @@
             <nav class="nav-links" aria-label="Navigasi">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-                <a href="{{ url('/paket') }}">Paket</a>
             </nav>
             <div class="topbar-actions">
                 @auth
@@ -187,8 +187,6 @@
     <div class="mobile-subbar">
         <a href="{{ url('/') }}">Beranda</a>
         <a href="{{ url('/panduan') }}" class="active">Semua Panduan</a>
-        <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">10 Tools Mahasiswa</a>
-        <a href="{{ url('/paket') }}">Paket</a>
     </div>
 
     <main class="container">
@@ -202,9 +200,6 @@
                             <span>{{ $item['short_title'] }}</span>
                         </a>
                     @endforeach
-                </div>
-                <div class="sidebar-tools-link" style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
-                    <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="side-link">10 Tools Mahasiswa →</a>
                 </div>
             </aside>
 

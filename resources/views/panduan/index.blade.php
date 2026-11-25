@@ -12,7 +12,9 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ url('/panduan') }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/images/logo.png?v=3">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
@@ -110,8 +112,6 @@
             <nav class="nav-links" aria-label="Navigasi Panduan">
                 <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-                <a href="{{ url('/paket') }}">Paket</a>
             </nav>
             <div class="topbar-actions">
                 @auth
@@ -126,8 +126,6 @@
     <div class="mobile-subbar">
         <a href="{{ url('/') }}">Beranda</a>
         <a href="{{ url('/panduan') }}" class="active">Semua Panduan (7)</a>
-        <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">10 Tools Mahasiswa</a>
-        <a href="{{ url('/paket') }}">Paket</a>
     </div>
 
     <main>
@@ -138,7 +136,6 @@
                 <p>Ikuti 7 alur terstruktur dari pencarian ide judul hingga simulasi sidang penguji agar naskah Proposal &amp; Skripsimu rapi, valid secara metodologi, dan bebas plagiasi.</p>
                 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
                     <a href="{{ auth()->check() ? route('app.create') : route('register') }}" class="btn btn-primary">Mulai Susun Skripsi Sekarang →</a>
-                    <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}" class="btn btn-outline">{{ auth()->check() ? 'Buka 10 Tools Mahasiswa' : 'Masuk untuk 10 Tools Mahasiswa' }}</a>
                 </div>
             </div>
         </section>
