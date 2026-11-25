@@ -3060,6 +3060,7 @@ class GeneratorController extends Controller
     public function generatorIndex($id)
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        app(\App\Services\TargetedStructureRepairService::class)->repairIfTargetProject($project, Auth::user());
         $history = Project::where('user_id', Auth::id())->orderBy('updated_at', 'desc')->get();
         $meta = $this->getProjectMeta($project);
         $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
@@ -3107,6 +3108,7 @@ class GeneratorController extends Controller
     public function syncProjectState($id)
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        app(\App\Services\TargetedStructureRepairService::class)->repairIfTargetProject($project, Auth::user());
         $meta = $this->getProjectMeta($project);
         $defaultIdentity = $this->getDefaultUserIdentity(Auth::id());
         foreach (['nama', 'nim', 'kampus', 'fakultas', 'logo_base64'] as $field) {
@@ -7084,6 +7086,7 @@ ATURAN REVISI (SANGAT KETAT):
         if (ob_get_length())
             ob_end_clean();
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        app(\App\Services\TargetedStructureRepairService::class)->repairIfTargetProject($project, Auth::user());
         $authUser = Auth::user();
         if ($authUser) {
             $dlGate = $this->billing()->canDownloadProject($authUser, $project);
@@ -7267,6 +7270,7 @@ ATURAN REVISI (SANGAT KETAT):
     public function downloadPdf($id, Request $request)
     {
         $project = Project::where('user_id', Auth::id())->findOrFail($id);
+        app(\App\Services\TargetedStructureRepairService::class)->repairIfTargetProject($project, Auth::user());
         $authUser = Auth::user();
         if ($authUser) {
             $dlGate = $this->billing()->canDownloadProject($authUser, $project);

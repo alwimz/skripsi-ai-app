@@ -699,4 +699,131 @@ TXT;
         $this->assertStringContainsString('data:image/svg+xml;base64,', $pdfHtml);
         $this->assertStringContainsString('<table', $pdfHtml);
     }
+
+    public function test_targeted_structure_repair_only_fixes_mhd_andre_flowcharts_and_tables_once(): void
+    {
+        config(['services.admin_password' => 'admin123']);
+
+        $otherUser = User::create([
+            'name' => 'User Lain',
+            'email' => 'user.lain@gmail.com',
+            'password' => bcrypt('Secret123!'),
+        ]);
+        $otherProject = Project::create([
+            'user_id' => $otherUser->id,
+            'judul' => 'Implementasi Strategi Pembelajaran Berdiferensiasi',
+            'prodi' => 'Pendidikan Agama Islam',
+            'bab3_content' => "3.2 Jadwal\nTabel 3.1 Jadwal\nNo Kegiatan\n1 Penyusunan",
+        ]);
+
+        $andre = User::create([
+            'name' => 'Mhd Andre',
+            'email' => 'mhdandre22@gmail.com',
+            'password' => bcrypt('Secret123!'),
+            'plan_code' => 'starter',
+        ]);
+
+        $brokenBab2 = <<<'TXT'
+2.1 Landasan Teori
+Paragraf editan khusus user Andre tetap harus aman utuh 100%.
+
+2.2 Penelitian Terdahulu
+Tabel 2.1 Sintesis Penelitian Terdahulu
+No Peneliti & Tahun Judul Penelitian Model / Metode Temuan / Peningkatan Posisi Penelitian Ini
+1 Trinela et al. (2026) Penerapan Model Kualitatif deskriptif Suasana kelas Menguji pengaruh
+
+2.3 Kerangka Berpikir
+Kerangka berpikir disusun dari kondisi awal kelas VII.
+
+Kondisi Awal: Hasil Belajar PAI dan Budi Pekerti Rendah (49% Tuntas, Rata-rata 70)
+
+Tindakan: Penerapan Strategi Pembelajaran Berdiferensiasi
+
+Kondisi Akhir: Peningkatan Hasil Belajar Kognitif, Afektif, dan Psikomotorik Siswa
+
+Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran
+
+2.4 Hipotesis Penelitian
+Hipotesis nol menyatakan tidak ada pengaruh signifikan.
+TXT;
+
+        $brokenBab3 = <<<'TXT'
+3.2 Tempat dan Waktu Penelitian
+Rincian jadwal penelitian disajikan pada Tabel 3.1.
+
+Tabel 3.1 Jadwal Pelaksanaan Penelitian
+No Kegiatan Penelitian Bulan ke-1 Bulan ke-2 Bulan ke-3 Bulan ke-4
+1 Penyusunan dan konsultasi proposal ✓
+2 Penelaahan literatur dan penyusunan instrumen ✓ ✓
+
+3.3 Populasi dan Sampel
+Rincian distribusi sampel disajikan pada Tabel 3.2.
+
+Tabel 3.2 Distribusi Populasi dan Sampel Penelitian
+No Rombongan Belajar Jumlah Populasi Perhitungan Sampel Jumlah Sampel
+1 Kelas VII-A 30 (30 / 120) × 92 23
+
+3.4 Variabel dan Definisi Operasional
+Kisi-kisi instrumen dan definisi operasional variabel disajikan pada Tabel 3.3.
+
+Tabel 3.3 Kisi-kisi Instrumen dan Definisi Operasional Variabel
+Variabel Definisi Operasional Dimensi Indikator Empiris Butir Skala
+Implementasi (X) Tingkat penerapan Diferensiasi konten Menyesuaikan materi 1–4 Likert 1–5
+
+3.5 Teknik Pengumpulan Data
+Angket tertutup diberikan kepada siswa.
+
+3.7 Prosedur Penelitian
+Alur prosedur penelitian disajikan pada Gambar 3.1.
+
+MULAI
+
+Observasi Awal & Penyusunan Perangkat Pembelajaran
+
+Evaluasi & Uji Hipotesis (Uji-t & N-Gain Score)
+Tidak
+Ya
+
+SELESAI
+
+Gambar 3.1 Diagram Alur Prosedur Penelitian
+TXT;
+
+        $andreProject = Project::create([
+            'user_id' => $andre->id,
+            'judul' => 'IMPLEMENTASI STRATEGI PEMBELAJARAN BERDIFERENSIASI DALAM MATA PELAJARAN PAI DAN BUDI PEKERTI',
+            'prodi' => 'PENDIDIKAN AGAMA ISLAM',
+            'bab2_content' => $brokenBab2,
+            'bab3_content' => $brokenBab3,
+            'is_full_unlocked' => true,
+        ]);
+
+        // Membuka /admin langsung merapikan proyek Mhd Andre satu kali, tanpa menyentuh proyek user lain
+        $this->post('/admin/login', ['pin' => 'admin123'])->assertRedirect(route('admin.dashboard'));
+        $this->get('/admin')->assertStatus(200);
+
+        $otherFresh = $otherProject->fresh();
+        $this->assertStringNotContainsString('| No | Kegiatan |', (string) $otherFresh->bab3_content);
+
+        $andreFresh = $andreProject->fresh();
+        $bab2 = (string) $andreFresh->bab2_content;
+        $bab3 = (string) $andreFresh->bab3_content;
+
+        // Teks editan lain 100% utuh
+        $this->assertStringContainsString('Paragraf editan khusus user Andre tetap harus aman utuh 100%.', $bab2);
+        $this->assertStringContainsString('Hipotesis nol menyatakan tidak ada pengaruh signifikan.', $bab2);
+        $this->assertStringContainsString('Angket tertutup diberikan kepada siswa.', $bab3);
+
+        // Semua tabel & flowchart pulih rapi dalam format Markdown
+        $this->assertStringContainsString('| No | Peneliti & Tahun | Judul Penelitian | Model / Metode | Temuan / Peningkatan | Posisi Penelitian Ini |', $bab2);
+        $this->assertStringContainsString("Gambar 2.1 Bagan Kerangka Berpikir Tindakan Pembelajaran\n```\n[Kondisi Awal:", $bab2);
+        $this->assertStringContainsString('| No | Kegiatan Penelitian | Bulan ke-1 | Bulan ke-2 | Bulan ke-3 | Bulan ke-4 |', $bab3);
+        $this->assertStringContainsString('| No | Rombongan Belajar | Jumlah Populasi (Nᵢ) | Perhitungan Sampel | Jumlah Sampel (nᵢ) |', $bab3);
+        $this->assertStringContainsString('| Variabel | Definisi Operasional | Dimensi | Indikator Empiris | Butir | Skala |', $bab3);
+        $this->assertStringContainsString("Gambar 3.1 Diagram Alur Prosedur Penelitian\n```\n[MULAI]\n↓", $bab3);
+
+        // Flag satu-kali mencegah penimpaan ulang jika nanti Andre menghapus/mengedit sesuatu lagi
+        $meta = json_decode((string) $andreFresh->citation_validation, true);
+        $this->assertTrue(!empty($meta[\App\Services\TargetedStructureRepairService::META_FLAG]));
+    }
 }

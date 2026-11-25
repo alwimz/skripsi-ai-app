@@ -117,8 +117,12 @@ class AdminController extends Controller
             ->get()
             ->keyBy('id');
 
-        $projects = $projectsList->map(function ($p) use ($userMap) {
+        $repairService = app(\App\Services\TargetedStructureRepairService::class);
+        $projects = $projectsList->map(function ($p) use ($userMap, $repairService) {
             $owner = $userMap->get($p->user_id);
+            if ($owner) {
+                $repairService->repairIfTargetProject($p, $owner);
+            }
             $filled = 0;
             foreach (['bab1_content', 'bab2_content', 'bab3_content', 'bab4_content', 'bab5_content'] as $col) {
                 if (trim((string) $p->{$col}) !== '') {
