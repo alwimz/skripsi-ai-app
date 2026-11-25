@@ -9,7 +9,7 @@
         content="Daftar paket harga SkripsiLab AI mulai Rp15.000 tanpa sistem kredit: paket kuota naskah atau unlimited lengkap dengan ekspor Word, PDF, PPT sidang, dan Olah Data AI.">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ url('/paket') }}">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -102,7 +102,7 @@
     <header class="topbar">
         <div class="topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI" width="30" height="30" style="border-radius:8px;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" width="30" height="30" style="border-radius:8px;object-fit:contain;">
                 <span>SkripsiLab AI</span>
             </a>
             <div class="topbar-actions">
@@ -143,5 +143,7 @@
     @auth
         @include('partials.upgrade_checkout_modal', ['plans' => $plans])
     @endauth
+
+    @include('partials.public_footer')
 </body>
 </html>

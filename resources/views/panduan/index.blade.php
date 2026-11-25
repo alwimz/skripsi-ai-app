@@ -12,7 +12,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ url('/panduan') }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
@@ -21,7 +21,7 @@
     <meta property="og:title" content="Panduan Lengkap SkripsiLab AI — 7 Modul Penulisan &amp; Sidang Skripsi">
     <meta property="og:description"
         content="Pelajari langkah demi langkah memakai SkripsiLab AI: Cari Judul, Cari Jurnal DOI, Generate Bab I–V, PPT Sidang, Simulasi Sidang, Parafrase Pro, dan Olah Data Statistik.">
-    <meta property="og:image" content="{{ url('/images/logo.svg') }}">
+    <meta property="og:image" content="{{ url('/images/logo.png') }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Panduan Lengkap SkripsiLab AI — 7 Modul Penulisan &amp; Sidang Skripsi">
@@ -104,7 +104,7 @@
     <header class="topbar">
         <div class="container topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:28px;height:28px;border-radius:7px;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" style="width:28px;height:28px;border-radius:7px;object-fit:contain;">
                 <span>SkripsiLab AI</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Panduan">
@@ -165,19 +165,6 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container footer-inner">
-            <div>&copy; {{ date('Y') }} <strong>SkripsiLab AI</strong> &bull; Workspace Penulisan Proposal &amp; Skripsi Akademik.</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;">
-                <a href="{{ url('/') }}">Beranda</a>
-                <a href="{{ url('/panduan') }}">Panduan</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
-                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
-                <a href="{{ url('/tentang') }}">Tentang</a>
-                <a href="{{ url('/register') }}">Daftar</a>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public_footer')
 </body>
 </html>

@@ -10,7 +10,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="{{ url('/panduan/' . $guide['slug']) }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
 
     <meta property="og:type" content="article">
     <meta property="og:locale" content="id_ID">
@@ -18,7 +18,7 @@
     <meta property="og:url" content="{{ url('/panduan/' . $guide['slug']) }}">
     <meta property="og:title" content="{{ $guide['title'] }}">
     <meta property="og:description" content="{{ $guide['meta_description'] }}">
-    <meta property="og:image" content="{{ url('/images/logo.svg') }}">
+    <meta property="og:image" content="{{ url('/images/logo.png') }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $guide['title'] }}">
@@ -165,7 +165,7 @@
     <header class="topbar">
         <div class="container topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:28px;height:28px;border-radius:7px;">
+                <img src="/images/logo.png" alt="SkripsiLab AI" style="width:28px;height:28px;border-radius:7px;object-fit:contain;">
                 <span>SkripsiLab AI</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi">
@@ -296,18 +296,6 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="container footer-inner">
-            <div>&copy; {{ date('Y') }} <strong>SkripsiLab AI</strong> &bull; Panduan Akademik Mahasiswa Indonesia.</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-                <a href="{{ url('/') }}">Beranda</a>
-                <a href="{{ url('/panduan') }}">Semua Panduan</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
-                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
-                <a href="{{ url('/tentang') }}">Tentang</a>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public_footer')
 </body>
 </html>

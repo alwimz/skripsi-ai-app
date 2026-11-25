@@ -17,7 +17,7 @@
     @endif
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- Open Graph / WhatsApp / LinkedIn / Facebook -->
@@ -28,7 +28,7 @@
     <meta property="og:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan">
     <meta property="og:description"
         content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
-    <meta property="og:image" content="{{ url('/images/logo.svg') }}">
+    <meta property="og:image" content="{{ url('/images/logo.png') }}">
     <meta property="og:image:alt"
         content="Logo SkripsiLab AI — Workspace Penulisan Proposal dan Skripsi Otomatis Menggunakan AI">
 
@@ -37,7 +37,7 @@
     <meta name="twitter:title" content="SkripsiLab AI — Proposal &amp; Skripsi Otomatis Referensi Jurnal yang Relevan">
     <meta name="twitter:description"
         content="Susun proposal Bab 1–3 &amp; skripsi Bab 1–5 otomatis menggunakan AI dengan referensi ilmiah &amp; jurnal yang relevan ber-DOI, ekspor Word/PDF, PPT sidang, dan simulasi sidang.">
-    <meta name="twitter:image" content="{{ url('/images/logo.svg') }}">
+    <meta name="twitter:image" content="{{ url('/images/logo.png') }}">
 
     <!-- Structured Data (JSON-LD) untuk Google Rich Results -->
     @php
@@ -86,66 +86,98 @@
                     'mainEntity' => [
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?',
+                            'name' => 'Apa itu SkripsiLab AI?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Mahasiswa dapat memilih tahap Proposal Skripsi (Bab I–III) maupun Skripsi Penuh (Bab I–V) sejak awal proyek, lengkap dengan pengaturan pedoman struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.',
+                                'text' => 'SkripsiLab AI adalah workspace penulisan akademik berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi (Bab I–III) dan skripsi penuh (Bab I–V) secara terstruktur, lengkap dengan pencarian jurnal ber-DOI, parafrase akademik, olah data, PPT sidang, dan simulasi sidang.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis sesuai gaya sitasi?',
+                            'name' => 'Apakah boleh pakai AI untuk skripsi?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional dan internasional terverifikasi DOI (Crossref & OpenAlex) sehingga sitasi in-text dan Daftar Pustaka tersusun otomatis sesuai pilihan APA 7th, Harvard, IEEE, Chicago, atau Vancouver lengkap dengan tautan DOI aktif.',
+                                'text' => 'Boleh, selama AI digunakan sebagai asisten riset, penyusunan kerangka, perapian bahasa ilmiah, dan eksplorasi referensi—bukan untuk menyalin mentah tanpa memahami isi. Mahasiswa tetap memegang kendali penuh untuk memeriksa, menyunting, dan mempertanggungjawabkan naskah kepada dosen pembimbing.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai standar skripsi Indonesia?',
+                            'name' => 'Apakah SkripsiLab AI termasuk joki skripsi?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Ekspor Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran Romawi dan Arab di tengah bawah, tabel bergaris penuh, serta daftar pustaka.',
+                                'text' => 'Bukan. SkripsiLab AI adalah alat bantu dan workspace produktivitas mandiri, bukan layanan joki. Kamu sendiri yang menentukan topik, metodologi, data penelitian, sitasi, serta melakukan revisi sesuai arahan dosen pembimbing.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Jurusan dan metode penelitian apa saja yang didukung SkripsiLab AI?',
+                            'name' => 'Apakah kampus bisa mendeteksi penggunaan AI?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'SkripsiLab AI mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan 9 metode penelitian: Kuantitatif Survei/Regresi, Kuantitatif Data Sekunder, Kualitatif, R&D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.',
+                                'text' => 'Pemeriksaan di kampus umumnya menggunakan detektor kemiripan teks seperti Turnitin dan evaluasi pemahaman mahasiswa saat bimbingan atau sidang. SkripsiLab AI menyediakan fitur Parafrase Akademik sesuai EYD V, sitasi jurnal asli ber-DOI, serta integrasi data riset milikmu sendiri agar tulisan lebih natural.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Bagaimana cara menambahkan Lampiran agar otomatis masuk Daftar Isi, Word, dan PDF?',
+                            'name' => 'Bagaimana cara pakai SkripsiLab AI yang aman dan tetap karya sendiri?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Di dalam Workspace Penulisan tersedia menu Lampiran untuk mengunggah gambar maupun dokumen Word/PDF. Lampiran otomatis masuk ke Daftar Isi, Daftar Lampiran, pratinjau A4, serta ikut tercetak saat unduh Word dan PDF.',
+                                'text' => 'Gunakan secara bertahap: tentukan judul dan rumusan masalah sendiri, unggah pedoman kampus, pilih jurnal terverifikasi DOI sebagai rujukan, masukkan data penelitian riil melalui Lab Revisi & Olah Data, lalu baca ulang dan sesuaikan tiap sub-bab sebelum dikonsultasikan ke pembimbing.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Bagaimana cara membuat PPT Sidang otomatis (.pptx)?',
+                            'name' => 'Fitur apa saja yang ada di SkripsiLab AI?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Di menu Generate PPT Sidang, pilih proyek skripsimu atau unggah file Word/PDF, pilih jumlah slide (6–12 slide) dan 13 tema akademik, lalu edit langsung atau unduh PowerPoint (.pptx) lengkap dengan catatan bicara presenter.',
+                                'text' => 'Tersedia 9 modul utama dalam satu dashboard: Workspace Proposal & Skripsi (Bab I–V), Cari Judul (9 metode), Cari Jurnal & Referensi DOI (Crossref & OpenAlex), Parafrase Akademik, Dosen AI, Lab Revisi & Olah Data, Lampiran Otomatis, Generate PPT Sidang (13 tema .pptx), dan Simulasi Sidang, ditambah 10 Tools Mahasiswa gratis.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Bagaimana cara latihan tanya-jawab di fitur Simulasi Sidang?',
+                            'name' => 'Untuk siapa SkripsiLab AI?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Pilih proyek skripsimu atau unggah naskah di menu Simulasi Sidang. AI menyusun 5 pertanyaan penguji langsung dari isi Bab I–V naskahmu, lengkap dengan evaluasi skor per jawaban, grade akhir, dan contoh jawaban terbaik.',
+                                'text' => 'SkripsiLab AI dirancang untuk mahasiswa D3, S1, maupun S2 dari seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan dukungan 9 metode penelitian.',
                             ],
                         ],
                         [
                             '@type' => 'Question',
-                            'name' => 'Apakah tersedia fitur Cari Judul, Parafrase Akademik, dan Dosen AI?',
+                            'name' => 'Apakah SkripsiLab AI gratis?',
                             'acceptedAnswer' => [
                                 '@type' => 'Answer',
-                                'text' => 'Ya. Semua tersedia dalam satu dashboard: Cari Judul menghasilkan 10 rekomendasi judul sesuai jurusan dan metode, Parafrase Akademik merapikan paragraf sesuai EYD V, dan Dosen AI siap membantu konsultasi metodologi maupun bedah soal 24 jam.',
+                                'text' => 'Ya, tersedia uji coba gratis 1 proyek (Sampul, Bab I & Daftar Pustaka + AI Tools 1x) serta akses gratis ke 10 Tools Mahasiswa di workspace. Untuk naskah lengkap Bab I–V dan ekspor Word/PDF penuh, tersedia paket mulai Rp15.000 tanpa sistem kredit.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Bagaimana cara kerja auto format skripsi (Word & PDF)?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Saat mengekspor ke Word (.docx) atau PDF (.pdf), sistem otomatis menata ukuran kertas A4, margin 4-4-3-3 cm, halaman sampul dengan logo kampus, lembar pengesahan, abstrak, kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman Romawi & Arab di tengah bawah, serta daftar pustaka otomatis.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah data dan naskah saya aman?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Aman. Seluruh data akun, proyek, dan draf naskah bersifat privat untuk akunmu sendiri, dilindungi enkripsi HTTPS/TLS serta autentikasi aman, dan tidak pernah dibagikan atau dijual ke pihak ketiga.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Apakah SkripsiLab AI bisa dipakai di HP?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Bisa. Seluruh antarmuka SkripsiLab AI—mulai dari membuat proyek, menyusun bab, mempratinjau dokumen, menggunakan 10 Tools Mahasiswa, hingga mengunduh file Word, PDF, dan PPT—responsif dan dapat diakses langsung melalui browser HP maupun laptop.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Bagaimana cara menghubungi support?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Kamu bisa langsung menghubungi tim support melalui menu Bantuan di dalam dashboard workspace, lewat kontak WhatsApp Support di halaman Tentang & Pengembang, atau melalui akun Instagram dan TikTok @skripsilabai.',
                             ],
                         ],
                     ],
@@ -675,45 +707,144 @@
             border-color: var(--primary);
         }
 
-        .studio-frame {
-            background: #eef2f7;
+        .studio-window {
+            background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 24px 50px -18px rgba(15, 23, 42, 0.14);
+            box-shadow: 0 24px 54px -18px rgba(15, 23, 42, 0.16);
+        }
+
+        .sf-window-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .sf-mac-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .sf-mac-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .sf-mac-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .sf-mac-dot.red { background: #ff5f56; }
+        .sf-mac-dot.yellow { background: #ffbd2e; }
+        .sf-mac-dot.green { background: #27c93f; }
+
+        .sf-win-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+
+        .sf-win-url {
+            flex: 1;
+            max-width: 420px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 11.5px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sf-win-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #047857;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 4px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .studio-frame {
+            background: #eef2f7;
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 265px 1fr;
             min-height: 580px;
         }
 
         .studio-frame-sidebar {
             background: #ffffff;
             border-right: 1px solid #e2e8f0;
-            padding: 16px 14px;
+            padding: 14px 12px;
             display: flex;
             flex-direction: column;
-            gap: 11px;
+            gap: 10px;
         }
 
-        .sf-title {
+        .sf-back-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             font-size: 11.5px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .sf-mode-badge {
+            display: inline-block;
+            width: fit-content;
+            font-size: 10.5px;
             font-weight: 700;
-            color: #0f172a;
-            text-transform: uppercase;
-            line-height: 1.45;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .sf-progress-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 5px;
         }
 
         .sf-sub {
-            font-size: 10.5px;
+            font-size: 10px;
             font-weight: 700;
-            color: var(--primary);
+            color: #64748b;
             text-transform: uppercase;
-            margin-top: 5px;
-            letter-spacing: 0.02em;
+            margin-top: 4px;
+            letter-spacing: 0.04em;
         }
 
         .sf-nav-list {
@@ -725,11 +856,11 @@
         .sf-nav-btn {
             width: 100%;
             text-align: left;
-            padding: 7.5px 10px;
+            padding: 7px 9px;
             border-radius: 8px;
             border: 1px solid transparent;
             background: transparent;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 600;
             color: #475569;
             cursor: pointer;
@@ -737,6 +868,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 6px;
             transition: background 0.14s ease, color 0.14s ease;
         }
 
@@ -751,22 +883,61 @@
             border-color: var(--primary-border);
         }
 
-        .sf-side-foot {
+        .sf-side-format {
             margin-top: auto;
-            padding: 10px 11px;
+            padding: 9px 10px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 10px;
+            border-radius: 9px;
             font-size: 11px;
             color: #475569;
-            line-height: 1.5;
+            line-height: 1.45;
         }
 
-        .sf-side-foot strong {
-            display: block;
-            color: #1e40af;
-            font-size: 11.5px;
-            margin-bottom: 2px;
+        .sf-side-format-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .sf-margin-tag {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .sf-side-dl {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .sf-dl-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 8px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        .sf-dl-pill.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
         }
 
         .studio-frame-main {
@@ -778,12 +949,58 @@
         .sf-topbar {
             background: #ffffff;
             border-bottom: 1px solid #e2e8f0;
-            padding: 10px 16px;
+            padding: 9px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+        }
+
+        .sf-chapter-bar {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .sf-chapter-bar-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .sf-chapter-bar-tools {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .sf-tool-chip {
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            padding: 4px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        @media (max-width: 720px) {
+            .sf-win-url,
+            .sf-win-status {
+                display: none;
+            }
         }
 
         .sf-topbar-meta {
@@ -1176,42 +1393,40 @@
             color: var(--primary-hover);
         }
 
-        /* FAQ Accordion (SEO + UX) */
-        .faq-grid {
-            max-width: 840px;
+        /* FAQ Accordion (Clean Minimalist Divider Style) */
+        .faq-list {
+            max-width: 820px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
         }
 
         .faq-item {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-            transition: border-color 0.16s ease, box-shadow 0.16s ease;
-            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .faq-item[open] {
-            border-color: #93c5fd;
-            box-shadow: 0 10px 26px -10px rgba(37, 99, 235, 0.16);
+        .faq-item:first-child {
+            border-top: 1px solid var(--border-color);
         }
 
         .faq-item summary {
             list-style: none;
-            padding: 16px 20px;
-            font-size: 14.5px;
+            padding: 22px 4px;
+            font-size: clamp(1rem, 0.96rem + 0.25vw, 1.125rem);
             font-weight: 700;
             color: var(--text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 18px;
             user-select: none;
             line-height: 1.45;
+            transition: color 0.15s ease;
+        }
+
+        .faq-item summary:hover {
+            color: var(--primary);
         }
 
         .faq-item summary::-webkit-details-marker {
@@ -1220,32 +1435,40 @@
 
         .faq-item summary::after {
             content: '+';
-            width: 26px;
-            height: 26px;
-            border-radius: 999px;
-            background: var(--primary-soft);
-            color: var(--primary);
-            font-size: 17px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 23px;
+            font-weight: 400;
+            color: #334155;
+            line-height: 1;
             flex-shrink: 0;
-            transition: transform 0.2s var(--ease-out), background 0.16s ease, color 0.16s ease;
+            transition: transform 0.2s var(--ease-out), color 0.16s ease;
         }
 
         .faq-item[open] summary::after {
             content: '−';
-            background: var(--primary);
-            color: #ffffff;
+            color: var(--primary);
+        }
+
+        .faq-item::details-content {
+            interpolate-size: allow-keywords;
+            overflow: clip;
+            contain: layout;
+        }
+
+        .faq-item:not([open])::details-content {
+            block-size: 0;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .faq-item::details-content {
+                transition: block-size 0.28s ease-in-out, content-visibility 0.28s ease-in-out allow-discrete;
+            }
         }
 
         .faq-answer {
-            padding: 12px 20px 18px;
-            border-top: 1px solid #f1f5f9;
-            font-size: 13.8px;
+            padding: 0 4px 22px;
+            font-size: 14.5px;
             color: var(--text-secondary);
-            line-height: 1.68;
+            line-height: 1.72;
             text-wrap: pretty;
         }
 
@@ -1557,8 +1780,8 @@
     <header class="navbar">
         <div class="container nav-inner">
             <a href="/" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI"
-                    style="width: 32px; height: 32px; border-radius: 8px; display: block;">
+                <img src="/images/logo.png" alt="SkripsiLab AI"
+                    style="width: 32px; height: 32px; border-radius: 8px; display: block; object-fit: contain;">
                 SkripsiLab AI
             </a>
 
@@ -1791,14 +2014,14 @@
             </div>
         </section>
 
-        <!-- Section 1: Pratinjau Workspace Interaktif -->
+        <!-- Section 1: Pratinjau Workspace Generator -->
         <section id="workspace-preview" class="section section-subtle">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-label">Pratinjau Workspace</span>
-                    <h2 class="section-title">Tampilan Editor Kertas A4 yang Rapi &amp; Terstandar</h2>
-                    <p class="section-desc">Lihat simulasi tampilan Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5) di
-                        editor kertas A4 lengkap dengan sampul, tabel akademik, sitasi ilmiah, dan Daftar Pustaka (APA 7th, Harvard, IEEE, Chicago, atau Vancouver).</p>
+                    <span class="section-label">Pratinjau Workspace Generate</span>
+                    <h2 class="section-title">Tampilan Ruang Kerja Penyusunan Skripsi di Dalam Aplikasi</h2>
+                    <p class="section-desc">Lihat langsung antarmuka Workspace Generate SkripsiLab AI — mulai dari navigasi
+                        Bab I–V, pengatur margin 4-4-3-3, Olah Data Penelitian, Lab Revisi, hingga pratinjau kertas A4 siap ekspor Word &amp; PDF.</p>
                 </div>
 
                 <div class="major-selector" id="preview-project-pills">
@@ -1808,81 +2031,143 @@
                         onclick="switchPreviewProject(1, this)">Contoh Skripsi (Bab 1–5)</button>
                 </div>
 
-                <div class="studio-frame">
-                    <div class="studio-frame-sidebar">
-                        <div>
-                            <div class="sf-sub" id="sf-proj-stage" style="margin-top: 0;">PROPOSAL SKRIPSI · 3 DARI 3 BAB</div>
+                <div class="studio-window">
+                    <div class="sf-window-bar">
+                        <div class="sf-mac-left">
+                            <div class="sf-mac-dots" aria-hidden="true">
+                                <span class="sf-mac-dot red"></span>
+                                <span class="sf-mac-dot yellow"></span>
+                                <span class="sf-mac-dot green"></span>
+                            </div>
+                            <div class="sf-win-brand">
+                                <img src="/images/logo.png" alt="SkripsiLab AI" width="20" height="20" style="border-radius:5px;display:block;object-fit:contain;">
+                                <span>SkripsiLab AI</span>
+                            </div>
                         </div>
 
-                        <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
-                            <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #2563eb, #10b981);"></div>
+                        <div class="sf-win-url">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <span>skripsilabai.com/project/workspace</span>
                         </div>
 
-                        <div class="sf-nav-list">
-                            <button type="button" class="sf-nav-btn" id="sf-btn-cover"
-                                onclick="switchPreviewChapter('cover')">
-                                <span>Sampul &amp; Identitas</span>
-                                <span style="color: #2563eb;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn active" id="sf-btn-bab1"
-                                onclick="switchPreviewChapter('bab1')">
-                                <span>Bab I Pendahuluan</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-bab2"
-                                onclick="switchPreviewChapter('bab2')">
-                                <span>Bab II Tinjauan Pustaka</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-bab3"
-                                onclick="switchPreviewChapter('bab3')">
-                                <span>Bab III Metodologi</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-bab4"
-                                onclick="switchPreviewChapter('bab4')" style="display: none;">
-                                <span>Bab IV Hasil &amp; Pembahasan</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-bab5"
-                                onclick="switchPreviewChapter('bab5')" style="display: none;">
-                                <span>Bab V Penutup</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                            <button type="button" class="sf-nav-btn" id="sf-btn-dp"
-                                onclick="switchPreviewChapter('dp')">
-                                <span>Daftar Pustaka</span>
-                                <span style="color: #059669;">●</span>
-                            </button>
-                        </div>
-
-                        <div class="sf-side-foot">
-                            <strong>Lab Revisi &amp; Lampiran Otomatis</strong>
-                            Margin 4-4-3-3, penomoran Romawi/Arab, dan ekspor Word/PDF siap cetak.
+                        <div class="sf-win-status">
+                            <span class="sf-live-dot"></span>
+                            <span>Auto-Format A4 Aktif</span>
                         </div>
                     </div>
 
-                    <div class="studio-frame-main">
-                        <div class="sf-topbar">
-                            <div class="sf-topbar-meta">
-                                <span class="sf-live-dot"></span>
-                                <span id="sf-topbar-label">Pratinjau A4 · Margin 4-4-3-3 · Times New Roman 12pt</span>
+                    <div class="studio-frame">
+                        <div class="studio-frame-sidebar">
+                            <div class="sf-back-chip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                <span>Kembali ke Proyek Saya</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
-                                <a href="#contoh-hasil" class="btn btn-outline"
-                                    style="padding: 6px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <span>Lihat Galeri PDF &amp; Word</span>
-                                </a>
-                                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}"
-                                    class="btn btn-primary"
-                                    style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
-                                    <span>Coba di Workspace →</span>
-                                </a>
+                            <span class="sf-mode-badge" id="sf-proj-stage">Proposal (Bab I–III)</span>
+
+                            <div>
+                                <div class="sf-progress-meta">
+                                    <span id="sf-progress-text">3 dari 3 Bab</span>
+                                    <span>100%</span>
+                                </div>
+                                <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                                    <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #2563eb, #10b981);"></div>
+                                </div>
+                            </div>
+
+                            <div class="sf-sub">Struktur Naskah</div>
+                            <div class="sf-nav-list">
+                                <button type="button" class="sf-nav-btn" id="sf-btn-cover"
+                                    onclick="switchPreviewChapter('cover')">
+                                    <span>Sampul &amp; Bagian Depan</span>
+                                    <span style="font-size:9.5px;font-weight:700;color:#16a34a;background:#dcfce7;padding:1px 6px;border-radius:999px;">Lengkap</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn active" id="sf-btn-bab1"
+                                    onclick="switchPreviewChapter('bab1')">
+                                    <span>Bab I Pendahuluan</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" id="sf-btn-bab2"
+                                    onclick="switchPreviewChapter('bab2')">
+                                    <span>Bab II Tinjauan Pustaka</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" id="sf-btn-bab3"
+                                    onclick="switchPreviewChapter('bab3')">
+                                    <span>Bab III Metodologi</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" id="sf-btn-bab4"
+                                    onclick="switchPreviewChapter('bab4')" style="display: none;">
+                                    <span>Bab IV Hasil Penelitian</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" id="sf-btn-bab5"
+                                    onclick="switchPreviewChapter('bab5')" style="display: none;">
+                                    <span>Bab V Penutup</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" id="sf-btn-dp"
+                                    onclick="switchPreviewChapter('dp')">
+                                    <span>Daftar Pustaka</span>
+                                    <span style="color: #10b981;">●</span>
+                                </button>
+                                <button type="button" class="sf-nav-btn" onclick="switchPreviewChapter('dp')">
+                                    <span>Lampiran &amp; Revisi</span>
+                                    <span style="font-size:9.5px;font-weight:700;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:999px;">Sub-bab</span>
+                                </button>
+                            </div>
+
+                            <div class="sf-side-format">
+                                <div class="sf-side-format-head">
+                                    <span>Format &amp; Margin</span>
+                                    <span class="sf-margin-tag">4-4-3-3 cm</span>
+                                </div>
+                                <div>Font: Times New Roman 12pt &bull; Penomoran Romawi/Arab otomatis.</div>
+                            </div>
+
+                            <div class="sf-side-dl">
+                                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}" class="sf-dl-pill primary">⬇ Word (.docx)</a>
+                                <a href="#contoh-hasil" class="sf-dl-pill">⬇ PDF (.pdf)</a>
                             </div>
                         </div>
 
-                        <div class="sf-paper-area">
-                            <div class="sf-a4-paper" id="sf-paper-content"></div>
+                        <div class="studio-frame-main">
+                            <div class="sf-topbar">
+                                <div class="sf-topbar-meta">
+                                    <span class="sf-live-dot"></span>
+                                    <span id="sf-topbar-label">Workspace Penulisan · Manajemen · A4 Margin 4-4-3-3</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                                    <a href="#contoh-hasil" class="btn btn-outline"
+                                        style="padding: 5px 10px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;">
+                                        <span>Lihat Galeri PDF</span>
+                                    </a>
+                                    <a href="{{ auth()->check() ? route('app.create', ['tab' => 'projects']) : route('register') }}"
+                                        class="btn btn-primary"
+                                        style="padding: 5px 11px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px;">
+                                        <span>Tulis Bab di Workspace →</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="sf-chapter-bar">
+                                <div class="sf-chapter-bar-title" id="sf-chapter-bar-title">BAB I PENDAHULUAN</div>
+                                <div class="sf-chapter-bar-tools" aria-hidden="true">
+                                    <span class="sf-tool-chip">Lihat Semua Bab</span>
+                                    <span class="sf-tool-chip">Olah Data Penelitian</span>
+                                    <span class="sf-tool-chip">Buka Revisi</span>
+                                </div>
+                            </div>
+
+                            <div class="sf-paper-area">
+                                <div class="sf-a4-paper" id="sf-paper-content"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2285,89 +2570,96 @@
         </section>
 
         <!-- Section 5: FAQ Mahasiswa (SEO Rich Results + Bantuan Cepat) -->
-        <section id="faq" class="section">
+        <section id="faq" class="section" aria-labelledby="faq-heading">
             <div class="container">
                 <div class="section-header">
                     <span class="section-label">Pertanyaan Umum</span>
-                    <h2 class="section-title">Hal yang Sering Ditanyakan Mahasiswa</h2>
-                    <p class="section-desc">Informasi singkat mengenai penyusunan proposal dan skripsi Bab I–V otomatis
-                        menggunakan AI, referensi ilmiah &amp; jurnal relevan ber-DOI, ekspor Word/PDF, hingga persiapan
-                        sidang di SkripsiLab AI.</p>
+                    <h2 id="faq-heading" class="section-title">Hal yang Sering Ditanyakan Mahasiswa</h2>
+                    <p class="section-desc">Jawaban ringkas seputar penggunaan SkripsiLab AI, keamanan naskah, referensi jurnal ber-DOI, auto format Word/PDF, hingga dukungan tim kami.</p>
                 </div>
 
-                <div class="faq-grid">
-                    <details class="faq-item" open>
-                        <summary>Apakah SkripsiLab AI bisa menyusun Proposal (Bab 1–3) dan Skripsi Penuh (Bab 1–5)?</summary>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Apa itu SkripsiLab AI?</summary>
                         <div class="faq-answer">
-                            Ya. Mahasiswa dapat memilih tahap <strong>Proposal Skripsi (Bab I–III)</strong> maupun
-                            <strong>Skripsi Penuh (Bab I–V)</strong> sejak awal pembuatan proyek, lengkap dengan pedoman
-                            struktur kampus, logo universitas, font, dan margin 4-4-3-3 cm.
+                            SkripsiLab AI adalah workspace penulisan akademik berbasis AI untuk membantu mahasiswa Indonesia menyusun proposal skripsi (Bab I–III) dan skripsi penuh (Bab I–V) secara terstruktur, lengkap dengan pencarian jurnal terverifikasi DOI, parafrase akademik, olah data, PPT sidang, dan simulasi sidang.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Dari mana sumber referensi jurnal dan apakah Daftar Pustaka otomatis sesuai gaya sitasi?</summary>
+                        <summary>Apakah boleh pakai AI untuk skripsi?</summary>
                         <div class="faq-answer">
-                            SkripsiLab AI terhubung dengan pencarian jurnal ilmiah nasional &amp; internasional
-                            terverifikasi DOI (<strong>Crossref &amp; OpenAlex</strong>), sehingga sitasi di dalam teks
-                            dan <strong>Daftar Pustaka (APA 7th, Harvard, IEEE, Chicago, atau Vancouver)</strong> tersusun otomatis lengkap dengan tautan DOI aktif.
+                            Boleh, selama AI digunakan sebagai asisten riset, penyusunan kerangka, perapian bahasa ilmiah, dan eksplorasi referensi—bukan untuk menyalin mentah tanpa memahami isi. Mahasiswa tetap memegang kendali penuh untuk memeriksa, menyunting, dan mempertanggungjawabkan naskah kepada dosen pembimbing.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Apakah format ekspor Word (.docx) dan PDF (.pdf) sudah sesuai margin 4-4-3-3 kampus?</summary>
+                        <summary>Apakah SkripsiLab AI termasuk joki skripsi?</summary>
                         <div class="faq-answer">
-                            Sudah. Ekspor Word dan PDF otomatis menyertakan halaman sampul, lembar pengesahan, abstrak,
-                            kata pengantar, daftar isi, daftar tabel, daftar gambar, daftar lampiran, penomoran halaman
-                            Romawi &amp; Arab di tengah bawah, tabel bergaris penuh, serta daftar pustaka.
+                            Bukan. SkripsiLab AI adalah alat bantu dan workspace produktivitas mandiri, bukan layanan joki. Kamu sendiri yang menentukan judul, metodologi, data penelitian, sitasi, serta melakukan revisi sesuai arahan dosen pembimbing.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Jurusan dan metode penelitian apa saja yang didukung SkripsiLab AI?</summary>
+                        <summary>Apakah kampus bisa mendeteksi penggunaan AI?</summary>
                         <div class="faq-answer">
-                            Mendukung seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan,
-                            Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dll.) dengan <strong>9 metode
-                                penelitian</strong>: Kuantitatif Survei/Regresi, Data Sekunder, Kualitatif, R&amp;D, PTK,
-                            Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
+                            Pemeriksaan di kampus umumnya menggunakan detektor kemiripan teks (seperti Turnitin) dan evaluasi pemahaman mahasiswa saat bimbingan atau sidang. Untuk meminimalkan tulisan yang terasa kaku atau generik, SkripsiLab AI menyediakan fitur <strong>Parafrase Akademik</strong> sesuai EYD V, sitasi jurnal asli ber-DOI, serta integrasi data riset milikmu sendiri.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Bagaimana cara menambahkan Lampiran agar otomatis masuk Daftar Isi, Word &amp; PDF?</summary>
+                        <summary>Bagaimana cara pakai SkripsiLab AI yang aman dan tetap karya sendiri?</summary>
                         <div class="faq-answer">
-                            Di dalam Workspace Penulisan tersedia menu <strong>Lampiran</strong> untuk mengunggah gambar
-                            maupun dokumen Word/PDF. Lampiran yang diunggah langsung tercatat otomatis di Daftar Isi,
-                            Daftar Lampiran, pratinjau A4, dan ikut tercetak saat unduh Word &amp; PDF.
+                            Gunakan secara bertahap: tentukan judul dan rumusan masalah sendiri, unggah pedoman kampus, pilih jurnal terverifikasi DOI sebagai rujukan, masukkan data penelitian riil (kuesioner, observasi, atau hasil SPSS/SmartPLS) lewat <strong>Lab Revisi &amp; Olah Data</strong>, lalu baca ulang dan sesuaikan tiap sub-bab sebelum diajukan ke pembimbing.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Bagaimana cara membuat PPT Sidang otomatis (.pptx)?</summary>
+                        <summary>Fitur apa saja yang ada di SkripsiLab AI?</summary>
                         <div class="faq-answer">
-                            Buka menu <strong>Generate PPT Sidang</strong> di Dashboard, pilih proyek skripsimu atau
-                            unggah file Word/PDF, tentukan jumlah slide (6–12 slide) serta pilih dari <strong>13 tema
-                                akademik</strong>, lalu edit langsung atau unduh PowerPoint (<code>.pptx</code>) lengkap
-                            dengan catatan bicara presenter.
+                            Tersedia 9 modul utama dalam satu dashboard: <strong>Workspace Proposal &amp; Skripsi (Bab I–V)</strong>, <strong>Cari Judul (9 metode)</strong>, <strong>Cari Jurnal &amp; Referensi DOI (Crossref &amp; OpenAlex)</strong>, <strong>Parafrase Akademik</strong>, <strong>Dosen AI</strong>, <strong>Lab Revisi &amp; Olah Data</strong>, <strong>Lampiran Otomatis</strong>, <strong>Generate PPT Sidang (13 tema .pptx)</strong>, dan <strong>Simulasi Sidang</strong>, ditambah <strong>10 Tools Mahasiswa gratis</strong>.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Bagaimana cara latihan tanya-jawab di fitur Simulasi Sidang?</summary>
+                        <summary>Untuk siapa SkripsiLab AI?</summary>
                         <div class="faq-answer">
-                            Pilih proyek skripsimu atau unggah naskah di menu <strong>Simulasi Sidang</strong>. AI akan
-                            menyusun 5 pertanyaan penguji langsung dari isi Bab I–V naskahmu, lengkap dengan skor per
-                            pertanyaan, grade akhir, dan contoh jawaban terbaik.
+                            SkripsiLab AI dirancang untuk mahasiswa D3, S1, maupun S2 dari seluruh program studi (Informatika, Manajemen, Akuntansi, Ilmu Hukum, Pendidikan, Kedokteran, Keperawatan, Teknik, Psikologi, Komunikasi, dan lainnya) dengan dukungan <strong>9 metode penelitian</strong>: Kuantitatif Survei/Regresi, Data Sekunder, Kualitatif, R&amp;D, PTK, Studi Pustaka, Mixed Method, Hukum Normatif, dan Hukum Empiris.
                         </div>
                     </details>
 
                     <details class="faq-item">
-                        <summary>Apakah tersedia fitur Cari Judul, Parafrase Akademik, dan Dosen AI?</summary>
+                        <summary>Apakah SkripsiLab AI gratis?</summary>
                         <div class="faq-answer">
-                            Ya. Seluruh modul tersedia dalam satu dashboard: <strong>Cari Judul</strong> memberi 10 ide
-                            judul sesuai jurusan &amp; metode, <strong>Parafrase Akademik</strong> merapikan paragraf
-                            sesuai EYD V, dan <strong>Dosen AI</strong> siap membantu konsultasi metodologi maupun bedah
-                            soal 24 jam.
+                            Ya, kamu bisa mencoba <strong>gratis 1 proyek</strong> (Sampul, Bab I &amp; Daftar Pustaka + AI Tools 1x) serta menggunakan <strong>10 Tools Mahasiswa</strong> secara gratis di dalam workspace. Untuk naskah lengkap Bab I–V dan ekspor Word/PDF penuh, tersedia paket ramah mahasiswa mulai <strong>Rp15.000</strong> tanpa sistem kredit.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Bagaimana cara kerja auto format skripsi (Word &amp; PDF)?</summary>
+                        <div class="faq-answer">
+                            Saat mengekspor ke Word (<code>.docx</code>) atau PDF (<code>.pdf</code>), sistem otomatis menata kertas A4, margin <strong>4-4-3-3 cm</strong>, halaman sampul dengan logo kampus, lembar pengesahan, abstrak, kata pengantar, Daftar Isi, Daftar Tabel, Daftar Gambar, Daftar Lampiran, penomoran halaman Romawi &amp; Arab di tengah bawah, serta Daftar Pustaka (APA 7th, Harvard, IEEE, Chicago, atau Vancouver).
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Apakah data dan naskah saya aman?</summary>
+                        <div class="faq-answer">
+                            Aman. Seluruh data akun, proyek, dan draf naskahmu bersifat privat untuk akunmu sendiri, dilindungi enkripsi HTTPS/TLS serta autentikasi aman, dan tidak pernah dibagikan atau dijual ke pihak ketiga.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Apakah SkripsiLab AI bisa dipakai di HP?</summary>
+                        <div class="faq-answer">
+                            Bisa. Seluruh antarmuka SkripsiLab AI—mulai dari membuat proyek, menyusun bab, mempratinjau dokumen A4, memakai 10 Tools Mahasiswa, hingga mengunduh file Word, PDF, dan PPT—responsif dan dapat diakses langsung melalui browser HP maupun laptop.
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Bagaimana cara menghubungi support?</summary>
+                        <div class="faq-answer">
+                            Kamu bisa langsung menghubungi tim support lewat tombol <strong>Butuh Bantuan?</strong> di pojok kanan bawah (Telepon/WhatsApp), melalui menu Bantuan di dalam dashboard workspace, atau lewat Instagram &amp; TikTok resmi <strong>@skripsilabai</strong>.
                         </div>
                     </details>
                 </div>
@@ -2390,24 +2682,7 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-inner">
-            <div class="brand" style="font-size: 15px;">
-                <img src="/images/logo.svg" alt="SkripsiLab AI"
-                    style="width: 26px; height: 26px; border-radius: 6px; display: block;">
-                SkripsiLab AI
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-                <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}" style="color:#2563eb;font-weight:600;">Panduan Lengkap</a>
-                <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-                <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
-                <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
-                <a href="{{ url('/tentang') }}">Tentang &amp; Pengembang</a>
-                <span>&copy; {{ date('Y') }} SkripsiLab AI &bull; Dikelola oleh Muh Alwi Syahrir.</span>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public_footer')
 
     <!-- Modal Preview PDF -->
     <dialog id="pdf-preview-dialog" class="pdf-dialog">
@@ -2600,10 +2875,26 @@
 
             const projTitleEl = document.getElementById('sf-proj-title');
             if (projTitleEl) projTitleEl.textContent = p.title;
-            document.getElementById('sf-proj-stage').textContent = p.stage_label;
+            document.getElementById('sf-proj-stage').textContent = isFull ? 'Skripsi Penuh (Bab I–V)' : 'Proposal (Bab I–III)';
+            const progressText = document.getElementById('sf-progress-text');
+            if (progressText) progressText.textContent = isFull ? '5 dari 5 Bab' : '3 dari 3 Bab';
             const topMeta = document.getElementById('sf-topbar-label');
             if (topMeta) {
-                topMeta.textContent = `${p.prodi} · ${p.metode} · A4 Margin 4-4-3-3`;
+                topMeta.textContent = `Workspace Penulisan · ${p.prodi} · A4 Margin 4-4-3-3`;
+            }
+
+            const chapterBarMap = {
+                cover: 'SAMPUL & BAGIAN DEPAN',
+                bab1: 'BAB I PENDAHULUAN',
+                bab2: 'BAB II TINJAUAN PUSTAKA',
+                bab3: 'BAB III METODOLOGI PENELITIAN',
+                bab4: 'BAB IV HASIL PENELITIAN & PEMBAHASAN',
+                bab5: 'BAB V PENUTUP',
+                dp: 'DAFTAR PUSTAKA'
+            };
+            const chapterBarTitle = document.getElementById('sf-chapter-bar-title');
+            if (chapterBarTitle) {
+                chapterBarTitle.textContent = chapterBarMap[activePreviewChap] || 'NASKAH SKRIPSI';
             }
 
             ['cover', 'bab1', 'bab2', 'bab3', 'bab4', 'bab5', 'dp'].forEach(k => {

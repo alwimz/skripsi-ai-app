@@ -12,7 +12,7 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="{{ url('/tools') }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1258,7 +1258,7 @@
             <div class="ws-sidebar-head">
                 <div class="ws-brand-left">
                     <a href="/" style="display:block; flex-shrink:0;">
-                        <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:32px; height:32px; border-radius:8px; display:block;">
+                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:32px; height:32px; border-radius:8px; display:block; object-fit:contain;">
                     </a>
                     <div style="overflow:hidden;">
                         <div class="ws-brand-name">SkripsiLab AI</div>
@@ -1362,7 +1362,7 @@
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                     </button>
                     <a href="{{ route('app.create', ['tab' => 'dashboard']) }}" style="display:inline-flex; align-items:center; gap:8px; color:var(--text-main); font-weight:700; font-size:14px;">
-                        <img src="/images/logo.svg" alt="SkripsiLab AI" style="width:24px; height:24px; border-radius:6px; display:block;">
+                        <img src="/images/logo.png" alt="SkripsiLab AI" style="width:24px; height:24px; border-radius:6px; display:block; object-fit:contain;">
                         <span>SkripsiLab AI</span>
                     </a>
                 </div>
@@ -1375,7 +1375,7 @@
         <header class="topbar">
             <div class="container topbar-inner">
                 <a href="/" class="brand">
-                    <img src="/images/logo.svg" alt="SkripsiLab AI">
+                    <img src="/images/logo.png" alt="SkripsiLab AI">
                     <span>SkripsiLab AI</span>
                     <span class="brand-pill">Tools Mahasiswa</span>
                 </a>

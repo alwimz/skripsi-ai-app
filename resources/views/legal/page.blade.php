@@ -10,7 +10,7 @@
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url($page['slug']) }}">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <meta property="og:type" content="website">
@@ -19,7 +19,7 @@
     <meta property="og:url" content="{{ url($page['slug']) }}">
     <meta property="og:title" content="{{ $page['meta_title'] }}">
     <meta property="og:description" content="{{ $page['meta_description'] }}">
-    <meta property="og:image" content="{{ url('/images/logo.svg') }}">
+    <meta property="og:image" content="{{ url('/images/logo.png') }}">
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{{ $page['meta_title'] }}">
@@ -513,7 +513,7 @@
     <header class="topbar">
         <div class="topbar-inner">
             <a href="{{ url('/') }}" class="brand">
-                <img src="/images/logo.svg" alt="SkripsiLab AI">
+                <img src="/images/logo.png" alt="SkripsiLab AI">
                 <span>{{ $brand_name }}</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Utama">
@@ -601,17 +601,7 @@
         </article>
     </main>
 
-    <footer class="site-footer">
-        <div class="footer-links">
-            <a href="{{ url('/') }}">Beranda</a>
-            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'panduan']) . '#panduan' : url('/panduan') }}">Panduan Lengkap</a>
-            <a href="{{ auth()->check() ? route('tools.hub') : route('login') }}">Tools Mahasiswa</a>
-            <a href="{{ url('/kebijakan-privasi') }}">Kebijakan Privasi</a>
-            <a href="{{ url('/syarat-ketentuan') }}">Syarat &amp; Ketentuan</a>
-            <a href="{{ url('/tentang') }}">Tentang Pengembang</a>
-        </div>
-        <div>&copy; {{ date('Y') }} {{ $brand_name }} &bull; Dikelola resmi oleh <strong>{{ $owner_name }}</strong> ({{ $location }}).</div>
-    </footer>
+    @include('partials.public_footer')
 </body>
 
 </html>

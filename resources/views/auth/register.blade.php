@@ -8,7 +8,7 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/register') }}">
     <meta name="theme-color" content="#2563eb">
-    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -210,7 +210,7 @@
 <body>
     <main class="auth-card">
         <a href="/" class="brand">
-            <img src="/images/logo.svg" alt="SkripsiLab AI" class="brand-logo-img" width="34" height="34">
+            <img src="/images/logo.png" alt="SkripsiLab AI" class="brand-logo-img" width="34" height="34" style="object-fit:contain;">
             <span>SkripsiLab AI</span>
         </a>
 
@@ -284,9 +284,9 @@
         <div style="margin-bottom:6px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
             <a href="{{ url('/kebijakan-privasi') }}" style="color:#475569;text-decoration:none;font-weight:600;">Kebijakan Privasi</a>
             <a href="{{ url('/syarat-ketentuan') }}" style="color:#475569;text-decoration:none;font-weight:600;">Syarat &amp; Ketentuan</a>
-            <a href="{{ url('/tentang') }}" style="color:#475569;text-decoration:none;font-weight:600;">Tentang Pengembang</a>
+            <a href="{{ url('/tentang') }}" style="color:#475569;text-decoration:none;font-weight:600;">Tentang SkripsiLab AI</a>
         </div>
-        Dikelola resmi oleh <strong>Muh Alwi Syahrir</strong> &bull; SkripsiLab AI &copy; {{ date('Y') }}
+        SkripsiLab AI &copy; {{ date('Y') }}
     </footer>
 
     <script>
