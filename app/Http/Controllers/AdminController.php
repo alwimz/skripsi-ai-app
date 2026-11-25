@@ -23,7 +23,9 @@ class AdminController extends Controller
      */
     protected function getAdminPasscode(): string
     {
-        return env('ADMIN_PASSWORD', 'admin123');
+        $configured = trim((string) config('services.admin_password', ''));
+
+        return $configured !== '' ? $configured : 'admin123';
     }
 
     /**

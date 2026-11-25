@@ -448,4 +448,23 @@ class CoreFixesIntegrationTest extends TestCase
                 'amount' => 15000,
             ]);
     }
+
+    public function test_admin_passcode_falls_back_to_default_when_empty_and_uses_configured_value(): void
+    {
+        config(['services.admin_password' => '']);
+
+        $this->post('/admin/login', ['pin' => 'admin123'])
+            ->assertRedirect(route('admin.dashboard'));
+        $this->get('/admin')->assertStatus(200);
+
+        $this->post('/admin/logout');
+        config(['services.admin_password' => 'pin-rahasia-2026']);
+
+        $this->post('/admin/login', ['pin' => 'admin123'])
+            ->assertSessionHas('error');
+
+        $this->post('/admin/login', ['pin' => 'pin-rahasia-2026'])
+            ->assertRedirect(route('admin.dashboard'));
+        $this->get('/admin')->assertStatus(200);
+    }
 }

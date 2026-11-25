@@ -167,7 +167,7 @@
             @csrf
             <div class="input-group">
                 <label for="pin">Kode Akses Admin</label>
-                <input type="password" id="pin" name="pin" autofocus placeholder="••••••••" required autocomplete="current-password">
+                <input type="password" id="pin" name="pin" autofocus placeholder="••••••••" required autocomplete="one-time-code">
             </div>
 
             <button type="submit" class="btn-submit">Buka Data Pengguna &rarr;</button>

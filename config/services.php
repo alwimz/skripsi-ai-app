@@ -75,6 +75,8 @@ return [
         'base_url' => env('PAKASIR_BASE_URL', 'https://app.pakasir.com'),
     ],
 
+    'admin_password' => env('ADMIN_PASSWORD'),
+
     'meta' => [
         'pixel_id' => env('META_PIXEL_ID', '1487586500131939'),
         'capi_token' => env('META_CAPI_TOKEN', ''),
