@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\User;
 use App\Services\BillingService;
+use App\Services\MetaConversionsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function __construct(private BillingService $billing)
-    {
+    public function __construct(
+        private BillingService $billing,
+        private MetaConversionsService $metaCapi
+    ) {
     }
     /**
      * Kode Akses Admin (Passcode).
@@ -195,6 +198,16 @@ class AdminController extends Controller
         }
 
         $this->billing->activatePackageForUser($user, $planCode, null);
+        if ((int) ($plan['price'] ?? 0) > 0) {
+            $this->metaCapi->sendEvent('Purchase', $user, [
+                'content_name' => $plan['name'],
+                'content_ids' => [$plan['code']],
+                'content_type' => 'product',
+                'value' => (int) $plan['price'],
+                'currency' => 'IDR',
+                'num_items' => 1,
+            ], 'adm_' . $user->id . '_' . $plan['code'] . '_' . date('YmdHi'), $request, route('billing.plans'));
+        }
         return back()->with('success', "Paket {$plan['name']} berhasil diaktifkan untuk {$user->name}.");
     }
 

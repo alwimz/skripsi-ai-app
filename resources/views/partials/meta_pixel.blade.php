@@ -2,6 +2,22 @@
     $metaPixelId = preg_replace('/\D+/', '', (string) config('services.meta.pixel_id', ''));
     $metaFlashedEvent = session('meta_pixel_event');
     $metaInitialEvent = (isset($metaViewEvent) && is_array($metaViewEvent) && !empty($metaViewEvent['name'])) ? $metaViewEvent : null;
+    $metaAuthUser = auth()->user();
+    $metaAdvancedMatch = [];
+    if ($metaAuthUser) {
+        $emailVal = strtolower(trim((string) ($metaAuthUser->email ?? '')));
+        if ($emailVal !== '') {
+            $metaAdvancedMatch['em'] = $emailVal;
+        }
+        $nameParts = preg_split('/\s+/', strtolower(trim((string) ($metaAuthUser->name ?? ''))), -1, PREG_SPLIT_NO_EMPTY);
+        if (!empty($nameParts[0])) {
+            $metaAdvancedMatch['fn'] = $nameParts[0];
+        }
+        if (count($nameParts) > 1) {
+            $metaAdvancedMatch['ln'] = $nameParts[count($nameParts) - 1];
+        }
+        $metaAdvancedMatch['external_id'] = (string) $metaAuthUser->id;
+    }
 @endphp
 @if($metaPixelId !== '')
     <!-- Meta Pixel Code -->
@@ -26,7 +42,11 @@
             }
             window.fbq('track', eventName, params || {});
         };
-        fbq('init', @json($metaPixelId));
+        @if(!empty($metaAdvancedMatch))
+            fbq('init', @json($metaPixelId), @json($metaAdvancedMatch));
+        @else
+            fbq('init', @json($metaPixelId));
+        @endif
         fbq('track', 'PageView');
         @if($metaInitialEvent)
             window.slTrackMetaEvent(@json($metaInitialEvent['name']), @json($metaInitialEvent['params'] ?? []), @json($metaInitialEvent['event_id'] ?? null));
@@ -34,6 +54,12 @@
         @if(is_array($metaFlashedEvent) && !empty($metaFlashedEvent['name']))
             window.slTrackMetaEvent(@json($metaFlashedEvent['name']), @json($metaFlashedEvent['params'] ?? []), @json($metaFlashedEvent['event_id'] ?? null));
         @endif
+        document.addEventListener('click', function (ev) {
+            var target = ev.target && ev.target.closest ? ev.target.closest('[data-meta-lead]') : null;
+            if (!target) return;
+            var label = target.getAttribute('data-meta-lead') || 'CTA Daftar';
+            window.slTrackMetaEvent('Lead', { content_name: label });
+        }, { passive: true });
     </script>
     <noscript>
         <img height="1" width="1" style="display:none"

@@ -69,5 +69,7 @@ return [
 
     'meta' => [
         'pixel_id' => env('META_PIXEL_ID', '1487586500131939'),
+        'capi_token' => env('META_CAPI_TOKEN', ''),
+        'domain_verification' => env('META_DOMAIN_VERIFICATION', 'sacfg5assusezhylfsz3vatv9hh7vr'),
     ],
 ];

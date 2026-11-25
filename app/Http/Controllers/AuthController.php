@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\BillingService;
+use App\Services\MetaConversionsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,8 +13,10 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function __construct(private BillingService $billing)
-    {
+    public function __construct(
+        private BillingService $billing,
+        private MetaConversionsService $metaCapi
+    ) {
     }
 
     public function loginForm()
@@ -99,14 +102,18 @@ class AuthController extends Controller
         session()->forget('pending_referral_code');
         Auth::login($user);
 
+        $eventId = 'reg_' . $user->id;
+        $regParams = [
+            'content_name' => 'SkripsiLab AI Account',
+            'method' => 'email',
+            'status' => true,
+        ];
+        $this->metaCapi->sendEvent('CompleteRegistration', $user, $regParams, $eventId, $request, route('register'));
+
         return redirect()->route('app.create')->with('meta_pixel_event', [
             'name' => 'CompleteRegistration',
-            'params' => [
-                'content_name' => 'SkripsiLab AI Account',
-                'method' => 'email',
-                'status' => true,
-            ],
-            'event_id' => 'reg_' . $user->id,
+            'params' => $regParams,
+            'event_id' => $eventId,
         ]);
     }
 
@@ -223,14 +230,17 @@ class AuthController extends Controller
             Auth::login($user, true);
             $redirect = redirect()->route('app.create')->with('info', "Selamat datang, {$user->name}! Masuk via Google berhasil.");
             if ($isNewUser) {
+                $eventId = 'reg_' . $user->id;
+                $regParams = [
+                    'content_name' => 'SkripsiLab AI Account',
+                    'method' => 'google',
+                    'status' => true,
+                ];
+                $this->metaCapi->sendEvent('CompleteRegistration', $user, $regParams, $eventId, $request, route('auth.google.callback'));
                 $redirect->with('meta_pixel_event', [
                     'name' => 'CompleteRegistration',
-                    'params' => [
-                        'content_name' => 'SkripsiLab AI Account',
-                        'method' => 'google',
-                        'status' => true,
-                    ],
-                    'event_id' => 'reg_' . $user->id,
+                    'params' => $regParams,
+                    'event_id' => $eventId,
                 ]);
             }
             return $redirect;

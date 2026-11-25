@@ -15,6 +15,9 @@
     @if(!empty(env('GOOGLE_SITE_VERIFICATION')))
         <meta name="google-site-verification" content="{{ env('GOOGLE_SITE_VERIFICATION') }}">
     @endif
+    @if(!empty(config('services.meta.domain_verification')))
+        <meta name="facebook-domain-verification" content="{{ config('services.meta.domain_verification') }}">
+    @endif
     <meta name="theme-color" content="#2563eb">
     <link rel="canonical" href="{{ url('/') }}">
     <link rel="icon" type="image/png" sizes="512x512" href="/images/logo.png?v=3">
@@ -1774,7 +1777,7 @@
             }
         }
     </style>
-    @include('partials.meta_pixel')
+    @include('partials.meta_pixel', ['metaViewEvent' => ['name' => 'ViewContent', 'params' => ['content_name' => 'SkripsiLab AI Landing', 'content_category' => 'landing']]])
 </head>
 
 <body>
@@ -1979,7 +1982,7 @@
                         <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buat Proyek Baru
                             →</a>
                     @else
-                        <a href="{{ route('register') }}" class="btn btn-primary">Coba Gratis Sekarang →</a>
+                        <a href="{{ route('register') }}" class="btn btn-primary" data-meta-lead="Hero Coba Gratis">Coba Gratis Sekarang →</a>
                     @endauth
                     <a href="#contoh-hasil" class="btn btn-outline">Lihat Contoh Proposal &amp; Skripsi</a>
                 </div>
@@ -2668,7 +2671,7 @@
                             <a href="{{ route('app.create', ['tab' => 'projects']) }}" class="btn btn-primary">Buka
                                 Workspace Saya →</a>
                         @else
-                            <a href="{{ route('register') }}" class="btn btn-primary">Mulai Gratis →</a>
+                            <a href="{{ route('register') }}" class="btn btn-primary" data-meta-lead="CTA Banner Mulai Gratis">Mulai Gratis →</a>
                             <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                         @endauth
                     </div>

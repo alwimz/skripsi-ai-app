@@ -96,19 +96,21 @@ class CoreFixesIntegrationTest extends TestCase
         $this->assertSame('Harvard', $meta['sitasi']['gaya'] ?? null);
 
         // Pre-populate cached verified_refs so prompt generation stays 100% offline/deterministic in test
-        $meta['verified_refs'] = [[
-            'in_text' => 'Wijaya et al.',
-            'first_surname' => 'Wijaya',
-            'year' => 2024,
-            'authors_apa' => 'Wijaya, A., & Putra, B.',
-            'authors_ieee' => 'A. Wijaya and B. Putra',
-            'title' => 'Pengaruh Kualitas Layanan Terhadap Loyalitas',
-            'venue' => 'Jurnal Manajemen Indonesia',
-            'vol' => '12',
-            'iss' => '2',
-            'pages' => '45-58',
-            'doi' => 'https://doi.org/10.1234/jmi.2024',
-        ]];
+        $meta['verified_refs'] = [
+            [
+                'in_text' => 'Wijaya et al.',
+                'first_surname' => 'Wijaya',
+                'year' => 2024,
+                'authors_apa' => 'Wijaya, A., & Putra, B.',
+                'authors_ieee' => 'A. Wijaya and B. Putra',
+                'title' => 'Pengaruh Kualitas Layanan Terhadap Loyalitas',
+                'venue' => 'Jurnal Manajemen Indonesia',
+                'vol' => '12',
+                'iss' => '2',
+                'pages' => '45-58',
+                'doi' => 'https://doi.org/10.1234/jmi.2024',
+            ]
+        ];
         $topicHash = substr(md5(mb_strtolower(trim((string) $project->judul)) . '|' . mb_strtolower(trim((string) $project->prodi))), 0, 8);
         $meta['verified_refs_sig'] = "2022|Indonesia + Internasional|Harvard|Umum,Terindeks Sinta|{$topicHash}";
         $project->citation_validation = json_encode($meta, JSON_UNESCAPED_UNICODE);
@@ -245,13 +247,23 @@ class CoreFixesIntegrationTest extends TestCase
 
     public function test_meta_pixel_renders_and_tracks_registration_and_checkout_purchase_events(): void
     {
-        config(['services.meta.pixel_id' => '1487586500131939']);
+        config([
+            'services.meta.pixel_id' => '1487586500131939',
+            'services.meta.capi_token' => 'test-capi-token',
+            'services.meta.domain_verification' => 'verify-domain-123',
+        ]);
+        \Illuminate\Support\Facades\Http::fake([
+            'https://graph.facebook.com/*' => \Illuminate\Support\Facades\Http::response(['events_received' => 1], 200),
+        ]);
 
         $this->get('/')
             ->assertStatus(200)
             ->assertSee('https://connect.facebook.net/en_US/fbevents.js', false)
             ->assertSee('fbq(\'init\', "1487586500131939");', false)
-            ->assertSee("fbq('track', 'PageView');", false);
+            ->assertSee("fbq('track', 'PageView');", false)
+            ->assertSee('window.slTrackMetaEvent("ViewContent"', false)
+            ->assertSee('data-meta-lead="Hero Coba Gratis"', false)
+            ->assertSee('<meta name="facebook-domain-verification" content="verify-domain-123">', false);
 
         $this->get('/paket')
             ->assertStatus(200)
@@ -270,6 +282,11 @@ class CoreFixesIntegrationTest extends TestCase
         $regResp->assertRedirect(route('app.create'));
         $newUser = User::where('email', 'pixel.mahasiswa@gmail.com')->first();
         $this->assertNotNull($newUser);
+
+        \Illuminate\Support\Facades\Http::assertSent(function ($req) {
+            return str_contains($req->url(), 'https://graph.facebook.com/v21.0/1487586500131939/events')
+                && ($req['data'][0]['event_name'] ?? '') === 'CompleteRegistration';
+        });
 
         $createHtml = $this->get('/app/create')->assertStatus(200)->getContent();
         $this->assertStringContainsString('window.slTrackMetaEvent("CompleteRegistration"', $createHtml);

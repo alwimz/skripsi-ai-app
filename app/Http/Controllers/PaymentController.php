@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\BillingService;
+use App\Services\MetaConversionsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +15,10 @@ use Throwable;
 
 class PaymentController extends Controller
 {
-    public function __construct(private BillingService $billing)
-    {
+    public function __construct(
+        private BillingService $billing,
+        private MetaConversionsService $metaCapi
+    ) {
     }
 
     public function plans(Request $request)
@@ -52,6 +55,15 @@ class PaymentController extends Controller
         $baseUrl = rtrim((string) config('services.pakasir.base_url', 'https://app.pakasir.com'), '/');
 
         if ($pakasirProject === '' || $pakasirApiKey === '') {
+            $this->metaCapi->sendEvent('InitiateCheckout', $user, [
+                'content_name' => $plan['name'],
+                'content_ids' => [$plan['code']],
+                'content_type' => 'product',
+                'value' => $amount,
+                'currency' => 'IDR',
+                'num_items' => 1,
+            ], 'ic_' . $orderId, $request, route('billing.plans'));
+
             $waMsg = urlencode("Halo Admin SkripsiLab AI, saya ingin mengaktifkan {$plan['name']} (Rp " . number_format($amount, 0, ',', '.') . ") untuk akun {$user->email} (Kode Pesanan: {$orderId}).");
             return response()->json([
                 'status' => 'pakasir_unconfigured',
@@ -105,6 +117,15 @@ class PaymentController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            $this->metaCapi->sendEvent('InitiateCheckout', $user, [
+                'content_name' => $plan['name'],
+                'content_ids' => [$plan['code']],
+                'content_type' => 'product',
+                'value' => $amount,
+                'currency' => 'IDR',
+                'num_items' => 1,
+            ], 'ic_' . $orderId, $request, route('billing.plans'));
 
             return response()->json([
                 'status' => 'success',
@@ -169,6 +190,14 @@ class PaymentController extends Controller
             if ($updated > 0) {
                 $freshTx = DB::table('transactions')->where('id', $tx->id)->first();
                 $this->billing->activatePackageForUser($user, $tx->plan_code, $freshTx);
+                $this->metaCapi->sendEvent('Purchase', $user, [
+                    'content_name' => $tx->plan_name,
+                    'content_ids' => [$tx->plan_code],
+                    'content_type' => 'product',
+                    'value' => (int) $tx->amount,
+                    'currency' => 'IDR',
+                    'num_items' => 1,
+                ], 'pur_' . $tx->order_id, $request, route('billing.plans'));
             }
 
             return response()->json([
@@ -246,6 +275,14 @@ class PaymentController extends Controller
             if ($user) {
                 $freshTx = DB::table('transactions')->where('id', $tx->id)->first();
                 $this->billing->activatePackageForUser($user, $tx->plan_code, $freshTx);
+                $this->metaCapi->sendEvent('Purchase', $user, [
+                    'content_name' => $tx->plan_name,
+                    'content_ids' => [$tx->plan_code],
+                    'content_type' => 'product',
+                    'value' => (int) $tx->amount,
+                    'currency' => 'IDR',
+                    'num_items' => 1,
+                ], 'pur_' . $tx->order_id, $request, route('billing.plans'));
             }
         }
 
