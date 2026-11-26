@@ -1382,7 +1382,6 @@
                     <span class="brand-pill">Tools Mahasiswa</span>
                 </a>
                 <div class="topbar-actions">
-                    <a href="/" class="btn btn-outline">Beranda</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Coba Gratis</a>
                 </div>
             </div>

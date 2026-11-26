@@ -50,7 +50,6 @@
                 <span>SkripsiLab AI</span>
             </a>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <a href="{{ url('/') }}" class="btn btn-outline">Beranda</a>
                 @auth
                     <a href="{{ route('app.create') }}" class="btn btn-primary">Buka Workspace →</a>
                 @else

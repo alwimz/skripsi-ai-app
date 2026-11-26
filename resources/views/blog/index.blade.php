@@ -104,7 +104,6 @@
                 <span>SkripsiLab AI</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Blog">
-                <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/blog') }}" class="active">Blog</a>
             </nav>
             <div class="topbar-actions">

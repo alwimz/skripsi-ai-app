@@ -133,10 +133,6 @@
         .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         @media (max-width: 900px) {
             .nav-links { display: none; }
-            .mobile-subbar { display: flex; gap: 6px; overflow-x: auto; padding: 8px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
-            .mobile-subbar::-webkit-scrollbar { display: none; }
-            .mobile-subbar a { white-space: nowrap; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
-            .mobile-subbar a.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
             .layout { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px 0 44px; }
             .sidebar-box { position: static; padding: 8px 10px; border-radius: 12px; width: 100%; overflow: hidden; }
             .sidebar-title, .sidebar-tools-link { display: none; }
@@ -171,7 +167,6 @@
                 <span>SkripsiLab AI</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi">
-                <a href="{{ url('/') }}">Beranda</a>
                 <a href="{{ url('/panduan') }}" class="active">Panduan</a>
             </nav>
             <div class="topbar-actions">
@@ -184,10 +179,6 @@
             </div>
         </div>
     </header>
-    <div class="mobile-subbar">
-        <a href="{{ url('/') }}">Beranda</a>
-        <a href="{{ url('/panduan') }}" class="active">Semua Panduan</a>
-    </div>
 
     <main class="container">
         <div class="layout">

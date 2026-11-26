@@ -513,7 +513,6 @@
                 <span>{{ $brand_name }}</span>
             </a>
             <nav class="nav-links" aria-label="Navigasi Utama">
-                <a href="{{ url('/') }}" class="nav-link">Beranda</a>
                 <a href="{{ auth()->check() ? route('app.create') : route('login') }}" class="nav-cta">{{ auth()->check() ? 'Workspace →' : 'Masuk' }}</a>
             </nav>
         </div>
