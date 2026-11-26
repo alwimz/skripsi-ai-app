@@ -1913,6 +1913,7 @@
             .demo-form-well { padding: 14px; }
             .demo-row-split { grid-template-columns: 1fr; align-items: stretch; }
             .demo-submit-btn { width: 100%; }
+            .demo-result-actions { width: 100%; justify-content: center; }
         }
 
         @media (max-width: 440px) {
