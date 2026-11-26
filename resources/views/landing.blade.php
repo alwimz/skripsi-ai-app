@@ -1908,16 +1908,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        .copy-tip {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #047857;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        }
-        button[data-copied] + .copy-tip, button[data-failed] + .copy-tip {
-            opacity: 1;
-        }
         @media (max-width: 760px) {
             .demo-title-wrap { padding: 20px 16px; border-radius: 16px; }
             .demo-form-well { padding: 14px; }
@@ -2230,9 +2220,9 @@
                     <div id="demo-results-box" class="demo-results" aria-live="polite">
                         <div id="demo-rumusan-card" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:11px;padding:12px 14px;font-size:13.5px;color:#1e3a8a;margin-bottom:12px;"></div>
                         <div id="demo-titles-list"></div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:13px;color:#475569;">
+                        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-top:16px;font-size:13px;color:#475569;">
                             <span>Ingin <strong>10+ ide judul lainnya &amp; Cari Jurnal Ber-DOI</strong> tanpa batas? <strong>Gratis Unlimited</strong> di akun SkripsiLab AI.</span>
-                            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'titles']) : route('register') }}" class="btn btn-outline" style="min-height:38px;" data-meta-lead="Demo Hasil Buka Unlimited Judul">Buka Cari Judul &amp; Jurnal Unlimited →</a>
+                            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'titles']) : route('register') }}" class="btn btn-outline" style="min-height:40px;" data-meta-lead="Demo Hasil Buka Unlimited Judul">Buka Cari Judul &amp; Jurnal Unlimited →</a>
                         </div>
                     </div>
                 </div>
@@ -2980,57 +2970,6 @@
             });
         }
 
-        const demoCopyTimers = new WeakMap();
-        function legacyCopyText(text) {
-            const prev = document.activeElement;
-            const field = Object.assign(document.createElement('textarea'), { value: text });
-            field.setAttribute('readonly', '');
-            field.style.cssText = 'position:fixed;inset-block-start:0;opacity:0';
-            document.body.append(field);
-            field.select();
-            try { return document.execCommand('copy'); }
-            finally { field.remove(); prev?.focus({ preventScroll: true }); }
-        }
-        function showCopyFeedback(btn, ok) {
-            const tip = btn.nextElementSibling;
-            if (!tip) return;
-            clearTimeout(demoCopyTimers.get(btn));
-            btn.removeAttribute('data-copied');
-            btn.removeAttribute('data-failed');
-            void btn.offsetWidth;
-            btn.setAttribute(ok ? 'data-copied' : 'data-failed', '');
-            requestAnimationFrame(() => { tip.textContent = ok ? 'Tersalin!' : 'Gagal salin'; });
-            demoCopyTimers.set(btn, setTimeout(() => {
-                btn.removeAttribute('data-copied');
-                btn.removeAttribute('data-failed');
-                tip.textContent = '';
-            }, 1800));
-        }
-        async function handleDemoCopy(btn, target) {
-            const text = target.innerText.trim();
-            if (!text) return;
-            try {
-                await navigator.clipboard.writeText(text);
-                showCopyFeedback(btn, true);
-            } catch {
-                showCopyFeedback(btn, legacyCopyText(text));
-            }
-        }
-        if ('CommandEvent' in window) {
-            document.addEventListener('command', (ev) => {
-                if (ev.command && ev.command.startsWith('--copy') && ev.source && ev.target) {
-                    handleDemoCopy(ev.source, ev.target);
-                }
-            }, true);
-        } else {
-            document.addEventListener('click', (ev) => {
-                const btn = ev.target.closest('button[command^="--copy"]');
-                if (!btn) return;
-                const target = document.getElementById(btn.getAttribute('commandfor'));
-                if (target) handleDemoCopy(btn, target);
-            });
-        }
-
         async function submitDemoTitles(ev) {
             ev.preventDefault();
             const form = ev.currentTarget;
@@ -3100,19 +3039,6 @@
                     const actions = document.createElement('div');
                     actions.className = 'demo-result-actions';
 
-                    const copyBtn = document.createElement('button');
-                    copyBtn.type = 'button';
-                    copyBtn.className = 'btn btn-outline';
-                    copyBtn.style.minHeight = '36px';
-                    copyBtn.style.padding = '6px 12px';
-                    copyBtn.setAttribute('command', '--copy');
-                    copyBtn.setAttribute('commandfor', titleSpan.id);
-                    copyBtn.textContent = 'Salin';
-
-                    const tip = document.createElement('span');
-                    tip.className = 'copy-tip';
-                    tip.setAttribute('role', 'status');
-
                     const qs = new URLSearchParams({
                         prefill_judul: title,
                         prefill_prodi: data.prodi || payload.prodi || '',
@@ -3127,8 +3053,6 @@
                     cta.setAttribute('data-meta-lead', 'Widget Coba Judul Pakai');
                     cta.textContent = 'Susun Bab I–V Judul Ini →';
 
-                    actions.appendChild(copyBtn);
-                    actions.appendChild(tip);
                     actions.appendChild(cta);
                     card.appendChild(numBadge);
                     card.appendChild(titleSpan);
