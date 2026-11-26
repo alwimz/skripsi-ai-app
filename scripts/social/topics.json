@@ -2,583 +2,731 @@
   {
     "day": 1,
     "slug": "cari-judul-skripsi-gratis-tanpa-login",
-    "category": "Tutorial Fitur",
-    "hook": "Masih bingung cari judul skripsi yang cepat ACC dosen?",
-    "subhook": "Sekarang bisa buat 3 ide judul + rumusan masalah GRATIS tanpa login!",
+    "category": "Tips Skripsi · Cari Judul",
+    "badge_top": "TUTORIAL GRATIS · TANPA LOGIN",
+    "hook": "Judul skripsi ditolak terus? Cara bikin 3 ide judul siap ACC dalam 10 detik!",
+    "subhook": "Gratis langsung coba di beranda + Cari Judul & Jurnal DOI Unlimited di dalam akun",
     "feature_url": "https://skripsilabai.com/#coba-judul",
     "cta_text": "Coba gratis langsung di skripsilabai.com",
-    "carousel_title": "Cara Dapat 3 Ide Judul Skripsi + Rumusan Masalah dalam 10 Detik",
+    "steps_bar": ["1. Judul", "2. Proyek", "3. Bab I-V", "4. Jurnal", "5. PPT", "6. Sidang"],
+    "carousel_title": "Judul Ditolak Dosen Terus? Coba 3 Ide Spesifik Ini!",
     "carousel_slides": [
       {
-        "badge": "TUTORIAL GRATIS",
-        "title": "Masih Stuck Cari Judul Skripsi?",
-        "highlight": "Coba Cara Cepat Ini (Tanpa Login!)",
-        "body": "Sekarang di SkripsiLab AI kamu bisa buat 3 ide judul spesifik jurusanmu + contoh rumusan masalah langsung dari beranda.",
-        "footer": "Geser untuk langkah lengkapnya →"
+        "badge": "DROP JURUSANMU",
+        "title": "Judul Skripsi Ditolak Karena Terlalu Umum?",
+        "highlight": "Tulis Jurusanmu di Komen / Coba Gratis Ini!",
+        "body": "Kebanyakan judul ditolak bukan karena topiknya jelek, tapi variabel, objek, dan metodenya belum spesifik. Sekarang kamu bisa uji 3 ide judul gratis tanpa login.",
+        "footer": "Geser buat lihat langkah aslinya →",
+        "capture_key": "day1_s0_after"
       },
       {
         "badge": "LANGKAH 1",
-        "title": "Buka skripsilabai.com",
-        "highlight": "Isi Topik, Jurusan & Metode",
-        "body": "Ketik topik penelitianmu (misal: TikTok Live UMKM atau Random Forest), isi Program Studi, lalu pilih metode penelitian (Kuantitatif, Kualitatif, R&D, PTK, atau Hukum).",
-        "footer": "Tidak perlu bayar atau login dulu"
+        "title": "Buka skripsilabai.com di HP atau Laptop",
+        "highlight": "Isi Topik, Prodi & Metode Penelitian",
+        "body": "Ketik topik penelitianmu (misalnya: sentimen komentar TikTok Naive Bayes), isi Program Studi, lalu pilih dari 9 metode penelitian sesuai pedoman kampusmu.",
+        "footer": "Langsung bisa dicoba tanpa daftar dulu",
+        "capture_key": "day1_s0_before"
       },
       {
         "badge": "LANGKAH 2",
-        "title": "Klik 'Buat 3 Ide Judul →'",
-        "highlight": "Langsung Keluar Judul + Rumusan Masalah",
-        "body": "Dalam hitungan detik, AI menyusun 3 rekomendasi judul akademik baku EYD V lengkap dengan pertanyaan rumusan masalah yang siap diajukan ke dosen pembimbing.",
-        "footer": "Spesifik sesuai tren riset 2025–2026"
+        "title": "Langsung Keluar 3 Judul + Rumusan Masalah",
+        "highlight": "Klik 'Susun Bab I–V Judul Ini →'",
+        "body": "Dalam hitungan detik, muncul 3 judul spesifik lengkap contoh rumusan masalah. Klik tombol biru untuk langsung bawa judulmu ke workspace penyusunan Bab I–V.",
+        "footer": "Rapi A4 Margin 4-4-3-3 & Daftar Isi Otomatis",
+        "capture_key": "day1_s0_after"
       },
       {
-        "badge": "LANGKAH 3",
-        "title": "Lanjut Cari Jurnal Ber-DOI",
-        "highlight": "Gratis Unlimited di Semua Paket!",
-        "body": "Setelah daftar gratis, fitur Cari Ide Judul & Cari Jurnal Ber-DOI (Sinta & Internasional) aktif UNLIMITED selamanya, plus gratis coba susun Bab I otomatis format 4-4-3-3.",
-        "footer": "Klik link di bio: skripsilabai.com"
+        "badge": "UPDATE GRATIS",
+        "title": "Cari Judul & Jurnal Ber-DOI Gratis Unlimited!",
+        "highlight": "Aktif di Semua Paket (Termasuk Akun Free)",
+        "body": "Masuk dashboard untuk pakai fitur Cari Ide Judul dan Cari Jurnal Sinta/Internasional ber-DOI asli sepuasnya tanpa batas kuota.",
+        "footer": "Link resmi ada di bio: skripsilabai.com",
+        "capture_key": "day1_s2_after"
       },
       {
-        "badge": "SIMPAN & SHARE",
-        "title": "Save Post Ini Buat Pejuang Skripsi Lainnya!",
+        "badge": "SAVE & SHARE",
+        "title": "Save & Tulis Jurusanmu di Kolom Komentar!",
         "highlight": "skripsilabai.com",
-        "body": "Bagikan ke teman seangkatan atau grup kelasmu biar pengajuan judul semester ini langsung ACC tanpa drama revisi berbulan-bulan.",
-        "footer": "@skripsilabai · Coba Gratis Hari Ini"
+        "body": "Mau dibantu carikan contoh judul spesifik buat jurusanmu? Drop jurusan + topikmu di komentar, atau share post ini ke grup angkatanmu!",
+        "footer": "@skripsilabai · Pejuang Skripsi 2026",
+        "capture_key": "day1_s3_before"
       }
     ],
     "video_scenes": [
       {
-        "step": "HOOK",
-        "title": "Masih Bingung Cari Judul Skripsi?",
-        "subtitle": "Ini cara bikin 3 ide judul + rumusan masalah GRATIS tanpa login!",
-        "voice": "Masih bingung cari judul skripsi yang cepat di-ACC dosen? Ini cara bikin tiga ide judul sekaligus rumusan masalahnya gratis tanpa login.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/#coba-judul",
-        "scroll_y": 390
-      },
-      {
-        "step": "LANGKAH 1",
-        "title": "Buka skripsilabai.com",
-        "subtitle": "Ketik topik riset, jurusan, dan pilih metode penelitianmu",
-        "voice": "Pertama, buka skripsilabai dot com di browser HP atau laptop. Ketik topik penelitianmu, jurusan, dan pilih metode penelitian.",
-        "visual_type": "card_step",
-        "bullets": [
-          "Topik: misal sentimen komentar TikTok / pemasaran UMKM",
-          "Jurusan: Manajemen, Informatika, PGSD, Hukum, dll.",
-          "Metode: Kuantitatif, Kualitatif, R&D, PTK, Normatif"
+        "step_index": 0,
+        "badge": "TIPS SKRIPSI · TANPA LOGIN",
+        "title": "Judul Ditolak Terus Karena Terlalu Umum?",
+        "subtitle": "Ini cara bikin 3 ide judul + rumusan masalah gratis dalam 10 detik!",
+        "url_display": "skripsilabai.com/#coba-judul",
+        "capture_mode": "landing_coba_judul",
+        "capture_key": "day1_s0",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ 3 Judul Spesifik Variabel, Objek & Metode",
+          "✓ Lengkap Contoh Rumusan Masalah Siap ACC"
+        ],
+        "sub_beats": [
+          {
+            "say": "Judul skripsi kamu ditolak dosen terus karena katanya terlalu umum?",
+            "caption": "Judul skripsi ditolak terus karena terlalu umum?"
+          },
+          {
+            "say": "Tulis jurusanmu di komentar, atau coba cara cepat gratis tanpa login di skripsilabai dot com ini.",
+            "caption": "Tulis jurusanmu di komen, atau coba gratis tanpa login ini!"
+          }
         ]
       },
       {
-        "step": "LANGKAH 2",
-        "title": "Klik Buat 3 Ide Judul",
-        "subtitle": "Hasilnya langsung muncul 3 judul + rumusan masalah otomatis",
-        "voice": "Klik buat tiga ide judul. Dalam beberapa detik langsung muncul contoh rumusan masalah dan tiga judul spesifik jurusanmu.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "1. Rancang Bangun Sistem Analisis Sentimen Berbasis Web...",
-          "2. Pengaruh Live Commerce terhadap Keputusan Pembelian...",
-          "3. Evaluasi Efektivitas Model terhadap Kinerja Pengguna..."
+        "step_index": 1,
+        "badge": "LANGKAH 1 · ISI TOPIK & METODE",
+        "title": "Klik 'Buat 3 Ide Judul' Langsung Muncul Hasil",
+        "subtitle": "Pilih judul yang paling pas lalu klik 'Susun Bab I–V Judul Ini'",
+        "url_display": "skripsilabai.com/#coba-judul",
+        "capture_mode": "landing_coba_judul_result",
+        "capture_key": "day1_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Otomatis Bawa Judul ke Pembuatan Proyek",
+          "✓ Mendukung Kuantitatif, Kualitatif, R&D & PTK"
+        ],
+        "sub_beats": [
+          {
+            "say": "Tinggal ketik topik, jurusan, dan metode penelitian, lalu klik buat tiga ide judul.",
+            "caption": "Isi topik, prodi & metode — klik Buat 3 Ide Judul."
+          },
+          {
+            "say": "Langsung keluar contoh rumusan masalah dan tiga judul yang siap diajukan ke pembimbing.",
+            "caption": "Langsung keluar 3 judul + rumusan masalah siap ajukan!"
+          }
         ]
       },
       {
-        "step": "BONUS UNLIMITED",
-        "title": "Cari Judul & Jurnal DOI: UNLIMITED!",
-        "subtitle": "Klik 'Susun Bab I–V Judul Ini' untuk langsung buat Bab I gratis",
-        "voice": "Kalau cocok, tinggal klik susun bab satu sampai lima. Fitur cari judul dan cari jurnal ber-DOI sekarang gratis unlimited di semua paket.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Cari Ide Judul: Gratis Unlimited",
-          "✓ Cari Jurnal Sinta & Internasional Ber-DOI: Unlimited",
-          "✓ Format Otomatis A4 Margin 4-4-3-3 siap Word & PDF"
+        "step_index": 3,
+        "badge": "UNLIMITED DI WORKSPACE",
+        "title": "Cari Judul & Jurnal Ber-DOI Gratis Unlimited!",
+        "subtitle": "Sekarang semua paket bisa cari judul dan jurnal Sinta maupun Scopus tanpa batas",
+        "url_display": "skripsilabai.com/app/dashboard",
+        "capture_mode": "workspace_dashboard_titles",
+        "capture_key": "day1_s2",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Cari Ide Judul: Gratis Unlimited Semua Paket",
+          "✓ Cari Jurnal Ber-DOI Asli: Sinta & Internasional"
+        ],
+        "sub_beats": [
+          {
+            "say": "Begitu masuk ke workspace seperti akun Winda ini, fitur cari judul dan cari jurnal ber-DOI sudah gratis unlimited.",
+            "caption": "Di dalam workspace, Cari Judul & Jurnal DOI Gratis Unlimited!"
+          },
+          {
+            "say": "Jadi kamu bisa eksplor topik dan referensi jurnal asli sepuasnya tanpa takut kehabisan kuota.",
+            "caption": "Eksplor referensi asli Sinta & Scopus tanpa batas kuota."
+          }
+        ]
+      },
+      {
+        "step_index": 2,
+        "badge": "HASIL RAPI FORMAT A4",
+        "title": "Sampul Resmi, Daftar Isi & Bab I–V Otomatis Rapi",
+        "subtitle": "Margin 4-4-3-3 cm + sitasi APA 7th, Harvard, hingga IEEE siap Word & PDF",
+        "url_display": "skripsilabai.com/project/skripsi-winda",
+        "capture_mode": "project_sampul_bab1",
+        "capture_key": "day1_s3",
+        "transition_mode": "scroll",
+        "highlights": [
+          "✓ Sampul Resmi, Pengesahan & Daftar Isi Otomatis",
+          "✓ Coba Gratis Sekarang di skripsilabai.com"
+        ],
+        "sub_beats": [
+          {
+            "say": "Tinggal lanjut susun naskah lengkap mulai dari sampul resmi, daftar isi otomatis, sampai bab satu hingga daftar pustaka.",
+            "caption": "Sampul Resmi, Daftar Isi & Bab I–V rapi Margin 4-4-3-3."
+          },
+          {
+            "say": "Yuk coba gratis sekarang di skripsilabai dot com, klik link di bio dan share ke teman kelasmu!",
+            "caption": "Coba gratis di skripsilabai.com — link ada di bio!"
+          }
         ]
       }
     ],
-    "caption_ig": "Masih stuck cari judul skripsi yang cepat ACC dosen? 😩\n\nSekarang di SkripsiLab AI kamu bisa langsung coba buat 3 ide judul + rumusan masalah GRATIS tanpa perlu login dulu!\n\n✨ Plus update terbaru: fitur Cari Ide Judul & Cari Jurnal Ber-DOI sekarang GRATIS UNLIMITED di semua paket (termasuk akun Free)!\n\n👉 Langsung coba sekarang di skripsilabai.com (link ada di bio @skripsilabai)\n\nSave & share ke teman pejuang skripsi di kelasmu ya! 📌",
-    "caption_tiktok": "Cara bikin 3 ide judul skripsi + rumusan masalah GRATIS tanpa login 👇 Sekarang Cari Judul & Cari Jurnal Ber-DOI juga sudah Unlimited di skripsilabai.com! Share ke teman seangkatan biar cepat ACC 🎓✨",
-    "hashtags": "#skripsi #skripsiku #pejuangskripsi #mahasiswasemesterakhir #judulskripsi #tipsSkripsi #skripsilabai #kuliah #sidangskripsi #mahasiswa"
+    "caption_ig": "Sering ditolak dosen gara-gara judul dianggap terlalu umum? 😩\n\nTulis JURUSAN + TOPIK skripsimu di komentar yuk! Nanti dibantu carikan contoh judul spesifik 👇\n\nAtau langsung coba bikin sendiri 3 ide judul + rumusan masalah GRATIS tanpa login di beranda:\n👉 skripsilabai.com/#coba-judul\n\n✨ Update terbaru: fitur Cari Ide Judul & Cari Jurnal Ber-DOI sekarang GRATIS UNLIMITED di semua paket (termasuk akun Free)!\n\nSave & share ke grup kelas pejuang skripsimu 📌",
+    "caption_tiktok": "Drop jurusanmu di komentar biar dibantu cari judul spesifik! 👇 Atau langsung coba buat 3 ide judul + rumusan masalah GRATIS tanpa login di skripsilabai.com (Cari Judul & Jurnal DOI sekarang Unlimited!) 🎓✨",
+    "hashtags": "#skripsi #judulskripsi #pejuangskripsi #mahasiswasemesterakhir #tipsskripsi #kuliah #skripsilabai #sidangskripsi #bimbinganskripsi #mahasiswa"
   },
   {
     "day": 2,
     "slug": "cari-jurnal-sinta-internasional-doi-unlimited",
-    "category": "Tutorial Fitur",
-    "hook": "Stop pakai sitasi palsu! Ini cara cari jurnal ber-DOI asli gratis Unlimited",
-    "subhook": "Terhubung ke OpenAlex & Crossref + salin APA 7th, IEEE, Harvard, Chicago otomatis",
-    "feature_url": "https://skripsilabai.com/panduan/cari-jurnal-skripsi",
-    "cta_text": "Cari Jurnal Ber-DOI Unlimited di skripsilabai.com",
-    "carousel_title": "Cara Cepat Cari Jurnal Nasional & Internasional Ber-DOI Aktif",
+    "category": "Tips Skripsi · Cari Jurnal DOI",
+    "badge_top": "ANTI SITASI PALSU · GRATIS UNLIMITED",
+    "hook": "Jangan pakai referensi fiktif! Begini cara cari jurnal Sinta & Scopus ber-DOI asli gratis!",
+    "subhook": "Terhubung OpenAlex & Crossref + salin sitasi APA 7th, Harvard, IEEE otomatis",
+    "feature_url": "https://skripsilabai.com/app/create?tab=journals",
+    "cta_text": "Cari jurnal ber-DOI gratis unlimited di skripsilabai.com",
+    "steps_bar": ["1. Judul", "2. Bab I-V", "3. Jurnal", "4. PPT", "5. Sidang", "6. Tools"],
+    "carousel_title": "Jangan Pernah Pakai Sitasi Palsu! Ini Cara Cari Jurnal Ber-DOI Asli",
     "carousel_slides": [
       {
-        "badge": "WAJIB TAHU",
-        "title": "Naskah Sering Dicoret Karena Sitasi Tidak Valid?",
-        "highlight": "Pastikan Pakai Jurnal Ber-DOI Asli",
-        "body": "Dosen penguji sekarang rutin cek link DOI di Daftar Pustaka. Hindari referensi fiktif yang bikin proposal ditolak!",
-        "footer": "Geser untuk cara carinya otomatis →"
+        "badge": "PERINGATAN SIDANG",
+        "title": "Dosen Pembimbing Sekarang Rajin Cek Link DOI!",
+        "highlight": "Jangan Asal Pakai Daftar Pustaka Tanpa Sumber Asli",
+        "body": "Banyak mahasiswa kena revisi berat gara-gara sitasi hasil copy-paste ternyata jurnalnya fiktif atau tidak bisa dibuka link DOI-nya.",
+        "footer": "Geser lihat cara cari jurnal asli gratis →",
+        "capture_key": "day2_s0_after"
       },
       {
-        "badge": "LANGKAH 1",
-        "title": "Masukkan Variabel Topik di Fitur Cari Jurnal",
-        "highlight": "Terhubung OpenAlex & Crossref Resmi",
-        "body": "Cukup masukkan kata kunci penelitianmu di workspace SkripsiLab AI, lalu pilih cakupan Jurnal Indonesia (Nasional/Sinta) atau Internasional.",
-        "footer": "Tanpa batas kuota pencarian"
+        "badge": "SUMBER VERIFIED",
+        "title": "Buka Menu 'Cari Jurnal' di SkripsiLab AI",
+        "highlight": "Gratis Unlimited di Semua Paket!",
+        "body": "Cukup ketik kata kunci penelitianmu, pilih sumber Jurnal Indonesia (SINTA) atau Internasional, lalu klik Cari Jurnal.",
+        "footer": "Terhubung langsung ke database OpenAlex & Crossref",
+        "capture_key": "day2_s0_before"
       },
       {
-        "badge": "LANGKAH 2",
-        "title": "Unduh PDF Asli & Pilih Gaya Sitasi Kampus",
-        "highlight": "APA 7th, Harvard, IEEE, Chicago, Vancouver",
-        "body": "Setiap artikel tampil lengkap dengan tahun 2021–2026, tautan DOI aktif yang bisa diklik, link PDF open-access, serta tombol simpan langsung ke Daftar Pustaka proyek.",
-        "footer": "Otomatis tertata abjad di Daftar Pustaka"
+        "badge": "UNDUH PDF & SITASI",
+        "title": "Sekali Klik Salin APA 7th, IEEE & Harvard",
+        "highlight": "Lengkap Link PDF Asli & Nomor DOI Aktif",
+        "body": "Setiap artikel menampilkan penulis, tahun, nama jurnal terindeks, tombol Unduh PDF resmi (Open Access), dan tombol Salin Sitasi otomatis.",
+        "footer": "Bebas typo penulisan daftar pustaka!",
+        "capture_key": "day2_s1_after"
       },
       {
-        "badge": "UPDATE BARU",
-        "title": "Cari Jurnal Ber-DOI Sekarang GRATIS UNLIMITED!",
-        "highlight": "Berlaku di Semua Paket Termasuk Free",
-        "body": "Cari puluhan jurnal nasional dan internasional kapan saja tanpa takut kehabisan kuota.",
-        "footer": "Daftar gratis di skripsilabai.com"
-      },
-      {
-        "badge": "BOOKMARK DULU",
-        "title": "Lagi Ngerjain Bab I & Bab II?",
-        "highlight": "skripsilabai.com",
-        "body": "Simpan postingan ini supaya tidak lupa saat butuh referensi jurnal terbaru 5 tahun terakhir untuk revisi dosen!",
-        "footer": "@skripsilabai · Referensi Ilmiah Terverifikasi"
-      }
-    ],
-    "video_scenes": [
-      {
-        "step": "MASALAH",
-        "title": "Sitasi Dicek Dosen Ternyata Nggak Ada?",
-        "subtitle": "Ini cara cari jurnal resmi ber-DOI & PDF asli gratis Unlimited!",
-        "voice": "Naskah proposal sering dicoret dosen gara-gara referensi nggak jelas atau tanpa DOI? Pakai cara ini biar sitasimu valid dan bisa dicek langsung.",
-        "visual_type": "card_step",
-        "bullets": [
-          "✗ Referensi asal tanpa link DOI sering dianggap fiktif",
-          "✗ Susah cari jurnal terbitan 5 tahun terakhir (2021–2026)",
-          "✓ Solusi: Cari Jurnal OpenAlex & Crossref di SkripsiLab AI"
-        ]
-      },
-      {
-        "step": "LANGKAH 1",
-        "title": "Ketik Kata Kunci Variabelmu",
-        "subtitle": "Pilih sumber: Jurnal Indonesia, Internasional, atau Semua",
-        "voice": "Masuk ke menu cari jurnal di workspace skripsilabai dot com, ketik kata kunci variabelmu, lalu pilih sumber nasional atau internasional.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/panduan/cari-jurnal-skripsi",
-        "scroll_y": 280
-      },
-      {
-        "step": "LANGKAH 2",
-        "title": "Klik Simpan ke Proyek + Salin APA/IEEE",
-        "subtitle": "Otomatis masuk Daftar Pustaka dengan link DOI aktif",
-        "voice": "Jurnal resmi berikut link PDF dan tautan DOI aktif langsung keluar. Tinggal klik simpan ke proyek dan format sitasi APA tujuh, Harvard, atau IEEE otomatis tersusun.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "✓ Artikel Jurnal Indonesia & Global (2021–2026)",
-          "✓ Tautan DOI Aktif + Tombol Unduh PDF Open-Access",
-          "✓ Mendukung APA 7th, Harvard, IEEE, Chicago & Vancouver"
-        ]
-      },
-      {
-        "step": "GRATIS UNLIMITED",
-        "title": "Cari Jurnal Sekarang UNLIMITED!",
-        "subtitle": "Aktif di semua paket termasuk akun Gratis",
-        "voice": "Kabar baiknya, fitur cari judul dan cari jurnal sekarang gratis unlimited di semua paket. Langsung coba di skripsilabai dot com.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Daftar Gratis di skripsilabai.com",
-          "✓ Cari Jurnal Ber-DOI Tanpa Batas Kuota",
-          "✓ Cocok untuk Bab I, Bab II & Revisi Pembimbing"
-        ]
-      }
-    ],
-    "caption_ig": "Jangan sampai skripsimu dicoret pembimbing karena sitasi tidak valid atau tanpa DOI! 🚨\n\nDi SkripsiLab AI, fitur Cari Jurnal terhubung ke indeks resmi OpenAlex & Crossref:\n✅ Filter Jurnal Indonesia (Nasional) & Internasional\n✅ Ada tautan DOI aktif & PDF open-access\n✅ Otomatis rapi format APA 7th, Harvard, IEEE, Chicago, Vancouver\n✅ Sekarang GRATIS UNLIMITED di semua paket (termasuk akun Free)!\n\nCoba gratis di skripsilabai.com (link di bio) 🔗",
-    "caption_tiktok": "Stop pakai daftar pustaka asal! Begini cara cari jurnal ber-DOI asli (Nasional & Internasional) + auto sitasi APA/IEEE gratis Unlimited di skripsilabai.com 🎓📚",
-    "hashtags": "#carijurnal #referensiskripsi #jurnalsinta #daftarpustaka #skripsi #mahasiswasemesterakhir #skripsilabai #tipsSkripsi #apa7th"
-  },
-  {
-    "day": 3,
-    "slug": "5-kesalahan-judul-skripsi-ditolak-dosen",
-    "category": "Tips ACC Dosen",
-    "hook": "5 Alasan Judul Skripsi Sering Ditolak Dosen & Cara Memperbaikinya",
-    "subhook": "Cek sebelum maju bimbingan minggu ini biar langsung ACC!",
-    "feature_url": "https://skripsilabai.com/blog/cara-menentukan-judul-skripsi-yang-cepat-acc-dosen",
-    "cta_text": "Tes Ide Judulmu Gratis di skripsilabai.com",
-    "carousel_title": "5 Kesalahan Fatal Penyebab Judul Skripsi Ditolak Dosen",
-    "carousel_slides": [
-      {
-        "badge": "TIPS BIMBINGAN",
-        "title": "Judul Skripsi Ditolak Terus?",
-        "highlight": "Cek 5 Kesalahan Ini Sebelum Maju ke Dosen!",
-        "body": "Banyak mahasiswa gagal ACC bukan karena idenya jelek, tapi cara merangkai variabel dan ruang lingkupnya kurang tajam.",
-        "footer": "Geser buat lihat solusinya →"
-      },
-      {
-        "badge": "KESALAHAN 1 & 2",
-        "title": "Topik Terlalu Luas & Tidak Ada Objek Jelas",
-        "highlight": "Contoh Salah: 'Pemasaran Digital di Era Modern'",
-        "body": "Perbaiki dengan rumus: [Variabel/Solusi] + [Hubungan/Metode] + [Objek Spesifik + Tahun/Lokasi]. Dosen langsung paham apa yang mau diteliti.",
-        "footer": "Semakin spesifik, semakin cepat ACC"
-      },
-      {
-        "badge": "KESALAHAN 3 & 4",
-        "title": "Data Sulit Diambil & Tidak Ada Jurnal Pembanding",
-        "highlight": "Pastikan Minimal Punya 3–5 Jurnal Ber-DOI (2021–2026)",
-        "body": "Sebelum ajukan judul, siapkan jurnal terbaru yang mendukung variabelmu dan pastikan responden/data penelitiannya realistis dijangkau.",
-        "footer": "Gunakan Cari Jurnal Unlimited di SkripsiLab AI"
-      },
-      {
-        "badge": "KESALAHAN 5",
-        "title": "Metode Tidak Cocok dengan Judul yang Diajukan",
-        "highlight": "Judul 'Pengaruh X ke Y' tapi Metode Kualitatif",
-        "body": "Pastikan kata kunci judul selaras dengan metodenya (Pengaruh = Kuantitatif; Strategi/Fenomena = Kualitatif; Rancang Bangun = R&D).",
-        "footer": "Coba buat judul per metode di skripsilabai.com"
-      },
-      {
-        "badge": "SOLUSI PRAKTIS",
-        "title": "Mau Dibikinkan 3 Opsi Judul Siap ACC?",
-        "highlight": "skripsilabai.com",
-        "body": "Coba generator 3 ide judul & rumusan masalah gratis tanpa login di beranda SkripsiLab AI, lalu pilih yang paling cocok untuk jurusanmu!",
-        "footer": "@skripsilabai · Save & Share ke Temanmu"
-      }
-    ],
-    "video_scenes": [
-      {
-        "step": "HOOK",
-        "title": "Kenapa Judul Skripsi Ditolak Dosen?",
-        "subtitle": "Ini 3 kesalahan paling sering + rumus cepat bikin judul ACC",
-        "voice": "Judul skripsimu sering dicoret atau ditolak dosen pembimbing? Cek tiga kesalahan ini sebelum maju bimbingan minggu ini.",
-        "visual_type": "card_step",
-        "bullets": [
-          "1. Judul terlalu luas & tidak ada objek penelitian yang jelas",
-          "2. Belum menyiapkan minimal 3 jurnal pembanding ber-DOI",
-          "3. Kata kunci judul tidak cocok dengan metode penelitian"
-        ]
-      },
-      {
-        "step": "RUMUS ACC",
-        "title": "Pakai Rumus 3 Komponen Ini",
-        "subtitle": "Variabel/Solusi + Metode/Hubungan + Objek Penelitian Spesifik",
-        "voice": "Pakai rumus tiga komponen: variabel atau solusi utama, ditambah hubungan atau metode, ditambah objek spesifik yang datanya gampang kamu ambil.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "Kuantitatif: Pengaruh X1 dan X2 terhadap Y pada UMKM Kota X",
-          "IT / R&D: Rancang Bangun Sistem X Menggunakan Metode Y",
-          "Kualitatif: Analisis Strategi X dalam Meningkatkan Y pada Z"
-        ]
-      },
-      {
-        "step": "CEK OTOMATIS",
-        "title": "Biar Cepat, Uji Ide Judulmu di SkripsiLab AI",
-        "subtitle": "Buat 3 opsi judul + rumusan masalah gratis tanpa login",
-        "voice": "Biar cepat, kamu bisa tes ide judulmu langsung di skripsilabai dot com gratis tanpa login, lalu cari jurnal pembandingnya secara unlimited.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/#coba-judul",
-        "scroll_y": 420
-      },
-      {
-        "step": "CTA",
-        "title": "Siapkan 3 Opsi Judul Sebelum Bimbingan!",
-        "subtitle": "Coba gratis sekarang di skripsilabai.com",
-        "voice": "Selalu bawa minimal tiga opsi judul saat bimbingan. Langsung buat sekarang di skripsilabai dot com.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Buat 3 Ide Judul Gratis di Beranda",
-          "✓ Cari Jurnal Pembanding Ber-DOI Unlimited",
-          "✓ Siap Lanjut Bab I–III Proposal Otomatis"
-        ]
-      }
-    ],
-    "caption_ig": "Baru maju bimbingan judul tapi langsung dicoret dosen? 🫠\n\nBiasanya masalahnya ada di 5 hal ini:\n1. Topik masih terlalu umum\n2. Objek/lokusnya tidak spesifik\n3. Datanya susah didapat 1 semester\n4. Belum ada jurnal pembanding 5 tahun terakhir\n5. Kata kunci judul bentrok dengan metode\n\n💡 Tips: Selalu bawa 3 opsi judul siap tanding + 3 jurnal ber-DOI saat konsultasi.\nButuh bantuan merumuskannya? Coba langsung GRATIS tanpa login di skripsilabai.com (link di bio)! 🎓",
-    "caption_tiktok": "5 alasan judul skripsi sering ditolak dosen + rumus cepat biar langsung ACC! Butuh 3 opsi judul spesifik jurusanmu? Tes gratis langsung di skripsilabai.com tanpa login 🎓✨",
-    "hashtags": "#tipsbimbingan #judulskripsi #dosenpembimbing #pejuangskripsi #mahasiswasemesterakhir #skripsi #sempro #skripsilabai"
-  },
-  {
-    "day": 4,
-    "slug": "susun-bab-1-proposal-format-4433-otomatis",
-    "category": "Tutorial Fitur",
-    "hook": "Capek ngatur margin Word 4-4-3-3 & Daftar Isi manual? Ini jalan pintasnya!",
-    "subhook": "Proposal & Skripsi otomatis rapi A4, Romawi-Arab, & ekspor Word (.docx)/PDF",
-    "feature_url": "https://skripsilabai.com/#workspace-preview",
-    "cta_text": "Coba Susun Bab I Gratis di skripsilabai.com",
-    "carousel_title": "Cara Susun Proposal Bab I–III Otomatis Format Kertas A4 Margin 4-4-3-3",
-    "carousel_slides": [
-      {
-        "badge": "AUTO FORMAT A4",
-        "title": "Naskah Sudah Jadi, Tapi Format Word Berantakan?",
-        "highlight": "Margin 4-4-3-3, Halaman Romawi-Arab & Daftar Isi Otomatis",
-        "body": "Jangan habiskan berhari-hari cuma buat benerin page break, penomoran halaman, dan daftar pustaka manual di Microsoft Word.",
-        "footer": "Geser lihat cara otomatisnya →"
-      },
-      {
-        "badge": "LANGKAH 1",
-        "title": "Masukkan Judul, Prodi, Kampus & Logo Universitas",
-        "highlight": "Sampul & Lembar Pengesahan Terbentuk Otomatis",
-        "body": "Pilih target Proposal (Bab I–III) atau Full Skripsi (Bab I–V), unggah logo kampusmu, lalu pilih gaya sitasi APA 7th, Harvard, IEEE, Chicago, atau Vancouver.",
-        "footer": "Mendukung 9 metode penelitian & pedoman kampus"
-      },
-      {
-        "badge": "LANGKAH 2",
-        "title": "Generate per Bab + Cek Jurnal Terverifikasi DOI",
-        "highlight": "Bisa Revisi Per Sub-Bab di Lab Revisi AI",
-        "body": "Sistem menyusun Latar Belakang, Rumusan Masalah, Tinjauan Pustaka lengkap tabel Penelitian Terdahulu, hingga Flowchart Prosedur di Bab III.",
-        "footer": "Bisa langsung disunting sesuai arahan pembimbing"
-      },
-      {
-        "badge": "LANGKAH 3",
-        "title": "Ekspor Word (.docx) & PDF (.pdf) Siap Cetak",
-        "highlight": "Nomor Halaman Romawi-Arab & Daftar Isi Akurat",
-        "body": "Daftar Isi, Daftar Tabel, Daftar Gambar, Daftar Lampiran, dan Daftar Pustaka ikut tertata otomatis saat file diunduh.",
-        "footer": "Coba Bab I & Sampul gratis, lanjut full mulai Rp15rb"
-      },
-      {
-        "badge": "TANPA SISTEM KREDIT",
-        "title": "Mulai Susun Proposalmu Hari Ini!",
-        "highlight": "skripsilabai.com",
-        "body": "Coba gratis 1 proyek (Sampul, Bab I & Daftar Pustaka) + Cari Judul & Jurnal Unlimited. Upgrade kapan saja mulai Rp15.000!",
-        "footer": "@skripsilabai · Hemat Waktu Menuju Sempro"
-      }
-    ],
-    "video_scenes": [
-      {
-        "step": "HOOK",
-        "title": "Masih Ribet Atur Margin 4-4-3-3 & Daftar Isi?",
-        "subtitle": "Di Workspace SkripsiLab AI, format kampus A4 otomatis rapi siap cetak!",
-        "voice": "Masih ribet ngatur margin empat empat tiga tiga, nomor halaman Romawi Arab, sama daftar isi manual? Di SkripsiLab AI semuanya sudah otomatis tertata.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/#workspace-preview",
-        "scroll_y": 140
-      },
-      {
-        "step": "LANGKAH 1",
-        "title": "Isi Identitas & Unggah Logo Kampus",
-        "subtitle": "Pilih target Proposal (Bab I–III) atau Full Skripsi (Bab I–V)",
-        "voice": "Tinggal buat proyek, isi judul dan prodi, unggah logo kampusmu, lalu pilih gaya sitasi APA, Harvard, atau IEEE.",
-        "visual_type": "card_step",
-        "bullets": [
-          "✓ Halaman Sampul + Lembar Pengesahan otomatis",
-          "✓ Mendukung 9 Metode & Pedoman Kampus khusus",
-          "✓ Tabel Penelitian Terdahulu & Bagan Flowchart otomatis"
-        ]
-      },
-      {
-        "step": "LANGKAH 2",
-        "title": "Revisi Per Sub-Bab + Olah Data",
-        "subtitle": "Kendali penuh di Lab Revisi AI sesuai catatan dosen pembimbing",
-        "voice": "Setiap bab bisa kamu sunting atau revisi per sub-bab sesuai catatan dosen lewat Lab Revisi dan Olah Data.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "✓ Sitasi terhubung jurnal DOI asli Crossref & OpenAlex",
-          "✓ Penomoran halaman Romawi (i, ii) & Arab (1, 2) otomatis",
-          "✓ Ekspor ke Word (.docx) & PDF (.pdf) siap print"
-        ]
-      },
-      {
-        "step": "MULAI GRATIS",
-        "title": "Coba Bab I & Sampul Gratis Dulu!",
-        "subtitle": "Butuh Bab I–V full + unduh Word/PDF? Mulai Rp15.000 saja",
-        "voice": "Kamu bisa coba buat sampul, bab satu, dan daftar pustaka gratis dulu di skripsilabai dot com. Kalau cocok baru lanjut paket mulai lima belas ribu rupiah.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Uji Coba Gratis 1 Proyek (Sampul & Bab I)",
-          "✓ Cari Judul & Jurnal Ber-DOI Unlimited",
-          "✓ Paket Full Bab I–V Mulai Rp15.000"
-        ]
-      }
-    ],
-    "caption_ig": "Jangan habis tenaga ngurus margin 4-4-3-3, nomor halaman Romawi-Arab yang nyambung ke Bab I, atau Daftar Isi yang geser terus! 📄✨\n\nDi Workspace SkripsiLab AI:\n✅ Sampul & Logo Kampus otomatis\n✅ Margin A4 4-4-3-3 & penomoran Romawi-Arab rapi\n✅ Daftar Isi, Daftar Tabel, Gambar & Daftar Pustaka ber-DOI otomatis\n✅ Ekspor Word (.docx) & PDF (.pdf)\n\nBisa coba GRATIS 1 proyek (Sampul + Bab I + Daftar Pustaka) dulu di skripsilabai.com! Paket lengkap mulai Rp15.000 tanpa sistem kredit 🚀",
-    "caption_tiktok": "Capek ngatur margin 4-4-3-3 & halaman Romawi-Arab di Word? Pakai Workspace SkripsiLab AI aja: otomatis A4 rapi + ekspor Word/PDF siap cetak! Coba Bab I gratis di skripsilabai.com 📄🎓",
-    "hashtags": "#formatSkripsi #margin4433 #daftarIsiOtomatis #proposalSkripsi #wordSkripsi #skripsilabai #mahasiswa #sempro"
-  },
-  {
-    "day": 5,
-    "slug": "ppt-sidang-dan-simulasi-penguji-ai",
-    "category": "Tutorial Fitur",
-    "hook": "Minggu depan Sempro atau Sidang Skripsi? Siapkan PPT + Latihan Penguji dalam 5 menit!",
-    "subhook": "Generate PPT Sidang 13 tema .pptx + Simulasi tanya-jawab penguji dari naskahmu",
-    "feature_url": "https://skripsilabai.com/panduan/simulasi-sidang-skripsi",
-    "cta_text": "Latihan Sidang & Buat PPT di skripsilabai.com",
-    "carousel_title": "Persiapan Kilat Sempro & Sidang: Bikin PPT + Simulasi Penguji AI",
-    "carousel_slides": [
-      {
-        "badge": "PERSIAPAN SIDANG",
-        "title": "Deg-degan Hadapi Dosen Penguji?",
-        "highlight": "Jangan Maju Sidang Sebelum Latihan Dua Hal Ini!",
-        "body": "Slide yang terlalu penuh teks dan tidak siap menjawab pertanyaan metodologi adalah dua penyebab nilai sidang turun.",
-        "footer": "Geser lihat cara siapin otomatis →"
-      },
-      {
-        "badge": "FITUR 1 · PPT SIDANG",
-        "title": "Generate PPT Sidang Otomatis (13 Tema)",
-        "highlight": "Pilih Proyek Skripsi atau Unggah File Word/PDF",
-        "body": "AI merangkum poin penting Latar Belakang, Metode, Hasil & Kesimpulan menjadi slide ringkas lengkap dengan Speaker Notes dan bisa langsung unduh .pptx!",
-        "footer": "Bisa langsung presentasi Fullscreen di browser"
-      },
-      {
-        "badge": "FITUR 2 · SIMULASI SIDANG",
-        "title": "Simulasi Tanya-Jawab Penguji Berbasis Naskahmu",
-        "highlight": "Dapat Skor Evaluasi & Contoh Jawaban Terbaik",
-        "body": "Sistem membaca langsung isi Bab I–V kamu lalu mengajukan 5 pertanyaan kritis ala dosen penguji (kenapa pilih metode ini, validitas data, dll.).",
-        "footer": "Latihan sebelum hari-H bikin jauh lebih tenang"
+        "badge": "SINKRON BAB I–V",
+        "title": "Sitasi Otomatis Masuk ke Bab I–Daftar Pustaka",
+        "highlight": "Konsisten Dari Awal Naskah Sampai Akhir",
+        "body": "Saat menyusun Bab I–V di workspace, rujukan jurnal otomatis konsisten di body text maupun di Daftar Pustaka.",
+        "footer": "Lolos pengecekan dosen pembimbing lebih cepat",
+        "capture_key": "day2_s2_after"
       },
       {
         "badge": "COBA GRATIS",
-        "title": "Gratis Coba 1x di Akun Free SkripsiLab AI!",
-        "highlight": "Lanjut Kuota Paket Starter Cuma Rp15.000",
-        "body": "Selain PPT & Simulasi Sidang, fitur Cari Ide Judul & Cari Jurnal sekarang GRATIS UNLIMITED buat semua pengguna.",
-        "footer": "skripsilabai.com · Link di bio"
-      },
-      {
-        "badge": "SEMANGAT SIDANG",
-        "title": "Tag Teman Kamu yang Sebentar Lagi Sempro!",
+        "title": "Butuh Jurnal Topik Apa Hari Ini? Tulis di Komen!",
         "highlight": "skripsilabai.com",
-        "body": "Persiapkan slide & mental tanya-jawab lebih awal biar sidang sekali jalan langsung lulus revisi ringan!",
-        "footer": "@skripsilabai · Menuju Gelar Sarjana"
+        "body": "Save post ini untuk persiapan Bab II Tinjauan Pustaka, dan share ke temanmu biar tidak kena revisi sitasi fiktif!",
+        "footer": "@skripsilabai · Cari Jurnal Unlimited",
+        "capture_key": "day2_s0_after"
       }
     ],
     "video_scenes": [
       {
-        "step": "HOOK",
-        "title": "Sebentar Lagi Sempro atau Sidang Skripsi?",
-        "subtitle": "Ini cara bikin PPT Sidang + latihan jawab pertanyaan penguji dari naskahmu!",
-        "voice": "Sebentar lagi sempro atau sidang skripsi tapi belum bikin PPT dan masih takut ditanya penguji? Pakai dua fitur ini di SkripsiLab AI.",
-        "visual_type": "card_step",
-        "bullets": [
-          "1. Generate PPT Sidang Otomatis (13 Tema Akademik .pptx)",
-          "2. Simulasi Sidang AI: Pertanyaan langsung dari Bab I–V kamu",
-          "✓ Tersedia jatah coba gratis di akun Free!"
+        "step_index": 2,
+        "badge": "ANTI REVISI SITASI FIKTIF",
+        "title": "Masih Kesusahan Cari Jurnal Ber-DOI Buat Bab II?",
+        "subtitle": "Ini cara cari jurnal Sinta & Internasional asli Gratis Unlimited",
+        "url_display": "skripsilabai.com/app/journals",
+        "capture_mode": "workspace_journals",
+        "capture_key": "day2_s0",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Terhubung ke OpenAlex & Crossref Asli",
+          "✓ Cari Jurnal Sekarang Gratis Unlimited!"
+        ],
+        "sub_beats": [
+          {
+            "say": "Hati-hati! Sekarang banyak dosen pembimbing yang ngecek link DOI daftar pustakamu satu per satu.",
+            "caption": "Hati-hati, dosen sekarang rajin cek keaslian link DOI!"
+          },
+          {
+            "say": "Di SkripsiLab AI, fitur cari jurnal Sinta dan Internasional sudah gratis unlimited buat semua akun.",
+            "caption": "Cari Jurnal Sinta & Internasional sekarang Gratis Unlimited!"
+          }
         ]
       },
       {
-        "step": "PPT SIDANG",
-        "title": "Pilih Naskah atau Upload Word/PDF → Jadi .PPTX",
-        "subtitle": "Lengkap dengan catatan bicara (speaker notes) tiap slide",
-        "voice": "Pertama, buka Generate PPT Sidang, pilih proyekmu atau upload file Word, pilih tema, dan slide presentasi siap unduh format PowerPoint.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/panduan/buat-ppt-sidang-skripsi",
-        "scroll_y": 240
-      },
-      {
-        "step": "SIMULASI PENGUJI",
-        "title": "Latihan Jawab 5 Pertanyaan Kritis Penguji",
-        "subtitle": "Langsung dinilai + dikasih saran jawaban ilmiah terbaik",
-        "voice": "Kedua, buka Simulasi Sidang. AI membaca isi skripsimu, memberi lima pertanyaan kritis penguji, menilai jawabanmu, dan memberi contoh jawaban terbaik.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "Penguji AI: 'Mengapa menggunakan metode ini & bagaimana uji validitasnya?'",
-          "✓ Skor Evaluasi Otomatis + Grade Kesiapan Sidang",
-          "✓ Rekomendasi Perbaikan Argumen Sebelum Hari-H"
+        "step_index": 2,
+        "badge": "SALIN SITASI 1 KLIK",
+        "title": "Download PDF Resmi & Salin APA 7th Otomatis",
+        "subtitle": "Mendukung format APA 7th, Harvard, IEEE, Chicago & Vancouver",
+        "url_display": "skripsilabai.com/app/journals",
+        "capture_mode": "workspace_journals_results",
+        "capture_key": "day2_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Tombol Unduh PDF Open Access Langsung",
+          "✓ Salin Sitasi APA 7th / IEEE Tanpa Typo"
+        ],
+        "sub_beats": [
+          {
+            "say": "Ketik kata kunci risetmu, langsung muncul artikel terverifikasi lengkap tautan PDF resmi dan sitasi otomatis.",
+            "caption": "Muncul artikel asli lengkap link PDF & salin sitasi 1 klik!"
+          }
         ]
       },
       {
-        "step": "CTA",
-        "title": "Coba Sekarang Sebelum Hari Sidang!",
-        "subtitle": "Daftar gratis di skripsilabai.com",
-        "voice": "Coba gratis sekarang di skripsilabai dot com biar sempro dan sidangmu lebih siap.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Gratis Coba PPT & Simulasi Sidang",
-          "✓ Cari Judul & Jurnal Ber-DOI Unlimited",
-          "✓ Paket Starter Mulai Rp15.000"
+        "step_index": 1,
+        "badge": "SINKRON DAFTAR PUSTAKA",
+        "title": "Masuk Rapi ke Bab I–V & Daftar Pustaka",
+        "subtitle": "Setiap sitasi di teks sinkron persis dengan Daftar Pustaka akhir",
+        "url_display": "skripsilabai.com/project/daftar-pustaka",
+        "capture_mode": "project_daftar_pustaka",
+        "capture_key": "day2_s2",
+        "transition_mode": "scroll",
+        "highlights": [
+          "✓ Rapi Sesuai Gaya Kutipan Kampusmu",
+          "✓ Coba Gratis Sekarang di skripsilabai.com"
+        ],
+        "sub_beats": [
+          {
+            "say": "Semua kutipan di naskah langsung sinkron rapi dengan daftar pustaka ber-DOI di halaman akhir.",
+            "caption": "Kutipan bab dan Daftar Pustaka ber-DOI langsung sinkron!"
+          },
+          {
+            "say": "Drop topik penelitianmu di komentar, dan coba langsung cari jurnal unlimited di skripsilabai dot com!",
+            "caption": "Drop topikmu di komen & coba gratis di skripsilabai.com!"
+          }
         ]
       }
     ],
-    "caption_ig": "Sebentar lagi Sempro atau Sidang Akhir? Jangan sampai gugup pas ditanya penguji! 🎓💪\n\nDi SkripsiLab AI kamu bisa siapin dua hal sekaligus:\n1️⃣ Generate PPT Sidang otomatis dari naskah Word/PDF (13 tema + ekspor `.pptx` + speaker notes)\n2️⃣ Simulasi Sidang AI: latihan jawab 5 pertanyaan kritis yang dibuat langsung dari isi skripsimu, lengkap dengan skor & saran jawaban terbaik!\n\nSudah tersedia jatah coba gratis untuk akun Free di skripsilabai.com 🔗",
-    "caption_tiktok": "Cara bikin PPT Sidang .pptx + latihan tanya-jawab penguji AI dari isi naskah skripsimu sendiri 👇 Coba gratis di skripsilabai.com biar sempro & sidang auto lancar! 🎓🔥",
-    "hashtags": "#sidangskripsi #sempro #pptsidang #latihansidang #pejuangskripsi #mahasiswasemesterakhir #skripsilabai #skripsi"
+    "caption_ig": "Dosen pembimbing sekarang sering ngecek link DOI satu-satu pas bimbingan! 🔍\n\nJangan ambil risiko pakai sitasi palsu. Di SkripsiLab AI, fitur Cari Jurnal Ber-DOI (Sinta & Internasional via OpenAlex + Crossref) sekarang GRATIS UNLIMITED di semua akun!\n\n✅ Unduh PDF Open Access langsung\n✅ Salin sitasi APA 7th, Harvard, IEEE, Chicago otomatis\n✅ Sinkron ke Bab I–V & Daftar Pustaka\n\nLagi cari jurnal topik apa nih? Tulis di kolom komentar ya! 👇\n👉 Langsung coba di skripsilabai.com",
+    "caption_tiktok": "Stop pakai sitasi palsu! Di skripsilabai.com fitur Cari Jurnal Sinta & Internasional ber-DOI asli sekarang GRATIS UNLIMITED + salin APA 7th/IEEE 1 klik ✨ Lagi cari jurnal apa? Drop di komentar! 👇",
+    "hashtags": "#carijurnal #jurnalsinta #jurnalscopus #skripsi #daftarpustaka #pejuangskripsi #skripsilabai #tipsskripsi #kuliah #mahasiswa"
+  },
+  {
+    "day": 3,
+    "slug": "solusi-judul-skripsi-ditolak-dosen",
+    "category": "Tips Bimbingan",
+    "badge_top": "SOLUSI REVISI DOSEN",
+    "hook": "5 alasan paling sering judul skripsi ditolak dosen pembimbing (dan cara cepat memperbaikinya)!",
+    "subhook": "Ubah judul yang masih terlalu umum menjadi judul tajam lengkap rumusan masalah",
+    "feature_url": "https://skripsilabai.com/#coba-judul",
+    "cta_text": "Tes dan pertajam judulmu gratis di skripsilabai.com",
+    "steps_bar": ["1. Judul", "2. Bab I-V", "3. Jurnal", "4. PPT", "5. Sidang", "6. Tools"],
+    "carousel_title": "5 Alasan Judul Skripsi Ditolak Dosen & Cara Memperbaikinya",
+    "carousel_slides": [
+      {
+        "badge": "REVISI JUDUL",
+        "title": "Jangan Sakit Hati Dulu Kalau Judul Ditolak!",
+        "highlight": "Cek 5 Kesalahan Klasik Ini Sebelum Bimbingan Lagi",
+        "body": "Sebagian besar pengajuan judul mental di pertemuan pertama bukan karena kamu kurang pintar, tapi karena ruang lingkup judulnya belum terkunci.",
+        "footer": "Geser buat cek satu per satu →",
+        "capture_key": "day1_s0_after"
+      },
+      {
+        "badge": "ALASAN 1 & 2",
+        "title": "Variabel Kabur & Subjek Terlalu Luas",
+        "highlight": "Contoh Salah: 'Pengaruh Media Sosial terhadap Mahasiswa'",
+        "body": "Perbaikan: kunci media sosial spesifik (misal TikTok Live), variabel X-Y jelas, dan lokasi/objek penelitian terukur agar pembimbing yakin bisa selesai 1 semester.",
+        "footer": "Semakin spesifik, semakin cepat ACC",
+        "capture_key": "day3_s1_before"
+      },
+      {
+        "badge": "ALASAN 3 & 4",
+        "title": "Tidak Ada Gap Riset & Data Sulit Didapat",
+        "highlight": "Pastikan Datanya Bisa Kamu Akses Realistis!",
+        "body": "Dosen sering menolak judul bagus kalau responden atau dataset-nya mustahil dijangkau. Padukan dengan jurnal terbaru minimal 5 tahun terakhir.",
+        "footer": "Cek referensi dulu lewat menu Cari Jurnal",
+        "capture_key": "day2_s1_after"
+      },
+      {
+        "badge": "SOLUSI PRAKTIS",
+        "title": "Konsultasikan Dulu Dengan Dosen AI & Generator Judul",
+        "highlight": "Siapkan 3 Alternatif Judul + Rumusan Masalah",
+        "body": "Bawa 3 opsi judul spesifik sekaligus ke dosen pembimbing supaya jika opsi 1 direvisi, kamu langsung punya opsi 2 dan 3 yang matang.",
+        "footer": "Coba gratis tanpa login di skripsilabai.com",
+        "capture_key": "day3_s2_after"
+      },
+      {
+        "badge": "DROP JUDULMU",
+        "title": "Judulmu Pernah Ditolak Dosen Gara-Gara Apa?",
+        "highlight": "Cerita di Komen Yuk — Siapa Tahu Bisa Dibantu!",
+        "body": "Save postingan ini sebelum jadwal bimbingan besok, dan bagikan ke teman seperjuanganmu!",
+        "footer": "@skripsilabai · skripsilabai.com",
+        "capture_key": "day1_s0_after"
+      }
+    ],
+    "video_scenes": [
+      {
+        "step_index": 0,
+        "badge": "BIMBINGAN AUTO ACC",
+        "title": "Kenapa Judul Skripsi Sering Ditolak Dosen?",
+        "subtitle": "Ini 3 pola kesalahan umum + cara memperbaikinya dalam hitungan detik",
+        "url_display": "skripsilabai.com/#coba-judul",
+        "capture_mode": "landing_coba_judul",
+        "capture_key": "day3_s0",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Kunci Variabel X-Y, Objek & Metode Jelas",
+          "✓ Bawa 3 Alternatif Judul Sekaligus Saat Bimbingan"
+        ],
+        "sub_beats": [
+          {
+            "say": "Baru maju bimbingan judul tapi langsung dicoret dosen karena katanya terlalu luas dan nggak jelas metodenya?",
+            "caption": "Judul langsung dicoret dosen karena terlalu luas?"
+          },
+          {
+            "say": "Rahasianya: jangan datang cuma bawa satu judul umum. Bawa tiga opsi spesifik lengkap rumusan masalah.",
+            "caption": "Bawa 3 opsi judul spesifik + rumusan masalah sekaligus!"
+          }
+        ]
+      },
+      {
+        "step_index": 0,
+        "badge": "PERTAJAM TOPIK",
+        "title": "Dari Topik Umum Jadi 3 Judul Spesifik Siap Uji",
+        "subtitle": "Tentukan prodi & metode penelitian, sistem merumuskan gap & variabel",
+        "url_display": "skripsilabai.com/app/cari-judul",
+        "capture_mode": "workspace_titles",
+        "capture_key": "day3_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Gratis Unlimited Fitur Cari Judul di Semua Akun",
+          "✓ Spesifik Mengikuti Tren Jurnal Terbaru"
+        ],
+        "sub_beats": [
+          {
+            "say": "Masukkan topikmu ke fitur cari judul di SkripsiLab AI, otomatis disusun jadi tiga alternatif judul lengkap variabel dan metode.",
+            "caption": "Otomatis disusun jadi 3 judul tajam sesuai jurusan & metode."
+          }
+        ]
+      },
+      {
+        "step_index": 5,
+        "badge": "TANYA DOSEN AI DULU",
+        "title": "Uji Kelayakan Judul Bareng Dosen AI Sebelum Bimbingan",
+        "subtitle": "Tanya metode, analisis kelemahan judul, hingga siapkan jawaban buat pembimbing",
+        "url_display": "skripsilabai.com/app/dosen-ai",
+        "capture_mode": "workspace_qa",
+        "capture_key": "day3_s2",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Simulasi Tanya Jawab Pembimbing Kapan Saja",
+          "✓ Coba Gratis Tanpa Login di skripsilabai.com"
+        ],
+        "sub_beats": [
+          {
+            "say": "Kamu juga bisa konsultasi dulu di fitur Dosen AI supaya pas ketemu pembimbing, argumenmu sudah matang.",
+            "caption": "Konsultasi dulu bareng Dosen AI sebelum bimbingan!"
+          },
+          {
+            "say": "Yuk langsung tes judulmu gratis di skripsilabai dot com!",
+            "caption": "Tes judulmu gratis sekarang di skripsilabai.com!"
+          }
+        ]
+      }
+    ],
+    "caption_ig": "Baru maju bimbingan judul tapi langsung dicoret dosen? 😫\n\nCoba cek dulu, jangan-jangan judulmu masih kena salah satu dari kesalahan ini:\n❌ Variabel terlalu luas\n❌ Metode & objek belum terkunci\n❌ Datanya sulit diakses\n\nTips paling ampuh: selalu bawa 3 alternatif judul yang variabel & metodenya sudah tajam + rumusan masalah siap baca.\n\nKamu bisa langsung tes bikin 3 ide judul spesifik GRATIS tanpa login di 👉 skripsilabai.com/#coba-judul\n\nJudulmu pernah ditolak dosen gara-gara apa nih? Tulis di komentar! 👇",
+    "caption_tiktok": "Judul skripsi ditolak terus gara-gara terlalu umum? Ini cara ubah topik biasa jadi 3 judul spesifik + rumusan masalah siap ACC pembimbing! Tes gratis di skripsilabai.com 🎓👇",
+    "hashtags": "#bimbinganskripsi #judulskripsi #skripsi #dosenpembimbing #pejuangskripsi #tipsskripsi #skripsilabai #mahasiswa #kuliah #skripsicepatkelar"
+  },
+  {
+    "day": 4,
+    "slug": "auto-format-margin-4433-daftar-isi",
+    "category": "Format Skripsi A4",
+    "badge_top": "FORMAT A4 4-4-3-3 · OTOMATIS",
+    "hook": "Stop begadang cuma benerin margin 4-4-3-3, nomor Romawi & Daftar Isi di Word!",
+    "subhook": "Sekali susun langsung rapi A4 Margin 4-4-3-3, Sampul Resmi & ekspor Word/PDF",
+    "feature_url": "https://skripsilabai.com/panduan/export-word-pdf-skripsi",
+    "cta_text": "Coba auto-format skripsi di skripsilabai.com",
+    "steps_bar": ["1. Judul", "2. Bab I-V", "3. Jurnal", "4. PPT", "5. Sidang", "6. Tools"],
+    "carousel_title": "Jangan Begadang Cuma Urus Margin 4-4-3-3 & Daftar Isi Word!",
+    "carousel_slides": [
+      {
+        "badge": "DRAMA FORMAT WORD",
+        "title": "Nulis Udah Capek, Masih Kena Revisi Tata Tulis?",
+        "highlight": "Margin Berantakan, Nomor Halaman Lompat, Daftar Isi Manual",
+        "body": "Banyak mahasiswa menghabiskan waktu berhari-hari hanya untuk memisahkan nomor Romawi (i, ii, iii) dan Arab (1, 2, 3) serta merapikan Daftar Isi.",
+        "footer": "Geser lihat pratinjau format otomatis →",
+        "capture_key": "day4_s0_after"
+      },
+      {
+        "badge": "SAMPUL & PENGESAHAN",
+        "title": "Halaman Sampul Resmi + Logo Kampus Otomatis",
+        "highlight": "Nama, NIM, Fakultas & Pembimbing Tertata Simetris",
+        "body": "Cukup isi identitas mahasiswa dan unggah logo kampus sekali saja — sistem langsung merender sampul resmi standar akademik Indonesia.",
+        "footer": "Langsung tampil real-time di kertas A4",
+        "capture_key": "day1_s3_before"
+      },
+      {
+        "badge": "NAVIGASI & DAFTAR ISI",
+        "title": "Daftar Isi, Tabel & Gambar Sinkron Otomatis",
+        "highlight": "Margin 4-4-3-3 cm & Font Times New Roman 12pt",
+        "body": "Tidak perlu edit titik-titik Daftar Isi manual lagi. Penomoran halaman Romawi di halaman awal dan angka Arab di Bab I–V otomatis presisi.",
+        "footer": "Bisa langsung di-edit per paragraf di editor",
+        "capture_key": "day4_s0_after"
+      },
+      {
+        "badge": "EKSPOR WORD & PDF",
+        "title": "Klik Ekspor Word (.docx) & PDF Siap Cetak",
+        "highlight": "Sudah Tervalidasi Rapi Siap Print!",
+        "body": "Download hasil akhir dalam format Word yang tetap mudah di-edit lagi atau PDF yang siap langsung dikumpulkan ke dosen dan bagian akademik.",
+        "footer": "Hemat belasan jam begadang rapikan format",
+        "capture_key": "day4_s1_after"
+      },
+      {
+        "badge": "SAVE BIAR GAK LUPA",
+        "title": "Kampusmu Pakai Margin 4-4-3-3 atau 4-3-3-3?",
+        "highlight": "skripsilabai.com",
+        "body": "Tulis di komentar aturan kampusmu, dan share post ini ke teman yang lagi stres gara-gara nomor halaman Word!",
+        "footer": "@skripsilabai · Auto-Format A4",
+        "capture_key": "day1_s3_after"
+      }
+    ],
+    "video_scenes": [
+      {
+        "step_index": 1,
+        "badge": "AUTO FORMAT SKRIPSI A4",
+        "title": "Capek Begadang Cuma Benerin Margin & Daftar Isi Word?",
+        "subtitle": "Lihat tampilan asli naskah A4 Margin 4-4-3-3 otomatis di SkripsiLab AI",
+        "url_display": "skripsilabai.com/project/skripsi-winda",
+        "capture_mode": "project_daftar_isi",
+        "capture_key": "day4_s0",
+        "transition_mode": "scroll",
+        "highlights": [
+          "✓ Kertas A4 Margin 4-4-3-3 cm Standar Indonesia",
+          "✓ Halaman Romawi (i, ii) & Arab (1, 2) Sinkron Otomatis"
+        ],
+        "sub_beats": [
+          {
+            "say": "Pernah nggak, nulis bab udah kelar tapi masih begadang berjam-jam cuma buat benerin margin empat empat tiga tiga dan daftar isi di Word?",
+            "caption": "Sering begadang cuma benerin margin & daftar isi di Word?"
+          },
+          {
+            "say": "Di SkripsiLab AI, sampul resmi, lembar pengesahan, sampai daftar isi dan daftar tabel sudah tertata otomatis di kertas A4.",
+            "caption": "Sampul resmi, pengesahan & daftar isi langsung tertata rapi!"
+          }
+        ]
+      },
+      {
+        "step_index": 1,
+        "badge": "BAB I–V + EKSPOR DOCX & PDF",
+        "title": "Edit Langsung di Pratinjau A4 & Ekspor ke Word/PDF",
+        "subtitle": "Times New Roman 12pt, tabel penelitian & daftar pustaka rapi siap cetak",
+        "url_display": "skripsilabai.com/project/skripsi-winda",
+        "capture_mode": "project_bab4_export",
+        "capture_key": "day4_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Ekspor Word (.docx) Mudah Diedit Ulang",
+          "✓ Coba Gratis Sekarang di skripsilabai.com"
+        ],
+        "sub_beats": [
+          {
+            "say": "Dari bab satu sampai bab lima lengkap tabel hasil dan daftar pustaka, tinggal klik unduh file Word atau PDF siap cetak.",
+            "caption": "Bab I–V lengkap tabel hasil — tinggal klik unduh Word/PDF!"
+          },
+          {
+            "say": "Coba langsung di skripsilabai dot com, kampusmu pakai margin empat empat tiga tiga atau empat tiga tiga tiga? Komen di bawah ya!",
+            "caption": "Kampusmu pakai margin berapa? Tulis di komentar ya!"
+          }
+        ]
+      }
+    ],
+    "caption_ig": "Siapa yang sering stres gara-gara nomor halaman Romawi & Arab di Word lompat-lompat pas bikin skripsi? 😅\n\nDi SkripsiLab AI, begitu naskah disusun langsung tertata rapi di pratinjau A4:\n✅ Margin otomatis 4-4-3-3 cm & Times New Roman 12pt\n✅ Sampul resmi + logo kampus + lembar pengesahan\n✅ Daftar Isi, Daftar Tabel, Daftar Gambar & Daftar Pustaka sinkron otomatis\n✅ Sekali klik ekspor ke Word (.docx) & PDF siap print\n\nKampusmu pakai aturan margin berapa nih? Komen di bawah! 👇\n👉 skripsilabai.com",
+    "caption_tiktok": "Gak perlu begadang cuma benerin margin 4-4-3-3 & daftar isi Word lagi! Di skripsilabai.com semua otomatis rapi A4 + ekspor .docx & PDF 1 klik ✨ Kampusmu margin berapa? Komen! 👇",
+    "hashtags": "#marginskripsi #formatword #daftarisiotomatis #skripsi #pejuangskripsi #tipsskripsi #skripsilabai #mahasiswa #mahasiswatingkatakhir #kuliah"
+  },
+  {
+    "day": 5,
+    "slug": "ppt-simulasi-sidang-skripsi",
+    "category": "Persiapan Sidang",
+    "badge_top": "SIAP SIDANG · PPT + LATIHAN PENGUJI AI",
+    "hook": "Sidang skripsi minggu depan? Siapin PPT 13 tema & latihan jawab penguji pakai AI!",
+    "subhook": "Slide presentasi terisi otomatis dari skripsimu + simulasi pertanyaan dosen penguji",
+    "feature_url": "https://skripsilabai.com/panduan/simulasi-sidang-ppt",
+    "cta_text": "Siapkan sidangmu sekarang di skripsilabai.com",
+    "steps_bar": ["1. Judul", "2. Bab I-V", "3. Jurnal", "4. PPT", "5. Sidang", "6. Tools"],
+    "carousel_title": "Sidang Makin Dekat? Jangan Masuk Ruangan Tanpa 2 Persiapan Ini!",
+    "carousel_slides": [
+      {
+        "badge": "PERSIAPAN SIDANG",
+        "title": "Jangan Bikin PPT Sidang Sampai Tengah Malam!",
+        "highlight": "Generate 6–12 Slide Rapi + 13 Tema Modern Otomatis",
+        "body": "Cukup pilih proyek skripsimu (atau unggah file PDF/Word skripsi), atur identitas & nama dosen pembimbing/penguji, lalu pilih desain tema favoritmu.",
+        "footer": "Geser lihat tampilan PPT & Simulasi Sidangnya →",
+        "capture_key": "day5_s0_after"
+      },
+      {
+        "badge": "SLIDE + CATATAN BICARA",
+        "title": "Dapat Naskah Presentasi (Speaker Notes) Di Tiap Slide!",
+        "highlight": "Tinggal Baca & Pahami Poin Inti Saat Presentasi",
+        "body": "Bukan cuma isi slide yang padat rapi, tiap slide juga dilengkapi catatan bicara presenter agar kamu tenang dan tidak blank di depan penguji.",
+        "footer": "Langsung ekspor file PowerPoint (.pptx) siap edit!",
+        "capture_key": "day5_s0_after"
+      },
+      {
+        "badge": "SIMULASI PENGUJI AI",
+        "title": "Latihan Jawab Pertanyaan Dosen Penguji Spesifik Bab I–V",
+        "highlight": "Lengkap Kisi-Kisi Jawaban, Nilai & Evaluasi!",
+        "body": "Sistem membaca isi skripsimu lalu memberi pertanyaan tajam layaknya dosen penguji sungguhan (metode, sampel, hingga temuan Bab IV) lengkap saran perbaikan jawaban.",
+        "footer": "Latihan dulu biar mental makin mantap saat hari-H",
+        "capture_key": "day5_s1_after"
+      },
+      {
+        "badge": "TIPS LOLOS SIDANG",
+        "title": "Kuasai 3 Hal Ini Saat Ditanya Penguji:",
+        "highlight": "1. Urgensi Masalah · 2. Alasan Metode · 3. Konsistensi Kesimpulan",
+        "body": "Penguji tidak mencari kesempurnaan mutlak, tapi memastikan kamu paham kenapa memilih metode tersebut dan bagaimana data membuktikan kesimpulanmu.",
+        "footer": "Simulasi kapan saja di skripsilabai.com",
+        "capture_key": "day5_s1_before"
+      },
+      {
+        "badge": "SEMANGAT SIDANG!",
+        "title": "Kapan Jadwal Sidangmu? Tulis & Share ke Teman Seperjuangan!",
+        "highlight": "skripsilabai.com",
+        "body": "Semoga yang save & share post ini segera menyandang gelar sarjana tahun ini. Aamiin!",
+        "footer": "@skripsilabai · PPT & Simulasi Sidang",
+        "capture_key": "day5_s0_after"
+      }
+    ],
+    "video_scenes": [
+      {
+        "step_index": 4,
+        "badge": "GENERATE PPT SIDANG",
+        "title": "Bikin PPT Sidang Rapi 13 Tema Modern dalam 1 Menit",
+        "subtitle": "Isi slide diambil otomatis dari skripsimu lengkap Speaker Notes & file PPTX",
+        "url_display": "skripsilabai.com/app/ppt-sidang",
+        "capture_mode": "workspace_ppt",
+        "capture_key": "day5_s0",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ 13 Tema Modern (Royal, Crimson, Navy & Akademik)",
+          "✓ Lengkap Catatan Bicara & Unduh File .pptx"
+        ],
+        "sub_beats": [
+          {
+            "say": "Sidang makin dekat tapi PPT belum kelar juga dan masih bingung nanti bakal ditanya apa sama dosen penguji?",
+            "caption": "Sidang makin dekat tapi PPT belum jadi & takut blank?"
+          },
+          {
+            "say": "Di menu PPT Sidang SkripsiLab AI, tinggal pilih proyek skripsimu dan pilih dari tiga belas tema modern siap pakai.",
+            "caption": "Pilih skripsimu & 13 tema modern langsung jadi file PPTX!"
+          }
+        ]
+      },
+      {
+        "step_index": 5,
+        "badge": "SIMULASI PENGUJI AI",
+        "title": "Latihan Jawab Pertanyaan Penguji Spesifik Naskahmu!",
+        "subtitle": "Lengkap kisi-kisi jawaban, skor penilaian & saran jawaban terbaik",
+        "url_display": "skripsilabai.com/app/simulasi-sidang",
+        "capture_mode": "workspace_defense",
+        "capture_key": "day5_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Pertanyaan Mengacu Langsung ke Skripsimu",
+          "✓ Skor Nilai & Saran Jawaban Lengkap di skripsilabai.com"
+        ],
+        "sub_beats": [
+          {
+            "say": "Setelah PPT siap, langsung latihan di menu Simulasi Sidang! Penguji AI memberi pertanyaan spesifik dari bab satu sampai lima lengkap kisi-kisi jawabannya.",
+            "caption": "Latihan jawab pertanyaan dosen penguji spesifik isi skripsimu!"
+          },
+          {
+            "say": "Coba persiapkan sidangmu lebih tenang di skripsilabai dot com, tulis di komentar bulan apa target sidangmu!",
+            "caption": "Target sidang bulan apa nih? Tulis di komentar & coba gratis!"
+          }
+        ]
+      }
+    ],
+    "caption_ig": "Besok/minggu depan sudah jadwal seminar proposal atau sidang skripsi? 🎓\n\nBiar makin tenang saat masuk ruang sidang:\n1️⃣ Siapkan PPT padat rapi — di SkripsiLab AI ada 13 tema modern + Catatan Bicara otomatis di tiap slide & unduh `.pptx`.\n2️⃣ Latihan dulu di Simulasi Sidang AI — pertanyaan langsung mengacu pada metode, sampel, & hasil skripsimu, lengkap kisi-kisi jawaban + evaluasi skor!\n\nTarget sempro/sidang kamu bulan apa nih? Aminin bareng di komentar yuk! 🤲\n👉 skripsilabai.com",
+    "caption_tiktok": "Sidang bentar lagi? Bikin PPT 13 tema + Catatan Bicara otomatis & latihan tanya jawab bareng Penguji AI di skripsilabai.com biar gak blank saat hari-H! 🎓✨",
+    "hashtags": "#sidangskripsi #pptsidang #sempro #pejuangskripsi #tipsidang #skripsilabai #mahasiswa #kuliah #skripsi #wisuda"
   },
   {
     "day": 6,
-    "slug": "olah-data-spss-dan-parafrase-eyd-v",
-    "category": "Tutorial Fitur",
-    "hook": "Bingung baca tabel output SPSS untuk Bab IV? Atau takut Turnitin tinggi?",
-    "subhook": "Pakai Olah Data AI & Parafrase Akademik EYD V di SkripsiLab AI",
-    "feature_url": "https://skripsilabai.com/panduan/olah-data-statistik-skripsi",
-    "cta_text": "Coba Olah Data & Parafrase di skripsilabai.com",
-    "carousel_title": "Dari Angka SPSS ke Paragraf Bab IV + Parafrase Akademik EYD V",
+    "slug": "olah-data-spss-parafrase-10-tools",
+    "category": "Olah Data & 10 Tools",
+    "badge_top": "SPSS + PARAFRASE + 10 TOOLS",
+    "hook": "Olah data SPSS, Parafrase Anti-Kaku & 10 Tools Mahasiswa Gratis dalam satu workspace!",
+    "subhook": "Hitung Slovin, Flowchart AI, Rapikan Word, PDF ke Word hingga Kompres PDF",
+    "feature_url": "https://skripsilabai.com/app/create?tab=olahdata",
+    "cta_text": "Pakai semua fiturnya di skripsilabai.com",
+    "steps_bar": ["1. Judul", "2. Bab I-V", "3. Jurnal", "4. PPT", "5. Sidang", "6. Tools"],
+    "carousel_title": "Bukan Cuma Teks! Ini Toolkit Lengkap Anak Skripsi di 1 Workspace",
     "carousel_slides": [
       {
-        "badge": "BAB IV & TURNITIN",
-        "title": "Punya Data Kuesioner / Output SPSS Tapi Bingung Jelasinnya?",
-        "highlight": "Ubah Tabel Uji Statistik Jadi Paragraf Bab IV Siap Pakai",
-        "body": "Banyak mahasiswa sudah punya angka r-hitung, p-value, dan regresi tapi buntu saat menuliskannya menjadi pembahasan ilmiah di Bab IV.",
-        "footer": "Geser lihat solusinya →"
-      },
-      {
-        "badge": "OLAH DATA AI",
-        "title": "Hitung & Interpretasikan Uji Statistik ke Bab IV",
-        "highlight": "Validitas, Reliabilitas, Normalitas, Regresi, Uji T & F",
-        "body": "Masukkan data responden atau hasil olahanmu — AI bantu analisis deskriptif hingga interpretasi hipotesis (diterima/ditolak) dengan bahasa akademik rapi.",
-        "footer": "Bisa diekspor ke laporan Word & PDF"
+        "badge": "OLAH DATA & SPSS",
+        "title": "Stuck di Bab IV Karena Bingung Baca Output SPSS?",
+        "highlight": "Interpretasi Uji Validitas, Regresi & Asumsi Klasik!",
+        "body": "Masukkan angka hasil output SPSS atau datamu ke menu Olah Data untuk mendapatkan interpretasi akademik siap masuk pembahasan Bab IV.",
+        "footer": "Geser lihat fitur parafrase & 10 tools lainnya →",
+        "capture_key": "day6_s0_before"
       },
       {
         "badge": "PARAFRASE EYD V",
-        "title": "Haluskan Kalimat Kaku dengan Parafrase Akademik",
-        "highlight": "Tetap Jaga Makna Ilmiah & Sumber Sitasi",
-        "body": "Ubah paragraf yang terlalu mirip literatur menjadi kalimat ilmiah baru sesuai kaidah EYD V agar lebih natural saat diperiksa Turnitin.",
-        "footer": "Ajak 1 teman kuliah = Bonus kuota Parafrase & Olah Data!"
+        "title": "Kalimat Terlalu Kaku atau Mirip Sumber Asli?",
+        "highlight": "Haluskan Bahasa Akademik Otomatis Tanpa Ubah Makna",
+        "body": "Gunakan menu Parafrase di workspace untuk menyusun ulang kalimat menjadi bahasa ilmiah baku sesuai EYD V.",
+        "footer": "Cepat dan tetap menjaga sitasi tetap akurat",
+        "capture_key": "day6_s0_after"
       },
       {
-        "badge": "INFO BONUS",
-        "title": "Mau Bonus Kuota Parafrase & Olah Data Gratis?",
-        "highlight": "Bagikan Link Referralmu ke Grup Kelas",
-        "body": "Setiap teman valid yang daftar pakai link referralmu, kamu langsung dapat +1 bonus kuota Parafrase & Olah Data AI (maks +3) plus komisi 10%!",
-        "footer": "Cek tab Ajak Teman di dashboard skripsilabai.com"
+        "badge": "10 TOOLS GRATIS",
+        "title": "10 Tools Mahasiswa Gratis Langsung di Browser",
+        "highlight": "Flowchart AI · Slovin · Rapikan Word · PDF ⇄ Word · Kompres",
+        "body": "Tidak perlu buka sepuluh situs berbeda penuh iklan! Dari generator Flowchart penelitian hingga hapus background pas foto dan kompres PDF tersedia di satu tempat.",
+        "footer": "Semua bisa diakses di dalam akun SkripsiLab AI",
+        "capture_key": "day6_s1_before"
       },
       {
-        "badge": "GAS SEKARANG",
-        "title": "Kebut Revisi Bab I–V Minggu Ini!",
+        "badge": "FLOWCHART PENELITIAN",
+        "title": "Buat Flowchart Alur Penelitian Bab III Otomatis",
+        "highlight": "Tinggal Ketik Topik — Diagram Langsung Rapi",
+        "body": "Sangat membantu untuk mahasiswa Teknik Informatika, Sistem Informasi, maupun metode R&D agar diagram alur Bab III tampil profesional.",
+        "footer": "Ekspor ke gambar siap sisip di naskah!",
+        "capture_key": "day6_s1_after"
+      },
+      {
+        "badge": "AJAK TEMAN = BONUS KUOTA",
+        "title": "Share Link Referralmu ke Teman Sekelas = +1 Kuota Gratis!",
         "highlight": "skripsilabai.com",
-        "body": "Cari Judul & Jurnal Unlimited, Olah Data AI, Parafrase, hingga 10 Tools Mahasiswa tersedia dalam satu workspace.",
-        "footer": "@skripsilabai · Teman Nulis Skripsi Mandiri"
+        "body": "Tiap teman mendaftar lewat link referralmu, kamu langsung dapat tambahan kuota Parafrase & Olah Data gratis!",
+        "footer": "@skripsilabai · Lengkap Dari Bab I sampai Wisuda",
+        "capture_key": "day6_s1_before"
       }
     ],
     "video_scenes": [
       {
-        "step": "HOOK",
-        "title": "Punya Angka SPSS Tapi Bingung Nulis Bab IV?",
-        "subtitle": "Ini cara ubah output statistik jadi pembahasan Bab IV + turunkan kemiripan teks",
-        "voice": "Sudah punya angka output SPSS tapi masih bingung jelasinnya di Bab empat? Atau takut skor kemiripan teks tinggi? Ini solusinya di SkripsiLab AI.",
-        "visual_type": "live_site",
-        "url": "https://skripsilabai.com/panduan/olah-data-statistik-skripsi",
-        "scroll_y": 240
-      },
-      {
-        "step": "OLAH DATA AI",
-        "title": "Masukkan Data / Output Uji Statistik",
-        "subtitle": "Validitas, Reliabilitas, Normalitas, Regresi, Uji T & F",
-        "voice": "Di menu Olah Data, kamu bisa jalankan uji statistik atau masukkan hasil uji SPSS untuk langsung diterjemahkan jadi narasi pembahasan Bab empat yang rapi.",
-        "visual_type": "card_step",
-        "bullets": [
-          "✓ Uji Asumsi Klasik, Regresi Berganda, Korelasi & Uji Beda",
-          "✓ Interpretasi Hipotesis (p-value < 0,05) otomatis jadi paragraf Bab IV",
-          "✓ Unduh hasil analisis dalam format Word & PDF"
+        "step_index": 5,
+        "badge": "OLAH DATA & PARAFRASE",
+        "title": "Bingung Baca Output SPSS & Haluskan Kalimat Bab IV?",
+        "subtitle": "Semua tersedia di menu Olah Data SPSS dan Parafrase EYD V",
+        "url_display": "skripsilabai.com/app/olah-data",
+        "capture_mode": "workspace_olahdata_paraphrase",
+        "capture_key": "day6_s0",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Interpretasi Uji Statistik & SPSS Siap Bab IV",
+          "✓ Parafrase Akademik Baku Tanpa Mengubah Makna"
+        ],
+        "sub_beats": [
+          {
+            "say": "Sudah kelar sebar kuesioner tapi bingung banget baca output SPSS dan nulis pembahasannya di bab empat?",
+            "caption": "Sudah olah SPSS tapi bingung nulis pembahasan Bab IV?"
+          },
+          {
+            "say": "Di workspace SkripsiLab AI, ada menu Olah Data buat bantu interpretasi hasil statistik dan menu Parafrase buat menghaluskan kalimat akademik.",
+            "caption": "Pakai Olah Data SPSS & Parafrase EYD V dalam satu tempat!"
+          }
         ]
       },
       {
-        "step": "PARAFRASE + BONUS",
-        "title": "Parafrase EYD V + Bonus Ajak Teman",
-        "subtitle": "Ajak teman kuliah = langsung dapat +1 bonus kuota Parafrase & Olah Data!",
-        "voice": "Lanjutkan dengan fitur Parafrase Akademik sesuai EYD lima. Mau kuota tambahan gratis? Ajak teman lewat link referral, langsung dapat bonus kuota Parafrase dan Olah Data.",
-        "visual_type": "card_demo_result",
-        "bullets": [
-          "✓ Bahasa lebih natural & akademik sesuai EYD V",
-          "✓ Bonus +1 Kuota Parafrase & Olah Data per teman valid (maks +3)",
-          "✓ Plus Komisi Tunai 10% saat teman aktifkan paket"
-        ]
-      },
-      {
-        "step": "CTA",
-        "title": "Coba Gratis Sekarang di skripsilabai.com",
-        "subtitle": "Cari Judul & Jurnal Ber-DOI gratis Unlimited!",
-        "voice": "Langsung buka skripsilabai dot com dan selesaikan bab empat skripsimu minggu ini.",
-        "visual_type": "cta",
-        "bullets": [
-          "✓ Coba Gratis Olah Data & Parafrase di Akun Free",
-          "✓ Cari Judul & Jurnal Ber-DOI Unlimited",
-          "✓ Upgrade Paket Mulai Rp15.000 Tanpa Sistem Kredit"
+        "step_index": 5,
+        "badge": "10 TOOLS MAHASISWA GRATIS",
+        "title": "Plus 10 Tools Mahasiswa Gratis Langsung di Browser!",
+        "subtitle": "Flowchart AI, Rapikan Word, PDF ke Word, Kompres & Hapus Background Foto",
+        "url_display": "skripsilabai.com/tools",
+        "capture_mode": "tools_hub",
+        "capture_key": "day6_s1",
+        "transition_mode": "click",
+        "highlights": [
+          "✓ Flowchart Penelitian Otomatis Siap Masuk Bab III",
+          "✓ Semua Gratis di Akun skripsilabai.com!"
+        ],
+        "sub_beats": [
+          {
+            "say": "Belum lagi ada sepuluh tools mahasiswa gratis seperti Flowchart AI, Slovin, rapikan Word, sampai kompres PDF tanpa perlu pindah-pindah website.",
+            "caption": "Plus 10 Tools Gratis: Flowchart AI, Slovin, Rapikan Word!"
+          },
+          {
+            "say": "Daftar gratis sekarang di skripsilabai dot com, atau share ke temanmu buat klaim bonus kuota referral!",
+            "caption": "Daftar gratis di skripsilabai.com & bagikan ke teman!"
+          }
         ]
       }
     ],
-    "caption_ig": "Buntu baca tabel SPSS untuk Bab IV atau khawatir kemiripan teks terlalu tinggi? 📊✍️\n\nGunakan kombinasi dua fitur ini di SkripsiLab AI:\n1️⃣ Olah Data AI: bantu hitung & terjemahkan output statistik (Validitas, Reliabilitas, Normalitas, Regresi, Uji T/F) ke paragraf Bab IV yang runtut.\n2️⃣ Parafrase Akademik (EYD V): haluskan kalimat literatur agar lebih natural.\n\n🎁 Bonus Spesial: Ajak teman kuliah daftar lewat link referralmu dan langsung dapat bonus kuota Parafrase & Olah Data AI + komisi 10%!\n\nCoba gratis di skripsilabai.com 🔗",
-    "caption_tiktok": "Punya angka SPSS tapi bingung nulis Bab IV? Pakai Olah Data AI + Parafrase EYD V di skripsilabai.com! Ajak teman kuliah juga dapet bonus kuota tambahan + komisi 10% 🎓📊",
-    "hashtags": "#olahdataspss #bab4skripsi #parafrase #turnitin #skripsi #mahasiswasemesterakhir #skripsilabai #statistikskripsi"
+    "caption_ig": "Ngerjain skripsi sekarang gak perlu buka 10 web berbeda yang penuh iklan! 🚀\n\nDi dalam satu akun SkripsiLab AI kamu sudah dapat:\n📊 Menu Olah Data SPSS & Interpretasi Bab IV\n✍️ Menu Parafrase Akademik EYD V\n🛠️ 10 Tools Mahasiswa Gratis: Flowchart AI, Kalkulator Slovin, Hitung Kata Abstrak, Rapikan Word, PDF ⇄ Word, Kompres PDF hingga Hapus Background Foto!\n\nPlus ajak teman daftar lewat link referralmu = bonus kuota Parafrase & Olah Data gratis! 🎁\n\nFitur mana yang paling sering kamu butuhin pas ngerjain skripsi? Komen di bawah! 👇\n👉 skripsilabai.com",
+    "caption_tiktok": "Gak usah buka 10 web berbeda lagi! Olah Data SPSS, Parafrase, Flowchart AI sampai Rapikan Word semuanya ada di 1 workspace skripsilabai.com 🎓✨ Fitur mana yang paling kamu butuhin? Komen! 👇",
+    "hashtags": "#olahdataspss #statistikskripsi #flowchartskripsi #skripsi #pejuangskripsi #tipsskripsi #skripsilabai #mahasiswa #kuliah #toolsgratis"
   }
 ]
