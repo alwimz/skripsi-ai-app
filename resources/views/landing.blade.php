@@ -1767,48 +1767,96 @@
         }
 
         .demo-title-wrap {
-            background: #ffffff;
-            border: 1.5px solid #bfdbfe;
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 18px 40px -22px rgba(37, 99, 235, 0.25);
+            max-width: 920px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border: 1px solid #dbeafe;
+            border-radius: 20px;
+            padding: 28px 30px;
+            box-shadow: 0 20px 44px -24px rgba(37, 99, 235, 0.28), 0 4px 12px -6px rgba(15, 23, 42, 0.06);
         }
-        .demo-title-grid {
+        .demo-head {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 20px;
+        }
+        .demo-head h2 {
+            font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.65rem);
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+            margin: 8px 0 6px;
+        }
+        .demo-head p {
+            font-size: 13.5px;
+            color: #64748b;
+            line-height: 1.55;
+            margin: 0;
+        }
+        .demo-form-well {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .demo-row-split {
             display: grid;
-            grid-template-columns: 1fr 1.35fr 1fr auto;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
             gap: 12px;
             align-items: end;
         }
         .demo-field {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
+            min-width: 0;
         }
         .demo-field label {
-            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            font-size: 13px;
             font-weight: 700;
             color: #1e293b;
+            line-height: 1.3;
+        }
+        .demo-label-opt {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #64748b;
         }
         .demo-hint {
-            font-size: 11.5px;
+            font-size: 12px;
             color: #64748b;
         }
         .demo-control {
             width: 100%;
             min-height: 46px;
-            padding: 10px 12px;
+            padding: 10px 13px;
             font-family: inherit;
-            font-size: max(1rem, 1em);
+            font-size: max(1rem, 0.9375rem);
             color: #0f172a;
-            background: #ffffff;
-            border: 1px solid #94a3b8;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
             border-radius: 10px;
-            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+        }
+        .demo-control:hover {
+            border-color: #94a3b8;
+        }
+        .demo-control:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+            outline: none;
         }
         .demo-control:focus-visible {
             outline: 2px solid var(--primary);
             outline-offset: 2px;
-            border-color: var(--primary);
         }
         .demo-control:is(:user-invalid, .user-invalid-fallback) {
             border-color: #dc2626;
@@ -1824,30 +1872,10 @@
         .demo-control:is(:user-invalid, .user-invalid-fallback) + .demo-err-msg {
             display: block;
         }
-        .demo-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            margin-bottom: 14px;
-            align-items: center;
-        }
-        .demo-chip-btn {
-            min-height: 32px;
-            padding: 4px 11px;
-            border-radius: 999px;
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
-            color: #334155;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.14s ease;
-        }
-        .demo-chip-btn:hover {
-            border-color: #2563eb;
-            color: #1d4ed8;
-            background: #eff6ff;
+        .demo-submit-btn {
+            min-height: 46px;
+            padding: 10px 22px;
+            white-space: nowrap;
         }
         .demo-results {
             margin-top: 18px;
@@ -1860,11 +1888,11 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 13px 15px;
+            padding: 14px 16px;
             border-radius: 12px;
-            background: #f8fafc;
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            margin-bottom: 9px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
         .demo-result-title {
@@ -1890,9 +1918,11 @@
         button[data-copied] + .copy-tip, button[data-failed] + .copy-tip {
             opacity: 1;
         }
-        @media (max-width: 900px) {
-            .demo-title-grid { grid-template-columns: 1fr; align-items: stretch; }
-            .demo-title-wrap { padding: 18px 15px; }
+        @media (max-width: 760px) {
+            .demo-title-wrap { padding: 20px 16px; border-radius: 16px; }
+            .demo-form-well { padding: 14px; }
+            .demo-row-split { grid-template-columns: 1fr; align-items: stretch; }
+            .demo-submit-btn { width: 100%; }
         }
 
         @media (max-width: 440px) {
@@ -2150,47 +2180,39 @@
         </section>
 
         <!-- Widget Interaktif: Coba Buat 3 Ide Judul Gratis Langsung di Beranda -->
-        <section id="coba-judul" class="section" style="padding: 26px 0 42px;">
+        <section id="coba-judul" class="section" style="padding: 20px 0 46px;">
             <div class="container">
                 <div class="demo-title-wrap">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                        <div>
-                            <span class="section-label" style="margin-bottom:6px;">Coba Langsung Tanpa Daftar · Gratis</span>
-                            <h2 style="font-size:clamp(1.2rem,1rem + 0.9vw,1.55rem);font-weight:800;color:#0f172a;letter-spacing:-0.02em;">
-                                Buat 3 Ide Judul &amp; Rumusan Masalah Sekarang
-                            </h2>
-                        </div>
-                        <a href="{{ url('/alat-skripsi-gratis') }}" style="font-size:13px;font-weight:700;color:#2563eb;">Buka Kalkulator Slovin &amp; Alat Gratis →</a>
+                    <div class="demo-head">
+                        <span class="section-label">Coba Langsung Tanpa Daftar · Gratis</span>
+                        <h2>Buat 3 Ide Judul &amp; Rumusan Masalah Sekarang</h2>
+                        <p>Tulis topik penelitianmu di bawah ini — AI langsung menyusun 3 opsi judul spesifik jurusanmu lengkap dengan contoh rumusan masalahnya.</p>
                     </div>
 
-                    <div class="demo-chips" aria-label="Contoh topik cepat">
-                        <span style="font-size:12px;font-weight:600;color:#64748b;">Contoh cepat:</span>
-                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Manajemen','TikTok Live terhadap keputusan pembelian UMKM','Kuantitatif (Survei / Regresi)')">Manajemen · TikTok Live</button>
-                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Teknik Informatika','Prediksi kelulusan mahasiswa menggunakan Random Forest','R&D / Pengembangan Sistem')">Informatika · Machine Learning</button>
-                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('PGSD','Media pembelajaran interaktif berbasis Wordwall kelas 5 SD','PTK (Penelitian Tindakan Kelas)')">PGSD · Media Pembelajaran</button>
-                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Ilmu Hukum','Perlindungan hukum konsumen pada transaksi pinjaman online ilegal','Hukum Normatif')">Hukum · Pinjol Ilegal</button>
-                    </div>
-
-                    <form id="demo-title-form" novalidate onsubmit="submitDemoTitles(event)">
+                    <form id="demo-title-form" class="demo-form-well" novalidate onsubmit="submitDemoTitles(event)">
                         <input type="text" name="website_hp" value="" tabindex="-1" aria-hidden="true" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
-                        <div class="demo-title-grid">
+
+                        <div class="demo-field">
+                            <label for="demo-topik">
+                                <span>Topik / Minat Penelitian <span aria-hidden="true" style="color:#dc2626;">*</span></span>
+                                <span id="demo-topik-hint" class="demo-label-opt">Minimal 3 karakter</span>
+                            </label>
+                            <input type="text" id="demo-topik" name="topik" class="demo-control" required minlength="3" maxlength="160" aria-describedby="demo-topik-hint" data-error="demo-topik-error" placeholder="Contoh: Pengaruh TikTok Live terhadap keputusan pembelian UMKM atau Prediksi kelulusan mahasiswa">
+                            <div id="demo-topik-error" class="demo-err-msg">Error: Masukkan topik penelitian minimal 3 karakter terlebih dahulu.</div>
+                        </div>
+
+                        <div class="demo-row-split">
                             <div class="demo-field">
-                                <label for="demo-prodi">Jurusan / Prodi</label>
-                                <span id="demo-prodi-hint" class="demo-hint">Misal: Manajemen, IT, PGSD</span>
-                                <input type="text" id="demo-prodi" name="prodi" class="demo-control" maxlength="80" aria-describedby="demo-prodi-hint" placeholder="Contoh: Manajemen">
+                                <label for="demo-prodi">
+                                    <span>Jurusan / Prodi</span>
+                                    <span class="demo-label-opt">Opsional</span>
+                                </label>
+                                <input type="text" id="demo-prodi" name="prodi" class="demo-control" maxlength="80" placeholder="Contoh: Manajemen, Informatika, PGSD">
                             </div>
 
                             <div class="demo-field">
-                                <label for="demo-topik">Topik / Minat Penelitian <span aria-hidden="true" style="color:#dc2626;">*</span></label>
-                                <span id="demo-topik-hint" class="demo-hint">Minimal 3 karakter, misal: pemasaran digital UMKM.</span>
-                                <input type="text" id="demo-topik" name="topik" class="demo-control" required minlength="3" maxlength="160" aria-describedby="demo-topik-hint" data-error="demo-topik-error" placeholder="Tulis topik yang ingin kamu teliti...">
-                                <div id="demo-topik-error" class="demo-err-msg">Error: Masukkan topik penelitian minimal 3 karakter terlebih dahulu.</div>
-                            </div>
-
-                            <div class="demo-field">
-                                <label for="demo-metode">Metode Penelitian</label>
-                                <span id="demo-metode-hint" class="demo-hint">Sesuaikan pendekatan skripsimu</span>
-                                <select id="demo-metode" name="metode" class="demo-control" aria-describedby="demo-metode-hint">
+                                <label for="demo-metode"><span>Metode Penelitian</span></label>
+                                <select id="demo-metode" name="metode" class="demo-control">
                                     <option value="Kuantitatif (Survei / Regresi)" selected>Kuantitatif (Survei / Regresi)</option>
                                     <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif (Studi Kasus)</option>
                                     <option value="R&D / Pengembangan Sistem">R&amp;D / Pengembangan Sistem</option>
@@ -2200,18 +2222,16 @@
                                 </select>
                             </div>
 
-                            <div>
-                                <button type="submit" id="demo-submit-btn" class="btn btn-primary" style="min-height:46px;width:100%;">Buat Ide Judul →</button>
-                            </div>
+                            <button type="submit" id="demo-submit-btn" class="btn btn-primary demo-submit-btn">Buat 3 Ide Judul →</button>
                         </div>
                     </form>
 
-                    <div id="demo-status-live" class="demo-hint" role="status" aria-live="polite" style="margin-top:10px;"></div>
+                    <div id="demo-status-live" class="demo-hint" role="status" aria-live="polite" style="margin-top:10px;text-align:center;"></div>
                     <div id="demo-results-box" class="demo-results" aria-live="polite">
                         <div id="demo-rumusan-card" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:11px;padding:12px 14px;font-size:13.5px;color:#1e3a8a;margin-bottom:12px;"></div>
                         <div id="demo-titles-list"></div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:13px;color:#475569;">
-                            <span>Ingin <strong>10+ ide judul lainnya &amp; Cari Jurnal Ber-DOI</strong> tanpa batas? <strong>Gratis Unlimited</strong> di dalam akun SkripsiLab AI.</span>
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:13px;color:#475569;">
+                            <span>Ingin <strong>10+ ide judul lainnya &amp; Cari Jurnal Ber-DOI</strong> tanpa batas? <strong>Gratis Unlimited</strong> di akun SkripsiLab AI.</span>
                             <a href="{{ auth()->check() ? route('app.create', ['tab' => 'titles']) : route('register') }}" class="btn btn-outline" style="min-height:38px;" data-meta-lead="Demo Hasil Buka Unlimited Judul">Buka Cari Judul &amp; Jurnal Unlimited →</a>
                         </div>
                     </div>
@@ -2745,7 +2765,6 @@
                 </div>
 
                 <div class="tools-showcase-footer">
-                    <a href="{{ auth()->check() ? route('tools.hub') : url('/alat-skripsi-gratis') }}" class="btn btn-outline" style="margin-right:8px;">Pakai Alat Tanpa Login →</a>
                     <a href="{{ auth()->check() ? route('tools.hub') : route('register') }}" class="btn btn-primary">{{ auth()->check() ? 'Buka Semua 10 Tools Mahasiswa →' : 'Daftar Gratis & Gunakan Semua 10 Tools →' }}</a>
                 </div>
             </div>
@@ -2944,19 +2963,6 @@
             dialog.close();
         }
 
-        function fillDemoPreset(prodi, topik, metode) {
-            const pEl = document.getElementById('demo-prodi');
-            const tEl = document.getElementById('demo-topik');
-            const mEl = document.getElementById('demo-metode');
-            if (pEl) pEl.value = prodi;
-            if (tEl) {
-                tEl.value = topik;
-                tEl.setAttribute('aria-invalid', 'false');
-                tEl.classList.remove('user-invalid-fallback');
-            }
-            if (mEl) mEl.value = metode;
-        }
-
         const demoTopikEl = document.getElementById('demo-topik');
         if (demoTopikEl) {
             demoTopikEl.setAttribute('aria-invalid', 'false');
@@ -3082,6 +3088,10 @@
                     const card = document.createElement('div');
                     card.className = 'demo-result-card';
 
+                    const numBadge = document.createElement('span');
+                    numBadge.style.cssText = 'width:26px;height:26px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;';
+                    numBadge.textContent = String(idx + 1);
+
                     const titleSpan = document.createElement('div');
                     titleSpan.className = 'demo-result-title';
                     titleSpan.id = `demo-gen-title-${idx}`;
@@ -3120,6 +3130,7 @@
                     actions.appendChild(copyBtn);
                     actions.appendChild(tip);
                     actions.appendChild(cta);
+                    card.appendChild(numBadge);
                     card.appendChild(titleSpan);
                     card.appendChild(actions);
                     listBox.appendChild(card);
@@ -3134,7 +3145,7 @@
                 if (statusLive) statusLive.textContent = err.message || 'Terjadi kendala saat membuat ide judul.';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Buat Ide Judul →';
+                submitBtn.textContent = 'Buat 3 Ide Judul →';
             }
         }
     </script>
