@@ -2735,23 +2735,23 @@
                     </div>
 
                     <div class="tool-showcase-card">
-                        <span class="tool-sc-badge">Tanpa Login</span>
+                        <span class="tool-sc-badge">Bab III</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
                         </span>
                         <div class="tool-sc-title">Kalkulator Slovin &amp; Lemeshow</div>
                         <div class="tool-sc-desc">Hitung sampel minimal otomatis lengkap dengan langkah &amp; paragraf siap salin ke Bab III.</div>
-                        <a href="{{ auth()->check() ? route('tools.hub') . '#slovin' : url('/kalkulator-slovin') }}" class="tool-sc-cta">Pakai Gratis Sekarang →</a>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#slovin' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
                     </div>
 
                     <div class="tool-showcase-card">
-                        <span class="tool-sc-badge">Tanpa Login</span>
+                        <span class="tool-sc-badge">Gratis</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>
                         </span>
                         <div class="tool-sc-title">Hitung Kata &amp; Cek Abstrak</div>
                         <div class="tool-sc-desc">Cek batas 150–250 kata abstrak, kata kunci tersering, &amp; estimasi halaman A4 dari .docx/.pdf.</div>
-                        <a href="{{ auth()->check() ? route('tools.hub') . '#word-count' : url('/hitung-kata-abstrak') }}" class="tool-sc-cta">Pakai Gratis Sekarang →</a>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#word-count' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
                     </div>
                 </div>
 

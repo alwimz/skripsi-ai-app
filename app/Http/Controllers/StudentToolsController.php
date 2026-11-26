@@ -690,19 +690,4 @@ class StudentToolsController extends Controller
 
         return $html;
     }
-
-    public function publicHub()
-    {
-        return view('public_tools.hub');
-    }
-
-    public function publicSlovin()
-    {
-        return view('public_tools.slovin');
-    }
-
-    public function publicWordCount()
-    {
-        return view('public_tools.word_count');
-    }
 }

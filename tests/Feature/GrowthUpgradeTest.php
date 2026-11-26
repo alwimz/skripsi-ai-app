@@ -82,24 +82,11 @@ class GrowthUpgradeTest extends TestCase
         $this->assertFalse($billing->reserveToolAccess($referrer, 'ppt', 'PPT')['allowed']);
     }
 
-    public function test_public_seo_tools_demo_titles_and_prefill_onboarding_work(): void
+    public function test_demo_titles_and_prefill_onboarding_work(): void
     {
         Http::fake([
             '*' => Http::response(['error' => ['message' => 'offline fallback test']], 503),
         ]);
-
-        $this->get('/alat-skripsi-gratis')->assertStatus(200)->assertSee('Alat Skripsi Gratis Tanpa Login');
-        $this->get('/kalkulator-slovin')->assertStatus(200)->assertSee('Kalkulator Sampel Slovin');
-        $this->get('/hitung-kata-abstrak')->assertStatus(200)->assertSee('Hitung Kata');
-
-        $sitemap = $this->get('/sitemap.xml')->assertStatus(200)->getContent();
-        $this->assertStringContainsString('/alat-skripsi-gratis</loc>', $sitemap);
-        $this->assertStringContainsString('/kalkulator-slovin</loc>', $sitemap);
-        $this->assertStringContainsString('/hitung-kata-abstrak</loc>', $sitemap);
-
-        $robots = file_get_contents(public_path('robots.txt'));
-        $this->assertIsString($robots);
-        $this->assertStringContainsString('Allow: /kalkulator-slovin', $robots);
 
         // Demo widget endpoint mengembalikan 3 judul + rumusan masalah meski AI eksternal offline
         $demo = $this->postJson('/demo/cari-judul', [

@@ -28,4 +28,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 __pycache__/
+/scripts/social/node_modules
+/scripts/social/make_video
+/promo_skripsilab_*.mp4
 *.pyc

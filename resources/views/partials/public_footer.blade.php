@@ -141,10 +141,7 @@
                     <li><a href="{{ url('/panduan/olah-data-statistik-skripsi') }}">Olah Data Statistik (SPSS)</a></li>
                     <li><a href="{{ url('/panduan/buat-ppt-sidang-skripsi') }}">PPT Sidang Skripsi (.pptx)</a></li>
                     <li><a href="{{ url('/panduan/simulasi-sidang-skripsi') }}">Simulasi Sidang Skripsi</a></li>
-                    <li><a href="{{ url('/alat-skripsi-gratis') }}">Alat Skripsi Gratis (Tanpa Login)</a></li>
-                    <li><a href="{{ url('/kalkulator-slovin') }}">Kalkulator Sampel Slovin</a></li>
-                    <li><a href="{{ url('/hitung-kata-abstrak') }}">Hitung Kata &amp; Abstrak</a></li>
-                    <li><a href="{{ auth()->check() ? route('tools.hub') : url('/#tools-gratis') }}">10 Tools Mahasiswa Workspace</a></li>
+                    <li><a href="{{ auth()->check() ? route('tools.hub') : url('/#tools-gratis') }}">10 Tools Mahasiswa Gratis</a></li>
                 </ul>
             </div>
 

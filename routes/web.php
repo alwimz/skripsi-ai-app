@@ -28,9 +28,6 @@ Route::get('/kebijakan-privasi', [LegalController::class, 'privacy'])->name('leg
 Route::get('/syarat-ketentuan', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/tentang', [LegalController::class, 'about'])->name('legal.about');
 Route::get('/paket', [PaymentController::class, 'plans'])->name('billing.plans');
-Route::get('/alat-skripsi-gratis', [StudentToolsController::class, 'publicHub'])->name('public.tools.hub');
-Route::get('/kalkulator-slovin', [StudentToolsController::class, 'publicSlovin'])->name('public.tools.slovin');
-Route::get('/hitung-kata-abstrak', [StudentToolsController::class, 'publicWordCount'])->name('public.tools.wordcount');
 Route::post('/demo/cari-judul', [GeneratorController::class, 'demoTitles'])
     ->middleware('throttle:12,1')
     ->name('demo.titles');
@@ -43,9 +40,6 @@ Route::get('/sitemap.xml', function () {
     $urls = [
         ['loc' => $baseUrl . '/', 'priority' => '1.0', 'changefreq' => 'daily'],
         ['loc' => $baseUrl . '/paket', 'priority' => '0.9', 'changefreq' => 'weekly'],
-        ['loc' => $baseUrl . '/alat-skripsi-gratis', 'priority' => '0.9', 'changefreq' => 'weekly'],
-        ['loc' => $baseUrl . '/kalkulator-slovin', 'priority' => '0.85', 'changefreq' => 'weekly'],
-        ['loc' => $baseUrl . '/hitung-kata-abstrak', 'priority' => '0.85', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/panduan', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/blog', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => $baseUrl . '/kebijakan-privasi', 'priority' => '0.7', 'changefreq' => 'monthly'],
