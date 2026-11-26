@@ -39,12 +39,28 @@ class AuthController extends Controller
         return back()->withErrors(['email' => 'Email atau password salah.']);
     }
 
-    public function registerForm(Request $request)
+    private function capturePendingOnboardingParams(Request $request): void
     {
         $ref = trim((string) $request->query('ref', ''));
         if ($ref !== '') {
             session(['pending_referral_code' => strtoupper($ref)]);
         }
+
+        $prefillJudul = trim((string) $request->query('prefill_judul', ''));
+        if ($prefillJudul !== '') {
+            session([
+                'pending_prefill_project' => [
+                    'judul' => mb_substr($prefillJudul, 0, 300),
+                    'prodi' => mb_substr(trim((string) $request->query('prefill_prodi', '')), 0, 120),
+                    'metode' => mb_substr(trim((string) $request->query('prefill_metode', '')), 0, 120),
+                ],
+            ]);
+        }
+    }
+
+    public function registerForm(Request $request)
+    {
+        $this->capturePendingOnboardingParams($request);
 
         return view('auth.register');
     }
@@ -98,6 +114,9 @@ class AuthController extends Controller
         $user->referred_by_user_id = $referrer?->id;
         $user->save();
         $this->billing->ensureUserReferralCode($user);
+        if ($referrer) {
+            $this->billing->grantReferralSignupBonus($referrer, $user, $ip);
+        }
 
         session()->forget('pending_referral_code');
         Auth::login($user);
@@ -126,10 +145,7 @@ class AuthController extends Controller
 
     public function redirectToGoogle(Request $request)
     {
-        $ref = trim((string) $request->query('ref', ''));
-        if ($ref !== '') {
-            session(['pending_referral_code' => strtoupper($ref)]);
-        }
+        $this->capturePendingOnboardingParams($request);
 
         $clientId = config('services.google.client_id') ?: env('GOOGLE_CLIENT_ID');
         if (empty($clientId)) {
@@ -214,6 +230,9 @@ class AuthController extends Controller
                 $user->referred_by_user_id = $referrer?->id;
                 $user->email_verified_at = now();
                 $user->save();
+                if ($referrer) {
+                    $this->billing->grantReferralSignupBonus($referrer, $user, (string) ($request->ip() ?? ''));
+                }
             } else {
                 if (empty($user->canonical_email)) {
                     $user->canonical_email = $canonical;

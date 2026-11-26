@@ -52,7 +52,7 @@ class BillingService
             '1 Proposal / Skripsi Bab 1–5',
             'Unduh Word & PDF (Unlimited)',
             'Lab Revisi & Sitasi DOI (Unlimited)',
-            'Cari Ide Judul & Jurnal (2x kuota)',
+            'Cari Ide Judul & Jurnal (Unlimited)',
             'Parafrase Bab 1–5 (2x kuota)',
             'Generate PPT Sidang (2x kuota)',
             'Simulasi Sidang AI (2x kuota)',
@@ -64,7 +64,7 @@ class BillingService
             '3 Proposal / Skripsi Bab 1–5',
             'Unduh Word & PDF (Unlimited)',
             'Lab Revisi & Sitasi DOI (Unlimited)',
-            'Cari Ide Judul & Jurnal (5x kuota)',
+            'Cari Ide Judul & Jurnal (Unlimited)',
             'Parafrase Bab 1–5 (5x kuota)',
             'Generate PPT Sidang (5x kuota)',
             'Simulasi Sidang AI (5x kuota)',
@@ -89,12 +89,12 @@ class BillingService
                 'is_unlimited' => false,
                 'sold_count' => 12400,
                 'summary_title' => '1 Proyek Uji Coba + Sampul, Bab I & Pustaka',
-                'summary_desc' => 'Coba Bab I, sitasi DOI & 1x semua fitur AI.',
+                'summary_desc' => 'Cari Judul & Jurnal Unlimited, plus 1x coba fitur AI.',
                 'tagline' => 'Coba gratis sebelum memilih paket.',
                 'features' => [
                     '1 proyek (Sampul, Bab 1 & Pustaka)',
                     'Sitasi otomatis ber-DOI',
-                    'Cari Judul & Jurnal (1x coba)',
+                    'Cari Judul & Jurnal (Gratis Unlimited)',
                     'Parafrase AI (1x coba)',
                     'PPT & Simulasi Sidang (1x)',
                     'Olah Data SPSS AI (1x coba)',
@@ -774,9 +774,18 @@ class BillingService
         ];
     }
 
-    public const METERED_TOOLS = [
+    public const UNLIMITED_ALL_TOOLS = [
         'titles',
         'journals',
+    ];
+
+    public const REFERRAL_BONUS_TOOLS = [
+        'paraphrase',
+        'stats_analyze',
+        'stats_interpret',
+    ];
+
+    public const METERED_TOOLS = [
         'paraphrase',
         'ppt',
         'defense',
@@ -790,6 +799,42 @@ class BillingService
         $raw = (string) ($user->free_tool_usage ?? '');
         $decoded = $raw !== '' ? json_decode($raw, true) : [];
         return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Tambah bonus +1 kuota fitur Parafrase & Olah Data AI (maksimal 3 bonus, tidak berlaku untuk PPT/Simulasi Sidang)
+     * saat ada teman valid mendaftar melalui referral.
+     */
+    public function grantReferralSignupBonus(User $referrer, User $referredUser, string $ip = ''): bool
+    {
+        $this->ensureSchema();
+        if ((int) $referrer->id === (int) $referredUser->id) {
+            return false;
+        }
+        if ($ip !== '' && !in_array($ip, ['127.0.0.1', '::1'], true)) {
+            $sameIpToday = User::where('signup_ip', $ip)
+                ->where('created_at', '>=', now()->subDay())
+                ->count();
+            if ($sameIpToday > 2) {
+                return false;
+            }
+        }
+
+        return DB::transaction(function () use ($referrer): bool {
+            $locked = User::where('id', $referrer->id)->lockForUpdate()->first();
+            if (!$locked) {
+                return false;
+            }
+            $usage = $this->getFreeToolUsage($locked);
+            $currentBonus = max(0, (int) ($usage['_ref_bonus_slots'] ?? 0));
+            if ($currentBonus >= 3) {
+                return false;
+            }
+            $usage['_ref_bonus_slots'] = $currentBonus + 1;
+            $locked->free_tool_usage = json_encode($usage);
+            $locked->save();
+            return true;
+        });
     }
 
     private function decodeJsonMap(?string $raw): array
@@ -823,6 +868,9 @@ class BillingService
     public function checkToolAccess(User $user, string $toolKey, string $toolLabel): array
     {
         $this->ensureSchema();
+        if (in_array($toolKey, self::UNLIMITED_ALL_TOOLS, true)) {
+            return ['allowed' => true];
+        }
         if ($this->isAdminUser($user) || $this->isUnlimitedActive($user)) {
             return ['allowed' => true];
         }
@@ -844,12 +892,16 @@ class BillingService
         }
 
         $usage = $this->getFreeToolUsage($user);
-        if ((int) ($usage[$toolKey] ?? 0) >= 1) {
+        $bonus = in_array($toolKey, self::REFERRAL_BONUS_TOOLS, true)
+            ? max(0, min(3, (int) ($usage['_ref_bonus_slots'] ?? 0)))
+            : 0;
+        $freeLimit = 1 + $bonus;
+        if ((int) ($usage[$toolKey] ?? 0) >= $freeLimit) {
             return [
                 'allowed' => false,
                 'upgrade_required' => true,
                 'reason' => 'free_tool_limit',
-                'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
+                'message' => "Jatah coba gratis {$freeLimit}x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
             ];
         }
 
@@ -862,6 +914,9 @@ class BillingService
     public function reserveToolAccess(User $user, string $toolKey, string $toolLabel): array
     {
         $this->ensureSchema();
+        if (in_array($toolKey, self::UNLIMITED_ALL_TOOLS, true)) {
+            return ['allowed' => true, 'reserved' => false, 'reserved_mode' => null];
+        }
         if ($this->isAdminUser($user) || $this->isUnlimitedActive($user)) {
             return ['allowed' => true, 'reserved' => false, 'reserved_mode' => null];
         }
@@ -904,16 +959,21 @@ class BillingService
             }
 
             $usage = $this->getFreeToolUsage($lockedUser);
-            if ((int) ($usage[$toolKey] ?? 0) >= 1) {
+            $bonus = in_array($toolKey, self::REFERRAL_BONUS_TOOLS, true)
+                ? max(0, min(3, (int) ($usage['_ref_bonus_slots'] ?? 0)))
+                : 0;
+            $freeLimit = 1 + $bonus;
+            $used = (int) ($usage[$toolKey] ?? 0);
+            if ($used >= $freeLimit) {
                 return [
                     'allowed' => false,
                     'upgrade_required' => true,
                     'reason' => 'free_tool_limit',
-                    'message' => "Jatah coba gratis 1x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
+                    'message' => "Jatah coba gratis {$freeLimit}x untuk fitur {$toolLabel} sudah terpakai. Aktifkan paket mulai dari Paket Starter Rp15.000 untuk membuka secara penuh.",
                 ];
             }
 
-            $usage[$toolKey] = 1;
+            $usage[$toolKey] = $used + 1;
             $lockedUser->free_tool_usage = json_encode($usage);
             $lockedUser->save();
             $user->free_tool_usage = $lockedUser->free_tool_usage;

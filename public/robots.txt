@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 Allow: /paket
+Allow: /alat-skripsi-gratis
+Allow: /kalkulator-slovin
+Allow: /hitung-kata-abstrak
 Allow: /panduan
 Allow: /panduan/
 Allow: /blog

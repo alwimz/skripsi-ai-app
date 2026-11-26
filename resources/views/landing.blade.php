@@ -1766,6 +1766,135 @@
             .tool-sc-desc { font-size: 11.5px; }
         }
 
+        .demo-title-wrap {
+            background: #ffffff;
+            border: 1.5px solid #bfdbfe;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 18px 40px -22px rgba(37, 99, 235, 0.25);
+        }
+        .demo-title-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+        .demo-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .demo-field label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .demo-hint {
+            font-size: 11.5px;
+            color: #64748b;
+        }
+        .demo-control {
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: max(1rem, 1em);
+            color: #0f172a;
+            background: #ffffff;
+            border: 1px solid #94a3b8;
+            border-radius: 10px;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+        .demo-control:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+            border-color: var(--primary);
+        }
+        .demo-control:is(:user-invalid, .user-invalid-fallback) {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        .demo-err-msg {
+            display: none;
+            font-size: 12px;
+            font-weight: 600;
+            color: #dc2626;
+            margin-top: 2px;
+        }
+        .demo-control:is(:user-invalid, .user-invalid-fallback) + .demo-err-msg {
+            display: block;
+        }
+        .demo-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+        .demo-chip-btn {
+            min-height: 32px;
+            padding: 4px 11px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.14s ease;
+        }
+        .demo-chip-btn:hover {
+            border-color: #2563eb;
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+        .demo-results {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            display: none;
+        }
+        .demo-result-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 15px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 9px;
+            flex-wrap: wrap;
+        }
+        .demo-result-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.45;
+            flex: 1 1 320px;
+        }
+        .demo-result-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .copy-tip {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #047857;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        button[data-copied] + .copy-tip, button[data-failed] + .copy-tip {
+            opacity: 1;
+        }
+        @media (max-width: 900px) {
+            .demo-title-grid { grid-template-columns: 1fr; align-items: stretch; }
+            .demo-title-wrap { padding: 18px 15px; }
+        }
+
         @media (max-width: 440px) {
             .hero-cta {
                 flex-direction: column;
@@ -2016,6 +2145,76 @@
                         </svg>
                         9 Metode &amp; Semua Jurusan
                     </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Widget Interaktif: Coba Buat 3 Ide Judul Gratis Langsung di Beranda -->
+        <section id="coba-judul" class="section" style="padding: 26px 0 42px;">
+            <div class="container">
+                <div class="demo-title-wrap">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                        <div>
+                            <span class="section-label" style="margin-bottom:6px;">Coba Langsung Tanpa Daftar · Gratis</span>
+                            <h2 style="font-size:clamp(1.2rem,1rem + 0.9vw,1.55rem);font-weight:800;color:#0f172a;letter-spacing:-0.02em;">
+                                Buat 3 Ide Judul &amp; Rumusan Masalah Sekarang
+                            </h2>
+                        </div>
+                        <a href="{{ url('/alat-skripsi-gratis') }}" style="font-size:13px;font-weight:700;color:#2563eb;">Buka Kalkulator Slovin &amp; Alat Gratis →</a>
+                    </div>
+
+                    <div class="demo-chips" aria-label="Contoh topik cepat">
+                        <span style="font-size:12px;font-weight:600;color:#64748b;">Contoh cepat:</span>
+                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Manajemen','TikTok Live terhadap keputusan pembelian UMKM','Kuantitatif (Survei / Regresi)')">Manajemen · TikTok Live</button>
+                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Teknik Informatika','Prediksi kelulusan mahasiswa menggunakan Random Forest','R&D / Pengembangan Sistem')">Informatika · Machine Learning</button>
+                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('PGSD','Media pembelajaran interaktif berbasis Wordwall kelas 5 SD','PTK (Penelitian Tindakan Kelas)')">PGSD · Media Pembelajaran</button>
+                        <button type="button" class="demo-chip-btn" onclick="fillDemoPreset('Ilmu Hukum','Perlindungan hukum konsumen pada transaksi pinjaman online ilegal','Hukum Normatif')">Hukum · Pinjol Ilegal</button>
+                    </div>
+
+                    <form id="demo-title-form" novalidate onsubmit="submitDemoTitles(event)">
+                        <input type="text" name="website_hp" value="" tabindex="-1" aria-hidden="true" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+                        <div class="demo-title-grid">
+                            <div class="demo-field">
+                                <label for="demo-prodi">Jurusan / Prodi</label>
+                                <span id="demo-prodi-hint" class="demo-hint">Misal: Manajemen, IT, PGSD</span>
+                                <input type="text" id="demo-prodi" name="prodi" class="demo-control" maxlength="80" aria-describedby="demo-prodi-hint" placeholder="Contoh: Manajemen">
+                            </div>
+
+                            <div class="demo-field">
+                                <label for="demo-topik">Topik / Minat Penelitian <span aria-hidden="true" style="color:#dc2626;">*</span></label>
+                                <span id="demo-topik-hint" class="demo-hint">Minimal 3 karakter, misal: pemasaran digital UMKM.</span>
+                                <input type="text" id="demo-topik" name="topik" class="demo-control" required minlength="3" maxlength="160" aria-describedby="demo-topik-hint" data-error="demo-topik-error" placeholder="Tulis topik yang ingin kamu teliti...">
+                                <div id="demo-topik-error" class="demo-err-msg">Error: Masukkan topik penelitian minimal 3 karakter terlebih dahulu.</div>
+                            </div>
+
+                            <div class="demo-field">
+                                <label for="demo-metode">Metode Penelitian</label>
+                                <span id="demo-metode-hint" class="demo-hint">Sesuaikan pendekatan skripsimu</span>
+                                <select id="demo-metode" name="metode" class="demo-control" aria-describedby="demo-metode-hint">
+                                    <option value="Kuantitatif (Survei / Regresi)" selected>Kuantitatif (Survei / Regresi)</option>
+                                    <option value="Kualitatif (Studi Kasus / Deskriptif)">Kualitatif (Studi Kasus)</option>
+                                    <option value="R&D / Pengembangan Sistem">R&amp;D / Pengembangan Sistem</option>
+                                    <option value="PTK (Penelitian Tindakan Kelas)">PTK (Tindakan Kelas)</option>
+                                    <option value="Hukum Normatif">Hukum Normatif</option>
+                                    <option value="Mixed Method">Mixed Method</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <button type="submit" id="demo-submit-btn" class="btn btn-primary" style="min-height:46px;width:100%;">Buat Ide Judul →</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="demo-status-live" class="demo-hint" role="status" aria-live="polite" style="margin-top:10px;"></div>
+                    <div id="demo-results-box" class="demo-results" aria-live="polite">
+                        <div id="demo-rumusan-card" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:11px;padding:12px 14px;font-size:13.5px;color:#1e3a8a;margin-bottom:12px;"></div>
+                        <div id="demo-titles-list"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:13px;color:#475569;">
+                            <span>Ingin <strong>10+ ide judul lainnya &amp; Cari Jurnal Ber-DOI</strong> tanpa batas? <strong>Gratis Unlimited</strong> di dalam akun SkripsiLab AI.</span>
+                            <a href="{{ auth()->check() ? route('app.create', ['tab' => 'titles']) : route('register') }}" class="btn btn-outline" style="min-height:38px;" data-meta-lead="Demo Hasil Buka Unlimited Judul">Buka Cari Judul &amp; Jurnal Unlimited →</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2525,28 +2724,29 @@
                     </div>
 
                     <div class="tool-showcase-card">
-                        <span class="tool-sc-badge">Bab III</span>
+                        <span class="tool-sc-badge">Tanpa Login</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
                         </span>
                         <div class="tool-sc-title">Kalkulator Slovin &amp; Lemeshow</div>
                         <div class="tool-sc-desc">Hitung sampel minimal otomatis lengkap dengan langkah &amp; paragraf siap salin ke Bab III.</div>
-                        <a href="{{ auth()->check() ? route('tools.hub') . '#slovin' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#slovin' : url('/kalkulator-slovin') }}" class="tool-sc-cta">Pakai Gratis Sekarang →</a>
                     </div>
 
                     <div class="tool-showcase-card">
-                        <span class="tool-sc-badge">Gratis</span>
+                        <span class="tool-sc-badge">Tanpa Login</span>
                         <span class="tool-sc-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>
                         </span>
                         <div class="tool-sc-title">Hitung Kata &amp; Cek Abstrak</div>
                         <div class="tool-sc-desc">Cek batas 150–250 kata abstrak, kata kunci tersering, &amp; estimasi halaman A4 dari .docx/.pdf.</div>
-                        <a href="{{ auth()->check() ? route('tools.hub') . '#word-count' : route('login') }}" class="tool-sc-cta">Buka di Workspace →</a>
+                        <a href="{{ auth()->check() ? route('tools.hub') . '#word-count' : url('/hitung-kata-abstrak') }}" class="tool-sc-cta">Pakai Gratis Sekarang →</a>
                     </div>
                 </div>
 
                 <div class="tools-showcase-footer">
-                    <a href="{{ auth()->check() ? route('tools.hub') : route('register') }}" class="btn btn-primary">{{ auth()->check() ? 'Buka Semua 10 Tools Mahasiswa →' : 'Daftar Gratis & Gunakan Semua Tools →' }}</a>
+                    <a href="{{ auth()->check() ? route('tools.hub') : url('/alat-skripsi-gratis') }}" class="btn btn-outline" style="margin-right:8px;">Pakai Alat Tanpa Login →</a>
+                    <a href="{{ auth()->check() ? route('tools.hub') : route('register') }}" class="btn btn-primary">{{ auth()->check() ? 'Buka Semua 10 Tools Mahasiswa →' : 'Daftar Gratis & Gunakan Semua 10 Tools →' }}</a>
                 </div>
             </div>
         </section>
@@ -2742,6 +2942,200 @@
             const dialog = document.getElementById('pdf-preview-dialog');
             document.getElementById('pdf-dialog-frame').src = 'about:blank';
             dialog.close();
+        }
+
+        function fillDemoPreset(prodi, topik, metode) {
+            const pEl = document.getElementById('demo-prodi');
+            const tEl = document.getElementById('demo-topik');
+            const mEl = document.getElementById('demo-metode');
+            if (pEl) pEl.value = prodi;
+            if (tEl) {
+                tEl.value = topik;
+                tEl.setAttribute('aria-invalid', 'false');
+                tEl.classList.remove('user-invalid-fallback');
+            }
+            if (mEl) mEl.value = metode;
+        }
+
+        const demoTopikEl = document.getElementById('demo-topik');
+        if (demoTopikEl) {
+            demoTopikEl.setAttribute('aria-invalid', 'false');
+            demoTopikEl.addEventListener('blur', () => {
+                if (demoTopikEl.value.trim().length > 0 && !demoTopikEl.checkValidity()) {
+                    demoTopikEl.classList.add('user-invalid-fallback');
+                    demoTopikEl.setAttribute('aria-invalid', 'true');
+                }
+            });
+            demoTopikEl.addEventListener('input', () => {
+                if (demoTopikEl.checkValidity()) {
+                    demoTopikEl.classList.remove('user-invalid-fallback');
+                    demoTopikEl.setAttribute('aria-invalid', 'false');
+                }
+            });
+        }
+
+        const demoCopyTimers = new WeakMap();
+        function legacyCopyText(text) {
+            const prev = document.activeElement;
+            const field = Object.assign(document.createElement('textarea'), { value: text });
+            field.setAttribute('readonly', '');
+            field.style.cssText = 'position:fixed;inset-block-start:0;opacity:0';
+            document.body.append(field);
+            field.select();
+            try { return document.execCommand('copy'); }
+            finally { field.remove(); prev?.focus({ preventScroll: true }); }
+        }
+        function showCopyFeedback(btn, ok) {
+            const tip = btn.nextElementSibling;
+            if (!tip) return;
+            clearTimeout(demoCopyTimers.get(btn));
+            btn.removeAttribute('data-copied');
+            btn.removeAttribute('data-failed');
+            void btn.offsetWidth;
+            btn.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+            requestAnimationFrame(() => { tip.textContent = ok ? 'Tersalin!' : 'Gagal salin'; });
+            demoCopyTimers.set(btn, setTimeout(() => {
+                btn.removeAttribute('data-copied');
+                btn.removeAttribute('data-failed');
+                tip.textContent = '';
+            }, 1800));
+        }
+        async function handleDemoCopy(btn, target) {
+            const text = target.innerText.trim();
+            if (!text) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopyFeedback(btn, true);
+            } catch {
+                showCopyFeedback(btn, legacyCopyText(text));
+            }
+        }
+        if ('CommandEvent' in window) {
+            document.addEventListener('command', (ev) => {
+                if (ev.command && ev.command.startsWith('--copy') && ev.source && ev.target) {
+                    handleDemoCopy(ev.source, ev.target);
+                }
+            }, true);
+        } else {
+            document.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('button[command^="--copy"]');
+                if (!btn) return;
+                const target = document.getElementById(btn.getAttribute('commandfor'));
+                if (target) handleDemoCopy(btn, target);
+            });
+        }
+
+        async function submitDemoTitles(ev) {
+            ev.preventDefault();
+            const form = ev.currentTarget;
+            const topikInput = document.getElementById('demo-topik');
+            const prodiInput = document.getElementById('demo-prodi');
+            const metodeSelect = document.getElementById('demo-metode');
+            const statusLive = document.getElementById('demo-status-live');
+            const submitBtn = document.getElementById('demo-submit-btn');
+            const resBox = document.getElementById('demo-results-box');
+            const listBox = document.getElementById('demo-titles-list');
+            const rumusanBox = document.getElementById('demo-rumusan-card');
+
+            if (!topikInput.checkValidity()) {
+                topikInput.classList.add('user-invalid-fallback');
+                topikInput.setAttribute('aria-invalid', 'true');
+                topikInput.focus();
+                return;
+            }
+
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const payload = {
+                topik: topikInput.value.trim(),
+                prodi: (prodiInput?.value || '').trim(),
+                metode: metodeSelect?.value || 'Kuantitatif (Survei / Regresi)',
+                website_hp: form.querySelector('input[name="website_hp"]')?.value || ''
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Merumuskan Judul...';
+            if (statusLive) statusLive.textContent = 'Sedang menyusun 3 rekomendasi judul dan rumusan masalah...';
+
+            try {
+                const res = await fetch(@json(route('demo.titles')), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal memproses permintaan.');
+                }
+
+                const titles = Array.isArray(data.titles) ? data.titles : [];
+                rumusanBox.innerHTML = '';
+                const rumLabel = document.createElement('strong');
+                rumLabel.textContent = 'Contoh Rumusan Masalah: ';
+                const rumText = document.createElement('span');
+                rumText.textContent = data.rumusan || '';
+                rumusanBox.appendChild(rumLabel);
+                rumusanBox.appendChild(rumText);
+
+                listBox.innerHTML = '';
+                const baseStartUrl = @json(auth()->check() ? route('app.create', ['tab' => 'projects', 'create' => 1]) : route('register'));
+                titles.forEach((title, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'demo-result-card';
+
+                    const titleSpan = document.createElement('div');
+                    titleSpan.className = 'demo-result-title';
+                    titleSpan.id = `demo-gen-title-${idx}`;
+                    titleSpan.textContent = title;
+
+                    const actions = document.createElement('div');
+                    actions.className = 'demo-result-actions';
+
+                    const copyBtn = document.createElement('button');
+                    copyBtn.type = 'button';
+                    copyBtn.className = 'btn btn-outline';
+                    copyBtn.style.minHeight = '36px';
+                    copyBtn.style.padding = '6px 12px';
+                    copyBtn.setAttribute('command', '--copy');
+                    copyBtn.setAttribute('commandfor', titleSpan.id);
+                    copyBtn.textContent = 'Salin';
+
+                    const tip = document.createElement('span');
+                    tip.className = 'copy-tip';
+                    tip.setAttribute('role', 'status');
+
+                    const qs = new URLSearchParams({
+                        prefill_judul: title,
+                        prefill_prodi: data.prodi || payload.prodi || '',
+                        prefill_metode: data.metode || payload.metode || ''
+                    });
+                    const sep = baseStartUrl.includes('?') ? '&' : '?';
+                    const cta = document.createElement('a');
+                    cta.href = `${baseStartUrl}${sep}${qs.toString()}`;
+                    cta.className = 'btn btn-primary';
+                    cta.style.minHeight = '36px';
+                    cta.style.padding = '6px 14px';
+                    cta.setAttribute('data-meta-lead', 'Widget Coba Judul Pakai');
+                    cta.textContent = 'Susun Bab I–V Judul Ini →';
+
+                    actions.appendChild(copyBtn);
+                    actions.appendChild(tip);
+                    actions.appendChild(cta);
+                    card.appendChild(titleSpan);
+                    card.appendChild(actions);
+                    listBox.appendChild(card);
+                });
+
+                resBox.style.display = 'block';
+                if (statusLive) statusLive.textContent = `${titles.length} ide judul skripsi siap dipilih.`;
+                if (window.slTrackMetaEvent) {
+                    window.slTrackMetaEvent('Lead', { content_name: 'Demo Generate Judul Landing' });
+                }
+            } catch (err) {
+                if (statusLive) statusLive.textContent = err.message || 'Terjadi kendala saat membuat ide judul.';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Buat Ide Judul →';
+            }
         }
     </script>
     @auth

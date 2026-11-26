@@ -3925,11 +3925,11 @@
                                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                     </svg>
                                 </div>
-                                <span class="dash-tag">10 Ide AI</span>
+                                <span class="dash-tag" style="background:#ecfdf5; color:#059669; border-color:#a7f3d0;">Gratis Unlimited</span>
                             </div>
                             <div class="dash-card-body" style="margin-top: 12px;">
                                 <h3>Cari Judul Skripsi</h3>
-                                <p>Dapatkan saran judul penelitian sesuai topik, jurusan, dan metodologi.</p>
+                                <p>Dapatkan 10 saran judul penelitian sesuai topik, jurusan, dan metodologi tanpa batas kuota.</p>
                             </div>
                         </div>
                         <div class="dash-card-foot">
@@ -3991,11 +3991,11 @@
                                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                                     </svg>
                                 </div>
-                                <span class="dash-tag">DOI &amp; PDF</span>
+                                <span class="dash-tag" style="background:#ecfdf5; color:#059669; border-color:#a7f3d0;">Gratis Unlimited</span>
                             </div>
                             <div class="dash-card-body" style="margin-top: 12px;">
                                 <h3>Cari Jurnal &amp; Download PDF</h3>
-                                <p>Temukan jurnal open-access beserta link unduh PDF asli dan sitasi otomatis.</p>
+                                <p>Temukan jurnal open-access ber-DOI beserta link PDF &amp; sitasi otomatis tanpa batas di semua paket.</p>
                             </div>
                         </div>
                         <div class="dash-card-foot">
@@ -4617,7 +4617,7 @@
             <!-- 3. TAB CARI JUDUL SKRIPSI (EXACT SKRIPSITA STYLE) -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-titles">
-                <div class="page-eyebrow">Eksplorasi Topik · AI Akademik</div>
+                <div class="page-eyebrow">Eksplorasi Topik · Gratis Unlimited di Semua Paket</div>
                 <h1 class="page-title">Cari Judul Skripsi</h1>
                 <p class="page-subtitle">Isi topik dan metodologi — sistem langsung sarankan judul terbaik sesuai
                     bidangmu dalam hitungan detik.</p>
@@ -5466,7 +5466,7 @@
             <!-- 6. TAB CARI JURNAL & DOWNLOAD PDF ASLI -->
             <!-- ========================================================= -->
             <section class="tab-pane" id="pane-journals">
-                <div class="page-eyebrow">Referensi Ilmiah Open-Access</div>
+                <div class="page-eyebrow">Referensi Ilmiah Open-Access · Gratis Unlimited di Semua Paket</div>
                 <h1 class="page-title">Cari Jurnal &amp; Unduh PDF Asli</h1>
                 <p class="page-subtitle">Temukan jurnal penelitian relevan dari Indonesia (Sinta/Garuda) maupun
                     Internasional (Scopus/Global) lengkap dengan tautan unduh PDF asli dan sitasi ilmiah otomatis.</p>
@@ -6937,12 +6937,10 @@
                         <div style="max-width: 540px;">
                             <div
                                 style="display: inline-block; padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-size: 11.5px; font-weight: 700; margin-bottom: 10px;">
-                                KOMISI AFILIASI MAHASISWA 10%</div>
+                                BONUS KUOTA + KOMISI 10%</div>
                             <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
-                                Dapatkan Komisi 10% dari Setiap Pembelian Paket Teman</h3>
-                            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Ajak teman
-                                seangkatan atau tim bimbinganmu. Setiap teman membeli paket (Rp15rb–Rp399rb),
-                                <strong>komisi 10%</strong> masuk ke saldo Anda.
+                                Ajak Teman = Bonus Parafrase &amp; Olah Data + Komisi 10%</h3>
+                            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">Bagikan ke teman seangkatan atau grup WhatsApp kelas! Setiap 1 teman mendaftar, kamu langsung mendapat <strong>+1 bonus kuota Parafrase &amp; Olah Data SPSS AI</strong> (maks +3 bonus) — dan saat teman membeli paket, <strong>komisi 10%</strong> otomatis masuk ke saldo Anda! Temanmu juga langsung dapat <strong>Cari Judul &amp; Cari Jurnal Gratis Unlimited</strong>.
                             </p>
                         </div>
                         <div
@@ -7555,7 +7553,14 @@
                 targetTab = storedTab;
             }
 
-            if (targetTab && DASHBOARD_TAB_LABELS[targetTab]) {
+            const prefillProject = @json($prefillProject ?? null);
+            if (prefillProject && prefillProject.judul) {
+                useTitleForProject(
+                    prefillProject.judul || '',
+                    prefillProject.prodi || '',
+                    prefillProject.metode || ''
+                );
+            } else if (targetTab && DASHBOARD_TAB_LABELS[targetTab]) {
                 openTab(targetTab, DASHBOARD_TAB_LABELS[targetTab]);
                 if (targetTab === 'panduan' && guideParam) {
                     selectPanduanGuide(guideParam);
@@ -7845,7 +7850,7 @@
         function shareReferralWhatsapp() {
             const urlEl = document.getElementById('referral-link-input');
             const refUrl = urlEl ? urlEl.value : window.location.origin;
-            const text = encodeURIComponent(`Halo! Lagi nyusun proposal atau skripsi? Coba Workspace SkripsiLab AI untuk susun Bab 1-5 otomatis dengan referensi jurnal yang relevan, PPT sidang, dan simulasi penguji AI di sini: ${refUrl}`);
+            const text = encodeURIComponent(`Info buat teman-teman pejuang proposal & skripsi! Di SkripsiLab AI sekarang Cari Ide Judul + Cari Jurnal Ber-DOI sudah GRATIS UNLIMITED, plus bisa coba susun Bab 1 otomatis format 4-4-3-3 & 10 Tools Mahasiswa gratis di sini: ${refUrl}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 

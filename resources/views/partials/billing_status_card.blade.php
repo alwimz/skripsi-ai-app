@@ -23,14 +23,14 @@
     $toolQuotaStatus = $bs['tool_quota_status'] ?? [];
 
     $toolItems = [
-        ['key' => 'titles', 'label' => 'Cari Ide Judul AI'],
-        ['key' => 'journals', 'label' => 'Cari Jurnal Ber-DOI'],
         ['key' => 'ppt', 'label' => 'Generate PPT Sidang'],
         ['key' => 'defense', 'label' => 'Simulasi Sidang AI'],
         ['key' => 'paraphrase', 'label' => 'Parafrase Bab 1–5'],
         ['key' => 'stats_analyze', 'label' => 'Olah Data SPSS AI'],
         ['key' => 'stats_interpret', 'label' => 'Interpretasi Bab IV'],
     ];
+    $refBonusSlots = max(0, min(3, (int) ($freeUsage['_ref_bonus_slots'] ?? 0)));
+    $bonusEligibleKeys = ['paraphrase', 'stats_analyze', 'stats_interpret'];
 @endphp
 
 @if($bsPaid)
@@ -353,11 +353,20 @@
             @endif
         </div>
         <div class="sl-feat-status-grid">
+            <div class="sl-feat-chip">
+                <span class="sl-feat-chip-name">Cari Ide Judul AI</span>
+                <span class="sl-feat-chip-val ok">Gratis Unlimited</span>
+            </div>
+            <div class="sl-feat-chip">
+                <span class="sl-feat-chip-name">Cari Jurnal Ber-DOI</span>
+                <span class="sl-feat-chip-val ok">Gratis Unlimited</span>
+            </div>
             @foreach($toolItems as $item)
                 @php
                     $tKey = $item['key'];
                     $usedCount = (int) ($freeUsage[$tKey] ?? 0);
-                    $leftFree = max(0, 1 - $usedCount);
+                    $freeCap = 1 + (in_array($tKey, $bonusEligibleKeys, true) ? $refBonusSlots : 0);
+                    $leftFree = max(0, $freeCap - $usedCount);
                     $qInfo = $toolQuotaStatus[$tKey] ?? ['limit' => 2, 'used' => 0, 'remaining' => 2];
                     $qRem = (int) ($qInfo['remaining'] ?? 0);
                     $qLim = (int) ($qInfo['limit'] ?? 0);
@@ -372,7 +381,7 @@
                         </span>
                     @else
                         <span class="sl-feat-chip-val {{ $leftFree > 0 ? 'ok' : 'empty' }}">
-                            Sisa {{ $leftFree }} dari 1
+                            Sisa {{ $leftFree }} dari {{ $freeCap }}
                         </span>
                     @endif
                 </div>

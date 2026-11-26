@@ -2594,8 +2594,16 @@ class GeneratorController extends Controller
         $billingSummary = $this->billing()->getUserSummary($user, true);
         $plans = $this->billing()->getPlans(true);
         $guides = PanduanController::getGuides();
+        $prefillProject = session()->pull('pending_prefill_project');
+        if (request()->filled('prefill_judul')) {
+            $prefillProject = [
+                'judul' => mb_substr(trim((string) request()->query('prefill_judul', '')), 0, 300),
+                'prodi' => mb_substr(trim((string) request()->query('prefill_prodi', '')), 0, 120),
+                'metode' => mb_substr(trim((string) request()->query('prefill_metode', '')), 0, 120),
+            ];
+        }
 
-        return $this->applyNoStoreHeaders(response()->view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans', 'guides')));
+        return $this->applyNoStoreHeaders(response()->view('pre_generator', compact('history', 'apiKeys', 'user', 'defaultIdentity', 'savedPpts', 'billingSummary', 'plans', 'guides', 'prefillProject')));
     }
 
     private function applyNoStoreHeaders($response)
@@ -3330,6 +3338,111 @@ Syarat WAJIB:
             }
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Widget publik di landing page: buat 3 ide judul + 1 rumusan masalah gratis tanpa login (rate-limited).
+     */
+    public function demoTitles(Request $request)
+    {
+        // Honeypot anti-bot
+        if (trim((string) $request->input('website_hp', '')) !== '') {
+            return response()->json(['status' => 'success', 'titles' => [], 'rumusan' => '']);
+        }
+
+        $validated = $request->validate([
+            'topik' => 'required|string|min:3|max:160',
+            'prodi' => 'nullable|string|max:80',
+            'metode' => 'nullable|string|max:80',
+        ]);
+
+        $topik = trim((string) $validated['topik']);
+        $prodi = trim((string) ($validated['prodi'] ?? '')) ?: 'Umum';
+        $metode = trim((string) ($validated['metode'] ?? '')) ?: 'Kuantitatif (Survei / Regresi)';
+
+        $fallbackTitles = $this->buildFallbackDemoTitles($topik, $prodi, $metode);
+        $fallbackRumusan = "Bagaimana penerapan atau pengaruh {$topik} dalam konteks program studi {$prodi} menggunakan pendekatan {$metode}?";
+
+        $prompt = "Sebagai Dosen Pembimbing Skripsi Indonesia, buatkan tepat 3 judul skripsi S1 yang spesifik, orisinal, dan layak ACC serta 1 contoh Rumusan Masalah utama.\n"
+            . "- Topik: {$topik}\n"
+            . "- Program Studi: {$prodi}\n"
+            . "- Metode: {$metode}\n\n"
+            . "Format output WAJIB persis 4 baris saja (tanpa nomor urut, tanpa markdown, tanpa kata pengantar):\n"
+            . "Baris 1: Judul 1\n"
+            . "Baris 2: Judul 2\n"
+            . "Baris 3: Judul 3\n"
+            . "Baris 4: RUMUSAN: <1 kalimat pertanyaan rumusan masalah yang paling tajam untuk salah satu judul di atas>";
+
+        try {
+            $raw = $this->ai->generateText($prompt, 'auto');
+            $lines = array_values(array_filter(array_map('trim', explode("\n", (string) $raw)), fn($l) => strlen($l) > 12));
+            $titles = [];
+            $rumusan = '';
+            foreach ($lines as $line) {
+                if (preg_match('/^RUMUSAN\s*:\s*(.+)$/i', $line, $m)) {
+                    $rumusan = trim($m[1]);
+                    continue;
+                }
+                $clean = trim(preg_replace('/^[\d\-\.\*\s\"\)]+|[\"]+$/', '', $line));
+                if (strlen($clean) >= 18 && count($titles) < 3) {
+                    $titles[] = $clean;
+                }
+            }
+
+            if (count($titles) < 2) {
+                $titles = $fallbackTitles;
+            }
+            if ($rumusan === '') {
+                $rumusan = $fallbackRumusan;
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'titles' => array_slice($titles, 0, 3),
+                'rumusan' => $rumusan,
+                'prodi' => $prodi,
+                'metode' => $metode,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'success',
+                'titles' => $fallbackTitles,
+                'rumusan' => $fallbackRumusan,
+                'prodi' => $prodi,
+                'metode' => $metode,
+            ]);
+        }
+    }
+
+    private function buildFallbackDemoTitles(string $topik, string $prodi, string $metode): array
+    {
+        $m = strtolower($metode);
+        if (str_contains($m, 'r&d') || str_contains($m, 'sistem')) {
+            return [
+                "Rancang Bangun Sistem Informasi {$topik} Berbasis Web pada Konteks {$prodi}",
+                "Pengembangan Aplikasi Pendukung Keputusan {$topik} Menggunakan Metode Prototype pada Studi Kasus {$prodi}",
+                "Evaluasi Usability dan Efektivitas Implementasi {$topik} Berbasis Digital bagi Pengguna {$prodi}",
+            ];
+        }
+        if (str_contains($m, 'kualitatif')) {
+            return [
+                "Analisis Strategi Penerapan {$topik} dalam Mendukung Kinerja Praktik {$prodi}",
+                "Studi Kasus Implementasi {$topik}: Peluang, Tantangan, dan Dampak pada Konteks {$prodi}",
+                "Eksplorasi Peran {$topik} terhadap Adaptasi dan Inovasi di Lingkungan {$prodi}",
+            ];
+        }
+        if (str_contains($m, 'hukum')) {
+            return [
+                "Tinjauan Yuridis dan Perlindungan Hukum terkait {$topik} dalam Perspektif Hukum Indonesia",
+                "Analisis Efektivitas Penegakan Regulasi mengenai {$topik} di Era Transformasi Digital",
+                "Pertanggungjawaban Hukum Para Pihak terhadap Permasalahan {$topik} di Indonesia",
+            ];
+        }
+        return [
+            "Pengaruh {$topik} terhadap Peningkatan Kinerja dan Efektivitas pada Studi Kasus {$prodi}",
+            "Analisis Faktor Penentu Keberhasilan {$topik} dengan Pendekatan {$metode} di Bidang {$prodi}",
+            "Hubungan Implementasi {$topik} dan Kualitas Hasil Kerja pada Konteks {$prodi}",
+        ];
     }
 
     public function findJournals(Request $request)
