@@ -183,4 +183,84 @@ class GrowthUpgradeTest extends TestCase
         $dom = new \DOMDocument();
         $this->assertTrue($dom->loadXML($docXml), 'DOCX document.xml must remain valid XML');
     }
+
+    public function test_paraphrase_chunks_long_text_and_locks_citations_verbatim(): void
+    {
+        $user = User::factory()->create(['plan_code' => 'unlimited', 'plan_expires_at' => now()->addMonth()]);
+        $this->actingAs($user);
+
+        $calls = 0;
+        $fakeAi = new class($calls) extends \App\Services\GroqService {
+            public int $callCount = 0;
+            public function __construct(&$ref) {
+                $this->callCount = 0;
+            }
+            public function generateText(string $prompt, string $model = 'auto', array $images = []): string
+            {
+                $this->callCount++;
+                // Ekstrak isi TEKS ASLI dan pastikan token [[SITASI_N]] ada, lalu kembalikan teks baru dengan token utuh
+                if (preg_match('/TEKS ASLI:\s*"""\s*([\s\S]*?)\s*"""/u', $prompt, $m)) {
+                    $chunk = trim($m[1]);
+                    return 'Versi parafrase bagian ' . $this->callCount . ' — ' . preg_replace('/\bpenelitian\b/i', 'kajian ilmiah', $chunk);
+                }
+                return 'Hasil parafrase uji';
+            }
+        };
+        $this->app->instance(\App\Services\GroqService::class, $fakeAi);
+
+        $p1 = str_repeat('Perkembangan penelitian analisis sentimen komentar produk kosmetik lokal di platform TikTok meningkat pesat. ', 22)
+            . 'Temuan ini sejalan dengan Luftia Rahma Nasution & Sriani (2026) serta Abdurohim et al. (2024).';
+        $p2 = str_repeat('Selanjutnya metode penelitian klasifikasi multikelas berbasis Naive Bayes dan TF-IDF dievaluasi menyeluruh. ', 22)
+            . 'Hal tersebut diperkuat oleh Yusra dan Putri (2026) serta (Wijaya & Putra, 2025).';
+
+        $res = $this->postJson(route('tools.paraphrase'), [
+            'text' => $p1 . "\n\n" . $p2,
+            'style' => 'natural',
+            'intensity' => 'sedang',
+        ]);
+
+        $res->assertStatus(200)
+            ->assertJson(['status' => 'success']);
+
+        $this->assertGreaterThanOrEqual(2, $fakeAi->callCount, 'Long text must be split into multiple chunks so AI paraphrases every paragraph');
+        $out = (string) $res->json('result');
+        $this->assertStringContainsString('Luftia Rahma Nasution & Sriani (2026)', $out);
+        $this->assertStringContainsString('Abdurohim et al. (2024)', $out);
+        $this->assertStringContainsString('Yusra dan Putri (2026)', $out);
+        $this->assertStringContainsString('(Wijaya & Putra, 2025)', $out);
+        $this->assertStringNotContainsString('[[SITASI_', $out);
+        $this->assertSame(4, $res->json('metrics.citations_detected'));
+        $this->assertSame(4, $res->json('metrics.citations_preserved'));
+    }
+
+    public function test_docx_to_pdf_parser_preserves_section_breaks_and_borderless_tables(): void
+    {
+        $tmpDocx = tempnam(sys_get_temp_dir(), 'sect_tbl_') . '.docx';
+        $zip = new \ZipArchive();
+        $this->assertTrue($zip->open($tmpDocx, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true);
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+            . '<w:p><w:pPr><w:jc w:val="center"/><w:sectPr/></w:pPr><w:r><w:t>SKRIPSI COVER</w:t></w:r></w:p>'
+            . '<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>LEMBAR PENGESAHAN</w:t></w:r></w:p>'
+            . '<w:tbl><w:tblPr><w:tblBorders>'
+            . '<w:top w:val="none" w:sz="0"/><w:bottom w:val="none" w:sz="0"/>'
+            . '<w:left w:val="none" w:sz="0"/><w:right w:val="none" w:sz="0"/>'
+            . '<w:insideH w:val="none" w:sz="0"/><w:insideV w:val="none" w:sz="0"/>'
+            . '</w:tblBorders></w:tblPr>'
+            . '<w:tr><w:tc><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>Dosen Pembimbing I</w:t></w:r></w:p></w:tc></w:tr>'
+            . '</w:tbl>'
+            . '</w:body></w:document>';
+        $zip->addFromString('word/document.xml', $xml);
+        $zip->close();
+
+        $ctrl = app(\App\Http\Controllers\StudentToolsController::class);
+        $m = new \ReflectionMethod($ctrl, 'parseDocxToHtml');
+        $m->setAccessible(true);
+        $html = $m->invoke($ctrl, $tmpDocx, false);
+        @unlink($tmpDocx);
+
+        $this->assertStringContainsString("<div class='page-break'></div>", $html);
+        $this->assertStringContainsString("<table class='borderless'>", $html);
+        $this->assertStringContainsString("<td class='td-center'>Dosen Pembimbing I</td>", $html);
+    }
 }

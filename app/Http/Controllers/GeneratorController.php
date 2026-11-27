@@ -9907,28 +9907,78 @@ PANDUAN PENULISAN JAWABAN (ATURAN KETAT):
             ? "\n- ISTILAH / VARIABEL TERKUNCI WAJIB DIPERTAHANKAN PERSIS (jangan diterjemahkan/diubah): {$preserveTerms}"
             : '';
 
-        // Deteksi sitasi dalam teks asli agar bisa divalidasi keterjagaannya
-        preg_match_all('/\((?:[A-Z][A-Za-z\s&.,\-]{1,45},?\s*)?(?:19|20)\d{2}[a-z]?(?:,\s*hlm\.?\s*\d+)?\)|\b[A-Z][A-Za-z\-]+(?:\s+(?:et\s+al\.|dkk\.|&|dan)\s+[A-Z]?[A-Za-z\.]*|\s+et\s+al\.)?\s*\((?:19|20)\d{2}[a-z]?\)|\[\d+(?:,\s*\d+)*\]/u', $rawText, $citMatches);
+        // 1. Deteksi & kunci seluruh sitasi in-text dengan token placeholder tak berubah agar 100% aman
+        $citePattern = '/\((?:[A-Z][A-Za-z\s&.,\-\']{1,65},?\s*)?(?:19|20)\d{2}[a-z]?(?:,\s*(?:hlm|p|pp)\.?\s*\d+(?:[-–]\d+)?)?\)|\b[A-Z][A-Za-z\-\']+(?:\s+[A-Z][A-Za-z\-\']+){0,3}(?:\s+(?:et\s+al\.|dkk\.|(?:&|dan)\s+[A-Z][A-Za-z\-\']+(?:\s+[A-Z][A-Za-z\-\']+){0,2}))?\s*\((?:19|20)\d{2}[a-z]?\)|\[\d+(?:[-–,]\s*\d+)*\]/u';
+        preg_match_all($citePattern, $rawText, $citMatches);
         $detectedCitations = array_values(array_unique(array_filter(array_map('trim', $citMatches[0] ?? []))));
+        // Urutkan dari yang terpanjang agar penggantian substring tidak tumpang tindih
+        usort($detectedCitations, fn($a, $b) => mb_strlen($b) <=> mb_strlen($a));
 
-        $prompt = "PERAN: Anda adalah Editor Bahasa Akademik Senior & Pakar Parafrase Anti-Plagiarisme (KBBI & EYD V).
-TUGAS: Lakukan parafrase tingkat lanjut pada naskah akademik di bawah ini.
+        $citePlaceholderMap = [];
+        $lockedText = $rawText;
+        foreach ($detectedCitations as $cIdx => $citeStr) {
+            $token = '[[SITASI_' . ($cIdx + 1) . ']]';
+            $citePlaceholderMap[$token] = $citeStr;
+            $lockedText = str_replace($citeStr, $token, $lockedText);
+        }
+
+        // 2. Pecah teks panjang (mis. 1 Bab utuh 1.000+ kata) ke beberapa chunk paragraf (~300 kata / chunk)
+        //    agar AI tidak lelah/malas menyalin mentah paragraf di bagian tengah hingga akhir.
+        $paragraphs = preg_split('/\R{2,}|\R/', $lockedText) ?: [$lockedText];
+        $chunks = [];
+        $buf = [];
+        $bufWords = 0;
+        foreach ($paragraphs as $para) {
+            $trimP = trim($para);
+            if ($trimP === '') {
+                continue;
+            }
+            $pWords = str_word_count(strip_tags($trimP));
+            if (!empty($buf) && ($bufWords + $pWords > 310 || mb_strlen(implode("\n\n", $buf)) + mb_strlen($trimP) > 2200)) {
+                $chunks[] = implode("\n\n", $buf);
+                $buf = [$trimP];
+                $bufWords = $pWords;
+            } else {
+                $buf[] = $trimP;
+                $bufWords += $pWords;
+            }
+        }
+        if (!empty($buf)) {
+            $chunks[] = implode("\n\n", $buf);
+        }
+
+        try {
+            $paraphrasedChunks = [];
+            $totalChunks = count($chunks);
+            foreach ($chunks as $chunkIdx => $chunkText) {
+                $partNote = $totalChunks > 1 ? " (Bagian " . ($chunkIdx + 1) . " dari {$totalChunks})" : '';
+                $prompt = "PERAN: Anda adalah Editor Bahasa Akademik Senior & Pakar Parafrase Anti-Plagiarisme (KBBI & EYD V).
+TUGAS: Lakukan parafrase MENYELURUH pada seluruh kalimat dalam naskah akademik berikut{$partNote}.
 
 ATURAN WAJIB:
 - Gaya Penulisan: {$styleInstruction}
 - Tingkat Perubahan: {$intensityInstruction}
-- PERTAHANKAN 100% seluruh sitasi in-text (nama penulis dan tahun seperti '(Wijaya, 2024)' atau 'Apandi et al. (2025)' atau '[1]'), seluruh angka empiris, persentase, nama metode statistik, dan notasi rumus tanpa mengubah 1 digit pun.{$preserveRule}
-- DILARANG menggunakan kalimat pembuka/penutup AI ('Berikut hasil parafrase...'), tanda pagar markdown, atau tanda bintang (**). Langsung keluarkan teks hasil parafrase yang siap tempel.
+- WAJIB merombak struktur kalimat dari paragraf PERTAMA hingga kalimat TERAKHIR. DILARANG KERAS menyalin mentah kalimat atau paragraf tanpa diubah (kecuali baris judul sub-bab bernomor seperti '1.1 Latar Belakang Masalah' atau '1.8 Sistematika Penulisan').
+- KUNCI SITASI: Seluruh token seperti [[SITASI_1]], [[SITASI_2]], dst. WAJIB dipertahankan PERSIS SAMA (jangan hapus, jangan ubah angka/ejaannya) pada posisi kalimat yang sesuai!
+- PERTAHANKAN 100% seluruh angka empiris, persentase, nama metode statistik/algoritma, dan notasi rumus tanpa mengubah 1 digit pun.{$preserveRule}
+- DILARANG menggunakan kalimat pembuka/penutup AI ('Berikut hasil parafrase...'), tanda pagar markdown (#), atau tanda bintang (**). Langsung keluarkan hasil parafrase yang siap tempel.
 
 TEKS ASLI:
 \"\"\"
-{$rawText}
+{$chunkText}
 \"\"\"";
 
-        try {
-            $result = trim((string) $this->ai->generateText($prompt, $model));
-            $result = (string) preg_replace('/^(?:Berikut(?:\s+adalah)?\s+hasil\s+parafrase[^:\n]*:\s*\n*)/i', '', $result);
-            $result = trim((string) preg_replace('/\*\*([^*\n]+?)\*\*/', '$1', $result));
+                $partOut = trim((string) $this->ai->generateText($prompt, $model));
+                $partOut = (string) preg_replace('/^(?:Berikut(?:\s+adalah)?\s+hasil\s+parafrase[^:\n]*:\s*\n*)/i', '', $partOut);
+                $partOut = trim((string) preg_replace('/\*\*([^*\n]+?)\*\*/', '$1', $partOut));
+                $paraphrasedChunks[] = $partOut !== '' ? $partOut : $chunkText;
+            }
+
+            $result = implode("\n\n", $paraphrasedChunks);
+            // Kembalikan seluruh token [[SITASI_N]] ke teks sitasi asli yang 100% persis
+            if (!empty($citePlaceholderMap)) {
+                $result = str_replace(array_keys($citePlaceholderMap), array_values($citePlaceholderMap), $result);
+            }
 
             // Hitung metrik perbandingan 3-gram secara deterministik
             $normalizeWords = static function (string $s): array {

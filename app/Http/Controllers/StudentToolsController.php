@@ -273,10 +273,12 @@ class StudentToolsController extends Controller
             h1 { font-size: 14pt; font-weight: bold; margin: 0 0 10pt 0; text-align: center; page-break-after: avoid; }
             h2 { font-size: 12.5pt; font-weight: bold; margin: 14pt 0 6pt 0; text-align: left; page-break-after: avoid; }
             h3 { font-size: 11.5pt; font-weight: bold; margin: 10pt 0 4pt 0; text-align: left; page-break-after: avoid; }
-            p { margin: 0 0 7pt 0; }
-            p.align-center { text-align: center; }
-            p.align-right { text-align: right; }
+            p { margin: 0 0 6pt 0; }
+            p.align-center { text-align: center; text-indent: 0; }
+            p.align-right { text-align: right; text-indent: 0; }
             p.align-left { text-align: left; }
+            p.indent-first { text-indent: 1.27cm; }
+            p.spacer { margin: 0 0 8pt 0; height: 10pt; }
             p.list-item { margin: 0 0 4pt 0; padding-left: 18pt; text-indent: -10pt; }
             .doc-img-wrap { text-align: center; margin: 10pt 0; page-break-inside: avoid; }
             .doc-img-wrap img { max-width: 100%; max-height: 18cm; width: auto; height: auto; }
@@ -296,7 +298,14 @@ class StudentToolsController extends Controller
                 text-align: left;
             }
             th { background: #f1f5f9; font-weight: bold; text-align: center; }
-            .page-break { page-break-before: always; }
+            table.borderless, table.borderless tr, table.borderless td, table.borderless th {
+                border: none !important;
+                background: transparent !important;
+                padding: 4pt 6pt;
+            }
+            .td-center { text-align: center !important; }
+            .td-right { text-align: right !important; }
+            .page-break { page-break-before: always; height: 0; margin: 0; padding: 0; }
         </style></head><body>{$bodyHtml}</body></html>";
 
         $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
@@ -575,6 +584,13 @@ class StudentToolsController extends Controller
             }
         }
 
+        // Batasi paragraf kosong beruntun (maks 2) dan hindari spacer menggantung tepat sebelum/sesudah page-break
+        $html = (string) preg_replace('/(<p class=\'spacer\'>&nbsp;<\/p>){3,}/', '<p class=\'spacer\'>&nbsp;</p><p class=\'spacer\'>&nbsp;</p>', $html);
+        $html = (string) preg_replace('/(?:<p class=\'spacer\'>&nbsp;<\/p>)+\s*<div class=\'page-break\'><\/div>/', '<div class=\'page-break\'></div>', $html);
+        $html = (string) preg_replace('/<div class=\'page-break\'><\/div>\s*(?:<p class=\'spacer\'>&nbsp;<\/p>)+/', '<div class=\'page-break\'></div>', $html);
+        $html = (string) preg_replace('/(<div class=\'page-break\'><\/div>){2,}/', '<div class=\'page-break\'></div>', $html);
+        $html = (string) preg_replace('/(?:<div class=\'page-break\'><\/div>|<p class=\'spacer\'>&nbsp;<\/p>)+$/', '', $html);
+
         return $html;
     }
 
@@ -595,6 +611,12 @@ class StudentToolsController extends Controller
         $isListPara = $xpath->query('./w:pPr/w:numPr', $pNode)->length > 0;
         $hasPageBreak = $xpath->query('.//w:br[@w:type="page"]', $pNode)->length > 0
             || $xpath->query('.//w:pPr/w:pageBreakBefore', $pNode)->length > 0;
+        // Section break pada akhir paragraf (pemisah Sampul, Pengesahan, Daftar Isi, Bab I-V di Word)
+        $sectPrNode = $xpath->query('./w:pPr/w:sectPr', $pNode)->item(0);
+        $sectType = $sectPrNode ? strtolower(trim((string) ($xpath->query('./w:type/@w:val', $sectPrNode)->item(0)?->nodeValue ?? ''))) : '';
+        $hasSectionBreakAfter = $sectPrNode !== null && $sectType !== 'continuous';
+        $firstLineIndentNode = $xpath->query('./w:pPr/w:ind/@w:firstLine', $pNode)->item(0);
+        $hasFirstLineIndent = $firstLineIndentNode && (int) $firstLineIndentNode->nodeValue >= 360;
 
         $imgsHtml = '';
         if (!empty($imageMap)) {
@@ -639,32 +661,42 @@ class StudentToolsController extends Controller
         }
 
         $prefix = $hasPageBreak ? "<div class='page-break'></div>" : '';
+        $suffix = $hasSectionBreakAfter ? "<div class='page-break'></div>" : '';
         if (trim(strip_tags($runsHtml)) === '') {
-            return $prefix . $imgsHtml;
+            if ($imgsHtml !== '' || $prefix !== '' || $suffix !== '') {
+                return $prefix . $imgsHtml . $suffix;
+            }
+            return "<p class='spacer'>&nbsp;</p>";
         }
 
         if (str_contains($styleId, 'heading1') || $styleId === 'title') {
-            return "{$prefix}{$imgsHtml}<h1>{$runsHtml}</h1>";
+            return "{$prefix}{$imgsHtml}<h1>{$runsHtml}</h1>{$suffix}";
         }
         if (str_contains($styleId, 'heading2')) {
-            return "{$prefix}{$imgsHtml}<h2>{$runsHtml}</h2>";
+            return "{$prefix}{$imgsHtml}<h2>{$runsHtml}</h2>{$suffix}";
         }
         if (str_contains($styleId, 'heading3')) {
-            return "{$prefix}{$imgsHtml}<h3>{$runsHtml}</h3>";
+            return "{$prefix}{$imgsHtml}<h3>{$runsHtml}</h3>{$suffix}";
         }
 
         if ($isListPara) {
-            return "{$prefix}{$imgsHtml}<p class='list-item'>&bull;&nbsp;{$runsHtml}</p>";
+            return "{$prefix}{$imgsHtml}<p class='list-item'>&bull;&nbsp;{$runsHtml}</p>{$suffix}";
         }
 
-        $alignClass = match ($align) {
-            'center' => ' class="align-center"',
-            'right' => ' class="align-right"',
-            'left' => ' class="align-left"',
-            default => '',
-        };
+        $classes = [];
+        if ($align === 'center') {
+            $classes[] = 'align-center';
+        } elseif ($align === 'right') {
+            $classes[] = 'align-right';
+        } elseif ($align === 'left') {
+            $classes[] = 'align-left';
+        }
+        if ($hasFirstLineIndent && $align !== 'center' && $align !== 'right') {
+            $classes[] = 'indent-first';
+        }
+        $classAttr = !empty($classes) ? ' class="' . implode(' ', $classes) . '"' : '';
 
-        return "{$prefix}{$imgsHtml}<p{$alignClass}>{$runsHtml}</p>";
+        return "{$prefix}{$imgsHtml}<p{$classAttr}>{$runsHtml}</p>{$suffix}";
     }
 
     protected function renderWordTableNode(\DOMXPath $xpath, \DOMNode $tblNode, array $imageMap = []): string
@@ -674,15 +706,57 @@ class StudentToolsController extends Controller
             return '';
         }
 
-        $html = '<table>';
+        // Deteksi tabel tanpa garis (mis. tabel tanda tangan Lembar Pengesahan / Dosen Pembimbing)
+        $isBorderless = false;
+        $tblBorders = $xpath->query('./w:tblPr/w:tblBorders', $tblNode)->item(0);
+        if ($tblBorders) {
+            $noneSides = 0;
+            $checkedSides = 0;
+            foreach (['top', 'bottom', 'left', 'right', 'insideH', 'insideV'] as $side) {
+                $bNode = $xpath->query("./w:{$side}", $tblBorders)->item(0);
+                if ($bNode) {
+                    $checkedSides++;
+                    $val = strtolower(trim((string) $bNode->getAttribute('w:val')));
+                    $sz = (string) $bNode->getAttribute('w:sz');
+                    if (in_array($val, ['none', 'nil'], true) || $sz === '0') {
+                        $noneSides++;
+                    }
+                }
+            }
+            if ($checkedSides > 0 && $noneSides === $checkedSides) {
+                $isBorderless = true;
+            }
+        } else {
+            // Jika tidak ada tblBorders sama sekali dan tidak ada border pada cell pertama -> tabel layout tanpa border
+            $anyVisibleCellBorder = $xpath->query('.//w:tcPr/w:tcBorders/*[@w:val and not(@w:val="none") and not(@w:val="nil") and not(@w:sz="0")]', $tblNode)->length;
+            $tblStyleNode = $xpath->query('./w:tblPr/w:tblStyle/@w:val', $tblNode)->item(0);
+            if ($anyVisibleCellBorder === 0 && !$tblStyleNode) {
+                $isBorderless = true;
+            }
+        }
+
+        $tblClass = $isBorderless ? " class='borderless'" : '';
+        $html = "<table{$tblClass}>";
         foreach ($rows as $rIdx => $trNode) {
             $html .= '<tr>';
-            $tag = $rIdx === 0 ? 'th' : 'td';
+            $isHeaderRow = !$isBorderless && ($rIdx === 0 || $xpath->query('./w:trPr/w:tblHeader', $trNode)->length > 0);
+            $tag = $isHeaderRow ? 'th' : 'td';
             foreach ($xpath->query('./w:tc', $trNode) as $tcNode) {
                 $gridSpanNode = $xpath->query('./w:tcPr/w:gridSpan/@w:val', $tcNode)->item(0);
                 $colspanAttr = ($gridSpanNode && (int) $gridSpanNode->nodeValue > 1)
                     ? " colspan='" . (int) $gridSpanNode->nodeValue . "'"
                     : '';
+
+                $cellAlign = '';
+                $firstJc = $xpath->query('./w:p/w:pPr/w:jc/@w:val', $tcNode)->item(0);
+                if ($firstJc) {
+                    $jcVal = strtolower(trim($firstJc->nodeValue));
+                    if ($jcVal === 'center') {
+                        $cellAlign = " class='td-center'";
+                    } elseif ($jcVal === 'right') {
+                        $cellAlign = " class='td-right'";
+                    }
+                }
 
                 $cellParts = [];
                 foreach ($xpath->query('./w:p', $tcNode) as $pNode) {
@@ -691,7 +765,7 @@ class StudentToolsController extends Controller
                         $cellParts[] = $pTxt;
                     }
                 }
-                $html .= "<{$tag}{$colspanAttr}>" . implode('<br>', $cellParts) . "</{$tag}>";
+                $html .= "<{$tag}{$colspanAttr}{$cellAlign}>" . implode('<br>', $cellParts) . "</{$tag}>";
             }
             $html .= '</tr>';
         }
