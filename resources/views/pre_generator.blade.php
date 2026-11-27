@@ -5517,6 +5517,7 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             @if($history->count() > 0)
+                                <label for="journal-target-project" style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin: 0;">Simpan ke:</label>
                                 <select id="journal-target-project" class="form-select"
                                     style="height: 31px; padding: 0 26px 0 9px; font-size: 11.5px; width: auto; max-width: 220px;"
                                     title="Pilih proyek tujuan untuk tombol Simpan ke Proyek">

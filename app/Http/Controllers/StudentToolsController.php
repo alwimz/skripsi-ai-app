@@ -359,8 +359,12 @@ class StudentToolsController extends Controller
         $academic = $request->boolean('academic_format', false);
         $pages = $request->input('pages', []);
 
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
         $tmpDir = rtrim(sys_get_temp_dir(), '/\\');
         Settings::setTempDir($tmpDir);
+        Settings::setOutputEscapingEnabled(true);
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Times New Roman');
         $phpWord->setDefaultFontSize(12);
@@ -401,7 +405,12 @@ class StudentToolsController extends Controller
             }
 
             foreach ($blocks as $blk) {
-                $clean = trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) ($blk['text'] ?? '')));
+                $rawText = (string) ($blk['text'] ?? '');
+                if (function_exists('iconv')) {
+                    $rawText = (string) (@iconv('UTF-8', 'UTF-8//IGNORE', $rawText) ?: $rawText);
+                }
+                // Hapus karakter kontrol & non-karakter XML 1.0 agar file .docx selalu valid dibuka di Microsoft Word
+                $clean = trim(preg_replace('/[^\x{0009}\x{000A}\x{000D}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]/u', '', $rawText));
                 if ($clean === '') {
                     continue;
                 }

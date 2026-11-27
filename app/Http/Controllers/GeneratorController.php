@@ -2161,9 +2161,9 @@ class GeneratorController extends Controller
             }
         }
 
-        $w = 560;
-        $cx = ($decisionIdx >= 0) ? 265 : 280;
-        $gap = $total >= 8 ? 16 : 19;
+        $w = 350;
+        $cx = ($decisionIdx >= 0) ? 162 : 175;
+        $gap = $total >= 8 ? 16 : 18;
         $y = 8;
         $layouts = [];
 
@@ -2171,28 +2171,29 @@ class GeneratorController extends Controller
             $text = str_replace(['→', '⇒', '←', '↔'], ['->', '->', '<-', '<->'], $this->formatAcademicMathText($rawNode));
             $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
             $maxChars = match ($type) {
-                'terminator' => 24,
-                'decision' => 28,
-                'io' => 42,
-                'subprocess' => 42,
-                'framework' => 52,
-                default => 46,
+                'terminator' => 20,
+                'decision' => 22,
+                'io' => 36,
+                'subprocess' => 36,
+                'framework' => 44,
+                default => 38,
             };
-            $lines = $this->wrapDiagramLines($text, $maxChars, 4);
+            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
             $lineCount = count($lines);
 
+            // Koordinat 1:1 dalam satuan pt agar tinggi teks (8.5-9.5pt) tidak pernah terpotong
             if ($type === 'terminator') {
-                $boxW = 160;
-                $boxH = max(30, $lineCount * 13 + 12);
+                $boxW = 148;
+                $boxH = max(28, $lineCount * 14 + 12);
             } elseif ($type === 'decision') {
-                $boxW = 228;
-                $boxH = max(60, $lineCount * 13 + 26);
+                $boxW = 196;
+                $boxH = max(68, $lineCount * 13 + 32);
             } elseif ($type === 'framework') {
-                $boxW = 396;
-                $boxH = max(38, $lineCount * 13 + 14);
+                $boxW = 310;
+                $boxH = max(36, $lineCount * 14 + 14);
             } else {
-                $boxW = 320;
-                $boxH = max(33, $lineCount * 13 + 12);
+                $boxW = 250;
+                $boxH = max(34, $lineCount * 14 + 14);
             }
 
             $layouts[] = [
@@ -2205,27 +2206,28 @@ class GeneratorController extends Controller
                 'h' => $boxH,
                 'cy' => (int) round($y + $boxH / 2),
             ];
-            $y += $boxH + ($type === 'decision' ? $gap + 5 : $gap);
+            $y += $boxH + ($type === 'decision' ? $gap + 6 : $gap);
         }
 
         $totalH = $y - $gap + 10;
-        $displayW = $isFramework ? 345 : 325; // pt proporsional & tidak mendominasi 1 halaman penuh
-        $displayH = round($totalH * ($displayW / $w), 1);
-        // Batasi tinggi maksimal 385pt (~13,6 cm ≈ 60% tinggi halaman A4) agar proporsional & tidak menyisakan halaman kosong di atasnya
-        if ($displayH > 385) {
-            $scaleDown = 385 / $displayH;
-            $displayH = 385;
+        $displayW = $w;
+        $displayH = $totalH;
+        // Jika diagram sangat tinggi (> 540pt ~ 19 cm), skalakan ringan hanya seperlunya tanpa mencekik kotak teks
+        if ($displayH > 540) {
+            $scaleDown = 540 / $displayH;
+            $displayH = 540;
             $displayW = round($displayW * $scaleDown, 1);
         }
 
-        $makeTextBox = function (array $lines, bool $bold = false, int $szHalfPt = 20): string {
+        $makeTextBox = function (array $lines, bool $bold = false, int $szHalfPt = 18, string $textboxRect = ''): string {
             $bTag = $bold ? '<w:b/>' : '';
             $paras = '';
             foreach ($lines as $ln) {
                 $esc = htmlspecialchars($ln, ENT_XML1 | ENT_QUOTES, 'UTF-8');
-                $paras .= '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>' . $bTag . '<w:color w:val="000000"/><w:sz w:val="' . $szHalfPt . '"/><w:szCs w:val="' . $szHalfPt . '"/></w:rPr><w:t xml:space="preserve">' . $esc . '</w:t></w:r></w:p>';
+                $paras .= '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="216" w:lineRule="exact"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>' . $bTag . '<w:color w:val="000000"/><w:sz w:val="' . $szHalfPt . '"/><w:szCs w:val="' . $szHalfPt . '"/></w:rPr><w:t xml:space="preserve">' . $esc . '</w:t></w:r></w:p>';
             }
-            return '<v:textbox style="mso-fit-shape-to-text:f" inset="4pt,2pt,4pt,2pt"><w:txbxContent>' . $paras . '</w:txbxContent></v:textbox>';
+            $rectAttr = $textboxRect !== '' ? ' textboxrect="' . $textboxRect . '"' : '';
+            return '<v:textbox style="mso-fit-shape-to-text:t" inset="3pt,2pt,3pt,2pt"' . $rectAttr . '><w:txbxContent>' . $paras . '</w:txbxContent></v:textbox>';
         };
 
         $shapes = [];
@@ -2243,56 +2245,271 @@ class GeneratorController extends Controller
 
             if ($type === 'terminator') {
                 $upperLines = array_map('strtoupper', $lines);
-                $shapes[] = "<v:roundrect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" arcsize=\"0.5\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.3pt\">" . $makeTextBox($upperLines, true, 20) . "</v:roundrect>";
+                $shapes[] = "<v:roundrect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" arcsize=\"0.5\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.3pt\">" . $makeTextBox($upperLines, true, 18) . "</v:roundrect>";
             } elseif ($type === 'io') {
                 // Jajar genjang (Parallelogram)
-                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"330,100\" path=\"m 22,0 l 330,0 l 308,100 l 0,100 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:shape>";
+                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"330,100\" path=\"m 22,0 l 330,0 l 308,100 l 0,100 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 17, '24,6,306,94') . "</v:shape>";
             } elseif ($type === 'subprocess') {
-                // Kotak Predefined Process + 2 garis vertikal ganda kiri kanan
-                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:rect>";
-                $lx1 = $x + 14;
-                $lx2 = $x + $bw - 14;
+                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 17) . "</v:rect>";
+                $lx1 = $x + 10;
+                $lx2 = $x + $bw - 10;
                 $by = $iy + $bh;
                 $shapes[] = "<v:line from=\"{$lx1},{$iy}\" to=\"{$lx1},{$by}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"/>";
                 $shapes[] = "<v:line from=\"{$lx2},{$iy}\" to=\"{$lx2},{$by}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"/>";
             } elseif ($type === 'decision') {
-                // Belah ketupat (Diamond)
-                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"244,100\" path=\"m 122,0 l 244,50 l 122,100 l 0,50 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.2pt\">" . $makeTextBox($lines, false, 18) . "</v:shape>";
+                $shapes[] = "<v:shape id=\"{$idAttr}\" coordsize=\"244,100\" path=\"m 122,0 l 244,50 l 122,100 l 0,50 x e\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.2pt\">" . $makeTextBox($lines, false, 16, '36,16,208,84') . "</v:shape>";
 
-                // Panah loopback "Tidak" di sisi kanan
                 $targetIdx = max(1, $idx - 2);
                 $targetBox = $layouts[$targetIdx] ?? $layouts[max(0, $idx - 1)];
-                $loopX = min($w - 20, $x + $bw + 64);
+                $rightX = $x + $bw;
+                $loopX = min($w - 14, $rightX + 44);
                 $targetRightX = $targetBox['x'] + $targetBox['w'];
                 $targetCy = $targetBox['cy'];
-                $rightX = $x + $bw;
 
-                $shapes[] = "<v:line from=\"{$rightX},{$cy}\" to=\"{$loopX},{$cy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"/>";
-                $shapes[] = "<v:line from=\"{$loopX},{$cy}\" to=\"{$loopX},{$targetCy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"/>";
-                $shapes[] = "<v:line from=\"{$loopX},{$targetCy}\" to=\"{$targetRightX},{$targetCy}\" strokecolor=\"#000000\" strokeweight=\"1pt\"><v:stroke endarrow=\"classic\"/></v:line>";
-                $lblX = $rightX + 4;
-                $lblY = $cy - 18;
-                $shapes[] = "<v:rect style=\"position:absolute;left:{$lblX};top:{$lblY};width:52;height:18\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Tidak'], true, 17) . "</v:rect>";
+                $shapes[] = "<v:polyline points=\"{$rightX},{$cy} {$loopX},{$cy} {$loopX},{$targetCy} {$targetRightX},{$targetCy}\" filled=\"f\" strokecolor=\"#000000\" strokeweight=\"1pt\"><v:stroke endarrow=\"classic\"/></v:polyline>";
+                $lblX = $rightX + 3;
+                $lblY = $cy - 16;
+                $shapes[] = "<v:rect style=\"position:absolute;left:{$lblX};top:{$lblY};width:44;height:16\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Tidak'], true, 16) . "</v:rect>";
             } else {
-                // Kotak Proses / Kerangka Berpikir
-                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 19) . "</v:rect>";
+                $shapes[] = "<v:rect id=\"{$idAttr}\" style=\"position:absolute;left:{$x};top:{$iy};width:{$bw};height:{$bh};v-text-anchor:middle\" fillcolor=\"#ffffff\" strokecolor=\"#000000\" strokeweight=\"1.1pt\">" . $makeTextBox($lines, false, 17) . "</v:rect>";
             }
 
-            // Panah vertikal ke node berikutnya
             if ($idx < $total - 1) {
                 $fromY = $iy + $bh;
                 $nextY = $layouts[$idx + 1]['y'];
                 $shapes[] = "<v:line from=\"{$cx},{$fromY}\" to=\"{$cx},{$nextY}\" strokecolor=\"#000000\" strokeweight=\"1.1pt\"><v:stroke endarrow=\"classic\"/></v:line>";
                 if ($type === 'decision') {
                     $yaX = $cx + 4;
-                    $yaY = $fromY + 2;
-                    $shapes[] = "<v:rect style=\"position:absolute;left:{$yaX};top:{$yaY};width:34;height:18\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Ya'], true, 17) . "</v:rect>";
+                    $yaY = $fromY + 1;
+                    $shapes[] = "<v:rect style=\"position:absolute;left:{$yaX};top:{$yaY};width:30;height:16\" filled=\"f\" stroked=\"f\">" . $makeTextBox(['Ya'], true, 16) . "</v:rect>";
                 }
             }
         }
 
         $groupXml = "<v:group id=\"fcgrp_{$uid}\" style=\"width:{$displayW}pt;height:{$displayH}pt\" coordorigin=\"0,0\" coordsize=\"{$w},{$totalH}\">" . implode('', $shapes) . "</v:group>";
         return '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="80" w:after="60"/><w:keepNext/></w:pPr><w:r><w:pict>' . $groupXml . '</w:pict></w:r></w:p>';
+    }
+
+    /**
+     * Render Flowchart ANSI High-DPI (300 DPI PNG via GD FreeType) agar 100% utuh & tajam di Microsoft Word tanpa teks terpotong
+     */
+    private function buildFlowchartWordPng(array $nodes, bool $isFramework = false): ?array
+    {
+        if (empty($nodes) || !extension_loaded('gd') || !function_exists('imagecreatetruecolor') || !function_exists('imagettftext')) {
+            return null;
+        }
+
+        $fontRegular = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSerif.ttf');
+        $fontBold = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSerif-Bold.ttf');
+        if (!file_exists($fontRegular)) {
+            return null;
+        }
+        if (!file_exists($fontBold)) {
+            $fontBold = $fontRegular;
+        }
+
+        $total = count($nodes);
+        $decisionIdx = -1;
+        if (!$isFramework && $total >= 5) {
+            foreach ($nodes as $idx => $nt) {
+                if ($idx > 1 && $idx < $total - 1 && preg_match('/evaluasi|confusion|akurasi|validasi|memenuhi|uji\s+hipotesis|kelayakan|layak|\?/i', $nt)) {
+                    $decisionIdx = $idx;
+                    break;
+                }
+            }
+        }
+
+        // Skala 3x untuk hasil 300 DPI ultra-tajam di Microsoft Word
+        $S = 3;
+        $w = 560 * $S; // 1680 px -> ~340pt
+        $cx = (($decisionIdx >= 0) ? 255 : 280) * $S;
+        $gap = ($total >= 8 ? 22 : 26) * $S;
+        $y = 14 * $S;
+        $layouts = [];
+
+        $measureLineH = function (float $ptSize) use ($fontRegular): int {
+            $bb = imagettfbbox($ptSize, 0, $fontRegular, 'Agjypq');
+            return $bb ? (int) abs($bb[7] - $bb[1]) : (int) round($ptSize * 1.35);
+        };
+
+        foreach ($nodes as $idx => $rawNode) {
+            $text = str_replace(['→', '⇒', '←', '↔'], ['->', '->', '<-', '<->'], $this->formatAcademicMathText($rawNode));
+            $type = $this->classifyFlowchartNode($text, $idx, $total, $isFramework, $decisionIdx);
+            $maxChars = match ($type) {
+                'terminator' => 22,
+                'decision' => 24,
+                'io' => 38,
+                'subprocess' => 38,
+                'framework' => 48,
+                default => 42,
+            };
+            $lines = $this->wrapDiagramLines($text, $maxChars, 5);
+            if ($type === 'terminator') {
+                $lines = array_map('mb_strtoupper', $lines);
+            }
+            $lineCount = max(1, count($lines));
+            $fontPt = ($type === 'decision' ? 8.8 : 9.6) * $S;
+            $glyphH = $measureLineH($fontPt);
+            $lineStep = (int) round($glyphH * 1.42);
+            $textBlockH = $lineCount * $lineStep;
+
+            if ($type === 'terminator') {
+                $boxW = 190 * $S;
+                $boxH = max(38 * $S, $textBlockH + 22 * $S);
+            } elseif ($type === 'decision') {
+                $boxW = 264 * $S;
+                $boxH = max(78 * $S, $textBlockH + 46 * $S);
+            } elseif ($type === 'framework') {
+                $boxW = 416 * $S;
+                $boxH = max(44 * $S, $textBlockH + 24 * $S);
+            } else {
+                $boxW = 340 * $S;
+                $boxH = max(42 * $S, $textBlockH + 24 * $S);
+            }
+
+            $layouts[] = [
+                'type' => $type,
+                'lines' => $lines,
+                'fontPt' => $fontPt,
+                'lineStep' => $lineStep,
+                'x' => (int) round($cx - $boxW / 2),
+                'y' => $y,
+                'w' => $boxW,
+                'h' => $boxH,
+                'cy' => (int) round($y + $boxH / 2),
+            ];
+            $y += $boxH + ($type === 'decision' ? $gap + 8 * $S : $gap);
+        }
+
+        $totalH = $y - $gap + 16 * $S;
+        $im = @imagecreatetruecolor($w, $totalH);
+        if (!$im) {
+            return null;
+        }
+        imagealphablending($im, true);
+        if (function_exists('imageantialias')) {
+            @imageantialias($im, true);
+        }
+
+        $white = imagecolorallocate($im, 255, 255, 255);
+        $black = imagecolorallocate($im, 15, 23, 42);
+        imagefilledrectangle($im, 0, 0, $w, $totalH, $white);
+
+        $drawArrowDown = function (int $x, int $fromY, int $toY) use ($im, $black, $S) {
+            imagesetthickness($im, (int) round(1.5 * $S));
+            imageline($im, $x, $fromY, $x, $toY - 7 * $S, $black);
+            imagefilledpolygon($im, [
+                $x - 5 * $S, $toY - 8 * $S,
+                $x + 5 * $S, $toY - 8 * $S,
+                $x, $toY,
+            ], $black);
+        };
+
+        foreach ($layouts as $idx => $item) {
+            $x = $item['x'];
+            $iy = $item['y'];
+            $bw = $item['w'];
+            $bh = $item['h'];
+            $cy = $item['cy'];
+            $type = $item['type'];
+            $lines = $item['lines'];
+            $fontPt = $item['fontPt'];
+            $lineStep = $item['lineStep'];
+            $useFont = ($type === 'terminator') ? $fontBold : $fontRegular;
+
+            imagesetthickness($im, (int) round(1.6 * $S));
+
+            if ($type === 'terminator') {
+                $r = (int) floor($bh / 2);
+                imagefilledrectangle($im, $x + $r, $iy, $x + $bw - $r, $iy + $bh, $white);
+                imagefilledarc($im, $x + $r, $cy, $bh, $bh, 90, 270, $white, IMG_ARC_PIE);
+                imagefilledarc($im, $x + $bw - $r, $cy, $bh, $bh, 270, 90, $white, IMG_ARC_PIE);
+                imageline($im, $x + $r, $iy, $x + $bw - $r, $iy, $black);
+                imageline($im, $x + $r, $iy + $bh, $x + $bw - $r, $iy + $bh, $black);
+                imagearc($im, $x + $r, $cy, $bh, $bh, 90, 270, $black);
+                imagearc($im, $x + $bw - $r, $cy, $bh, $bh, 270, 90, $black);
+            } elseif ($type === 'io') {
+                $skew = 20 * $S;
+                $pts = [
+                    $x + $skew, $iy,
+                    $x + $bw, $iy,
+                    $x + $bw - $skew, $iy + $bh,
+                    $x, $iy + $bh,
+                ];
+                imagefilledpolygon($im, $pts, $white);
+                imagepolygon($im, $pts, $black);
+            } elseif ($type === 'decision') {
+                $pts = [
+                    $cx, $iy,
+                    $x + $bw, $cy,
+                    $cx, $iy + $bh,
+                    $x, $cy,
+                ];
+                imagefilledpolygon($im, $pts, $white);
+                imagepolygon($im, $pts, $black);
+
+                // Loopback "Tidak" bersih ke tahapan sebelumnya di sebelah kanan
+                $targetIdx = max(1, $idx - 2);
+                $targetBox = $layouts[$targetIdx] ?? $layouts[max(0, $idx - 1)];
+                $rightX = $x + $bw;
+                $loopX = min($w - 18 * $S, $rightX + 56 * $S);
+                $targetRightX = $targetBox['x'] + $targetBox['w'];
+                $targetCy = $targetBox['cy'];
+
+                imagesetthickness($im, (int) round(1.4 * $S));
+                imageline($im, $rightX, $cy, $loopX, $cy, $black);
+                imageline($im, $loopX, $cy, $loopX, $targetCy, $black);
+                imageline($im, $loopX, $targetCy, $targetRightX + 7 * $S, $targetCy, $black);
+                imagefilledpolygon($im, [
+                    $targetRightX + 8 * $S, $targetCy - 5 * $S,
+                    $targetRightX + 8 * $S, $targetCy + 5 * $S,
+                    $targetRightX, $targetCy,
+                ], $black);
+
+                imagettftext($im, 8.5 * $S, 0, $rightX + 8 * $S, $cy - 7 * $S, $black, $fontBold, 'Tidak');
+            } else {
+                imagefilledrectangle($im, $x, $iy, $x + $bw, $iy + $bh, $white);
+                imagerectangle($im, $x, $iy, $x + $bw, $iy + $bh, $black);
+            }
+
+            // Center-render tiap baris teks menggunakan bounding box TTF yang tepat
+            $totalLinesH = count($lines) * $lineStep;
+            $firstBaseY = (int) round($cy - ($totalLinesH / 2) + ($lineStep * 0.72));
+            foreach ($lines as $li => $ln) {
+                $bbox = imagettfbbox($fontPt, 0, $useFont, $ln);
+                $tw = $bbox ? abs($bbox[2] - $bbox[0]) : 0;
+                $tx = (int) round($cx - ($tw / 2) - ($bbox ? $bbox[0] : 0));
+                $ty = $firstBaseY + $li * $lineStep;
+                imagettftext($im, $fontPt, 0, $tx, $ty, $black, $useFont, $ln);
+            }
+
+            if ($idx < $total - 1) {
+                $fromY = $iy + $bh;
+                $nextY = $layouts[$idx + 1]['y'];
+                $drawArrowDown($cx, $fromY, $nextY);
+                if ($type === 'decision') {
+                    imagettftext($im, 8.5 * $S, 0, $cx + 9 * $S, (int) round(($fromY + $nextY) / 2 + 3 * $S), $black, $fontBold, 'Ya');
+                }
+            }
+        }
+
+        $tmpPath = tempnam(sys_get_temp_dir(), 'fc_word_') . '.png';
+        imagepng($im, $tmpPath);
+        imagedestroy($im);
+
+        $displayW = $isFramework ? 345 : 335;
+        $displayH = round($totalH * ($displayW / $w), 1);
+        if ($displayH > 450) {
+            $scaleDown = 450 / $displayH;
+            $displayH = 450;
+            $displayW = round($displayW * $scaleDown, 1);
+        }
+
+        return [
+            'path' => $tmpPath,
+            'width' => (int) round($displayW),
+            'height' => (int) round($displayH),
+        ];
     }
 
     private function renderKerangkaPemikiranPng(string $rawCode, string $judul): ?string
@@ -6545,10 +6762,19 @@ ATURAN REVISI (SANGAT KETAT):
                         }
                     }
                     if (!empty($cleanNodes)) {
-                        // Sisipkan placeholder VML Vector Flowchart Standar ANSI yang diinjeksi menjadi Native Word Shapes saat postProcessDocxOutline
-                        $placeholder = '[[FLOWCHART_VML_' . count($this->docxFlowchartVmlMap) . ']]';
-                        $this->docxFlowchartVmlMap[$placeholder] = $this->buildFlowchartWordVml($cleanNodes, $isFramework);
-                        $section->addText($placeholder, ['name' => 'Times New Roman', 'size' => 10], ['alignment' => Jc::CENTER, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]);
+                        $pngfc = $this->buildFlowchartWordPng($cleanNodes, $isFramework);
+                        if ($pngfc && file_exists($pngfc['path'])) {
+                            $this->docxTempFiles[] = $pngfc['path'];
+                            $section->addImage($pngfc['path'], [
+                                'width' => $pngfc['width'],
+                                'height' => $pngfc['height'],
+                                'alignment' => Jc::CENTER,
+                            ]);
+                        } else {
+                            $placeholder = '[[FLOWCHART_VML_' . count($this->docxFlowchartVmlMap) . ']]';
+                            $this->docxFlowchartVmlMap[$placeholder] = $this->buildFlowchartWordVml($cleanNodes, $isFramework);
+                            $section->addText($placeholder, ['name' => 'Times New Roman', 'size' => 10], ['alignment' => Jc::CENTER, 'keepNext' => true, 'indentation' => ['firstLine' => 0]]);
+                        }
 
                         // Standar Skripsi Indonesia: Judul Gambar WAJIB di BAWAH gambar
                         $section->addText(

@@ -114,4 +114,73 @@ class GrowthUpgradeTest extends TestCase
             ->assertStatus(200)
             ->assertSee('Judul Skripsi Pilihan');
     }
+
+    public function test_pdf_to_docx_escapes_xml_special_characters_for_valid_word_output(): void
+    {
+        $user = User::factory()->create(['plan_code' => 'free']);
+        $this->actingAs($user);
+
+        $res = $this->postJson(route('tools.convert.pdfToDocx'), [
+            'filename' => 'Laporan_Olah_Data_Statistik-2.pdf',
+            'academic_format' => true,
+            'pages' => [
+                [
+                    'pageNum' => 1,
+                    'blocks' => [
+                        ['type' => 'heading', 'text' => 'BAB IV HASIL & PEMBAHASAN'],
+                        ['type' => 'paragraph', 'text' => 'Nilai Sig = 0.000 < 0.05 dan R2 = 68.4% > 0.50 menunjukkan pengaruh signifikan.'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $res->assertStatus(200);
+        $filePath = $res->getFile()->getPathname();
+        $zip = new \ZipArchive();
+        $this->assertTrue($zip->open($filePath) === true);
+        $docXml = $zip->getFromName('word/document.xml');
+        $zip->close();
+
+        $this->assertNotFalse($docXml);
+        $dom = new \DOMDocument();
+        $this->assertTrue($dom->loadXML($docXml), 'word/document.xml must be valid XML');
+        $this->assertStringContainsString('HASIL &amp; PEMBAHASAN', $docXml);
+        $this->assertStringContainsString('&lt; 0.05', $docXml);
+    }
+
+    public function test_docx_flowchart_renders_clean_image_inside_valid_word_package(): void
+    {
+        $user = User::factory()->create(['plan_code' => 'unlimited', 'plan_expires_at' => now()->addMonth()]);
+        $this->actingAs($user);
+
+        $project = \App\Models\Project::create([
+            'user_id' => $user->id,
+            'judul' => 'Klasifikasi Sentimen Komentar TikTok Menggunakan Naive Bayes',
+            'prodi' => 'Teknik Informatika',
+            'metode_penelitian' => 'Kuantitatif',
+            'is_full_unlocked' => true,
+            'bab3_content' => "3.1 Prosedur Penelitian\n\n```\n[Mulai]\n↓\n[Pengumpulan Dataset & Normalisasi]\n↓\n[Validasi 5-Fold Cross Validation?]\n↓\n[Evaluasi Confusion Matrix]\n↓\n[Selesai]\n```\n\nGambar 3.1 Diagram Alur Prosedur Penelitian",
+        ]);
+
+        $res = $this->get(route('app.downloadDocx', ['id' => $project->id]));
+        $res->assertStatus(200);
+
+        $filePath = $res->getFile()->getPathname();
+        $zip = new \ZipArchive();
+        $this->assertTrue($zip->open($filePath) === true);
+        $docXml = $zip->getFromName('word/document.xml');
+        $hasFlowchartMedia = false;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            if (str_starts_with($zip->getNameIndex($i), 'word/media/')) {
+                $hasFlowchartMedia = true;
+                break;
+            }
+        }
+        $zip->close();
+
+        $this->assertNotFalse($docXml);
+        $this->assertTrue($hasFlowchartMedia, 'Flowchart PNG image must be embedded inside word/media/');
+        $dom = new \DOMDocument();
+        $this->assertTrue($dom->loadXML($docXml), 'DOCX document.xml must remain valid XML');
+    }
 }
