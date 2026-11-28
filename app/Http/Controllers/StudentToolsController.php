@@ -555,6 +555,98 @@ class StudentToolsController extends Controller
     }
 
     /**
+     * Kompres PDF via iLovePDF API (teks tetap tajam & selectable), fallback ke browser jika belum dikonfigurasi.
+     */
+    public function compressPdf(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|max:25600',
+            'level' => 'nullable|string|in:low,recommended,extreme',
+        ]);
+
+        $file = $request->file('file');
+        $level = (string) $request->input('level', 'recommended');
+        $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) ?: 'Dokumen';
+        $safeBase = Str::slug(substr($origName, 0, 40), '_') ?: 'Dokumen';
+
+        $compressed = app(\App\Services\DocumentConverterService::class)->compressPdf(
+            $file->getRealPath(),
+            $file->getClientOriginalName() ?: ($safeBase . '.pdf'),
+            $level
+        );
+
+        if ($compressed === null) {
+            return response()->json(['status' => 'fallback']);
+        }
+
+        return response($compressed, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $safeBase . '_kompres.pdf"',
+            'Cache-Control' => 'no-store',
+            'X-Converter-Engine' => 'ilovepdf',
+        ]);
+    }
+
+    /**
+     * Gabung PDF via iLovePDF API, fallback ke browser jika belum dikonfigurasi.
+     */
+    public function mergePdf(Request $request)
+    {
+        $request->validate([
+            'files' => 'required|array|min:2|max:20',
+            'files.*' => 'required|file|max:25600',
+            'output_name' => 'nullable|string|max:120',
+        ]);
+
+        $inputs = [];
+        foreach ($request->file('files', []) as $idx => $f) {
+            $inputs[] = [
+                'path' => $f->getRealPath(),
+                'name' => $f->getClientOriginalName() ?: ("file_{$idx}.pdf"),
+            ];
+        }
+
+        $merged = app(\App\Services\DocumentConverterService::class)->mergePdfs($inputs);
+        if ($merged === null) {
+            return response()->json(['status' => 'fallback']);
+        }
+
+        $safeBase = Str::slug(substr((string) $request->input('output_name', 'Gabungan_Skripsi'), 0, 45), '_') ?: 'Gabungan_Skripsi';
+        return response($merged, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $safeBase . '.pdf"',
+            'Cache-Control' => 'no-store',
+            'X-Converter-Engine' => 'ilovepdf',
+        ]);
+    }
+
+    /**
+     * Hapus Background Gambar via iLoveIMG AI API, fallback ke model lokal jika belum dikonfigurasi.
+     */
+    public function removeBg(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|max:15360',
+        ]);
+
+        $file = $request->file('file');
+        $out = app(\App\Services\DocumentConverterService::class)->removeImageBackground(
+            $file->getRealPath(),
+            $file->getClientOriginalName() ?: 'image.png'
+        );
+
+        if ($out === null) {
+            return response()->json(['status' => 'fallback']);
+        }
+
+        return response($out, 200, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'no-store',
+            'X-Converter-Engine' => 'iloveimg',
+        ]);
+    }
+
+    /**
      * Parser word/document.xml -> HTML bersih (Heading, Paragraf, Bold/Italic/Underline, List, Tabel + Colspan, Gambar Tertanam, Page Break)
      */
     protected function parseDocxToHtml(string $filePath, bool $includeImages = true): string

@@ -5308,8 +5308,37 @@
             hideResult('merge');
             setStatus('status-merge-pdf', '', '');
             try {
-                await waitForLib('PDFLib', 'PDF-Lib');
                 const addPageNum = document.getElementById('merge-add-pagenum').checked;
+                lastMergePdfName = (document.getElementById('merge-output-name').value || 'Gabungan_Skripsi').trim().replace(/\.pdf$/i, '') + '.pdf';
+
+                // Prioritas 1: iLovePDF API server-side (lebih stabil untuk PDF kompleks/font tersemat) bila tidak perlu nomor halaman custom
+                if (!addPageNum) {
+                    try {
+                        setProc('merge', true, 'Menggabungkan file PDF via mesin 1:1...', 45);
+                        const fd = new FormData();
+                        fd.append('output_name', lastMergePdfName);
+                        mergePdfItems.forEach((it) => {
+                            fd.append('files[]', new Blob([it.bytes], { type: 'application/pdf' }), it.name);
+                        });
+                        const apiRes = await fetch('{{ route("tools.pdf.merge") }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrfToken },
+                            body: fd
+                        });
+                        if (apiRes.ok && (apiRes.headers.get('Content-Type') || '').includes('application/pdf')) {
+                            lastMergePdfBlob = await apiRes.blob();
+                            const totalPagesEst = mergePdfItems.reduce((a, b) => a + (b.pages || 0), 0);
+                            setProc('merge', true, 'Selesai!', 100);
+                            setTimeout(() => setProc('merge', false), 220);
+                            showResultCard('merge', lastMergePdfName, `${totalPagesEst} halaman dari ${mergePdfItems.length} file · iLovePDF 1:1 · ${formatBytes(lastMergePdfBlob.size)}`);
+                            document.getElementById('btn-preview-merge').onclick = () => openBlobPreview(lastMergePdfBlob);
+                            document.getElementById('btn-download-merge').onclick = () => triggerBlobDownload(lastMergePdfBlob, lastMergePdfName);
+                            return;
+                        }
+                    } catch (e) {}
+                }
+
+                await waitForLib('PDFLib', 'PDF-Lib');
                 const merged = await window.PDFLib.PDFDocument.create();
                 const font = addPageNum ? await merged.embedFont(window.PDFLib.StandardFonts.TimesRoman) : null;
 
@@ -5626,11 +5655,40 @@
             hideResult('comp-pdf');
             setStatus('status-comp-pdf', '', '');
             try {
+                const level = document.getElementById('comp-pdf-level').value;
+                const apiLevel = level === 'low' ? 'extreme' : (level === 'high' ? 'low' : 'recommended');
+
+                // Prioritas 1: iLovePDF Compress API (menjaga teks tetap tajam & bisa diseleksi!)
+                try {
+                    setProc('comp-pdf', true, 'Mengompres PDF (menjaga ketajaman teks)...', 40);
+                    const fd = new FormData();
+                    fd.append('file', compPdfFile);
+                    fd.append('level', apiLevel);
+                    const apiRes = await fetch('{{ route("tools.pdf.compress") }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        body: fd
+                    });
+                    if (apiRes.ok && (apiRes.headers.get('Content-Type') || '').includes('application/pdf')) {
+                        lastCompPdfBlob = await apiRes.blob();
+                        lastCompPdfName = compPdfFile.name.replace(/\.pdf$/i, '') + '_kompres.pdf';
+                        setProc('comp-pdf', true, 'Selesai!', 100);
+                        setTimeout(() => setProc('comp-pdf', false), 220);
+                        const savedPct = compPdfFile.size > 0 ? Math.round((1 - lastCompPdfBlob.size / compPdfFile.size) * 100) : 0;
+                        const diffTxt = savedPct >= 0
+                            ? `${formatBytes(compPdfFile.size)} → ${formatBytes(lastCompPdfBlob.size)} (Hemat ${savedPct}% · Teks Tetap Tajam)`
+                            : `${formatBytes(compPdfFile.size)} → ${formatBytes(lastCompPdfBlob.size)} (Sudah optimal)`;
+                        showResultCard('comp-pdf', lastCompPdfName, `iLovePDF · ${diffTxt}`);
+                        document.getElementById('btn-preview-comp-pdf').onclick = () => openBlobPreview(lastCompPdfBlob);
+                        document.getElementById('btn-download-comp-pdf').onclick = () => triggerBlobDownload(lastCompPdfBlob, lastCompPdfName);
+                        return;
+                    }
+                } catch (e) {}
+
                 await waitForLib('pdfjsLib', 'PDF.js');
                 await waitForLib('PDFLib', 'PDF-Lib');
                 ensurePdfJsWorker();
 
-                const level = document.getElementById('comp-pdf-level').value;
                 const cfg = level === 'low'
                     ? { scale: 1.05, quality: 0.48 }
                     : (level === 'high' ? { scale: 1.65, quality: 0.78 } : { scale: 1.35, quality: 0.64 });
@@ -6364,13 +6422,46 @@
                     : rmbgSourceFile;
 
                 let cv = null;
-                let engineName = 'AI ISNet';
+                let engineName = 'iLoveIMG AI';
+
+                // Prioritas 1: iLoveIMG AI server-side (cepat ~2 detik & tepi rambut/objek sangat bersih)
                 try {
-                    cv = await runAiWithImgly(aiInputBlob, origInfo);
-                } catch (primaryErr) {
-                    console.warn('Primary AI (ISNet) gagal, mencoba BRIA RMBG-1.4:', primaryErr);
-                    engineName = 'AI RMBG-1.4';
-                    cv = await runAiWithTransformers(aiInputBlob, origInfo);
+                    setProc('rmbg', true, 'Menghapus latar belakang dengan AI iLoveIMG...', 45);
+                    const fd = new FormData();
+                    fd.append('file', aiInputBlob, rmbgSourceFile.name || 'image.png');
+                    const apiRes = await fetch('{{ route("tools.image.removeBg") }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken },
+                        body: fd
+                    });
+                    if (apiRes.ok && (apiRes.headers.get('Content-Type') || '').startsWith('image/')) {
+                        const outBlob = await apiRes.blob();
+                        const bmpUrl = URL.createObjectURL(outBlob);
+                        const loadedImg = await new Promise((resolve, reject) => {
+                            const im = new Image();
+                            im.onload = () => resolve(im);
+                            im.onerror = reject;
+                            im.src = bmpUrl;
+                        });
+                        URL.revokeObjectURL(bmpUrl);
+                        cv = document.createElement('canvas');
+                        cv.width = loadedImg.naturalWidth || rmbgSourceImg.naturalWidth;
+                        cv.height = loadedImg.naturalHeight || rmbgSourceImg.naturalHeight;
+                        cv.getContext('2d').drawImage(loadedImg, 0, 0, cv.width, cv.height);
+                    }
+                } catch (e) {
+                    cv = null;
+                }
+
+                if (!cv) {
+                    engineName = 'AI ISNet';
+                    try {
+                        cv = await runAiWithImgly(aiInputBlob, origInfo);
+                    } catch (primaryErr) {
+                        console.warn('Primary AI (ISNet) gagal, mencoba BRIA RMBG-1.4:', primaryErr);
+                        engineName = 'AI RMBG-1.4';
+                        cv = await runAiWithTransformers(aiInputBlob, origInfo);
+                    }
                 }
 
                 const removedPct = cleanFaintAlphaHalo(cv);

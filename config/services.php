@@ -87,6 +87,11 @@ return [
         'measurement_id' => env('GA_MEASUREMENT_ID', 'G-NTF72X1K93'),
     ],
 
+    'ilovepdf' => [
+        'public_key' => env('ILOVEPDF_PUBLIC_KEY', ''),
+        'secret_key' => env('ILOVEPDF_SECRET_KEY', ''),
+    ],
+
     'converter' => [
         'cloudconvert_key' => env('CLOUDCONVERT_API_KEY', ''),
     ],

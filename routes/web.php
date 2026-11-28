@@ -108,6 +108,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tools/convert/docx-to-pdf', [StudentToolsController::class, 'docxToPdf'])->name('tools.convert.docxToPdf');
     Route::post('/tools/convert/pdf-to-docx', [StudentToolsController::class, 'pdfToDocx'])->name('tools.convert.pdfToDocx');
     Route::post('/tools/convert/extract-docx-text', [StudentToolsController::class, 'extractDocxText'])->name('tools.extract.docxText');
+    Route::post('/tools/pdf/compress', [StudentToolsController::class, 'compressPdf'])->name('tools.pdf.compress');
+    Route::post('/tools/pdf/merge', [StudentToolsController::class, 'mergePdf'])->name('tools.pdf.merge');
+    Route::post('/tools/image/remove-bg', [StudentToolsController::class, 'removeBg'])->name('tools.image.removeBg');
     Route::post('/tools/flowchart/generate', [StudentToolsController::class, 'generateFlowchart'])->name('tools.flowchart.generate');
 
     // --- DASHBOARD & PROJECT MANAGEMENT ---

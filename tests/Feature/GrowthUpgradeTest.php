@@ -327,4 +327,56 @@ class GrowthUpgradeTest extends TestCase
         $this->assertSame('remote-1to1', $resDocx->headers->get('X-Converter-Engine'));
         $this->assertStringStartsWith("PK\x03\x04", $resDocx->getContent());
     }
+
+    public function test_iloveapi_powers_docx_to_pdf_compress_merge_and_removebg(): void
+    {
+        $user = User::factory()->create(['plan_code' => 'free']);
+        $this->actingAs($user);
+
+        config(['services.ilovepdf.public_key' => 'project_public_test_123']);
+        config(['services.ilovepdf.secret_key' => 'secret_key_test_123']);
+        config(['services.converter.cloudconvert_key' => '']);
+
+        $fakePdf = '%PDF-1.7 ' . str_repeat('X', 300);
+        $fakePng = "\x89PNG\r\n\x1a\n" . str_repeat('Y', 300);
+
+        Http::fake([
+            'https://api.ilovepdf.com/v1/auth' => Http::response(['token' => 'jwt-pdf-tok'], 200),
+            'https://api.iloveimg.com/v1/auth' => Http::response(['token' => 'jwt-img-tok'], 200),
+            'https://api.ilovepdf.com/v1/start/*' => Http::response(['server' => 'api1.ilovepdf.com', 'task' => 'task-pdf-1'], 200),
+            'https://api.iloveimg.com/v1/start/removebackground' => Http::response(['server' => 'api1.iloveimg.com', 'task' => 'task-img-1'], 200),
+            'https://api1.ilovepdf.com/v1/upload' => Http::response(['server_filename' => 'srv_file.bin'], 200),
+            'https://api1.iloveimg.com/v1/upload' => Http::response(['server_filename' => 'srv_img.png'], 200),
+            'https://api1.ilovepdf.com/v1/process' => Http::response(['status' => 'TaskSuccess'], 200),
+            'https://api1.iloveimg.com/v1/process' => Http::response(['status' => 'TaskSuccess'], 200),
+            'https://api1.ilovepdf.com/v1/download/task-pdf-1' => Http::response($fakePdf, 200, ['Content-Type' => 'application/pdf']),
+            'https://api1.iloveimg.com/v1/download/task-img-1' => Http::response($fakePng, 200, ['Content-Type' => 'image/png']),
+        ]);
+
+        // 1. Word -> PDF via iLovePDF officepdf
+        $docx = \Illuminate\Http\UploadedFile::fake()->createWithContent('skripsi.docx', "PK\x03\x04dummy");
+        $r1 = $this->post(route('tools.convert.docxToPdf'), ['file' => $docx]);
+        $r1->assertStatus(200);
+        $this->assertSame('remote-1to1', $r1->headers->get('X-Converter-Engine'));
+        $this->assertStringStartsWith('%PDF-1.7', $r1->getContent());
+
+        // 2. Kompres PDF via iLovePDF compress
+        $pdf1 = \Illuminate\Http\UploadedFile::fake()->createWithContent('bab1.pdf', '%PDF-1.7 dummy');
+        $r2 = $this->post(route('tools.pdf.compress'), ['file' => $pdf1, 'level' => 'recommended']);
+        $r2->assertStatus(200);
+        $this->assertSame('ilovepdf', $r2->headers->get('X-Converter-Engine'));
+
+        // 3. Gabung PDF via iLovePDF merge
+        $pdf2 = \Illuminate\Http\UploadedFile::fake()->createWithContent('bab2.pdf', '%PDF-1.7 dummy2');
+        $r3 = $this->post(route('tools.pdf.merge'), ['files' => [$pdf1, $pdf2], 'output_name' => 'Skripsi_Gabung']);
+        $r3->assertStatus(200);
+        $this->assertSame('ilovepdf', $r3->headers->get('X-Converter-Engine'));
+
+        // 4. Hapus Background AI via iLoveIMG removebackground
+        $img = \Illuminate\Http\UploadedFile::fake()->createWithContent('foto.png', $fakePng);
+        $r4 = $this->post(route('tools.image.removeBg'), ['file' => $img]);
+        $r4->assertStatus(200);
+        $this->assertSame('iloveimg', $r4->headers->get('X-Converter-Engine'));
+        $this->assertStringStartsWith("\x89PNG", $r4->getContent());
+    }
 }
