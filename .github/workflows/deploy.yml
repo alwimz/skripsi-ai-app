@@ -62,7 +62,6 @@ jobs:
           database/*.sqlite
           api/**
           vercel.json
-          converter-service/**
           scripts/**
           EOF
 

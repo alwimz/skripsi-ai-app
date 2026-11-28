@@ -88,8 +88,6 @@ return [
     ],
 
     'converter' => [
-        'url' => env('CONVERTER_SERVICE_URL', ''),
-        'secret' => env('CONVERTER_SERVICE_SECRET', ''),
         'cloudconvert_key' => env('CLOUDCONVERT_API_KEY', ''),
     ],
 ];

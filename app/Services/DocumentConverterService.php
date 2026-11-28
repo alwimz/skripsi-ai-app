@@ -6,18 +6,15 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Layanan konversi dokumen 1:1 Word (.docx) ⇄ PDF.
- * Prioritas:
- * 1. Self-hosted gratis Unlimited (CONVERTER_SERVICE_URL: Docker LibreOffice + pdf2docx di Hugging Face Spaces / VPS)
- * 2. CloudConvert Free Tier API (CLOUDCONVERT_API_KEY: 25 konversi/hari gratis)
- * 3. Mengembalikan null agar controller otomatis fallback ke engine lokal PHP (Dompdf / PhpWord).
+ * Layanan konversi dokumen 1:1 Word (.docx) ⇄ PDF menggunakan CloudConvert API v2.
+ * Gratis 25 konversi/hari (~750/bulan) tanpa server tambahan.
+ * Jika CLOUDCONVERT_API_KEY kosong atau kuota habis, mengembalikan null agar controller otomatis fallback ke engine lokal.
  */
 class DocumentConverterService
 {
     public function hasRemoteEngine(): bool
     {
-        return trim((string) config('services.converter.url', '')) !== ''
-            || trim((string) config('services.converter.cloudconvert_key', '')) !== '';
+        return trim((string) config('services.converter.cloudconvert_key', '')) !== '';
     }
 
     public function convertDocxToPdf(string $docxPath, string $originalName = 'document.docx'): ?string
@@ -26,23 +23,13 @@ class DocumentConverterService
             return null;
         }
 
-        $serviceUrl = rtrim(trim((string) config('services.converter.url', '')), '/');
-        if ($serviceUrl !== '') {
-            $bytes = $this->callSelfHosted($serviceUrl . '/convert/docx-to-pdf', $docxPath, $originalName);
-            if ($bytes !== null && str_starts_with($bytes, '%PDF')) {
-                return $bytes;
-            }
-        }
-
         $ccKey = trim((string) config('services.converter.cloudconvert_key', ''));
-        if ($ccKey !== '') {
-            $bytes = $this->callCloudConvert($ccKey, $docxPath, $originalName, 'docx', 'pdf');
-            if ($bytes !== null && str_starts_with($bytes, '%PDF')) {
-                return $bytes;
-            }
+        if ($ccKey === '') {
+            return null;
         }
 
-        return null;
+        $bytes = $this->callCloudConvert($ccKey, $docxPath, $originalName, 'docx', 'pdf');
+        return ($bytes !== null && str_starts_with($bytes, '%PDF')) ? $bytes : null;
     }
 
     public function convertPdfToDocx(string $pdfPath, string $originalName = 'document.pdf'): ?string
@@ -51,59 +38,13 @@ class DocumentConverterService
             return null;
         }
 
-        $serviceUrl = rtrim(trim((string) config('services.converter.url', '')), '/');
-        if ($serviceUrl !== '') {
-            $bytes = $this->callSelfHosted($serviceUrl . '/convert/pdf-to-docx', $pdfPath, $originalName);
-            if ($bytes !== null && str_starts_with($bytes, 'PK')) {
-                return $bytes;
-            }
-        }
-
         $ccKey = trim((string) config('services.converter.cloudconvert_key', ''));
-        if ($ccKey !== '') {
-            $bytes = $this->callCloudConvert($ccKey, $pdfPath, $originalName, 'pdf', 'docx');
-            if ($bytes !== null && str_starts_with($bytes, 'PK')) {
-                return $bytes;
-            }
+        if ($ccKey === '') {
+            return null;
         }
 
-        return null;
-    }
-
-    protected function callSelfHosted(string $endpoint, string $filePath, string $originalName): ?string
-    {
-        try {
-            $headers = [];
-            $secret = trim((string) config('services.converter.secret', ''));
-            if ($secret !== '') {
-                $headers['X-Converter-Secret'] = $secret;
-            }
-
-            $raw = @file_get_contents($filePath);
-            if ($raw === false || $raw === '') {
-                return null;
-            }
-
-            $res = Http::withHeaders($headers)
-                ->timeout(65)
-                ->connectTimeout(12)
-                ->attach('file', $raw, $originalName)
-                ->post($endpoint);
-
-            if ($res->successful() && strlen($res->body()) > 200) {
-                return $res->body();
-            }
-
-            Log::warning('Self-hosted converter non-200 response', [
-                'endpoint' => $endpoint,
-                'status' => $res->status(),
-                'body' => substr($res->body(), 0, 200),
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning('Self-hosted converter failed, falling back: ' . $e->getMessage());
-        }
-
-        return null;
+        $bytes = $this->callCloudConvert($ccKey, $pdfPath, $originalName, 'pdf', 'docx');
+        return ($bytes !== null && str_starts_with($bytes, 'PK')) ? $bytes : null;
     }
 
     protected function callCloudConvert(
@@ -133,6 +74,10 @@ class DocumentConverterService
                 ]);
 
             if (!$jobRes->successful()) {
+                Log::warning('CloudConvert create job failed', [
+                    'status' => $jobRes->status(),
+                    'body' => substr($jobRes->body(), 0, 240),
+                ]);
                 return null;
             }
 
@@ -141,6 +86,17 @@ class DocumentConverterService
             $importTask = collect($job['tasks'] ?? [])->firstWhere('name', 'import-file');
             $uploadUrl = $importTask['result']['form']['url'] ?? null;
             $uploadParams = $importTask['result']['form']['parameters'] ?? [];
+
+            // Retry singkat bila import/upload form belum langsung siap
+            if ($jobId && !$uploadUrl) {
+                usleep(400000);
+                $pollRes = Http::withToken($apiKey)->timeout(15)->get("https://api.cloudconvert.com/v2/jobs/{$jobId}");
+                if ($pollRes->successful()) {
+                    $importTask = collect($pollRes->json('data.tasks') ?? [])->firstWhere('name', 'import-file');
+                    $uploadUrl = $importTask['result']['form']['url'] ?? null;
+                    $uploadParams = $importTask['result']['form']['parameters'] ?? [];
+                }
+            }
 
             if (!$jobId || !$uploadUrl) {
                 return null;
@@ -157,6 +113,7 @@ class DocumentConverterService
             }
             $upRes = $req->attach('file', $raw, $originalName)->post($uploadUrl);
             if (!$upRes->successful()) {
+                Log::warning('CloudConvert upload failed', ['status' => $upRes->status()]);
                 return null;
             }
 
@@ -166,6 +123,7 @@ class DocumentConverterService
                 ->get("https://sync.api.cloudconvert.com/v2/jobs/{$jobId}");
 
             if (!$waitRes->successful()) {
+                Log::warning('CloudConvert wait failed', ['status' => $waitRes->status()]);
                 return null;
             }
 
