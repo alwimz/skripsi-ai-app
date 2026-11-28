@@ -263,4 +263,37 @@ class GrowthUpgradeTest extends TestCase
         $this->assertStringContainsString("<table class='borderless'>", $html);
         $this->assertStringContainsString("<td class='td-center'>Dosen Pembimbing I</td>", $html);
     }
+
+    public function test_remote_1to1_converter_service_works_for_docx_and_pdf_with_local_fallback(): void
+    {
+        $user = User::factory()->create(['plan_code' => 'free']);
+        $this->actingAs($user);
+
+        config(['services.converter.url' => 'https://skripsilab-converter.hf.space']);
+        config(['services.converter.secret' => 'rahasia-123']);
+
+        $fakePdfBytes = '%PDF-1.7 ' . str_repeat('A', 300);
+        $fakeDocxBytes = "PK\x03\x04" . str_repeat('B', 300);
+
+        Http::fake([
+            'https://skripsilab-converter.hf.space/convert/docx-to-pdf' => Http::response($fakePdfBytes, 200, ['Content-Type' => 'application/pdf']),
+            'https://skripsilab-converter.hf.space/convert/pdf-to-docx' => Http::response($fakeDocxBytes, 200, ['Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']),
+        ]);
+
+        $tmpDocx = \Illuminate\Http\UploadedFile::fake()->createWithContent('naskah.docx', "PK\x03\x04dummy");
+        $resPdf = $this->post(route('tools.convert.docxToPdf'), ['file' => $tmpDocx]);
+        $resPdf->assertStatus(200);
+        $this->assertSame('remote-1to1', $resPdf->headers->get('X-Converter-Engine'));
+        $this->assertStringStartsWith('%PDF-1.7', $resPdf->getContent());
+
+        $tmpPdf = \Illuminate\Http\UploadedFile::fake()->createWithContent('laporan.pdf', '%PDF-1.7 dummy');
+        $resDocx = $this->post(route('tools.convert.pdfToDocx'), [
+            'file' => $tmpPdf,
+            'filename' => 'laporan.pdf',
+            'pages' => json_encode([['pageNum' => 1, 'blocks' => [['type' => 'paragraph', 'text' => 'Fallback']]]]),
+        ]);
+        $resDocx->assertStatus(200);
+        $this->assertSame('remote-1to1', $resDocx->headers->get('X-Converter-Engine'));
+        $this->assertStringStartsWith("PK\x03\x04", $resDocx->getContent());
+    }
 }

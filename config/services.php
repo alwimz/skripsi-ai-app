@@ -86,4 +86,10 @@ return [
     'google_analytics' => [
         'measurement_id' => env('GA_MEASUREMENT_ID', 'G-NTF72X1K93'),
     ],
+
+    'converter' => [
+        'url' => env('CONVERTER_SERVICE_URL', ''),
+        'secret' => env('CONVERTER_SERVICE_SECRET', ''),
+        'cloudconvert_key' => env('CLOUDCONVERT_API_KEY', ''),
+    ],
 ];

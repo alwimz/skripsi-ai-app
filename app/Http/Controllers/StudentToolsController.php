@@ -246,6 +246,20 @@ class StudentToolsController extends Controller
         $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) ?: 'Dokumen';
         $safeBase = Str::slug(substr($origName, 0, 40), '_') ?: 'Dokumen';
 
+        // Prioritas 1: Mesin konversi 1:1 (Self-hosted LibreOffice / CloudConvert) jika dikonfigurasi di .env
+        $remotePdf = app(\App\Services\DocumentConverterService::class)->convertDocxToPdf(
+            $file->getRealPath(),
+            $file->getClientOriginalName() ?: ($safeBase . '.docx')
+        );
+        if ($remotePdf !== null) {
+            return response($remotePdf, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $safeBase . '.pdf"',
+                'Cache-Control' => 'no-store',
+                'X-Converter-Engine' => 'remote-1to1',
+            ]);
+        }
+
         $bodyHtml = $this->parseDocxToHtml($file->getRealPath());
         if (trim(strip_tags($bodyHtml, '<img>')) === '') {
             return response()->json([
@@ -359,14 +373,48 @@ class StudentToolsController extends Controller
     {
         $request->validate([
             'filename' => 'nullable|string|max:160',
-            'pages' => 'required|array|min:1|max:250',
-            'academic_format' => 'nullable|boolean',
+            'file' => 'nullable|file|max:25600',
+            'pages' => 'nullable',
+            'academic_format' => 'nullable',
         ]);
 
-        $origName = pathinfo((string) $request->input('filename', 'Dokumen'), PATHINFO_FILENAME) ?: 'Dokumen';
+        $uploadedFile = $request->file('file');
+        $rawName = (string) $request->input('filename', $uploadedFile ? $uploadedFile->getClientOriginalName() : 'Dokumen');
+        $origName = pathinfo($rawName, PATHINFO_FILENAME) ?: 'Dokumen';
         $safeBase = Str::slug(substr($origName, 0, 40), '_') ?: 'Dokumen';
-        $academic = $request->boolean('academic_format', false);
-        $pages = $request->input('pages', []);
+        $filename = $safeBase . '.docx';
+
+        // Prioritas 1: Mesin konversi 1:1 (Self-hosted pdf2docx / CloudConvert) bila file PDF asli ikut diunggah
+        if ($uploadedFile && $uploadedFile->isValid()) {
+            $remoteDocx = app(\App\Services\DocumentConverterService::class)->convertPdfToDocx(
+                $uploadedFile->getRealPath(),
+                $uploadedFile->getClientOriginalName() ?: ($safeBase . '.pdf')
+            );
+            if ($remoteDocx !== null) {
+                return response($remoteDocx, 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                    'Cache-Control' => 'no-store',
+                    'X-Converter-Engine' => 'remote-1to1',
+                ]);
+            }
+        }
+
+        $rawPages = $request->input('pages', []);
+        if (is_string($rawPages)) {
+            $decoded = json_decode($rawPages, true);
+            $pages = is_array($decoded) ? $decoded : [];
+        } else {
+            $pages = is_array($rawPages) ? $rawPages : [];
+        }
+        if (empty($pages)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'PDF ini tidak memiliki lapisan teks yang dapat diekstrak. Pastikan PDF berbasis teks atau aktifkan server konverter 1:1.',
+            ], 422);
+        }
+        $pages = array_slice($pages, 0, 250);
+        $academic = filter_var($request->input('academic_format', false), FILTER_VALIDATE_BOOLEAN);
 
         if (ob_get_length()) {
             ob_end_clean();

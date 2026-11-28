@@ -62,6 +62,8 @@ jobs:
           database/*.sqlite
           api/**
           vercel.json
+          converter-service/**
+          scripts/**
           EOF
 
       - name: Deploy aplikasi Laravel ke cPanel (FTPS TLSv1.2 + Session Reuse)

@@ -5112,35 +5112,42 @@
             hideResult('pdf2docx');
             setStatus('status-pdf2docx', '', '');
             try {
-                setProc('pdf2docx', true, 'Membaca teks & struktur heading PDF...', 15);
-                const pages = await extractPagesFromPdfFile(selectedPdf2DocxFile, (cur, tot) => {
-                    setProc('pdf2docx', true, `Mengekstrak halaman ${cur} dari ${tot}...`, 15 + (cur / tot) * 55);
-                });
-                const totalBlocks = pages.reduce((acc, p) => acc + p.blocks.length, 0);
-                if (totalBlocks === 0) {
-                    throw new Error('PDF ini tidak memiliki lapisan teks (kemungkinan hasil scan foto). Konversi hanya mendukung PDF berbasis teks.');
+                setProc('pdf2docx', true, 'Membaca teks & struktur halaman PDF...', 15);
+                let pages = [];
+                let totalBlocks = 0;
+                try {
+                    pages = await extractPagesFromPdfFile(selectedPdf2DocxFile, (cur, tot) => {
+                        setProc('pdf2docx', true, `Mengekstrak halaman ${cur} dari ${tot}...`, 15 + (cur / tot) * 50);
+                    });
+                    totalBlocks = pages.reduce((acc, p) => acc + p.blocks.length, 0);
+                } catch (extractErr) {
+                    pages = [];
                 }
 
-                setProc('pdf2docx', true, `Menyusun dokumen Word (.docx) dari ${pages.length} halaman...`, 80);
+                setProc('pdf2docx', true, `Menyusun dokumen Word (.docx) presisi...`, 78);
+                const fd = new FormData();
+                fd.append('file', selectedPdf2DocxFile);
+                fd.append('filename', selectedPdf2DocxFile.name);
+                fd.append('academic_format', document.getElementById('chk-pdf2docx-academic').checked ? '1' : '0');
+                if (pages.length) {
+                    fd.append('pages', JSON.stringify(pages.map(p => ({ pageNum: p.pageNum, blocks: p.blocks }))));
+                }
                 const res = await fetch('{{ route("tools.convert.pdfToDocx") }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({
-                        filename: selectedPdf2DocxFile.name,
-                        pages: pages.map(p => ({ pageNum: p.pageNum, blocks: p.blocks })),
-                        academic_format: document.getElementById('chk-pdf2docx-academic').checked
-                    })
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: fd
                 });
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
                     throw new Error(errData.message || 'Gagal menyusun file Word.');
                 }
+                const engineUsed = res.headers.get('X-Converter-Engine') === 'remote-1to1' ? 'Engine 1:1' : `${totalBlocks} blok teks`;
                 lastPdf2DocxBlob = await res.blob();
                 lastPdf2DocxName = selectedPdf2DocxFile.name.replace(/\.pdf$/i, '') + '.docx';
                 setProc('pdf2docx', true, 'Selesai!', 100);
                 setTimeout(() => setProc('pdf2docx', false), 250);
 
-                showResultCard('pdf2docx', lastPdf2DocxName, `${pages.length} halaman · ${totalBlocks} blok teks · ${formatBytes(lastPdf2DocxBlob.size)}`);
+                showResultCard('pdf2docx', lastPdf2DocxName, `${pages.length || 'Semua'} halaman · ${engineUsed} · ${formatBytes(lastPdf2DocxBlob.size)}`);
                 document.getElementById('btn-download-pdf2docx').onclick = () => triggerBlobDownload(lastPdf2DocxBlob, lastPdf2DocxName);
                 triggerBlobDownload(lastPdf2DocxBlob, lastPdf2DocxName);
             } catch (err) {
